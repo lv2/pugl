@@ -1,0 +1,10 @@
+prefix=@PREFIX@
+exec_prefix=@EXEC_PREFIX@
+libdir=@LIBDIR@
+includedir=@INCLUDEDIR@
+
+Name: Pugl
+Version: @PUGL_VERSION@
+Description: Lightweight portable OpenGL API
+Libs: -L${libdir} -l@LIB_PUGL@
+Cflags: -I${includedir}/pugl-@PUGL_MAJOR_VERSION@
