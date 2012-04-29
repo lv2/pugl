@@ -35,6 +35,7 @@ struct PuglWindowImpl {
 	PuglMotionFunc   motionFunc;
 	PuglMouseFunc    mouseFunc;
 	PuglReshapeFunc  reshapeFunc;
+	PuglScrollFunc   scrollFunc;
 
 	PuglPlatformData* impl;
 
@@ -89,4 +90,10 @@ void
 puglSetReshapeFunc(PuglWindow* window, PuglReshapeFunc reshapeFunc)
 {
 	window->reshapeFunc = reshapeFunc;
+}
+
+void
+puglSetScrollFunc(PuglWindow* window, PuglScrollFunc scrollFunc)
+{
+	window->scrollFunc = scrollFunc;
 }

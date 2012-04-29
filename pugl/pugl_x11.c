@@ -238,8 +238,23 @@ puglProcessEvents(PuglWindow* win)
 			}
 			break;
 		case ButtonPress:
+			if (event.xbutton.button >= 4 && event.xbutton.button <= 7) {
+				if (win->scrollFunc) {
+					int dx = 0, dy = 0;
+					switch (event.xbutton.button) {
+					case 4: dy =  1; break;
+					case 5: dy = -1; break;
+					case 6: dx = -1; break;
+					case 7: dx =  1; break;
+					}
+					win->scrollFunc(win, dx, dy);
+				}
+				break;
+			}
+			// nobreak
 		case ButtonRelease:
-			if (win->mouseFunc) {
+			if (win->mouseFunc &&
+			    (event.xbutton.button < 4 || event.xbutton.button > 7)) {
 				win->mouseFunc(win,
 				               event.xbutton.button, event.type == ButtonPress,
 				               event.xbutton.x, event.xbutton.y);

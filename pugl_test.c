@@ -34,6 +34,7 @@
 static int   quit   = 0;
 static float xAngle = 0.0f;
 static float yAngle = 0.0f;
+static float dist   = 10.0f;
 
 #define KEY_ESCAPE 27
 
@@ -43,7 +44,7 @@ onDisplay(PuglWindow* win)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	glTranslatef(0.0f, 0.0f, -10.0f);
+	glTranslatef(0.0f, 0.0f, dist * -1);
 	glRotatef(xAngle, 0.0f, 1.0f, 0.0f);
 	glRotatef(yAngle, 1.0f, 0.0f, 0.0f);
 
@@ -102,10 +103,18 @@ onMotion(PuglWindow* win, int x, int y)
 }
 
 static void
-onMouse(PuglWindow* handle, int button, bool press, int x, int y)
+onMouse(PuglWindow* win, int button, bool press, int x, int y)
 {
 	fprintf(stderr, "Mouse %d %s at %d,%d\n",
 	        button, press ? "down" : "up", x, y);
+}
+
+static void
+onScroll(PuglWindow* win, int dx, int dy)
+{
+	fprintf(stderr, "Scroll %d %d\n", dx, dy);
+	dist += dy / 4.0f;
+	puglPostRedisplay(win);
 }
 
 static void
@@ -122,6 +131,7 @@ main(int argc, char** argv)
 	puglSetKeyboardFunc(win, onKeyboard);
 	puglSetMotionFunc(win, onMotion);
 	puglSetMouseFunc(win, onMouse);
+	puglSetScrollFunc(win, onScroll);
 	puglSetDisplayFunc(win, onDisplay);
 	puglSetCloseFunc(win, onClose);
 

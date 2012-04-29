@@ -55,6 +55,7 @@ typedef void (*PuglMouseFunc)(PuglWindow* handle,
                               int button, bool down,
                               int x, int y);
 typedef void (*PuglReshapeFunc)(PuglWindow* handle, int width, int height);
+typedef void (*PuglScrollFunc)(PuglWindow* handle, int dx, int dy);
 
 /**
    Create a new GL window.
@@ -118,6 +119,12 @@ puglSetMotionFunc(PuglWindow* window, PuglMotionFunc motionFunc);
 */
 void
 puglSetMouseFunc(PuglWindow* window, PuglMouseFunc mouseFunc);
+
+/**
+   Set the function to call on scroll events.
+*/
+void
+puglSetScrollFunc(PuglWindow* window, PuglScrollFunc scrollFunc);
 
 /**
    Set the function to call when the window size changes.
