@@ -62,9 +62,14 @@ typedef void (*PuglReshapeFunc)(PuglWindow* handle, int width, int height);
    @param title Window title, or NULL.
    @param width Window width in pixels.
    @param height Window height in pixels.
+   @param resizable Whether window should be user resizable.
 */
 PuglWindow*
-puglCreate(PuglNativeWindow parent, const char* title, int width, int height);
+puglCreate(PuglNativeWindow parent,
+           const char*      title,
+           int              width,
+           int              height,
+           bool             resizable);
 
 /**
    Set the handle to be passed to all callbacks.

@@ -62,7 +62,11 @@ static int attrListDbl[] = {
 };
 
 PuglWindow*
-puglCreate(PuglNativeWindow parent, const char* title, int width, int height)
+puglCreate(PuglNativeWindow parent,
+           const char*      title,
+           int              width,
+           int              height,
+           bool             resizable)
 {
 	PuglWindow* win = (PuglWindow*)calloc(1, sizeof(PuglWindow));
 
@@ -111,6 +115,17 @@ puglCreate(PuglNativeWindow parent, const char* title, int width, int height)
 		impl->display, xParent,
 		0, 0, win->width, win->height, 0, vi->depth, InputOutput, vi->visual,
 		CWBorderPixel | CWColormap | CWEventMask, &attr);
+
+	XSizeHints sizeHints;
+	memset(&sizeHints, 0, sizeof(sizeHints));
+	if (!resizable) {
+		sizeHints.flags      = PMinSize|PMaxSize;
+		sizeHints.min_width  = width;
+		sizeHints.min_height = height;
+		sizeHints.max_width  = width;
+		sizeHints.max_height = height;
+		XSetNormalHints(impl->display, impl->win, &sizeHints);
+	}
 
 	if (title) {
 		XStoreName(impl->display, impl->win, title);
@@ -187,6 +202,8 @@ puglProcessEvents(PuglWindow* win)
 					                 event.xconfigure.width,
 					                 event.xconfigure.height);
 				}
+				win->width  = event.xconfigure.width;
+				win->height = event.xconfigure.height;
 			}
 			break;
 		case MotionNotify:

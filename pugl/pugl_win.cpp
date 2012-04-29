@@ -29,7 +29,11 @@ struct PuglPlatformDataImpl {
 };
 
 PuglWindow*
-puglCreate(PuglNativeWindow parent, const char* title, int width, int height)
+puglCreate(PuglNativeWindow parent,
+           const char*      title,
+           int              width,
+           int              height,
+           bool             resizable)
 {
 	PuglWindow* win = (PuglWindow*)calloc(1, sizeof(PuglWindow));
 

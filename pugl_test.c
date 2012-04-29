@@ -89,7 +89,8 @@ onClose(PuglWindow* win)
 int
 main(int argc, char** argv)
 {
-	PuglWindow* win = puglCreate(0, "Pugl Test", 512, 512);
+	bool resizable = argc > 1;
+	PuglWindow* win = puglCreate(0, "Pugl Test", 512, 512, resizable);
 	puglSetKeyboardFunc(win, onKeyboard);
 	puglSetMotionFunc(win, onMotion);
 	puglSetMouseFunc(win, onMouse);
