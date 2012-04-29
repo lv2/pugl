@@ -176,8 +176,8 @@ puglReshape(PuglWindow* win, int width, int height)
 		// No custom reshape function, do something reasonable
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(45.0f, win->width/(float)win->height, 1.0f, 10.0f);
-		glViewport(0, 0, win->width, win->height);
+		gluPerspective(45.0f, width/(float)height, 1.0f, 10.0f);
+		glViewport(0, 0, width, height);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
@@ -203,6 +203,8 @@ puglDisplay(PuglWindow* win)
 	if (win->impl->doubleBuffered) {
 		glXSwapBuffers(win->impl->display, win->impl->win);
 	}
+
+	win->redisplay = false;
 }
 
 PuglStatus

@@ -77,11 +77,18 @@ def build(bld):
     autowaf.build_pc(bld, 'PUGL', PUGL_VERSION, PUGL_MAJOR_VERSION, [],
                      {'PUGL_MAJOR_VERSION' : PUGL_MAJOR_VERSION})
 
-    libflags = [ '-fvisibility=hidden' ]
+    libflags  = [ '-fvisibility=hidden' ]
+    framework = []
+    libs      = []
     if Options.platform == 'win32':
         lang       = 'cxx'
         lib_source = ['pugl/pugl_win.cpp']
         libs       = ['opengl32', 'glu32', 'gdi32', 'user32']
+        defines    = []
+    elif Options.platform == 'darwin':
+        lang       = 'c'  # Objective C, actually
+        lib_source = ['pugl/pugl_osx.m']
+        framework  = ['Cocoa', 'OpenGL']
         defines    = []
     else:
         lang       = 'c'
@@ -98,6 +105,7 @@ def build(bld):
                   source          = lib_source,
                   includes        = ['.', './src'],
                   lib             = libs,
+                  framework       = framework,
                   name            = 'libpugl',
                   target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
                   vnum            = PUGL_LIB_VERSION,
@@ -113,6 +121,7 @@ def build(bld):
                   source          = lib_source,
                   includes        = ['.', './src'],
                   lib             = libs,
+                  framework       = framework,
                   name            = 'libpugl_static',
                   target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
                   vnum            = PUGL_LIB_VERSION,
@@ -130,6 +139,7 @@ def build(bld):
                   includes     = ['.', './src'],
                   use          = 'libpugl_static',
                   lib          = test_libs,
+                  framework    = framework,
                   target       = 'pugl_test',
                   install_path = '',
                   defines      = defines,
@@ -138,3 +148,8 @@ def build(bld):
 def lint(ctx):
     subprocess.call('cpplint.py --filter=+whitespace/comments,-whitespace/tab,-whitespace/braces,-whitespace/labels,-build/header_guard,-readability/casting,-readability/todo,-build/include src/* pugl/*', shell=True)
 
+from waflib import TaskGen
+@TaskGen.extension('.m')
+def m_hook(self, node):
+    "Alias .m files to be compiled the same as .c files, gcc will do the right thing."
+    return self.create_compiled_task('c', node)

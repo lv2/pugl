@@ -23,6 +23,22 @@
 
 #include <stdint.h>
 
+/*
+  This API is pure portable C and contains no platform specific elements, or
+  even a GL dependency.  However, unfortunately GL includes vary across
+  platforms so they are included here to allow for pure portable programs.
+*/
+#ifdef __APPLE__
+#    include "OpenGL/gl.h"
+#    include "OpenGL/glu.h"
+#else
+#    ifdef _WIN32
+#        include <windows.h>  /* Broken Windows GL headers require this */
+#    endif
+#    include "GL/gl.h"
+#    include "GL/glu.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #else

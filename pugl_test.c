@@ -18,17 +18,8 @@
    @file pugl_test.c A simple Pugl test that creates a top-level window.
 */
 
-/*
-  This program uses only the the Pugl and OpenGL APIs, but the Windows
-  gl.h is broken and requires windows.h to be included first...
-*/
-#ifdef _WIN32
-#    include <windows.h>
-#endif
-
 #include <stdio.h>
 
-#include "GL/gl.h"
 #include "pugl/pugl.h"
 
 static int   quit   = 0;
