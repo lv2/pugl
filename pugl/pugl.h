@@ -55,7 +55,7 @@ typedef void (*PuglMouseFunc)(PuglWindow* handle,
                               int button, bool down,
                               int x, int y);
 typedef void (*PuglReshapeFunc)(PuglWindow* handle, int width, int height);
-typedef void (*PuglScrollFunc)(PuglWindow* handle, int dx, int dy);
+typedef void (*PuglScrollFunc)(PuglWindow* handle, float dx, float dy);
 
 /**
    Create a new GL window.

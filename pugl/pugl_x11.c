@@ -240,12 +240,12 @@ puglProcessEvents(PuglWindow* win)
 		case ButtonPress:
 			if (event.xbutton.button >= 4 && event.xbutton.button <= 7) {
 				if (win->scrollFunc) {
-					int dx = 0, dy = 0;
+					float dx = 0, dy = 0;
 					switch (event.xbutton.button) {
-					case 4: dy =  1; break;
-					case 5: dy = -1; break;
-					case 6: dx = -1; break;
-					case 7: dx =  1; break;
+					case 4: dy =  1.0f; break;
+					case 5: dy = -1.0f; break;
+					case 6: dx = -1.0f; break;
+					case 7: dx =  1.0f; break;
 					}
 					win->scrollFunc(win, dx, dy);
 				}

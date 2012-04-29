@@ -39,6 +39,10 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_DESTROY:
 		return 0;
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+		PostMessage(hwnd, message, wParam, lParam);
+		return 0;
 	default:
 		return DefWindowProc(hwnd, message, wParam, lParam);
 	}
@@ -200,6 +204,18 @@ puglProcessEvents(PuglWindow* win)
 			break;
 		case WM_RBUTTONUP:
 			processMouseEvent(win, 3, false, msg.lParam);
+			break;
+		case WM_MOUSEWHEEL:
+			if (win->scrollFunc) {
+				win->scrollFunc(
+					win, 0, (int16_t)HIWORD(msg.wParam) / (float)WHEEL_DELTA);
+			}
+			break;
+		case WM_MOUSEHWHEEL:
+			if (win->scrollFunc) {
+				win->scrollFunc(
+					win, (int16_t)HIWORD(msg.wParam) / float(WHEEL_DELTA), 0);
+			}
 			break;
 		case WM_KEYDOWN:
 		case WM_KEYUP:

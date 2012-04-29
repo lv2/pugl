@@ -110,9 +110,9 @@ onMouse(PuglWindow* win, int button, bool press, int x, int y)
 }
 
 static void
-onScroll(PuglWindow* win, int dx, int dy)
+onScroll(PuglWindow* win, float dx, float dy)
 {
-	fprintf(stderr, "Scroll %d %d\n", dx, dy);
+	fprintf(stderr, "Scroll %f %f\n", dx, dy);
 	dist += dy / 4.0f;
 	puglPostRedisplay(win);
 }
