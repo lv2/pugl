@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include <GL/gl.h>
+#include <GL/glu.h>
 #include <GL/glx.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -164,15 +165,41 @@ puglDestroy(PuglWindow* win)
 }
 
 void
+puglReshape(PuglWindow* win, int width, int height)
+{
+	glXMakeCurrent(win->impl->display, win->impl->win, win->impl->ctx);
+
+	if (win->reshapeFunc) {
+		// User provided a reshape function, defer to that
+		win->reshapeFunc(win, width, height);
+	} else {
+		// No custom reshape function, do something reasonable
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(45.0f, win->width/(float)win->height, 1.0f, 10.0f);
+		glViewport(0, 0, win->width, win->height);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+	}
+
+	win->width     = width;
+	win->height    = height;
+	win->redisplay = true;
+}
+
+void
 puglDisplay(PuglWindow* win)
 {
 	glXMakeCurrent(win->impl->display, win->impl->win, win->impl->ctx);
-	glViewport(0, 0, win->width, win->height);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
 
 	if (win->displayFunc) {
 		win->displayFunc(win);
 	}
 
+	glFlush();
 	if (win->impl->doubleBuffered) {
 		glXSwapBuffers(win->impl->display, win->impl->win);
 	}
@@ -194,16 +221,15 @@ puglProcessEvents(PuglWindow* win)
 			puglDisplay(win);
 			win->redisplay = false;
 			break;
+		case MapNotify:
+			puglReshape(win, win->width, win->height);
+			break;
 		case ConfigureNotify:
 			if ((event.xconfigure.width != win->width) ||
 			    (event.xconfigure.height != win->height)) {
-				if (win->reshapeFunc) {
-					win->reshapeFunc(win,
-					                 event.xconfigure.width,
-					                 event.xconfigure.height);
-				}
-				win->width  = event.xconfigure.width;
-				win->height = event.xconfigure.height;
+				puglReshape(win,
+				            event.xconfigure.width,
+				            event.xconfigure.height);
 			}
 			break;
 		case MotionNotify:

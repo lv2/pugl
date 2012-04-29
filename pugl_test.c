@@ -43,16 +43,44 @@ onDisplay(PuglWindow* win)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	glRotatef(xAngle, 1.0f, 0.0f, 0.0f);
+	glTranslatef(0.0f, 0.0f, -10.0f);
 	glRotatef(xAngle, 0.0f, 1.0f, 0.0f);
+	glRotatef(yAngle, 1.0f, 0.0f, 0.0f);
 
-	glBegin(GL_TRIANGLES);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, 1.0f, 0.0f);
-	glColor3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(-1.0f, -1.0f, 0.0f);
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(1.0f, -1.0f, 0.0f);
+	/* We tell we want to draw quads */
+	glBegin(GL_QUADS);
+
+	/* Every four calls to glVertex, a quad is drawn */
+	glColor3f(0, 0, 0); glVertex3f(-1, -1, -1);
+	glColor3f(0, 0, 1); glVertex3f(-1, -1,  1);
+	glColor3f(0, 1, 1); glVertex3f(-1,  1,  1);
+	glColor3f(0, 1, 0); glVertex3f(-1,  1, -1);
+
+	glColor3f(1, 0, 0); glVertex3f( 1, -1, -1);
+	glColor3f(1, 0, 1); glVertex3f( 1, -1,  1);
+	glColor3f(1, 1, 1); glVertex3f( 1,  1,  1);
+	glColor3f(1, 1, 0); glVertex3f( 1,  1, -1);
+
+	glColor3f(0, 0, 0); glVertex3f(-1, -1, -1);
+	glColor3f(0, 0, 1); glVertex3f(-1, -1,  1);
+	glColor3f(1, 0, 1); glVertex3f( 1, -1,  1);
+	glColor3f(1, 0, 0); glVertex3f( 1, -1, -1);
+
+	glColor3f(0, 1, 0); glVertex3f(-1,  1, -1);
+	glColor3f(0, 1, 1); glVertex3f(-1,  1,  1);
+	glColor3f(1, 1, 1); glVertex3f( 1,  1,  1);
+	glColor3f(1, 1, 0); glVertex3f( 1,  1, -1);
+
+	glColor3f(0, 0, 0); glVertex3f(-1, -1, -1);
+	glColor3f(0, 1, 0); glVertex3f(-1,  1, -1);
+	glColor3f(1, 1, 0); glVertex3f( 1,  1, -1);
+	glColor3f(1, 0, 0); glVertex3f( 1, -1, -1);
+
+	glColor3f(0, 0, 1); glVertex3f(-1, -1,  1);
+	glColor3f(0, 1, 1); glVertex3f(-1,  1,  1);
+	glColor3f(1, 1, 1); glVertex3f( 1,  1,  1);
+	glColor3f(1, 0, 1); glVertex3f( 1, -1,  1);
+
 	glEnd();
 }
 

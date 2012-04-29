@@ -86,7 +86,7 @@ def build(bld):
     else:
         lang       = 'c'
         lib_source = ['pugl/pugl_x11.c']
-        libs       = ['X11', 'GL']
+        libs       = ['X11', 'GL', 'GLU']
         defines    = []
     if bld.env['MSVC_COMPILER']:
         libflags = []
