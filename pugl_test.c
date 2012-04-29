@@ -59,6 +59,7 @@ onDisplay(PuglWindow* win)
 static void
 onKeyboard(PuglWindow* win, bool press, uint32_t key)
 {
+	fprintf(stderr, "Key %c %s\n", (char)key, press ? "down" : "up");
 	if (key == 'q' || key == 'Q' || key == KEY_ESCAPE) {
 		quit = 1;
 	}
@@ -73,9 +74,10 @@ onMotion(PuglWindow* win, int x, int y)
 }
 
 static void
-onMouse(PuglWindow* handle, int button, int state, int x, int y)
+onMouse(PuglWindow* handle, int button, bool press, int x, int y)
 {
-	fprintf(stderr, "Mouse %d at %d,%d\n", button, x, y);
+	fprintf(stderr, "Mouse %d %s at %d,%d\n",
+	        button, press ? "down" : "up", x, y);
 }
 
 static void

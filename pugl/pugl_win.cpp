@@ -104,10 +104,10 @@ puglDisplay(PuglWindow* win)
 }
 
 static void
-processMouseEvent(PuglWindow* win, int button, bool down, LPARAM lParam)
+processMouseEvent(PuglWindow* win, int button, bool press, LPARAM lParam)
 {
 	if (win->mouseFunc) {
-		win->mouseFunc(win, button, down,
+		win->mouseFunc(win, button, press,
 		               GET_X_LPARAM(lParam),
 		               GET_Y_LPARAM(lParam));
 	}

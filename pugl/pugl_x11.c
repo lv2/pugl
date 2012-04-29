@@ -104,7 +104,8 @@ puglCreate(PuglNativeWindow parent, const char* title, int width, int height)
 	attr.border_pixel = 0;
 
 	attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask
-		| ButtonPressMask | PointerMotionMask | StructureNotifyMask;
+		| ButtonPressMask | ButtonReleaseMask
+		| PointerMotionMask | StructureNotifyMask;
 
 	impl->win = XCreateWindow(
 		impl->display, xParent,
@@ -194,20 +195,40 @@ puglProcessEvents(PuglWindow* win)
 			}
 			break;
 		case ButtonPress:
+		case ButtonRelease:
 			if (win->mouseFunc) {
 				win->mouseFunc(win,
-				               event.xbutton.button, event.xbutton.state,
+				               event.xbutton.button, event.type == ButtonPress,
 				               event.xbutton.x, event.xbutton.y);
 			}
 			break;
 		case KeyPress:
-		case KeyRelease:
 			if (win->keyboardFunc) {
 				KeySym sym = XKeycodeToKeysym(
 					win->impl->display, event.xkey.keycode, 0);
 				win->keyboardFunc(win, event.type == KeyPress, sym);
 			}
 			break;
+		case KeyRelease: {
+			bool retriggered = false;
+			if (XEventsQueued(win->impl->display, QueuedAfterReading)) {
+				XEvent next;
+				XPeekEvent(win->impl->display, &next);
+				if (next.type == KeyPress &&
+				    next.xkey.time == event.xkey.time &&
+				    next.xkey.keycode == event.xkey.keycode) {
+					// Key repeat, ignore fake KeyPress event
+					XNextEvent(win->impl->display, &event);
+					retriggered = true;
+				}
+			}
+
+			if (!retriggered && win->keyboardFunc) {
+				KeySym sym = XKeycodeToKeysym(
+					win->impl->display, event.xkey.keycode, 0);
+				win->keyboardFunc(win, false, sym);
+			}
+		}
 		case ClientMessage:
 			if (!strcmp(XGetAtomName(win->impl->display,
 			                         event.xclient.message_type),

@@ -52,7 +52,7 @@ typedef void (*PuglDisplayFunc)(PuglWindow* handle);
 typedef void (*PuglKeyboardFunc)(PuglWindow* handle, bool press, uint32_t key);
 typedef void (*PuglMotionFunc)(PuglWindow* handle, int x, int y);
 typedef void (*PuglMouseFunc)(PuglWindow* handle,
-                              int button, int state,
+                              int button, bool down,
                               int x, int y);
 typedef void (*PuglReshapeFunc)(PuglWindow* handle, int width, int height);
 
