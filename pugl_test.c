@@ -18,6 +18,14 @@
    @file pugl_test.c A simple Pugl test that creates a top-level window.
 */
 
+/*
+  This program uses only the the Pugl and OpenGL APIs, but the Windows
+  gl.h is broken and requires windows.h to be included first...
+*/
+#ifdef _WIN32
+#    include <windows.h>
+#endif
+
 #include <stdio.h>
 
 #include "GL/gl.h"
@@ -51,7 +59,7 @@ onDisplay(PuglWindow* win)
 static void
 onKeyboard(PuglWindow* win, bool press, uint32_t key)
 {
-	if (key == 'q' || key == KEY_ESCAPE) {
+	if (key == 'q' || key == 'Q' || key == KEY_ESCAPE) {
 		quit = 1;
 	}
 }
@@ -62,6 +70,12 @@ onMotion(PuglWindow* win, int x, int y)
 	xAngle = x % 360;
 	yAngle = y % 360;
 	puglPostRedisplay(win);
+}
+
+static void
+onMouse(PuglWindow* handle, int button, int state, int x, int y)
+{
+	fprintf(stderr, "Mouse %d at %d,%d\n", button, x, y);
 }
 
 static void
@@ -76,6 +90,7 @@ main(int argc, char** argv)
 	PuglWindow* win = puglCreate(0, "Pugl Test", 512, 512);
 	puglSetKeyboardFunc(win, onKeyboard);
 	puglSetMotionFunc(win, onMotion);
+	puglSetMouseFunc(win, onMouse);
 	puglSetDisplayFunc(win, onDisplay);
 	puglSetCloseFunc(win, onClose);
 

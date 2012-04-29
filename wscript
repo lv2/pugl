@@ -27,14 +27,20 @@ out = 'build'
 
 def options(opt):
     opt.load('compiler_c')
+    if Options.platform == 'win32':
+        opt.load('compiler_cxx')
     autowaf.set_options(opt)
     opt.add_option('--test', action='store_true', default=False, dest='build_tests',
                    help="Build unit tests")
     opt.add_option('--static', action='store_true', default=False, dest='static',
                    help="Build static library")
+    opt.add_option('--shared', action='store_true', default=False, dest='shared',
+                   help="Build shared library")
 
 def configure(conf):
     conf.load('compiler_c')
+    if Options.platform == 'win32':
+        conf.load('compiler_cxx')
     autowaf.configure(conf)
     autowaf.display_header('Pugl Configuration')
 
@@ -43,7 +49,10 @@ def configure(conf):
     else:
         conf.env.append_unique('CFLAGS', '-std=c99')
 
+    # Shared library building is broken on win32 for some reason
     conf.env['BUILD_TESTS']  = Options.options.build_tests
+    conf.env['BUILD_SHARED'] = (Options.platform != 'win32' or
+                                Options.options.shared)
     conf.env['BUILD_STATIC'] = (Options.options.build_tests or
                                 Options.options.static)
 
@@ -69,32 +78,37 @@ def build(bld):
                      {'PUGL_MAJOR_VERSION' : PUGL_MAJOR_VERSION})
 
     libflags = [ '-fvisibility=hidden' ]
-    libs     = [ 'X11', 'GL' ]
-    defines  = []
+    if Options.platform == 'win32':
+        lang       = 'cxx'
+        lib_source = ['pugl/pugl_win.cpp']
+        libs       = ['opengl32', 'gdi32', 'user32']
+        defines    = []
+    else:
+        lang       = 'c'
+        lib_source = ['pugl/pugl_x11.c']
+        libs       = ['X11', 'GL']
+        defines    = []
     if bld.env['MSVC_COMPILER']:
         libflags = []
-        libs     = []
-        defines  = ['snprintf=_snprintf']
-
-    lib_source = ['./pugl/pugl_x11.c']
 
     # Shared Library
-    obj = bld(features        = 'c cshlib',
-              export_includes = ['.'],
-              source          = lib_source,
-              includes        = ['.', './src'],
-              lib             = libs,
-              name            = 'libpugl',
-              target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
-              vnum            = PUGL_LIB_VERSION,
-              install_path    = '${LIBDIR}',
-              defines         = defines,
-              cflags          = libflags + [ '-DPUGL_SHARED',
-                                             '-DPUGL_INTERNAL' ])
+    if bld.env['BUILD_SHARED']:
+        obj = bld(features        = '%s %sshlib' % (lang, lang),
+                  export_includes = ['.'],
+                  source          = lib_source,
+                  includes        = ['.', './src'],
+                  lib             = libs,
+                  name            = 'libpugl',
+                  target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
+                  vnum            = PUGL_LIB_VERSION,
+                  install_path    = '${LIBDIR}',
+                  defines         = defines,
+                  cflags          = libflags + [ '-DPUGL_SHARED',
+                                                 '-DPUGL_INTERNAL' ])
 
     # Static library
     if bld.env['BUILD_STATIC']:
-        obj = bld(features        = 'c cstlib',
+        obj = bld(features        = '%s %sstlib' % (lang, lang),
                   export_includes = ['.'],
                   source          = lib_source,
                   includes        = ['.', './src'],
