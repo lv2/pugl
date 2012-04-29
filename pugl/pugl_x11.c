@@ -214,13 +214,6 @@ puglProcessEvents(PuglWindow* win)
 	while (XPending(win->impl->display) > 0) {
 		XNextEvent(win->impl->display, &event);
 		switch (event.type) {
-		case Expose:
-			if (event.xexpose.count != 0) {
-				break;
-			}
-			puglDisplay(win);
-			win->redisplay = false;
-			break;
 		case MapNotify:
 			puglReshape(win, win->width, win->height);
 			break;
@@ -231,6 +224,13 @@ puglProcessEvents(PuglWindow* win)
 				            event.xconfigure.width,
 				            event.xconfigure.height);
 			}
+			break;
+		case Expose:
+			if (event.xexpose.count != 0) {
+				break;
+			}
+			puglDisplay(win);
+			win->redisplay = false;
 			break;
 		case MotionNotify:
 			if (win->motionFunc) {

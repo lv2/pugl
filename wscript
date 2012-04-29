@@ -81,7 +81,7 @@ def build(bld):
     if Options.platform == 'win32':
         lang       = 'cxx'
         lib_source = ['pugl/pugl_win.cpp']
-        libs       = ['opengl32', 'gdi32', 'user32']
+        libs       = ['opengl32', 'glu32', 'gdi32', 'user32']
         defines    = []
     else:
         lang       = 'c'

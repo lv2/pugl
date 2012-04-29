@@ -14,11 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#include <stdio.h>
-
 #include <windows.h>
 #include <windowsx.h>
-#include <gl/gl.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #include "pugl_internal.h"
 
@@ -27,6 +26,23 @@ struct PuglPlatformDataImpl {
 	HDC   hdc;
 	HGLRC hglrc;
 };
+
+LRESULT CALLBACK
+wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message) {
+	case WM_CREATE:
+		PostMessage(hwnd, WM_SHOWWINDOW, TRUE, 0);
+		return 0;
+	case WM_CLOSE:
+		PostQuitMessage(0);
+		return 0;
+	case WM_DESTROY:
+		return 0;
+	default:
+		return DefWindowProc(hwnd, message, wParam, lParam);
+	}
+}
 
 PuglWindow*
 puglCreate(PuglNativeWindow parent,
@@ -43,7 +59,7 @@ puglCreate(PuglNativeWindow parent,
 
 	WNDCLASS wc;
 	wc.style         = CS_OWNDC;
-	wc.lpfnWndProc   = DefWindowProc;
+	wc.lpfnWndProc   = wndProc;
 	wc.cbClsExtra    = 0;
 	wc.cbWndExtra    = 0;
 	wc.hInstance     = 0;
@@ -58,7 +74,6 @@ puglCreate(PuglNativeWindow parent,
 	                          WS_CAPTION | WS_POPUPWINDOW | WS_VISIBLE,
 	                          0, 0, width, height,
 	                          (HWND)parent, NULL, NULL, NULL);
-
 
 	impl->hdc = GetDC(impl->hwnd);
 
@@ -95,14 +110,40 @@ puglDestroy(PuglWindow* win)
 }
 
 void
+puglReshape(PuglWindow* win, int width, int height)
+{
+	wglMakeCurrent(win->impl->hdc, win->impl->hglrc);
+
+	if (win->reshapeFunc) {
+		// User provided a reshape function, defer to that
+		win->reshapeFunc(win, width, height);
+	} else {
+		// No custom reshape function, do something reasonable
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(45.0f, win->width/(float)win->height, 1.0f, 10.0f);
+		glViewport(0, 0, win->width, win->height);
+
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+	}
+
+	win->width     = width;
+	win->height    = height;
+}
+
+void
 puglDisplay(PuglWindow* win)
 {
-	glViewport(0, 0, win->width, win->height);
+	wglMakeCurrent(win->impl->hdc, win->impl->hglrc);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
 
 	if (win->displayFunc) {
 		win->displayFunc(win);
 	}
 
+	glFlush();
 	SwapBuffers(win->impl->hdc);
 	win->redisplay = false;
 }
@@ -124,17 +165,17 @@ puglProcessEvents(PuglWindow* win)
 	PAINTSTRUCT ps;
 	int         button;
 	bool        down = true;
-	while (PeekMessage(&msg, win->impl->hwnd, 0, 0, PM_REMOVE)) {
+	while (PeekMessage(&msg, /*win->impl->hwnd*/0, 0, 0, PM_REMOVE)) {
 		switch (msg.message) {
+		case WM_CREATE:
+		case WM_SHOWWINDOW:
+		case WM_SIZE:
+			puglReshape(win, win->width, win->height);
+			break;
 		case WM_PAINT:
 			BeginPaint(win->impl->hwnd, &ps);
 			puglDisplay(win);
 			EndPaint(win->impl->hwnd, &ps);
-			break;
-		case WM_SIZE:
-			if (win->reshapeFunc) {
-				win->reshapeFunc(win, LOWORD(msg.lParam), HIWORD(msg.lParam));
-			}
 			break;
 		case WM_MOUSEMOVE:
 			if (win->motionFunc) {
