@@ -200,11 +200,11 @@ static void
 setModifiers(PuglView* view)
 {
 	view->mods = 0;
-	view->mods |= GetKeyState(VK_SHIFT)   ? PUGL_MOD_SHIFT  : 0;
-	view->mods |= GetKeyState(VK_CONTROL) ? PUGL_MOD_CTRL   : 0;
-	view->mods |= GetKeyState(VK_MENU)    ? PUGL_MOD_ALT    : 0;
-	view->mods |= GetKeyState(VK_LWIN)    ? PUGL_MOD_SUPER  : 0;
-	view->mods |= GetKeyState(VK_RWIN)    ? PUGL_MOD_SUPER  : 0;
+	view->mods |= (GetKeyState(VK_SHIFT)   < 0) ? PUGL_MOD_SHIFT  : 0;
+	view->mods |= (GetKeyState(VK_CONTROL) < 0) ? PUGL_MOD_CTRL   : 0;
+	view->mods |= (GetKeyState(VK_MENU)    < 0) ? PUGL_MOD_ALT    : 0;
+	view->mods |= (GetKeyState(VK_LWIN)    < 0) ? PUGL_MOD_SUPER  : 0;
+	view->mods |= (GetKeyState(VK_RWIN)    < 0) ? PUGL_MOD_SUPER  : 0;
 }
 
 PuglStatus

@@ -75,8 +75,9 @@ puglCreate(PuglNativeWindow parent,
 
 	PuglPlatformData* impl = view->impl;
 
-	view->width         = width;
-	view->height        = height;
+	view->width  = width;
+	view->height = height;
+
 	impl->display = XOpenDisplay(0);
 	impl->screen  = DefaultScreen(impl->display);
 
