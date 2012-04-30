@@ -40,6 +40,7 @@
 - (void) rightMouseUp:(NSEvent*)event;
 - (void) keyDown:(NSEvent*)event;
 - (void) keyUp:(NSEvent*)event;
+- (void) flagsChanged:(NSEvent*)event;
 
 @end
 
@@ -119,42 +120,58 @@
 	glSwapAPPLE();
 }
 
+static int
+getModifiers(unsigned modifierFlags)
+{
+	int mods = 0;
+	mods |= (modifierFlags & NSShiftKeyMask)     ? PUGL_MOD_SHIFT : 0;
+	mods |= (modifierFlags & NSControlKeyMask)   ? PUGL_MOD_CTRL  : 0;
+	mods |= (modifierFlags & NSAlternateKeyMask) ? PUGL_MOD_ALT   : 0;
+	mods |= (modifierFlags & NSCommandKeyMask)   ? PUGL_MOD_SUPER : 0;
+	return mods;
+}
+
 - (void) mouseMoved:(NSEvent*)event
 {
-	NSPoint loc = [event locationInWindow];
 	if (view->motionFunc) {
+		NSPoint loc = [event locationInWindow];
+		view->mods = getModifiers([event modifierFlags]);
 		view->motionFunc(view, loc.x, loc.y);
 	}
 }
 
 - (void) mouseDown:(NSEvent*)event
 {
-	NSPoint loc = [event locationInWindow];
 	if (view->mouseFunc) {
+		NSPoint loc = [event locationInWindow];
+		view->mods = getModifiers([event modifierFlags]);
 		view->mouseFunc(view, 1, true, loc.x, loc.y);
 	}
 }
 
 - (void) mouseUp:(NSEvent*)event
 {
-	NSPoint loc = [event locationInWindow];
 	if (view->mouseFunc) {
+		NSPoint loc = [event locationInWindow];
+		view->mods = getModifiers([event modifierFlags]);
 		view->mouseFunc(view, 1, false, loc.x, loc.y);
 	}
 }
 
 - (void) rightMouseDown:(NSEvent*)event
 {
-	NSPoint loc = [event locationInWindow];
 	if (view->mouseFunc) {
+		NSPoint loc = [event locationInWindow];
+		view->mods = getModifiers([event modifierFlags]);
 		view->mouseFunc(view, 3, true, loc.x, loc.y);
 	}
 }
 
 - (void) rightMouseUp:(NSEvent*)event
 {
-	NSPoint loc = [event locationInWindow];
 	if (view->mouseFunc) {
+		NSPoint loc = [event locationInWindow];
+		view->mods = getModifiers([event modifierFlags]);
 		view->mouseFunc(view, 3, false, loc.x, loc.y);
 	}
 }
@@ -162,23 +179,43 @@
 - (void) scrollWheel:(NSEvent*)event
 {
 	if (view->scrollFunc) {
+		view->mods = getModifiers([event modifierFlags]);
 		view->scrollFunc(view, [event deltaX], [event deltaY]);
 	}
 }
 
 - (void) keyDown:(NSEvent*)event
 {
-	NSString* chars = [event characters];;
 	if (view->keyboardFunc) {
+		NSString* chars = [event characters];;
+		view->mods = getModifiers([event modifierFlags]);
 		view->keyboardFunc(view, true, [chars characterAtIndex:0]);
 	}
 }
 
 - (void) keyUp:(NSEvent*)event
 {
-	NSString* chars = [event characters];;
 	if (view->keyboardFunc) {
+		NSString* chars = [event characters];;
+		view->mods = getModifiers([event modifierFlags]);
 		view->keyboardFunc(view, false,  [chars characterAtIndex:0]);
+	}
+}
+
+- (void) flagsChanged:(NSEvent*)event
+{
+	if (view->specialFunc) {
+		int mods = getModifiers([event modifierFlags]);
+		if ((mods & PUGL_MOD_SHIFT) != (view->mods & PUGL_MOD_SHIFT)) {
+			view->specialFunc(view, mods & PUGL_MOD_SHIFT, PUGL_KEY_SHIFT);
+		} else if ((mods & PUGL_MOD_CTRL) != (view->mods & PUGL_MOD_CTRL)) {
+			view->specialFunc(view, mods & PUGL_MOD_CTRL, PUGL_KEY_CTRL);
+		} else if ((mods & PUGL_MOD_ALT) != (view->mods & PUGL_MOD_ALT)) {
+			view->specialFunc(view, mods & PUGL_MOD_ALT, PUGL_KEY_ALT);
+		} else if ((mods & PUGL_MOD_SUPER) != (view->mods & PUGL_MOD_SUPER)) {
+			view->specialFunc(view, mods & PUGL_MOD_SUPER, PUGL_KEY_SUPER);
+		}
+		view->mods = mods;
 	}
 }
 
