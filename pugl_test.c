@@ -39,10 +39,8 @@ onDisplay(PuglWindow* win)
 	glRotatef(xAngle, 0.0f, 1.0f, 0.0f);
 	glRotatef(yAngle, 1.0f, 0.0f, 0.0f);
 
-	/* We tell we want to draw quads */
 	glBegin(GL_QUADS);
 
-	/* Every four calls to glVertex, a quad is drawn */
 	glColor3f(0, 0, 0); glVertex3f(-1, -1, -1);
 	glColor3f(0, 0, 1); glVertex3f(-1, -1,  1);
 	glColor3f(0, 1, 1); glVertex3f(-1,  1,  1);

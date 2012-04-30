@@ -39,6 +39,23 @@
 #    include "GL/glu.h"
 #endif
 
+#ifdef PUGL_SHARED
+#    ifdef _WIN32
+#        define PUGL_LIB_IMPORT __declspec(dllimport)
+#        define PUGL_LIB_EXPORT __declspec(dllexport)
+#    else
+#        define PUGL_LIB_IMPORT __attribute__((visibility("default")))
+#        define PUGL_LIB_EXPORT __attribute__((visibility("default")))
+#    endif
+#    ifdef PUGL_INTERNAL
+#        define PUGL_API PUGL_LIB_EXPORT
+#    else
+#        define PUGL_API PUGL_LIB_IMPORT
+#    endif
+#else
+#    define PUGL_API
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #else
@@ -50,7 +67,9 @@ typedef struct PuglWindowImpl PuglWindow;
 /**
    A native window handle.
 
-   For X11, this is a Window.
+   On X11, this is a Window.
+   On OSX, this is an NSView*.
+   On Windows, this is a HWND.
 */
 typedef intptr_t PuglNativeWindow;
 
@@ -63,15 +82,14 @@ typedef enum {
 */
 typedef void* PuglHandle;
 
-typedef void (*PuglCloseFunc)(PuglWindow* handle);
-typedef void (*PuglDisplayFunc)(PuglWindow* handle);
-typedef void (*PuglKeyboardFunc)(PuglWindow* handle, bool press, uint32_t key);
-typedef void (*PuglMotionFunc)(PuglWindow* handle, int x, int y);
-typedef void (*PuglMouseFunc)(PuglWindow* handle,
-                              int button, bool down,
-                              int x, int y);
-typedef void (*PuglReshapeFunc)(PuglWindow* handle, int width, int height);
-typedef void (*PuglScrollFunc)(PuglWindow* handle, float dx, float dy);
+typedef void (*PuglCloseFunc)(PuglWindow* win);
+typedef void (*PuglDisplayFunc)(PuglWindow* win);
+typedef void (*PuglKeyboardFunc)(PuglWindow* win, bool press, uint32_t key);
+typedef void (*PuglMotionFunc)(PuglWindow* win, int x, int y);
+typedef void (*PuglMouseFunc)(PuglWindow* win,
+                              int button, bool down, int x, int y);
+typedef void (*PuglReshapeFunc)(PuglWindow* win, int width, int height);
+typedef void (*PuglScrollFunc)(PuglWindow* win, float dx, float dy);
 
 /**
    Create a new GL window.
@@ -81,7 +99,7 @@ typedef void (*PuglScrollFunc)(PuglWindow* handle, float dx, float dy);
    @param height Window height in pixels.
    @param resizable Whether window should be user resizable.
 */
-PuglWindow*
+PUGL_API PuglWindow*
 puglCreate(PuglNativeWindow parent,
            const char*      title,
            int              width,
@@ -97,61 +115,61 @@ puglCreate(PuglNativeWindow parent,
    Note the lack of this facility makes GLUT unsuitable for plugins or
    non-trivial programs; this mistake is largely why Pugl exists.
 */
-void
+PUGL_API void
 puglSetHandle(PuglWindow* window, PuglHandle handle);
 
 /**
    Get the handle to be passed to all callbacks.
 */
-PuglHandle
+PUGL_API PuglHandle
 puglGetHandle(PuglWindow* window);
 
 /**
    Set the function to call when the window is closed.
 */
-void
+PUGL_API void
 puglSetCloseFunc(PuglWindow* window, PuglCloseFunc closeFunc);
 
 /**
    Set the display function which should draw the UI using GL.
 */
-void
+PUGL_API void
 puglSetDisplayFunc(PuglWindow* window, PuglDisplayFunc displayFunc);
 
 /**
    Set the function to call on keyboard events.
 */
-void
+PUGL_API void
 puglSetKeyboardFunc(PuglWindow* window, PuglKeyboardFunc keyboardFunc);
 
 /**
    Set the function to call on mouse motion.
 */
-void
+PUGL_API void
 puglSetMotionFunc(PuglWindow* window, PuglMotionFunc motionFunc);
 
 /**
    Set the function to call on mouse button events.
 */
-void
+PUGL_API void
 puglSetMouseFunc(PuglWindow* window, PuglMouseFunc mouseFunc);
 
 /**
    Set the function to call on scroll events.
 */
-void
+PUGL_API void
 puglSetScrollFunc(PuglWindow* window, PuglScrollFunc scrollFunc);
 
 /**
    Set the function to call when the window size changes.
 */
-void
+PUGL_API void
 puglSetReshapeFunc(PuglWindow* window, PuglReshapeFunc reshapeFunc);
 
 /**
    Return the native window handle.
 */
-PuglNativeWindow
+PUGL_API PuglNativeWindow
 puglGetNativeWindow(PuglWindow* win);
 
 /**
@@ -160,19 +178,19 @@ puglGetNativeWindow(PuglWindow* win);
    This handles input events as well as rendering, so it should be called
    regularly and rapidly enough to keep the UI responsive.
 */
-PuglStatus
+PUGL_API PuglStatus
 puglProcessEvents(PuglWindow* win);
 
 /**
    Request a redisplay on the next call to puglProcessEvents().
 */
-void
+PUGL_API void
 puglPostRedisplay(PuglWindow* win);
 
 /**
    Destroy a GL window.
 */
-void
+PUGL_API void
 puglDestroy(PuglWindow* win);
 
 #ifdef __cplusplus
