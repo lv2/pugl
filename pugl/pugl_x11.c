@@ -156,7 +156,6 @@ puglDestroy(PuglView* view)
 		if (!glXMakeCurrent(view->impl->display, None, NULL)) {
 			printf("Could not release drawing context.\n");
 		}
-		/* destroy the context */
 		glXDestroyContext(view->impl->display, view->impl->ctx);
 		view->impl->ctx = NULL;
 	}
@@ -259,8 +258,6 @@ PuglStatus
 puglProcessEvents(PuglView* view)
 {
 	XEvent event;
-
-	/* handle the events in the queue */
 	while (XPending(view->impl->display) > 0) {
 		XNextEvent(view->impl->display, &event);
 		switch (event.type) {
@@ -331,20 +328,20 @@ puglProcessEvents(PuglView* view)
 			break;
 		case KeyRelease: {
 			setModifiers(view, event.xkey.state);
-			bool retriggered = false;
-			if (XEventsQueued(view->impl->display, QueuedAfterReading)) {
+			bool repeated = false;
+			if (view->ignoreKeyRepeat &&
+			    XEventsQueued(view->impl->display, QueuedAfterReading)) {
 				XEvent next;
 				XPeekEvent(view->impl->display, &next);
 				if (next.type == KeyPress &&
 				    next.xkey.time == event.xkey.time &&
 				    next.xkey.keycode == event.xkey.keycode) {
-					// Key repeat, ignore fake KeyPress event
 					XNextEvent(view->impl->display, &event);
-					retriggered = true;
+					repeated = true;
 				}
 			}
 
-			if (!retriggered && view->keyboardFunc) {
+			if (!repeated && view->keyboardFunc) {
 				KeySym sym = XKeycodeToKeysym(
 					view->impl->display, event.xkey.keycode, 0);
 				PuglKey special = keySymToSpecial(sym);

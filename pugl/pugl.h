@@ -250,6 +250,12 @@ int
 puglGetModifiers(PuglView* view);
 
 /**
+   Ignore synthetic repeated key events.
+*/
+void
+puglIgnoreKeyRepeat(PuglView* view, bool ignore);
+
+/**
    Set the function to call when the window is closed.
 */
 PUGL_API void

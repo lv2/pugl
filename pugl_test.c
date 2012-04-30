@@ -19,6 +19,7 @@
 */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "pugl/pugl.h"
 
@@ -135,8 +136,26 @@ onClose(PuglView* view)
 int
 main(int argc, char** argv)
 {
-	bool      resizable = argc > 1;
-	PuglView* view      = puglCreate(0, "Pugl Test", 512, 512, resizable);
+	bool ignoreKeyRepeat = false;
+	bool resizable       = false;
+	for (int i = 1; i < argc; ++i) {
+		if (!strcmp(argv[i], "-h")) {
+			printf("USAGE: %s [OPTIONS]...\n\n"
+			       "  -h  Display this help\n"
+			       "  -i  Ignore key repeat\n"
+			       "  -r  Resizable window\n", argv[0]);
+			return 0;
+		} else if (!strcmp(argv[i], "-i")) {
+			ignoreKeyRepeat = true;
+		} else if (!strcmp(argv[i], "-r")) {
+			resizable = true;
+		} else {
+			fprintf(stderr, "Unknown option: %s\n", argv[i]);
+		}
+	}
+
+	PuglView* view = puglCreate(0, "Pugl Test", 512, 512, resizable);
+	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetKeyboardFunc(view, onKeyboard);
 	puglSetMotionFunc(view, onMotion);
 	puglSetMouseFunc(view, onMouse);

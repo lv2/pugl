@@ -43,6 +43,7 @@ struct PuglViewImpl {
 	int  width;
 	int  height;
 	int  mods;
+	bool ignoreKeyRepeat;
 	bool redisplay;
 };
 
@@ -62,6 +63,12 @@ int
 puglGetModifiers(PuglView* view)
 {
 	return view->mods;
+}
+
+void
+puglIgnoreKeyRepeat(PuglView* view, bool ignore)
+{
+	view->ignoreKeyRepeat = ignore;
 }
 
 void
