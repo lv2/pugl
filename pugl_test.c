@@ -30,7 +30,7 @@ static float dist   = 10.0f;
 #define KEY_ESCAPE 27
 
 static void
-onDisplay(PuglWindow* win)
+onDisplay(PuglView* view)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -75,7 +75,7 @@ onDisplay(PuglWindow* win)
 }
 
 static void
-onKeyboard(PuglWindow* win, bool press, uint32_t key)
+onKeyboard(PuglView* view, bool press, uint32_t key)
 {
 	fprintf(stderr, "Key %c %s\n", (char)key, press ? "down" : "up");
 	if (key == 'q' || key == 'Q' || key == KEY_ESCAPE) {
@@ -84,30 +84,30 @@ onKeyboard(PuglWindow* win, bool press, uint32_t key)
 }
 
 static void
-onMotion(PuglWindow* win, int x, int y)
+onMotion(PuglView* view, int x, int y)
 {
 	xAngle = x % 360;
 	yAngle = y % 360;
-	puglPostRedisplay(win);
+	puglPostRedisplay(view);
 }
 
 static void
-onMouse(PuglWindow* win, int button, bool press, int x, int y)
+onMouse(PuglView* view, int button, bool press, int x, int y)
 {
 	fprintf(stderr, "Mouse %d %s at %d,%d\n",
 	        button, press ? "down" : "up", x, y);
 }
 
 static void
-onScroll(PuglWindow* win, float dx, float dy)
+onScroll(PuglView* view, float dx, float dy)
 {
 	fprintf(stderr, "Scroll %f %f\n", dx, dy);
 	dist += dy / 4.0f;
-	puglPostRedisplay(win);
+	puglPostRedisplay(view);
 }
 
 static void
-onClose(PuglWindow* win)
+onClose(PuglView* view)
 {
 	quit = 1;
 }
@@ -116,18 +116,18 @@ int
 main(int argc, char** argv)
 {
 	bool resizable = argc > 1;
-	PuglWindow* win = puglCreate(0, "Pugl Test", 512, 512, resizable);
-	puglSetKeyboardFunc(win, onKeyboard);
-	puglSetMotionFunc(win, onMotion);
-	puglSetMouseFunc(win, onMouse);
-	puglSetScrollFunc(win, onScroll);
-	puglSetDisplayFunc(win, onDisplay);
-	puglSetCloseFunc(win, onClose);
+	PuglView* view = puglCreate(0, "Pugl Test", 512, 512, resizable);
+	puglSetKeyboardFunc(view, onKeyboard);
+	puglSetMotionFunc(view, onMotion);
+	puglSetMouseFunc(view, onMouse);
+	puglSetScrollFunc(view, onScroll);
+	puglSetDisplayFunc(view, onDisplay);
+	puglSetCloseFunc(view, onClose);
 
 	while (!quit) {
-		puglProcessEvents(win);
+		puglProcessEvents(view);
 	}
 
-	puglDestroy(win);
+	puglDestroy(view);
 	return 0;
 }

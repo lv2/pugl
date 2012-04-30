@@ -27,7 +27,7 @@
 
 typedef struct PuglPlatformDataImpl PuglPlatformData;
 
-struct PuglWindowImpl {
+struct PuglViewImpl {
 	PuglHandle       handle;
 	PuglCloseFunc    closeFunc;
 	PuglDisplayFunc  displayFunc;
@@ -45,55 +45,55 @@ struct PuglWindowImpl {
 };
 
 void
-puglSetHandle(PuglWindow* window, PuglHandle handle)
+puglSetHandle(PuglView* view, PuglHandle handle)
 {
-	window->handle = handle;
+	view->handle = handle;
 }
 
 PuglHandle
-puglGetHandle(PuglWindow* window)
+puglGetHandle(PuglView* view)
 {
-	return window->handle;
+	return view->handle;
 }
 
 void
-puglSetCloseFunc(PuglWindow* window, PuglCloseFunc closeFunc)
+puglSetCloseFunc(PuglView* view, PuglCloseFunc closeFunc)
 {
-	window->closeFunc = closeFunc;
+	view->closeFunc = closeFunc;
 }
 
 void
-puglSetDisplayFunc(PuglWindow* window, PuglDisplayFunc displayFunc)
+puglSetDisplayFunc(PuglView* view, PuglDisplayFunc displayFunc)
 {
-	window->displayFunc = displayFunc;
+	view->displayFunc = displayFunc;
 }
 
 void
-puglSetKeyboardFunc(PuglWindow* window, PuglKeyboardFunc keyboardFunc)
+puglSetKeyboardFunc(PuglView* view, PuglKeyboardFunc keyboardFunc)
 {
-	window->keyboardFunc = keyboardFunc;
+	view->keyboardFunc = keyboardFunc;
 }
 
 void
-puglSetMotionFunc(PuglWindow* window, PuglMotionFunc motionFunc)
+puglSetMotionFunc(PuglView* view, PuglMotionFunc motionFunc)
 {
-	window->motionFunc = motionFunc;
+	view->motionFunc = motionFunc;
 }
 
 void
-puglSetMouseFunc(PuglWindow* window, PuglMouseFunc mouseFunc)
+puglSetMouseFunc(PuglView* view, PuglMouseFunc mouseFunc)
 {
-	window->mouseFunc = mouseFunc;
+	view->mouseFunc = mouseFunc;
 }
 	
 void
-puglSetReshapeFunc(PuglWindow* window, PuglReshapeFunc reshapeFunc)
+puglSetReshapeFunc(PuglView* view, PuglReshapeFunc reshapeFunc)
 {
-	window->reshapeFunc = reshapeFunc;
+	view->reshapeFunc = reshapeFunc;
 }
 
 void
-puglSetScrollFunc(PuglWindow* window, PuglScrollFunc scrollFunc)
+puglSetScrollFunc(PuglView* view, PuglScrollFunc scrollFunc)
 {
-	window->scrollFunc = scrollFunc;
+	view->scrollFunc = scrollFunc;
 }

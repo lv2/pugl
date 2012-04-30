@@ -55,11 +55,11 @@ puglCreate(PuglNativeWindow parent,
            int              height,
            bool             resizable)
 {
-	PuglWindow* win = (PuglWindow*)calloc(1, sizeof(PuglWindow));
+	PuglView* view = (PuglWindow*)calloc(1, sizeof(PuglWindow));
 
-	win->impl = (PuglPlatformData*)calloc(1, sizeof(PuglPlatformData));
+	view->impl = (PuglPlatformData*)calloc(1, sizeof(PuglPlatformData));
 
-	PuglPlatformData* impl = win->impl;
+	PuglPlatformData* impl = view->impl;
 
 	WNDCLASS wc;
 	wc.style         = CS_OWNDC;
@@ -97,158 +97,158 @@ puglCreate(PuglNativeWindow parent,
 	impl->hglrc = wglCreateContext(impl->hdc);
 	wglMakeCurrent(impl->hdc, impl->hglrc);
 
-	win->width  = width;
-	win->height = height;
+	view->width  = width;
+	view->height = height;
 
-	return win;
+	return view;
 }
 
 void
-puglDestroy(PuglWindow* win)
+puglDestroy(PuglView* view)
 {
 	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(win->impl->hglrc);
-	ReleaseDC(win->impl->hwnd, win->impl->hdc);
-	DestroyWindow(win->impl->hwnd);
-	free(win);
+	wglDeleteContext(view->impl->hglrc);
+	ReleaseDC(view->impl->hwnd, view->impl->hdc);
+	DestroyWindow(view->impl->hwnd);
+	free(view);
 }
 
 void
-puglReshape(PuglWindow* win, int width, int height)
+puglReshape(PuglView* view, int width, int height)
 {
-	wglMakeCurrent(win->impl->hdc, win->impl->hglrc);
+	wglMakeCurrent(view->impl->hdc, view->impl->hglrc);
 
-	if (win->reshapeFunc) {
+	if (view->reshapeFunc) {
 		// User provided a reshape function, defer to that
-		win->reshapeFunc(win, width, height);
+		view->reshapeFunc(view, width, height);
 	} else {
 		// No custom reshape function, do something reasonable
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(45.0f, win->width/(float)win->height, 1.0f, 10.0f);
-		glViewport(0, 0, win->width, win->height);
+		gluPerspective(45.0f, view->width/(float)view->height, 1.0f, 10.0f);
+		glViewport(0, 0, view->width, view->height);
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 	}
 
-	win->width     = width;
-	win->height    = height;
+	view->width     = width;
+	view->height    = height;
 }
 
 void
-puglDisplay(PuglWindow* win)
+puglDisplay(PuglView* view)
 {
-	wglMakeCurrent(win->impl->hdc, win->impl->hglrc);
+	wglMakeCurrent(view->impl->hdc, view->impl->hglrc);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	if (win->displayFunc) {
-		win->displayFunc(win);
+	if (view->displayFunc) {
+		view->displayFunc(view);
 	}
 
 	glFlush();
-	SwapBuffers(win->impl->hdc);
-	win->redisplay = false;
+	SwapBuffers(view->impl->hdc);
+	view->redisplay = false;
 }
 
 static void
-processMouseEvent(PuglWindow* win, int button, bool press, LPARAM lParam)
+processMouseEvent(PuglView* view, int button, bool press, LPARAM lParam)
 {
-	if (win->mouseFunc) {
-		win->mouseFunc(win, button, press,
+	if (view->mouseFunc) {
+		view->mouseFunc(view, button, press,
 		               GET_X_LPARAM(lParam),
 		               GET_Y_LPARAM(lParam));
 	}
 }
 
 PuglStatus
-puglProcessEvents(PuglWindow* win)
+puglProcessEvents(PuglView* view)
 {
 	MSG         msg;
 	PAINTSTRUCT ps;
 	int         button;
 	bool        down = true;
-	while (PeekMessage(&msg, /*win->impl->hwnd*/0, 0, 0, PM_REMOVE)) {
+	while (PeekMessage(&msg, /*view->impl->hwnd*/0, 0, 0, PM_REMOVE)) {
 		switch (msg.message) {
 		case WM_CREATE:
 		case WM_SHOWWINDOW:
 		case WM_SIZE:
-			puglReshape(win, win->width, win->height);
+			puglReshape(view, view->width, view->height);
 			break;
 		case WM_PAINT:
-			BeginPaint(win->impl->hwnd, &ps);
-			puglDisplay(win);
-			EndPaint(win->impl->hwnd, &ps);
+			BeginPaint(view->impl->hwnd, &ps);
+			puglDisplay(view);
+			EndPaint(view->impl->hwnd, &ps);
 			break;
 		case WM_MOUSEMOVE:
-			if (win->motionFunc) {
-				win->motionFunc(
-					win, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
+			if (view->motionFunc) {
+				view->motionFunc(
+					view, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
 			}
 			break;
 		case WM_LBUTTONDOWN:
-			processMouseEvent(win, 1, true, msg.lParam);
+			processMouseEvent(view, 1, true, msg.lParam);
 			break;
 		case WM_MBUTTONDOWN:
-			processMouseEvent(win, 2, true, msg.lParam);
+			processMouseEvent(view, 2, true, msg.lParam);
 			break;
 		case WM_RBUTTONDOWN:
-			processMouseEvent(win, 3, true, msg.lParam);
+			processMouseEvent(view, 3, true, msg.lParam);
 			break;
 		case WM_LBUTTONUP:
-			processMouseEvent(win, 1, false, msg.lParam);
+			processMouseEvent(view, 1, false, msg.lParam);
 			break;
 		case WM_MBUTTONUP:
-			processMouseEvent(win, 2, false, msg.lParam);
+			processMouseEvent(view, 2, false, msg.lParam);
 			break;
 		case WM_RBUTTONUP:
-			processMouseEvent(win, 3, false, msg.lParam);
+			processMouseEvent(view, 3, false, msg.lParam);
 			break;
 		case WM_MOUSEWHEEL:
-			if (win->scrollFunc) {
-				win->scrollFunc(
-					win, 0, (int16_t)HIWORD(msg.wParam) / (float)WHEEL_DELTA);
+			if (view->scrollFunc) {
+				view->scrollFunc(
+					view, 0, (int16_t)HIWORD(msg.wParam) / (float)WHEEL_DELTA);
 			}
 			break;
 		case WM_MOUSEHWHEEL:
-			if (win->scrollFunc) {
-				win->scrollFunc(
-					win, (int16_t)HIWORD(msg.wParam) / float(WHEEL_DELTA), 0);
+			if (view->scrollFunc) {
+				view->scrollFunc(
+					view, (int16_t)HIWORD(msg.wParam) / float(WHEEL_DELTA), 0);
 			}
 			break;
 		case WM_KEYDOWN:
 		case WM_KEYUP:
-			if (win->keyboardFunc) {
-				win->keyboardFunc(win, msg.message == WM_KEYDOWN, msg.wParam);
+			if (view->keyboardFunc) {
+				view->keyboardFunc(view, msg.message == WM_KEYDOWN, msg.wParam);
 			}
 			break;
 		case WM_QUIT:
-			if (win->closeFunc) {
-				win->closeFunc(win);
+			if (view->closeFunc) {
+				view->closeFunc(view);
 			}
 			break;
 		default:
 			DefWindowProc(
-				win->impl->hwnd, msg.message, msg.wParam, msg.lParam);
+				view->impl->hwnd, msg.message, msg.wParam, msg.lParam);
 		}
 	}
 
-	if (win->redisplay) {
-		puglDisplay(win);
+	if (view->redisplay) {
+		puglDisplay(view);
 	}
 
 	return PUGL_SUCCESS;
 }
 
 void
-puglPostRedisplay(PuglWindow* win)
+puglPostRedisplay(PuglView* view)
 {
-	win->redisplay = true;
+	view->redisplay = true;
 }
 
 PuglNativeWindow
-puglGetNativeWindow(PuglWindow* win)
+puglGetNativeWindow(PuglView* view)
 {
-	return (PuglNativeWindow)win->impl->hwnd;
+	return (PuglNativeWindow)view->impl->hwnd;
 }

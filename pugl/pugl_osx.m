@@ -25,7 +25,7 @@
 	int colorBits;
 	int depthBits;
 @public
-	PuglWindow* win;
+	PuglView* view;
 }
 
 - (id) initWithFrame:(NSRect)frame
@@ -87,9 +87,9 @@
 	int    width  = bounds.size.width;
 	int    height = bounds.size.height;
 
-	if (win->reshapeFunc) {
+	if (view->reshapeFunc) {
 		// User provided a reshape function, defer to that
-		win->reshapeFunc(win, width, height);
+		view->reshapeFunc(view, width, height);
 	} else {
 		// No custom reshape function, do something reasonable
 		glMatrixMode(GL_PROJECTION);
@@ -101,9 +101,9 @@
 		glLoadIdentity();
 	}
 
-	win->width     = width;
-	win->height    = height;
-	win->redisplay = true;
+	view->width     = width;
+	view->height    = height;
+	view->redisplay = true;
 }
 
 - (void) drawRect:(NSRect)rect
@@ -111,8 +111,8 @@
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	if (self->win->displayFunc) {
-		self->win->displayFunc(self->win);
+	if (self->view->displayFunc) {
+		self->view->displayFunc(self->view);
 	}
 
 	glFlush();
@@ -122,63 +122,63 @@
 - (void) mouseMoved:(NSEvent*)event
 {
 	NSPoint loc = [event locationInWindow];
-	if (win->motionFunc) {
-		win->motionFunc(win, loc.x, loc.y);
+	if (view->motionFunc) {
+		view->motionFunc(view, loc.x, loc.y);
 	}
 }
 
 - (void) mouseDown:(NSEvent*)event
 {
 	NSPoint loc = [event locationInWindow];
-	if (win->mouseFunc) {
-		win->mouseFunc(win, 1, true, loc.x, loc.y);
+	if (view->mouseFunc) {
+		view->mouseFunc(view, 1, true, loc.x, loc.y);
 	}
 }
 
 - (void) mouseUp:(NSEvent*)event
 {
 	NSPoint loc = [event locationInWindow];
-	if (win->mouseFunc) {
-		win->mouseFunc(win, 1, false, loc.x, loc.y);
+	if (view->mouseFunc) {
+		view->mouseFunc(view, 1, false, loc.x, loc.y);
 	}
 }
 
 - (void) rightMouseDown:(NSEvent*)event
 {
 	NSPoint loc = [event locationInWindow];
-	if (win->mouseFunc) {
-		win->mouseFunc(win, 3, true, loc.x, loc.y);
+	if (view->mouseFunc) {
+		view->mouseFunc(view, 3, true, loc.x, loc.y);
 	}
 }
 
 - (void) rightMouseUp:(NSEvent*)event
 {
 	NSPoint loc = [event locationInWindow];
-	if (win->mouseFunc) {
-		win->mouseFunc(win, 3, false, loc.x, loc.y);
+	if (view->mouseFunc) {
+		view->mouseFunc(view, 3, false, loc.x, loc.y);
 	}
 }
 
 - (void) scrollWheel:(NSEvent*)event
 {
-	if (win->scrollFunc) {
-		win->scrollFunc(win, [event deltaX], [event deltaY]);
+	if (view->scrollFunc) {
+		view->scrollFunc(view, [event deltaX], [event deltaY]);
 	}
 }
 
 - (void) keyDown:(NSEvent*)event
 {
 	NSString* chars = [event characters];;
-	if (win->keyboardFunc) {
-		win->keyboardFunc(win, true, [chars characterAtIndex:0]);
+	if (view->keyboardFunc) {
+		view->keyboardFunc(view, true, [chars characterAtIndex:0]);
 	}
 }
 
 - (void) keyUp:(NSEvent*)event
 {
 	NSString* chars = [event characters];;
-	if (win->keyboardFunc) {
-		win->keyboardFunc(win, false,  [chars characterAtIndex:0]);
+	if (view->keyboardFunc) {
+		view->keyboardFunc(view, false,  [chars characterAtIndex:0]);
 	}
 }
 
@@ -197,13 +197,13 @@ puglCreate(PuglNativeWindow parent,
            int              height,
            bool             resizable)
 {
-	PuglWindow* win = (PuglWindow*)calloc(1, sizeof(PuglWindow));
-	win->width  = width;
-	win->height = height;
+	PuglView* view = (PuglWindow*)calloc(1, sizeof(PuglWindow));
+	view->width  = width;
+	view->height = height;
 
-	win->impl = (PuglPlatformData*)calloc(1, sizeof(PuglPlatformData));
+	view->impl = (PuglPlatformData*)calloc(1, sizeof(PuglPlatformData));
 
-	PuglPlatformData* impl = win->impl;
+	PuglPlatformData* impl = view->impl;
 
 	[NSAutoreleasePool new];
 	[NSApplication sharedApplication];
@@ -225,67 +225,67 @@ puglCreate(PuglNativeWindow parent,
 	[window setTitle:titleString];
 	[window setAcceptsMouseMovedEvents:YES];
 
-	impl->view      = [PuglOpenGLView new];
-	impl->window    = window;
-	impl->view->win = win;
+	impl->view       = [PuglOpenGLView new];
+	impl->window     = window;
+	impl->view->view = view;
 
 	[window setContentView:impl->view];
 	[NSApp activateIgnoringOtherApps:YES];
 	[window makeFirstResponder:impl->view];
 
-	impl->session = [NSApp beginModalSessionForWindow:win->impl->window];
+	impl->session = [NSApp beginModalSessionForWindow:view->impl->window];
 
-	return win;
+	return view;
 }
 
 void
-puglDestroy(PuglWindow* win)
+puglDestroy(PuglView* view)
 {
-	[NSApp endModalSession:win->impl->session];
-	[win->impl->view release];
-	free(win->impl);
-	free(win);
+	[NSApp endModalSession:view->impl->session];
+	[view->impl->view release];
+	free(view->impl);
+	free(view);
 }
 
 void
-puglDisplay(PuglWindow* win)
+puglDisplay(PuglView* view)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	if (win->displayFunc) {
-		win->displayFunc(win);
+	if (view->displayFunc) {
+		view->displayFunc(view);
 	}
 
 	glFlush();
-	win->redisplay = false;
+	view->redisplay = false;
 }
 
 PuglStatus
-puglProcessEvents(PuglWindow* win)
+puglProcessEvents(PuglView* view)
 {
-	NSInteger response = [NSApp runModalSession:win->impl->session];
+	NSInteger response = [NSApp runModalSession:view->impl->session];
 	if (response != NSRunContinuesResponse) {
-		if (win->closeFunc) {
-			win->closeFunc(win);
+		if (view->closeFunc) {
+			view->closeFunc(view);
 		}
 	}
 
-	if (win->redisplay) {
-		puglDisplay(win);
+	if (view->redisplay) {
+		puglDisplay(view);
 	}
 
 	return PUGL_SUCCESS;
 }
 
 void
-puglPostRedisplay(PuglWindow* win)
+puglPostRedisplay(PuglView* view)
 {
-	win->redisplay = true;
+	view->redisplay = true;
 }
 
 PuglNativeWindow
-puglGetNativeWindow(PuglWindow* win)
+puglGetNativeWindow(PuglView* view)
 {
-	return (PuglNativeWindow)win->impl->view;
+	return (PuglNativeWindow)view->impl->view;
 }

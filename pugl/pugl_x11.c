@@ -62,21 +62,21 @@ static int attrListDbl[] = {
 	None
 };
 
-PuglWindow*
+PuglView*
 puglCreate(PuglNativeWindow parent,
            const char*      title,
            int              width,
            int              height,
            bool             resizable)
 {
-	PuglWindow* win = (PuglWindow*)calloc(1, sizeof(PuglWindow));
+	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
 
-	win->impl = (PuglPlatformData*)calloc(1, sizeof(PuglPlatformData));
+	view->impl = (PuglPlatformData*)calloc(1, sizeof(PuglPlatformData));
 
-	PuglPlatformData* impl = win->impl;
+	PuglPlatformData* impl = view->impl;
 
-	win->width         = width;
-	win->height        = height;
+	view->width         = width;
+	view->height        = height;
 	impl->display = XOpenDisplay(0);
 	impl->screen  = DefaultScreen(impl->display);
 
@@ -114,7 +114,7 @@ puglCreate(PuglNativeWindow parent,
 
 	impl->win = XCreateWindow(
 		impl->display, xParent,
-		0, 0, win->width, win->height, 0, vi->depth, InputOutput, vi->visual,
+		0, 0, view->width, view->height, 0, vi->depth, InputOutput, vi->visual,
 		CWBorderPixel | CWColormap | CWEventMask, &attr);
 
 	XSizeHints sizeHints;
@@ -145,33 +145,33 @@ puglCreate(PuglNativeWindow parent,
 		printf("no DRI available\n");
 	}
 
-	return win;
+	return view;
 }
 
 void
-puglDestroy(PuglWindow* win)
+puglDestroy(PuglView* view)
 {
-	if (win->impl->ctx) {
-		if (!glXMakeCurrent(win->impl->display, None, NULL)) {
+	if (view->impl->ctx) {
+		if (!glXMakeCurrent(view->impl->display, None, NULL)) {
 			printf("Could not release drawing context.\n");
 		}
 		/* destroy the context */
-		glXDestroyContext(win->impl->display, win->impl->ctx);
-		win->impl->ctx = NULL;
+		glXDestroyContext(view->impl->display, view->impl->ctx);
+		view->impl->ctx = NULL;
 	}
 
-	XCloseDisplay(win->impl->display);
-	free(win);
+	XCloseDisplay(view->impl->display);
+	free(view);
 }
 
 void
-puglReshape(PuglWindow* win, int width, int height)
+puglReshape(PuglView* view, int width, int height)
 {
-	glXMakeCurrent(win->impl->display, win->impl->win, win->impl->ctx);
+	glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
 
-	if (win->reshapeFunc) {
+	if (view->reshapeFunc) {
 		// User provided a reshape function, defer to that
-		win->reshapeFunc(win, width, height);
+		view->reshapeFunc(view, width, height);
 	} else {
 		// No custom reshape function, do something reasonable
 		glMatrixMode(GL_PROJECTION);
@@ -183,46 +183,46 @@ puglReshape(PuglWindow* win, int width, int height)
 		glLoadIdentity();
 	}
 
-	win->width     = width;
-	win->height    = height;
-	win->redisplay = true;
+	view->width     = width;
+	view->height    = height;
+	view->redisplay = true;
 }
 
 void
-puglDisplay(PuglWindow* win)
+puglDisplay(PuglView* view)
 {
-	glXMakeCurrent(win->impl->display, win->impl->win, win->impl->ctx);
+	glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 
-	if (win->displayFunc) {
-		win->displayFunc(win);
+	if (view->displayFunc) {
+		view->displayFunc(view);
 	}
 
 	glFlush();
-	if (win->impl->doubleBuffered) {
-		glXSwapBuffers(win->impl->display, win->impl->win);
+	if (view->impl->doubleBuffered) {
+		glXSwapBuffers(view->impl->display, view->impl->win);
 	}
 
-	win->redisplay = false;
+	view->redisplay = false;
 }
 
 PuglStatus
-puglProcessEvents(PuglWindow* win)
+puglProcessEvents(PuglView* view)
 {
 	XEvent event;
 
 	/* handle the events in the queue */
-	while (XPending(win->impl->display) > 0) {
-		XNextEvent(win->impl->display, &event);
+	while (XPending(view->impl->display) > 0) {
+		XNextEvent(view->impl->display, &event);
 		switch (event.type) {
 		case MapNotify:
-			puglReshape(win, win->width, win->height);
+			puglReshape(view, view->width, view->height);
 			break;
 		case ConfigureNotify:
-			if ((event.xconfigure.width != win->width) ||
-			    (event.xconfigure.height != win->height)) {
-				puglReshape(win,
+			if ((event.xconfigure.width != view->width) ||
+			    (event.xconfigure.height != view->height)) {
+				puglReshape(view,
 				            event.xconfigure.width,
 				            event.xconfigure.height);
 			}
@@ -231,17 +231,17 @@ puglProcessEvents(PuglWindow* win)
 			if (event.xexpose.count != 0) {
 				break;
 			}
-			puglDisplay(win);
-			win->redisplay = false;
+			puglDisplay(view);
+			view->redisplay = false;
 			break;
 		case MotionNotify:
-			if (win->motionFunc) {
-				win->motionFunc(win, event.xmotion.x, event.xmotion.y);
+			if (view->motionFunc) {
+				view->motionFunc(view, event.xmotion.x, event.xmotion.y);
 			}
 			break;
 		case ButtonPress:
 			if (event.xbutton.button >= 4 && event.xbutton.button <= 7) {
-				if (win->scrollFunc) {
+				if (view->scrollFunc) {
 					float dx = 0, dy = 0;
 					switch (event.xbutton.button) {
 					case 4: dy =  1.0f; break;
@@ -249,52 +249,52 @@ puglProcessEvents(PuglWindow* win)
 					case 6: dx = -1.0f; break;
 					case 7: dx =  1.0f; break;
 					}
-					win->scrollFunc(win, dx, dy);
+					view->scrollFunc(view, dx, dy);
 				}
 				break;
 			}
 			// nobreak
 		case ButtonRelease:
-			if (win->mouseFunc &&
+			if (view->mouseFunc &&
 			    (event.xbutton.button < 4 || event.xbutton.button > 7)) {
-				win->mouseFunc(win,
+				view->mouseFunc(view,
 				               event.xbutton.button, event.type == ButtonPress,
 				               event.xbutton.x, event.xbutton.y);
 			}
 			break;
 		case KeyPress:
-			if (win->keyboardFunc) {
+			if (view->keyboardFunc) {
 				KeySym sym = XKeycodeToKeysym(
-					win->impl->display, event.xkey.keycode, 0);
-				win->keyboardFunc(win, event.type == KeyPress, sym);
+					view->impl->display, event.xkey.keycode, 0);
+				view->keyboardFunc(view, event.type == KeyPress, sym);
 			}
 			break;
 		case KeyRelease: {
 			bool retriggered = false;
-			if (XEventsQueued(win->impl->display, QueuedAfterReading)) {
+			if (XEventsQueued(view->impl->display, QueuedAfterReading)) {
 				XEvent next;
-				XPeekEvent(win->impl->display, &next);
+				XPeekEvent(view->impl->display, &next);
 				if (next.type == KeyPress &&
 				    next.xkey.time == event.xkey.time &&
 				    next.xkey.keycode == event.xkey.keycode) {
 					// Key repeat, ignore fake KeyPress event
-					XNextEvent(win->impl->display, &event);
+					XNextEvent(view->impl->display, &event);
 					retriggered = true;
 				}
 			}
 
-			if (!retriggered && win->keyboardFunc) {
+			if (!retriggered && view->keyboardFunc) {
 				KeySym sym = XKeycodeToKeysym(
-					win->impl->display, event.xkey.keycode, 0);
-				win->keyboardFunc(win, false, sym);
+					view->impl->display, event.xkey.keycode, 0);
+				view->keyboardFunc(view, false, sym);
 			}
 		}
 		case ClientMessage:
-			if (!strcmp(XGetAtomName(win->impl->display,
+			if (!strcmp(XGetAtomName(view->impl->display,
 			                         event.xclient.message_type),
 			            "WM_PROTOCOLS")) {
-				if (win->closeFunc) {
-					win->closeFunc(win);
+				if (view->closeFunc) {
+					view->closeFunc(view);
 				}
 			}
 			break;
@@ -303,21 +303,21 @@ puglProcessEvents(PuglWindow* win)
 		}
 	}
 
-	if (win->redisplay) {
-		puglDisplay(win);
+	if (view->redisplay) {
+		puglDisplay(view);
 	}
 
 	return PUGL_SUCCESS;
 }
 
 void
-puglPostRedisplay(PuglWindow* win)
+puglPostRedisplay(PuglView* view)
 {
-	win->redisplay = true;
+	view->redisplay = true;
 }
 
 PuglNativeWindow
-puglGetNativeWindow(PuglWindow* win)
+puglGetNativeWindow(PuglView* view)
 {
-	return win->impl->win;
+	return view->impl->win;
 }
