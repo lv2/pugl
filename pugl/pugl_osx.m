@@ -190,14 +190,14 @@ struct PuglPlatformDataImpl {
 	id              window;
 };
 
-PuglWindow*
+PuglView*
 puglCreate(PuglNativeWindow parent,
            const char*      title,
            int              width,
            int              height,
            bool             resizable)
 {
-	PuglView* view = (PuglWindow*)calloc(1, sizeof(PuglWindow));
+	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
 	view->width  = width;
 	view->height = height;
 
