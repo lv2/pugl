@@ -196,6 +196,17 @@ processMouseEvent(PuglView* view, int button, bool press, LPARAM lParam)
 	}
 }
 
+static void
+setModifiers(PuglView* view)
+{
+	view->mods = 0;
+	view->mods |= GetKeyState(VK_SHIFT)   ? PUGL_MOD_SHIFT  : 0;
+	view->mods |= GetKeyState(VK_CONTROL) ? PUGL_MOD_CTRL   : 0;
+	view->mods |= GetKeyState(VK_MENU)    ? PUGL_MOD_ALT    : 0;
+	view->mods |= GetKeyState(VK_LWIN)    ? PUGL_MOD_SUPER  : 0;
+	view->mods |= GetKeyState(VK_RWIN)    ? PUGL_MOD_SUPER  : 0;
+}
+
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
@@ -205,6 +216,7 @@ puglProcessEvents(PuglView* view)
 	bool        down = true;
 	PuglKey     key;
 	while (PeekMessage(&msg, /*view->impl->hwnd*/0, 0, 0, PM_REMOVE)) {
+		setModifiers(view);
 		switch (msg.message) {
 		case WM_CREATE:
 		case WM_SHOWWINDOW:
