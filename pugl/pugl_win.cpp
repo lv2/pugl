@@ -152,6 +152,40 @@ puglDisplay(PuglView* view)
 	view->redisplay = false;
 }
 
+static PuglKey
+keySymToSpecial(int sym)
+{
+	switch (sym) {
+	case VK_F1:      return PUGL_KEY_F1;
+	case VK_F2:      return PUGL_KEY_F2;
+	case VK_F3:      return PUGL_KEY_F3;
+	case VK_F4:      return PUGL_KEY_F4;
+	case VK_F5:      return PUGL_KEY_F5;
+	case VK_F6:      return PUGL_KEY_F6;
+	case VK_F7:      return PUGL_KEY_F7;
+	case VK_F8:      return PUGL_KEY_F8;
+	case VK_F9:      return PUGL_KEY_F9;
+	case VK_F10:     return PUGL_KEY_F10;
+	case VK_F11:     return PUGL_KEY_F11;
+	case VK_F12:     return PUGL_KEY_F12;
+	case VK_LEFT:    return PUGL_KEY_LEFT;
+	case VK_UP:      return PUGL_KEY_UP;
+	case VK_RIGHT:   return PUGL_KEY_RIGHT;
+	case VK_DOWN:    return PUGL_KEY_DOWN;
+	case VK_PRIOR:   return PUGL_KEY_PAGE_UP;
+	case VK_NEXT:    return PUGL_KEY_PAGE_DOWN;
+	case VK_HOME:    return PUGL_KEY_HOME;
+	case VK_END:     return PUGL_KEY_END;
+	case VK_INSERT:  return PUGL_KEY_INSERT;
+	case VK_SHIFT:   return PUGL_KEY_SHIFT;
+	case VK_CONTROL: return PUGL_KEY_CTRL;
+	case VK_MENU:    return PUGL_KEY_ALT;
+	case VK_LWIN:    return PUGL_KEY_SUPER;
+	case VK_RWIN:    return PUGL_KEY_SUPER;
+	}
+	return (PuglKey)0;
+}
+
 static void
 processMouseEvent(PuglView* view, int button, bool press, LPARAM lParam)
 {
@@ -169,6 +203,7 @@ puglProcessEvents(PuglView* view)
 	PAINTSTRUCT ps;
 	int         button;
 	bool        down = true;
+	PuglKey     key;
 	while (PeekMessage(&msg, /*view->impl->hwnd*/0, 0, 0, PM_REMOVE)) {
 		switch (msg.message) {
 		case WM_CREATE:
@@ -219,7 +254,11 @@ puglProcessEvents(PuglView* view)
 			break;
 		case WM_KEYDOWN:
 		case WM_KEYUP:
-			if (view->keyboardFunc) {
+			if (key = keySymToSpecial(msg.wParam)) {
+				if (view->specialFunc) {
+					view->specialFunc(view, msg.message == WM_KEYDOWN, key);
+				}
+			} else if (view->keyboardFunc) {
 				view->keyboardFunc(view, msg.message == WM_KEYDOWN, msg.wParam);
 			}
 			break;
