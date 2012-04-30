@@ -212,8 +212,6 @@ puglProcessEvents(PuglView* view)
 {
 	MSG         msg;
 	PAINTSTRUCT ps;
-	int         button;
-	bool        down = true;
 	PuglKey     key;
 	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
 		setModifiers(view);
@@ -265,6 +263,9 @@ puglProcessEvents(PuglView* view)
 			}
 			break;
 		case WM_KEYDOWN:
+			if (view->ignoreKeyRepeat && (msg.lParam & (1 << 30))) {
+				break;
+			} // else nobreak
 		case WM_KEYUP:
 			if (key = keySymToSpecial(msg.wParam)) {
 				if (view->specialFunc) {
