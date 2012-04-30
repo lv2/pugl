@@ -186,8 +186,8 @@ getModifiers(unsigned modifierFlags)
 
 - (void) keyDown:(NSEvent*)event
 {
-	if (view->keyboardFunc) {
-		NSString* chars = [event characters];;
+	if (view->keyboardFunc && !(view->ignoreKeyRepeat && [event isARepeat])) {
+		NSString* chars = [event characters];
 		view->mods = getModifiers([event modifierFlags]);
 		view->keyboardFunc(view, true, [chars characterAtIndex:0]);
 	}
@@ -196,7 +196,7 @@ getModifiers(unsigned modifierFlags)
 - (void) keyUp:(NSEvent*)event
 {
 	if (view->keyboardFunc) {
-		NSString* chars = [event characters];;
+		NSString* chars = [event characters];
 		view->mods = getModifiers([event modifierFlags]);
 		view->keyboardFunc(view, false,  [chars characterAtIndex:0]);
 	}
