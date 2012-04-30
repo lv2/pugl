@@ -215,7 +215,7 @@ puglProcessEvents(PuglView* view)
 	int         button;
 	bool        down = true;
 	PuglKey     key;
-	while (PeekMessage(&msg, /*view->impl->hwnd*/0, 0, 0, PM_REMOVE)) {
+	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
 		setModifiers(view);
 		switch (msg.message) {
 		case WM_CREATE:
