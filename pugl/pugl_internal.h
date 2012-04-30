@@ -36,11 +36,13 @@ struct PuglViewImpl {
 	PuglMouseFunc    mouseFunc;
 	PuglReshapeFunc  reshapeFunc;
 	PuglScrollFunc   scrollFunc;
+	PuglSpecialFunc  specialFunc;
 
 	PuglPlatformData* impl;
 
 	int  width;
 	int  height;
+	int  mods;
 	bool redisplay;
 };
 
@@ -54,6 +56,12 @@ PuglHandle
 puglGetHandle(PuglView* view)
 {
 	return view->handle;
+}
+
+int
+puglGetModifiers(PuglView* view)
+{
+	return view->mods;
 }
 
 void
@@ -85,7 +93,7 @@ puglSetMouseFunc(PuglView* view, PuglMouseFunc mouseFunc)
 {
 	view->mouseFunc = mouseFunc;
 }
-	
+
 void
 puglSetReshapeFunc(PuglView* view, PuglReshapeFunc reshapeFunc)
 {
@@ -96,4 +104,10 @@ void
 puglSetScrollFunc(PuglView* view, PuglScrollFunc scrollFunc)
 {
 	view->scrollFunc = scrollFunc;
+}
+
+void
+puglSetSpecialFunc(PuglView* view, PuglSpecialFunc specialFunc)
+{
+	view->specialFunc = specialFunc;
 }

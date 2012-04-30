@@ -75,12 +75,31 @@ onDisplay(PuglView* view)
 }
 
 static void
+printModifiers(PuglView* view)
+{
+	int mods = puglGetModifiers(view);
+	fprintf(stderr, "Modifiers:%s%s%s%s\n",
+	        (mods & PUGL_MOD_SHIFT) ? " Shift"   : "",
+	        (mods & PUGL_MOD_CTRL)  ? " Ctrl"    : "",
+	        (mods & PUGL_MOD_ALT)   ? " Alt"     : "",
+	        (mods & PUGL_MOD_SUPER) ? " Super" : "");
+}
+
+static void
 onKeyboard(PuglView* view, bool press, uint32_t key)
 {
-	fprintf(stderr, "Key %c %s\n", (char)key, press ? "down" : "up");
+	fprintf(stderr, "Key %c %s ", (char)key, press ? "down" : "up");
+	printModifiers(view);
 	if (key == 'q' || key == 'Q' || key == KEY_ESCAPE) {
 		quit = 1;
 	}
+}
+
+static void
+onSpecial(PuglView* view, bool press, PuglKey key)
+{
+	fprintf(stderr, "Special key %d %s ", key, press ? "down" : "up");
+	printModifiers(view);
 }
 
 static void
@@ -94,14 +113,16 @@ onMotion(PuglView* view, int x, int y)
 static void
 onMouse(PuglView* view, int button, bool press, int x, int y)
 {
-	fprintf(stderr, "Mouse %d %s at %d,%d\n",
+	fprintf(stderr, "Mouse %d %s at %d,%d ",
 	        button, press ? "down" : "up", x, y);
+	printModifiers(view);
 }
 
 static void
 onScroll(PuglView* view, float dx, float dy)
 {
-	fprintf(stderr, "Scroll %f %f\n", dx, dy);
+	fprintf(stderr, "Scroll %f %f ", dx, dy);
+	printModifiers(view);
 	dist += dy / 4.0f;
 	puglPostRedisplay(view);
 }
@@ -115,12 +136,13 @@ onClose(PuglView* view)
 int
 main(int argc, char** argv)
 {
-	bool resizable = argc > 1;
-	PuglView* view = puglCreate(0, "Pugl Test", 512, 512, resizable);
+	bool      resizable = argc > 1;
+	PuglView* view      = puglCreate(0, "Pugl Test", 512, 512, resizable);
 	puglSetKeyboardFunc(view, onKeyboard);
 	puglSetMotionFunc(view, onMotion);
 	puglSetMouseFunc(view, onMouse);
 	puglSetScrollFunc(view, onScroll);
+	puglSetSpecialFunc(view, onSpecial);
 	puglSetDisplayFunc(view, onDisplay);
 	puglSetCloseFunc(view, onClose);
 

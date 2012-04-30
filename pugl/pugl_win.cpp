@@ -157,8 +157,8 @@ processMouseEvent(PuglView* view, int button, bool press, LPARAM lParam)
 {
 	if (view->mouseFunc) {
 		view->mouseFunc(view, button, press,
-		               GET_X_LPARAM(lParam),
-		               GET_Y_LPARAM(lParam));
+		                GET_X_LPARAM(lParam),
+		                GET_Y_LPARAM(lParam));
 	}
 }
 

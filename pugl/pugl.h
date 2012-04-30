@@ -77,6 +77,37 @@ typedef enum {
 	PUGL_SUCCESS = 0
 } PuglStatus;
 
+typedef enum {
+	PUGL_KEY_F1 = 1,
+	PUGL_KEY_F2,
+	PUGL_KEY_F3,
+	PUGL_KEY_F4,
+	PUGL_KEY_F5,
+	PUGL_KEY_F6,
+	PUGL_KEY_F7,
+	PUGL_KEY_F8,
+	PUGL_KEY_F9,
+	PUGL_KEY_F10,
+	PUGL_KEY_F11,
+	PUGL_KEY_F12,
+	PUGL_KEY_LEFT,
+	PUGL_KEY_UP,
+	PUGL_KEY_RIGHT,
+	PUGL_KEY_DOWN,
+	PUGL_KEY_PAGE_UP,
+	PUGL_KEY_PAGE_DOWN,
+	PUGL_KEY_HOME,
+	PUGL_KEY_END,
+	PUGL_KEY_INSERT
+} PuglKey;
+
+typedef enum {
+	PUGL_MOD_SHIFT = 1,       /**< Shift key */ 
+	PUGL_MOD_CTRL  = 1 << 1,  /**< Control key */
+	PUGL_MOD_ALT   = 1 << 2,  /**< Alt/Option key */
+	PUGL_MOD_SUPER = 1 << 3,  /**< Mod4/Command/Windows key */
+} PuglModifier;
+	
 /**
    Handle for opaque user data.
 */
@@ -90,6 +121,7 @@ typedef void (*PuglMouseFunc)(PuglView* view, int button, bool down,
                               int x, int y);
 typedef void (*PuglReshapeFunc)(PuglView* view, int width, int height);
 typedef void (*PuglScrollFunc)(PuglView* view, float dx, float dy);
+typedef void (*PuglSpecialFunc)(PuglView* view, bool press, PuglKey key);
 
 /**
    Create a new GL window.
@@ -123,6 +155,14 @@ puglSetHandle(PuglView* view, PuglHandle handle);
 */
 PUGL_API PuglHandle
 puglGetHandle(PuglView* view);
+
+/**
+   Get the currently active modifiers (PuglModifier flags).
+
+   This should only be called from an event handler.
+*/
+int
+puglGetModifiers(PuglView* view);
 
 /**
    Set the function to call when the window is closed.
@@ -159,6 +199,12 @@ puglSetMouseFunc(PuglView* view, PuglMouseFunc mouseFunc);
 */
 PUGL_API void
 puglSetScrollFunc(PuglView* view, PuglScrollFunc scrollFunc);
+
+/**
+   Set the function to call on special events.
+*/
+PUGL_API void
+puglSetSpecialFunc(PuglView* view, PuglSpecialFunc specialFunc);
 
 /**
    Set the function to call when the window size changes.

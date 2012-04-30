@@ -207,6 +207,45 @@ puglDisplay(PuglView* view)
 	view->redisplay = false;
 }
 
+static PuglKey
+keySymToSpecial(KeySym sym)
+{
+	switch (sym) {
+	case XK_F1:        return PUGL_KEY_F1;
+	case XK_F2:        return PUGL_KEY_F2;
+	case XK_F3:        return PUGL_KEY_F3;
+	case XK_F4:        return PUGL_KEY_F4;
+	case XK_F5:        return PUGL_KEY_F5;
+	case XK_F6:        return PUGL_KEY_F6;
+	case XK_F7:        return PUGL_KEY_F7;
+	case XK_F8:        return PUGL_KEY_F8;
+	case XK_F9:        return PUGL_KEY_F9;
+	case XK_F10:       return PUGL_KEY_F10;
+	case XK_F11:       return PUGL_KEY_F11;
+	case XK_F12:       return PUGL_KEY_F12;
+	case XK_Left:      return PUGL_KEY_LEFT;
+	case XK_Up:        return PUGL_KEY_UP;
+	case XK_Right:     return PUGL_KEY_RIGHT;
+	case XK_Down:      return PUGL_KEY_DOWN;
+	case XK_Page_Up:   return PUGL_KEY_PAGE_UP;
+	case XK_Page_Down: return PUGL_KEY_PAGE_DOWN;
+	case XK_Home:      return PUGL_KEY_HOME;
+	case XK_End:       return PUGL_KEY_END;
+	case XK_Insert:    return PUGL_KEY_INSERT;
+	}
+	return (PuglKey)0;
+}
+
+static void
+setModifiers(PuglView* view, int xstate)
+{
+	view->mods = 0;
+	view->mods |= (xstate & ShiftMask)   ? PUGL_MOD_SHIFT  : 0;
+	view->mods |= (xstate & ControlMask) ? PUGL_MOD_CTRL   : 0;
+	view->mods |= (xstate & Mod1Mask)    ? PUGL_MOD_ALT    : 0;
+	view->mods |= (xstate & Mod4Mask)    ? PUGL_MOD_SUPER  : 0;
+}
+
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
@@ -235,11 +274,13 @@ puglProcessEvents(PuglView* view)
 			view->redisplay = false;
 			break;
 		case MotionNotify:
+			setModifiers(view, event.xmotion.state);
 			if (view->motionFunc) {
 				view->motionFunc(view, event.xmotion.x, event.xmotion.y);
 			}
 			break;
 		case ButtonPress:
+			setModifiers(view, event.xbutton.state);
 			if (event.xbutton.button >= 4 && event.xbutton.button <= 7) {
 				if (view->scrollFunc) {
 					float dx = 0, dy = 0;
@@ -255,6 +296,7 @@ puglProcessEvents(PuglView* view)
 			}
 			// nobreak
 		case ButtonRelease:
+			setModifiers(view, event.xbutton.state);
 			if (view->mouseFunc &&
 			    (event.xbutton.button < 4 || event.xbutton.button > 7)) {
 				view->mouseFunc(view,
@@ -263,13 +305,20 @@ puglProcessEvents(PuglView* view)
 			}
 			break;
 		case KeyPress:
+			setModifiers(view, event.xkey.state);
 			if (view->keyboardFunc) {
 				KeySym sym = XKeycodeToKeysym(
 					view->impl->display, event.xkey.keycode, 0);
-				view->keyboardFunc(view, event.type == KeyPress, sym);
+				PuglKey special = keySymToSpecial(sym);
+				if (!special) {
+					view->keyboardFunc(view, true, sym);
+				} else if (view->specialFunc) {
+					view->specialFunc(view, true, special);
+				}
 			}
 			break;
 		case KeyRelease: {
+			setModifiers(view, event.xkey.state);
 			bool retriggered = false;
 			if (XEventsQueued(view->impl->display, QueuedAfterReading)) {
 				XEvent next;
@@ -286,7 +335,12 @@ puglProcessEvents(PuglView* view)
 			if (!retriggered && view->keyboardFunc) {
 				KeySym sym = XKeycodeToKeysym(
 					view->impl->display, event.xkey.keycode, 0);
-				view->keyboardFunc(view, false, sym);
+				PuglKey special = keySymToSpecial(sym);
+				if (!special) {
+					view->keyboardFunc(view, false, sym);
+				} else if (view->specialFunc) {
+					view->specialFunc(view, false, special);
+				}
 			}
 		}
 		case ClientMessage:
