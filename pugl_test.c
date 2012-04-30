@@ -27,8 +27,6 @@ static float xAngle = 0.0f;
 static float yAngle = 0.0f;
 static float dist   = 10.0f;
 
-#define KEY_ESCAPE 27
-
 static void
 onDisplay(PuglView* view)
 {
@@ -90,7 +88,8 @@ onKeyboard(PuglView* view, bool press, uint32_t key)
 {
 	fprintf(stderr, "Key %c %s ", (char)key, press ? "down" : "up");
 	printModifiers(view);
-	if (key == 'q' || key == 'Q' || key == KEY_ESCAPE) {
+	if (key == 'q' || key == 'Q' || key == PUGL_CHAR_ESCAPE ||
+	    key == PUGL_CHAR_DELETE || key == PUGL_CHAR_BACKSPACE) {
 		quit = 1;
 	}
 }

@@ -62,6 +62,9 @@ extern "C" {
 #    include <stdbool.h>
 #endif
 
+/**
+   An OpenGL view.
+*/
 typedef struct PuglViewImpl PuglView;
 
 /**
@@ -73,10 +76,25 @@ typedef struct PuglViewImpl PuglView;
 */
 typedef intptr_t PuglNativeWindow;
 
+/**
+   Return status code.
+*/
 typedef enum {
 	PUGL_SUCCESS = 0
 } PuglStatus;
 
+/**
+   Convenience symbols for ASCII control characters.
+*/
+typedef enum {
+	PUGL_CHAR_BACKSPACE = 0x08,
+	PUGL_CHAR_ESCAPE    = 0x1B,
+	PUGL_CHAR_DELETE    = 0x7F
+} PuglChar;
+	
+/**
+   Special (non-Unicode) keyboard keys.
+*/
 typedef enum {
 	PUGL_KEY_F1 = 1,
 	PUGL_KEY_F2,
@@ -98,29 +116,100 @@ typedef enum {
 	PUGL_KEY_PAGE_DOWN,
 	PUGL_KEY_HOME,
 	PUGL_KEY_END,
-	PUGL_KEY_INSERT
+	PUGL_KEY_INSERT,
+	PUGL_KEY_SHIFT_L,
+	PUGL_KEY_SHIFT_R,
+	PUGL_KEY_CTRL_L,
+	PUGL_KEY_CTRL_R,
+	PUGL_KEY_ALT_L,
+	PUGL_KEY_ALT_R,
+	PUGL_KEY_SUPER_L,
+	PUGL_KEY_SUPER_R
 } PuglKey;
 
+/**
+   Keyboard modifier flags.
+*/
 typedef enum {
 	PUGL_MOD_SHIFT = 1,       /**< Shift key */ 
 	PUGL_MOD_CTRL  = 1 << 1,  /**< Control key */
 	PUGL_MOD_ALT   = 1 << 2,  /**< Alt/Option key */
 	PUGL_MOD_SUPER = 1 << 3,  /**< Mod4/Command/Windows key */
-} PuglModifier;
+} PuglMod;
 	
 /**
    Handle for opaque user data.
 */
 typedef void* PuglHandle;
 
+/**
+   A function called when the window is closed.
+*/
 typedef void (*PuglCloseFunc)(PuglView* view);
+
+/**
+   A function called to draw the view contents with OpenGL.
+*/
 typedef void (*PuglDisplayFunc)(PuglView* view);
+
+/**
+   A function called when a key is pressed or released.
+   @param view The view the event occured in.
+   @param press True if the key was pressed, false if released.
+   @param key Unicode point of the key pressed.
+*/
 typedef void (*PuglKeyboardFunc)(PuglView* view, bool press, uint32_t key);
+
+/**
+   A function called when the pointer moves.
+   @param view The view the event occured in.
+   @param x The window-relative x coordinate of the pointer.
+   @param y The window-relative y coordinate of the pointer.
+*/
 typedef void (*PuglMotionFunc)(PuglView* view, int x, int y);
-typedef void (*PuglMouseFunc)(PuglView* view, int button, bool down,
-                              int x, int y);
+
+/**
+   A function called when a mouse button is pressed or released.
+   @param view The view the event occured in.
+   @param button The button number (1 = left, 2 = middle, 3 = right).
+   @param press True if the key was pressed, false if released.
+   @param x The window-relative x coordinate of the pointer.
+   @param y The window-relative y coordinate of the pointer.
+*/
+typedef void (*PuglMouseFunc)(
+	PuglView* view, int button, bool press, int x, int y);
+
+/**
+   A function called when the view is resized.
+   @param view The view being resized.
+   @param width The new view width.
+   @param height The new view height.
+*/
 typedef void (*PuglReshapeFunc)(PuglView* view, int width, int height);
+
+/**
+   A function called on scrolling (e.g. mouse wheel or track pad).
+
+   The distances used here are in "lines", a single tick of a clicking mouse
+   wheel.  For example, @p dy = 1.0 scrolls 1 line up.  Some systems and
+   devices support finer resolution and/or higher values for fast scrolls,
+   so programs should handle any value gracefully.
+
+   @param view The view being scrolled.
+   @param dx The scroll x distance.
+   @param dx The scroll y distance.
+*/
 typedef void (*PuglScrollFunc)(PuglView* view, float dx, float dy);
+
+/**
+   A function called when a special key is pressed or released.
+
+   This callback allows the use of keys that do not have unicode points.  Note
+   that some non-printable keys 
+   @param view The view the event occured in.
+   @param press True if the key was pressed, false if released.
+   @param key The key pressed.
+*/
 typedef void (*PuglSpecialFunc)(PuglView* view, bool press, PuglKey key);
 
 /**
@@ -157,7 +246,7 @@ PUGL_API PuglHandle
 puglGetHandle(PuglView* view);
 
 /**
-   Get the currently active modifiers (PuglModifier flags).
+   Get the currently active modifiers (PuglMod flags).
 
    This should only be called from an event handler.
 */

@@ -232,6 +232,14 @@ keySymToSpecial(KeySym sym)
 	case XK_Home:      return PUGL_KEY_HOME;
 	case XK_End:       return PUGL_KEY_END;
 	case XK_Insert:    return PUGL_KEY_INSERT;
+	case XK_Shift_L:   return PUGL_KEY_SHIFT_L;
+	case XK_Shift_R:   return PUGL_KEY_SHIFT_R;
+	case XK_Control_L: return PUGL_KEY_CTRL_L;
+	case XK_Control_R: return PUGL_KEY_CTRL_R;
+	case XK_Alt_L:     return PUGL_KEY_ALT_L;
+	case XK_Alt_R:     return PUGL_KEY_ALT_R;
+	case XK_Super_L:   return PUGL_KEY_SUPER_L;
+	case XK_Super_R:   return PUGL_KEY_SUPER_R;
 	}
 	return (PuglKey)0;
 }
@@ -307,13 +315,18 @@ puglProcessEvents(PuglView* view)
 		case KeyPress:
 			setModifiers(view, event.xkey.state);
 			if (view->keyboardFunc) {
-				KeySym sym = XKeycodeToKeysym(
-					view->impl->display, event.xkey.keycode, 0);
-				PuglKey special = keySymToSpecial(sym);
-				if (!special) {
-					view->keyboardFunc(view, true, sym);
+				KeySym  sym;
+				char    str[5];
+				int     n   = XLookupString(&event.xkey, str, 4, &sym, NULL);
+				PuglKey key = keySymToSpecial(sym);
+				if (!key) {
+					if (n == 1) {
+						view->keyboardFunc(view, true, str[0]);
+					} else {
+						fprintf(stderr, "warning: Unknown key %X\n", (int)sym);
+					}
 				} else if (view->specialFunc) {
-					view->specialFunc(view, true, special);
+					view->specialFunc(view, true, key);
 				}
 			}
 			break;
