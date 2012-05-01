@@ -14,6 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/**
+   @file pugl_win.cpp Windows/WGL Pugl Implementation.
+*/
+
 #include <windows.h>
 #include <windowsx.h>
 #include <GL/gl.h>

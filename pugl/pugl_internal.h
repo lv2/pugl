@@ -1,6 +1,5 @@
 /*
   Copyright 2012 David Robillard <http://drobilla.net>
-  Copyright 2011-2012 Ben Loftis, Harrison Consoles
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above

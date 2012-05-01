@@ -14,6 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/**
+   @file pugl_osx.m OSX/Cocoa Pugl Implementation.
+*/
+
 #include <stdlib.h>
 
 #import <Cocoa/Cocoa.h>

@@ -15,6 +15,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/**
+   @file pugl_x11.c X11 Pugl Implementation.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
