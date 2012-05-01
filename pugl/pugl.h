@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl.h API for Pugl, a portable micro-framework for GL UIs.
+   @file pugl.h API for Pugl, a minimal portable API for OpenGL.
 */
 
 #ifndef PUGL_H_INCLUDED
@@ -61,6 +61,12 @@ extern "C" {
 #else
 #    include <stdbool.h>
 #endif
+
+/**
+   @defgroup pugl Pugl
+   A minimal portable API for OpenGL.
+   @{
+*/
 
 /**
    An OpenGL view.
@@ -329,6 +335,10 @@ puglPostRedisplay(PuglView* view);
 */
 PUGL_API void
 puglDestroy(PuglView* view);
+
+/**
+   @}
+*/
 
 #ifdef __cplusplus
 }  /* extern "C" */
