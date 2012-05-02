@@ -93,22 +93,13 @@
 	int    height = bounds.size.height;
 
 	if (view->reshapeFunc) {
-		// User provided a reshape function, defer to that
 		view->reshapeFunc(view, width, height);
 	} else {
-		// No custom reshape function, do something reasonable
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(45.0f, width/(float)height, 1.0f, 10.0f);
-		glViewport(0, 0, width, height);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		puglDefaultReshape(view, width, height);
 	}
 
-	view->width     = width;
-	view->height    = height;
-	view->redisplay = true;
+	view->width  = width;
+	view->height = height;
 }
 
 - (void) drawRect:(NSRect)rect

@@ -21,7 +21,6 @@
 #include <windows.h>
 #include <windowsx.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
 
 #include "pugl_internal.h"
 
@@ -123,21 +122,13 @@ puglReshape(PuglView* view, int width, int height)
 	wglMakeCurrent(view->impl->hdc, view->impl->hglrc);
 
 	if (view->reshapeFunc) {
-		// User provided a reshape function, defer to that
 		view->reshapeFunc(view, width, height);
 	} else {
-		// No custom reshape function, do something reasonable
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(45.0f, view->width/(float)view->height, 1.0f, 10.0f);
-		glViewport(0, 0, view->width, view->height);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		puglDefaultReshape(view, width, height);
 	}
 
-	view->width     = width;
-	view->height    = height;
+	view->width  = width;
+	view->height = height;
 }
 
 void

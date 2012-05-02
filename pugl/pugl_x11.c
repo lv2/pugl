@@ -24,7 +24,6 @@
 #include <string.h>
 
 #include <GL/gl.h>
-#include <GL/glu.h>
 #include <GL/glx.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -174,22 +173,13 @@ puglReshape(PuglView* view, int width, int height)
 	glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
 
 	if (view->reshapeFunc) {
-		// User provided a reshape function, defer to that
 		view->reshapeFunc(view, width, height);
 	} else {
-		// No custom reshape function, do something reasonable
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(45.0f, width/(float)height, 1.0f, 10.0f);
-		glViewport(0, 0, width, height);
-
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+		puglDefaultReshape(view, width, height);
 	}
 
-	view->width     = width;
-	view->height    = height;
-	view->redisplay = true;
+	view->width  = width;
+	view->height = height;
 }
 
 void
@@ -310,11 +300,11 @@ puglProcessEvents(PuglView* view)
 			if (view->mouseFunc &&
 			    (event.xbutton.button < 4 || event.xbutton.button > 7)) {
 				view->mouseFunc(view,
-				               event.xbutton.button, event.type == ButtonPress,
-				               event.xbutton.x, event.xbutton.y);
+				                event.xbutton.button, event.type == ButtonPress,
+				                event.xbutton.x, event.xbutton.y);
 			}
 			break;
-		case KeyPress:
+		case KeyPress: {
 			setModifiers(view, event.xkey.state);
 			KeySym  sym;
 			char    str[5];
@@ -329,7 +319,7 @@ puglProcessEvents(PuglView* view)
 			} else if (view->specialFunc) {
 				view->specialFunc(view, true, key);
 			}
-			break;
+		} break;
 		case KeyRelease: {
 			setModifiers(view, event.xkey.state);
 			bool repeated = false;
@@ -355,7 +345,7 @@ puglProcessEvents(PuglView* view)
 					view->specialFunc(view, false, special);
 				}
 			}
-		}
+		} break;
 		case ClientMessage:
 			if (!strcmp(XGetAtomName(view->impl->display,
 			                         event.xclient.message_type),

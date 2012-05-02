@@ -65,6 +65,18 @@ puglGetModifiers(PuglView* view)
 }
 
 void
+puglDefaultReshape(PuglView* view, int width, int height)
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glOrtho(0, width, height, 0, 0, 1);
+	glViewport(0, 0, width, height);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+
+void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore)
 {
 	view->ignoreKeyRepeat = ignore;

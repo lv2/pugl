@@ -30,13 +30,11 @@
 */
 #ifdef __APPLE__
 #    include "OpenGL/gl.h"
-#    include "OpenGL/glu.h"
 #else
 #    ifdef _WIN32
 #        include <windows.h>  /* Broken Windows GL headers require this */
 #    endif
 #    include "GL/gl.h"
-#    include "GL/glu.h"
 #endif
 
 #ifdef PUGL_SHARED

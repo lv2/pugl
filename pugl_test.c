@@ -23,10 +23,29 @@
 
 #include "pugl/pugl.h"
 
+// Argh!
+#ifdef __APPLE__
+#    include <OpenGL/glu.h>
+#else
+#    include <GL/glu.h>
+#endif
+
 static int   quit   = 0;
 static float xAngle = 0.0f;
 static float yAngle = 0.0f;
 static float dist   = 10.0f;
+
+static void
+onReshape(PuglView* view, int width, int height)
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glViewport(0, 0, width, height);
+	gluPerspective(45.0f, width/(float)height, 1.0f, 10.0f);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
 
 static void
 onDisplay(PuglView* view)
@@ -162,6 +181,7 @@ main(int argc, char** argv)
 	puglSetScrollFunc(view, onScroll);
 	puglSetSpecialFunc(view, onSpecial);
 	puglSetDisplayFunc(view, onDisplay);
+	puglSetReshapeFunc(view, onReshape);
 	puglSetCloseFunc(view, onClose);
 
 	while (!quit) {
