@@ -155,14 +155,13 @@ puglCreate(PuglNativeWindow parent,
 void
 puglDestroy(PuglView* view)
 {
-	if (view->impl->ctx) {
-		if (!glXMakeCurrent(view->impl->display, None, NULL)) {
-			printf("Could not release drawing context.\n");
-		}
-		glXDestroyContext(view->impl->display, view->impl->ctx);
-		view->impl->ctx = NULL;
+	if (!view) {
+		return;
 	}
 
+	glXMakeCurrent(view->impl->display, None, NULL);
+	glXDestroyContext(view->impl->display, view->impl->ctx);
+	XDestroyWindow(view->impl->display, view->impl->win);
 	XCloseDisplay(view->impl->display);
 	free(view);
 }
