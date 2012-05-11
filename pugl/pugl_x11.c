@@ -31,7 +31,7 @@
 
 #include "pugl_internal.h"
 
-struct PuglPlatformDataImpl {
+struct PuglInternalsImpl {
 	Display*   display;
 	int        screen;
 	Window     win;
@@ -72,12 +72,13 @@ puglCreate(PuglNativeWindow parent,
            int              height,
            bool             resizable)
 {
-	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
+	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
+	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+	if (!view || !impl) {
+		return NULL;
+	}
 
-	view->impl = (PuglPlatformData*)calloc(1, sizeof(PuglPlatformData));
-
-	PuglPlatformData* impl = view->impl;
-
+	view->impl   = impl;
 	view->width  = width;
 	view->height = height;
 
@@ -85,7 +86,7 @@ puglCreate(PuglNativeWindow parent,
 	impl->screen  = DefaultScreen(impl->display);
 
 	XVisualInfo* vi = glXChooseVisual(impl->display, impl->screen, attrListDbl);
-	if (vi == NULL) {
+	if (!vi) {
 		vi = glXChooseVisual(impl->display, impl->screen, attrListSgl);
 		impl->doubleBuffered = False;
 		printf("singlebuffered rendering will be used, no doublebuffering available\n");
@@ -149,6 +150,8 @@ puglCreate(PuglNativeWindow parent,
 		printf("no DRI available\n");
 	}
 
+	XFree(vi);
+
 	return view;
 }
 
@@ -159,10 +162,10 @@ puglDestroy(PuglView* view)
 		return;
 	}
 
-	glXMakeCurrent(view->impl->display, None, NULL);
 	glXDestroyContext(view->impl->display, view->impl->ctx);
 	XDestroyWindow(view->impl->display, view->impl->win);
 	XCloseDisplay(view->impl->display);
+	free(view->impl);
 	free(view);
 }
 

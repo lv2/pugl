@@ -24,7 +24,7 @@
 
 #include "pugl.h"
 
-typedef struct PuglPlatformDataImpl PuglPlatformData;
+typedef struct PuglInternalsImpl PuglInternals;
 
 struct PuglViewImpl {
 	PuglHandle       handle;
@@ -37,7 +37,7 @@ struct PuglViewImpl {
 	PuglScrollFunc   scrollFunc;
 	PuglSpecialFunc  specialFunc;
 
-	PuglPlatformData* impl;
+	PuglInternals* impl;
 
 	int  width;
 	int  height;

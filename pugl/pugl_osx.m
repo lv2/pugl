@@ -216,7 +216,7 @@ getModifiers(unsigned modifierFlags)
 
 @end
 
-struct PuglPlatformDataImpl {
+struct PuglInternalsImpl {
 	PuglOpenGLView* view;
 	NSModalSession  session;
 	id              window;
@@ -229,13 +229,15 @@ puglCreate(PuglNativeWindow parent,
            int              height,
            bool             resizable)
 {
-	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
+	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
+	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+	if (!view || !impl) {
+		return NULL;
+	}
+
+	view->impl   = impl;
 	view->width  = width;
 	view->height = height;
-
-	view->impl = (PuglPlatformData*)calloc(1, sizeof(PuglPlatformData));
-
-	PuglPlatformData* impl = view->impl;
 
 	[NSAutoreleasePool new];
 	[NSApplication sharedApplication];

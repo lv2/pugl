@@ -24,7 +24,7 @@
 
 #include "pugl_internal.h"
 
-struct PuglPlatformDataImpl {
+struct PuglInternalsImpl {
 	HWND  hwnd;
 	HDC   hdc;
 	HGLRC hglrc;
@@ -58,11 +58,15 @@ puglCreate(PuglNativeWindow parent,
            int              height,
            bool             resizable)
 {
-	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
+	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
+	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+	if (!view || !impl) {
+		return NULL;
+	}
 
-	view->impl = (PuglPlatformData*)calloc(1, sizeof(PuglPlatformData));
-
-	PuglPlatformData* impl = view->impl;
+	view->impl   = impl;
+	view->width  = width;
+	view->height = height;
 
 	WNDCLASS wc;
 	wc.style         = CS_OWNDC;
@@ -113,6 +117,7 @@ puglDestroy(PuglView* view)
 	wglDeleteContext(view->impl->hglrc);
 	ReleaseDC(view->impl->hwnd, view->impl->hdc);
 	DestroyWindow(view->impl->hwnd);
+	free(view->impl);
 	free(view);
 }
 
