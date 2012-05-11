@@ -250,13 +250,13 @@ puglGetHandle(PuglView* view);
 
    This should only be called from an event handler.
 */
-int
+PUGL_API int
 puglGetModifiers(PuglView* view);
 
 /**
    Ignore synthetic repeated key events.
 */
-void
+PUGL_API void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore);
 
 /**
