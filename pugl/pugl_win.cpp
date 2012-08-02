@@ -24,6 +24,13 @@
 
 #include "pugl_internal.h"
 
+#ifndef WM_MOUSEWHEEL
+#    define WM_MOUSEWHEEL 0x020A
+#endif
+#ifndef WM_MOUSEHWHEEL
+#    define WM_MOUSEHWHEEL 0x020E
+#endif
+
 struct PuglInternalsImpl {
 	HWND  hwnd;
 	HDC   hdc;
