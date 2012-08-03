@@ -38,25 +38,7 @@ struct PuglInternalsImpl {
 };
 
 LRESULT CALLBACK
-wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message) {
-	case WM_CREATE:
-		PostMessage(hwnd, WM_SHOWWINDOW, TRUE, 0);
-		return 0;
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		return 0;
-	case WM_DESTROY:
-		return 0;
-	case WM_MOUSEWHEEL:
-	case WM_MOUSEHWHEEL:
-		PostMessage(hwnd, message, wParam, lParam);
-		return 0;
-	default:
-		return DefWindowProc(hwnd, message, wParam, lParam);
-	}
-}
+wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 PuglView*
 puglCreate(PuglNativeWindow parent,
@@ -88,10 +70,18 @@ puglCreate(PuglNativeWindow parent,
 	wc.lpszClassName = "Pugl";
 	RegisterClass(&wc);
 
-	impl->hwnd = CreateWindow("Pugl", title,
-	                          WS_CAPTION | WS_POPUPWINDOW | WS_VISIBLE,
-	                          0, 0, width, height,
-	                          (HWND)parent, NULL, NULL, NULL);
+	impl->hwnd = CreateWindow(
+		"Pugl", title,
+		WS_VISIBLE | (parent ? WS_CHILD : (WS_POPUPWINDOW | WS_CAPTION)),
+		0, 0, width, height,
+		(HWND)parent, NULL, NULL, NULL);
+	if (!impl->hwnd) {
+		free(impl);
+		free(view);
+		return NULL;
+	}
+		
+	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
 
 	impl->hdc = GetDC(impl->hwnd);
 
@@ -214,83 +204,93 @@ setModifiers(PuglView* view)
 	view->mods |= (GetKeyState(VK_RWIN)    < 0) ? PUGL_MOD_SUPER  : 0;
 }
 
-PuglStatus
-puglProcessEvents(PuglView* view)
+static LRESULT
+handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	MSG         msg;
 	PAINTSTRUCT ps;
 	PuglKey     key;
-	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
-		setModifiers(view);
-		switch (msg.message) {
-		case WM_CREATE:
-		case WM_SHOWWINDOW:
-		case WM_SIZE:
-			puglReshape(view, view->width, view->height);
-			break;
-		case WM_PAINT:
-			BeginPaint(view->impl->hwnd, &ps);
-			puglDisplay(view);
-			EndPaint(view->impl->hwnd, &ps);
-			break;
-		case WM_MOUSEMOVE:
-			if (view->motionFunc) {
-				view->motionFunc(
-					view, GET_X_LPARAM(msg.lParam), GET_Y_LPARAM(msg.lParam));
-			}
-			break;
-		case WM_LBUTTONDOWN:
-			processMouseEvent(view, 1, true, msg.lParam);
-			break;
-		case WM_MBUTTONDOWN:
-			processMouseEvent(view, 2, true, msg.lParam);
-			break;
-		case WM_RBUTTONDOWN:
-			processMouseEvent(view, 3, true, msg.lParam);
-			break;
-		case WM_LBUTTONUP:
-			processMouseEvent(view, 1, false, msg.lParam);
-			break;
-		case WM_MBUTTONUP:
-			processMouseEvent(view, 2, false, msg.lParam);
-			break;
-		case WM_RBUTTONUP:
-			processMouseEvent(view, 3, false, msg.lParam);
-			break;
-		case WM_MOUSEWHEEL:
-			if (view->scrollFunc) {
-				view->scrollFunc(
-					view, 0, (int16_t)HIWORD(msg.wParam) / (float)WHEEL_DELTA);
-			}
-			break;
-		case WM_MOUSEHWHEEL:
-			if (view->scrollFunc) {
-				view->scrollFunc(
-					view, (int16_t)HIWORD(msg.wParam) / float(WHEEL_DELTA), 0);
-			}
-			break;
-		case WM_KEYDOWN:
-			if (view->ignoreKeyRepeat && (msg.lParam & (1 << 30))) {
-				break;
-			} // else nobreak
-		case WM_KEYUP:
-			if (key = keySymToSpecial(msg.wParam)) {
-				if (view->specialFunc) {
-					view->specialFunc(view, msg.message == WM_KEYDOWN, key);
-				}
-			} else if (view->keyboardFunc) {
-				view->keyboardFunc(view, msg.message == WM_KEYDOWN, msg.wParam);
-			}
-			break;
-		case WM_QUIT:
-			if (view->closeFunc) {
-				view->closeFunc(view);
-			}
-			break;
-		default:
-			DefWindowProc(
-				view->impl->hwnd, msg.message, msg.wParam, msg.lParam);
+
+	setModifiers(view);
+	switch (message) {
+	case WM_CREATE:
+	case WM_SHOWWINDOW:
+	case WM_SIZE:
+		puglReshape(view, view->width, view->height);
+		break;
+	case WM_PAINT:
+		BeginPaint(view->impl->hwnd, &ps);
+		puglDisplay(view);
+		EndPaint(view->impl->hwnd, &ps);
+		break;
+	case WM_MOUSEMOVE:
+		if (view->motionFunc) {
+			view->motionFunc(
+				view, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
+		break;
+	case WM_LBUTTONDOWN:
+		processMouseEvent(view, 1, true, lParam);
+		break;
+	case WM_MBUTTONDOWN:
+		processMouseEvent(view, 2, true, lParam);
+		break;
+	case WM_RBUTTONDOWN:
+		processMouseEvent(view, 3, true, lParam);
+		break;
+	case WM_LBUTTONUP:
+		processMouseEvent(view, 1, false, lParam);
+		break;
+	case WM_MBUTTONUP:
+		processMouseEvent(view, 2, false, lParam);
+		break;
+	case WM_RBUTTONUP:
+		processMouseEvent(view, 3, false, lParam);
+		break;
+	case WM_MOUSEWHEEL:
+		if (view->scrollFunc) {
+			view->scrollFunc(
+				view, 0, (int16_t)HIWORD(wParam) / (float)WHEEL_DELTA);
+		}
+		break;
+	case WM_MOUSEHWHEEL:
+		if (view->scrollFunc) {
+			view->scrollFunc(
+				view, (int16_t)HIWORD(wParam) / float(WHEEL_DELTA), 0);
+		}
+		break;
+	case WM_KEYDOWN:
+		if (view->ignoreKeyRepeat && (lParam & (1 << 30))) {
+			break;
+		} // else nobreak
+	case WM_KEYUP:
+		if (key = keySymToSpecial(wParam)) {
+			if (view->specialFunc) {
+				view->specialFunc(view, message == WM_KEYDOWN, key);
+			}
+		} else if (view->keyboardFunc) {
+			view->keyboardFunc(view, message == WM_KEYDOWN, wParam);
+		}
+		break;
+	case WM_QUIT:
+		if (view->closeFunc) {
+			view->closeFunc(view);
+		}
+		break;
+	default:
+		return DefWindowProc(
+			view->impl->hwnd, message, wParam, lParam);
+	}
+
+	return 0;
+}
+
+PuglStatus
+puglProcessEvents(PuglView* view)
+{
+	MSG msg;
+	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
+		handleMessage(view, msg.message, msg.wParam, msg.lParam);
 	}
 
 	if (view->redisplay) {
@@ -298,6 +298,32 @@ puglProcessEvents(PuglView* view)
 	}
 
 	return PUGL_SUCCESS;
+}
+
+LRESULT CALLBACK
+wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	PuglView* view = (PuglView*)GetWindowLongPtr(hwnd, GWL_USERDATA);
+	switch (message) {
+	case WM_CREATE:
+		PostMessage(hwnd, WM_SHOWWINDOW, TRUE, 0);
+		return 0;
+	case WM_CLOSE:
+		PostQuitMessage(0);
+		return 0;
+	case WM_DESTROY:
+		return 0;
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+		PostMessage(hwnd, message, wParam, lParam);
+		return 0;
+	default:
+		if (view) {
+			return handleMessage(view, message, wParam, lParam);
+		} else {
+			return DefWindowProc(hwnd, message, wParam, lParam);
+		}
+	}
 }
 
 void
