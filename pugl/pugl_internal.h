@@ -64,7 +64,7 @@ puglGetModifiers(PuglView* view)
 	return view->mods;
 }
 
-void
+static inline void
 puglDefaultReshape(PuglView* view, int width, int height)
 {
 	glMatrixMode(GL_PROJECTION);

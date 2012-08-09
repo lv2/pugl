@@ -169,7 +169,7 @@ puglDestroy(PuglView* view)
 	free(view);
 }
 
-void
+static void
 puglReshape(PuglView* view, int width, int height)
 {
 	glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
@@ -184,7 +184,7 @@ puglReshape(PuglView* view, int width, int height)
 	view->height = height;
 }
 
-void
+static void
 puglDisplay(PuglView* view)
 {
 	glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
