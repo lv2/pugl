@@ -70,7 +70,7 @@ puglCreate(PuglNativeWindow parent,
 	// Should class be a parameter?  Does this make sense on other platforms?
 	static int wc_count = 0;
 	char classNameBuf[256];
-	snprintf(classNameBuf, sizeof(classNameBuf), "%s_%d\n", title, wc_count++);
+	_snprintf(classNameBuf, sizeof(classNameBuf), "%s_%d\n", title, wc_count++);
 
 	impl->wc.style         = CS_OWNDC;
 	impl->wc.lpfnWndProc   = wndProc;
@@ -322,6 +322,12 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
+	MSG msg;
+	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
+		handleMessage(view, msg.message, msg.wParam, msg.lParam);
+	}
+
+
 	if (view->redisplay) {
 		InvalidateRect(view->impl->hwnd, NULL, FALSE);
 	}
