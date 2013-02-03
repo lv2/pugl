@@ -147,7 +147,7 @@ puglCreate(PuglNativeWindow parent,
 	if (glXIsDirect(impl->display, impl->ctx)) {
 		printf("DRI enabled\n");
 	} else {
-		printf("no DRI available\n");
+		printf("No DRI available\n");
 	}
 
 	XFree(vi);
@@ -241,8 +241,10 @@ keySymToSpecial(KeySym sym)
 }
 
 static void
-setModifiers(PuglView* view, int xstate)
+setModifiers(PuglView* view, unsigned xstate, unsigned xtime)
 {
+	view->event_timestamp_ms = xtime;
+
 	view->mods = 0;
 	view->mods |= (xstate & ShiftMask)   ? PUGL_MOD_SHIFT  : 0;
 	view->mods |= (xstate & ControlMask) ? PUGL_MOD_CTRL   : 0;
@@ -273,16 +275,15 @@ puglProcessEvents(PuglView* view)
 				break;
 			}
 			puglDisplay(view);
-			view->redisplay = false;
 			break;
 		case MotionNotify:
-			setModifiers(view, event.xmotion.state);
+			setModifiers(view, event.xmotion.state, event.xmotion.time);
 			if (view->motionFunc) {
 				view->motionFunc(view, event.xmotion.x, event.xmotion.y);
 			}
 			break;
 		case ButtonPress:
-			setModifiers(view, event.xbutton.state);
+			setModifiers(view, event.xbutton.state, event.xbutton.time);
 			if (event.xbutton.button >= 4 && event.xbutton.button <= 7) {
 				if (view->scrollFunc) {
 					float dx = 0, dy = 0;
@@ -298,7 +299,7 @@ puglProcessEvents(PuglView* view)
 			}
 			// nobreak
 		case ButtonRelease:
-			setModifiers(view, event.xbutton.state);
+			setModifiers(view, event.xbutton.state, event.xbutton.time);
 			if (view->mouseFunc &&
 			    (event.xbutton.button < 4 || event.xbutton.button > 7)) {
 				view->mouseFunc(view,
@@ -307,7 +308,7 @@ puglProcessEvents(PuglView* view)
 			}
 			break;
 		case KeyPress: {
-			setModifiers(view, event.xkey.state);
+			setModifiers(view, event.xkey.state, event.xkey.time);
 			KeySym  sym;
 			char    str[5];
 			int     n   = XLookupString(&event.xkey, str, 4, &sym, NULL);
@@ -323,7 +324,7 @@ puglProcessEvents(PuglView* view)
 			}
 		} break;
 		case KeyRelease: {
-			setModifiers(view, event.xkey.state);
+			setModifiers(view, event.xkey.state, event.xkey.time);
 			bool repeated = false;
 			if (view->ignoreKeyRepeat &&
 			    XEventsQueued(view->impl->display, QueuedAfterReading)) {

@@ -246,6 +246,12 @@ PUGL_API PuglHandle
 puglGetHandle(PuglView* view);
 
 /**
+   Return the timestamp (if any) of the currently-processing event.
+*/
+PUGL_API uint32_t
+puglGetEventTimestamp(PuglView* view);
+
+/**
    Get the currently active modifiers (PuglMod flags).
 
    This should only be called from an event handler.

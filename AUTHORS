@@ -1,5 +1,5 @@
 Author:
     David Robillard <d@drobilla.net>
 
-Original GLX inspiration:
+Original GLX inspiration, portability fixes:
     Ben Loftis
