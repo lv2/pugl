@@ -70,7 +70,8 @@ puglCreate(PuglNativeWindow parent,
            const char*      title,
            int              width,
            int              height,
-           bool             resizable)
+           bool             resizable,
+           bool             visible)
 {
 	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
 	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
@@ -142,7 +143,9 @@ puglCreate(PuglNativeWindow parent,
 		XSetWMProtocols(impl->display, impl->win, &wmDelete, 1);
 	}
 
-	XMapRaised(impl->display, impl->win);
+	if (visible) {
+		XMapRaised(impl->display, impl->win);
+	}
 
 	if (glXIsDirect(impl->display, impl->ctx)) {
 		printf("DRI enabled\n");

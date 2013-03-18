@@ -82,6 +82,10 @@ puglDefaultReshape(PuglView* view, int width, int height)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+	return;
+
+	// unused
+	(void)view;
 }
 
 void

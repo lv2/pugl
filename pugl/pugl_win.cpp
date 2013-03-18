@@ -54,7 +54,8 @@ puglCreate(PuglNativeWindow parent,
            const char*      title,
            int              width,
            int              height,
-           bool             resizable)
+           bool             resizable,
+           bool             visible)
 {
 	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
 	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
@@ -84,15 +85,19 @@ puglCreate(PuglNativeWindow parent,
 	impl->wc.lpszClassName = classNameBuf;
 	RegisterClass(&impl->wc);
 
+	int winFlags = WS_POPUPWINDOW | WS_CAPTION;
+	if (resizable) {
+		winFlags |= WS_SIZEBOX;
+	}
+
 	// Adjust the overall window size to accomodate our requested client size
 	RECT wr = { 0, 0, width, height };
-	AdjustWindowRectEx(
-		&wr, WS_SIZEBOX | WS_POPUPWINDOW | WS_CAPTION, FALSE, WS_EX_TOPMOST);
+	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
 
 	impl->hwnd = CreateWindowEx(
 		WS_EX_TOPMOST,
  		classNameBuf, title,
-		WS_VISIBLE | (parent ? WS_CHILD : (WS_SIZEBOX | WS_POPUPWINDOW | WS_CAPTION)),
+		(addToDesktop ? WS_VISIBLE : 0) | (parent ? WS_CHILD : winFlags),
 		0, 0, wr.right-wr.left, wr.bottom-wr.top,
 		(HWND)parent, NULL, NULL, NULL);
 
@@ -236,7 +241,6 @@ setModifiers(PuglView* view)
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	MSG         msg;
 	PAINTSTRUCT ps;
 	PuglKey     key;
 
@@ -297,7 +301,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		} // else nobreak
 	case WM_KEYUP:
-		if (key = keySymToSpecial(wParam)) {
+		if ((key = keySymToSpecial(wParam))) {
 			if (view->specialFunc) {
 				view->specialFunc(view, message == WM_KEYDOWN, key);
 			}
