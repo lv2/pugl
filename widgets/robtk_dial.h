@@ -37,6 +37,7 @@ typedef struct {
 	float acc;
 	float cur;
 	float dfl;
+	float base_mult;
 
 	float scroll_accel;
 #ifdef _POSIX_MONOTONIC_CLOCK
@@ -160,9 +161,9 @@ static RobWidget* robtk_dial_mousemove(RobWidget* handle, RobTkBtnEvent *ev) {
 	}
 
 #ifndef ABSOLUTE_DRAGGING
-	const float mult = (ev->state & ROBTK_MOD_CTRL) ? 0.0004 : 0.004; // 2500px || 250px
+	const float mult = (ev->state & ROBTK_MOD_CTRL) ? (d->base_mult * 0.1) : d->base_mult;
 #else
-	const float mult = 0.004;
+	const float mult = d->base_mult;
 #endif
 
 	float diff = ((ev->x - d->drag_x) - (ev->y - d->drag_y)) * mult;
@@ -360,6 +361,8 @@ static RobTkDial * robtk_dial_new_with_size(float min, float max, float step,
 	d->dragging = FALSE;
 	d->drag_x = d->drag_y = 0;
 	d->scroll_accel = 1.0;
+	d->base_mult = (((d->max - d->min) / d->acc) < 12) ? (d->acc * 12.0 / (d->max - d->min)) : 1.0;
+	d->base_mult *= 0.004; // 250px
 #ifdef _POSIX_MONOTONIC_CLOCK
 	d->scroll_accel_thresh = 0;
 	clock_gettime(CLOCK_MONOTONIC, &d->scroll_accel_timeout);
