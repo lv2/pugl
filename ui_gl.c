@@ -94,12 +94,6 @@
 #include "gl/posringbuf.h"
 #include "robtk.h"
 
-/*****************************************************************************/
-
-#include PLUGIN_SOURCE
-
-/*****************************************************************************/
-
 static void opengl_init () {
 	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
 	glDisable (GL_DEPTH_TEST);
@@ -253,6 +247,12 @@ typedef struct {
 #endif
 
 } GlMetersLV2UI;
+
+/*****************************************************************************/
+
+#include PLUGIN_SOURCE
+
+/*****************************************************************************/
 
 #include "gl/xternalui.c"
 
@@ -996,7 +996,7 @@ static void* ui_thread(void* handle) {
 			self->ui_queue_puglXWindow = 0;
 		}
 #ifdef THREADSYNC
-		myusleep(1000000 / 60); // max FPS
+		//myusleep(1000000 / 60); // max FPS
 		struct timespec now;
 		clock_gettime(CLOCK_REALTIME, &now);
 		now.tv_nsec += 1000000000 / 25; // min FPS
