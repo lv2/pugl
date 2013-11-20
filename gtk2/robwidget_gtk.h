@@ -39,6 +39,7 @@ static gboolean robtk_mousedown(GtkWidget *w, GdkEventButton *ev, gpointer handl
 	event.y = ev->y;
 	event.state = ev->state;
 	event.direction = ROBTK_SCROLL_ZERO;
+	event.button = ev->button;
 	if (self->mousedown(self, &event)) return TRUE;
 	return FALSE;
 }
@@ -50,6 +51,7 @@ static gboolean robtk_mouseup(GtkWidget *w, GdkEventButton *ev, gpointer handle)
 	event.y = ev->y;
 	event.state = ev->state;
 	event.direction = ROBTK_SCROLL_ZERO;
+	event.button = ev->button;
 	if (self->mouseup(self, &event)) return TRUE;
 	return FALSE;
 }
@@ -60,6 +62,7 @@ static gboolean robtk_mousemove(GtkWidget *w, GdkEventMotion *ev, gpointer handl
 	event.x = ev->x;
 	event.y = ev->y;
 	event.state = ev->state;
+	event.button = -1;
 	event.direction = ROBTK_SCROLL_ZERO;
 	if (self->mousemove(self, &event)) return TRUE;
 	return FALSE;
@@ -71,6 +74,7 @@ static gboolean robtk_mousescroll(GtkWidget *w, GdkEventScroll *ev, gpointer han
 	event.x = ev->x;
 	event.y = ev->y;
 	event.state = 0;
+	event.button = -1;
 	switch (ev->direction) {
 		case GDK_SCROLL_UP:
 			event.direction = ROBTK_SCROLL_UP;

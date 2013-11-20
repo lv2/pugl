@@ -793,7 +793,8 @@ static void onDisplay(PuglView* view) {
 	event.x = x - self->tl->area.x; \
 	event.y = y - self->tl->area.y; \
 	event.state = puglGetModifiers(view); \
-	event.direction = ROBTK_SCROLL_ZERO;
+	event.direction = ROBTK_SCROLL_ZERO; \
+	event.button = -1;
 
 static void onMotion(PuglView* view, int x, int y) {
 	GlMetersLV2UI* self = (GlMetersLV2UI*)puglGetHandle(view);
@@ -834,6 +835,7 @@ static void onMouse(PuglView* view, int button, bool press, int x, int y) {
 
 	GL_MOUSEBOUNDS;
 	GL_MOUSEEVENT;
+	event.button = button;
 
 	if (!press) {
 		if (self->tl->mouseup) {

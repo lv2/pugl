@@ -35,6 +35,7 @@ typedef struct {
 	int x; int y;
 	int state;
 	int direction; // scroll
+	int button;
 } RobTkBtnEvent;
 
 #ifndef ROBTK_MOD_SHIFT

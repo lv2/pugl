@@ -162,7 +162,8 @@ static void rcontainer_clear_bg(RobWidget* rw, cairo_t* cr, cairo_rectangle_t *e
 	event.x = ev->x - c->area.x; \
 	event.y = ev->y - c->area.y; \
 	event.state = ev->state; \
-	event.direction = ev->direction;
+	event.direction = ev->direction; \
+	event.button = ev->button;
 
 static RobWidget* rcontainer_mousedown(RobWidget* handle, RobTkBtnEvent *ev) {
 	RobWidget * rw = (RobWidget*)handle;
