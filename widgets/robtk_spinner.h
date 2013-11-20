@@ -162,6 +162,7 @@ static void robtk_spin_set_label_pos(RobTkSpin *d, int p) {
 	d->lbl = p&3;
 	if (!(d->lbl & 1)) robtk_lbl_set_text(d->lbl_l, "");
 	if (!(d->lbl & 2)) robtk_lbl_set_text(d->lbl_r, "");
+	robtk_spin_render(d);
 }
 
 static RobWidget * robtk_spin_widget(RobTkSpin *d) {
