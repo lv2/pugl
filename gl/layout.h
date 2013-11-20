@@ -240,6 +240,11 @@ static bool rcontainer_expose_event(RobWidget* rw, cairo_t* cr, cairo_rectangle_
 		cairo_save(cr);
 		cairo_translate(cr, c->area.x, c->area.y);
 		c->expose_event(c, cr, &event);
+#if 0 // VISUAL LAYOUT DEBUG -- NB. expose_event may or may not alter event
+		cairo_rectangle(cr, event.x, event.y, event.width, event.height);
+		cairo_set_source_rgba(cr, rand()/(float)RAND_MAX, rand()/(float)RAND_MAX, rand()/(float)RAND_MAX, 0.5);
+		cairo_fill(cr);
+#endif
 		cairo_restore(cr);
 	}
 	if (rw->resized) {
