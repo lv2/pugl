@@ -40,11 +40,9 @@ typedef struct {
 	float base_mult;
 
 	float scroll_accel;
-#ifdef _POSIX_MONOTONIC_CLOCK
 #define ACCEL_THRESH 10
 	struct timespec scroll_accel_timeout;
 	int scroll_accel_thresh;
-#endif
 
 	float drag_x, drag_y, drag_c;
 	bool dragging;
@@ -194,10 +192,8 @@ static void robtk_dial_leave_notify(RobWidget *handle) {
 	RobTkDial * d = (RobTkDial *)GET_HANDLE(handle);
 	if (d->prelight) {
 		d->prelight = FALSE;
-#ifdef _POSIX_MONOTONIC_CLOCK
 		d->scroll_accel = 1.0;
 		d->scroll_accel_thresh = 0;
-#endif
 		queue_draw(d->rw);
 	}
 }
@@ -208,9 +204,8 @@ static RobWidget* robtk_dial_scroll(RobWidget* handle, RobTkBtnEvent *ev) {
 	if (!d->sensitive) { return NULL; }
 	if (d->dragging) { d->dragging = FALSE; }
 
-#ifdef _POSIX_MONOTONIC_CLOCK
 	struct timespec now;
-	clock_gettime(CLOCK_MONOTONIC, &now);
+	rtk_clock_gettime(&now);
 	int64_t ts0 =  now.tv_sec * 1000 + now.tv_nsec / 1000000;
 	int64_t ts1 =  d->scroll_accel_timeout.tv_sec * 1000 + d->scroll_accel_timeout.tv_nsec / 1000000;
 	if (ts0 - ts1 < 100) {
@@ -224,32 +219,27 @@ static RobWidget* robtk_dial_scroll(RobWidget* handle, RobTkBtnEvent *ev) {
 
 	d->scroll_accel_timeout.tv_sec = now.tv_sec;
 	d->scroll_accel_timeout.tv_nsec = now.tv_nsec;
-#endif
 
 	float val = d->cur;
 	switch (ev->direction) {
 		case ROBTK_SCROLL_RIGHT:
 		case ROBTK_SCROLL_UP:
-#ifdef _POSIX_MONOTONIC_CLOCK
 			if (d->scroll_accel_thresh < 0) {
 				d->scroll_accel_thresh = 0;
 				d->scroll_accel = 1.0;
 			} else if (d->scroll_accel_thresh <= ACCEL_THRESH) {
 				d->scroll_accel_thresh++;
 			}
-#endif
 			val += d->acc * d->scroll_accel;
 			break;
 		case ROBTK_SCROLL_LEFT:
 		case ROBTK_SCROLL_DOWN:
-#ifdef _POSIX_MONOTONIC_CLOCK
 			if (d->scroll_accel_thresh > 0) {
 				d->scroll_accel_thresh = 0;
 				d->scroll_accel = 1.0;
 			} else if (d->scroll_accel_thresh >= -ACCEL_THRESH) {
 				d->scroll_accel_thresh--;
 			}
-#endif
 			val -= d->acc * d->scroll_accel;
 			break;
 		default:
@@ -363,10 +353,8 @@ static RobTkDial * robtk_dial_new_with_size(float min, float max, float step,
 	d->scroll_accel = 1.0;
 	d->base_mult = (((d->max - d->min) / d->acc) < 12) ? (d->acc * 12.0 / (d->max - d->min)) : 1.0;
 	d->base_mult *= 0.004; // 250px
-#ifdef _POSIX_MONOTONIC_CLOCK
 	d->scroll_accel_thresh = 0;
-	clock_gettime(CLOCK_MONOTONIC, &d->scroll_accel_timeout);
-#endif
+	rtk_clock_gettime(&d->scroll_accel_timeout);
 	d->bg  = NULL;
 	create_dial_pattern(d);
 

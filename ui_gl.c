@@ -76,11 +76,6 @@
 #include <GL/glu.h>
 #endif
 
-#ifdef __MACH__
-#include <mach/clock.h>
-#include <mach/mach.h>
-#endif
-
 #ifdef USE_GTK_RESIZE_HACK
 #include <gtk/gtk.h>
 #endif
@@ -540,18 +535,7 @@ static void resize_toplevel(RobWidget *rw, int w, int h) {
 /* helper functions */
 static uint64_t microtime(float offset) {
 	struct timespec now;
-
-#ifdef __MACH__
-	clock_serv_t cclock;
-	mach_timespec_t mts;
-	host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-	clock_get_time(cclock, &mts);
-	mach_port_deallocate(mach_task_self(), cclock);
-	now.tv_sec = mts.tv_sec;
-	now.tv_nsec = mts.tv_nsec;
-#else
-	clock_gettime(CLOCK_REALTIME, &now);
-#endif
+	rtk_clock_gettime(&now);
 
 	now.tv_nsec += 1000000000 * offset;
 	while (now.tv_nsec >= 1000000000) {
