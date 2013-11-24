@@ -118,6 +118,7 @@ static bool robtk_dial_expose_event (RobWidget* handle, cairo_t* cr, cairo_recta
 static void robtk_dial_update_value(RobTkDial * d, float val) {
 	if (val < d->min) val = d->min;
 	if (val > d->max) val = d->max;
+	val = d->min + rintf((val-d->min) / d->acc ) * d->acc;
 	if (val != d->cur) {
 		d->cur = val;
 		if (d->cb) d->cb(d->rw, d->handle);
@@ -165,9 +166,8 @@ static RobWidget* robtk_dial_mousemove(RobWidget* handle, RobTkBtnEvent *ev) {
 #endif
 
 	float diff = ((ev->x - d->drag_x) - (ev->y - d->drag_y)) * mult;
-	diff = rint(diff * (d->max - d->min) / d->acc ) * d->acc;
-	float val = d->drag_c + diff;
-	robtk_dial_update_value(d, val);
+	diff = rintf(diff * (d->max - d->min) / d->acc ) * d->acc;
+	robtk_dial_update_value(d, d->drag_c + diff);
 
 #ifndef ABSOLUTE_DRAGGING
 	if (d->drag_c != d->cur) {
@@ -386,14 +386,13 @@ static void robtk_dial_set_callback(RobTkDial *d, bool (*cb) (RobWidget* w, void
 }
 
 static void robtk_dial_set_default(RobTkDial *d, float v) {
-	v = d->min + rint((v-d->min) / d->acc ) * d->acc;
+	v = d->min + rintf((v-d->min) / d->acc ) * d->acc;
 	assert(v >= d->min);
 	assert(v <= d->max);
 	d->dfl = v;
 }
 
 static void robtk_dial_set_value(RobTkDial *d, float v) {
-	v = d->min + rint((v-d->min) / d->acc ) * d->acc;
 	robtk_dial_update_value(d, v);
 }
 
