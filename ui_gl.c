@@ -984,7 +984,7 @@ static void* ui_thread(void* handle) {
 #ifdef THREADSYNC
 		//myusleep(1000000 / 60); // max FPS
 		struct timespec now;
-		clock_gettime(CLOCK_REALTIME, &now);
+		rtk_clock_gettime(&now);
 		now.tv_nsec += 1000000000 / 25; // min FPS
 		if (now.tv_nsec >= 1000000000) {
 			now.tv_nsec -= 1000000000;
