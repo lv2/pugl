@@ -119,7 +119,7 @@ static bool robtk_select_expose_event(RobWidget* handle, cairo_t* cr, cairo_rect
 	}
 
 	cairo_save(cr);
-	const float off = floor(16 + (d->t_width - d->items[d->active_item].width) / 2.0);
+	const float off = floor(16 + (d->w_width - 36 - d->items[d->active_item].width) / 2.0);
 	cairo_translate(cr, off, 3);
 	cairo_rectangle_t a;
 	a.x=0; a.width = d->items[d->active_item].width;
@@ -243,12 +243,17 @@ static void robtk_select_leave_notify(RobWidget *handle) {
 static void
 robtk_select_size_request(RobWidget* handle, int *w, int *h) {
 	RobTkSelect * d = (RobTkSelect *)GET_HANDLE(handle);
-	d->w_width = 36 + d->t_width;
 	d->w_height = MAX(16, 6 + d->t_height);
-	*w = d->w_width;
+	*w = 36 + d->t_width;
 	*h = d->w_height;
 }
 
+static void
+robtk_select_size_allocate(RobWidget* handle, int w, int h) {
+	RobTkSelect * d = (RobTkSelect *)GET_HANDLE(handle);
+	d->w_width = w;
+	robwidget_set_size(handle, d->w_width, d->w_height);
+}
 
 
 /******************************************************************************
@@ -311,6 +316,7 @@ static void robtk_select_add_item(RobTkSelect *d, float val, const char *txt) {
 	d->items[d->item_count].width = w;
 	d->item_count++;
 	robwidget_set_size_request(d->rw, robtk_select_size_request);
+	robwidget_set_size_allocate(d->rw, robtk_select_size_allocate);
 }
 
 static RobWidget * robtk_select_widget(RobTkSelect *d) {
