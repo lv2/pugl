@@ -1,5 +1,7 @@
 /* XY plot/drawing area
  *
+ * NOTE: THIS WIDGET'S API IS SUBJECT TO CHANGE
+ *
  * Copyright (C) 2013 Robin Gareus <robin@gareus.org>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -32,6 +34,7 @@ typedef struct {
 	uint32_t n_points;
 	float *points_x;
 	float *points_y;
+	bool   interpolate_y;
 } RobTkXYp;
 
 static bool robtk_xydraw_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectangle_t* ev) {
@@ -51,6 +54,7 @@ static bool robtk_xydraw_expose_event(RobWidget* handle, cairo_t* cr, cairo_rect
 
 	int px = -1;
 	float yavg = 0;
+	float ypeak = d->w_height;
 	int ycnt = 0;
 
 	pthread_mutex_lock (&d->_mutex);
@@ -63,22 +67,34 @@ static bool robtk_xydraw_expose_event(RobWidget* handle, cairo_t* cr, cairo_rect
 		if (x > d->w_width) x = d->w_width;
 		if (y > d->w_height) y = d->w_height;
 
-		if (px == rint(x)) {
-			yavg += y;
-			ycnt ++;
-			continue;
+		if (d->interpolate_y) {
+			/* average value of all points on same x-coordinate */
+			if (px == rint(x)) {
+				yavg += y;
+				ycnt ++;
+				continue;
+			}
+			if (ycnt > 0) {
+				y = (yavg + y) / (float)(ycnt+1.0);
+			}
+			yavg = 0; ycnt = 0;
+		} else {
+			/* take maxium value */
+			if (px == rint(x)) {
+				if (ypeak > y) ypeak = y;
+			}
+			if (ypeak < y) y = ypeak;
+			ypeak = d->w_height;
 		}
-		px = rintf(x);
-		x = px + .5;
-		if (ycnt > 0) {
-			y = (yavg + y) / (float)(ycnt+1.0);
-		}
-		yavg = 0; ycnt = 0;
 
-		if (i==0) cairo_move_to(cr, x, y);
-		else cairo_line_to(cr, x, y);
+		px = rintf(x);
+		x = px - .5;
+
+		if (i==0) cairo_move_to(cr, x, y+.5);
+		else cairo_line_to(cr, x, y+.5);
 	}
 	pthread_mutex_unlock (&d->_mutex);
+
 	if (d->n_points > 0) {
 		cairo_set_line_width (cr, d->line_width);
 		cairo_set_source_rgba(cr, d->col[0], d->col[1], d->col[2], d->col[3]);
@@ -108,6 +124,7 @@ static RobTkXYp * robtk_xydraw_new(int w, int h) {
 	d->w_width = w;
 	d->w_height = h;
 	d->line_width = 1.0;
+	d->interpolate_y = false;
 
 	d->bg = NULL;
 	d->n_points = 0;
@@ -143,6 +160,10 @@ static void robtk_xydraw_set_alignment(RobTkXYp *d, float x, float y) {
 
 static void robtk_xydraw_set_linewidth(RobTkXYp *d, float lw) {
 	d->line_width = lw;
+}
+
+static void robtk_xydraw_set_interpolate_y(RobTkXYp *d, bool *onoff) {
+	d->interpolate_y = onoff;
 }
 
 static void robtk_xydraw_set_color(RobTkXYp *d, float r, float g, float b, float a) {
