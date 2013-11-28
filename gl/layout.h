@@ -24,6 +24,11 @@
 //#define DEBUG_VBOX
 //#define DEBUG_TABLE
 
+#define RTK_SHRINK 0
+#define RTK_EXPAND 1
+#define RTK_FILL   2
+#define RTK_EXANDF 3
+
 struct rob_container {
 	bool homogeneous;
 	bool expand;
@@ -38,6 +43,8 @@ struct rob_table_child {
 	int bottom;
 	int xpadding;
 	int ypadding;
+	int expand_x;
+	int expand_y;
 };
 
 struct rob_table_field {
@@ -315,7 +322,7 @@ static void rhbox_size_allocate(RobWidget* rw, int w, int h) {
 	int padding = ((struct rob_container*)rw->self)->padding;
 	bool expand = ((struct rob_container*)rw->self)->expand;
 	if (w < rw->area.width) {
-		printf(" !!! hbox packing error\n");
+		printf(" !!! hbox packing error alloc:%d, widget:%.1f\n", w, rw->area.width);
 		w = rw->area.width;
 	}
 	float xtra_space = 0;
@@ -494,7 +501,7 @@ static void rvbox_size_allocate(RobWidget* rw, int w, int h) {
 	int padding = ((struct rob_container*)rw->self)->padding;
 	bool expand = ((struct rob_container*)rw->self)->expand;
 	if (h < rw->area.height) {
-		printf(" !!! vbox packing error %d vs %.1f\n", h, rw->area.height);
+		printf(" !!! vbox packing error alloc:%d, widget:%.1f\n", h, rw->area.height);
 		h = rw->area.height;
 	}
 	float xtra_space = 0;
@@ -668,18 +675,24 @@ rtable_size_request(RobWidget* rw, int *w, int *h) {
 #ifdef DEBUG_TABLE
 		printf("widget %d wants (%d x %d) x-span:%d y-span: %d\n", i, cw, ch, (tc->right - tc->left), (tc->bottom - tc->top));
 #endif
-
+		int curw = 0, curh = 0;
 		for (int span_x = tc->left; span_x < tc->right; ++span_x) {
-			rt->cols[span_x].req_w = MAX(rt->cols[span_x].req_w, cw / (tc->right - tc->left)); // XXX
+			curw += rt->cols[span_x].req_w;
+		}
+		for (int span_y = tc->top; span_y < tc->bottom; ++span_y) {
+			curh += rt->rows[span_y].req_h;
+		}
+		for (int span_x = tc->left; span_x < tc->right; ++span_x) {
+			rt->cols[span_x].req_w += ceil(MAX(0, cw - curw) / (float)(tc->right - tc->left));
 			rt->cols[span_x].req_h = MAX(rt->cols[span_x].req_h, ch); // unused -- homog
-			if (can_expand) {
+			if (can_expand && (tc->expand_x & RTK_EXPAND)) {
 				rt->cols[span_x].is_expandable_x = TRUE;
 			}
 		}
 		for (int span_y = tc->top; span_y < tc->bottom; ++span_y) {
 			rt->rows[span_y].req_w = MAX(rt->rows[span_y].req_w, cw); // unused -- homog
-			rt->rows[span_y].req_h = MAX(rt->rows[span_y].req_h, ch / (tc->bottom - tc->top)); // XXX
-			if (can_expand) {
+			rt->rows[span_y].req_h += ceil(MAX(0, ch - curh) / (float)(tc->bottom - tc->top));
+			if (can_expand && (tc->expand_y & RTK_EXPAND)) {
 				rt->rows[span_y].is_expandable_y = TRUE;
 			}
 		}
@@ -822,32 +835,29 @@ static void rtable_size_allocate(RobWidget* rw, int w, int h) {
 				if (rt->rows[tri].req_h != 0 && rt->rows[tri].is_expandable_y) xpandy++;
 			}
 			c->size_allocate(c,
-					cw + floorf(xtra_width * xpandy),
+					cw + floorf(xtra_width * xpandx),
 					ch + floorf(xtra_height * xpandy));
 #if 0
 			/* or rather assume child swallowed it all */
 			//c->area.width = cw + xtra_width * (tc->right - tc->left);
 			//c->area.height = ch + xtra_height * (tc->bottom - tc->top);
 #endif
+			cw = c->area.width;
+			ch = c->area.height;
+		}
 
-			/* distribute evenly over span */
-			ch /= (tc->bottom - tc->top);
-			cw /= (tc->right - tc->left);
-			for (int span_y = tc->top; span_y < tc->bottom; ++span_y) {
-				rt->rows[span_y].acq_h = MAX(rt->rows[span_y].acq_h, ch + xtra_height * xpandy);
-			}
-			for (int span_x = tc->left; span_x < tc->right; ++span_x) {
-				rt->cols[span_x].acq_w = MAX(rt->cols[span_x].acq_w, cw + xtra_width * xpandx);
-			}
-		} else {
-			ch /= (tc->bottom - tc->top);
-			cw /= (tc->right - tc->left);
-			for (int span_y = tc->top; span_y < tc->bottom; ++span_y) {
-				rt->rows[span_y].acq_h = MAX(rt->rows[span_y].acq_h, ch);
-			}
-			for (int span_x = tc->left; span_x < tc->right; ++span_x) {
-				rt->cols[span_x].acq_w = MAX(rt->cols[span_x].acq_w, cw);
-			}
+		int curw = 0, curh = 0;
+		for (int span_x = tc->left; span_x < tc->right; ++span_x) {
+			curw += rt->cols[span_x].acq_w;
+		}
+		for (int span_y = tc->top; span_y < tc->bottom; ++span_y) {
+			curh += rt->rows[span_y].acq_h;
+		}
+		for (int span_y = tc->top; span_y < tc->bottom; ++span_y) {
+			rt->rows[span_y].acq_h += ceil(MAX(0, ch - curh) / (tc->bottom - tc->top));
+		}
+		for (int span_x = tc->left; span_x < tc->right; ++span_x) {
+			rt->cols[span_x].acq_w += ceil(MAX(0, cw - curw) / (float)(tc->right - tc->left));
 		}
 #ifdef DEBUG_TABLE
 		dump_tbl_acq(rt);
@@ -884,14 +894,18 @@ static void rtable_size_allocate(RobWidget* rw, int w, int h) {
 #ifdef DEBUG_TABLE
 		printf("TABLECHILD %d avail %dx%d at %d+%d (wsize: %.1fx%.1f)\n", i, cw, ch, cx, cy, c->area.width, c->area.height);
 #endif
-#if 1
+
 		if (c->size_allocate) {
-			c->size_allocate(c, cw, ch);
+			int aw = c->area.width;
+			int ah = c->area.height;
+			if (tc->expand_x & RTK_FILL) aw = MAX(cw,aw);
+			if (tc->expand_y & RTK_FILL) ah = MAX(ch,ah);
+			c->size_allocate(c, aw, ah);
 #ifdef DEBUG_TABLE
-		printf("TABLECHILD %d reloc %dx%d at %d+%d (wsize: %.1fx%.1f)\n", i, cw, ch, cx, cy, c->area.width, c->area.height);
+			printf("TABLECHILD %d reloc %dx%d at %d+%d (wsize: %.1fx%.1f)\n", i, cw, ch, cx, cy, c->area.width, c->area.height);
 #endif
 		}
-#endif
+
 #if 1
 		if (c->position_set) {
 			c->position_set(c, cw, ch);
@@ -925,7 +939,8 @@ static void rtable_size_allocate(RobWidget* rw, int w, int h) {
 
 static void rob_table_attach(RobWidget *rw, RobWidget *chld,
 		unsigned int left, unsigned int right, unsigned int top, unsigned int bottom,
-		int xpadding, int ypadding
+		int xpadding, int ypadding,
+		int xexpand, int yexpand
 		) {
 	assert(left < right);
 	assert(top < bottom);
@@ -948,12 +963,14 @@ static void rob_table_attach(RobWidget *rw, RobWidget *chld,
 	rt->chld[rt->nchilds].bottom   = bottom;
 	rt->chld[rt->nchilds].xpadding = xpadding;
 	rt->chld[rt->nchilds].ypadding = ypadding;
+	rt->chld[rt->nchilds].expand_x  = xexpand;
+	rt->chld[rt->nchilds].expand_y  = yexpand;
 	rt->nchilds++;
 }
 
 static void rob_table_attach_defaults(RobWidget *rw, RobWidget *chld,
 		unsigned int left, unsigned int right, unsigned int top, unsigned int bottom) {
-	rob_table_attach(rw, chld, left, right, top, bottom, 0, 0);
+	rob_table_attach(rw, chld, left, right, top, bottom, 0, 0, RTK_EXANDF, RTK_EXANDF);
 }
 
 static RobWidget * rob_table_new(int rows, int cols, bool homogeneous) {
