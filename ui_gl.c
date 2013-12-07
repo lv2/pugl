@@ -232,6 +232,7 @@ typedef struct {
 #if (defined USE_GUI_THREAD && defined HAVE_IDLE_IFACE)
 	bool do_the_funky_resize;
 #endif
+	bool queue_canvas_realloc;
 
 	void (* ui_closed)(void* controller);
 	bool close_ui; // used by xternalui
@@ -562,6 +563,7 @@ static void reallocate_canvas(GlMetersLV2UI* self) {
 #ifdef DEBUG_RESIZE
 	printf("reallocate_canvas()\n");
 #endif
+	self->queue_canvas_realloc = false;
 	if (self->cr) {
 		glDeleteTextures (1, &self->texture_id);
 		free (self->surf_data);
@@ -608,6 +610,9 @@ onRealReshape(PuglView* view, int width, int height)
 			reallocate_canvas(self);
 			// fall-thru to scale
 		case LVGL_ZOOM_TO_ASPECT:
+			if (self->queue_canvas_realloc) {
+				reallocate_canvas(self);
+			}
 			if (self->width == width && self->height == height) {
 	self->xoff = 0; self->yoff = 0; self->xyscale = 1.0;
 	glViewport (0, 0, self->width, self->height);
@@ -678,6 +683,10 @@ static void onResize(PuglView* view, int *width, int *height, int *set_hints) {
 #ifdef DEBUG_RESIZE
 	printf("onResize()\n");
 #endif
+
+	if (*width != self->width || *height != self->height) {
+		self->queue_canvas_realloc = true;
+	}
 
 	*width = self->width;
 	*height = self->height;
@@ -1034,6 +1043,7 @@ gl_instantiate(const LV2UI_Descriptor*   descriptor,
 	self->view       = NULL;
 	self->extui      = NULL;
 	self->parent     = 0;
+	self->queue_canvas_realloc = false;
 
 #if (defined USE_GUI_THREAD && defined THREADSYNC)
 	pthread_mutex_init(&self->msg_thread_lock, NULL);
