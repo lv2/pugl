@@ -294,8 +294,8 @@ static RobWidget* rob_table_new(guint rows, guint cols, gboolean homogeneous) {
 #define RTK_FILL   GTK_FILL
 #define RTK_EXANDF (GTK_EXPAND|GTK_FILL)
 
-#define rob_hbox_child_pack(BX,CLD,EXP) gtk_box_pack_start(GTK_BOX((BX)->c), (CLD)->c, EXP, FALSE, 0)
-#define rob_vbox_child_pack(BX,CLD,EXP) gtk_box_pack_start(GTK_BOX((BX)->c), (CLD)->c, EXP, FALSE, 0)
+#define rob_hbox_child_pack(BX,CLD,EXP,FILL) gtk_box_pack_start(GTK_BOX((BX)->c), (CLD)->c, EXP, FILL, 0)
+#define rob_vbox_child_pack(BX,CLD,EXP,FILL) gtk_box_pack_start(GTK_BOX((BX)->c), (CLD)->c, EXP, FILL, 0)
 
 #define rob_table_attach(RW, CL, A1, A2, A3, A4, A5, A6, A7, A8) \
 	gtk_table_attach(GTK_TABLE((RW)->c), (CL)->c, A1, A2, A3, A4 \

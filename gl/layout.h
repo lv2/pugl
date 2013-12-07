@@ -132,11 +132,9 @@ static void rcontainer_child_pack(RobWidget *rw, RobWidget *chld, bool expand) {
 			) {
 		((struct rob_container*)chld->self)->expand = expand;
 	}
-#if 0 // TODO fix table no-expansion calc.
 	if (chld->size_allocate == rtable_size_allocate) {
 		((struct rob_table*)chld->self)->expand = expand;
 	}
-#endif
 	rw->children = (RobWidget**) realloc(rw->children, (rw->childcount + 1) * sizeof(RobWidget *));
 	rw->children[rw->childcount] = chld;
 	rw->childcount++;
@@ -358,7 +356,7 @@ static void rhbox_size_allocate(RobWidget* rw, int w, int h) {
 		}
 	}
 
-	const int hh = /* expand-other (height in hbox)*/ 0 ? h : rw->area.height;
+	const int hh = /* expand-other (height in hbox)*/ 1 ? h : rw->area.height;
 	/* allocate kids */
 	for (unsigned int i=0; i < rw->childcount; ++i) {
 		RobWidget * c = (RobWidget *) rw->children[i];
@@ -411,7 +409,7 @@ static void rhbox_size_allocate(RobWidget* rw, int w, int h) {
 	robwidget_set_area(rw, 0, 0, ww, h);
 }
 
-static void rob_hbox_child_pack(RobWidget *rw, RobWidget *chld, bool expand) {
+static void rob_hbox_child_pack(RobWidget *rw, RobWidget *chld, bool expand, bool fill) {
 	rcontainer_child_pack(rw, chld, expand);
 }
 
@@ -588,7 +586,7 @@ static void rvbox_size_allocate(RobWidget* rw, int w, int h) {
 	robwidget_set_area(rw, 0, 0, w, hh);
 }
 
-static void rob_vbox_child_pack(RobWidget *rw, RobWidget *chld, bool expand) {
+static void rob_vbox_child_pack(RobWidget *rw, RobWidget *chld, bool expand, bool fill) {
 	rcontainer_child_pack(rw, chld, expand);
 }
 

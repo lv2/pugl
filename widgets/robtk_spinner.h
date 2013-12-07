@@ -104,9 +104,9 @@ static RobTkSpin * robtk_spin_new(float min, float max, float step) {
 	d->lbl_l = robtk_lbl_new("");
 
 	d->rw = rob_hbox_new(FALSE, 2);
-	rob_hbox_child_pack(d->rw, robtk_lbl_widget(d->lbl_l), FALSE);
-	rob_hbox_child_pack(d->rw, robtk_dial_widget(d->dial), FALSE);
-	rob_hbox_child_pack(d->rw, robtk_lbl_widget(d->lbl_r), FALSE);
+	rob_hbox_child_pack(d->rw, robtk_lbl_widget(d->lbl_l), FALSE, FALSE);
+	rob_hbox_child_pack(d->rw, robtk_dial_widget(d->dial), FALSE, FALSE);
+	rob_hbox_child_pack(d->rw, robtk_lbl_widget(d->lbl_r), FALSE, FALSE);
 
 	d->rw->position_set = robtk_spin_position_set;
 
