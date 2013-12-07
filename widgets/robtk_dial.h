@@ -410,4 +410,22 @@ static float robtk_dial_get_value(RobTkDial *d) {
 static void robtk_dial_set_surface(RobTkDial *d, cairo_surface_t *s) {
 	d->bg = s;
 }
+
+static bool robtk_dial_update_range (RobTkDial *d, float min, float max, float step) {
+	if (max <= min || step <= 0) return FALSE;
+	if ((max - min) / step < 1.0) return FALSE;
+	//assert( (max - min) / step <= 2048.0);
+
+	d->min = min;
+	d->max = max;
+	d->acc = step;
+	d->base_mult = (((d->max - d->min) / d->acc) < 12) ? (d->acc * 12.0 / (d->max - d->min)) : 1.0;
+	d->base_mult *= 0.004;
+	if (d->cur < min) d->cur = min;
+	if (d->cur > max) d->cur = max;
+	if (d->dfl < min) d->dfl = min;
+	if (d->dfl > max) d->dfl = max;
+
+	return TRUE;
+}
 #endif

@@ -194,4 +194,9 @@ static void robtk_spin_set_sensitive(RobTkSpin *d, bool s) {
 static float robtk_spin_get_value(RobTkSpin *d) {
 	return robtk_dial_get_value(d->dial);
 }
+
+static bool robtk_spin_update_range (RobTkSpin *d, float min, float max, float step) {
+	return robtk_dial_update_range(d->dial, min, max, step);
+}
+
 #endif
