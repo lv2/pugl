@@ -76,7 +76,7 @@ static void priv_lbl_prepare_text(RobTkLbl *d, const char *txt) {
 	if (d->w_width < d->min_width) d->w_width = d->min_width;
 	if (d->w_height < d->min_height) d->w_height = d->min_height;
 
-#if 1 // never shrink
+#ifndef GTK_BACKEND // never shrink
 	if (d->w_width > d->min_width) d->min_width = d->w_width;
 	if (d->w_height > d->min_height) d->min_height = d->w_height;
 #elif 0 // resize window|widget
@@ -127,8 +127,8 @@ static RobTkLbl * robtk_lbl_new(const char * txt) {
 	RobTkLbl *d = (RobTkLbl *) malloc(sizeof(RobTkLbl));
 
 	d->sf_txt = NULL;
-	d->min_width = 0;
-	d->min_height = 0;
+	d->min_width = d->w_width = 0;
+	d->min_height = d->w_height = 0;
 	d->txt = NULL;
 	d->sensitive = TRUE;
 	pthread_mutex_init (&d->_mutex, 0);
