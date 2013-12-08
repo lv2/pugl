@@ -60,6 +60,7 @@ static void offset_traverse_from_child(RobWidget *rw, RobTkBtnEvent *ev) {
 static RobWidget * robwidget_child_at(RobWidget *rw, int x, int y) {
 	for (unsigned int i=0; i < rw->childcount; ++i) {
 		RobWidget * c = (RobWidget *) rw->children[i];
+		if (c->hidden) continue;
 		if (x >= c->area.x && y >= c->area.y
 				&& x <= c->area.x + c->area.width
 				&& y <= c->area.y + c->area.height
@@ -75,6 +76,7 @@ static RobWidget* decend_into_widget_tree(RobWidget *rw, int x, int y) {
 	x-=rw->area.x; y-=rw->area.y;
 	for (unsigned int i=0; i < rw->childcount; ++i) {
 		RobWidget * c = (RobWidget *) rw->children[i];
+		if (c->hidden) continue;
 		if (x >= c->area.x && y >= c->area.y
 				&& x <= c->area.x + c->area.width
 				&& y <= c->area.y + c->area.height
