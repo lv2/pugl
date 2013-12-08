@@ -202,6 +202,15 @@ static void rect_combine(const cairo_rectangle_t *r1, const cairo_rectangle_t *r
 	dest->y = dest_y;
 }
 
+static float rtk_hue2rgb(const float p, const float q, float t) {
+	if(t < 0.f) t += 1.f;
+	if(t > 1.f) t -= 1.f;
+	if(t < 1.f/6.f) return p + (q - p) * 6.f * t;
+	if(t < 1.f/2.f) return q;
+	if(t < 2.f/3.f) return p + (q - p) * (2.f/3.f - t) * 6.f;
+	return p;
+}
+
 #include "rtk/style.h"
 #include "rtk/common.h"
 
@@ -219,6 +228,7 @@ static void rect_combine(const cairo_rectangle_t *r1, const cairo_rectangle_t *r
 #endif
 
 #include "widgets/robtk_checkbutton.h"
+#include "widgets/robtk_multibutton.h"
 #include "widgets/robtk_dial.h"
 #include "widgets/robtk_label.h"
 #include "widgets/robtk_pushbutton.h"
