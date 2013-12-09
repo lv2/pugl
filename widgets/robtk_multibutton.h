@@ -264,6 +264,10 @@ static void robtk_mbtn_set_callback(RobTkMBtn *d, bool (*cb) (RobWidget* w, void
 	d->handle = handle;
 }
 
+static void robtk_mbtn_set_leds_rgb(RobTkMBtn *d, const float *c) {
+	memcpy(d->c_led, c, d->num_mode * 3 * sizeof(float));
+}
+
 static void robtk_mbtn_set_active(RobTkMBtn *d, int v) {
 	robtk_mbtn_update_mode(d, v);
 }
