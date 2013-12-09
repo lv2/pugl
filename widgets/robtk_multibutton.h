@@ -33,6 +33,8 @@ typedef struct {
 
 	int num_mode;
 	int cur_mode;
+	int tog_mode;
+	int dfl_mode;
 
 	cairo_pattern_t* btn_enabled;
 	cairo_pattern_t* btn_inactive;
@@ -152,11 +154,19 @@ static bool robtk_mbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
  * UI callbacks
  */
 
-static RobWidget* robtk_mbtn_mouseup(RobWidget *handle, RobTkBtnEvent *event) {
+static RobWidget* robtk_mbtn_mouseup(RobWidget *handle, RobTkBtnEvent *ev) {
 	RobTkMBtn * d = (RobTkMBtn *)GET_HANDLE(handle);
 	if (!d->sensitive) { return NULL; }
 	if (!d->prelight) { return NULL; }
-	robtk_mbtn_update_mode(d, (d->cur_mode + 1) % d->num_mode);
+	if (ev->state & ROBTK_MOD_SHIFT) {
+		robtk_mbtn_update_mode(d, d->dfl_mode);
+	} else if (ev->state & ROBTK_MOD_CTRL) {
+		int cur = d->cur_mode;
+		robtk_mbtn_update_mode(d, d->tog_mode);
+		d->tog_mode = cur;
+	} else {
+		robtk_mbtn_update_mode(d, (d->cur_mode + 1) % d->num_mode);
+	}
 	return NULL;
 }
 
@@ -202,6 +212,8 @@ static RobTkMBtn * robtk_mbtn_new(int modes) {
 	d->prelight = FALSE;
 	d->num_mode = modes;
 	d->cur_mode = 0;
+	d->tog_mode = 0;
+	d->dfl_mode = 0;
 
 	d->c_led = (float*) malloc(3 * modes * sizeof(float));
 	d->c_led[0] = d->c_led[1] =  d->c_led[2] = .4;
@@ -266,6 +278,10 @@ static void robtk_mbtn_set_callback(RobTkMBtn *d, bool (*cb) (RobWidget* w, void
 
 static void robtk_mbtn_set_leds_rgb(RobTkMBtn *d, const float *c) {
 	memcpy(d->c_led, c, d->num_mode * 3 * sizeof(float));
+}
+
+static void robtk_mbtn_set_default(RobTkMBtn *d, int v) {
+	d->dfl_mode = v;
 }
 
 static void robtk_mbtn_set_active(RobTkMBtn *d, int v) {
