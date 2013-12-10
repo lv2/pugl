@@ -230,7 +230,7 @@ static void robwidget_resize_toplevel(RobWidget *rw, int w, int h) {
 }
 
 static void robwidget_show(RobWidget *rw, bool resize_window) {
-	gtk_widget_show(rw->c);
+	gtk_widget_show_all(rw->c);
 }
 
 static void robwidget_hide(RobWidget *rw, bool resize_window) {
