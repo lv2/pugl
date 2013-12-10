@@ -111,6 +111,7 @@ typedef struct _robwidget {
 	bool redraw_pending; // queue_draw_*() failed (during init or top-levelresize)
 	bool resized; // full-redraw --containers after resize
 	bool hidden; // don't display, skip in layout and events
+	int  packing_opts;
 #endif
 	float xalign, yalign; // unused in GTK
 	cairo_rectangle_t area; // allocated pos + size

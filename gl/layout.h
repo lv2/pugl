@@ -116,7 +116,7 @@ static bool roblayout_can_expand(RobWidget *rw) {
 	} else if (rw->size_allocate == rtable_size_allocate) {
 		can_expand = ((struct rob_table*)rw->self)->expand;
 	} else if (rw->size_allocate) {
-		can_expand = TRUE;
+		can_expand = (rw->packing_opts & 1) ? TRUE : FALSE;
 	}
 	return can_expand;
 }
@@ -135,6 +135,7 @@ static void rcontainer_child_pack(RobWidget *rw, RobWidget *chld, bool expand) {
 	if (chld->size_allocate == rtable_size_allocate) {
 		((struct rob_table*)chld->self)->expand = expand;
 	}
+	chld->packing_opts = expand ? 1 : 0;
 	rw->children = (RobWidget**) realloc(rw->children, (rw->childcount + 1) * sizeof(RobWidget *));
 	rw->children[rw->childcount] = chld;
 	rw->childcount++;
@@ -356,13 +357,15 @@ static void rhbox_size_allocate(RobWidget* rw, int w, int h) {
 		}
 	}
 
-	const int hh = /* expand-other (height in hbox)*/ 1 ? h : rw->area.height;
+	const int hh = rw->area.height;
 	/* allocate kids */
 	for (unsigned int i=0; i < rw->childcount; ++i) {
 		RobWidget * c = (RobWidget *) rw->children[i];
 		if (c->hidden) continue;
 		if (c->size_allocate) {
-			c->size_allocate(c, c->area.width + (grow ? 0 : floorf(xtra_space)), hh);
+			c->size_allocate(c, 
+					c->area.width + ((grow || !roblayout_can_expand(c)) ? 0 : floorf(xtra_space)),
+					roblayout_can_expand(c) ? h : hh);
 		}
 #ifdef DEBUG_HBOX
 		printf("HBOXCHILD %d use %.1fx%.1f\n", i, c->area.width, c->area.height);
@@ -535,14 +538,15 @@ static void rvbox_size_allocate(RobWidget* rw, int w, int h) {
 		}
 	}
 
-	const int ww = /* expand-other (width in vbox)*/ 0 ? w : rw->area.width;
+	const int ww = rw->area.width;
 
 	/* allocate kids */
 	for (unsigned int i=0; i < rw->childcount; ++i) {
 		RobWidget * c = (RobWidget *) rw->children[i];
 		if (c->hidden) continue;
 		if (c->size_allocate) {
-			c->size_allocate(c, ww, c->area.height + (grow ? 0 : floorf(xtra_space)));
+			c->size_allocate(c, roblayout_can_expand(c) ? w : ww,
+					c->area.height + ((grow || !roblayout_can_expand(c)) ? 0 : floorf(xtra_space)));
 		}
 #ifdef DEBUG_VBOX
 		printf("VBOXCHILD %d ('%s') use %.1fx%.1f\n", i,
@@ -943,7 +947,7 @@ static void rob_table_attach(RobWidget *rw, RobWidget *chld,
 	assert(left < right);
 	assert(top < bottom);
 
-	rcontainer_child_pack(rw, chld, false);
+	rcontainer_child_pack(rw, chld, (yexpand | xexpand) & RTK_FILL);
 	struct rob_table *rt = (struct rob_table*)rw->self;
 
 	if (right >= rt->ncols) {

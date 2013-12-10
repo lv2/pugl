@@ -124,6 +124,10 @@ static void robtk_rbtn_destroy(RobTkRBtn *d) {
 	free(d);
 }
 
+static void robtk_rbtn_set_alignment(RobTkRBtn *d, float x, float y) {
+	robtk_cbtn_set_alignment(d->cbtn, x, y);
+}
+
 static RobWidget * robtk_rbtn_widget(RobTkRBtn *d) {
 	return robtk_cbtn_widget(d->cbtn);
 }

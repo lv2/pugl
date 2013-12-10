@@ -219,6 +219,7 @@ static void robwidget_set_size(RobWidget *rw, int w, int h) {
 
 static void robwidget_set_alignment(RobWidget *rw, float xalign, float yalign) {
 	gtk_alignment_set(GTK_ALIGNMENT(rw->c), xalign, yalign, 0, 0);
+	rw->xalign = xalign; rw->yalign = yalign;
 }
 
 static void robwidget_resize_toplevel(RobWidget *rw, int w, int h) {

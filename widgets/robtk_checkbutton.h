@@ -48,7 +48,7 @@ typedef struct {
 	cairo_surface_t* sf_txt_normal;
 	cairo_surface_t* sf_txt_enabled;
 
-	float w_width, w_height, l_width;
+	float w_width, w_height, l_width, l_height;
 	float c_on[4];
 	float coff[4];
 } RobTkCBtn;
@@ -66,6 +66,10 @@ static void robtk_cbtn_update_enabled(RobTkCBtn * d, bool enabled) {
 }
 
 static void create_cbtn_pattern(RobTkCBtn * d) {
+
+	if (d->btn_inactive) cairo_pattern_destroy(d->btn_inactive);
+	if (d->btn_enabled) cairo_pattern_destroy(d->btn_enabled);
+
 	d->btn_inactive = cairo_pattern_create_linear (0.0, 0.0, 0.0, d->w_height);
 	cairo_pattern_add_color_stop_rgb (d->btn_inactive, 0.0, .65, .65, .66);
 	cairo_pattern_add_color_stop_rgb (d->btn_inactive, 1.0, .25, .25, .3);
@@ -171,16 +175,19 @@ static bool robtk_cbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
 		cairo_stroke(cr);
 	}
 
+	const float xalign = rint((d->w_width - d->l_width) * d->rw->xalign);
+	const float yalign = rint((d->w_height - d->l_height) * d->rw->yalign);
+
 	if (d->flat_button && !d->sensitive) {
 		//cairo_set_operator (cr, CAIRO_OPERATOR_XOR); // check
 		cairo_set_operator (cr, CAIRO_OPERATOR_EXCLUSION);
-		cairo_set_source_surface(cr, d->sf_txt_normal, rint((d->w_width - d->l_width) / 2.0), 0);
+		cairo_set_source_surface(cr, d->sf_txt_normal, xalign, yalign);
 	} else if (!d->flat_button && d->enabled) {
 		cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
-		cairo_set_source_surface(cr, d->sf_txt_enabled, rint((d->w_width - d->l_width) / 2.0), 0);
+		cairo_set_source_surface(cr, d->sf_txt_enabled, xalign, yalign);
 	} else {
 		cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
-		cairo_set_source_surface(cr, d->sf_txt_normal, rint((d->w_width - d->l_width) / 2.0), 0);
+		cairo_set_source_surface(cr, d->sf_txt_normal, xalign, yalign);
 	}
 	cairo_paint (cr);
 
@@ -261,8 +268,19 @@ static void robtk_cbtn_leave_notify(RobWidget *handle) {
 static void
 priv_cbtn_size_request(RobWidget* handle, int *w, int *h) {
 	RobTkCBtn* d = (RobTkCBtn*)GET_HANDLE(handle);
-	*w = d->w_width;
-	*h = d->w_height;
+	*w = d->l_width;
+	*h = d->l_height;
+}
+
+static void
+priv_cbtn_size_allocate(RobWidget* handle, int w, int h) {
+	RobTkCBtn* d = (RobTkCBtn*)GET_HANDLE(handle);
+	bool recreate_patterns = FALSE;
+	if (h != d->w_height) recreate_patterns = TRUE;
+	d->w_width = w;
+	d->w_height = h;
+	if (recreate_patterns) create_cbtn_pattern(d);
+	robwidget_set_size(handle, d->w_width, d->w_height);
 }
 
 
@@ -280,6 +298,8 @@ static RobTkCBtn * robtk_cbtn_new(const char * txt, enum GedLedMode led, bool fl
 	d->handle = NULL;
 	d->sf_txt_normal = NULL;
 	d->sf_txt_enabled = NULL;
+	d->btn_enabled = NULL;
+	d->btn_inactive = NULL;
 	d->sensitive = TRUE;
 	d->radiomode = FALSE;
 	d->prelight = FALSE;
@@ -300,6 +320,7 @@ static RobTkCBtn * robtk_cbtn_new(const char * txt, enum GedLedMode led, bool fl
 	d->w_width = ((ww > 0) ? (ww + 14) : 7) + (d->show_led ? GBT_LED_RADIUS + 6 : 0);
 	d->w_height = wh + 8;
 	d->l_width = d->w_width;
+	d->l_height = d->w_height;
 
 	create_cbtn_text_surface(d, txt, fd);
 	pango_font_description_free(fd);
@@ -309,6 +330,7 @@ static RobTkCBtn * robtk_cbtn_new(const char * txt, enum GedLedMode led, bool fl
 	ROBWIDGET_SETNAME(d->rw, "cbtn");
 
 	robwidget_set_size_request(d->rw, priv_cbtn_size_request);
+	robwidget_set_size_allocate(d->rw, priv_cbtn_size_allocate);
 	robwidget_set_expose_event(d->rw, robtk_cbtn_expose_event);
 	robwidget_set_mouseup(d->rw, robtk_cbtn_mouseup);
 	robwidget_set_enter_notify(d->rw, robtk_cbtn_enter_notify);
