@@ -29,7 +29,7 @@
 #define GED_CX 27.5
 #define GED_CY 12.5
 
-typedef struct {
+typedef struct _RobTkDial {
 	RobWidget *rw;
 
 	float min;
@@ -51,6 +51,9 @@ typedef struct {
 
 	bool (*cb) (RobWidget* w, void* handle);
 	void* handle;
+
+	void (*ann) (struct _RobTkDial* d, cairo_t *cr, void* handle);
+	void* ann_handle;
 
 	cairo_pattern_t* dpat;
 	cairo_surface_t* bg;
@@ -111,6 +114,7 @@ static bool robtk_dial_expose_event (RobWidget* handle, cairo_t* cr, cairo_recta
 		cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .15);
 		cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius-1, 0, 2.0 * M_PI);
 		cairo_fill(cr);
+		if (d->ann) d->ann(d, cr, d->ann_handle);
 	}
 	return TRUE;
 }
@@ -341,6 +345,8 @@ static RobTkDial * robtk_dial_new_with_size(float min, float max, float step,
 
 	d->cb = NULL;
 	d->handle = NULL;
+	d->ann = NULL;
+	d->ann_handle = NULL;
 	d->min = min;
 	d->max = max;
 	d->acc = step;
@@ -383,6 +389,11 @@ static RobWidget * robtk_dial_widget(RobTkDial *d) {
 static void robtk_dial_set_callback(RobTkDial *d, bool (*cb) (RobWidget* w, void* handle), void* handle) {
 	d->cb = cb;
 	d->handle = handle;
+}
+
+static void robtk_dial_annotation_callback(RobTkDial *d, void (*cb) (RobTkDial* d, cairo_t *cr, void* handle), void* handle) {
+	d->ann = cb;
+	d->ann_handle = handle;
 }
 
 static void robtk_dial_set_default(RobTkDial *d, float v) {
