@@ -29,6 +29,8 @@ typedef struct {
 	float min_width;
 	float min_height;
 	char *txt;
+	float fg[4];
+	float bg[4];
 	pthread_mutex_t _mutex;
 } RobTkLbl;
 
@@ -42,9 +44,7 @@ static bool robtk_lbl_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectang
 
 	cairo_rectangle (cr, ev->x, ev->y, ev->width, ev->height);
 	cairo_clip (cr);
-	float c[4];
-	get_color_from_theme(1, c);
-	cairo_set_source_rgb (cr, c[0], c[1], c[2]);
+	cairo_set_source_rgb (cr, d->bg[0], d->bg[1], d->bg[2]);
 	cairo_rectangle (cr, 0, 0, d->w_width, d->w_height);
 	cairo_fill(cr);
 
@@ -63,10 +63,7 @@ static bool robtk_lbl_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectang
 static void priv_lbl_prepare_text(RobTkLbl *d, const char *txt) {
 	// _mutex must be held to call this function
 	int ww, wh;
-	float c_col[4];
-
 	PangoFontDescription *fd = get_font_from_theme();
-	get_color_from_theme(0, c_col);
 
 	get_text_geometry(txt, fd, &ww, &wh);
 
@@ -88,7 +85,7 @@ static void priv_lbl_prepare_text(RobTkLbl *d, const char *txt) {
 			d->w_width, d->w_height,
 			d->w_width / 2.0 + 1,
 			d->w_height / 2.0 + 1,
-			txt, fd, c_col);
+			txt, fd, d->fg);
 
 	pango_font_description_free(fd);
 
@@ -137,6 +134,8 @@ static RobTkLbl * robtk_lbl_new(const char * txt) {
 	robwidget_set_expose_event(d->rw, robtk_lbl_expose_event);
 	robwidget_set_size_request(d->rw, priv_lbl_size_request);
 
+	get_color_from_theme(1, d->bg);
+	get_color_from_theme(0, d->fg);
 	robtk_lbl_set_text(d, txt);
 	return d;
 }
@@ -172,4 +171,16 @@ static void robtk_lbl_set_sensitive(RobTkLbl *d, bool s) {
 		queue_draw(d->rw);
 	}
 }
+
+static void robtk_lbl_set_color(RobTkLbl *d, float r, float g, float b, float a) {
+	d->fg[0] = r;
+	d->fg[1] = g;
+	d->fg[2] = b;
+	d->fg[3] = a;
+	assert(d->txt);
+	pthread_mutex_lock (&d->_mutex);
+	priv_lbl_prepare_text(d, d->txt);
+	pthread_mutex_unlock (&d->_mutex);
+}
+
 #endif

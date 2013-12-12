@@ -122,17 +122,8 @@ static bool robtk_cbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
 	cairo_clip (cr);
 	float led_r, led_g, led_b; // TODO consolidate with c[]
 
-	if (handle->area.width > d->w_width) {
-		d->w_width = handle->area.width;
-	}
-
-	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-
 	float c[4];
 	get_color_from_theme(1, c);
-	cairo_set_source_rgb (cr, c[0], c[1], c[2]);
-	cairo_rectangle (cr, 0, 0, d->w_width, d->w_height);
-	cairo_fill(cr);
 
 	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 
@@ -173,6 +164,12 @@ static bool robtk_cbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
 		cairo_set_line_width (cr, .75);
 		cairo_set_source_rgba (cr, .0, .0, .0, 1.0);
 		cairo_stroke(cr);
+	} else {
+		float c[4];
+		get_color_from_theme(1, c);
+		cairo_set_source_rgb (cr, c[0], c[1], c[2]);
+		rounded_rectangle(cr, 2, 2, d->w_width - 3, d->w_height - 3, 6);
+		cairo_fill(cr);
 	}
 
 	const float xalign = rint((d->w_width - d->l_width) * d->rw->xalign);

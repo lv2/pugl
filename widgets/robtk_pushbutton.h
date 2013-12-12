@@ -47,17 +47,12 @@ static bool robtk_pbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
 	cairo_rectangle (cr, ev->x, ev->y, ev->width, ev->height);
 	cairo_clip (cr);
 
-	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-
-	float c[4];
-	get_color_from_theme(1, c);
-	cairo_set_source_rgb (cr, c[0], c[1], c[2]);
-	cairo_rectangle (cr, 0, 0, d->w_width, d->w_height);
-	cairo_fill(cr);
 
 	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 
 	if (!d->sensitive) {
+		float c[4];
+		get_color_from_theme(1, c);
 		cairo_set_source_rgb (cr, c[0], c[1], c[2]);
 	} else if (d->enabled) {
 		cairo_set_source(cr, d->btn_active);
