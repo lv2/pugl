@@ -386,7 +386,7 @@ static void rhbox_size_allocate(RobWidget* rw, int w, int h) {
 		}
 		c->area.x += floorf(ww);
 		c->area.y += 0;
-		c->area.y += floor((h - hh) / 2.0);
+		c->area.y += roblayout_can_expand(c) ? 0 : floor((h - hh) / 2.0);
 		ww += c->area.width;
 
 #ifdef DEBUG_HBOX
@@ -566,7 +566,7 @@ static void rvbox_size_allocate(RobWidget* rw, int w, int h) {
 		} else {
 			robwidget_position_set(c, ww, c->area.height);
 		}
-		c->area.x += floor((w - ww) / 2.0);
+		c->area.x += roblayout_can_expand(c) ? 0 : floor((w - ww) / 2.0);
 		c->area.y += floorf(hh);
 		hh += c->area.height;
 #ifdef DEBUG_VBOX
