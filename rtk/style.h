@@ -41,6 +41,6 @@ static const float c_xfb[4] = {0.0, 0.0, 0.0, 0.8}; // dpm ann bg
 static const float c_scr[4] = {0.2, 0.2, 0.2, 0.8}; // screw mount
 
 #define CairoSetSouerceRGBA(COL) \
-	cairo_set_source_rgba (cr, COL[0], COL[1], COL[2],COL [3])
+	cairo_set_source_rgba (cr, (COL)[0], (COL)[1], (COL)[2], (COL)[3])
 
 

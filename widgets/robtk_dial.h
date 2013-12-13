@@ -39,6 +39,10 @@ typedef struct _RobTkDial {
 	float dfl;
 	float base_mult;
 
+	int click_state;
+	int click_states;
+	int click_dflt;
+
 	float scroll_accel;
 #define ACCEL_THRESH 10
 	struct timespec scroll_accel_timeout;
@@ -46,6 +50,7 @@ typedef struct _RobTkDial {
 
 	float drag_x, drag_y, drag_c;
 	bool dragging;
+	bool clicking;
 	bool sensitive;
 	bool prelight;
 
@@ -61,6 +66,7 @@ typedef struct _RobTkDial {
 	float w_width, w_height;
 	float w_cx, w_cy;
 	float w_radius;
+	float *scol;
 
 } RobTkDial;
 
@@ -98,6 +104,12 @@ static bool robtk_dial_expose_event (RobWidget* handle, cairo_t* cr, cairo_recta
 	cairo_set_source_rgba (cr, .0, .0, .0, 1.0);
 	cairo_stroke (cr);
 
+	if (d->sensitive && d->click_state > 0) {
+		CairoSetSouerceRGBA(&d->scol[4*(d->click_state-1)]);
+		cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius-1, 0, 2.0 * M_PI);
+		cairo_fill(cr);
+	}
+
 	if (d->sensitive) {
 		cairo_set_source_rgba (cr, .95, .95, .95, 1.0);
 	} else {
@@ -119,6 +131,16 @@ static bool robtk_dial_expose_event (RobWidget* handle, cairo_t* cr, cairo_recta
 	return TRUE;
 }
 
+static void robtk_dial_update_state(RobTkDial * d, int state) {
+	if (state < 0) state = 0;
+	if (state > d->click_states) state = d->click_states;
+	if (state != d->click_state) {
+		 d->click_state = state;
+		if (d->cb) d->cb(d->rw, d->handle);
+		queue_draw(d->rw);
+	}
+}
+
 static void robtk_dial_update_value(RobTkDial * d, float val) {
 	if (val < d->min) val = d->min;
 	if (val > d->max) val = d->max;
@@ -135,8 +157,10 @@ static RobWidget* robtk_dial_mousedown(RobWidget* handle, RobTkBtnEvent *ev) {
 	if (!d->sensitive) { return NULL; }
 	if (ev->state & ROBTK_MOD_SHIFT) {
 		robtk_dial_update_value(d, d->dfl);
+		robtk_dial_update_state(d, d->click_dflt);
 	} else {
 		d->dragging = TRUE;
+		d->clicking = TRUE;
 		d->drag_x = ev->x;
 		d->drag_y = ev->y;
 		d->drag_c = d->cur;
@@ -147,8 +171,16 @@ static RobWidget* robtk_dial_mousedown(RobWidget* handle, RobTkBtnEvent *ev) {
 
 static RobWidget* robtk_dial_mouseup(RobWidget* handle, RobTkBtnEvent *ev) {
 	RobTkDial * d = (RobTkDial *)GET_HANDLE(handle);
-	if (!d->sensitive) { return NULL; }
+	if (!d->sensitive) {
+		d->dragging = FALSE;
+		d->clicking = FALSE;
+		return NULL;
+	}
 	d->dragging = FALSE;
+	if (d->clicking) {
+		robtk_dial_update_state(d, (d->click_state + 1) % (d->click_states + 1));
+	}
+	d->clicking = FALSE;
 	queue_draw(d->rw);
 	return NULL;
 }
@@ -157,6 +189,7 @@ static RobWidget* robtk_dial_mousemove(RobWidget* handle, RobTkBtnEvent *ev) {
 	RobTkDial * d = (RobTkDial *)GET_HANDLE(handle);
 	if (!d->dragging) return NULL;
 
+	d->clicking = FALSE;
 	if (!d->sensitive) {
 		d->dragging = FALSE;
 		queue_draw(d->rw);
@@ -355,6 +388,10 @@ static RobTkDial * robtk_dial_new_with_size(float min, float max, float step,
 	d->sensitive = TRUE;
 	d->prelight = FALSE;
 	d->dragging = FALSE;
+	d->clicking = FALSE;
+	d->click_states = 0;
+	d->click_state = 0;
+	d->click_dflt = 0;
 	d->drag_x = d->drag_y = 0;
 	d->scroll_accel = 1.0;
 	d->base_mult = (((d->max - d->min) / d->acc) < 12) ? (d->acc * 12.0 / (d->max - d->min)) : 1.0;
@@ -363,6 +400,10 @@ static RobTkDial * robtk_dial_new_with_size(float min, float max, float step,
 	rtk_clock_gettime(&d->scroll_accel_timeout);
 	d->bg  = NULL;
 	create_dial_pattern(d);
+	d->scol = (float*) malloc(3 * 4 * sizeof(float));
+	d->scol[0*4] = 1.0; d->scol[0*4+1] = 0.0; d->scol[0*4+2] = 0.0; d->scol[0*4+3] = 0.2;
+	d->scol[1*4] = 0.0; d->scol[1*4+1] = 1.0; d->scol[1*4+2] = 0.0; d->scol[1*4+3] = 0.2;
+	d->scol[2*4] = 0.0; d->scol[2*4+1] = 0.0; d->scol[2*4+2] = 1.0; d->scol[2*4+3] = 0.25;
 
 	return d;
 }
@@ -375,6 +416,7 @@ static RobTkDial * robtk_dial_new(float min, float max, float step) {
 static void robtk_dial_destroy(RobTkDial *d) {
 	robwidget_destroy(d->rw);
 	cairo_pattern_destroy(d->dpat);
+	free(d->scol);
 	free(d);
 }
 
@@ -418,6 +460,39 @@ static float robtk_dial_get_value(RobTkDial *d) {
 	return (d->cur);
 }
 
+static void robtk_dial_enable_states(RobTkDial *d, int s) {
+	if (s < 0) s = 0;
+	if (s > 3) s = 3; // TODO realloc d->scol, allow N states
+	d->click_states = s;
+	robtk_dial_update_state(d, d->click_state % (d->click_states + 1));
+}
+
+static void robtk_dial_set_state(RobTkDial *d, int s) {
+	robtk_dial_update_state(d, s);
+}
+
+static int robtk_dial_get_state(RobTkDial *d) {
+	return (d->click_state);
+}
+
+static void robtk_dial_set_default_state(RobTkDial *d, int s) {
+	assert(s >= 0);
+	assert(s <= d->click_states);
+	d->click_dflt = s;
+}
+
+static void robtk_dial_set_state_color(RobTkDial *d, int s, float r, float g, float b, float a) {
+	assert(s > 0);
+	assert(s <= d->click_states);
+	d->scol[(s-1)*4+0] = r;
+	d->scol[(s-1)*4+1] = g;
+	d->scol[(s-1)*4+2] = b;
+	d->scol[(s-1)*4+3] = a;
+	if (d->click_state == s) {
+		queue_draw(d->rw);
+	}
+}
+
 static void robtk_dial_set_surface(RobTkDial *d, cairo_surface_t *s) {
 	d->bg = s;
 }
@@ -432,10 +507,10 @@ static bool robtk_dial_update_range (RobTkDial *d, float min, float max, float s
 	d->acc = step;
 	d->base_mult = (((d->max - d->min) / d->acc) < 12) ? (d->acc * 12.0 / (d->max - d->min)) : 1.0;
 	d->base_mult *= 0.004;
-	if (d->cur < min) d->cur = min;
-	if (d->cur > max) d->cur = max;
+
 	if (d->dfl < min) d->dfl = min;
 	if (d->dfl > max) d->dfl = max;
+	robtk_dial_update_value(d, d->cur);
 
 	return TRUE;
 }
