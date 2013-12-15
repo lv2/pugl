@@ -240,5 +240,6 @@ static float rtk_hue2rgb(const float p, const float q, float t) {
 #include "widgets/robtk_xyplot.h"
 #include "widgets/robtk_selector.h"
 #include "widgets/robtk_image.h"
+#include "widgets/robtk_drawingarea.h"
 
 #endif
