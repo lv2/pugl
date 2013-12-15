@@ -53,6 +53,7 @@ typedef struct _RobTkDial {
 	bool clicking;
 	bool sensitive;
 	bool prelight;
+	int  displaymode;
 
 	bool (*cb) (RobWidget* w, void* handle);
 	void* handle;
@@ -67,6 +68,7 @@ typedef struct _RobTkDial {
 	float w_cx, w_cy;
 	float w_radius;
 	float *scol;
+	float dcol[4][4];
 
 } RobTkDial;
 
@@ -111,16 +113,56 @@ static bool robtk_dial_expose_event (RobWidget* handle, cairo_t* cr, cairo_recta
 	}
 
 	if (d->sensitive) {
-		cairo_set_source_rgba (cr, .95, .95, .95, 1.0);
+		CairoSetSouerceRGBA(d->dcol[0]);
 	} else {
-		cairo_set_source_rgba (cr, .5, .5, .5, .7);
+		CairoSetSouerceRGBA(d->dcol[1]);
 	}
-	cairo_set_line_width(cr, 1.5);
-	cairo_move_to(cr, d->w_cx, d->w_cy);
+
 	float ang = (.75 * M_PI) + (1.5 * M_PI) * (d->cur - d->min) / (d->max - d->min);
-	float wid = M_PI * 2 / 180.0;
-	cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius, ang-wid, ang+wid);
-	cairo_stroke (cr);
+
+	if ((d->displaymode & 1) == 0) {
+		/* line from center */
+		cairo_set_line_width(cr, 1.5);
+		cairo_move_to(cr, d->w_cx, d->w_cy);
+		float wid = M_PI * 2 / 180.0;
+		cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius, ang-wid, ang+wid);
+		cairo_stroke (cr);
+	} else {
+		/* dot */
+		cairo_save(cr);
+		cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+		cairo_translate(cr, d->w_cx, d->w_cy);
+		cairo_rotate (cr, ang);
+
+		cairo_set_line_width(cr, 3.5);
+		cairo_move_to(cr, d->w_radius - 5.0, 0);
+		cairo_close_path(cr);
+		cairo_stroke (cr);
+
+		if (d->displaymode & 2) {
+			/* small shade in dot */
+			cairo_set_source_rgba (cr, .2, .2, .2, .1);
+			cairo_set_line_width(cr, 1.5);
+			cairo_move_to(cr, d->w_radius - 4.75, 0);
+			cairo_close_path(cr);
+			cairo_stroke (cr);
+		}
+		cairo_restore(cr);
+	}
+
+	if (d->displaymode & 4) {
+		if (d->sensitive) {
+			CairoSetSouerceRGBA(d->dcol[2]);
+		} else {
+			CairoSetSouerceRGBA(d->dcol[3]);
+		}
+		cairo_set_line_width(cr, 1.5);
+		cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius + 1.5, (.75 * M_PI), ang);
+		cairo_stroke (cr);
+		CairoSetSouerceRGBA(d->dcol[3]);
+		cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius + 1.5, ang, (2.25 * M_PI));
+		cairo_stroke (cr);
+	}
 
 	if (d->sensitive && (d->prelight || d->dragging)) {
 		cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .15);
@@ -389,6 +431,7 @@ static RobTkDial * robtk_dial_new_with_size(float min, float max, float step,
 	d->prelight = FALSE;
 	d->dragging = FALSE;
 	d->clicking = FALSE;
+	d->displaymode = 0;
 	d->click_states = 0;
 	d->click_state = 0;
 	d->click_dflt = 0;
@@ -404,6 +447,11 @@ static RobTkDial * robtk_dial_new_with_size(float min, float max, float step,
 	d->scol[0*4] = 1.0; d->scol[0*4+1] = 0.0; d->scol[0*4+2] = 0.0; d->scol[0*4+3] = 0.2;
 	d->scol[1*4] = 0.0; d->scol[1*4+1] = 1.0; d->scol[1*4+2] = 0.0; d->scol[1*4+3] = 0.2;
 	d->scol[2*4] = 0.0; d->scol[2*4+1] = 0.0; d->scol[2*4+2] = 1.0; d->scol[2*4+3] = 0.25;
+
+	d->dcol[0][0] = .95; d->dcol[0][1] = .95; d->dcol[0][2] = .95; d->dcol[0][3] = 1.0;
+	d->dcol[1][0] = .50; d->dcol[1][1] = .50; d->dcol[1][2] = .50; d->dcol[1][3] = 0.7;
+	d->dcol[2][0] = .0;  d->dcol[2][1] = .75; d->dcol[2][2] = 1.0; d->dcol[2][3] = 0.8;
+	d->dcol[3][0] = .50; d->dcol[3][1] = .50; d->dcol[3][2] = .50; d->dcol[3][3] = 0.5;
 
 	return d;
 }
