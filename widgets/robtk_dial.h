@@ -159,9 +159,11 @@ static bool robtk_dial_expose_event (RobWidget* handle, cairo_t* cr, cairo_recta
 		cairo_set_line_width(cr, 1.5);
 		cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius + 1.5, (.75 * M_PI), ang);
 		cairo_stroke (cr);
-		CairoSetSouerceRGBA(d->dcol[3]);
-		cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius + 1.5, ang, (2.25 * M_PI));
-		cairo_stroke (cr);
+		if (ang < (2.25 * M_PI)) {
+			CairoSetSouerceRGBA(d->dcol[3]);
+			cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius + 1.5, ang, (2.25 * M_PI));
+			cairo_stroke (cr);
+		}
 	}
 
 	if (d->sensitive && (d->prelight || d->dragging)) {
