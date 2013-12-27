@@ -323,7 +323,7 @@ int process (jack_nframes_t nframes, void *arg) {
 	if (nports_atom_out + nports_midi_out > 0 && atom_out->atom.size > sizeof(LV2_Atom)) {
 		// TODO only if UI..?
 		if (jack_ringbuffer_write_space(rb_atom_to_ui) >= atom_out->atom.size + 2 * sizeof(LV2_Atom)) {
-			LV2_Atom a = {atom_out->atom.size + sizeof(LV2_Atom), 0};
+			LV2_Atom a = {atom_out->atom.size + (uint32_t) sizeof(LV2_Atom), 0};
 			jack_ringbuffer_write(rb_atom_to_ui, (char *) &a, sizeof(LV2_Atom));
 			jack_ringbuffer_write(rb_atom_to_ui, (char *) atom_out, a.size);
 		}
