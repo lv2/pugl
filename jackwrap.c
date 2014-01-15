@@ -60,7 +60,7 @@
 #include "lv2/lv2plug.in/ns/ext/midi/midi.h"
 #include "lv2/lv2plug.in/ns/ext/time/time.h"
 
-#include "robtk/gl/xternalui.h"
+#include "./gl/xternalui.h"
 
 #ifndef WIN32
 #include <signal.h>
