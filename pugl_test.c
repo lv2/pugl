@@ -138,9 +138,9 @@ onMouse(PuglView* view, int button, bool press, int x, int y)
 }
 
 static void
-onScroll(PuglView* view, float dx, float dy)
+onScroll(PuglView* view, int x, int y, float dx, float dy)
 {
-	fprintf(stderr, "Scroll %f %f ", dx, dy);
+	fprintf(stderr, "Scroll %d %d %f %f ", x, y, dx, dy);
 	printModifiers(view);
 	dist += dy / 4.0f;
 	puglPostRedisplay(view);
@@ -173,7 +173,7 @@ main(int argc, char** argv)
 		}
 	}
 
-	PuglView* view = puglCreate(0, "Pugl Test", 512, 512, resizable);
+	PuglView* view = puglCreate(0, "Pugl Test", 512, 512, resizable, true);
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetKeyboardFunc(view, onKeyboard);
 	puglSetMotionFunc(view, onMotion);

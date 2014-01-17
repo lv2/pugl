@@ -199,7 +199,11 @@ typedef void (*PuglReshapeFunc)(PuglView* view, int width, int height);
    @param dx The scroll x distance.
    @param dx The scroll y distance.
 */
-typedef void (*PuglScrollFunc)(PuglView* view, float dx, float dy);
+typedef void (*PuglScrollFunc)(PuglView* view,
+                               int       x,
+                               int       y,
+                               float     dx,
+                               float     dy);
 
 /**
    A function called when a special key is pressed or released.

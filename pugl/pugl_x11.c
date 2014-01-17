@@ -296,7 +296,9 @@ puglProcessEvents(PuglView* view)
 					case 6: dx = -1.0f; break;
 					case 7: dx =  1.0f; break;
 					}
-					view->scrollFunc(view, dx, dy);
+					view->scrollFunc(view,
+					                 event.xbutton.x, event.xbutton.y,
+					                 dx, dy);
 				}
 				break;
 			}

@@ -273,8 +273,11 @@ getModifiers(PuglView* view, NSEvent* ev)
 - (void) scrollWheel:(NSEvent*)event
 {
 	if (puglview->scrollFunc) {
+		NSPoint loc = [event locationInWindow];
 		puglview->mods = getModifiers(puglview, event);
-		puglview->scrollFunc(puglview, [event deltaX], [event deltaY]);
+		puglview->scrollFunc(puglview,
+		                     loc.x, puglview->height - loc.y,
+		                     [event deltaX], [event deltaY]);
 	}
 	[self updateTrackingAreas];
 }
