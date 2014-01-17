@@ -106,7 +106,7 @@ puglCreate(PuglNativeWindow parent,
 		free(view);
 		return NULL;
 	}
-		
+
 	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
 
 	impl->hdc = GetDC(impl->hwnd);
@@ -219,7 +219,7 @@ processMouseEvent(PuglView* view, int button, bool press, LPARAM lParam)
 	} else {
 		ReleaseCapture();
 	}
-	
+
 	if (view->mouseFunc) {
 		view->mouseFunc(view, button, press,
 		                GET_X_LPARAM(lParam),
@@ -249,7 +249,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_CREATE:
 	case WM_SHOWWINDOW:
 	case WM_SIZE:
-		RECT rect; 
+		RECT rect;
 		GetClientRect(view->impl->hwnd, &rect);
 		puglReshape(view, rect.right, rect.bottom);
 		view->width = rect.right;
