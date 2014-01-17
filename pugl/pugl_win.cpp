@@ -97,7 +97,7 @@ puglCreate(PuglNativeWindow parent,
 	impl->hwnd = CreateWindowEx(
 		WS_EX_TOPMOST,
  		classNameBuf, title,
-		(addToDesktop ? WS_VISIBLE : 0) | (parent ? WS_CHILD : winFlags),
+		(visible ? WS_VISIBLE : 0) | (parent ? WS_CHILD : winFlags),
 		0, 0, wr.right-wr.left, wr.bottom-wr.top,
 		(HWND)parent, NULL, NULL, NULL);
 
