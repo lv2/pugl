@@ -1,5 +1,5 @@
 /*
-  Copyright 2012 David Robillard <http://drobilla.net>
+  Copyright 2012-2014 David Robillard <http://drobilla.net>
   Copyright 2011-2012 Ben Loftis, Harrison Consoles
 
   Permission to use, copy, modify, and/or distribute this software for any
@@ -255,6 +255,27 @@ setModifiers(PuglView* view, unsigned xstate, unsigned xtime)
 	view->mods |= (xstate & Mod4Mask)    ? PUGL_MOD_SUPER  : 0;
 }
 
+static void
+dispatchKey(PuglView* view, XEvent* event, bool press)
+{
+	KeySym    sym;
+	char      str[5];
+	const int n = XLookupString(&event->xkey, str, 4, &sym, NULL);
+	if (n == 0) {
+		return;
+	} else if (n > 1) {
+		fprintf(stderr, "warning: Unsupported multi-byte key %X\n", (int)sym);
+		return;
+	}
+
+	const PuglKey special = keySymToSpecial(sym);
+	if (special && view->specialFunc) {
+		view->specialFunc(view, press, special);
+	} else if (!special && view->keyboardFunc) {
+		view->keyboardFunc(view, press, str[0]);
+	}
+}
+
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
@@ -312,25 +333,12 @@ puglProcessEvents(PuglView* view)
 				                event.xbutton.x, event.xbutton.y);
 			}
 			break;
-		case KeyPress: {
+		case KeyPress:
 			setModifiers(view, event.xkey.state, event.xkey.time);
-			KeySym  sym;
-			char    str[5];
-			int     n   = XLookupString(&event.xkey, str, 4, &sym, NULL);
-			PuglKey key = keySymToSpecial(sym);
-			if (!key && view->keyboardFunc) {
-				if (n == 1) {
-					view->keyboardFunc(view, true, str[0]);
-				} else {
-					fprintf(stderr, "warning: Unknown key %X\n", (int)sym);
-				}
-			} else if (view->specialFunc) {
-				view->specialFunc(view, true, key);
-			}
-		} break;
-		case KeyRelease: {
+			dispatchKey(view, &event, true);
+			break;
+		case KeyRelease:
 			setModifiers(view, event.xkey.state, event.xkey.time);
-			bool repeated = false;
 			if (view->ignoreKeyRepeat &&
 			    XEventsQueued(view->impl->display, QueuedAfterReading)) {
 				XEvent next;
@@ -339,21 +347,11 @@ puglProcessEvents(PuglView* view)
 				    next.xkey.time == event.xkey.time &&
 				    next.xkey.keycode == event.xkey.keycode) {
 					XNextEvent(view->impl->display, &event);
-					repeated = true;
+					break;
 				}
 			}
-
-			if (!repeated && view->keyboardFunc) {
-				KeySym sym = XKeycodeToKeysym(
-					view->impl->display, event.xkey.keycode, 0);
-				PuglKey special = keySymToSpecial(sym);
-				if (!special) {
-					view->keyboardFunc(view, false, sym);
-				} else if (view->specialFunc) {
-					view->specialFunc(view, false, special);
-				}
-			}
-		} break;
+			dispatchKey(view, &event, false);
+			break;
 		case ClientMessage:
 			if (!strcmp(XGetAtomName(view->impl->display,
 			                         event.xclient.message_type),
