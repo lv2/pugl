@@ -59,7 +59,6 @@ static void write_text_full(
 
 	PangoLayout * pl = pango_cairo_create_layout(cr);
 	pango_layout_set_font_description(pl, font);
-	cairo_set_source_rgba (cr, col[0], col[1], col[2], col[3]);
 	pango_layout_set_text(pl, txt, -1);
 	pango_layout_get_pixel_size(pl, &tw, &th);
 	cairo_translate (cr, x, y);
@@ -95,6 +94,12 @@ static void write_text_full(
 		default:
 			break;
 	}
+	if (align < 0) {
+		cairo_set_source_rgba (cr, .0, .0, .0, .5);
+    cairo_rectangle (cr, 0, 0, tw, th);
+    cairo_fill (cr);
+	}
+  cairo_set_source_rgba (cr, col[0], col[1], col[2], col[3]);
 	pango_cairo_layout_path(cr, pl);
 	pango_cairo_show_layout(cr, pl);
 	g_object_unref(pl);
