@@ -99,6 +99,7 @@ puglDisplay(PuglView* view)
 - (void) mouseDragged:(NSEvent*)event;
 - (void) mouseDown:(NSEvent*)event;
 - (void) mouseUp:(NSEvent*)event;
+- (void) rightMouseDragged:(NSEvent*)event;
 - (void) rightMouseDown:(NSEvent*)event;
 - (void) rightMouseUp:(NSEvent*)event;
 - (void) keyDown:(NSEvent*)event;
@@ -233,6 +234,15 @@ getModifiers(PuglView* view, NSEvent* ev)
 	}
 }
 
+- (void) rightMouseDragged:(NSEvent*)event
+{
+	if (puglview->motionFunc) {
+		NSPoint loc = [event locationInWindow];
+		puglview->mods = getModifiers(puglview, event);
+		puglview->motionFunc(puglview, loc.x, puglview->height - loc.y);
+	}
+}
+
 - (void) mouseDown:(NSEvent*)event
 {
 	if (puglview->mouseFunc) {
@@ -303,7 +313,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 - (void) flagsChanged:(NSEvent*)event
 {
 	if (puglview->specialFunc) {
-		const unsigned mods = getModifiers(puglview, [event modifierFlags]);
+		const unsigned mods = getModifiers(puglview, event);
 		if ((mods & PUGL_MOD_SHIFT) != (puglview->mods & PUGL_MOD_SHIFT)) {
 			puglview->specialFunc(puglview, mods & PUGL_MOD_SHIFT, PUGL_KEY_SHIFT);
 		} else if ((mods & PUGL_MOD_CTRL) != (puglview->mods & PUGL_MOD_CTRL)) {
@@ -364,6 +374,10 @@ puglCreate(PuglNativeWindow parent,
 	[window makeFirstResponder:impl->glview];
 
 	[window makeKeyAndOrderFront:window];
+
+	if (!visible) {
+		[window setIsVisible:NO];
+	}
 
 	return view;
 }
