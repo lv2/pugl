@@ -90,15 +90,15 @@ puglCreate(PuglNativeWindow parent,
 	if (!vi) {
 		vi = glXChooseVisual(impl->display, impl->screen, attrListSgl);
 		impl->doubleBuffered = False;
-		printf("singlebuffered rendering will be used, no doublebuffering available\n");
+		PUGL_LOG("No double buffering available\n");
 	} else {
 		impl->doubleBuffered = True;
-		printf("doublebuffered rendering available\n");
+		PUGL_LOG("Double buffered rendering enabled\n");
 	}
 
 	int glxMajor, glxMinor;
 	glXQueryVersion(impl->display, &glxMajor, &glxMinor);
-	printf("GLX-Version %d.%d\n", glxMajor, glxMinor);
+	PUGL_LOGF("GLX Version %d.%d\n", glxMajor, glxMinor);
 
 	impl->ctx = glXCreateContext(impl->display, vi, 0, GL_TRUE);
 
@@ -116,6 +116,9 @@ puglCreate(PuglNativeWindow parent,
 
 	attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask
 		| ButtonPressMask | ButtonReleaseMask
+#ifdef XKEYFOCUSGRAB
+		| EnterWindowMask
+#endif
 		| PointerMotionMask | StructureNotifyMask;
 
 	impl->win = XCreateWindow(
@@ -148,9 +151,9 @@ puglCreate(PuglNativeWindow parent,
 	}
 
 	if (glXIsDirect(impl->display, impl->ctx)) {
-		printf("DRI enabled\n");
+		PUGL_LOG("DRI enabled (to disable, set LIBGL_ALWAYS_INDIRECT=1\n");
 	} else {
-		printf("No DRI available\n");
+		PUGL_LOG("No DRI available\n");
 	}
 
 	XFree(vi);
@@ -361,6 +364,14 @@ puglProcessEvents(PuglView* view)
 				}
 			}
 			break;
+#ifdef PUGL_GRAB_FOCUS
+		case EnterNotify:
+			XSetInputFocus(view->impl->display,
+			               view->impl->win,
+			               RevertToPointerRoot,
+			               CurrentTime);
+			break;
+#endif
 		default:
 			break;
 		}
