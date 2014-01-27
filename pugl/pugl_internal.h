@@ -24,6 +24,8 @@
 
 #include "pugl.h"
 
+void puglDefaultReshape(PuglView* view, int width, int height);
+
 typedef struct PuglInternalsImpl PuglInternals;
 
 struct PuglViewImpl {

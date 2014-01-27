@@ -72,7 +72,7 @@
 
 @end
 
-void
+static void
 puglDisplay(PuglView* view)
 {
 	if (view->displayFunc) {
@@ -169,7 +169,7 @@ puglDisplay(PuglView* view)
 
 - (void) drawRect:(NSRect)rect
 {
-	puglDisplay(puglview);
+	display(puglview);
 	glFlush();
 	glSwapAPPLE();
 }
