@@ -31,11 +31,15 @@ def options(opt):
         opt.load('compiler_cxx')
     autowaf.set_options(opt)
     opt.add_option('--test', action='store_true', default=False, dest='build_tests',
-                   help="Build unit tests")
+                   help='Build unit tests')
     opt.add_option('--static', action='store_true', default=False, dest='static',
-                   help="Build static library")
+                   help='Build static library')
     opt.add_option('--shared', action='store_true', default=False, dest='shared',
-                   help="Build shared library")
+                   help='Build shared library')
+    opt.add_option('--verbose', action='store_true', default=False, dest='verbose',
+                   help='Print GL information to console')
+    opt.add_option('--grab-focus', action='store_true', default=False, dest='grab_focus',
+                   help='Work around reparent keyboard issues by grabbing focus')
 
 def configure(conf):
     conf.load('compiler_c')
@@ -48,6 +52,9 @@ def configure(conf):
         conf.env.append_unique('CFLAGS', ['-TP', '-MD'])
     else:
         conf.env.append_unique('CFLAGS', '-std=c99')
+
+    if Options.options.verbose:
+        autowaf.define(conf, 'PUGL_VERBOSE', PUGL_VERBOSE)
 
     # Shared library building is broken on win32 for some reason
     conf.env['BUILD_TESTS']  = Options.options.build_tests
