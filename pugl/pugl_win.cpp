@@ -113,8 +113,6 @@ puglCreate(PuglNativeWindow parent,
  	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
 #endif
 
-	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
-
 	impl->hdc = GetDC(impl->hwnd);
 
 	PIXELFORMATDESCRIPTOR pfd;
@@ -291,6 +289,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEWHEEL:
 		if (view->scrollFunc) {
+			view->event_timestamp_ms = GetMessageTime();
 			view->scrollFunc(
 				view, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
 				0.0f, (int16_t)HIWORD(wParam) / (float)WHEEL_DELTA);
@@ -298,17 +297,18 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEHWHEEL:
 		if (view->scrollFunc) {
+			view->event_timestamp_ms = GetMessageTime();
 			view->scrollFunc(
 				view, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
-				0.0f, (int16_t)HIWORD(wParam) / float(WHEEL_DELTA));
+				(int16_t)HIWORD(wParam) / float(WHEEL_DELTA), 0.0f);
 		}
 		break;
 	case WM_KEYDOWN:
-		view->event_timestamp_ms = (GetMessageTime());
 		if (view->ignoreKeyRepeat && (lParam & (1 << 30))) {
 			break;
 		} // else nobreak
 	case WM_KEYUP:
+		view->event_timestamp_ms = GetMessageTime();
 		if ((key = keySymToSpecial(wParam))) {
 			if (view->specialFunc) {
 				view->specialFunc(view, message == WM_KEYDOWN, key);
