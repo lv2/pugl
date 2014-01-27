@@ -3,3 +3,6 @@ Author:
 
 Original GLX inspiration, portability fixes:
     Ben Loftis
+
+Various fixes and improvements:
+    Robin Gareus <robin@gareus.org>
