@@ -170,7 +170,7 @@ puglDisplay(PuglView* view)
 
 - (void) drawRect:(NSRect)rect
 {
-	display(puglview);
+	puglDisplay(puglview);
 	glFlush();
 	glSwapAPPLE();
 }
