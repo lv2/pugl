@@ -365,8 +365,8 @@ puglCreate(PuglNativeWindow parent,
 	[window setPuglview:view];
 	[window setTitle:titleString];
 
-	impl->glview       = [PuglOpenGLView new];
-	impl->window     = window;
+	impl->glview           = [PuglOpenGLView new];
+	impl->window           = window;
 	impl->glview->puglview = view;
 
 	[window setContentView:impl->glview];
