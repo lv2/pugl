@@ -60,9 +60,10 @@ static bool robtk_select_expose_event(RobWidget* handle, cairo_t* cr, cairo_rect
 	assert(d->active_item < d->item_count);
 
 	if (!d->btn_bg) {
+		float c_bg[4]; get_color_from_theme(1, c_bg);
 		d->btn_bg = cairo_pattern_create_linear (0.0, 0.0, 0.0, d->w_height);
-		cairo_pattern_add_color_stop_rgb (d->btn_bg, 0.0, .65, .65, .66);
-		cairo_pattern_add_color_stop_rgb (d->btn_bg, 1.0, .25, .25, .3);
+		cairo_pattern_add_color_stop_rgb (d->btn_bg, ISBRIGHT(c_bg) ? 1.0 : 0.0, SHADE_RGB(c_bg, 1.95));
+		cairo_pattern_add_color_stop_rgb (d->btn_bg, ISBRIGHT(c_bg) ? 0.0 : 1.0, SHADE_RGB(c_bg, 0.75));
 	}
 
 	cairo_rectangle (cr, ev->x, ev->y, ev->width, ev->height);
@@ -90,7 +91,11 @@ static bool robtk_select_expose_event(RobWidget* handle, cairo_t* cr, cairo_rect
 	cairo_rectangle(cr, 2.5, 2.5, 14, d->w_height - 4);
 	if (d->sensitive && d->prelight && d->lightarr == -1) {
 		cairo_fill_preserve(cr);
-		cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .1);
+		if (ISBRIGHT(cbg)) {
+			cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, .1);
+		} else {
+			cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .1);
+		}
 	}
 	cairo_fill(cr);
 
@@ -106,7 +111,11 @@ static bool robtk_select_expose_event(RobWidget* handle, cairo_t* cr, cairo_rect
 	cairo_rectangle(cr, w_width - 15.5, 2.5, 14, d->w_height - 4);
 	if (d->prelight && d->lightarr == 1) {
 		cairo_fill_preserve(cr);
-		cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .1);
+		if (ISBRIGHT(cbg)) {
+			cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, .1);
+		} else {
+			cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .1);
+		}
 	}
 	cairo_fill(cr);
 
@@ -134,7 +143,7 @@ static bool robtk_select_expose_event(RobWidget* handle, cairo_t* cr, cairo_rect
 	cairo_stroke(cr);
 
 	if (!d->sensitive) {
-		cairo_set_source_rgba(cr, .3, .3, .3, 0.5);
+		cairo_set_source_rgba(cr, SHADE_RGB(cbg, .9) , 0.5);
 		cairo_rectangle(cr, 0, 0, w_width, d->w_height);
 		cairo_fill(cr);
 	}

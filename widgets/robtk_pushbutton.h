@@ -133,17 +133,18 @@ static void robtk_pbtn_leave_notify(RobWidget *handle) {
 }
 
 static void create_pbtn_pattern(RobTkPBtn * d) {
+	float c_bg[4]; get_color_from_theme(1, c_bg);
 
 	if (d->btn_active) cairo_pattern_destroy(d->btn_active);
 	if (d->btn_inactive) cairo_pattern_destroy(d->btn_inactive);
 
 	d->btn_inactive = cairo_pattern_create_linear (0.0, 0.0, 0.0, d->w_height);
-	cairo_pattern_add_color_stop_rgb (d->btn_inactive, 0.0, .65, .65, .66);
-	cairo_pattern_add_color_stop_rgb (d->btn_inactive, 1.0, .25, .25, .3);
+	cairo_pattern_add_color_stop_rgb (d->btn_inactive, ISBRIGHT(c_bg) ? 1.0 : 0.0, SHADE_RGB(c_bg, 1.95));
+	cairo_pattern_add_color_stop_rgb (d->btn_inactive, ISBRIGHT(c_bg) ? 0.0 : 1.0, SHADE_RGB(c_bg, 0.75));
 
 	d->btn_active = cairo_pattern_create_linear (0.0, 0.0, 0.0, d->w_height);
-	cairo_pattern_add_color_stop_rgb (d->btn_active, 0.0, .3, .3, .33);
-	cairo_pattern_add_color_stop_rgb (d->btn_active, 1.0, .8, .8, .82);
+	cairo_pattern_add_color_stop_rgb (d->btn_active, ISBRIGHT(c_bg) ? 1.0 : 0.0, SHADE_RGB(c_bg, .95));
+	cairo_pattern_add_color_stop_rgb (d->btn_active, ISBRIGHT(c_bg) ? 0.0 : 1.0, SHADE_RGB(c_bg, 2.4));
 }
 
 static void create_pbtn_text_surface(RobTkPBtn * d, const char * txt, PangoFontDescription *font) {

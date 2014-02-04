@@ -43,4 +43,9 @@ static const float c_scr[4] = {0.2, 0.2, 0.2, 0.8}; // screw mount
 #define CairoSetSouerceRGBA(COL) \
 	cairo_set_source_rgba (cr, (COL)[0], (COL)[1], (COL)[2], (COL)[3])
 
+#define ISBRIGHT(COL) (COL[0] + COL[1] + COL[2] > 1.5)
+#define SHADE_RGB(COL, X) \
+	ISBRIGHT(COL) ? COL[0] / (X) : COL[0] * (X), \
+	ISBRIGHT(COL) ? COL[1] / (X) : COL[1] * (X), \
+	ISBRIGHT(COL) ? COL[2] / (X) : COL[2] * (X)
 

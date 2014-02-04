@@ -86,7 +86,7 @@ static bool robtk_dial_expose_event (RobWidget* handle, cairo_t* cr, cairo_recta
 
 	if (d->bg) {
 		if (!d->sensitive) {
-			cairo_set_operator (cr, CAIRO_OPERATOR_EXCLUSION);
+			cairo_set_operator (cr, CAIRO_OPERATOR_SOFT_LIGHT);
 		} else {
 			cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 		}
@@ -167,7 +167,11 @@ static bool robtk_dial_expose_event (RobWidget* handle, cairo_t* cr, cairo_recta
 	}
 
 	if (d->sensitive && (d->prelight || d->dragging)) {
-		cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .15);
+		if (ISBRIGHT(c)) {
+			cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, .15);
+		} else {
+			cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .15);
+		}
 		cairo_arc (cr, d->w_cx, d->w_cy, d->w_radius-1, 0, 2.0 * M_PI);
 		cairo_fill(cr);
 		if (d->ann) d->ann(d, cr, d->ann_handle);
@@ -331,6 +335,7 @@ static RobWidget* robtk_dial_scroll(RobWidget* handle, RobTkBtnEvent *ev) {
 }
 
 static void create_dial_pattern(RobTkDial * d) {
+	float c_bg[4]; get_color_from_theme(1, c_bg);
 	cairo_pattern_t* pat = cairo_pattern_create_linear (0.0, 0.0, 0.0, d->w_height);
 
 	const float pat_left   = (d->w_cx - d->w_radius) / (float) d->w_width;
@@ -339,16 +344,28 @@ static void create_dial_pattern(RobTkDial * d) {
 	const float pat_bottom = (d->w_cy + d->w_radius) / (float) d->w_height;
 #define PAT_XOFF(VAL) (pat_left + 0.35 * 2.0 * d->w_radius)
 
-	cairo_pattern_add_color_stop_rgb (pat, pat_top,    .8, .8, .82);
-	cairo_pattern_add_color_stop_rgb (pat, pat_bottom, .3, .3, .33);
+	if (ISBRIGHT(c_bg)) {
+		cairo_pattern_add_color_stop_rgb (pat, pat_top,    SHADE_RGB(c_bg, .95));
+		cairo_pattern_add_color_stop_rgb (pat, pat_bottom, SHADE_RGB(c_bg, 2.4));
+	} else {
+		cairo_pattern_add_color_stop_rgb (pat, pat_top,    SHADE_RGB(c_bg, 2.4));
+		cairo_pattern_add_color_stop_rgb (pat, pat_bottom, SHADE_RGB(c_bg, .95));
+	}
 
 	if (!getenv("NO_METER_SHADE") || strlen(getenv("NO_METER_SHADE")) == 0) {
 		/* light from top-left */
 		cairo_pattern_t* shade_pattern = cairo_pattern_create_linear (0.0, 0.0, d->w_width, 0.0);
-		cairo_pattern_add_color_stop_rgba (shade_pattern, pat_left,       0.0, 0.0, 0.0, 0.15);
-		cairo_pattern_add_color_stop_rgba (shade_pattern, PAT_XOFF(0.35), 1.0, 1.0, 1.0, 0.10);
-		cairo_pattern_add_color_stop_rgba (shade_pattern, PAT_XOFF(0.53), 0.0, 0.0, 0.0, 0.05);
-		cairo_pattern_add_color_stop_rgba (shade_pattern, pat_right,      0.0, 0.0, 0.0, 0.25);
+		if (ISBRIGHT(c_bg)) {
+			cairo_pattern_add_color_stop_rgba (shade_pattern, pat_left,       1.0, 1.0, 1.0, 0.15);
+			cairo_pattern_add_color_stop_rgba (shade_pattern, PAT_XOFF(0.35), 0.0, 0.0, 0.0, 0.10);
+			cairo_pattern_add_color_stop_rgba (shade_pattern, PAT_XOFF(0.53), 1.0, 1.0, 1.0, 0.05);
+			cairo_pattern_add_color_stop_rgba (shade_pattern, pat_right,      1.0, 1.0, 1.0, 0.25);
+		} else {
+			cairo_pattern_add_color_stop_rgba (shade_pattern, pat_left,       0.0, 0.0, 0.0, 0.15);
+			cairo_pattern_add_color_stop_rgba (shade_pattern, PAT_XOFF(0.35), 1.0, 1.0, 1.0, 0.10);
+			cairo_pattern_add_color_stop_rgba (shade_pattern, PAT_XOFF(0.53), 0.0, 0.0, 0.0, 0.05);
+			cairo_pattern_add_color_stop_rgba (shade_pattern, pat_right,      0.0, 0.0, 0.0, 0.25);
+		}
 
 		cairo_surface_t* surface;
 		cairo_t* tc = 0;
@@ -450,8 +467,15 @@ static RobTkDial * robtk_dial_new_with_size(float min, float max, float step,
 	d->scol[1*4] = 0.0; d->scol[1*4+1] = 1.0; d->scol[1*4+2] = 0.0; d->scol[1*4+3] = 0.2;
 	d->scol[2*4] = 0.0; d->scol[2*4+1] = 0.0; d->scol[2*4+2] = 1.0; d->scol[2*4+3] = 0.25;
 
-	d->dcol[0][0] = .95; d->dcol[0][1] = .95; d->dcol[0][2] = .95; d->dcol[0][3] = 1.0;
-	d->dcol[1][0] = .50; d->dcol[1][1] = .50; d->dcol[1][2] = .50; d->dcol[1][3] = 0.7;
+	float c[4]; get_color_from_theme(1, c);
+	if (ISBRIGHT(c)) {
+		d->dcol[0][0] = .05; d->dcol[0][1] = .05; d->dcol[0][2] = .05; d->dcol[0][3] = 1.0;
+		d->dcol[1][0] = .45; d->dcol[1][1] = .45; d->dcol[1][2] = .45; d->dcol[1][3] = 0.7;
+	} else {
+		d->dcol[0][0] = .95; d->dcol[0][1] = .95; d->dcol[0][2] = .95; d->dcol[0][3] = 1.0;
+		d->dcol[1][0] = .55; d->dcol[1][1] = .55; d->dcol[1][2] = .55; d->dcol[1][3] = 0.7;
+	}
+
 	d->dcol[2][0] = .0;  d->dcol[2][1] = .75; d->dcol[2][2] = 1.0; d->dcol[2][3] = 0.8;
 	d->dcol[3][0] = .50; d->dcol[3][1] = .50; d->dcol[3][2] = .50; d->dcol[3][3] = 0.5;
 

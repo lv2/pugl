@@ -66,26 +66,27 @@ static void robtk_cbtn_update_enabled(RobTkCBtn * d, bool enabled) {
 }
 
 static void create_cbtn_pattern(RobTkCBtn * d) {
+	float c_bg[4]; get_color_from_theme(1, c_bg);
 
 	if (d->btn_inactive) cairo_pattern_destroy(d->btn_inactive);
 	if (d->btn_enabled) cairo_pattern_destroy(d->btn_enabled);
 
 	d->btn_inactive = cairo_pattern_create_linear (0.0, 0.0, 0.0, d->w_height);
-	cairo_pattern_add_color_stop_rgb (d->btn_inactive, 0.0, .65, .65, .66);
-	cairo_pattern_add_color_stop_rgb (d->btn_inactive, 1.0, .25, .25, .3);
+	cairo_pattern_add_color_stop_rgb (d->btn_inactive, ISBRIGHT(c_bg) ? 1.0 : 0.0, SHADE_RGB(c_bg, 1.95));
+	cairo_pattern_add_color_stop_rgb (d->btn_inactive, ISBRIGHT(c_bg) ? 0.0 : 1.0, SHADE_RGB(c_bg, 0.75));
 
 	d->btn_enabled = cairo_pattern_create_linear (0.0, 0.0, 0.0, d->w_height);
 	if (d->show_led == GBT_LED_OFF) {
 		cairo_pattern_add_color_stop_rgb (d->btn_enabled, 0.0, .2, .5, .21);
 		cairo_pattern_add_color_stop_rgb (d->btn_enabled, 1.0, .5, .9, .51);
 	} else {
-		cairo_pattern_add_color_stop_rgb (d->btn_enabled, 0.0, .3, .3, .33);
-		cairo_pattern_add_color_stop_rgb (d->btn_enabled, 1.0, .8, .8, .82);
+		cairo_pattern_add_color_stop_rgb (d->btn_enabled, ISBRIGHT(c_bg) ? 1.0 : 0.0, SHADE_RGB(c_bg, .95));
+		cairo_pattern_add_color_stop_rgb (d->btn_enabled, ISBRIGHT(c_bg) ? 0.0 : 1.0, SHADE_RGB(c_bg, 2.4));
 	}
 
 	d->btn_led = cairo_pattern_create_linear (0.0, 0.0, 0.0, GBT_LED_RADIUS);
 	cairo_pattern_add_color_stop_rgba (d->btn_led, 0.0, 0.0, 0.0, 0.0, 0.4);
-	cairo_pattern_add_color_stop_rgba (d->btn_led, 1.0, 1.0, 1.0, 1.0 , 0.7);
+	cairo_pattern_add_color_stop_rgba (d->btn_led, 1.0, 1.0, 1.0, 1.0, 0.7);
 }
 
 static void create_cbtn_text_surface(RobTkCBtn * d, const char * txt, PangoFontDescription *font) {
@@ -165,8 +166,6 @@ static bool robtk_cbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
 		cairo_set_source_rgba (cr, .0, .0, .0, 1.0);
 		cairo_stroke(cr);
 	} else {
-		float c[4];
-		get_color_from_theme(1, c);
 		cairo_set_source_rgb (cr, c[0], c[1], c[2]);
 		rounded_rectangle(cr, 2, 2, d->w_width - 3, d->w_height - 3, C_RAD);
 		cairo_fill(cr);
@@ -213,7 +212,11 @@ static bool robtk_cbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
 
 	if (d->sensitive && d->prelight) {
 		cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
-		cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .1);
+		if (ISBRIGHT(c)) {
+			cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, .1);
+		} else {
+			cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .1);
+		}
 		if (d->flat_button) {
 			rounded_rectangle(cr, 2.5, 2.5, d->w_width - 4, d->w_height -4, C_RAD);
 			cairo_fill(cr);
