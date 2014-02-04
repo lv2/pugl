@@ -352,7 +352,7 @@ static bool robtk_scale_expose_event (RobWidget* handle, cairo_t* cr, cairo_rect
 		cairo_set_source(cr, d->dpat);
 	}
 
-	rounded_rectangle(cr, 4.5, SXX_T(4.5), SXX_W(-8), SXX_H(-8), 6);
+	rounded_rectangle(cr, 4.5, SXX_T(4.5), SXX_W(-8), SXX_H(-8), C_RAD);
 	cairo_fill_preserve (cr);
 	cairo_set_line_width(cr, .75);
 	cairo_set_source_rgba (cr, .0, .0, .0, 1.0);
@@ -420,7 +420,7 @@ static bool robtk_scale_expose_event (RobWidget* handle, cairo_t* cr, cairo_rect
 		cairo_rectangle (cr, ev->x, ev->y, ev->width, ev->height);
 		cairo_clip (cr);
 		cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .1);
-		rounded_rectangle(cr, 4.5, SXX_T(4.5), SXX_W(-8), SXX_H(-8), 6);
+		rounded_rectangle(cr, 4.5, SXX_T(4.5), SXX_W(-8), SXX_H(-8), C_RAD);
 		cairo_fill_preserve(cr);
 		cairo_set_line_width(cr, .75);
 		cairo_set_source_rgba (cr, .0, .0, .0, 1.0);

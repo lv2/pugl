@@ -155,7 +155,7 @@ static bool robtk_cbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
 			cairo_set_source(cr, d->btn_inactive);
 		}
 
-		rounded_rectangle(cr, 2.5, 2.5, d->w_width - 4, d->w_height -4, 6);
+		rounded_rectangle(cr, 2.5, 2.5, d->w_width - 4, d->w_height -4, C_RAD);
 		cairo_fill_preserve (cr);
 		if (!d->sensitive && d->enabled) {
 			cairo_set_source_rgba (cr, c[0], c[1], c[2], .6);
@@ -168,7 +168,7 @@ static bool robtk_cbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
 		float c[4];
 		get_color_from_theme(1, c);
 		cairo_set_source_rgb (cr, c[0], c[1], c[2]);
-		rounded_rectangle(cr, 2, 2, d->w_width - 3, d->w_height - 3, 6);
+		rounded_rectangle(cr, 2, 2, d->w_width - 3, d->w_height - 3, C_RAD);
 		cairo_fill(cr);
 	}
 
@@ -215,10 +215,10 @@ static bool robtk_cbtn_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectan
 		cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 		cairo_set_source_rgba (cr, 1.0, 1.0, 1.0, .1);
 		if (d->flat_button) {
-			rounded_rectangle(cr, 2.5, 2.5, d->w_width - 4, d->w_height -4, 6);
+			rounded_rectangle(cr, 2.5, 2.5, d->w_width - 4, d->w_height -4, C_RAD);
 			cairo_fill(cr);
 		} else {
-			rounded_rectangle(cr, 2.5, 2.5, d->w_width - 4, d->w_height -4, 6);
+			rounded_rectangle(cr, 2.5, 2.5, d->w_width - 4, d->w_height -4, C_RAD);
 			cairo_fill_preserve(cr);
 			cairo_set_line_width (cr, .75);
 			cairo_set_source_rgba (cr, .0, .0, .0, 1.0);

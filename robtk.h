@@ -228,6 +228,8 @@ static float rtk_hue2rgb(const float p, const float q, float t) {
 
 #endif
 
+#define C_RAD 6
+
 #include "widgets/robtk_checkbutton.h"
 #include "widgets/robtk_multibutton.h"
 #include "widgets/robtk_dial.h"
