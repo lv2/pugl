@@ -267,17 +267,54 @@ static void cairo_expose(GlMetersLV2UI * self) {
 	/* FAST TRACK EXPOSE */
 	int qq = posrb_read_space(self->rb) / sizeof(RWArea);
 	bool dirty = qq > 0;
-#ifdef DEBUG_EXPOSURE
+#ifdef DEBUG_FASTTRACK
 	/*if (qq > 0)*/ fprintf(stderr, " fast track %d events\n", qq);
 #endif
+	cairo_rectangle_t fast_track_area = {0,0,0,0};
+	uint32_t fast_track_cnt = 0;
 	while (--qq >= 0) {
 		RWArea a;
 		posrb_read(self->rb, (uint8_t*) &a, sizeof(RWArea));
 		assert(a.rw);
-		cairo_save(self->cr);
 
+		/* skip duplicates */
+		if (fast_track_cnt > 0) {
+			if (   a.a.x+a.rw->trel.x >= fast_track_area.x
+					&& a.a.y+a.rw->trel.y >= fast_track_area.y
+					&& a.a.x+a.rw->trel.x+a.a.width  <= fast_track_area.x + fast_track_area.width
+					&& a.a.y+a.rw->trel.y+a.a.height <= fast_track_area.y + fast_track_area.height) {
+#ifdef DEBUG_FASTTRACK
+				fprintf(stderr, " skip fast-track event #%d (%.1f x %.1f + %.1f + %.1f)\n", fast_track_cnt,
+						a.a.width, a.a.height, a.a.x+a.rw->trel.x, a.a.y+a.rw->trel.y);
+#endif
+				continue;
+			}
+		}
+		cairo_save(self->cr);
 		cairo_translate(self->cr, a.rw->trel.x, a.rw->trel.y);
 		a.rw->expose_event(a.rw, self->cr, &a.a);
+
+		/* keep track of exposed parts */
+		a.a.x += a.rw->trel.x;
+		a.a.y += a.rw->trel.y;
+#ifdef DEBUG_FASTTRACK
+		fprintf(stderr, "                       #%d (%.1f x %.1f @ %.1f + %.1f\n", fast_track_cnt,
+						a.a.width, a.a.height, a.a.x, a.a.y);
+#endif
+#ifndef FASTTRACK_INTERSECT
+		memcpy(&fast_track_area, &a.a, sizeof(cairo_rectangle_t));
+		fast_track_cnt++;
+#else // intersects
+		if (fast_track_cnt++ == 0) {
+			fast_track_area.x = a.a.x;
+			fast_track_area.y = a.a.y;
+			fast_track_area.width = a.a.width;
+			fast_track_area.height = a.a.height;
+		} else {
+			rect_intersection(&fast_track_area, &a.a, &fast_track_area);
+			//rect_combine(&fast_track_area, &a.a, &fast_track_area);
+		}
+#endif
 
 #ifdef VISIBLE_EXPOSE
 		static int ftrk = 0;

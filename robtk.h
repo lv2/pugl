@@ -175,6 +175,14 @@ extension_data(const char* uri);
 
 /******************************************************************************/
 // utils //
+static void rect_intersection(cairo_rectangle_t *r, const cairo_rectangle_t *r1, const cairo_rectangle_t *r2){
+	cairo_rectangle_t is;
+	is.x      = MAX(r1->x, r2->x);
+	is.y      = MAX(r1->y, r2->y);
+	is.width  = MAX(0, MIN(r1->x + r1->width,  r2->x + r2->width)  - MAX(r1->x, r2->x));
+	is.height = MAX(0, MIN(r1->y + r1->height, r2->y + r2->height) - MAX(r1->y, r2->y));
+	memcpy(r, &is, sizeof(cairo_rectangle_t));
+}
 
 static bool rect_intersect(const cairo_rectangle_t *r1, const cairo_rectangle_t *r2){
 	float dest_x, dest_y;
