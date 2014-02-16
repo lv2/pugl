@@ -86,11 +86,11 @@ static void robtk_scale_update_value(RobTkScale * d, float val) {
 				if (d->horiz) {
 					rect.x = 1 + val;
 					rect.width = 9 + oldval - val;
-					rect.y = d->mark_space + 3;
-					rect.height = d->w_height - 6 - d->mark_space;
+					rect.y = d->mark_space + 6;
+					rect.height = d->w_height - 10 - d->mark_space;
 				} else {
 					rect.x = 5;
-					rect.width = d->w_width - 5 - d->mark_space;
+					rect.width = d->w_width - 9 - d->mark_space;
 					rect.y = 1 + val;
 					rect.height = 9 + oldval - val;
 				}
@@ -98,11 +98,11 @@ static void robtk_scale_update_value(RobTkScale * d, float val) {
 				if (d->horiz) {
 					rect.x = 1 + oldval;
 					rect.width = 9 + val - oldval;
-					rect.y = d->mark_space + 3;
-					rect.height = d->w_height - 6 - d->mark_space;
+					rect.y = d->mark_space + 6;
+					rect.height = d->w_height - 10 - d->mark_space;
 				} else {
 					rect.x = 5;
-					rect.width = d->w_width - 5 - d->mark_space;
+					rect.width = d->w_width - 9 - d->mark_space;
 					rect.y = 1 + oldval;
 					rect.height = 9 + val - oldval;
 				}
