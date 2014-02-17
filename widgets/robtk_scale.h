@@ -368,9 +368,9 @@ static bool robtk_scale_expose_event (RobWidget* handle, cairo_t* cr, cairo_rect
 		cairo_set_source_rgba (cr, .5, .0, .0, 0.2);
 	}
 	if (d->horiz) {
-		cairo_rectangle(cr, 3.0 + 0, SXX_T(4.5), val, SXX_T(4.5));
+		cairo_rectangle(cr, 3.0, SXX_T(5), val, SXX_H(-9));
 	} else {
-		cairo_rectangle(cr, 4.5, SXX_T(3) + val, SXX_W(-8), SXX_H(-8) - val);
+		cairo_rectangle(cr, 5, SXX_T(3) + val, SXX_W(-9), SXX_H(-9) - val);
 	}
 	cairo_fill(cr);
 
@@ -380,9 +380,9 @@ static bool robtk_scale_expose_event (RobWidget* handle, cairo_t* cr, cairo_rect
 		cairo_set_source_rgba (cr, .0, .5, .0, 0.2);
 	}
 	if (d->horiz) {
-		cairo_rectangle(cr, 3.0 + val, SXX_T(4.5), SXX_W(-8) - val, SXX_T(4.5));
+		cairo_rectangle(cr, 3.0 + val, SXX_T(5), SXX_W(-9) - val, SXX_H(-9));
 	} else {
-		cairo_rectangle(cr, 4.5, SXX_T(3), SXX_W(-8), val);
+		cairo_rectangle(cr, 5, SXX_T(3), SXX_W(-9), val);
 	}
 	cairo_fill(cr);
 #endif
@@ -397,20 +397,20 @@ static bool robtk_scale_expose_event (RobWidget* handle, cairo_t* cr, cairo_rect
 		cairo_set_source_rgba (cr, .95, .95, .95, 1.0);
 #endif
 		if (d->horiz) {
-			cairo_rectangle(cr, 3.0 + val, SXX_T(4.5), 3, SXX_T(4.5));
+			cairo_rectangle(cr, 3.0 + val, SXX_T(5), 3, SXX_H(-9));
 		} else {
-			cairo_rectangle(cr, 4.5, SXX_T(3) + val, SXX_W(-8), 3);
+			cairo_rectangle(cr, 5, SXX_T(3) + val, SXX_W(-9), 3);
 		}
 		cairo_fill(cr);
 	} else {
 		cairo_set_line_width(cr, 3.0);
 		cairo_set_source_rgba (cr, .7, .7, .7, .7);
 		if (d->horiz) {
-			cairo_move_to(cr, 4.5 + val, SXX_T(4.5));
-			cairo_line_to(cr, 4.5 + val, SXX_T(0) + SXX_H(-4.5));
+			cairo_move_to(cr, 4.5 + val, SXX_T(5));
+			cairo_line_to(cr, 4.5 + val, SXX_T(0) + SXX_H(-4));
 		} else {
-			cairo_move_to(cr, 4.5        , SXX_T(4.5) + val);
-			cairo_line_to(cr, SXX_W(-4.5), SXX_T(4.5) + val);
+			cairo_move_to(cr, 5        , SXX_T(4.5) + val);
+			cairo_line_to(cr, SXX_W(-4), SXX_T(4.5) + val);
 		}
 		cairo_stroke (cr);
 	}
