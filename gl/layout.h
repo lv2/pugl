@@ -121,7 +121,11 @@ static bool roblayout_can_expand(RobWidget *rw) {
 	return can_expand;
 }
 
-static void rcontainer_child_pack(RobWidget *rw, RobWidget *chld, bool expand) {
+static bool roblayout_can_fill(RobWidget *rw) {
+	return (rw->packing_opts & 2);
+}
+
+static void rcontainer_child_pack(RobWidget *rw, RobWidget *chld, bool expand, bool fill) {
 #ifndef NDEBUG
 	if (chld->parent) {
 		fprintf(stderr, "re-parent child\n");
@@ -135,7 +139,7 @@ static void rcontainer_child_pack(RobWidget *rw, RobWidget *chld, bool expand) {
 	if (chld->size_allocate == rtable_size_allocate) {
 		((struct rob_table*)chld->self)->expand = expand;
 	}
-	chld->packing_opts = expand ? 1 : 0;
+	chld->packing_opts = (expand ? 1 : 0) | (fill ? 2 : 0);
 	rw->children = (RobWidget**) realloc(rw->children, (rw->childcount + 1) * sizeof(RobWidget *));
 	rw->children[rw->childcount] = chld;
 	rw->childcount++;
@@ -368,7 +372,7 @@ static void rhbox_size_allocate(RobWidget* rw, int w, int h) {
 		if (c->size_allocate) {
 			c->size_allocate(c, 
 					c->area.width + ((grow || !roblayout_can_expand(c)) ? 0 : floorf(xtra_space)),
-					roblayout_can_expand(c) ? h : hh);
+					roblayout_can_fill(c) ? h : hh);
 		}
 #ifdef DEBUG_HBOX
 		printf("HBOXCHILD %d use %.1fx%.1f\n", i, c->area.width, c->area.height);
@@ -383,13 +387,15 @@ static void rhbox_size_allocate(RobWidget* rw, int w, int h) {
 		if (c->hidden) continue;
 		if (++ccnt != 1) { ww += padding; }
 		if (c->position_set) {
-			c->position_set(c, c->area.width, hh);
+			c->position_set(c, c->area.width, h);
 		} else {
-			robwidget_position_set(c, c->area.width, hh);
+			robwidget_position_set(c, c->area.width, h);
 		}
 		c->area.x += floorf(ww);
 		c->area.y += 0;
-		c->area.y += roblayout_can_expand(c) ? 0 : floor((h - hh) / 2.0);
+		if (!roblayout_can_fill(c)) {
+			c->area.y += roblayout_can_expand(c) ? 0 : floor((hh - h) / 2.0);
+		}
 		ww += c->area.width;
 
 #ifdef DEBUG_HBOX
@@ -416,7 +422,7 @@ static void rhbox_size_allocate(RobWidget* rw, int w, int h) {
 }
 
 static void rob_hbox_child_pack(RobWidget *rw, RobWidget *chld, bool expand, bool fill) {
-	rcontainer_child_pack(rw, chld, expand);
+	rcontainer_child_pack(rw, chld, expand, fill);
 }
 
 static RobWidget * rob_hbox_new(bool homogeneous, int padding) {
@@ -565,11 +571,13 @@ static void rvbox_size_allocate(RobWidget* rw, int w, int h) {
 		if (c->hidden) continue;
 		if (++ccnt != 1) { hh += padding; }
 		if (c->position_set) {
-			c->position_set(c, ww, c->area.height);
+			c->position_set(c, w, c->area.height);
 		} else {
-			robwidget_position_set(c, ww, c->area.height);
+			robwidget_position_set(c, w, c->area.height);
 		}
-		c->area.x += roblayout_can_expand(c) ? 0 : floor((w - ww) / 2.0);
+		if (!roblayout_can_fill(c)) {
+			c->area.x += roblayout_can_expand(c) ? 0 : floor((ww - w) / 2.0);
+		}
 		c->area.y += floorf(hh);
 		hh += c->area.height;
 #ifdef DEBUG_VBOX
@@ -594,7 +602,7 @@ static void rvbox_size_allocate(RobWidget* rw, int w, int h) {
 }
 
 static void rob_vbox_child_pack(RobWidget *rw, RobWidget *chld, bool expand, bool fill) {
-	rcontainer_child_pack(rw, chld, expand);
+	rcontainer_child_pack(rw, chld, expand, fill);
 }
 
 static RobWidget * rob_vbox_new(bool homogeneous, int padding) {
@@ -950,7 +958,7 @@ static void rob_table_attach(RobWidget *rw, RobWidget *chld,
 	assert(left < right);
 	assert(top < bottom);
 
-	rcontainer_child_pack(rw, chld, (yexpand | xexpand) & RTK_FILL);
+	rcontainer_child_pack(rw, chld, (yexpand | xexpand) & RTK_FILL, /*unused*/ TRUE);
 	struct rob_table *rt = (struct rob_table*)rw->self;
 
 	if (right >= rt->ncols) {

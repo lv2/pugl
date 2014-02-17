@@ -500,7 +500,10 @@ static void queue_tiny_area(RobWidget *rw, float x, float y, float w, float h) {
 static void robwidget_layout(GlMetersLV2UI * const self, bool setsize, bool init) {
 	RobWidget * rw = self->tl;
 #ifdef DEBUG_RESIZE
-	printf("robwidget_layout(%s)\n", ROBWIDGET_NAME(self->tl));
+	printf("robwidget_layout(%s) setsize:%s init:%s\n", ROBWIDGET_NAME(self->tl),
+			setsize ? "true" : "false",
+			init ? "true" : "false"
+			);
 #endif
 
 	int oldw = self->width;
@@ -523,7 +526,8 @@ static void robwidget_layout(GlMetersLV2UI * const self, bool setsize, bool init
 		self->width = nox;
 		self->height = noy;
 	} else if (nox > self->width || noy > self->height) {
-		fprintf(stderr, "WINDOW IS SMALLER THAN MINIMUM SIZE!\n");
+		fprintf(stderr, "WINDOW IS SMALLER THAN MINIMUM SIZE! %d > %d h: %d > %d\n",
+				nox, self->width, noy, self->height);
 	}
 
 	if (rw->size_allocate) {
@@ -650,6 +654,7 @@ onRealReshape(PuglView* view, int width, int height)
 			if (self->queue_canvas_realloc) {
 				reallocate_canvas(self);
 			}
+			rtoplevel_cache(self->tl, TRUE); // redraw background
 			if (self->width == width && self->height == height) {
 	self->xoff = 0; self->yoff = 0; self->xyscale = 1.0;
 	glViewport (0, 0, self->width, self->height);
