@@ -44,13 +44,14 @@ static bool robtk_sep_expose_event(RobWidget* handle, cairo_t* cr, cairo_rectang
 	if (d->line_width <=0 ) return TRUE;
 
 	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+	cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
 	cairo_set_line_width(cr, 1.0);
 	if (d->horiz) {
-		cairo_move_to (cr, 0.5, (d->w_height - 1.5) / 2);
-		cairo_line_to (cr, d->w_width - 1.0 , (d->w_height - 1.5) / 2);
+		cairo_move_to (cr, 0.5, rint(d->w_height * .5) - .5);
+		cairo_line_to (cr, d->w_width - 0.5 , rint(d->w_height *.5) - .5);
 	} else {
-		cairo_move_to (cr, (d->w_width - 1.5) / 2, 0.5);
-		cairo_line_to (cr, (d->w_width - 1.5) / 2, d->w_height - 1.0);
+		cairo_move_to (cr, rint(d->w_width * .5) - .5, 0.5);
+		cairo_line_to (cr, rint(d->w_width * .5) - .5, d->w_height - .5);
 	}
 	cairo_stroke(cr);
 
