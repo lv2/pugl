@@ -86,8 +86,8 @@ static void robtk_scale_update_value(RobTkScale * d, float val) {
 				if (d->horiz) {
 					rect.x = 1 + val;
 					rect.width = 9 + oldval - val;
-					rect.y = d->mark_space + 6;
-					rect.height = d->w_height - 10 - d->mark_space;
+					rect.y = d->mark_space + 5;
+					rect.height = d->w_height - 9 - d->mark_space;
 				} else {
 					rect.x = 5;
 					rect.width = d->w_width - 9 - d->mark_space;
@@ -98,8 +98,8 @@ static void robtk_scale_update_value(RobTkScale * d, float val) {
 				if (d->horiz) {
 					rect.x = 1 + oldval;
 					rect.width = 9 + val - oldval;
-					rect.y = d->mark_space + 6;
-					rect.height = d->w_height - 10 - d->mark_space;
+					rect.y = d->mark_space + 5;
+					rect.height = d->w_height - 9 - d->mark_space;
 				} else {
 					rect.x = 5;
 					rect.width = d->w_width - 9 - d->mark_space;
@@ -325,6 +325,7 @@ static bool robtk_scale_expose_event (RobWidget* handle, cairo_t* cr, cairo_rect
 	cairo_rectangle (cr, 0, 0, d->w_width, d->w_height);
 	cairo_fill(cr);
 
+	/* prepare tick mark surfaces */
 	if (d->mark_cnt > 0 && d->mark_expose) {
 		pthread_mutex_lock (&d->_mutex);
 		d->mark_expose = FALSE;
@@ -332,88 +333,86 @@ static bool robtk_scale_expose_event (RobWidget* handle, cairo_t* cr, cairo_rect
 		pthread_mutex_unlock (&d->_mutex);
 	}
 
+	/* tick marks */
 	if (d->bg) {
 		if (!d->sensitive) {
-			cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
+			//cairo_set_operator (cr, CAIRO_OPERATOR_OVERLAY);
+			cairo_set_operator (cr, CAIRO_OPERATOR_SOFT_LIGHT);
 		} else {
 			cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 		}
 		cairo_set_source_surface(cr, d->bg, 0, 0);
 		cairo_paint (cr);
-		cairo_set_source_rgb (cr, c[0], c[1], c[2]);
 	}
 
 	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 
+	/* solid background */
 	if (d->sensitive) {
 		cairo_matrix_t matrix;
-		cairo_matrix_init_translate(&matrix, 0, -SXX_T(0));
+		cairo_matrix_init_translate(&matrix, 0.0, -SXX_T(0));
 		cairo_pattern_set_matrix (d->dpat, &matrix);
 		cairo_set_source(cr, d->dpat);
+	} else {
+		cairo_set_source_rgba (cr, .5, .5, .5, 1.0);
 	}
-
 	rounded_rectangle(cr, 4.5, SXX_T(4.5), SXX_W(-8), SXX_H(-8), C_RAD);
-	cairo_fill_preserve (cr);
+	cairo_fill_preserve(cr);
+
+	if (d->sensitive) {
+		cairo_set_source_rgba (cr, .0, .0, .0, 1.0);
+	} else {
+		cairo_set_source_rgba (cr, .5, .5, .5, 1.0);
+	}
 	cairo_set_line_width(cr, .75);
-	cairo_set_source_rgba (cr, .0, .0, .0, 1.0);
 	cairo_stroke_preserve (cr);
 	cairo_clip (cr);
 
+
 	float val = robtk_scale_round_length(d, d->cur);
 
-#if 1
+	/* red area, left | top */
 	if (d->sensitive) {
-		cairo_set_source_rgba (cr, .5, .0, .0, 0.3);
+		cairo_set_source_rgba (cr, .5, .0, .0, .3);
 	} else {
-		cairo_set_source_rgba (cr, .5, .0, .0, 0.2);
+		cairo_set_source_rgba (cr, .5, .2, .2, .3);
 	}
 	if (d->horiz) {
 		cairo_rectangle(cr, 3.0, SXX_T(5), val, SXX_H(-9));
 	} else {
-		cairo_rectangle(cr, 5, SXX_T(3) + val, SXX_W(-9), SXX_H(-9) - val);
+		cairo_rectangle(cr, 5, SXX_T(3) + val, SXX_W(-9), SXX_H(-7) - val);
 	}
 	cairo_fill(cr);
 
+	/* green area, botom | right */
 	if (d->sensitive) {
-		cairo_set_source_rgba (cr, .0, .5, .0, 0.3);
+		cairo_set_source_rgba (cr, .0, .5, .0, .3);
 	} else {
-		cairo_set_source_rgba (cr, .0, .5, .0, 0.2);
+		cairo_set_source_rgba (cr, .2, .5, .2, .3);
 	}
 	if (d->horiz) {
-		cairo_rectangle(cr, 3.0 + val, SXX_T(5), SXX_W(-9) - val, SXX_H(-9));
+		cairo_rectangle(cr, 3.0 + val, SXX_T(5), SXX_W(-7) - val, SXX_H(-9));
 	} else {
 		cairo_rectangle(cr, 5, SXX_T(3), SXX_W(-9), val);
 	}
 	cairo_fill(cr);
-#endif
 
+	/* value ring */
 	if (d->sensitive) {
-#if 1
-		cairo_set_source(cr, d->fpat);
 		cairo_matrix_t matrix;
-		cairo_matrix_init_translate(&matrix, 0.0, -SXX_T(0));
+		cairo_matrix_init_translate(&matrix, 0, -SXX_T(0));
 		cairo_pattern_set_matrix (d->fpat, &matrix);
-#else
-		cairo_set_source_rgba (cr, .95, .95, .95, 1.0);
-#endif
-		if (d->horiz) {
-			cairo_rectangle(cr, 3.0 + val, SXX_T(5), 3, SXX_H(-9));
-		} else {
-			cairo_rectangle(cr, 5, SXX_T(3) + val, SXX_W(-9), 3);
-		}
-		cairo_fill(cr);
+		cairo_set_source(cr, d->fpat);
 	} else {
-		cairo_set_line_width(cr, 3.0);
 		cairo_set_source_rgba (cr, .7, .7, .7, .7);
-		if (d->horiz) {
-			cairo_move_to(cr, 4.5 + val, SXX_T(5));
-			cairo_line_to(cr, 4.5 + val, SXX_T(0) + SXX_H(-4));
-		} else {
-			cairo_move_to(cr, 5        , SXX_T(4.5) + val);
-			cairo_line_to(cr, SXX_W(-4), SXX_T(4.5) + val);
-		}
-		cairo_stroke (cr);
 	}
+	if (d->horiz) {
+		cairo_rectangle(cr, 3.0 + val, SXX_T(5), 3, SXX_H(-9));
+	} else {
+		cairo_rectangle(cr, 5, SXX_T(3) + val, SXX_W(-9), 3);
+	}
+	cairo_fill(cr);
+
 
 	if (d->sensitive && (d->prelight || d->drag_x > 0)) {
 		cairo_reset_clip (cr);
