@@ -109,7 +109,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask
 		| ButtonPressMask | ButtonReleaseMask
-#ifdef XKEYFOCUSGRAB
+#ifdef PUGL_GRAB_FOCUS
 		| EnterWindowMask
 #endif
 		| PointerMotionMask | StructureNotifyMask;
