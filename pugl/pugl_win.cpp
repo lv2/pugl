@@ -50,12 +50,28 @@ LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 PuglView*
-puglCreate(PuglNativeWindow parent,
-           const char*      title,
-           int              width,
-           int              height,
-           bool             resizable,
-           bool             visible)
+puglInit()
+{
+	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
+	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+	if (!view || !impl) {
+		return NULL;
+	}
+
+	view->impl   = impl;
+	view->width  = 640;
+	view->height = 480;
+
+	return view;
+}
+
+PuglView*
+puglCreateInternals(PuglNativeWindow parent,
+                    const char*      title,
+                    int              width,
+                    int              height,
+                    bool             resizable,
+                    bool             visible)
 {
 	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
 	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));

@@ -173,7 +173,10 @@ main(int argc, char** argv)
 		}
 	}
 
-	PuglView* view = puglCreate(0, "Pugl Test", 512, 512, resizable, true);
+	PuglView* view = puglInit(NULL, NULL);
+	puglInitWindowSize(view, 512, 512);
+	puglInitResizable(view, resizable);
+	
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetKeyboardFunc(view, onKeyboard);
 	puglSetMotionFunc(view, onMotion);
@@ -183,6 +186,9 @@ main(int argc, char** argv)
 	puglSetDisplayFunc(view, onDisplay);
 	puglSetReshapeFunc(view, onReshape);
 	puglSetCloseFunc(view, onClose);
+
+	puglCreateWindow(view, "Pugl Test");
+	puglShowWindow(view);
 
 	while (!quit) {
 		puglProcessEvents(view);

@@ -65,23 +65,16 @@ static int attrListDbl[] = {
 	None
 };
 
-PuglView*
-puglCreate(PuglNativeWindow parent,
-           const char*      title,
-           int              width,
-           int              height,
-           bool             resizable,
-           bool             visible)
+PuglInternals*
+puglInitInternals()
 {
-	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
-	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
-	if (!view || !impl) {
-		return NULL;
-	}
+	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
+}
 
-	view->impl   = impl;
-	view->width  = width;
-	view->height = height;
+int
+puglCreateWindow(PuglView* view, const char* title)
+{
+	PuglInternals* impl = view->impl;
 
 	impl->display = XOpenDisplay(0);
 	impl->screen  = DefaultScreen(impl->display);
@@ -102,8 +95,8 @@ puglCreate(PuglNativeWindow parent,
 
 	impl->ctx = glXCreateContext(impl->display, vi, 0, GL_TRUE);
 
-	Window xParent = parent
-		? (Window)parent
+	Window xParent = view->parent
+		? (Window)view->parent
 		: RootWindow(impl->display, impl->screen);
 
 	Colormap cmap = XCreateColormap(
@@ -128,12 +121,12 @@ puglCreate(PuglNativeWindow parent,
 
 	XSizeHints sizeHints;
 	memset(&sizeHints, 0, sizeof(sizeHints));
-	if (!resizable) {
+	if (!view->resizable) {
 		sizeHints.flags      = PMinSize|PMaxSize;
-		sizeHints.min_width  = width;
-		sizeHints.min_height = height;
-		sizeHints.max_width  = width;
-		sizeHints.max_height = height;
+		sizeHints.min_width  = view->width;
+		sizeHints.min_height = view->height;
+		sizeHints.max_width  = view->width;
+		sizeHints.max_height = view->height;
 		XSetNormalHints(impl->display, impl->win, &sizeHints);
 	}
 
@@ -141,13 +134,9 @@ puglCreate(PuglNativeWindow parent,
 		XStoreName(impl->display, impl->win, title);
 	}
 
-	if (!parent) {
+	if (!view->parent) {
 		Atom wmDelete = XInternAtom(impl->display, "WM_DELETE_WINDOW", True);
 		XSetWMProtocols(impl->display, impl->win, &wmDelete, 1);
-	}
-
-	if (visible) {
-		XMapRaised(impl->display, impl->win);
 	}
 
 	if (glXIsDirect(impl->display, impl->ctx)) {
@@ -158,7 +147,23 @@ puglCreate(PuglNativeWindow parent,
 
 	XFree(vi);
 
-	return view;
+	return 0;
+}
+
+PUGL_API void
+puglShowWindow(PuglView* view)
+{
+	PuglInternals* impl = view->impl;
+
+	XMapRaised(impl->display, impl->win);
+}
+
+void
+puglHideWindow(PuglView* view)
+{
+	PuglInternals* impl = view->impl;
+
+	XUnmapWindow(impl->display, impl->win);
 }
 
 void
@@ -355,15 +360,16 @@ puglProcessEvents(PuglView* view)
 			}
 			dispatchKey(view, &event, false);
 			break;
-		case ClientMessage:
-			if (!strcmp(XGetAtomName(view->impl->display,
-			                         event.xclient.message_type),
-			            "WM_PROTOCOLS")) {
+		case ClientMessage: {
+			char* type = XGetAtomName(view->impl->display,
+			                          event.xclient.message_type);
+			if (!strcmp(type, "WM_PROTOCOLS")) {
 				if (view->closeFunc) {
 					view->closeFunc(view);
 				}
 			}
-			break;
+			XFree(type);
+		} break;
 #ifdef PUGL_GRAB_FOCUS
 		case EnterNotify:
 			XSetInputFocus(view->impl->display,
