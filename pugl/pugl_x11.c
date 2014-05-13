@@ -150,7 +150,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	return 0;
 }
 
-PUGL_API void
+void
 puglShowWindow(PuglView* view)
 {
 	PuglInternals* impl = view->impl;

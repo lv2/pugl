@@ -95,13 +95,16 @@ puglDisplay(PuglView* view)
            depthBits:(int)numDepthBits;
 - (void) reshape;
 - (void) drawRect:(NSRect)rect;
+- (void) mouseEntered:(NSEvent*)event;
+- (void) mouseExited:(NSEvent*)event;
 - (void) mouseMoved:(NSEvent*)event;
 - (void) mouseDragged:(NSEvent*)event;
+- (void) rightMouseDragged:(NSEvent*)event;
 - (void) mouseDown:(NSEvent*)event;
 - (void) mouseUp:(NSEvent*)event;
-- (void) rightMouseDragged:(NSEvent*)event;
 - (void) rightMouseDown:(NSEvent*)event;
 - (void) rightMouseUp:(NSEvent*)event;
+- (void) scrollWheel:(NSEvent*)event;
 - (void) keyDown:(NSEvent*)event;
 - (void) keyUp:(NSEvent*)event;
 - (void) flagsChanged:(NSEvent*)event;
