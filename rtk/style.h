@@ -24,6 +24,7 @@ static const float c_grn[4] = {0.0, 1.0, 0.0, 1.0};
 static const float c_lgg[4] = {0.9, 0.95,0.9, 1.0};
 static const float c_ngr[4] = {0.2, 0.9, 0.2, 1.0}; // phasedgreen
 static const float c_nyl[4] = {0.9, 0.9, 0.0, 1.0}; // meanyellow
+static const float c_ora[4] = {0.8, 0.5, 0.0, 1.0};
 
 static const float c_grb[4] = {0.5, 0.5, 0.6, 1.0};  // goniometer ann
 static const float c_glr[4] = {0.7, 0.7, 0.8, 1.0};  // phasemtrann
