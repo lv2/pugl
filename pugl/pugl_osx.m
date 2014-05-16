@@ -60,13 +60,23 @@
 - (void)setPuglview:(PuglView*)view
 {
 	puglview = view;
-	[self setContentSize:NSMakeSize(view->width, view->height) ];
+	[self setContentSize:NSMakeSize(view->width, view->height)];
 }
 
 - (BOOL)windowShouldClose:(id)sender
 {
 	if (puglview->closeFunc)
 		puglview->closeFunc(puglview);
+	return YES;
+}
+
+- (BOOL) canBecomeKeyWindow
+{
+	return YES;
+}
+
+- (BOOL) canBecomeMainWindow
+{
 	return YES;
 }
 
@@ -176,6 +186,11 @@ puglDisplay(PuglView* view)
 	puglDisplay(puglview);
 	glFlush();
 	glSwapAPPLE();
+}
+
+- (BOOL) acceptsFirstResponder
+{
+	return YES;
 }
 
 static unsigned
@@ -333,30 +348,24 @@ getModifiers(PuglView* view, NSEvent* ev)
 @end
 
 struct PuglInternalsImpl {
+	NSApplication*  app;
 	PuglOpenGLView* glview;
 	id              window;
 };
 
-PuglView*
-puglCreate(PuglNativeWindow parent,
-           const char*      title,
-           int              width,
-           int              height,
-           bool             resizable,
-           bool             visible)
+PuglInternals*
+puglInitInternals()
 {
-	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
-	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
-	if (!view || !impl) {
-		return NULL;
-	}
+	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
+}
 
-	view->impl   = impl;
-	view->width  = width;
-	view->height = height;
+int
+puglCreateWindow(PuglView* view, const char* title)
+{
+	PuglInternals* impl = view->impl;
 
 	[NSAutoreleasePool new];
-	[NSApplication sharedApplication];
+	impl->app = [NSApplication sharedApplication];
 
 	NSString* titleString = [[NSString alloc]
 		                        initWithBytes:title
@@ -373,16 +382,23 @@ puglCreate(PuglNativeWindow parent,
 	impl->glview->puglview = view;
 
 	[window setContentView:impl->glview];
-	[NSApp activateIgnoringOtherApps:YES];
+	[impl->app activateIgnoringOtherApps:YES];
 	[window makeFirstResponder:impl->glview];
-
 	[window makeKeyAndOrderFront:window];
 
-	if (!visible) {
-		[window setIsVisible:NO];
-	}
+	return 0;
+}
 
-	return view;
+void
+puglShowWindow(PuglView* view)
+{
+	[view->impl->window setIsVisible:YES];
+}
+
+void
+puglHideWindow(PuglView* view)
+{
+	[view->impl->window setIsVisible:NO];
 }
 
 void
@@ -399,6 +415,8 @@ puglDestroy(PuglView* view)
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
+	NSEvent* ev = [view->impl->window nextEventMatchingMask: NSAnyEventMask];
+	[view->impl->app sendEvent: ev];
 	[view->impl->glview setNeedsDisplay: YES];
 
 	return PUGL_SUCCESS;
