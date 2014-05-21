@@ -37,22 +37,7 @@
 #    include "GL/gl.h"
 #endif
 
-#ifdef PUGL_SHARED
-#    ifdef _WIN32
-#        define PUGL_LIB_IMPORT __declspec(dllimport)
-#        define PUGL_LIB_EXPORT __declspec(dllexport)
-#    else
-#        define PUGL_LIB_IMPORT __attribute__((visibility("default")))
-#        define PUGL_LIB_EXPORT __attribute__((visibility("default")))
-#    endif
-#    ifdef PUGL_INTERNAL
-#        define PUGL_API PUGL_LIB_EXPORT
-#    else
-#        define PUGL_API PUGL_LIB_IMPORT
-#    endif
-#else
-#    define PUGL_API
-#endif
+#define PUGL_API __attribute__((visibility("hidden")))
 
 #ifdef __cplusplus
 extern "C" {
