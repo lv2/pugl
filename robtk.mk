@@ -22,6 +22,7 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 	  -o $@ $(RW)ui_gtk.c \
 	  $(value $(*F)_UISRC) \
 	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(GTKUILIBS)
+	strip -x $@
 
 %UI_gl.so %UI_gl.dylib:: $(ROBGL)
 	@mkdir -p $(@D)
@@ -31,4 +32,5 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 	  $(PUGL_SRC) \
 	  $(value $(*F)_UISRC) \
 	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(GLUILIBS)
+	strip -x $@
 
