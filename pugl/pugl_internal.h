@@ -77,7 +77,7 @@ puglGetModifiers(PuglView* view)
 	return view->mods;
 }
 
-void
+static void
 puglDefaultReshape(PuglView* view, int width, int height)
 {
 	glViewport(0, 0, width, height);

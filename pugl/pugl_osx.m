@@ -85,7 +85,7 @@ __attribute__ ((visibility ("hidden")))
 
 @end
 
-void
+static void
 puglDisplay(PuglView* view)
 {
 	if (view->displayFunc) {
@@ -433,7 +433,7 @@ puglProcessEvents(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
-void
+static void
 puglResize(PuglView* view)
 {
 	int set_hints; // ignored
