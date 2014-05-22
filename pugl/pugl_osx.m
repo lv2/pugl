@@ -24,7 +24,8 @@
 
 #include "pugl_internal.h"
 
-@interface PuglWindow : NSWindow
+__attribute__ ((visibility ("hidden")))
+@interface RobTKPuglWindow : NSWindow
 {
 @public
 	PuglView* puglview;
@@ -40,7 +41,7 @@
 - (BOOL) canBecomeKeyWindow:(id)sender;
 @end
 
-@implementation PuglWindow
+@implementation RobTKPuglWindow
 
 - (id)initWithContentRect:(NSRect)contentRect
                 styleMask:(unsigned int)aStyle
@@ -92,7 +93,8 @@ puglDisplay(PuglView* view)
 	}
 }
 
-@interface PuglOpenGLView : NSOpenGLView
+__attribute__ ((visibility ("hidden")))
+@interface RobTKPuglOpenGLView : NSOpenGLView
 {
 	int colorBits;
 	int depthBits;
@@ -120,7 +122,7 @@ puglDisplay(PuglView* view)
 
 @end
 
-@implementation PuglOpenGLView
+@implementation RobTKPuglOpenGLView
 
 - (id) initWithFrame:(NSRect)frame
            colorBits:(int)numColorBits
@@ -339,8 +341,8 @@ getModifiers(PuglView* view, NSEvent* ev)
 @end
 
 struct PuglInternalsImpl {
-	PuglOpenGLView* glview;
-	id              window;
+	RobTKPuglOpenGLView* glview;
+	id                   window;
 };
 
 PuglView*
@@ -370,12 +372,12 @@ puglCreate(PuglNativeWindow parent,
 		                               length:strlen(title)
 		                             encoding:NSUTF8StringEncoding];
 
-	id window = [[PuglWindow new]retain];
+	id window = [[RobTKPuglWindow new]retain];
 
 	[window setPuglview:view];
 	[window setTitle:titleString];
 
-	impl->glview       = [PuglOpenGLView new];
+	impl->glview     = [RobTKPuglOpenGLView new];
 	impl->window     = window;
 	impl->glview->puglview = view;
 
