@@ -430,13 +430,20 @@ puglProcessEvents(PuglView* view)
 				}
 			}
 
-			if (!repeated && view->keyboardFunc) {
+			if (!repeated) {
 				KeySym sym = XLookupKeysym(&event.xkey, 0);
 				PuglKey special = keySymToSpecial(sym);
-				if (!special) {
-					view->keyboardFunc(view, false, sym);
-				} else if (view->specialFunc) {
-					view->specialFunc(view, false, special);
+#if 1 // close on 'Esc'
+				if (sym == XK_Escape && view->closeFunc) {
+					view->closeFunc(view);
+				} else
+#endif
+				if (view->keyboardFunc) {
+					if (!special) {
+						view->keyboardFunc(view, false, sym);
+					} else if (view->specialFunc) {
+						view->specialFunc(view, false, special);
+					}
 				}
 			}
 		} break;
