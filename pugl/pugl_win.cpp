@@ -1,5 +1,5 @@
 /*
-  Copyright 2012 David Robillard <http://drobilla.net>
+  Copyright 2012-2014 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -292,6 +292,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEMOVE:
 		if (view->motionFunc) {
+			view->event_timestamp_ms = GetMessageTime();
 			view->motionFunc(view, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		}
 		break;

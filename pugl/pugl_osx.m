@@ -1,5 +1,5 @@
 /*
-  Copyright 2012 David Robillard <http://drobilla.net>
+  Copyright 2012-2014 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -36,6 +36,7 @@
                      defer:(BOOL)flag;
 - (void) setPuglview:(PuglView*)view;
 - (BOOL) windowShouldClose:(id)sender;
+- (BOOL) canBecomeKeyWindow:(id)sender;
 @end
 
 @implementation PuglWindow
@@ -80,6 +81,11 @@
 	return YES;
 }
 
+- (BOOL) canBecomeKeyWindow:(id)sender
+{
+	return NO;
+}
+
 @end
 
 static void
@@ -112,6 +118,7 @@ puglDisplay(PuglView* view)
 - (void) rightMouseDragged:(NSEvent*)event;
 - (void) mouseDown:(NSEvent*)event;
 - (void) mouseUp:(NSEvent*)event;
+- (void) rightMouseDragged:(NSEvent*)event;
 - (void) rightMouseDown:(NSEvent*)event;
 - (void) rightMouseUp:(NSEvent*)event;
 - (void) scrollWheel:(NSEvent*)event;
@@ -244,6 +251,15 @@ getModifiers(PuglView* view, NSEvent* ev)
 }
 
 - (void) mouseDragged:(NSEvent*)event
+{
+	if (puglview->motionFunc) {
+		NSPoint loc = [event locationInWindow];
+		puglview->mods = getModifiers(puglview, event);
+		puglview->motionFunc(puglview, loc.x, puglview->height - loc.y);
+	}
+}
+
+- (void) rightMouseDragged:(NSEvent*)event
 {
 	if (puglview->motionFunc) {
 		NSPoint loc = [event locationInWindow];

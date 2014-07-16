@@ -1,5 +1,6 @@
 /*
   Copyright 2012-2014 David Robillard <http://drobilla.net>
+  Copyright 2013 Robin Gareus <robin@gareus.org>
   Copyright 2011-2012 Ben Loftis, Harrison Consoles
 
   Permission to use, copy, modify, and/or distribute this software for any
@@ -83,10 +84,10 @@ puglCreateWindow(PuglView* view, const char* title)
 	if (!vi) {
 		vi = glXChooseVisual(impl->display, impl->screen, attrListSgl);
 		impl->doubleBuffered = False;
-		PUGL_LOG("No double buffering available\n");
+		PUGL_LOG("no double-buffering available, using single-buffering\n");
 	} else {
 		impl->doubleBuffered = True;
-		PUGL_LOG("Double buffered rendering enabled\n");
+		PUGL_LOG("using double-buffered rendering\n");
 	}
 
 	int glxMajor, glxMinor;
@@ -140,9 +141,9 @@ puglCreateWindow(PuglView* view, const char* title)
 	}
 
 	if (glXIsDirect(impl->display, impl->ctx)) {
-		PUGL_LOG("DRI enabled (to disable, set LIBGL_ALWAYS_INDIRECT=1\n");
+		PUGL_LOG("DRI enabled (set LIBGL_ALWAYS_INDIRECT=1 to disable)\n");
 	} else {
-		PUGL_LOG("No DRI available\n");
+		PUGL_LOG("no DRI available\n");
 	}
 
 	XFree(vi);
