@@ -268,15 +268,6 @@ getModifiers(PuglView* view, NSEvent* ev)
 	}
 }
 
-- (void) rightMouseDragged:(NSEvent*)event
-{
-	if (puglview->motionFunc) {
-		NSPoint loc = [event locationInWindow];
-		puglview->mods = getModifiers(puglview, event);
-		puglview->motionFunc(puglview, loc.x, puglview->height - loc.y);
-	}
-}
-
 - (void) mouseDown:(NSEvent*)event
 {
 	if (puglview->mouseFunc) {
