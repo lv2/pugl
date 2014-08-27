@@ -63,7 +63,7 @@ roundedBox(cairo_t* cr, double x, double y, double w, double h)
 }
 
 static void
-drawButton(cairo_t* cr, const Button* but)
+buttonDraw(cairo_t* cr, const Button* but)
 {
 	// Draw base
 	if (but->pressed) {
@@ -90,37 +90,45 @@ drawButton(cairo_t* cr, const Button* but)
 	cairo_show_text(cr, but->label);
 }
 
+static bool
+buttonTouches(const Button* but, double x, double y)
+{
+	return (x >= toggle_button.x && x <= toggle_button.x + toggle_button.w &&
+	        y >= toggle_button.y && y <= toggle_button.y + toggle_button.h);
+}
+
 static void
 onDisplay(PuglView* view)
 {
 	cairo_t* cr = puglGetContext(view);
 
-	drawButton(cr, &toggle_button);
-}
-
-static void
-onKeyboard(PuglView* view, bool press, uint32_t key)
-{
-	if (key == 'q' || key == 'Q' || key == PUGL_CHAR_ESCAPE) {
-		quit = 1;
-	}
-}
-
-static void
-onMouse(PuglView* view, int button, bool press, int x, int y)
-{
-	if (press &&
-	    x >= toggle_button.x && x <= toggle_button.x + toggle_button.w &&
-	    y >= toggle_button.y && y <= toggle_button.y + toggle_button.h) {
-		toggle_button.pressed = !toggle_button.pressed;
-		puglPostRedisplay(view);
-	}
+	buttonDraw(cr, &toggle_button);
 }
 
 static void
 onClose(PuglView* view)
 {
 	quit = 1;
+}
+
+static void
+onEvent(PuglView* view, const PuglEvent* event)
+{
+	switch (event->type) {
+	case PUGL_KEY_PRESS:
+		if (event->key.character == 'q' ||
+		    event->key.character == 'Q' ||
+		    event->key.character == PUGL_CHAR_ESCAPE) {
+			quit = 1;
+		}
+		break;
+	case PUGL_BUTTON_PRESS:
+		if (buttonTouches(&toggle_button, event->button.x, event->button.y)) {
+			toggle_button.pressed = !toggle_button.pressed;
+			puglPostRedisplay(view);
+		}
+	default: break;
+	}
 }
 
 int
@@ -148,10 +156,9 @@ main(int argc, char** argv)
 	puglInitWindowSize(view, 512, 512);
 	puglInitResizable(view, resizable);
 	puglInitContextType(view, PUGL_CAIRO);
-	
+
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
-	puglSetKeyboardFunc(view, onKeyboard);
-	puglSetMouseFunc(view, onMouse);
+	puglSetEventFunc(view, onEvent);
 	puglSetDisplayFunc(view, onDisplay);
 	puglSetCloseFunc(view, onClose);
 

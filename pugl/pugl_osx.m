@@ -419,6 +419,12 @@ puglDestroy(PuglView* view)
 	free(view);
 }
 
+void
+puglGrabFocus(PuglView* view)
+{
+	// TODO
+}
+
 PuglStatus
 puglProcessEvents(PuglView* view)
 {

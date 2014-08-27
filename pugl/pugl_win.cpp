@@ -358,6 +358,12 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
+void
+puglGrabFocus(PuglView* view)
+{
+	// TODO
+}
+
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
