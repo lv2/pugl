@@ -30,13 +30,17 @@ def options(opt):
     if Options.platform == 'win32':
         opt.load('compiler_cxx')
     autowaf.set_options(opt)
+    opt.add_option('--no-gl', action='store_true', default=False, dest='no_gl',
+                   help='Do not build OpenGL support')
+    opt.add_option('--no-cairo', action='store_true', default=False, dest='no_cairo',
+                   help='Do not build Cairo support')
     opt.add_option('--test', action='store_true', default=False, dest='build_tests',
                    help='Build unit tests')
     opt.add_option('--static', action='store_true', default=False, dest='static',
                    help='Build static library')
     opt.add_option('--shared', action='store_true', default=False, dest='shared',
                    help='Build shared library')
-    opt.add_option('--verbose', action='store_true', default=False, dest='verbose',
+    opt.add_option('--log', action='store_true', default=False, dest='log',
                    help='Print GL information to console')
     opt.add_option('--grab-focus', action='store_true', default=False, dest='grab_focus',
                    help='Work around reparent keyboard issues by grabbing focus')
@@ -46,15 +50,28 @@ def configure(conf):
     if Options.platform == 'win32':
         conf.load('compiler_cxx')
     autowaf.configure(conf)
+    autowaf.set_c99_mode(conf)
     autowaf.display_header('Pugl Configuration')
 
-    if conf.env['MSVC_COMPILER']:
-        conf.env.append_unique('CFLAGS', ['-TP', '-MD'])
-    else:
-        conf.env.append_unique('CFLAGS', '-std=c99')
+    if not Options.options.no_gl:
+        conf.check(function_name = 'glLoadIdentity',
+                   header_name   = 'GL/gl.h',
+                   define_name   = 'HAVE_GL',
+                   lib           = ['GL'],
+                   mandatory     = False)
+        if conf.is_defined('HAVE_GL'):
+            autowaf.define(conf, 'PUGL_HAVE_GL', 1)
 
-    if Options.options.verbose:
-        autowaf.define(conf, 'PUGL_VERBOSE', PUGL_VERBOSE)
+    if not Options.options.no_cairo:
+        autowaf.check_pkg(conf, 'cairo',
+                          uselib_store    = 'CAIRO',
+                          atleast_version = '1.0.0',
+                          mandatory       = False)
+        if conf.is_defined('HAVE_CAIRO'):
+            autowaf.define(conf, 'PUGL_HAVE_CAIRO', 1)
+
+    if Options.options.log:
+        autowaf.define(conf, 'PUGL_VERBOSE', 1)
 
     # Shared library building is broken on win32 for some reason
     conf.env['BUILD_TESTS']  = Options.options.build_tests
@@ -71,6 +88,9 @@ def configure(conf):
     conf.env['LIBPATH_PUGL'] = [conf.env['LIBDIR']]
     conf.env['LIB_PUGL'] = ['pugl-%s' % PUGL_MAJOR_VERSION];
 
+    autowaf.display_msg(conf, "OpenGL support", conf.is_defined('HAVE_GL'))
+    autowaf.display_msg(conf, "Cairo support", conf.is_defined('HAVE_CAIRO'))
+    autowaf.display_msg(conf, "Verbose console output", conf.is_defined('PUGL_VERBOSE'))
     autowaf.display_msg(conf, "Static library", str(conf.env['BUILD_STATIC']))
     autowaf.display_msg(conf, "Unit tests", str(conf.env['BUILD_TESTS']))
     print('')
@@ -100,8 +120,10 @@ def build(bld):
     else:
         lang       = 'c'
         lib_source = ['pugl/pugl_x11.c']
-        libs       = ['X11', 'GL', 'GLU']
+        libs       = ['X11']
         defines    = []
+        if bld.is_defined('HAVE_GL'):
+            libs += ['GL', 'GLU']
     if bld.env['MSVC_COMPILER']:
         libflags = []
 
@@ -112,6 +134,7 @@ def build(bld):
                   source          = lib_source,
                   includes        = ['.', './src'],
                   lib             = libs,
+                  uselib          = ['CAIRO'],
                   framework       = framework,
                   name            = 'libpugl',
                   target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
@@ -128,6 +151,7 @@ def build(bld):
                   source          = lib_source,
                   includes        = ['.', './src'],
                   lib             = libs,
+                  uselib          = ['CAIRO'],
                   framework       = framework,
                   name            = 'libpugl_static',
                   target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
@@ -140,17 +164,25 @@ def build(bld):
         test_libs   = libs
         test_cflags = ['']
 
-        # Unit test program
-        obj = bld(features     = 'c cprogram',
-                  source       = 'pugl_test.c',
-                  includes     = ['.', './src'],
-                  use          = 'libpugl_static',
-                  lib          = test_libs,
-                  framework    = framework,
-                  target       = 'pugl_test',
-                  install_path = '',
-                  defines      = defines,
-                  cflags       = test_cflags)
+        # Test programs
+        progs = []
+        if bld.is_defined('HAVE_GL'):
+            progs += ['pugl_test']
+        if bld.is_defined('HAVE_CAIRO'):
+            progs += ['pugl_cairo_test']
+            
+        for prog in progs:
+            obj = bld(features     = 'c cprogram',
+                      source       = '%s.c' % prog,
+                      includes     = ['.', './src'],
+                      use          = 'libpugl_static',
+                      lib          = test_libs,
+                      uselib       = ['CAIRO'],
+                      framework    = framework,
+                      target       = prog,
+                      install_path = '',
+                      defines      = defines,
+                      cflags       = test_cflags)
 
 def lint(ctx):
     subprocess.call('cpplint.py --filter=+whitespace/comments,-whitespace/tab,-whitespace/braces,-whitespace/labels,-build/header_guard,-readability/casting,-readability/todo,-build/include src/* pugl/*', shell=True)

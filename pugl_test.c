@@ -22,13 +22,8 @@
 #include <string.h>
 
 #include "pugl/pugl.h"
-
-// Argh!
-#ifdef __APPLE__
-#    include <OpenGL/glu.h>
-#else
-#    include <GL/glu.h>
-#endif
+#include "pugl/gl.h"
+#include "pugl/glu.h"
 
 static int   quit   = 0;
 static float xAngle = 0.0f;

@@ -24,11 +24,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <GL/gl.h>
-#include <GL/glx.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <X11/keysym.h>
+
+#ifdef PUGL_HAVE_GL
+#include <GL/gl.h>
+#include <GL/glx.h>
+#endif
+
+#ifdef PUGL_HAVE_CAIRO
+#include <cairo/cairo.h>
+#include <cairo/cairo-xlib.h>
+#endif
 
 #include "pugl_internal.h"
 
@@ -36,34 +45,13 @@ struct PuglInternalsImpl {
 	Display*   display;
 	int        screen;
 	Window     win;
+#ifdef PUGL_HAVE_CAIRO
+	cairo_t*   cr;
+#endif
+#ifdef PUGL_HAVE_GL
 	GLXContext ctx;
 	Bool       doubleBuffered;
-};
-
-/**
-   Attributes for single-buffered RGBA with at least
-   4 bits per color and a 16 bit depth buffer.
-*/
-static int attrListSgl[] = {
-	GLX_RGBA,
-	GLX_RED_SIZE, 4,
-	GLX_GREEN_SIZE, 4,
-	GLX_BLUE_SIZE, 4,
-	GLX_DEPTH_SIZE, 16,
-	None
-};
-
-/**
-   Attributes for double-buffered RGBA with at least
-   4 bits per color and a 16 bit depth buffer.
-*/
-static int attrListDbl[] = {
-	GLX_RGBA, GLX_DOUBLEBUFFER,
-	GLX_RED_SIZE, 4,
-	GLX_GREEN_SIZE, 4,
-	GLX_BLUE_SIZE, 4,
-	GLX_DEPTH_SIZE, 16,
-	None
+#endif
 };
 
 PuglInternals*
@@ -80,21 +68,49 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->display = XOpenDisplay(0);
 	impl->screen  = DefaultScreen(impl->display);
 
-	XVisualInfo* vi = glXChooseVisual(impl->display, impl->screen, attrListDbl);
-	if (!vi) {
-		vi = glXChooseVisual(impl->display, impl->screen, attrListSgl);
-		impl->doubleBuffered = False;
-		PUGL_LOG("no double-buffering available, using single-buffering\n");
-	} else {
-		impl->doubleBuffered = True;
-		PUGL_LOG("using double-buffered rendering\n");
+	XVisualInfo* vi = NULL;
+
+#ifdef PUGL_HAVE_GL
+	if (view->ctx_type == PUGL_GL) {
+		// Try to create double-buffered visual
+		int double_attrs[] = { GLX_RGBA, GLX_DOUBLEBUFFER,
+		                       GLX_RED_SIZE,   4,
+		                       GLX_GREEN_SIZE, 4,
+		                       GLX_BLUE_SIZE,  4,
+		                       GLX_DEPTH_SIZE, 16,
+		                       None };
+		vi = glXChooseVisual(impl->display, impl->screen, double_attrs);
+		if (!vi) {
+			// Failed, create single-buffered visual
+			int single_attrs[] = { GLX_RGBA,
+			                       GLX_RED_SIZE,   4,
+			                       GLX_GREEN_SIZE, 4,
+			                       GLX_BLUE_SIZE,  4,
+			                       GLX_DEPTH_SIZE, 16,
+			                       None };
+			vi = glXChooseVisual(impl->display, impl->screen, single_attrs);
+			impl->doubleBuffered = False;
+		} else {
+			impl->doubleBuffered = True;
+		}
+		
+		impl->ctx = glXCreateContext(impl->display, vi, 0, GL_TRUE);
+		PUGL_LOGF("GLX depth %d, %s-buffered, %s\n",
+		          vi->depth,
+		          impl->doubleBuffered ? "double" : "single",
+		          (glXIsDirect(impl->display, impl->ctx)
+		           ? "direct (set LIBGL_ALWAYS_INDIRECT=1 to disable)"
+		           : "indirect"));
 	}
-
-	int glxMajor, glxMinor;
-	glXQueryVersion(impl->display, &glxMajor, &glxMinor);
-	PUGL_LOGF("GLX Version %d.%d\n", glxMajor, glxMinor);
-
-	impl->ctx = glXCreateContext(impl->display, vi, 0, GL_TRUE);
+#endif
+#ifdef PUGL_HAVE_CAIRO
+	if (view->ctx_type == PUGL_CAIRO) {
+		XVisualInfo pat;
+		int         n;
+		pat.screen = impl->screen;
+		vi         = XGetVisualInfo(impl->display, VisualScreenMask, &pat, &n);
+	}
+#endif
 
 	Window xParent = view->parent
 		? (Window)view->parent
@@ -105,10 +121,10 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	XSetWindowAttributes attr;
 	memset(&attr, 0, sizeof(XSetWindowAttributes));
-	attr.colormap     = cmap;
-	attr.border_pixel = 0;
-
-	attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask
+	attr.background_pixel = BlackPixel(impl->display, impl->screen);
+	attr.border_pixel     = BlackPixel(impl->display, impl->screen);
+	attr.colormap         = cmap;
+	attr.event_mask       = ExposureMask | KeyPressMask | KeyReleaseMask
 		| ButtonPressMask | ButtonReleaseMask
 #ifdef PUGL_GRAB_FOCUS
 		| EnterWindowMask
@@ -118,7 +134,17 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->win = XCreateWindow(
 		impl->display, xParent,
 		0, 0, view->width, view->height, 0, vi->depth, InputOutput, vi->visual,
-		CWBorderPixel | CWColormap | CWEventMask, &attr);
+		CWBackPixel | CWBorderPixel | CWColormap | CWEventMask, &attr);
+
+#ifdef PUGL_HAVE_CAIRO
+	if (view->ctx_type == PUGL_CAIRO) {
+		cairo_surface_t* surface = cairo_xlib_surface_create(
+			impl->display, impl->win, vi->visual, view->width, view->height);
+		if (!(impl->cr = cairo_create(surface))) {
+			fprintf(stderr, "failed to create cairo context\n");
+		}
+	}
+#endif
 
 	XSizeHints sizeHints;
 	memset(&sizeHints, 0, sizeof(sizeHints));
@@ -138,12 +164,6 @@ puglCreateWindow(PuglView* view, const char* title)
 	if (!view->parent) {
 		Atom wmDelete = XInternAtom(impl->display, "WM_DELETE_WINDOW", True);
 		XSetWMProtocols(impl->display, impl->win, &wmDelete, 1);
-	}
-
-	if (glXIsDirect(impl->display, impl->ctx)) {
-		PUGL_LOG("DRI enabled (set LIBGL_ALWAYS_INDIRECT=1 to disable)\n");
-	} else {
-		PUGL_LOG("no DRI available\n");
 	}
 
 	XFree(vi);
@@ -174,7 +194,12 @@ puglDestroy(PuglView* view)
 		return;
 	}
 
-	glXDestroyContext(view->impl->display, view->impl->ctx);
+#ifdef PUGL_HAVE_GL
+	if (view->ctx_type == PUGL_GL) {
+		glXDestroyContext(view->impl->display, view->impl->ctx);
+	}
+#endif
+
 	XDestroyWindow(view->impl->display, view->impl->win);
 	XCloseDisplay(view->impl->display);
 	free(view->impl);
@@ -184,7 +209,11 @@ puglDestroy(PuglView* view)
 static void
 puglReshape(PuglView* view, int width, int height)
 {
-	glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
+#ifdef PUGL_HAVE_GL
+	if (view->ctx_type == PUGL_GL) {
+		glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
+	}
+#endif
 
 	if (view->reshapeFunc) {
 		view->reshapeFunc(view, width, height);
@@ -199,20 +228,27 @@ puglReshape(PuglView* view, int width, int height)
 static void
 puglDisplay(PuglView* view)
 {
-	glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
+#ifdef PUGL_HAVE_GL
+	if (view->ctx_type == PUGL_GL) {
+		glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glLoadIdentity();
+	}
+#endif
 
 	if (view->displayFunc) {
 		view->displayFunc(view);
 	}
-
-	glFlush();
-	if (view->impl->doubleBuffered) {
-		glXSwapBuffers(view->impl->display, view->impl->win);
-	}
-
 	view->redisplay = false;
+
+#ifdef PUGL_HAVE_GL
+	if (view->ctx_type == PUGL_GL) {
+		glFlush();
+		if (view->impl->doubleBuffered) {
+			glXSwapBuffers(view->impl->display, view->impl->win);
+		}
+	}
+#endif
 }
 
 static PuglKey
@@ -401,4 +437,15 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return view->impl->win;
+}
+
+void*
+puglGetContext(PuglView* view)
+{
+#ifdef PUGL_HAVE_CAIRO
+	if (view->ctx_type == PUGL_CAIRO) {
+		return view->impl->cr;
+	}
+#endif
+	return NULL;
 }

@@ -23,20 +23,6 @@
 
 #include <stdint.h>
 
-/*
-  This API is pure portable C and contains no platform specific elements, or
-  even a GL dependency.  However, unfortunately GL includes vary across
-  platforms so they are included here to allow for pure portable programs.
-*/
-#ifdef __APPLE__
-#    include "OpenGL/gl.h"
-#else
-#    ifdef _WIN32
-#        include <windows.h>  /* Broken Windows GL headers require this */
-#    endif
-#    include "GL/gl.h"
-#endif
-
 #ifdef PUGL_SHARED
 #    ifdef _WIN32
 #        define PUGL_LIB_IMPORT __declspec(dllimport)
@@ -86,6 +72,14 @@ typedef intptr_t PuglNativeWindow;
 typedef enum {
 	PUGL_SUCCESS = 0
 } PuglStatus;
+
+/**
+   Drawing context type.
+*/
+typedef enum {
+	PUGL_GL,
+	PUGL_CAIRO
+} PuglContextType;
 
 /**
    Convenience symbols for ASCII control characters.
@@ -247,6 +241,12 @@ PUGL_API void
 puglInitResizable(PuglView* view, bool resizable);
 
 /**
+   Set the context type before creating a window.
+*/
+PUGL_API void
+puglInitContextType(PuglView* view, PuglContextType type);
+
+/**
    Create a window with the settings given by the various puglInit functions.
 
    @return 1 (pugl does not currently support multiple windows).
@@ -283,6 +283,15 @@ puglSetHandle(PuglView* view, PuglHandle handle);
 */
 PUGL_API PuglHandle
 puglGetHandle(PuglView* view);
+
+/**
+   Get the drawing context.
+
+   For PUGL_GL contexts, this is unused and returns NULL.
+   For PUGL_CAIRO contexts, this returns a pointer to a cairo_t.
+*/
+PUGL_API void*
+puglGetContext(PuglView* view);
 
 /**
    Return the timestamp (if any) of the currently-processing event.

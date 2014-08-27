@@ -25,7 +25,9 @@
    symbols can be defined to tweak pugl behaviour:
 
    PUGL_GRAB_FOCUS: Work around reparent keyboard issues by grabbing focus.
-   PUGL_VERBOSE:    Print GL information to console.
+   PUGL_VERBOSE:    Print graphics information to console.
+   PUGL_HAVE_CAIRO: Include Cairo support code.
+   PUGL_HAVE_GL:    Include OpenGL support code.
 */
 
 #include "pugl.h"
@@ -55,6 +57,7 @@ struct PuglViewImpl {
 	PuglInternals* impl;
 
 	PuglNativeWindow parent;
+	PuglContextType  ctx_type;
 
 	int      width;
 	int      height;
@@ -110,6 +113,12 @@ puglInitResizable(PuglView* view, bool resizable)
 }
 
 void
+puglInitContextType(PuglView* view, PuglContextType type)
+{
+	view->ctx_type = type;
+}
+
+void
 puglSetHandle(PuglView* view, PuglHandle handle)
 {
 	view->handle = handle;
@@ -136,6 +145,7 @@ puglGetModifiers(PuglView* view)
 void
 puglDefaultReshape(PuglView* view, int width, int height)
 {
+#ifdef PUGL_HAVE_GL
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, width, height, 0, 0, 1);
@@ -143,6 +153,7 @@ puglDefaultReshape(PuglView* view, int width, int height)
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
+#endif
 	return;
 
 	// unused
