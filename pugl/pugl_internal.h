@@ -106,7 +106,7 @@ puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
 void
 puglInitResizable(PuglView* view, bool resizable)
 {
-	view->resizable = true;
+	view->resizable = resizable;
 }
 
 void
