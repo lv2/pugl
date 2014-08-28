@@ -54,13 +54,9 @@ def configure(conf):
     autowaf.display_header('Pugl Configuration')
 
     if not Options.options.no_gl:
-        conf.check(function_name = 'glLoadIdentity',
-                   header_name   = 'GL/gl.h',
-                   define_name   = 'HAVE_GL',
-                   lib           = ['GL'],
-                   mandatory     = False)
-        if conf.is_defined('HAVE_GL'):
-            autowaf.define(conf, 'PUGL_HAVE_GL', 1)
+        # TODO: Portable check for OpenGL
+        conf.define('HAVE_GL', 1)
+        autowaf.define(conf, 'PUGL_HAVE_GL', 1)
 
     if not Options.options.no_cairo:
         autowaf.check_pkg(conf, 'cairo',

@@ -71,6 +71,27 @@ puglInitInternals()
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
 
+void
+puglEnterContext(PuglView* view)
+{
+#ifdef PUGL_HAVE_GL
+	if (view->ctx_type == PUGL_GL) {
+		wglMakeCurrent(view->impl->hdc, view->impl->hglrc);
+	}
+#endif
+}
+
+void
+puglLeaveContext(PuglView* view, bool flush)
+{
+#ifdef PUGL_HAVE_GL
+	if (view->ctx_type == PUGL_GL && flush) {
+		glFlush();
+		SwapBuffers(view->impl->hdc);
+	}
+#endif
+}
+
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
@@ -178,12 +199,10 @@ puglDestroy(PuglView* view)
 static void
 puglReshape(PuglView* view, int width, int height)
 {
-	wglMakeCurrent(view->impl->hdc, view->impl->hglrc);
+	puglEnterContext(view);
 
 	if (view->reshapeFunc) {
 		view->reshapeFunc(view, width, height);
-	} else {
-		puglDefaultReshape(view, width, height);
 	}
 
 	view->width  = width;
@@ -193,16 +212,13 @@ puglReshape(PuglView* view, int width, int height)
 static void
 puglDisplay(PuglView* view)
 {
-	wglMakeCurrent(view->impl->hdc, view->impl->hglrc);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
+	puglEnterContext(view);
 
 	if (view->displayFunc) {
 		view->displayFunc(view);
 	}
 
-	glFlush();
-	SwapBuffers(view->impl->hdc);
+	puglLeaveContext(view, true);
 	view->redisplay = false;
 }
 
