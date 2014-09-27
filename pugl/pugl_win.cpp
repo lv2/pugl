@@ -93,8 +93,8 @@ puglCreate(PuglNativeWindow parent,
 
 	impl->hwnd = CreateWindowEx(
 		WS_EX_TOPMOST,
-		classNameBuf, title,
-		(parent ? (WS_CHILD | WS_VISIBLE ): (WS_SIZEBOX | WS_POPUPWINDOW | WS_CAPTION)),
+		classNameBuf, title, (resizable ? WS_SIZEBOX : 0) |
+		(parent ? (WS_CHILD | WS_VISIBLE) : (WS_POPUPWINDOW | WS_CAPTION)),
 		0, 0, wr.right-wr.left, wr.bottom-wr.top,
 		(HWND)parent, NULL, NULL, NULL);
 
