@@ -55,6 +55,7 @@ static LARGE_INTEGER getFILETIMEoffset() {
 }
 #endif
 
+// monotonic time
 static void rtk_clock_gettime(struct timespec *ts) {
 #ifdef __MACH__
 	clock_serv_t cclock;
@@ -101,6 +102,21 @@ static void rtk_clock_gettime(struct timespec *ts) {
 #else
 	clock_gettime(CLOCK_MONOTONIC, ts);
 #endif
+}
+
+// realtime time -- only used for  pthread_cond_timedwait()
+static void rtk_clock_systime(struct timespec *ts) {
+#ifdef __MACH__
+	rtk_clock_gettime(ts);
+#elif defined _WIN32
+	struct __timeb64 currSysTime;
+	_ftime64(&currSysTime);
+	ts->tv_sec = currSysTime.time;
+	ts->tv_nsec = 1000 * currSysTime.millitm;
+#else
+	clock_gettime(CLOCK_REALTIME, ts);
+#endif
+
 }
 /*****************************************************************************/
 

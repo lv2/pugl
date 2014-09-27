@@ -23,7 +23,9 @@
 //#define THREADSYNC // wake up GUI thread on port-event
 
 #ifdef XTERNAL_UI
-//#  define INIT_PUGL_IN_THREAD // don't share X11 connection w/host
+#if defined USE_GUI_THREAD && defined _WIN32
+#  define INIT_PUGL_IN_THREAD // don't share X11 connection w/host
+#endif
 #endif
 
 #define TIMED_RESHAPE // resize view when idle
@@ -1042,7 +1044,7 @@ static void* ui_thread(void* handle) {
 #ifdef THREADSYNC
 		//myusleep(1000000 / 60); // max FPS
 		struct timespec now;
-		rtk_clock_gettime(&now);
+		rtk_clock_systime(&now);
 		now.tv_nsec += 1000000000 / 25; // min FPS
 		if (now.tv_nsec >= 1000000000) {
 			now.tv_nsec -= 1000000000;
@@ -1310,10 +1312,10 @@ lv2ui_descriptor(uint32_t index)
 
 #ifdef _WIN32
 static void __attribute__((constructor)) x42_init() {
-	        pthread_win32_process_attach_np();
+	pthread_win32_process_attach_np();
 }
 
 static void __attribute__((destructor)) x42_fini() {
-	        pthread_win32_process_detach_np();
+	pthread_win32_process_detach_np();
 }
 #endif
