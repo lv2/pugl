@@ -217,6 +217,7 @@ puglDestroy(PuglView* view)
 	XCloseDisplay(view->impl->display);
 	free(view->impl);
 	free(view);
+	view = NULL;
 }
 
 PUGL_API void
@@ -436,6 +437,7 @@ puglProcessEvents(PuglView* view)
 #if 1 // close on 'Esc'
 				if (sym == XK_Escape && view->closeFunc) {
 					view->closeFunc(view);
+					view->redisplay = false;
 				} else
 #endif
 				if (view->keyboardFunc) {
@@ -453,6 +455,7 @@ puglProcessEvents(PuglView* view)
 			            "WM_PROTOCOLS")) {
 				if (view->closeFunc) {
 					view->closeFunc(view);
+					view->redisplay = false;
 				}
 			}
 			break;
