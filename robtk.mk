@@ -24,7 +24,7 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(GTKUILIBS)
 	strip -x $@
 
-%UI_gl.so %UI_gl.dylib:: $(ROBGL)
+%UI_gl.so %UI_gl.dylib %UI_gl.dll:: $(ROBGL)
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CFLAGS) $(GLUICFLAGS) \
 	  -DPLUGIN_SOURCE="\"gui/$(*F).c\"" \

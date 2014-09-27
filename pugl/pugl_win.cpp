@@ -196,8 +196,8 @@ puglResize(PuglView* view)
 	/* ask the plugin about the new size */
 	view->resizeFunc(view, &view->width, &view->height, &set_hints);
 
-	int winFlags = WS_POPUPWINDOW | WS_CAPTION | (view->resizable ? WS_SIZEBOX : 0);
-	RECT wr = { 0, 0, (long)width, (long)height };
+	int winFlags = WS_POPUPWINDOW | WS_CAPTION | (view->resize ? WS_SIZEBOX : 0);
+	RECT wr = { 0, 0, (long)view->width, (long)view->height };
 
 	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
 	SetWindowPos(view->impl->hwnd,
@@ -321,7 +321,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		if (view->scrollFunc) {
 			view->scrollFunc(
 				view, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
-				(int16_t)HIWORD(wParam) / (float)WHEEL_DELTA);
+				(int16_t)HIWORD(wParam) / (float)WHEEL_DELTA, 0);
 		}
 		break;
 	case WM_MOUSEHWHEEL:
@@ -337,7 +337,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		} // else nobreak
 	case WM_KEYUP:
-		if (key = keySymToSpecial(wParam)) {
+		if ((key = keySymToSpecial(wParam))) {
 			if (view->specialFunc) {
 				view->specialFunc(view, message == WM_KEYDOWN, key);
 			}
@@ -368,7 +368,7 @@ puglProcessEvents(PuglView* view)
 	}
 
 	if (view->resize) {
-		puglResize(view->impl->hwnd);
+		puglResize(view);
 	}
 
 	if (view->redisplay) {

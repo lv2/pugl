@@ -101,7 +101,7 @@ static void write_text_full(
 	}
   cairo_set_source_rgba (cr, col[0], col[1], col[2], col[3]);
 	pango_cairo_layout_path(cr, pl);
-	pango_cairo_show_layout(cr, pl);
+	cairo_fill(cr);
 	g_object_unref(pl);
 	cairo_restore(cr);
 	cairo_new_path (cr);

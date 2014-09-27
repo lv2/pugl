@@ -76,6 +76,13 @@
 #include <GL/glu.h>
 #endif
 
+#ifndef GL_BGRA
+#define GL_BGRA 0x80E1
+#endif
+#ifndef GL_TEXTURE_RECTANGLE_ARB
+#define GL_TEXTURE_RECTANGLE_ARB 0x84F5
+#endif
+
 #ifdef USE_GTK_RESIZE_HACK
 #include <gtk/gtk.h>
 #endif
@@ -588,8 +595,8 @@ static uint64_t microtime(float offset) {
 }
 
 static void myusleep(uint32_t usec) {
-#if 0
-	usleep(usec);
+#ifdef _WIN32
+	Sleep(usec / 1000);
 #else
 	struct timespec slp;
 	slp.tv_sec = usec / 1000000;
@@ -1289,6 +1296,10 @@ LV2_SYMBOL_EXPORT
 const LV2UI_Descriptor*
 lv2ui_descriptor(uint32_t index)
 {
+#ifdef _WIN32
+	static int once = 0;
+	if (!once) {once = 1;gobject_init_ctor();}
+#endif
 	switch (index) {
 	case 0:
 		return &gl_descriptor;
@@ -1296,3 +1307,13 @@ lv2ui_descriptor(uint32_t index)
 		return NULL;
 	}
 }
+
+#ifdef _WIN32
+static void __attribute__((constructor)) x42_init() {
+	        pthread_win32_process_attach_np();
+}
+
+static void __attribute__((destructor)) x42_fini() {
+	        pthread_win32_process_detach_np();
+}
+#endif
