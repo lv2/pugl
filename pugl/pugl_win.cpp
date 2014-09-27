@@ -364,6 +364,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case PUGL_LOCAL_CLOSE_MSG:
 		if (view->closeFunc) {
 			view->closeFunc(view);
+			view->redisplay = false;
 		}
 		break;
 	default:

@@ -250,6 +250,7 @@ puglDestroy(PuglView* view)
 	XCloseDisplay(view->impl->display);
 	free(view->impl);
 	free(view);
+	view = NULL;
 }
 
 static PuglKey
@@ -438,6 +439,7 @@ puglProcessEvents(PuglView* view)
 			                          xevent.xclient.message_type);
 			if (!strcmp(type, "WM_PROTOCOLS") && view->closeFunc) {
 				view->closeFunc(view);
+				view->redisplay = false;
 			}
 			XFree(type);
 			continue;
