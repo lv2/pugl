@@ -37,7 +37,11 @@
 #    include "GL/gl.h"
 #endif
 
+#ifdef _WIN32
+#define PUGL_API
+#else
 #define PUGL_API __attribute__((visibility("hidden")))
+#endif
 
 #ifdef __cplusplus
 extern "C" {
