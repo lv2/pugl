@@ -39,8 +39,8 @@
 #include <cairo/cairo-xlib.h>
 #endif
 
-#include "pugl_internal.h"
 #include "pugl/event.h"
+#include "pugl/pugl_internal.h"
 
 struct PuglInternalsImpl {
 	Display*   display;

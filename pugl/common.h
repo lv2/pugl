@@ -15,9 +15,7 @@
 */
 
 /**
-   @file common.h Common definitions.
-
-   @ingroup pugl
+   @addtogroup pugl
    @{
 */
 
@@ -113,7 +111,6 @@ typedef enum {
 } PuglKey;
 
 /**
-   @}
    @}
 */
 

@@ -22,7 +22,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include "pugl_internal.h"
+#include "pugl/pugl_internal.h"
 
 @interface PuglWindow : NSWindow
 {

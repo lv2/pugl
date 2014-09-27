@@ -15,12 +15,7 @@
 */
 
 /**
-   @file event.h PuglEvent struct definition.
-
-   @ingroup pugl
-   @{
-
-   @name Event
+   @addtogroup pugl
    @{
 */
 
@@ -212,7 +207,6 @@ typedef union {
 } PuglEvent;
 
 /**
-   @}
    @}
 */
 

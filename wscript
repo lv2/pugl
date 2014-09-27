@@ -180,6 +180,17 @@ def build(bld):
                       defines      = defines,
                       cflags       = test_cflags)
 
+    if bld.env['DOCS']:
+        bld(features     = 'subst',
+            source       = 'Doxyfile.in',
+            target       = 'Doxyfile',
+            install_path = '',
+            name         = 'Doxyfile',
+            PUGL_VERSION = PUGL_VERSION)
+
+        bld(features = 'doxygen',
+            doxyfile = 'Doxyfile')
+
 def lint(ctx):
     subprocess.call('cpplint.py --filter=+whitespace/comments,-whitespace/tab,-whitespace/braces,-whitespace/labels,-build/header_guard,-readability/casting,-readability/todo,-build/include src/* pugl/*', shell=True)
 

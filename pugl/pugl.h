@@ -135,6 +135,12 @@ typedef void (*PuglScrollFunc)(PuglView* view,
 typedef void (*PuglSpecialFunc)(PuglView* view, bool press, PuglKey key);
 
 /**
+   @name Initialization
+   Configuration functions which must be called before creating a window.
+   @{
+*/
+
+/**
    Create a Pugl context.
 
    To create a window, call the various puglInit* functions as necessary, then
@@ -171,6 +177,16 @@ PUGL_API void
 puglInitContextType(PuglView* view, PuglContextType type);
 
 /**
+   @}
+*/
+
+/**
+   @name Windows
+   Window management functions.
+   @{
+*/
+
+/**
    Create a window with the settings given by the various puglInit functions.
 
    @return 1 (pugl does not currently support multiple windows).
@@ -189,6 +205,16 @@ puglShowWindow(PuglView* view);
 */
 PUGL_API void
 puglHideWindow(PuglView* view);
+
+/**
+   Return the native window handle.
+*/
+PUGL_API PuglNativeWindow
+puglGetNativeWindow(PuglView* view);
+
+/**
+   @}
+*/
 
 /**
    Set the handle to be passed to all callbacks.
@@ -236,6 +262,12 @@ puglGetModifiers(PuglView* view);
 */
 PUGL_API void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore);
+
+/**
+   @name Event Callbacks
+   Functions to set event callbacks for handling user input.
+   @{
+*/
 
 /**
    Set the function to call when an event occurs.
@@ -292,10 +324,8 @@ PUGL_API void
 puglSetReshapeFunc(PuglView* view, PuglReshapeFunc reshapeFunc);
 
 /**
-   Return the native window handle.
+   @}
 */
-PUGL_API PuglNativeWindow
-puglGetNativeWindow(PuglView* view);
 
 /**
    Grab the input focus.
