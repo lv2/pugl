@@ -1,8 +1,9 @@
 PUGL
 ====
 
-Pugl is a minimal portable API for OpenGL GUIs which supports embedding and is
-suitable for use in plugins.  It works on X11, Mac OS X, and Windows.
+Pugl is a minimal portable API for GUIs which supports embedding and is
+suitable for use in plugins.  It works on X11, Mac OS X, and Windows.  GUIs can
+be drawn with OpenGL or Cairo.
 
 Pugl is vaguely similar to GLUT, but with some significant distinctions:
 
