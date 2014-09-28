@@ -61,23 +61,23 @@ static void write_text_full(
 	pango_layout_set_font_description(pl, font);
 	pango_layout_set_text(pl, txt, -1);
 	pango_layout_get_pixel_size(pl, &tw, &th);
-	cairo_translate (cr, x, y);
+	cairo_translate (cr, rintf(x), rintf(y));
 	if (ang != 0) { cairo_rotate (cr, ang); }
 	switch(abs(align)) {
 		case 1:
-			cairo_translate (cr, -tw, -th/2.0);
+			cairo_translate (cr, -tw, floor(th/-2.0));
 			break;
 		case 2:
-			cairo_translate (cr, -tw/2.0 - 0.5, -th/2.0);
+			cairo_translate (cr, floor(tw/-2.0), floor(th/-2.0));
 			break;
 		case 3:
-			cairo_translate (cr, -0.5, -th/2.0);
+			cairo_translate (cr, -0.5, floor(th/-2.0));
 			break;
 		case 4:
 			cairo_translate (cr, -tw, -th);
 			break;
 		case 5:
-			cairo_translate (cr, -tw/2.0 - 0.5, -th);
+			cairo_translate (cr, floor(tw/-2.0), -th);
 			break;
 		case 6:
 			cairo_translate (cr, -0.5, -th);
@@ -86,7 +86,7 @@ static void write_text_full(
 			cairo_translate (cr, -tw, 0);
 			break;
 		case 8:
-			cairo_translate (cr, -tw/2.0 - 0.5, 0);
+			cairo_translate (cr, floor(tw/-2.0), 0);
 			break;
 		case 9:
 			cairo_translate (cr, -0.5, 0);
@@ -116,15 +116,15 @@ static void create_text_surface(cairo_surface_t ** sf,
 	if (*sf) {
 		cairo_surface_destroy(*sf);
 	}
-	*sf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
+	*sf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, ceilf(w), ceilf(h));
 	cairo_t *cr = cairo_create (*sf);
 	cairo_set_source_rgba (cr, .0, .0, .0, 0);
 	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-	cairo_rectangle (cr, 0, 0, w, h);
+	cairo_rectangle (cr, 0, 0, ceil(w), ceil(h));
 	cairo_fill (cr);
 	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 
-	write_text_full(cr, txt, font, x, y, 0, 2, c_col);
+	write_text_full(cr, txt, font, ceil(x), ceil(y), 0, 2, c_col);
 	cairo_surface_flush(*sf);
 	cairo_destroy (cr);
 }
