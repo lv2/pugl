@@ -165,6 +165,12 @@ PUGL_API void
 puglInitWindowSize(PuglView* view, int width, int height);
 
 /**
+   Set the minimum window size before creating a window.
+*/
+PUGL_API void
+puglInitWindowMinSize(PuglView* view, int width, int height);
+
+/**
    Enable or disable resizing before creating a window.
 */
 PUGL_API void

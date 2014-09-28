@@ -459,6 +459,9 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	[window setPuglview:view];
 	[window setTitle:titleString];
+	if (view->min_width || view->min_height) {
+		[window setContentMinSize:NSMakeSize(view->min_width, view->min_height)];
+	}
 
 	impl->glview           = [PuglOpenGLView new];
 	impl->window           = window;

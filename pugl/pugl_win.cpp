@@ -128,9 +128,16 @@ puglCreateWindow(PuglView* view, const char* title)
 	int winFlags = WS_POPUPWINDOW | WS_CAPTION;
 	if (view->resizable) {
 		winFlags |= WS_SIZEBOX;
+		if (view->min_width || view->min_height) {
+			// Adjust the minimum window size to accomodate requested view size
+			RECT mr = { 0, 0, view->min_width, view->min_height };
+			AdjustWindowRectEx(&mr, winFlags, FALSE, WS_EX_TOPMOST);
+			view->min_width  = mr.right - mr.left;
+			view->min_height = wr.bottom - mr.top;
+		}
 	}
 
-	// Adjust the overall window size to accomodate our requested client size
+	// Adjust the window size to accomodate requested view size
 	RECT wr = { 0, 0, view->width, view->height };
 	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
 
@@ -305,17 +312,23 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
 	PuglKey     key;
+	RECT        rect;
+	MINMAXINFO* mmi;
 
 	setModifiers(view);
 	switch (message) {
 	case WM_CREATE:
 	case WM_SHOWWINDOW:
 	case WM_SIZE:
-		RECT rect;
 		GetClientRect(view->impl->hwnd, &rect);
 		puglReshape(view, rect.right, rect.bottom);
 		view->width = rect.right;
 		view->height = rect.bottom;
+		break;
+	case WM_GETMINMAXINFO:
+		mmi = (MINMAXINFO*)lParam;
+		mmi->ptMinTrackSize.x = view->min_width;
+		mmi->ptMinTrackSize.y = view->min_height;
 		break;
 	case WM_PAINT:
 		BeginPaint(view->impl->hwnd, &ps);

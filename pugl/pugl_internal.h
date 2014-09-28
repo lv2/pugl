@@ -52,6 +52,8 @@ struct PuglViewImpl {
 
 	int      width;
 	int      height;
+	int      min_width;
+	int      min_height;
 	int      mods;
 	bool     mouse_in_view;
 	bool     ignoreKeyRepeat;
@@ -87,6 +89,13 @@ puglInitWindowSize(PuglView* view, int width, int height)
 {
 	view->width  = width;
 	view->height = height;
+}
+
+void
+puglInitWindowMinSize(PuglView* view, int width, int height)
+{
+	view->min_width  = width;
+	view->min_height = height;
 }
 
 void

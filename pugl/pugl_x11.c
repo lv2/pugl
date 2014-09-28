@@ -210,6 +210,11 @@ puglCreateWindow(PuglView* view, const char* title)
 		sizeHints.max_width  = view->width;
 		sizeHints.max_height = view->height;
 		XSetNormalHints(impl->display, impl->win, &sizeHints);
+	} else if (view->min_width || view->min_height) {
+		sizeHints.flags      = PMinSize;
+		sizeHints.min_width  = view->min_width;
+		sizeHints.min_height = view->min_height;
+		XSetNormalHints(impl->display, impl->win, &sizeHints);
 	}
 
 	if (title) {
