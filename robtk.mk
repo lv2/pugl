@@ -1,5 +1,6 @@
 RT=$(RW)rtk/
 WD=$(RW)widgets/robtk_
+STRIP=strip
 
 UITOOLKIT=$(WD)checkbutton.h $(WD)dial.h $(WD)label.h $(WD)pushbutton.h\
           $(WD)radiobutton.h $(WD)scale.h $(WD)separator.h $(WD)spinner.h \
@@ -22,7 +23,7 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 	  -o $@ $(RW)ui_gtk.c \
 	  $(value $(*F)_UISRC) \
 	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(GTKUILIBS)
-	strip -x $@
+	$(STRIP) -x $@
 
 %UI_gl.so %UI_gl.dylib %UI_gl.dll:: $(ROBGL)
 	@mkdir -p $(@D)
@@ -32,5 +33,5 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 	  $(PUGL_SRC) \
 	  $(value $(*F)_UISRC) \
 	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(GLUILIBS)
-	strip -x $@
+	$(STRIP) -x $@
 
