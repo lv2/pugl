@@ -67,6 +67,7 @@ puglCreate(PuglNativeWindow parent,
 	view->impl   = impl;
 	view->width  = width;
 	view->height = height;
+	view->user_resizable = resizable;
 
 	// FIXME: This is nasty, and pugl should not have static anything.
 	// Should class be a parameter?  Does this make sense on other platforms?
@@ -196,7 +197,7 @@ puglResize(PuglView* view)
 	/* ask the plugin about the new size */
 	view->resizeFunc(view, &view->width, &view->height, &set_hints);
 
-	int winFlags = WS_POPUPWINDOW | WS_CAPTION | (view->resize ? WS_SIZEBOX : 0);
+	int winFlags = WS_POPUPWINDOW | WS_CAPTION | (view->user_resizable ? WS_SIZEBOX : 0);
 	RECT wr = { 0, 0, (long)view->width, (long)view->height };
 
 	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
