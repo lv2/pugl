@@ -71,7 +71,7 @@ static void write_text_full(
 			cairo_translate (cr, floor(tw/-2.0), floor(th/-2.0));
 			break;
 		case 3:
-			cairo_translate (cr, -0.5, floor(th/-2.0));
+			cairo_translate (cr, 0, floor(th/-2.0));
 			break;
 		case 4:
 			cairo_translate (cr, -tw, -th);
@@ -80,7 +80,7 @@ static void write_text_full(
 			cairo_translate (cr, floor(tw/-2.0), -th);
 			break;
 		case 6:
-			cairo_translate (cr, -0.5, -th);
+			cairo_translate (cr, 0, -th);
 			break;
 		case 7:
 			cairo_translate (cr, -tw, 0);
@@ -89,7 +89,7 @@ static void write_text_full(
 			cairo_translate (cr, floor(tw/-2.0), 0);
 			break;
 		case 9:
-			cairo_translate (cr, -0.5, 0);
+			cairo_translate (cr, 0, 0);
 			break;
 		default:
 			break;
