@@ -42,6 +42,8 @@ struct PuglViewImpl {
 
 	int      width;
 	int      height;
+	int      min_width;
+	int      min_height;
 	int      mods;
 	bool     mouse_in_view;
 	bool     ignoreKeyRepeat;

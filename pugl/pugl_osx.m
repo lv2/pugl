@@ -376,6 +376,7 @@ puglCreate(PuglNativeWindow parent,
 
 	[window setPuglview:view];
 	[window setTitle:titleString];
+	[window setContentMinSize:NSMakeSize(min_width, min_height)];
 
 	impl->glview     = [RobTKPuglOpenGLView new];
 	impl->window     = window;
