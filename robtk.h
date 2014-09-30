@@ -19,6 +19,10 @@
 #ifndef _ROBTK_H_
 #define _ROBTK_H_
 
+#ifndef VERSION
+#define VERSION "0.invalid"
+#endif
+
 #include <assert.h>
 #include <pthread.h>
 #include <string.h>
@@ -210,6 +214,8 @@ static void queue_tiny_area(RobWidget *rw, float x, float y, float w, float h);
 
 static RobWidget * robwidget_new(void *);
 static void robwidget_destroy(RobWidget *rw);
+
+static const char * robtk_info(void *);
 
 /*****************************************************************************/
 /* static plugin singletons */

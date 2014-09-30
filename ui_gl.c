@@ -98,6 +98,23 @@
 #include "gl/posringbuf.h"
 #include "robtk.h"
 
+#ifdef WITH_SIGNATURE
+#include "gp3.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+
+/* test if file exists and is a regular file - returns 1 if ok */
+static int testfile (const char *filename) {
+	struct stat s;
+	if (!filename || strlen(filename) < 1) return 0;
+	int result= stat(filename, &s);
+	if (result != 0) return 0; /* stat() failed */
+	if (S_ISREG(s.st_mode)) return 1; /* is a regular file - ok */
+	return 0;
+}
+#include WITH_SIGNATURE
+#endif
+
 static void opengl_init () {
 	glClearColor (0.0f, 0.0f, 0.0f, 0.0f);
 	glDisable (GL_DEPTH_TEST);
@@ -205,6 +222,10 @@ typedef struct {
 	int                  yoff;
 	float                xyscale;
 	bool                 gl_initialized;
+#ifdef WITH_SIGNATURE
+	bool                 gpg_verified;
+	char                 gpg_data[128];
+#endif
 #ifdef INIT_PUGL_IN_THREAD
 	bool                 ui_initialized;
 #endif
@@ -253,6 +274,14 @@ typedef struct {
 
 } GlMetersLV2UI;
 
+static const char * robtk_info(void *h) {
+	GlMetersLV2UI * self = (GlMetersLV2UI*) h;
+#ifdef WITH_SIGNATURE
+	return self->gpg_data;
+#else
+	return "v" VERSION;
+#endif
+}
 /*****************************************************************************/
 
 #include PLUGIN_SOURCE
@@ -270,6 +299,35 @@ typedef struct {
 	RobWidget *rw;
 	cairo_rectangle_t a;
 } RWArea;
+
+static void lc_expose (GlMetersLV2UI * self) {
+	cairo_rectangle_t expose_area;
+	posrb_read_clear(self->rb); // no fast-track
+
+	expose_area.x = expose_area.y = 0;
+	expose_area.width = self->width;
+	expose_area.height = self->height;
+	cairo_save(self->cr);
+	self->tl->resized = TRUE; // full re-expose
+	self->tl->expose_event(self->tl, self->cr, &expose_area);
+	cairo_restore(self->cr);
+
+	expose_area.x = expose_area.y = 0;
+	expose_area.width = self->width;
+	expose_area.height = self->height;
+
+	PangoFontDescription *xfont = pango_font_description_from_string("Sans 14");
+	cairo_rectangle (self->cr, 0, 0, self->width, self->height);
+	cairo_set_operator (self->cr, CAIRO_OPERATOR_OVER);
+	cairo_set_source_rgba(self->cr, 0, 0, 0, .75);
+	cairo_fill(self->cr);
+	write_text_full(self->cr, "Unregistered Version.\n\u2192http://gareus.org/lv2",
+			xfont, self->width * .5, self->height * .5,
+			self->width < 200 ? M_PI * -.5 : 0, 2, c_wht);
+	pango_font_description_free(xfont);
+
+	cairo_surface_mark_dirty(self->surface);
+}
 
 static void cairo_expose(GlMetersLV2UI * self) {
 
@@ -823,7 +881,15 @@ static void onDisplay(PuglView* view) {
 	if (self->resize_in_progress) { return; }
 	if (!self->cr) return; // XXX exit failure
 
+#ifdef WITH_SIGNATURE
+	if (!self->gpg_verified) {
+		lc_expose(self);
+	} else {
+		cairo_expose(self);
+	}
+#else
 	cairo_expose(self);
+#endif
 	cairo_surface_flush(self->surface);
 	opengl_draw(self->width, self->height, self->surf_data, self->texture_id);
 }
@@ -875,6 +941,9 @@ static void onMotion(PuglView* view, int x, int y) {
 
 static void onMouse(PuglView* view, int button, bool press, int x, int y) {
 	GlMetersLV2UI* self = (GlMetersLV2UI*)puglGetHandle(view);
+#ifdef WITH_SIGNATURE
+	if (!self->gpg_verified) return;
+#endif
 	//fprintf(stderr, "Mouse %d %s at %d,%d\n", button, press ? "down" : "up", x, y);
 
 	GL_MOUSEBOUNDS;
@@ -903,6 +972,9 @@ static void onMouse(PuglView* view, int button, bool press, int x, int y) {
 
 static void onScroll(PuglView* view, int x, int y, float dx, float dy) {
 	GlMetersLV2UI* self = (GlMetersLV2UI*)puglGetHandle(view);
+#ifdef WITH_SIGNATURE
+	if (!self->gpg_verified) return;
+#endif
 	self->mousefocus = NULL; // CHECK
 	GL_MOUSEBOUNDS;
 	GL_MOUSEEVENT;
@@ -1130,6 +1202,74 @@ gl_instantiate(const LV2UI_Descriptor*   descriptor,
 	self->ui_closed = NULL;
 	self->close_ui = FALSE;
 	self->rb = posrb_alloc(sizeof(RWArea) * 48); // depends on plugin and threading stategy
+
+#ifdef WITH_SIGNATURE
+	self->gpg_verified = FALSE;
+	gp3_initialize ();
+	load_master_key (); // in header WITH_SIGNATURE
+	gp3_loglevel (GP3L_SILENT);
+	int rc = -1;
+	char signature_file0[1024] = "";
+	char signature_file1[1024] = "";
+	strcpy(self->gpg_data, "v" VERSION);
+#ifdef _WIN32
+	const char * homedrive = getenv("HOMEDRIVE");
+	const char * homepath = getenv("HOMEPATH");
+	if (homedrive && homepath && (strlen(homedrive) + strlen(homepath) + strlen(SIGFILE) + 17) < 1024) {
+		sprintf(signature_file0, "%s%s\\Local Settings\\%s", homedrive, homepath, SIGFILE);
+	}
+	if (homedrive && homepath && (strlen(homedrive) + strlen(homepath) + 32) < 1024) {
+		sprintf(signature_file1, "%s%s\\Local Settings\\x42_license.txt", homedrive, homepath);
+	}
+#else
+	const char * home = getenv("HOME");
+	if (home && (strlen(home) + strlen(SIGFILE) + 3) < 1024) {
+		sprintf(signature_file0, "%s/.%s", home, SIGFILE);
+	}
+	if (home && (strlen(home) + 18) < 1024) {
+		sprintf(signature_file1, "%s/.x42_license.txt", home);
+	}
+#endif
+	if (testfile(signature_file0)) {
+		rc = gp3_checksigfile (signature_file0);
+	} else if (testfile(signature_file1)) {
+		rc = gp3_checksigfile (signature_file1);
+	} else {
+		fprintf(stderr, " *** signature file not found\n");
+	}
+	if (rc == 0) {
+		char data[8192];
+		char *tmp=NULL;
+		uint32_t len = gp3_get_text(data, sizeof(data));
+		if (len == sizeof(data)) data[sizeof(data)-1] = '\0';
+		else data[len] = '\0';
+#if 0
+		fprintf(stderr, " *** signature:\n");
+		if (len > 0) fputs(data, stderr);
+#endif
+		if ((tmp = strchr(data, '\n'))) *tmp = 0;
+		self->gpg_data[sizeof(self->gpg_data) - 1] = 0;
+		if (++tmp && *tmp) {
+			if ((tmp = strstr(tmp, MTR_URI))) {
+				char *t1, *t2;
+				self->gpg_verified = TRUE;
+				t1 = tmp + strlen(MTR_URI);
+				t2 = strchr(t1, '\n');
+				if (t2) { *t2 = 0; }
+				if (strlen(t1) > 0 && strncmp(t1, VERSION, strlen(t1))) {
+					self->gpg_verified = FALSE;
+				}
+			}
+		}
+		if (!self->gpg_verified) {
+			fprintf(stderr, " *** signature is not valid for this version/bundle.\n");
+		} else {
+			strncat(self->gpg_data, " ", sizeof(self->gpg_data) - strlen(self->gpg_data));
+			strncat(self->gpg_data, data, sizeof(self->gpg_data) - strlen(self->gpg_data));
+		}
+	}
+	gp3_cleanup ();
+#endif
 
 	self->tl = NULL;
 	self->ui = instantiate(self,

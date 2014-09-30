@@ -47,6 +47,9 @@ typedef struct {
 	LV2UI_Handle ui;
 } GtkMetersLV2UI;
 
+static const char * robtk_info(void *h) {
+	return "v" VERSION;
+}
 /******************************************************************************
  * LV2 callbacks
  */
