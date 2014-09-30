@@ -110,7 +110,8 @@ static void write_text_full(
 static void create_text_surface(cairo_surface_t ** sf,
 		const float w, const float h,
 		const float x, const float y,
-		const char * txt, PangoFontDescription *font, float *c_col) {
+		const char * txt, PangoFontDescription *font,
+		const float * const c_col) {
 	assert(sf);
 
 	if (*sf) {
@@ -128,5 +129,31 @@ static void create_text_surface(cairo_surface_t ** sf,
 	cairo_surface_flush(*sf);
 	cairo_destroy (cr);
 }
+
+static void create_text_surface2(cairo_surface_t ** sf,
+		const float w, const float h,
+		const float x, const float y,
+		const char * txt, PangoFontDescription *font,
+		float ang, int align,
+		const float * const c_col) {
+	assert(sf);
+
+	if (*sf) {
+		cairo_surface_destroy(*sf);
+	}
+	*sf = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, ceilf(w), ceilf(h));
+	cairo_t *cr = cairo_create (*sf);
+	cairo_set_source_rgba (cr, .0, .0, .0, 0);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle (cr, 0, 0, ceil(w), ceil(h));
+	cairo_fill (cr);
+	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+
+	write_text_full(cr, txt, font, ceil(x), ceil(y), ang, align, c_col);
+	cairo_surface_flush(*sf);
+	cairo_destroy (cr);
+}
+
+
 
 #endif
