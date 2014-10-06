@@ -275,8 +275,8 @@ typedef struct {
 } GlMetersLV2UI;
 
 static const char * robtk_info(void *h) {
-	GlMetersLV2UI * self = (GlMetersLV2UI*) h;
 #ifdef WITH_SIGNATURE
+	GlMetersLV2UI * self = (GlMetersLV2UI*) h;
 	return self->gpg_data;
 #else
 	return "v" VERSION;
