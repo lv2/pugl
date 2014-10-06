@@ -36,6 +36,9 @@
 #ifndef WHEEL_DELTA
 #    define WHEEL_DELTA 120
 #endif
+#ifndef GWL_USERDATA
+#    define GWL_USERDATA (-21)
+#endif
 
 const int LOCAL_CLOSE_MSG = WM_USER + 50;
 
@@ -110,7 +113,7 @@ puglCreate(PuglNativeWindow parent,
 		return NULL;
 	}
 
-	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
+	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG_PTR)view);
 
 	impl->hdc = GetDC(impl->hwnd);
 
