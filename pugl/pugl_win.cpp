@@ -36,6 +36,15 @@
 #ifndef WHEEL_DELTA
 #    define WHEEL_DELTA 120
 #endif
+#ifdef _WIN64
+#    ifndef GWLP_USERDATA
+#        define GWLP_USERDATA (-21)
+#    endif
+#else
+#    ifndef GWL_USERDATA
+#        define GWL_USERDATA (-21)
+#    endif
+#endif
 
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
 
@@ -154,7 +163,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		free(view);
 		return 1;
 	}
-		
+
 #ifdef _WIN64
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 #else
