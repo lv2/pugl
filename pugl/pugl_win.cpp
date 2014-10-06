@@ -283,7 +283,6 @@ setModifiers(PuglView* view)
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	MSG         msg;
 	PAINTSTRUCT ps;
 	PuglKey     key;
 
