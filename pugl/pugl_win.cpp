@@ -114,7 +114,8 @@ puglCreateWindow(PuglView* view, const char* title)
 	// Should class be a parameter?  Does this make sense on other platforms?
 	static int wc_count = 0;
 	char classNameBuf[256];
-	_snprintf(classNameBuf, sizeof(classNameBuf), "%s_%d\n", title, wc_count++);
+	_snprintf(classNameBuf, sizeof(classNameBuf), "%s_%d", title, wc_count++);
+	classNameBuf[sizeof(classNameBuf) - 1] = '\0';
 
 	impl->wc.style         = CS_OWNDC;
 	impl->wc.lpfnWndProc   = wndProc;
