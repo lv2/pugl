@@ -76,7 +76,8 @@ puglCreate(PuglNativeWindow parent,
 	// Should class be a parameter?  Does this make sense on other platforms?
 	static int wc_count = 0;
 	char classNameBuf[256];
-	_snprintf(classNameBuf, sizeof(classNameBuf), "%s_%d\n", title, wc_count++);
+	_snprintf(classNameBuf, sizeof(classNameBuf), "%s_%d", title, wc_count++);
+	classNameBuf[sizeof(classNameBuf)-1] = '\0';
 
 	impl->wc.style         = CS_OWNDC;
 	impl->wc.lpfnWndProc   = wndProc;
@@ -131,6 +132,13 @@ puglCreate(PuglNativeWindow parent,
 	SetPixelFormat(impl->hdc, format, &pfd);
 
 	impl->hglrc = wglCreateContext(impl->hdc);
+	if (!impl->hglrc) {
+		printf("Cannot create openGL context\n");
+		ReleaseDC (impl->hwnd, impl->hdc);
+		DestroyWindow (impl->hwnd);
+		UnregisterClass (impl->wc.lpszClassName, NULL);
+		return NULL;
+	}
 	wglMakeCurrent(impl->hdc, impl->hglrc);
 
 	view->width  = width;

@@ -1011,6 +1011,7 @@ static void pugl_init(GlMetersLV2UI* self) {
 			false /* self->extui ? true : false */
 #endif
 	);
+	assert (self->view); // XXX
 
 	puglSetHandle(self->view, self);
 	puglSetDisplayFunc(self->view, onDisplay);
@@ -1213,14 +1214,8 @@ gl_instantiate(const LV2UI_Descriptor*   descriptor,
 	char signature_file1[1024] = "";
 	strcpy(self->gpg_data, "v" VERSION);
 #ifdef _WIN32
-	const char * homedrive = getenv("HOMEDRIVE");
-	const char * homepath = getenv("HOMEPATH");
-	if (homedrive && homepath && (strlen(homedrive) + strlen(homepath) + strlen(SIGFILE) + 17) < 1024) {
-		sprintf(signature_file0, "%s%s\\Local Settings\\%s", homedrive, homepath, SIGFILE);
-	}
-	if (homedrive && homepath && (strlen(homedrive) + strlen(homepath) + 32) < 1024) {
-		sprintf(signature_file1, "%s%s\\Local Settings\\x42_license.txt", homedrive, homepath);
-	}
+	ExpandEnvironmentStrings("%localappdata%\\"SIGFILE, signature_file0, 1024);
+	ExpandEnvironmentStrings("%localappdata%\\x42_license.txt", signature_file1, 1024);
 #else
 	const char * home = getenv("HOME");
 	if (home && (strlen(home) + strlen(SIGFILE) + 3) < 1024) {
