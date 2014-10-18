@@ -28,6 +28,7 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 %UI_gl.so %UI_gl.dylib %UI_gl.dll:: $(ROBGL)
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CFLAGS) $(GLUICFLAGS) \
+	  -DUINQHACK="$(shell date +%s$$$$)" \
 	  -DPLUGIN_SOURCE="\"gui/$(*F).c\"" \
 	  -o $@ $(RW)ui_gl.c \
 	  $(PUGL_SRC) \
