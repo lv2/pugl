@@ -24,6 +24,12 @@
 
 #include "pugl_internal.h"
 
+// screw apple, their lack of -fvisibility=internal and namespaces
+#define CONCAT(A,B) A ## B
+#define XCONCAT(A,B) CONCAT(A,B)
+#define RobTKPuglWindow XCONCAT(RobTKPuglWindow, UINQHACK)
+#define RobTKPuglOpenGLView XCONCAT(RobTKPuglOpenGLView, UINQHACK)
+
 __attribute__ ((visibility ("hidden")))
 @interface RobTKPuglWindow : NSWindow
 {
