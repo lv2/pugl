@@ -228,7 +228,9 @@ puglCreate(PuglNativeWindow parent,
            int              min_height,
            int              width,
            int              height,
-           bool             resizable);
+           bool             resizable,
+           bool             ontop,
+           unsigned long    transientId);
 
 /**
    Set the handle to be passed to all callbacks.
