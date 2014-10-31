@@ -59,7 +59,9 @@ puglCreate(PuglNativeWindow parent,
            int              min_height,
            int              width,
            int              height,
-           bool             resizable)
+           bool             resizable,
+           bool             ontop,
+           unsigned long    transientId)
 {
 	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
 	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
@@ -70,6 +72,7 @@ puglCreate(PuglNativeWindow parent,
 	view->impl   = impl;
 	view->width  = width;
 	view->height = height;
+	view->ontop  = ontop;
 	view->user_resizable = resizable;
 
 	// FIXME: This is nasty, and pugl should not have static anything.
@@ -115,6 +118,10 @@ puglCreate(PuglNativeWindow parent,
 	}
 
 	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG_PTR)view);
+
+	SetWindowPos (impl->hwnd,
+			ontop ? HWND_TOPMOST : HWND_NOTOPMOST,
+			0, 0, 0, 0, (ontop ? 0 : SWP_NOACTIVATE) | SWP_ASYNCWINDOWPOS | SWP_NOMOVE | SWP_NOSIZE);
 
 	impl->hdc = GetDC(impl->hwnd);
 
@@ -217,9 +224,10 @@ puglResize(PuglView* view)
 	RECT wr = { 0, 0, (long)view->width, (long)view->height };
 
 	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
-	SetWindowPos(view->impl->hwnd,
-			0, 0, 0, wr.right-wr.left, wr.bottom-wr.top,
-			SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOOWNERZORDER|SWP_NOZORDER);
+	SetWindowPos (view->impl->hwnd,
+			view->ontop ? HWND_TOPMOST : HWND_NOTOPMOST,
+			0, 0, wr.right-wr.left, wr.bottom-wr.top,
+			SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOOWNERZORDER /*|SWP_NOZORDER);
 	UpdateWindow(view->impl->hwnd);
 
 	/* and call Reshape in GlX context */

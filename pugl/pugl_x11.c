@@ -85,7 +85,9 @@ puglCreate(PuglNativeWindow parent,
            int              min_height,
            int              width,
            int              height,
-           bool             resizable)
+           bool             resizable,
+           bool             ontop,
+           unsigned long    transientId)
 {
 	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
 	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
@@ -98,7 +100,7 @@ puglCreate(PuglNativeWindow parent,
 	view->impl   = impl;
 	view->width  = width;
 	view->height = height;
-	view->ontop  = true;
+	view->ontop  = ontop;
 	view->set_window_hints = true;
 	view->user_resizable = resizable;
 
@@ -185,6 +187,10 @@ puglCreate(PuglNativeWindow parent,
 				XInternAtom(impl->display, "_NET_WM_STATE", False),
 				XInternAtom(impl->display, "ATOM", False),
 				32, PropModeReplace, (unsigned char *)&type, 1);
+	}
+
+	if (transientId > 0) {
+		XSetTransientForHint(impl->display, impl->win, (Window)(transientId));
 	}
 
 	if (parent) {

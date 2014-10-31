@@ -212,6 +212,8 @@ typedef struct {
 	LV2UI_Write_Function write; // unused for now
 	LV2UI_Controller     controller; // unused for now
 	PuglNativeWindow     parent; // only valud during init
+	bool                 ontop;
+	unsigned long        transient_id; // X11 window ID
 
 	struct lv2_external_ui_host *extui;
 	struct lv2_external_ui xternal_ui;
@@ -1010,6 +1012,8 @@ static void pugl_init(GlMetersLV2UI* self) {
 #else
 			false /* self->extui ? true : false */
 #endif
+			, self->ontop
+			, self->transient_id
 	);
 	assert (self->view); // XXX
 
@@ -1167,6 +1171,8 @@ gl_instantiate(const LV2UI_Descriptor*   descriptor,
 	self->view       = NULL;
 	self->extui      = NULL;
 	self->parent     = 0;
+	self->ontop      = true;
+	self->transient_id = 0;
 	self->queue_canvas_realloc = false;
 
 #if (defined USE_GUI_THREAD && defined THREADSYNC)

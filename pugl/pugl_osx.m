@@ -61,8 +61,6 @@ __attribute__ ((visibility ("hidden")))
 	                                      backing:NSBackingStoreBuffered defer:NO];
 
 	[result setAcceptsMouseMovedEvents:YES];
-	[result setLevel: CGShieldingWindowLevel() + 1];
-
 	return (RobTKPuglWindow *)result;
 }
 
@@ -346,7 +344,9 @@ puglCreate(PuglNativeWindow parent,
            int              min_height,
            int              width,
            int              height,
-           bool             resizable)
+           bool             resizable,
+           bool             ontop,
+           unsigned long    transientId)
 {
 	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
 	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
@@ -357,12 +357,18 @@ puglCreate(PuglNativeWindow parent,
 	view->impl   = impl;
 	view->width  = width;
 	view->height = height;
+	view->ontop  = ontop;
+	view->user_resizable = resizable; // unused
 
 	[NSAutoreleasePool new];
 	[NSApplication sharedApplication];
 
 	impl->glview = [RobTKPuglOpenGLView new];
 	impl->glview->puglview = view;
+
+	if (ontop) {
+		[impl->glview setLevel: CGShieldingWindowLevel() + 1];
+	}
 
 	if (parent) {
 		NSView* pview = (NSView*) parent;
