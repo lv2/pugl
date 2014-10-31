@@ -49,6 +49,7 @@ struct PuglViewImpl {
 
 	PuglNativeWindow parent;
 	PuglContextType  ctx_type;
+	uintptr_t        transient_parent;
 
 	int      width;
 	int      height;
@@ -108,6 +109,12 @@ void
 puglInitResizable(PuglView* view, bool resizable)
 {
 	view->resizable = resizable;
+}
+
+void
+puglInitTransientFor(PuglView* view, uintptr_t parent)
+{
+	view->transient_parent = parent;
 }
 
 void

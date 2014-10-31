@@ -59,7 +59,6 @@
 	}
 
 	[self setAcceptsMouseMovedEvents:YES];
-	[self setLevel: CGShieldingWindowLevel() + 1];
 	return (PuglWindow*)self;
 }
 
@@ -445,17 +444,24 @@ puglCreateWindow(PuglView* view, const char* title)
 	[NSAutoreleasePool new];
 	impl->app = [NSApplication sharedApplication];
 
-	NSString* titleString = [[NSString alloc]
-		                        initWithBytes:title
-		                               length:strlen(title)
-		                             encoding:NSUTF8StringEncoding];
+	if (view->transient_parent) {
+		NSView* pview = (NSView*)view->transient_parent;
+		[pview addSubview:impl->glview];
+		[impl->glview setHidden:NO];
+		[impl->glview setLevel: CGShieldingWindowLevel() + 1];
+	} else {
+		NSString* titleString = [[NSString alloc]
+			                        initWithBytes:title
+			                               length:strlen(title)
+			                             encoding:NSUTF8StringEncoding];
 
-	id window = [[PuglWindow new] retain];
-
-	[window setPuglview:view];
-	[window setTitle:titleString];
-	if (view->min_width || view->min_height) {
-		[window setContentMinSize:NSMakeSize(view->min_width, view->min_height)];
+		id window = [[RobTKPuglWindow new] retain];
+		[window setPuglview:view];
+		[window setTitle:titleString];
+		if (view->min_width || view->min_height) {
+			[window setContentMinSize:NSMakeSize(min_width, min_height)];
+		}
+		impl->window = window;
 	}
 
 	impl->glview           = [PuglOpenGLView new];

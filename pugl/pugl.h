@@ -177,6 +177,15 @@ PUGL_API void
 puglInitResizable(PuglView* view, bool resizable);
 
 /**
+   Set transient parent before creating a window.
+
+   On X11, parent_id must be a Window.
+   On OSX, parent_id must be an NSView*.
+*/
+PUGL_API void
+puglInitTransientFor(PuglView* view, uintptr_t parent);
+
+/**
    Set the context type before creating a window.
 */
 PUGL_API void

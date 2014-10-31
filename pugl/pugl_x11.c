@@ -226,6 +226,11 @@ puglCreateWindow(PuglView* view, const char* title)
 		XSetWMProtocols(impl->display, impl->win, &wmDelete, 1);
 	}
 
+	if (view->transient_parent) {
+		XSetTransientForHint(impl->display, impl->win,
+		                     (Window)(view->transient_parent));
+	}
+
 	XFree(vi);
 
 	return 0;
