@@ -366,10 +366,6 @@ puglCreate(PuglNativeWindow parent,
 	impl->glview = [RobTKPuglOpenGLView new];
 	impl->glview->puglview = view;
 
-	if (ontop) {
-		[impl->glview setLevel: CGShieldingWindowLevel() + 1];
-	}
-
 	if (parent) {
 		NSView* pview = (NSView*) parent;
 		[pview addSubview:impl->glview];
@@ -383,6 +379,9 @@ puglCreate(PuglNativeWindow parent,
 		[window setPuglview:view];
 		[window setTitle:titleString];
 		[window setContentMinSize:NSMakeSize(min_width, min_height)];
+		if (ontop) {
+			[window setLevel: CGShieldingWindowLevel() + 1];
+		}
 		impl->window = window;
 #if 0
 		if (resizable) {
