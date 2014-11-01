@@ -208,7 +208,11 @@ int process (jack_nframes_t nframes, void *arg) {
 			lv2_atom_forge_set_buffer(&lv2_forge, pos_buf, sizeof(pos_buf));
 			LV2_Atom_Forge* forge = &lv2_forge;
 			LV2_Atom_Forge_Frame frame;
+#ifdef HAVE_LV2_1_8
+			lv2_atom_forge_object(&lv2_forge, &frame, 1, uri_time_Position);
+#else
 			lv2_atom_forge_blank(&lv2_forge, &frame, 1, uri_time_Position);
+#endif
 			lv2_atom_forge_property_head(forge, uri_time_frame, 0);
 			lv2_atom_forge_long(forge, pos.frame);
 			lv2_atom_forge_property_head(forge, uri_time_speed, 0);
