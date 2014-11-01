@@ -227,7 +227,7 @@ puglResize(PuglView* view)
 	SetWindowPos (view->impl->hwnd,
 			view->ontop ? HWND_TOPMOST : HWND_NOTOPMOST,
 			0, 0, wr.right-wr.left, wr.bottom-wr.top,
-			SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOOWNERZORDER /*|SWP_NOZORDER);
+			SWP_NOACTIVATE|SWP_NOMOVE|SWP_NOOWNERZORDER /*|SWP_NOZORDER*/);
 	UpdateWindow(view->impl->hwnd);
 
 	/* and call Reshape in GlX context */
