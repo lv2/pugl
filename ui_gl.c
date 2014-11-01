@@ -98,7 +98,7 @@
 #include "gl/posringbuf.h"
 #include "robtk.h"
 
-#ifdef WITH_SIGNATURE
+#ifdef WITH_SIGNATURE // gpg sign tested releases
 #include "gp3.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -323,7 +323,7 @@ static void lc_expose (GlMetersLV2UI * self) {
 	cairo_set_operator (self->cr, CAIRO_OPERATOR_OVER);
 	cairo_set_source_rgba(self->cr, 0, 0, 0, .75);
 	cairo_fill(self->cr);
-	write_text_full(self->cr, "Unregistered Version.\n\u2192http://gareus.org/lv2",
+	write_text_full(self->cr, "  Unregistered Version\nhttp://x42-plugins.com",
 			xfont, self->width * .5, self->height * .5,
 			self->width < 200 ? M_PI * -.5 : 0, 2, c_wht);
 	pango_font_description_free(xfont);
