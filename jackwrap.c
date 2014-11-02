@@ -18,11 +18,11 @@
 
 
 #ifndef UPDATE_FREQ_RATIO
-#define UPDATE_FREQ_RATIO 10 // MAX # of audio-cycles per GUI-refresh
+#define UPDATE_FREQ_RATIO 60 // MAX # of audio-cycles per GUI-refresh
 #endif
 
 #ifndef UI_UPDATE_FPS
-#define UI_UPDATE_FPS 15
+#define UI_UPDATE_FPS 25
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
