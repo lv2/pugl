@@ -153,8 +153,8 @@ struct LV2Port {
 
 /* a simple state machine for this client */
 static volatile enum {
-  Run,
-  Exit
+	Run,
+	Exit
 } client_state = Run;
 
 struct lv2_external_ui_host extui_host;
@@ -293,12 +293,12 @@ int process (jack_nframes_t nframes, void *arg) {
 	}
 
 	/* [re] connect jack audio buffers */
-  for (uint32_t i=0; i < nports_audio_in; i++) {
+	for (uint32_t i=0; i < nports_audio_in; i++) {
 		plugin_dsp->connect_port(plugin_instance, portmap_a_in[i], jack_port_get_buffer (input_port[i], nframes));
-  }
-  for (uint32_t i=0 ; i < nports_audio_out; i++) {
+	}
+	for (uint32_t i=0 ; i < nports_audio_out; i++) {
 		plugin_dsp->connect_port(plugin_instance, portmap_a_out[i], jack_port_get_buffer (output_port[i], nframes));
-  }
+	}
 
 	/* make a backup copy, to see what was changed */
 	memcpy(plugin_ports_post, plugin_ports_pre, nports_ctrl * sizeof(float));
@@ -360,66 +360,66 @@ int process (jack_nframes_t nframes, void *arg) {
 			pthread_mutex_unlock (&gui_thread_lock);
 		}
 	}
-  return 0;
+	return 0;
 }
 
 
 void jack_shutdown (void *arg) {
-  fprintf(stderr,"recv. shutdown request from jackd.\n");
-  client_state=Exit;
-  pthread_cond_signal (&data_ready);
+	fprintf(stderr,"recv. shutdown request from jackd.\n");
+	client_state=Exit;
+	pthread_cond_signal (&data_ready);
 }
 
 static int init_jack(const char *client_name) {
-  jack_status_t status;
-  j_client = jack_client_open (client_name, JackNullOption, &status);
-  if (j_client == NULL) {
-    fprintf (stderr, "jack_client_open() failed, status = 0x%2.0x\n", status);
-    if (status & JackServerFailed) {
-      fprintf (stderr, "Unable to connect to JACK server\n");
-    }
-    return (-1);
-  }
-  if (status & JackServerStarted) {
-    fprintf (stderr, "JACK server started\n");
-  }
-  if (status & JackNameNotUnique) {
-    client_name = jack_get_client_name(j_client);
-    fprintf (stderr, "jack-client name: `%s'\n", client_name);
-  }
+	jack_status_t status;
+	j_client = jack_client_open (client_name, JackNullOption, &status);
+	if (j_client == NULL) {
+		fprintf (stderr, "jack_client_open() failed, status = 0x%2.0x\n", status);
+		if (status & JackServerFailed) {
+			fprintf (stderr, "Unable to connect to JACK server\n");
+		}
+		return (-1);
+	}
+	if (status & JackServerStarted) {
+		fprintf (stderr, "JACK server started\n");
+	}
+	if (status & JackNameNotUnique) {
+		client_name = jack_get_client_name(j_client);
+		fprintf (stderr, "jack-client name: `%s'\n", client_name);
+	}
 
-  jack_set_process_callback (j_client, process, 0);
+	jack_set_process_callback (j_client, process, 0);
 
 #ifndef WIN32
-  jack_on_shutdown (j_client, jack_shutdown, NULL);
+	jack_on_shutdown (j_client, jack_shutdown, NULL);
 #endif
-  j_samplerate=jack_get_sample_rate (j_client);
-  return (0);
+	j_samplerate=jack_get_sample_rate (j_client);
+	return (0);
 }
 
 static int jack_portsetup(void) {
-  /* Allocate data structures that depend on the number of ports. */
-  input_port = (jack_port_t **) malloc (sizeof (jack_port_t *) * nports_audio_in);
+	/* Allocate data structures that depend on the number of ports. */
+	input_port = (jack_port_t **) malloc (sizeof (jack_port_t *) * nports_audio_in);
 
-  for (uint32_t i = 0; i < nports_audio_in; i++) {
-    if ((input_port[i] = jack_port_register (j_client,
+	for (uint32_t i = 0; i < nports_audio_in; i++) {
+		if ((input_port[i] = jack_port_register (j_client,
 						ports[portmap_a_in[i]].name,
 						JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0)) == 0) {
-      fprintf (stderr, "cannot register input port \"%s\"!\n", ports[portmap_a_in[i]].name);
-      return (-1);
-    }
-  }
+			fprintf (stderr, "cannot register input port \"%s\"!\n", ports[portmap_a_in[i]].name);
+			return (-1);
+		}
+	}
 
-  output_port = (jack_port_t **) malloc (sizeof (jack_port_t *) * nports_audio_out);
+	output_port = (jack_port_t **) malloc (sizeof (jack_port_t *) * nports_audio_out);
 
-  for (uint32_t i = 0; i < nports_audio_out; i++) {
-    if ((output_port[i] = jack_port_register (j_client,
+	for (uint32_t i = 0; i < nports_audio_out; i++) {
+		if ((output_port[i] = jack_port_register (j_client,
 						ports[portmap_a_out[i]].name,
 						JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0)) == 0) {
-      fprintf (stderr, "cannot register output port \"%s\"!\n", ports[portmap_a_out[i]].name);
-      return (-1);
-    }
-  }
+			fprintf (stderr, "cannot register output port \"%s\"!\n", ports[portmap_a_out[i]].name);
+			return (-1);
+		}
+	}
 
 	if (nports_midi_in){
 		if ((midi_in = jack_port_register (j_client,
@@ -502,10 +502,10 @@ void write_function(
  */
 
 static void cleanup(int sig) {
-  if (j_client) {
-    jack_client_close (j_client);
-    j_client=NULL;
-  }
+	if (j_client) {
+		jack_client_close (j_client);
+		j_client=NULL;
+	}
 
 	if (plugin_dsp && plugin_instance && plugin_dsp->deactivate) {
 		plugin_dsp->deactivate(plugin_instance);
@@ -523,8 +523,8 @@ static void cleanup(int sig) {
 	jack_ringbuffer_free(rb_atom_to_ui);
 	jack_ringbuffer_free(rb_atom_from_ui);
 
-  free(input_port);
-  free(output_port);
+	free(input_port);
+	free(output_port);
 
 	free(plugin_ports_pre);
 	free(plugin_ports_post);
@@ -533,7 +533,7 @@ static void cleanup(int sig) {
 	free(portmap_ctrl);
 	free(portmap_rctl);
 	free_uri_map();
-  fprintf(stderr, "bye.\n");
+	fprintf(stderr, "bye.\n");
 }
 
 static void run_one(LV2_Atom_Sequence *data) {
@@ -603,9 +603,9 @@ static void main_loop(void) {
 #endif // APPLE RUNLOOP
 
 static void catchsig (int sig) {
-  fprintf(stderr,"caught signal - shutting down.\n");
-  client_state=Exit;
-  pthread_cond_signal (&data_ready);
+	fprintf(stderr,"caught signal - shutting down.\n");
+	client_state=Exit;
+	pthread_cond_signal (&data_ready);
 }
 
 static void on_external_ui_closed(void* controller) {
@@ -676,7 +676,7 @@ int main (int argc, char **argv) {
 		goto out;
 	}
 	/* jack-open -> samlerate */
-  if (init_jack(extui_host.plugin_human_id)) goto out;
+	if (init_jack(extui_host.plugin_human_id)) goto out;
 
 	/* init plugin */
 	plugin_instance = plugin_dsp->instantiate(plugin_dsp, j_samplerate, NULL, features);
@@ -737,7 +737,7 @@ int main (int argc, char **argv) {
 		lv2_atom_forge_init(&lv2_forge, &uri_map);
 	}
 
-  if (jack_portsetup()) goto out;
+	if (jack_portsetup()) goto out;
 
 	if (plugin_gui) {
 	/* init plugin GUI */
@@ -752,27 +752,29 @@ int main (int argc, char **argv) {
 
 #ifdef REQUIRE_UI
 	if (!gui_instance || !extui) {
-    fprintf(stderr, "Error: GUI was not initialized.\n");
+		fprintf(stderr, "Error: GUI was not initialized.\n");
 		goto out;
 	}
 #endif
 
-  if (mlockall (MCL_CURRENT | MCL_FUTURE)) {
-    fprintf(stderr, "Warning: Can not lock memory.\n");
-  }
+#ifndef _WIN32
+	if (mlockall (MCL_CURRENT | MCL_FUTURE)) {
+		fprintf(stderr, "Warning: Can not lock memory.\n");
+	}
+#endif
 
 	if (plugin_dsp->activate) {
 		plugin_dsp->activate(plugin_instance);
 	}
 
-  if (jack_activate (j_client)) {
-    fprintf (stderr, "cannot activate client.\n");
-    goto out;
-  }
+	if (jack_activate (j_client)) {
+		fprintf (stderr, "cannot activate client.\n");
+		goto out;
+	}
 
 #ifndef _WIN32
-  signal (SIGHUP, catchsig);
-  signal (SIGINT, catchsig);
+	signal (SIGHUP, catchsig);
+	signal (SIGINT, catchsig);
 #endif
 
 	if (!gui_instance || !extui) {
@@ -801,7 +803,7 @@ int main (int argc, char **argv) {
 	}
 
 out:
-  cleanup(0);
-  return(0);
+	cleanup(0);
+	return(0);
 }
 /* vi:set ts=2 sts=2 sw=2: */
