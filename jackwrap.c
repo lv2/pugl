@@ -37,6 +37,13 @@
 #define pthread_t //< override jack.h def
 #endif
 
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+extern void rtk_osx_api_init(void);
+extern void rtk_osx_api_terminate(void);
+extern void rtk_osx_api_run(void);
+#endif
+
 #include <stdio.h>
 #include <errno.h>
 #include <unistd.h>
@@ -146,10 +153,9 @@ struct LV2Port {
 
 /* a simple state machine for this client */
 static volatile enum {
-  Init,
   Run,
   Exit
-} client_state = Init;
+} client_state = Run;
 
 struct lv2_external_ui_host extui_host;
 struct lv2_external_ui *extui = NULL;
@@ -530,48 +536,71 @@ static void cleanup(int sig) {
   fprintf(stderr, "bye.\n");
 }
 
+static void run_one(LV2_Atom_Sequence *data) {
+
+	while (jack_ringbuffer_read_space(rb_ctrl_to_ui) >= sizeof(uint32_t) + sizeof(float)) {
+		uint32_t idx;
+		float val;
+		jack_ringbuffer_read(rb_ctrl_to_ui, (char*) &idx, sizeof(uint32_t));
+		jack_ringbuffer_read(rb_ctrl_to_ui, (char*) &val, sizeof(float));
+		plugin_gui->port_event(gui_instance, idx, sizeof(float), 0, &val);
+	}
+
+	while (jack_ringbuffer_read_space(rb_atom_to_ui) > sizeof(LV2_Atom)) {
+		LV2_Atom a;
+		jack_ringbuffer_read(rb_atom_to_ui, (char *) &a, sizeof(LV2_Atom));
+		assert(a.size < min_atom_bufsiz);
+		jack_ringbuffer_read(rb_atom_to_ui, (char *) data, a.size);
+		LV2_Atom_Event const* ev = (LV2_Atom_Event const*)((&(data)->body) + 1); // lv2_atom_sequence_begin
+		while((const uint8_t*)ev < ((const uint8_t*) &(data)->body + (data)->atom.size)) {
+			plugin_gui->port_event(gui_instance, portmap_atom_to_ui,
+					ev->body.size, uri_atom_EventTransfer, &ev->body);
+			ev = (LV2_Atom_Event const*) /* lv2_atom_sequence_next() */
+				((const uint8_t*)ev + sizeof(LV2_Atom_Event) + ((ev->body.size + 7) & ~7));
+		}
+	}
+
+	LV2_EXTERNAL_UI_RUN(extui);
+}
+
+#ifdef __APPLE__
+
+void osx_loop (CFRunLoopTimerRef timer, void *info) {
+	if (client_state == Run) {
+		run_one((LV2_Atom_Sequence*)info);
+	}
+	if (client_state == Exit) {
+		rtk_osx_api_terminate();
+	}
+}
+
+#else
+
+
 static void main_loop(void) {
 	struct timespec timeout;
 	LV2_Atom_Sequence *data = (LV2_Atom_Sequence*) malloc(min_atom_bufsiz * sizeof(uint8_t));
 
-  pthread_mutex_lock (&gui_thread_lock);
-  while (client_state != Exit) {
+	pthread_mutex_lock (&gui_thread_lock);
+	while (client_state != Exit) {
+		run_one(data);
 
-		while (jack_ringbuffer_read_space(rb_ctrl_to_ui) >= sizeof(uint32_t) + sizeof(float)) {
-			uint32_t idx;
-			float val;
-			jack_ringbuffer_read(rb_ctrl_to_ui, (char*) &idx, sizeof(uint32_t));
-			jack_ringbuffer_read(rb_ctrl_to_ui, (char*) &val, sizeof(float));
-			plugin_gui->port_event(gui_instance, idx, sizeof(float), 0, &val);
-		}
+		if (client_state == Exit) break;
 
-		while (jack_ringbuffer_read_space(rb_atom_to_ui) > sizeof(LV2_Atom)) {
-			LV2_Atom a;
-			jack_ringbuffer_read(rb_atom_to_ui, (char *) &a, sizeof(LV2_Atom));
-			assert(a.size < min_atom_bufsiz);
-			jack_ringbuffer_read(rb_atom_to_ui, (char *) data, a.size);
-			LV2_Atom_Event const* ev = (LV2_Atom_Event const*)((&(data)->body) + 1); // lv2_atom_sequence_begin
-			while((const uint8_t*)ev < ((const uint8_t*) &(data)->body + (data)->atom.size)) {
-				plugin_gui->port_event(gui_instance, portmap_atom_to_ui,
-						ev->body.size, uri_atom_EventTransfer, &ev->body);
-				ev = (LV2_Atom_Event const*) /* lv2_atom_sequence_next() */
-					((const uint8_t*)ev + sizeof(LV2_Atom_Event) + ((ev->body.size + 7) & ~7));
-			}
-		}
-
-		LV2_EXTERNAL_UI_RUN(extui);
-
-    if (client_state == Exit) break;
-
+#ifdef _WIN32
+		Sleep(1000/UI_UPDATE_FPS);
+#else
 		clock_gettime(CLOCK_REALTIME, &timeout);
 		timeout.tv_nsec += 1000000000 / (UI_UPDATE_FPS);
 		if (timeout.tv_nsec >= 1000000000) {timeout.tv_nsec -= 1000000000; timeout.tv_sec+=1;}
-    pthread_cond_timedwait (&data_ready, &gui_thread_lock, &timeout);
+#endif
+		pthread_cond_timedwait (&data_ready, &gui_thread_lock, &timeout);
 
-  } /* while running */
+	} /* while running */
 	free(data);
-  pthread_mutex_unlock (&gui_thread_lock);
+	pthread_mutex_unlock (&gui_thread_lock);
 }
+#endif // APPLE RUNLOOP
 
 static void catchsig (int sig) {
   fprintf(stderr,"caught signal - shutting down.\n");
@@ -587,6 +616,8 @@ int main (int argc, char **argv) {
 	uint32_t c_ain  = 0;
 	uint32_t c_aout = 0;
 	uint32_t c_ctrl = 0;
+
+	rtk_osx_api_init();
 
 	LV2_URID_Map uri_map            = { NULL, &uri_to_id };
 	const LV2_Feature map_feature   = { LV2_URID__map, &uri_map};
@@ -753,7 +784,18 @@ int main (int argc, char **argv) {
 
 		LV2_EXTERNAL_UI_SHOW(extui);
 
+#ifdef __APPLE__
+		LV2_Atom_Sequence *data = (LV2_Atom_Sequence*) malloc(min_atom_bufsiz * sizeof(uint8_t));
+		CFRunLoopRef runLoop = CFRunLoopGetCurrent();
+		CFRunLoopTimerContext context = {0, data, NULL, NULL, NULL};
+		CFRunLoopTimerRef timer = CFRunLoopTimerCreate(kCFAllocatorDefault, 0, 1.0/UI_UPDATE_FPS, 0, 0, &osx_loop, &context);
+		CFRunLoopAddTimer(runLoop, timer, kCFRunLoopCommonModes);
+		rtk_osx_api_run();
+		free(data);
+#else
+
 		main_loop();
+#endif
 
 		LV2_EXTERNAL_UI_HIDE(extui);
 	}
