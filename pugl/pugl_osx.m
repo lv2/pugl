@@ -520,7 +520,6 @@ puglProcessEvents(PuglView* view)
 {
 	NSEvent* ev = [view->impl->window nextEventMatchingMask: NSAnyEventMask];
 	[view->impl->app sendEvent: ev];
-	[view->impl->glview setNeedsDisplay: YES];
 
 	return PUGL_SUCCESS;
 }
