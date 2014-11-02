@@ -415,7 +415,7 @@ puglDestroy(PuglView* view)
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	[view->impl->glview setNeedsDisplay: YES];
+	//[view->impl->glview setNeedsDisplay: YES];
 
 	return PUGL_SUCCESS;
 }
