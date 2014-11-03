@@ -380,7 +380,7 @@ puglCreate(PuglNativeWindow parent,
 		[window setTitle:titleString];
 		[window setContentMinSize:NSMakeSize(min_width, min_height)];
 		if (ontop) {
-			[window setLevel: CGShieldingWindowLevel() + 1];
+			[window setLevel: NSStatusWindowLevel];
 		}
 		impl->window = window;
 #if 0
