@@ -486,7 +486,7 @@ void write_function(
 		fprintf(stderr, "LV2Host: write_function() unsupported buffer\n");
 		return;
 	}
-	if (port_index >=0 && port_index < nports_total && portmap_ctrl[port_index] < 0) {
+	if (port_index < nports_total && portmap_ctrl[port_index] < 0) {
 		fprintf(stderr, "LV2Host: write_function() unmapped port\n");
 		return;
 	}
