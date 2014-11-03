@@ -617,7 +617,9 @@ int main (int argc, char **argv) {
 	uint32_t c_aout = 0;
 	uint32_t c_ctrl = 0;
 
+#ifdef __APPLE__
 	rtk_osx_api_init();
+#endif
 
 	LV2_URID_Map uri_map            = { NULL, &uri_to_id };
 	const LV2_Feature map_feature   = { LV2_URID__map, &uri_map};
