@@ -1,6 +1,13 @@
 RT=$(RW)rtk/
 WD=$(RW)widgets/robtk_
 STRIP=strip
+UNAME?=$(shell uname)
+
+ifeq ($(UNAME),Darwin)
+  OSXJACKWRAP=$(RW)jackwrap.mm
+else
+  OSXJACKWRAP=
+endif
 
 UITOOLKIT=$(WD)checkbutton.h $(WD)dial.h $(WD)label.h $(WD)pushbutton.h\
           $(WD)radiobutton.h $(WD)scale.h $(WD)separator.h $(WD)spinner.h \
@@ -36,3 +43,14 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(GLUILIBS)
 	$(STRIP) -x $@
 
+x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP)
+	@mkdir -p $(@D)
+	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
+	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
+	  -DPLUGIN_SOURCE="\"$(value x42_$(subst -,_,$(*F))_JACKGUI)\"" \
+	  -DJACK_DESCRIPT="\"$(value x42_$(subst -,_,$(*F))_LV2HTTL)\"" \
+	  -o $@ \
+	  $(RW)jackwrap.c $(RW)ui_gl.c $(PUGL_SRC) $(OSXJACKWRAP) \
+	  $(value x42_$(subst -,_,$(*F))_JACKSRC) \
+	  $(LDFLAGS) $(JACKLIBS)
+	$(STRIP) -x $@
