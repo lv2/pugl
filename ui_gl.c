@@ -1170,7 +1170,11 @@ gl_instantiate(const LV2UI_Descriptor*   descriptor,
 	self->view       = NULL;
 	self->extui      = NULL;
 	self->parent     = 0;
+#ifdef DEFAULT_NOT_ONTOP
+	self->ontop      = false;
+#else
 	self->ontop      = true;
+#endif
 	self->transient_id = 0;
 	self->queue_canvas_realloc = false;
 
