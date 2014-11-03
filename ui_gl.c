@@ -18,13 +18,12 @@
  */
 
 //#undef HAVE_IDLE_IFACE // simulate old LV2
-#define USE_GUI_THREAD // use own thread (not idle callback)
-
-//#define THREADSYNC // wake up GUI thread on port-event
+//#define USE_GUI_THREAD // use own thread (not idle callback), should be preferred even w/idle availale on most platforms
+//#define THREADSYNC     // wake up GUI thread on port-event
 
 #ifdef XTERNAL_UI
 #if defined USE_GUI_THREAD && defined _WIN32
-#  define INIT_PUGL_IN_THREAD // don't share X11 connection w/host
+#  define INIT_PUGL_IN_THREAD
 #endif
 #endif
 
