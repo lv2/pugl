@@ -43,6 +43,10 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(GLUILIBS)
 	$(STRIP) -x $@
 
+# ignore man-pages in rule below
+x42-%.1:
+	@/bin/true
+
 x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP)
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
