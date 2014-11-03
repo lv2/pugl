@@ -765,6 +765,15 @@ int main (int argc, char **argv) {
 	}
 #endif
 
+	if (gui_instance) {
+		for (uint32_t p = 0; p < nports_ctrl; p++) {
+			if (jack_ringbuffer_write_space(rb_ctrl_to_ui) >= sizeof(uint32_t) + sizeof(float)) {
+				jack_ringbuffer_write(rb_ctrl_to_ui, (char *) &portmap_rctl[p], sizeof(uint32_t));
+				jack_ringbuffer_write(rb_ctrl_to_ui, (char *) &plugin_ports_pre[p], sizeof(float));
+			}
+		}
+	}
+
 	if (plugin_dsp->activate) {
 		plugin_dsp->activate(plugin_instance);
 	}
