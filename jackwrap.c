@@ -644,8 +644,8 @@ int main (int argc, char **argv) {
 	uint32_t c_ctrl = 0;
 
 #ifdef X42_MULTIPLUGIN
-	if (argc > 0 && atoi(argv[1]) < 0) {
-		int i;
+	if (argc > 1 && atoi(argv[1]) < 0) {
+		unsigned int i;
 		for (i = 0; i < sizeof(_plugins) / sizeof(RtkLv2Description); ++i) {
 			const LV2_Descriptor* d = _plugins[i].lv2_descriptor(_plugins[i].dsp_descriptor_id);
 			printf("* %d '%s' %s\n", i, _plugins[i].plugin_human_id, d->URI);
@@ -654,8 +654,8 @@ int main (int argc, char **argv) {
 	}
 
 	inst = NULL;
-	if (argc > 0 && strlen(argv[1]) > 2 && atoi(argv[1]) == 0) {
-		int i;
+	if (argc > 1 && strlen(argv[1]) > 2 && atoi(argv[1]) == 0) {
+		unsigned int i;
 		for (i = 0; i < sizeof(_plugins) / sizeof(RtkLv2Description); ++i) {
 			const LV2_Descriptor* d = _plugins[i].lv2_descriptor(_plugins[i].dsp_descriptor_id);
 			if (strstr(d->URI, argv[1]) || strstr(_plugins[i].plugin_human_id, argv[1])) {
@@ -664,9 +664,9 @@ int main (int argc, char **argv) {
 			}
 		}
 	}
-	if (argc > 0 && !inst) {
-		int plugid = atoi(argv[1]);
-		if (plugid >= 0 && plugid < (sizeof(_plugins) / sizeof(RtkLv2Description))) {
+	if (argc > 1 && !inst && atoi(argv[1]) >= 0) {
+		unsigned int plugid = atoi(argv[1]);
+		if (plugid < (sizeof(_plugins) / sizeof(RtkLv2Description))) {
 			inst = &_plugins[plugid];
 		}
 	}
