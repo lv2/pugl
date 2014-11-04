@@ -1,6 +1,6 @@
 /* x42 jack wrapper
  *
- * Copyright (C) 2012, 2013 Robin Gareus
+ * Copyright (C) 2012-2014 Robin Gareus
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,9 +115,6 @@ static jack_ringbuffer_t *rb_atom_from_ui = NULL;
 static pthread_mutex_t gui_thread_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  data_ready = PTHREAD_COND_INITIALIZER;
 
-extern const LV2_Descriptor* lv2_descriptor(uint32_t index);
-extern const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index);
-
 uint32_t uri_midi_MidiEvent = 0;
 uint32_t uri_atom_Sequence = 0;
 uint32_t uri_atom_EventTransfer = 0;
@@ -151,6 +148,32 @@ struct LV2Port {
 	float val_default;
 };
 
+typedef struct _RtkLv2Description {
+	const LV2_Descriptor* (*lv2_descriptor)(uint32_t index);
+	const LV2UI_Descriptor* (*lv2ui_descriptor)(uint32_t index);
+
+	const uint32_t dsp_descriptor_id;
+	const uint32_t gui_descriptor_id;
+	const char *plugin_human_id;
+
+	const struct LV2Port *ports;
+
+	const uint32_t nports_total;
+	const uint32_t nports_audio_in;
+	const uint32_t nports_audio_out;
+	const uint32_t nports_midi_in;
+	const uint32_t nports_midi_out;
+	const uint32_t nports_atom_in;
+	const uint32_t nports_atom_out;
+	const uint32_t nports_ctrl;
+	const uint32_t nports_ctrl_in;
+	const uint32_t nports_ctrl_out;
+	const uint32_t min_atom_bufsiz;
+	const bool     send_time_info;
+} RtkLv2Description;
+
+RtkLv2Description const *inst;
+
 /* a simple state machine for this client */
 static volatile enum {
 	Run,
@@ -172,12 +195,15 @@ uint32_t  portmap_atom_from_ui = -1;
 
 static uint32_t uri_to_id(LV2_URI_Map_Callback_Data callback_data, const char* uri);
 
+
 ///////////////////////////
 // GET INFO FROM LV2 TTL //
 //     see lv2ttl2c      //
+//    define _plugin     //
 ///////////////////////////
 #include JACK_DESCRIPT ////
 ///////////////////////////
+
 
 /******************************************************************************
  * JACK
@@ -198,7 +224,7 @@ int process (jack_nframes_t nframes, void *arg) {
 			|| ((pos.valid & JackPositionBBT) && (pos.beats_per_minute != j_transport.bpm)));
 
 	/* atom buffers */
-	if (nports_atom_in > 0 || nports_midi_in > 0) {
+	if (inst->nports_atom_in > 0 || inst->nports_midi_in > 0) {
 		/* start Atom sequence */
 		atom_in->atom.type = uri_atom_Sequence;
 		atom_in->atom.size = 8;
@@ -207,7 +233,7 @@ int process (jack_nframes_t nframes, void *arg) {
 		body->pad  = 0; // unused
 		uint8_t * seq = (uint8_t*) (body + 1);
 
-		if (transport_changed && send_time_info) {
+		if (transport_changed && inst->send_time_info) {
 			uint8_t   pos_buf[256];
 			LV2_Atom* lv2_pos = (LV2_Atom*)pos_buf;
 
@@ -240,7 +266,7 @@ int process (jack_nframes_t nframes, void *arg) {
 			uint32_t size = lv2_pos->size;
 			uint32_t padded_size = ((sizeof(LV2_Atom_Event) + size) +  7) & (~7);
 
-			if (min_atom_bufsiz > padded_size) {
+			if (inst->min_atom_bufsiz > padded_size) {
 				printf("send time..\n");
 				LV2_Atom_Event *aev = (LV2_Atom_Event *)seq;
 				aev->time.frames = 0;
@@ -256,7 +282,7 @@ int process (jack_nframes_t nframes, void *arg) {
 			LV2_Atom a;
 			jack_ringbuffer_read(rb_atom_from_ui, (char *) &a, sizeof(LV2_Atom));
 			uint32_t padded_size = atom_in->atom.size + a.size + sizeof(int64_t);
-			if (min_atom_bufsiz > padded_size) {
+			if (inst->min_atom_bufsiz > padded_size) {
 				memset(seq, 0, sizeof(int64_t)); // LV2_Atom_Event->time
 				seq += sizeof(int64_t);
 				jack_ringbuffer_read(rb_atom_from_ui, (char *) seq, a.size);
@@ -264,7 +290,7 @@ int process (jack_nframes_t nframes, void *arg) {
 				atom_in->atom.size += a.size + sizeof(int64_t);
 			}
 		}
-		if (nports_midi_in > 0) {
+		if (inst->nports_midi_in > 0) {
 			/* inject midi events */
 			void* buf = jack_port_get_buffer(midi_in, nframes);
 			for (uint32_t i = 0; i < jack_midi_get_event_count(buf); ++i) {
@@ -274,7 +300,7 @@ int process (jack_nframes_t nframes, void *arg) {
 				uint32_t size = ev.size;
 				uint32_t padded_size = ((sizeof(LV2_Atom_Event) + size) +  7) & (~7);
 
-				if (min_atom_bufsiz > padded_size) {
+				if (inst->min_atom_bufsiz > padded_size) {
 					LV2_Atom_Event *aev = (LV2_Atom_Event *)seq;
 					aev->time.frames = ev.time;
 					aev->body.size  = size;
@@ -287,21 +313,21 @@ int process (jack_nframes_t nframes, void *arg) {
 		}
 	}
 
-	if (nports_atom_out > 0 || nports_midi_out > 0) {
+	if (inst->nports_atom_out > 0 || inst->nports_midi_out > 0) {
 		atom_out->atom.type = 0;
-		atom_out->atom.size = min_atom_bufsiz;
+		atom_out->atom.size = inst->min_atom_bufsiz;
 	}
 
 	/* [re] connect jack audio buffers */
-	for (uint32_t i=0; i < nports_audio_in; i++) {
+	for (uint32_t i=0; i < inst->nports_audio_in; i++) {
 		plugin_dsp->connect_port(plugin_instance, portmap_a_in[i], jack_port_get_buffer (input_port[i], nframes));
 	}
-	for (uint32_t i=0 ; i < nports_audio_out; i++) {
+	for (uint32_t i=0 ; i < inst->nports_audio_out; i++) {
 		plugin_dsp->connect_port(plugin_instance, portmap_a_out[i], jack_port_get_buffer (output_port[i], nframes));
 	}
 
 	/* make a backup copy, to see what was changed */
-	memcpy(plugin_ports_post, plugin_ports_pre, nports_ctrl * sizeof(float));
+	memcpy(plugin_ports_post, plugin_ports_pre, inst->nports_ctrl * sizeof(float));
 
 	/* expected transport state in next cycle */
 	j_transport.position = rolling ? pos.frame + nframes : pos.frame;
@@ -313,8 +339,8 @@ int process (jack_nframes_t nframes, void *arg) {
 
 	/* create port-events for change values */
 	// TODO only if UI..?
-	for (uint32_t p = 0; p < nports_ctrl; p++) {
-		if (ports[portmap_rctl[p]].porttype != CONTROL_OUT) continue;
+	for (uint32_t p = 0; p < inst->nports_ctrl; p++) {
+		if (inst->ports[portmap_rctl[p]].porttype != CONTROL_OUT) continue;
 
 		if (plugin_ports_pre[p] != plugin_ports_post[p]) {
 			if (jack_ringbuffer_write_space(rb_ctrl_to_ui) >= sizeof(uint32_t) + sizeof(float)) {
@@ -324,13 +350,13 @@ int process (jack_nframes_t nframes, void *arg) {
 		}
 	}
 
-	if (nports_midi_out > 0) {
+	if (inst->nports_midi_out > 0) {
 		void* buf = jack_port_get_buffer(midi_out, nframes);
 		jack_midi_clear_buffer(buf);
 	}
 
 	/* Atom sequence port-events */
-	if (nports_atom_out + nports_midi_out > 0 && atom_out->atom.size > sizeof(LV2_Atom)) {
+	if (inst->nports_atom_out + inst->nports_midi_out > 0 && atom_out->atom.size > sizeof(LV2_Atom)) {
 		// TODO only if UI..?
 		if (jack_ringbuffer_write_space(rb_atom_to_ui) >= atom_out->atom.size + 2 * sizeof(LV2_Atom)) {
 			LV2_Atom a = {atom_out->atom.size + (uint32_t) sizeof(LV2_Atom), 0};
@@ -338,7 +364,7 @@ int process (jack_nframes_t nframes, void *arg) {
 			jack_ringbuffer_write(rb_atom_to_ui, (char *) atom_out, a.size);
 		}
 
-		if (nports_midi_out) {
+		if (inst->nports_midi_out) {
 			void* buf = jack_port_get_buffer(midi_out, nframes);
 			LV2_Atom_Event const* ev = (LV2_Atom_Event const*)((&(atom_out)->body) + 1); // lv2_atom_sequence_begin
 			while((const uint8_t*)ev < ((const uint8_t*) &(atom_out)->body + (atom_out)->atom.size)) {
@@ -399,42 +425,42 @@ static int init_jack(const char *client_name) {
 
 static int jack_portsetup(void) {
 	/* Allocate data structures that depend on the number of ports. */
-	input_port = (jack_port_t **) malloc (sizeof (jack_port_t *) * nports_audio_in);
+	input_port = (jack_port_t **) malloc (sizeof (jack_port_t *) * inst->nports_audio_in);
 
-	for (uint32_t i = 0; i < nports_audio_in; i++) {
+	for (uint32_t i = 0; i < inst->nports_audio_in; i++) {
 		if ((input_port[i] = jack_port_register (j_client,
-						ports[portmap_a_in[i]].name,
+						inst->ports[portmap_a_in[i]].name,
 						JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0)) == 0) {
-			fprintf (stderr, "cannot register input port \"%s\"!\n", ports[portmap_a_in[i]].name);
+			fprintf (stderr, "cannot register input port \"%s\"!\n", inst->ports[portmap_a_in[i]].name);
 			return (-1);
 		}
 	}
 
-	output_port = (jack_port_t **) malloc (sizeof (jack_port_t *) * nports_audio_out);
+	output_port = (jack_port_t **) malloc (sizeof (jack_port_t *) * inst->nports_audio_out);
 
-	for (uint32_t i = 0; i < nports_audio_out; i++) {
+	for (uint32_t i = 0; i < inst->nports_audio_out; i++) {
 		if ((output_port[i] = jack_port_register (j_client,
-						ports[portmap_a_out[i]].name,
+						inst->ports[portmap_a_out[i]].name,
 						JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0)) == 0) {
-			fprintf (stderr, "cannot register output port \"%s\"!\n", ports[portmap_a_out[i]].name);
+			fprintf (stderr, "cannot register output port \"%s\"!\n", inst->ports[portmap_a_out[i]].name);
 			return (-1);
 		}
 	}
 
-	if (nports_midi_in){
+	if (inst->nports_midi_in){
 		if ((midi_in = jack_port_register (j_client,
-						ports[portmap_atom_from_ui].name,
+						inst->ports[portmap_atom_from_ui].name,
 						JACK_DEFAULT_MIDI_TYPE, JackPortIsInput, 0)) == 0) {
-			fprintf (stderr, "cannot register midi input port \"%s\"!\n", ports[portmap_atom_from_ui].name);
+			fprintf (stderr, "cannot register midi input port \"%s\"!\n", inst->ports[portmap_atom_from_ui].name);
 			return (-1);
 		}
 	}
 
-	if (nports_midi_out){
+	if (inst->nports_midi_out){
 		if ((midi_out = jack_port_register (j_client,
-						ports[portmap_atom_to_ui].name,
+						inst->ports[portmap_atom_to_ui].name,
 						JACK_DEFAULT_MIDI_TYPE, JackPortIsOutput, 0)) == 0) {
-			fprintf (stderr, "cannot register midi ouput port \"%s\"!\n", ports[portmap_atom_to_ui].name);
+			fprintf (stderr, "cannot register midi ouput port \"%s\"!\n", inst->ports[portmap_atom_to_ui].name);
 			return (-1);
 		}
 	}
@@ -486,7 +512,7 @@ void write_function(
 		fprintf(stderr, "LV2Host: write_function() unsupported buffer\n");
 		return;
 	}
-	if (port_index < nports_total && portmap_ctrl[port_index] < 0) {
+	if (port_index < inst->nports_total && portmap_ctrl[port_index] < 0) {
 		fprintf(stderr, "LV2Host: write_function() unmapped port\n");
 		return;
 	}
@@ -549,7 +575,7 @@ static void run_one(LV2_Atom_Sequence *data) {
 	while (jack_ringbuffer_read_space(rb_atom_to_ui) > sizeof(LV2_Atom)) {
 		LV2_Atom a;
 		jack_ringbuffer_read(rb_atom_to_ui, (char *) &a, sizeof(LV2_Atom));
-		assert(a.size < min_atom_bufsiz);
+		assert(a.size < inst->min_atom_bufsiz);
 		jack_ringbuffer_read(rb_atom_to_ui, (char *) data, a.size);
 		LV2_Atom_Event const* ev = (LV2_Atom_Event const*)((&(data)->body) + 1); // lv2_atom_sequence_begin
 		while((const uint8_t*)ev < ((const uint8_t*) &(data)->body + (data)->atom.size)) {
@@ -565,7 +591,7 @@ static void run_one(LV2_Atom_Sequence *data) {
 
 #ifdef __APPLE__
 
-void osx_loop (CFRunLoopTimerRef timer, void *info) {
+static void osx_loop (CFRunLoopTimerRef timer, void *info) {
 	if (client_state == Run) {
 		run_one((LV2_Atom_Sequence*)info);
 	}
@@ -579,7 +605,7 @@ void osx_loop (CFRunLoopTimerRef timer, void *info) {
 
 static void main_loop(void) {
 	struct timespec timeout;
-	LV2_Atom_Sequence *data = (LV2_Atom_Sequence*) malloc(min_atom_bufsiz * sizeof(uint8_t));
+	LV2_Atom_Sequence *data = (LV2_Atom_Sequence*) malloc(inst->min_atom_bufsiz * sizeof(uint8_t));
 
 	pthread_mutex_lock (&gui_thread_lock);
 	while (client_state != Exit) {
@@ -617,8 +643,48 @@ int main (int argc, char **argv) {
 	uint32_t c_aout = 0;
 	uint32_t c_ctrl = 0;
 
+#ifdef X42_MULTIPLUGIN
+	if (argc > 0 && atoi(argv[1]) < 0) {
+		int i;
+		for (i = 0; i < sizeof(_plugins) / sizeof(RtkLv2Description); ++i) {
+			const LV2_Descriptor* d = _plugins[i].lv2_descriptor(_plugins[i].dsp_descriptor_id);
+			printf("* %d '%s' %s\n", i, _plugins[i].plugin_human_id, d->URI);
+		}
+		return 0;
+	}
+
+	inst = NULL;
+	if (argc > 0 && strlen(argv[1]) > 2 && atoi(argv[1]) == 0) {
+		int i;
+		for (i = 0; i < sizeof(_plugins) / sizeof(RtkLv2Description); ++i) {
+			const LV2_Descriptor* d = _plugins[i].lv2_descriptor(_plugins[i].dsp_descriptor_id);
+			if (strstr(d->URI, argv[1]) || strstr(_plugins[i].plugin_human_id, argv[1])) {
+				inst = &_plugins[i];
+				break;
+			}
+		}
+	}
+	if (argc > 0 && !inst) {
+		int plugid = atoi(argv[1]);
+		if (plugid >= 0 && plugid < (sizeof(_plugins) / sizeof(RtkLv2Description))) {
+			inst = &_plugins[plugid];
+		}
+	}
+	if (!inst) {
+		inst = &_plugins[0];
+	}
+#elif defined X42_PLUGIN_STRUCT
+	inst = & X42_PLUGIN_STRUCT;
+#else
+	inst = &_plugin;
+#endif
+
 #ifdef __APPLE__
 	rtk_osx_api_init();
+#endif
+#ifdef _WIN32
+	pthread_win32_process_attach_np();
+	gobject_init_ctor();
 #endif
 
 	LV2_URID_Map uri_map            = { NULL, &uri_to_id };
@@ -642,36 +708,35 @@ int main (int argc, char **argv) {
 	};
 
 	/* check sourced settings */
-	assert ((nports_midi_in + nports_atom_in) <= 1);
-	assert ((nports_midi_out + nports_atom_out) <= 1);
-	assert (plugin_human_id);
-	assert (nports_total > 0);
+	assert ((inst->nports_midi_in + inst->nports_atom_in) <= 1);
+	assert ((inst->nports_midi_out + inst->nports_atom_out) <= 1);
+	assert (inst->plugin_human_id);
+	assert (inst->nports_total > 0);
 
-	extui_host.plugin_human_id = plugin_human_id;
+	extui_host.plugin_human_id = inst->plugin_human_id;
 
 	// TODO check if allocs succeeded - OOM -> exit
 	/* allocate data structure */
-	portmap_a_in  = (uint32_t*) malloc(nports_audio_in * sizeof(uint32_t));
-	portmap_a_out = (uint32_t*) malloc(nports_audio_out * sizeof(uint32_t));
-	portmap_rctl  = (uint32_t*) malloc(nports_ctrl  * sizeof(uint32_t));
-	portmap_ctrl  = (int*)      malloc(nports_total * sizeof(int));
+	portmap_a_in  = (uint32_t*) malloc(inst->nports_audio_in * sizeof(uint32_t));
+	portmap_a_out = (uint32_t*) malloc(inst->nports_audio_out * sizeof(uint32_t));
+	portmap_rctl  = (uint32_t*) malloc(inst->nports_ctrl  * sizeof(uint32_t));
+	portmap_ctrl  = (int*)      malloc(inst->nports_total * sizeof(int));
 
-	plugin_ports_pre  = (float*) calloc(nports_ctrl, sizeof(float));
-	plugin_ports_post = (float*) calloc(nports_ctrl, sizeof(float));
+	plugin_ports_pre  = (float*) calloc(inst->nports_ctrl, sizeof(float));
+	plugin_ports_post = (float*) calloc(inst->nports_ctrl, sizeof(float));
 
-	atom_in = (LV2_Atom_Sequence*) malloc(min_atom_bufsiz + sizeof(uint8_t));
-	atom_out = (LV2_Atom_Sequence*) malloc(min_atom_bufsiz + sizeof(uint8_t));
+	atom_in = (LV2_Atom_Sequence*) malloc(inst->min_atom_bufsiz + sizeof(uint8_t));
+	atom_out = (LV2_Atom_Sequence*) malloc(inst->min_atom_bufsiz + sizeof(uint8_t));
 
-	rb_ctrl_to_ui = jack_ringbuffer_create((UPDATE_FREQ_RATIO) * nports_ctrl * 2 * sizeof(float));
-	rb_ctrl_from_ui = jack_ringbuffer_create((UPDATE_FREQ_RATIO) * nports_ctrl * 2 * sizeof(float));
+	rb_ctrl_to_ui = jack_ringbuffer_create((UPDATE_FREQ_RATIO) * inst->nports_ctrl * 2 * sizeof(float));
+	rb_ctrl_from_ui = jack_ringbuffer_create((UPDATE_FREQ_RATIO) * inst->nports_ctrl * 2 * sizeof(float));
 
-	rb_atom_to_ui = jack_ringbuffer_create((UPDATE_FREQ_RATIO) * min_atom_bufsiz);
-	rb_atom_from_ui = jack_ringbuffer_create((UPDATE_FREQ_RATIO) * min_atom_bufsiz);
-
+	rb_atom_to_ui = jack_ringbuffer_create((UPDATE_FREQ_RATIO) * inst->min_atom_bufsiz);
+	rb_atom_from_ui = jack_ringbuffer_create((UPDATE_FREQ_RATIO) * inst->min_atom_bufsiz);
 
 	/* reolve descriptors */
-	plugin_dsp = lv2_descriptor(dsp_descriptor_id);
-	plugin_gui = lv2ui_descriptor(gui_descriptor_id);
+	plugin_dsp = inst->lv2_descriptor(inst->dsp_descriptor_id);
+	plugin_gui = inst->lv2ui_descriptor(inst->gui_descriptor_id);
 
 	if (!plugin_dsp) {
 		fprintf(stderr, "cannot resolve LV2 descriptor\n");
@@ -688,11 +753,11 @@ int main (int argc, char **argv) {
 	}
 
 	/* connect ports */
-	for (uint32_t p=0; p < nports_total; ++p) {
+	for (uint32_t p=0; p < inst->nports_total; ++p) {
 		portmap_ctrl[p] = -1;
-		switch (ports[p].porttype) {
+		switch (inst->ports[p].porttype) {
 			case CONTROL_IN:
-				plugin_ports_pre[c_ctrl] = ports[p].val_default;
+				plugin_ports_pre[c_ctrl] = inst->ports[p].val_default;
 			case CONTROL_OUT:
 				portmap_ctrl[p] = c_ctrl;
 				portmap_rctl[c_ctrl] = p;
@@ -720,11 +785,11 @@ int main (int argc, char **argv) {
 		}
 	}
 
-	assert(c_ain == nports_audio_in);
-	assert(c_aout == nports_audio_out);
-	assert(c_ctrl == nports_ctrl);
+	assert(c_ain == inst->nports_audio_in);
+	assert(c_aout == inst->nports_audio_out);
+	assert(c_ctrl == inst->nports_ctrl);
 
-	if (nports_atom_out > 0 || nports_atom_in > 0 || nports_midi_in > 0 || nports_midi_out > 0) {
+	if (inst->nports_atom_out > 0 || inst->nports_atom_in > 0 || inst->nports_midi_in > 0 || inst->nports_midi_out > 0) {
 		uri_atom_Sequence       = uri_to_id(NULL, LV2_ATOM__Sequence);
 		uri_atom_EventTransfer  = uri_to_id(NULL, LV2_ATOM__eventTransfer);
 		uri_midi_MidiEvent      = uri_to_id(NULL, LV2_MIDI__MidiEvent);
@@ -766,7 +831,7 @@ int main (int argc, char **argv) {
 #endif
 
 	if (gui_instance) {
-		for (uint32_t p = 0; p < nports_ctrl; p++) {
+		for (uint32_t p = 0; p < inst->nports_ctrl; p++) {
 			if (jack_ringbuffer_write_space(rb_ctrl_to_ui) >= sizeof(uint32_t) + sizeof(float)) {
 				jack_ringbuffer_write(rb_ctrl_to_ui, (char *) &portmap_rctl[p], sizeof(uint32_t));
 				jack_ringbuffer_write(rb_ctrl_to_ui, (char *) &plugin_ports_pre[p], sizeof(float));
@@ -798,7 +863,7 @@ int main (int argc, char **argv) {
 		LV2_EXTERNAL_UI_SHOW(extui);
 
 #ifdef __APPLE__
-		LV2_Atom_Sequence *data = (LV2_Atom_Sequence*) malloc(min_atom_bufsiz * sizeof(uint8_t));
+		LV2_Atom_Sequence *data = (LV2_Atom_Sequence*) malloc(inst->min_atom_bufsiz * sizeof(uint8_t));
 		CFRunLoopRef runLoop = CFRunLoopGetCurrent();
 		CFRunLoopTimerContext context = {0, data, NULL, NULL, NULL};
 		CFRunLoopTimerRef timer = CFRunLoopTimerCreate(kCFAllocatorDefault, 0, 1.0/UI_UPDATE_FPS, 0, 0, &osx_loop, &context);
@@ -815,6 +880,9 @@ int main (int argc, char **argv) {
 
 out:
 	cleanup(0);
+#ifdef _WIN32
+	pthread_win32_process_detach_np();
+#endif
 	return(0);
 }
 /* vi:set ts=2 sts=2 sw=2: */

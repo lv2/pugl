@@ -1048,7 +1048,7 @@ static void pugl_init(GlMetersLV2UI* self) {
 	}
 }
 
-void pugl_cleanup(GlMetersLV2UI* self) {
+static void pugl_cleanup(GlMetersLV2UI* self) {
 	glDeleteTextures (1, &self->texture_id); // XXX does his need glxContext ?!
 	free (self->surf_data);
 	cairo_destroy (self->cr);
@@ -1432,6 +1432,15 @@ static const LV2UI_Descriptor gl_descriptor = {
 	gl_extension_data
 };
 
+#ifdef RTK_DESCRIPTOR // standalone lv2
+
+const LV2UI_Descriptor*
+RTK_DESCRIPTOR(uint32_t index) {
+	return &gl_descriptor;
+}
+
+#else
+
 #undef LV2_SYMBOL_EXPORT
 #ifdef _WIN32
 #    define LV2_SYMBOL_EXPORT __declspec(dllexport)
@@ -1444,7 +1453,7 @@ lv2ui_descriptor(uint32_t index)
 {
 #ifdef _WIN32
 	static int once = 0;
-	if (!once) {once = 1;gobject_init_ctor();}
+	if (!once) {once = 1; gobject_init_ctor();}
 #endif
 	switch (index) {
 	case 0:
@@ -1462,4 +1471,6 @@ static void __attribute__((constructor)) x42_init() {
 static void __attribute__((destructor)) x42_fini() {
 	pthread_win32_process_detach_np();
 }
+#endif
+
 #endif

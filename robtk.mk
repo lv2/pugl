@@ -47,10 +47,31 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 x42-%.1:
 	@/bin/true
 
+x42-%.o:: $(ROBGL)
+	@mkdir -p $(@D)
+	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
+	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
+	  -DRTK_DESCRIPTOR="$(value x42_$(subst -,_,$(*F))_JACKDESC)" \
+	  -DPLUGIN_SOURCE="\"$(value x42_$(subst -,_,$(*F))_JACKGUI)\"" \
+	  -o $@ \
+	  -c $(RW)ui_gl.c
+
+x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP)
+	@mkdir -p $(@D)
+	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
+	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
+	  -DJACK_DESCRIPT="\"$(value x42_$(subst -,_,$(*F))_collection_LV2HTTL)\"" \
+	  -o $@ \
+	  $(RW)jackwrap.c $(PUGL_SRC) $(OSXJACKWRAP) \
+	  $(value x42_$(subst -,_,$(*F))_collection_JACKSRC) \
+	  $(LDFLAGS) $(JACKLIBS)
+	$(STRIP) -x $@
+
 x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP)
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
 	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
+	  -DRTK_DESCRIPTOR="$(value x42_$(subst -,_,$(*F))_JACKDESC)" \
 	  -DPLUGIN_SOURCE="\"$(value x42_$(subst -,_,$(*F))_JACKGUI)\"" \
 	  -DJACK_DESCRIPT="\"$(value x42_$(subst -,_,$(*F))_LV2HTTL)\"" \
 	  -o $@ \
