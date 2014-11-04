@@ -52,11 +52,21 @@ extern void rtk_osx_api_run(void);
 #include <math.h>
 #include <time.h>
 #include <getopt.h>
+#include <assert.h>
+
+#ifdef _WIN32
+#include <glib-object.h> // static intialization: gobject_init_ctor()
+#else
+#include <sys/mman.h>
+#endif
+
+#ifdef USE_WEAK_JACK
+#include "weakjack/weak_libjack.h"
+#else
 #include <jack/jack.h>
 #include <jack/ringbuffer.h>
 #include <jack/midiport.h>
-#include <sys/mman.h>
-#include <assert.h>
+#endif
 
 #include "lv2/lv2plug.in/ns/lv2core/lv2.h"
 #include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
@@ -673,6 +683,14 @@ int main (int argc, char **argv) {
 	if (!inst) {
 		inst = &_plugins[0];
 	}
+
+#ifdef USE_WEAK_JACK
+	if (have_libjack()) {
+		fprintf(stderr, "JACK is not available. http://jackaudio.org/\n");
+		return 0;
+	}
+#endif
+
 #elif defined X42_PLUGIN_STRUCT
 	inst = & X42_PLUGIN_STRUCT;
 #else
@@ -686,6 +704,7 @@ int main (int argc, char **argv) {
 	pthread_win32_process_attach_np();
 	gobject_init_ctor();
 #endif
+
 
 	LV2_URID_Map uri_map            = { NULL, &uri_to_id };
 	const LV2_Feature map_feature   = { LV2_URID__map, &uri_map};

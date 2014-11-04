@@ -5,9 +5,24 @@ UNAME?=$(shell uname)
 
 ifeq ($(UNAME),Darwin)
   OSXJACKWRAP=$(RW)jackwrap.mm
+  USEWEAKJACK=1
 else
   OSXJACKWRAP=
 endif
+
+ifneq ($(XWIN),)
+  USEWEAKJACK=1
+  JACKCFLAGS+=-mwindows
+endif
+
+ifeq ($(USEWEAKJACK),1)
+  JACKCFLAGS+=-DUSE_WEAK_JACK
+  JACKEXTRA=$(RW)/weakjack/weak_libjack.c
+else
+  JACKLIBS+=-`pkg-config $(PKG_UI_FLAGS) --libs jack`
+  JACKEXTRA=
+endif
+
 
 UITOOLKIT=$(WD)checkbutton.h $(WD)dial.h $(WD)label.h $(WD)pushbutton.h\
           $(WD)radiobutton.h $(WD)scale.h $(WD)separator.h $(WD)spinner.h \
@@ -56,18 +71,18 @@ x42-%.o:: $(ROBGL)
 	  -o $@ \
 	  -c $(RW)ui_gl.c
 
-x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP)
+x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.c	 $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
 	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
 	  -DJACK_DESCRIPT="\"$(value x42_$(subst -,_,$(*F))_collection_LV2HTTL)\"" \
 	  -o $@ \
-	  $(RW)jackwrap.c $(PUGL_SRC) $(OSXJACKWRAP) \
+	  $(RW)jackwrap.c $(PUGL_SRC) $(OSXJACKWRAP) $(JACKEXTRA) \
 	  $(value x42_$(subst -,_,$(*F))_collection_JACKSRC) \
 	  $(LDFLAGS) $(JACKLIBS)
 	$(STRIP) -x $@
 
-x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP)
+x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_$(RW)libjack.c weakjack/weak_$(RW)libjack.def $(RW)weakjack/weak_libjack.h
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
 	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
@@ -75,7 +90,7 @@ x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP)
 	  -DPLUGIN_SOURCE="\"$(value x42_$(subst -,_,$(*F))_JACKGUI)\"" \
 	  -DJACK_DESCRIPT="\"$(value x42_$(subst -,_,$(*F))_LV2HTTL)\"" \
 	  -o $@ \
-	  $(RW)jackwrap.c $(RW)ui_gl.c $(PUGL_SRC) $(OSXJACKWRAP) \
+	  $(RW)jackwrap.c $(RW)ui_gl.c $(PUGL_SRC) $(OSXJACKWRAP) $(JACKEXTRA) \
 	  $(value x42_$(subst -,_,$(*F))_JACKSRC) \
 	  $(LDFLAGS) $(JACKLIBS)
 	$(STRIP) -x $@
