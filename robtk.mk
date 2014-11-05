@@ -65,7 +65,7 @@ x42-%.1:
 x42-%.o:: $(ROBGL)
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
-	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
+	  -DXTERNAL_UI -DHAVE_IDLE_IFACE -DDEFAULT_NOT_ONTOP \
 	  -DRTK_DESCRIPTOR="$(value x42_$(subst -,_,$(*F))_JACKDESC)" \
 	  -DPLUGIN_SOURCE="\"$(value x42_$(subst -,_,$(*F))_JACKGUI)\"" \
 	  -o $@ \
@@ -73,7 +73,7 @@ x42-%.o:: $(ROBGL)
 
 x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.c $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h
 	@mkdir -p $(@D)
-	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
+	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) -DDEFAULT_NOT_ONTOP \
 	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
 	  -DJACK_DESCRIPT="\"$(value x42_$(subst -,_,$(*F))_collection_LV2HTTL)\"" \
 	  -o $@ \
@@ -84,7 +84,7 @@ x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) 
 
 x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.c $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h
 	@mkdir -p $(@D)
-	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
+	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) -DDEFAULT_NOT_ONTOP \
 	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
 	  -DRTK_DESCRIPTOR="$(value x42_$(subst -,_,$(*F))_JACKDESC)" \
 	  -DPLUGIN_SOURCE="\"$(value x42_$(subst -,_,$(*F))_JACKGUI)\"" \
