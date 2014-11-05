@@ -19,7 +19,7 @@ ifeq ($(USEWEAKJACK),1)
   JACKCFLAGS+=-DUSE_WEAK_JACK
   JACKEXTRA=$(RW)/weakjack/weak_libjack.c
 else
-  JACKLIBS+=-`pkg-config $(PKG_UI_FLAGS) --libs jack`
+  JACKLIBS+=`pkg-config $(PKG_UI_FLAGS) --libs jack`
   JACKEXTRA=
 endif
 
@@ -71,7 +71,7 @@ x42-%.o:: $(ROBGL)
 	  -o $@ \
 	  -c $(RW)ui_gl.c
 
-x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.c	 $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h
+x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.c $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
 	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
@@ -82,7 +82,7 @@ x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) 
 	  $(LDFLAGS) $(JACKLIBS)
 	$(STRIP) -x $@
 
-x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_$(RW)libjack.c weakjack/weak_$(RW)libjack.def $(RW)weakjack/weak_libjack.h
+x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.c $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
 	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
