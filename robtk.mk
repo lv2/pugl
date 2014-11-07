@@ -1,26 +1,30 @@
 RT=$(RW)rtk/
 WD=$(RW)widgets/robtk_
 STRIP=strip
+WINDRES=$(XWIN)-windres
 UNAME?=$(shell uname)
+
+JACKEXTRA=
+OSXJACKWRAP=
 
 ifeq ($(UNAME),Darwin)
   OSXJACKWRAP=$(RW)jackwrap.mm
   USEWEAKJACK=1
-else
-  OSXJACKWRAP=
 endif
 
 ifneq ($(XWIN),)
   USEWEAKJACK=1
   JACKCFLAGS+=-mwindows
+  ifeq ($(shell test -f img/x42.ico && echo yes), yes)
+    JACKEXTRA+=win_icon.rc.o
+  endif
 endif
 
 ifeq ($(USEWEAKJACK),1)
   JACKCFLAGS+=-DUSE_WEAK_JACK
-  JACKEXTRA=$(RW)/weakjack/weak_libjack.c
+  JACKEXTRA+=$(RW)weakjack/weak_libjack.c
 else
   JACKLIBS+=`pkg-config $(PKG_UI_FLAGS) --libs jack`
-  JACKEXTRA=
 endif
 
 
@@ -62,6 +66,11 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 x42-%.1:
 	@/bin/true
 
+# windows icon
+.SUFFFIXES: .rc
+win_icon.rc.o: $(RW)win_icon.rc img/x42.ico
+	$(WINDRES) -o $@ $<
+
 x42-%.o:: $(ROBGL)
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) \
@@ -71,7 +80,7 @@ x42-%.o:: $(ROBGL)
 	  -o $@ \
 	  -c $(RW)ui_gl.c
 
-x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.c $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h
+x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h $(JACKEXTRA)
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) -DDEFAULT_NOT_ONTOP \
 	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
@@ -82,7 +91,7 @@ x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) 
 	  $(LDFLAGS) $(JACKLIBS)
 	$(STRIP) -x $@
 
-x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.c $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h
+x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h $(JACKEXTRA)
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(JACKCFLAGS) -DDEFAULT_NOT_ONTOP \
 	  -DXTERNAL_UI -DHAVE_IDLE_IFACE \
