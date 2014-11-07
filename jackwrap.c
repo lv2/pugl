@@ -702,6 +702,7 @@ int main (int argc, char **argv) {
 #endif
 #ifdef _WIN32
 	pthread_win32_process_attach_np();
+	glib_init_static();
 	gobject_init_ctor();
 #endif
 
@@ -901,6 +902,7 @@ out:
 	cleanup(0);
 #ifdef _WIN32
 	pthread_win32_process_detach_np();
+	glib_cleanup_static();
 #endif
 	return(0);
 }
