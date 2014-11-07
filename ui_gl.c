@@ -226,6 +226,7 @@ typedef struct {
 #ifdef WITH_SIGNATURE
 	bool                 gpg_verified;
 	char                 gpg_data[128];
+	float                gpg_shade;
 #endif
 #ifdef INIT_PUGL_IN_THREAD
 	bool                 ui_initialized;
@@ -301,6 +302,7 @@ typedef struct {
 	cairo_rectangle_t a;
 } RWArea;
 
+#ifdef WITH_SIGNATURE
 static void lc_expose (GlMetersLV2UI * self) {
 	cairo_rectangle_t expose_area;
 	posrb_read_clear(self->rb); // no fast-track
@@ -320,15 +322,17 @@ static void lc_expose (GlMetersLV2UI * self) {
 	PangoFontDescription *xfont = pango_font_description_from_string("Sans 14");
 	cairo_rectangle (self->cr, 0, 0, self->width, self->height);
 	cairo_set_operator (self->cr, CAIRO_OPERATOR_OVER);
-	cairo_set_source_rgba(self->cr, 0, 0, 0, .75);
+	cairo_set_source_rgba(self->cr, 0, 0, 0, .15 + self->gpg_shade);
+	if (self->gpg_shade < .6) self->gpg_shade += .001;
 	cairo_fill(self->cr);
-	write_text_full(self->cr, "  Unregistered Version\nhttp://x42-plugins.com",
+	write_text_full(self->cr, " Unregistered Version\nhttp://x42-plugins.com",
 			xfont, self->width * .5, self->height * .5,
 			self->width < 200 ? M_PI * -.5 : 0, 2, c_wht);
 	pango_font_description_free(xfont);
 
 	cairo_surface_mark_dirty(self->surface);
 }
+#endif
 
 static void cairo_expose(GlMetersLV2UI * self) {
 
@@ -1215,6 +1219,7 @@ gl_instantiate(const LV2UI_Descriptor*   descriptor,
 
 #ifdef WITH_SIGNATURE
 	self->gpg_verified = FALSE;
+	self->gpg_shade = 0;
 	gp3_initialize ();
 	load_master_key (); // in header WITH_SIGNATURE
 	gp3_loglevel (GP3L_SILENT);
