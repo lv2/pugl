@@ -1,4 +1,4 @@
-/* x42 jack wrapper
+/* x42 jack wrapper / minimal LV2 host
  *
  * Copyright (C) 2012-2014 Robin Gareus
  *
@@ -42,6 +42,7 @@
 extern void rtk_osx_api_init(void);
 extern void rtk_osx_api_terminate(void);
 extern void rtk_osx_api_run(void);
+extern void rtk_osx_api_err(const char *msg);
 #endif
 
 #include <stdio.h>
@@ -408,7 +409,7 @@ void jack_shutdown (void *arg) {
 
 static int init_jack(const char *client_name) {
 	jack_status_t status;
-	j_client = jack_client_open (client_name, JackNullOption, &status);
+	j_client = jack_client_open (client_name, JackNoStartServer, &status);
 	if (j_client == NULL) {
 		fprintf (stderr, "jack_client_open() failed, status = 0x%2.0x\n", status);
 		if (status & JackServerFailed) {
@@ -649,6 +650,7 @@ static void on_external_ui_closed(void* controller) {
 }
 
 int main (int argc, char **argv) {
+	int rv = 0;
 	uint32_t c_ain  = 0;
 	uint32_t c_aout = 0;
 	uint32_t c_ctrl = 0;
@@ -683,18 +685,30 @@ int main (int argc, char **argv) {
 	if (!inst) {
 		inst = &_plugins[0];
 	}
-
-#ifdef USE_WEAK_JACK
-	if (have_libjack()) {
-		fprintf(stderr, "JACK is not available. http://jackaudio.org/\n");
-		return 0;
-	}
-#endif
-
 #elif defined X42_PLUGIN_STRUCT
 	inst = & X42_PLUGIN_STRUCT;
 #else
 	inst = &_plugin;
+#endif
+
+#ifdef USE_WEAK_JACK
+	if (have_libjack()) {
+		fprintf(stderr, "JACK is not available. http://jackaudio.org/\n");
+#ifdef _WIN32
+		MessageBox(NULL, TEXT(
+					"JACK is not available.\n"
+					"You must have the JACK Audio Connection Kit installed to use the tools. "
+					"Please see http://jackaudio.org/ and http://jackaudio.org/faq/jack_on_windows.html"
+					), TEXT("Error"), MB_ICONERROR | MB_OK);
+#elif __APPLE__
+		rtk_osx_api_err (
+					"JACK is not available.\n"
+					"You must have the JACK Audio Connection Kit installed to use the tools. "
+					"Please see http://jackaudio.org/ and http://jackaudio.org/faq/jack_on_windows.html"
+				);
+#endif
+		return 1;
+	}
 #endif
 
 #ifdef __APPLE__
@@ -760,15 +774,32 @@ int main (int argc, char **argv) {
 
 	if (!plugin_dsp) {
 		fprintf(stderr, "cannot resolve LV2 descriptor\n");
+		rv |= 2;
 		goto out;
 	}
 	/* jack-open -> samlerate */
-	if (init_jack(extui_host.plugin_human_id)) goto out;
+	if (init_jack(extui_host.plugin_human_id)) {
+		fprintf(stderr, "cannot connect to JACK.\n");
+#ifdef _WIN32
+		MessageBox (NULL, TEXT(
+					"Cannot connect to JACK.\n"
+					"Please start the JACK Server first."
+					), TEXT("Error"), MB_ICONERROR | MB_OK);
+#elif __APPLE__
+		rtk_osx_api_err (
+					"Cannot connect to JACK.\n"
+					"Please start the JACK Server first."
+				);
+#endif
+		rv |= 4;
+		goto out;
+	}
 
 	/* init plugin */
 	plugin_instance = plugin_dsp->instantiate(plugin_dsp, j_samplerate, NULL, features);
 	if (!plugin_instance) {
 		fprintf(stderr, "instantiation failed\n");
+		rv |= 2;
 		goto out;
 	}
 
@@ -824,7 +855,10 @@ int main (int argc, char **argv) {
 		lv2_atom_forge_init(&lv2_forge, &uri_map);
 	}
 
-	if (jack_portsetup()) goto out;
+	if (jack_portsetup()) {
+		rv |= 12;
+		goto out;
+	}
 
 	if (plugin_gui) {
 	/* init plugin GUI */
@@ -840,6 +874,7 @@ int main (int argc, char **argv) {
 #ifdef REQUIRE_UI
 	if (!gui_instance || !extui) {
 		fprintf(stderr, "Error: GUI was not initialized.\n");
+		rv |= 2;
 		goto out;
 	}
 #endif
@@ -865,6 +900,7 @@ int main (int argc, char **argv) {
 
 	if (jack_activate (j_client)) {
 		fprintf (stderr, "cannot activate client.\n");
+		rv |= 20;
 		goto out;
 	}
 
@@ -904,6 +940,6 @@ out:
 	pthread_win32_process_detach_np();
 	glib_cleanup_static();
 #endif
-	return(0);
+	return(rv);
 }
 /* vi:set ts=2 sts=2 sw=2: */

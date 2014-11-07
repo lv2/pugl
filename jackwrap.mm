@@ -35,4 +35,10 @@ void rtk_osx_api_run(void) {
 	[NSApp run];
 }
 
+void rtk_osx_api_err(const char *msg) {
+	NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+	[alert setMessageText:[NSString stringWithUTF8String:msg]];
+	[alert runModal];
+}
+
 #endif
