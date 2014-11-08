@@ -55,9 +55,11 @@ extern void rtk_osx_api_err(const char *msg);
 #include <getopt.h>
 #include <assert.h>
 
-#ifdef _WIN32
-#include <glib-object.h> // static intialization: gobject_init_ctor()
-#else
+#if (defined _WIN32 && defined RTK_STATIC_INIT)
+#include <glib-object.h>
+#endif
+
+#ifndef _WIN32
 #include <sys/mman.h>
 #endif
 
@@ -714,7 +716,7 @@ int main (int argc, char **argv) {
 #ifdef __APPLE__
 	rtk_osx_api_init();
 #endif
-#ifdef _WIN32
+#if (defined _WIN32 && defined RTK_STATIC_INIT)
 	pthread_win32_process_attach_np();
 	glib_init_static();
 	gobject_init_ctor();
@@ -936,7 +938,7 @@ int main (int argc, char **argv) {
 
 out:
 	cleanup(0);
-#ifdef _WIN32
+#if (defined _WIN32 && defined RTK_STATIC_INIT)
 	pthread_win32_process_detach_np();
 	glib_cleanup_static();
 #endif

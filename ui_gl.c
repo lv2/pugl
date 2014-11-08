@@ -1456,7 +1456,7 @@ LV2_SYMBOL_EXPORT
 const LV2UI_Descriptor*
 lv2ui_descriptor(uint32_t index)
 {
-#ifdef _WIN32
+#if (defined _WIN32 && defined RTK_STATIC_INIT)
 	static int once = 0;
 	if (!once) {once = 1; gobject_init_ctor();}
 #endif
@@ -1468,7 +1468,7 @@ lv2ui_descriptor(uint32_t index)
 	}
 }
 
-#ifdef _WIN32
+#if (defined _WIN32 && defined RTK_STATIC_INIT)
 static void __attribute__((constructor)) x42_init() {
 	pthread_win32_process_attach_np();
 }
