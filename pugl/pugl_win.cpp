@@ -91,7 +91,7 @@ puglCreate(PuglNativeWindow parent,
 	impl->wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	impl->wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	impl->wc.lpszMenuName  = NULL;
-	impl->wc.lpszClassName = classNameBuf;
+	impl->wc.lpszClassName = strdup(classNameBuf);
 	RegisterClass(&impl->wc);
 
 	// Adjust the overall window size to accomodate our requested client size
@@ -144,6 +144,7 @@ puglCreate(PuglNativeWindow parent,
 		ReleaseDC (impl->hwnd, impl->hdc);
 		DestroyWindow (impl->hwnd);
 		UnregisterClass (impl->wc.lpszClassName, NULL);
+		free((void*)impl->wc.lpszClassName);
 		return NULL;
 	}
 	wglMakeCurrent(impl->hdc, impl->hglrc);
@@ -162,6 +163,7 @@ puglDestroy(PuglView* view)
 	ReleaseDC(view->impl->hwnd, view->impl->hdc);
 	DestroyWindow(view->impl->hwnd);
 	UnregisterClass(view->impl->wc.lpszClassName, NULL);
+	free((void*)view->impl->wc.lpszClassName);
 	free(view->impl);
 	free(view);
 }
