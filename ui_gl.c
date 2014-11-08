@@ -1018,7 +1018,7 @@ static void pugl_init(GlMetersLV2UI* self) {
 			, self->ontop
 			, self->transient_id
 	);
-	assert (self->view); // XXX
+	assert (self->view); // XXX TODO handle gracefully
 
 	puglSetHandle(self->view, self);
 	puglSetDisplayFunc(self->view, onDisplay);

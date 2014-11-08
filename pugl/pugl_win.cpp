@@ -92,7 +92,13 @@ puglCreate(PuglNativeWindow parent,
 	impl->wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	impl->wc.lpszMenuName  = NULL;
 	impl->wc.lpszClassName = strdup(classNameBuf);
-	RegisterClass(&impl->wc);
+
+	if (!RegisterClass(&impl->wc)) {
+		free((void*)impl->wc.lpszClassName);
+		free(impl);
+		free(view);
+		return NULL;
+	}
 
 	// Adjust the overall window size to accomodate our requested client size
 	int winFlags = WS_POPUPWINDOW | WS_CAPTION | (view->user_resizable ? WS_SIZEBOX : 0);
@@ -112,6 +118,7 @@ puglCreate(PuglNativeWindow parent,
 		(HWND)parent, NULL, NULL, NULL);
 
 	if (!impl->hwnd) {
+		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
 		return NULL;
@@ -140,11 +147,12 @@ puglCreate(PuglNativeWindow parent,
 
 	impl->hglrc = wglCreateContext(impl->hdc);
 	if (!impl->hglrc) {
-		printf("Cannot create openGL context\n");
 		ReleaseDC (impl->hwnd, impl->hdc);
 		DestroyWindow (impl->hwnd);
 		UnregisterClass (impl->wc.lpszClassName, NULL);
 		free((void*)impl->wc.lpszClassName);
+		free(impl);
+		free(view);
 		return NULL;
 	}
 	wglMakeCurrent(impl->hdc, impl->hglrc);
