@@ -116,8 +116,14 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	impl->wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
 	impl->wc.lpszMenuName  = NULL;
-	impl->wc.lpszClassName = classNameBuf;
-	RegisterClass(&impl->wc);
+	impl->wc.lpszClassName = strdup(classNameBuf);
+
+	if (!RegisterClass(&impl->wc)) {
+		free((void*)impl->wc.lpszClassName);
+		free(impl);
+		free(view);
+		return NULL;
+	}
 
 	int winFlags = WS_POPUPWINDOW | WS_CAPTION;
 	if (view->resizable) {
@@ -136,6 +142,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		(HWND)view->parent, NULL, NULL, NULL);
 
 	if (!impl->hwnd) {
+		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
 		return 1;
@@ -163,6 +170,15 @@ puglCreateWindow(PuglView* view, const char* title)
 	SetPixelFormat(impl->hdc, format, &pfd);
 
 	impl->hglrc = wglCreateContext(impl->hdc);
+	if (!impl->hglrc) {
+		ReleaseDC(impl->hwnd, impl->hdc);
+		DestroyWindow(impl->hwnd);
+		UnregisterClass(impl->wc.lpszClassName, NULL);
+		free((void*)impl->wc.lpszClassName);
+		free(impl);
+		free(view);
+		return NULL;
+	}
 	wglMakeCurrent(impl->hdc, impl->hglrc);
 
 	return 0;
