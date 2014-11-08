@@ -1,6 +1,8 @@
 RT=$(RW)rtk/
 WD=$(RW)widgets/robtk_
 STRIP=strip
+LIBSTRIPFLAGS=-s
+APPSTRIPFLAGS=-s
 WINDRES=$(XWIN)-windres
 UNAME?=$(shell uname)
 
@@ -10,6 +12,8 @@ OSXJACKWRAP=
 ifeq ($(UNAME),Darwin)
   OSXJACKWRAP=$(RW)jackwrap.mm
   USEWEAKJACK=1
+  LIBSTRIPFLAGS=-u -r -arch all -s $(RW)/lv2uisyms
+  APPSTRIPFLAGS=-u -r -arch all
 endif
 
 ifneq ($(XWIN),)
@@ -49,7 +53,7 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 	  -o $@ $(RW)ui_gtk.c \
 	  $(value $(*F)_UISRC) \
 	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(GTKUILIBS)
-	$(STRIP) -x $@
+	$(STRIP) ${LIBSTRIPFLAGS} $@
 
 %UI_gl.so %UI_gl.dylib %UI_gl.dll:: $(ROBGL)
 	@mkdir -p $(@D)
@@ -60,7 +64,7 @@ ROBGTK = $(RW)robtk.mk $(UITOOLKIT) $(RW)ui_gtk.c \
 	  $(PUGL_SRC) \
 	  $(value $(*F)_UISRC) \
 	  -shared $(LV2LDFLAGS) $(LDFLAGS) $(GLUILIBS)
-	$(STRIP) -x $@
+	$(STRIP) ${LIBSTRIPFLAGS} $@
 
 # ignore man-pages in rule below
 x42-%.1:
@@ -89,7 +93,7 @@ x42-%-collection x42-%-collection.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) 
 	  $(RW)jackwrap.c $(PUGL_SRC) $(OSXJACKWRAP) $(JACKEXTRA) \
 	  $(value x42_$(subst -,_,$(*F))_collection_JACKSRC) \
 	  $(LDFLAGS) $(JACKLIBS)
-	$(STRIP) -x $@
+	$(STRIP) ${APPSTRIPFLAGS} $@
 
 x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_libjack.def $(RW)weakjack/weak_libjack.h $(JACKEXTRA)
 	@mkdir -p $(@D)
@@ -102,4 +106,4 @@ x42-% x42-%.exe:: $(ROBGL) $(RW)jackwrap.c $(OSXJACKWRAP) $(RW)weakjack/weak_lib
 	  $(RW)jackwrap.c $(RW)ui_gl.c $(PUGL_SRC) $(OSXJACKWRAP) $(JACKEXTRA) \
 	  $(value x42_$(subst -,_,$(*F))_JACKSRC) \
 	  $(LDFLAGS) $(JACKLIBS)
-	$(STRIP) -x $@
+	$(STRIP) ${APPSTRIPFLAGS} $@
