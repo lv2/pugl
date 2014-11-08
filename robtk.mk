@@ -12,7 +12,7 @@ OSXJACKWRAP=
 ifeq ($(UNAME),Darwin)
   OSXJACKWRAP=$(RW)jackwrap.mm
   USEWEAKJACK=1
-  LIBSTRIPFLAGS=-u -r -arch all -s $(RW)/lv2uisyms
+  LIBSTRIPFLAGS=-u -r -arch all -s $(RW)lv2uisyms
   APPSTRIPFLAGS=-u -r -arch all
 endif
 
