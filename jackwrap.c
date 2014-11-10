@@ -693,6 +693,10 @@ int main (int argc, char **argv) {
 	inst = &_plugin;
 #endif
 
+#ifdef __APPLE__
+	rtk_osx_api_init();
+#endif
+
 #ifdef USE_WEAK_JACK
 	if (have_libjack()) {
 		fprintf(stderr, "JACK is not available. http://jackaudio.org/\n");
@@ -706,16 +710,13 @@ int main (int argc, char **argv) {
 		rtk_osx_api_err (
 					"JACK is not available.\n"
 					"You must have the JACK Audio Connection Kit installed to use the tools. "
-					"Please see http://jackaudio.org/ and http://jackaudio.org/faq/jack_on_windows.html"
+					"Please see http://jackaudio.org/ and http://jackosx.com/"
 				);
 #endif
 		return 1;
 	}
 #endif
 
-#ifdef __APPLE__
-	rtk_osx_api_init();
-#endif
 #if (defined _WIN32 && defined RTK_STATIC_INIT)
 	pthread_win32_process_attach_np();
 	glib_init_static();
