@@ -360,16 +360,20 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEWHEEL:
 		if (view->scrollFunc) {
+			POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			ScreenToClient(view->impl->hwnd, &pt);
 			view->scrollFunc(
-				view, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
-				(int16_t)HIWORD(wParam) / (float)WHEEL_DELTA, 0);
+				view, pt.x, pt.y,
+				GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA, 0);
 		}
 		break;
 	case WM_MOUSEHWHEEL:
 		if (view->scrollFunc) {
+			POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			ScreenToClient(view->impl->hwnd, &pt);
 			view->scrollFunc(
-				view, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
-				(int16_t)HIWORD(wParam) / float(WHEEL_DELTA), 0);
+				view, pt.x, pt.y,
+				GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA, 0);
 		}
 		break;
 	case WM_KEYDOWN:
