@@ -348,18 +348,22 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEWHEEL:
 		if (view->scrollFunc) {
+			POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			ScreenToClient(view->impl->hwnd, &pt);
 			view->event_timestamp_ms = GetMessageTime();
 			view->scrollFunc(
-				view, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
-				0.0f, (int16_t)HIWORD(wParam) / (float)WHEEL_DELTA);
+				view, pt.x, pt.y,
+				0.0f, GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA);
 		}
 		break;
 	case WM_MOUSEHWHEEL:
 		if (view->scrollFunc) {
+			POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+			ScreenToClient(view->impl->hwnd, &pt);
 			view->event_timestamp_ms = GetMessageTime();
 			view->scrollFunc(
-				view, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam),
-				(int16_t)HIWORD(wParam) / float(WHEEL_DELTA), 0.0f);
+				view, pt.x, pt.y,
+				GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA, 0.0f);
 		}
 		break;
 	case WM_KEYDOWN:
