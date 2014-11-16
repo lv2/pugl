@@ -209,8 +209,10 @@ void
 puglDisplay(PuglView* view)
 {
 	wglMakeCurrent(view->impl->hdc, view->impl->hglrc);
+#if 0
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
+#endif
 
 	view->redisplay = false;
 	if (view->displayFunc) {
@@ -437,7 +439,7 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_DESTROY:
 		return 0;
 	default:
-		if (view) {
+		if (view && hwnd == view->impl->hwnd) {
 			return handleMessage(view, message, wParam, lParam);
 		} else {
 			return DefWindowProc(hwnd, message, wParam, lParam);
