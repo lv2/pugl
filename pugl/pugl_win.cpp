@@ -384,7 +384,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		} // else nobreak
 	case WM_KEYUP:
-		if ((key = keySymToSpecial(wParam))) {
+		if (key = keySymToSpecial(wParam)) {
 			if (view->specialFunc) {
 				view->specialFunc(view, message == WM_KEYDOWN, key);
 			}

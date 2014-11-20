@@ -84,7 +84,7 @@ typedef enum {
 	PUGL_CHAR_ESCAPE    = 0x1B,
 	PUGL_CHAR_DELETE    = 0x7F
 } PuglChar;
-	
+
 /**
    Special (non-Unicode) keyboard keys.
 */
