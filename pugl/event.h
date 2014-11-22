@@ -111,7 +111,7 @@ typedef struct {
 } PuglEventExpose;
 
 /**
-   Key press event.
+   Key press/release event.
 
    Keys that correspond to a Unicode character are expressed as a character
    code.  For other keys, `character` will be 0 and `special` indicates the key
