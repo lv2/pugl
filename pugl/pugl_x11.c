@@ -48,6 +48,8 @@ struct PuglInternalsImpl {
 	Window     win;
 #ifdef PUGL_HAVE_CAIRO
 	cairo_t*   cr;
+	cairo_t*   crBackBuffer;
+	cairo_surface_t* surfaceBackBuffer;
 #endif
 #ifdef PUGL_HAVE_GL
 	GLXContext ctx;
@@ -121,6 +123,17 @@ createContext(PuglView* view, XVisualInfo* vi)
 		if (!(impl->cr = cairo_create(surface))) {
 			fprintf(stderr, "failed to create cairo context\n");
 		}
+		impl->surfaceBackBuffer = cairo_surface_create_similar(
+			surface, CAIRO_CONTENT_COLOR_ALPHA, view->width, view->height );
+		if (!impl->surfaceBackBuffer) {
+			fprintf(stderr, "failed to create cairo back buffer surface\n");
+		}
+		if (!(impl->crBackBuffer = cairo_create(impl->surfaceBackBuffer))) {
+			fprintf(stderr, "failed to create cairo back buffer context\n");
+		}
+		
+		// request a redisplay to draw backbuffer to shown buffer
+		puglPostRedisplay( view );
 	}
 #endif
 }
@@ -468,6 +481,13 @@ puglProcessEvents(PuglView* view)
 			PUGL_EXPOSE, view, true, 0, 0, view->width, view->height, 0
 		};
 		puglDispatchEvent(view, (const PuglEvent*)&expose);
+		
+		// copy the backbuffer to the frontbuffer cairo context
+		cairo_save( view->impl->cr );
+		cairo_surface_flush( view->impl->surfaceBackBuffer );
+		cairo_set_source_surface( view->impl->cr, view->impl->surfaceBackBuffer, 0, 0 );
+		cairo_paint( view->impl->cr );
+		cairo_restore( view->impl->cr );
 	}
 
 	return PUGL_SUCCESS;
@@ -490,7 +510,7 @@ puglGetContext(PuglView* view)
 {
 #ifdef PUGL_HAVE_CAIRO
 	if (view->ctx_type == PUGL_CAIRO) {
-		return view->impl->cr;
+		return view->impl->crBackBuffer;
 	}
 #endif
 	return NULL;
