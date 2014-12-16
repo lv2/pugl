@@ -239,7 +239,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 
 - (void) mouseMoved:(NSEvent*)event
 {
-	const NSPoint         wloc = [self eventLocation event:event];
+	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventMotion ev   =  {
 		PUGL_MOTION_NOTIFY,
@@ -269,7 +269,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 
 - (void) mouseDown:(NSEvent*)event
 {
-	const NSPoint         wloc = [self eventLocation event:event];
+	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventButton ev   =  {
 		PUGL_BUTTON_PRESS,
@@ -288,7 +288,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 
 - (void) mouseUp:(NSEvent*)event
 {
-	const NSPoint         wloc = [self eventLocation event:event];
+	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventButton ev   =  {
 		PUGL_BUTTON_RELEASE,
@@ -320,7 +320,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 {
 	[self updateTrackingAreas];
 
-	const NSPoint         wloc = [self eventLocation event:event];
+	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventScroll ev   =  {
 		PUGL_SCROLL,
@@ -345,7 +345,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 		return;
 	}
 
-	const NSPoint      wloc  = [self eventLocation event:event];
+	const NSPoint      wloc  = [self eventLocation:event];
 	const NSPoint      rloc  = [NSEvent mouseLocation];
 	const NSString*    chars = [event characters];
 	const PuglEventKey ev    =  {
@@ -366,7 +366,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 
 - (void) keyUp:(NSEvent*)event
 {
-	const NSPoint      wloc  = [self eventLocation event:event];
+	const NSPoint      wloc  = [self eventLocation:event];
 	const NSPoint      rloc  = [NSEvent mouseLocation];
 	const NSString*    chars = [event characters];
 	const PuglEventKey ev    =  {
@@ -444,39 +444,38 @@ puglCreateWindow(PuglView* view, const char* title)
 	[NSAutoreleasePool new];
 	impl->app = [NSApplication sharedApplication];
 
+	impl->glview           = [PuglOpenGLView new];
+	impl->glview->puglview = view;
+
 	if (view->transient_parent) {
 		NSView* pview = (NSView*)view->transient_parent;
 		[pview addSubview:impl->glview];
 		[impl->glview setHidden:NO];
-		[window setLevel: NSStatusWindowLevel];
 	} else {
 		NSString* titleString = [[NSString alloc]
 			                        initWithBytes:title
 			                               length:strlen(title)
 			                             encoding:NSUTF8StringEncoding];
 
-		id window = [[RobTKPuglWindow new] retain];
+		id window = [[PuglWindow new] retain];
 		[window setPuglview:view];
 		[window setTitle:titleString];
 		if (view->min_width || view->min_height) {
-			[window setContentMinSize:NSMakeSize(min_width, min_height)];
+			[window setContentMinSize:NSMakeSize(view->min_width,
+			                                     view->min_height)];
 		}
 		impl->window = window;
-	}
 
-	impl->glview           = [PuglOpenGLView new];
-	impl->window           = window;
-	impl->glview->puglview = view;
-
-	[window setContentView:impl->glview];
-	[impl->app activateIgnoringOtherApps:YES];
-	[window makeFirstResponder:impl->glview];
-	[window makeKeyAndOrderFront:window];
+		[window setContentView:impl->glview];
+		[impl->app activateIgnoringOtherApps:YES];
+		[window makeFirstResponder:impl->glview];
+		[window makeKeyAndOrderFront:window];
 #if 0
-	if (resizable) {
-		[impl->glview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-	}
+		if (resizable) {
+			[impl->glview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+		}
 #endif
+	}
 
 	return 0;
 }
