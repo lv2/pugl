@@ -1,5 +1,6 @@
 /*
   Copyright 2012-2014 David Robillard <http://drobilla.net>
+  Copyright 2014 Harry van Haaren <harryhaaren@gmail.com>
   Copyright 2013 Robin Gareus <robin@gareus.org>
   Copyright 2011-2012 Ben Loftis, Harrison Consoles
 
@@ -349,6 +350,12 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.expose.width  = xevent.xexpose.width;
 		event.expose.height = xevent.xexpose.height;
 		event.expose.count  = xevent.xexpose.count;
+		/* re-blit the backbuffer to screen */
+		cairo_save( view->impl->cr );
+		cairo_surface_flush( view->impl->surfaceBackBuffer );
+		cairo_set_source_surface( view->impl->cr, view->impl->surfaceBackBuffer, 0, 0 );
+		cairo_paint( view->impl->cr );
+		cairo_restore( view->impl->cr );
 		break;
 	case MotionNotify:
 		event.type           = PUGL_MOTION_NOTIFY;
