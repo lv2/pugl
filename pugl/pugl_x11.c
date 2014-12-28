@@ -22,6 +22,7 @@
 */
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -50,6 +51,7 @@ struct PuglInternalsImpl {
 #ifdef PUGL_HAVE_CAIRO
 	cairo_t*   cr;
 	cairo_t*   crBackBuffer;
+	cairo_surface_t* surface;
 	cairo_surface_t* surfaceBackBuffer;
 #endif
 #ifdef PUGL_HAVE_GL
@@ -119,13 +121,13 @@ createContext(PuglView* view, XVisualInfo* vi)
 #endif
 #ifdef PUGL_HAVE_CAIRO
 	if (view->ctx_type == PUGL_CAIRO) {
-		cairo_surface_t* surface = cairo_xlib_surface_create(
+		impl->surface = cairo_xlib_surface_create(
 			impl->display, impl->win, vi->visual, view->width, view->height);
-		if (!(impl->cr = cairo_create(surface))) {
+		if( !(impl->cr = cairo_create( impl->surface )) ) {
 			fprintf(stderr, "failed to create cairo context\n");
 		}
 		impl->surfaceBackBuffer = cairo_surface_create_similar(
-			surface, CAIRO_CONTENT_COLOR_ALPHA, view->width, view->height );
+			impl->surface, CAIRO_CONTENT_COLOR_ALPHA, view->width, view->height );
 		if (!impl->surfaceBackBuffer) {
 			fprintf(stderr, "failed to create cairo back buffer surface\n");
 		}
@@ -149,7 +151,10 @@ destroyContext(PuglView* view)
 #endif
 #ifdef PUGL_HAVE_CAIRO
 	if (view->ctx_type == PUGL_CAIRO) {
-		glXDestroyContext(view->impl->display, view->impl->ctx);
+		cairo_destroy( view->impl->cr );
+		cairo_destroy( view->impl->crBackBuffer );
+		cairo_surface_destroy( view->impl->surface );
+		cairo_surface_destroy( view->impl->surfaceBackBuffer );
 	}
 #endif
 }
