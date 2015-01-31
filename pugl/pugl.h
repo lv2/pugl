@@ -258,6 +258,13 @@ PUGL_API int
 puglGetModifiers(PuglView* view);
 
 /**
+   Get a string of the event type
+*/
+PUGL_API const char*
+puglEventGetTypeString( PuglEventType type );
+
+
+/**
    Ignore synthetic repeated key events.
 */
 PUGL_API void

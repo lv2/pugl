@@ -197,6 +197,28 @@ puglEnterContext(PuglView* view);
 void
 puglLeaveContext(PuglView* view, bool flush);
 
+
+const char*
+puglEventGetTypeString( PuglEventType type )
+{
+	switch( type )
+	{
+		case PUGL_BUTTON_PRESS:   return "button_press"   ; break;
+		case PUGL_BUTTON_RELEASE: return "button_release" ; break;
+		case PUGL_CONFIGURE:      return "configure"      ; break;
+		case PUGL_EXPOSE:         return "expose"         ; break;
+		case PUGL_KEY_PRESS:      return "key_press"      ; break;
+		case PUGL_KEY_RELEASE:    return "key_release"    ; break;
+		case PUGL_ENTER_NOTIFY:   return "enter_notify"   ; break;
+		case PUGL_LEAVE_NOTIFY:   return "leave_notify"   ; break;
+		case PUGL_MOTION_NOTIFY:  return "motion_notify"  ; break;
+		case PUGL_NOTHING:        return "nothing"        ; break;
+		case PUGL_SCROLL:         return "scroll"         ; break;
+		default:                  return 0                ; break;
+	}
+	return 0;
+}
+
 static void
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
