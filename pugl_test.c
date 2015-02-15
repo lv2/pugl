@@ -99,12 +99,16 @@ printModifiers(PuglView* view)
 }
 
 static void
-onKeyboard(PuglView* view, bool press, uint32_t key)
+onEvent(PuglView* view, const PuglEvent* event)
 {
-	fprintf(stderr, "Key %c %s ", (char)key, press ? "down" : "up");
-	printModifiers(view);
-	if (key == 'q' || key == 'Q' || key == PUGL_CHAR_ESCAPE ||
-	    key == PUGL_CHAR_DELETE || key == PUGL_CHAR_BACKSPACE) {
+	const uint32_t ucode = event->key.character;
+	if (event->type == PUGL_KEY_PRESS) {
+		fprintf(stderr, "Key %u (char %u) down (%s)%s\n",
+		        event->key.keycode, event->key.character, event->key.utf8,
+		        event->key.filter ? " (filtered)" : "");
+	}
+	if (ucode == 'q' || ucode == 'Q' || ucode == PUGL_CHAR_ESCAPE ||
+	    ucode == PUGL_CHAR_DELETE || ucode == PUGL_CHAR_BACKSPACE) {
 		quit = 1;
 	}
 }
@@ -172,9 +176,9 @@ main(int argc, char** argv)
 	puglInitWindowSize(view, 512, 512);
 	puglInitWindowMinSize(view, 256, 256);
 	puglInitResizable(view, resizable);
-	
+
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
-	puglSetKeyboardFunc(view, onKeyboard);
+	puglSetEventFunc(view, onEvent);
 	puglSetMotionFunc(view, onMotion);
 	puglSetMouseFunc(view, onMouse);
 	puglSetScrollFunc(view, onScroll);

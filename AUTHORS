@@ -6,3 +6,6 @@ Original GLX inspiration, portability fixes:
 
 Various fixes and improvements:
     Robin Gareus <robin@gareus.org>
+
+UTF-8 work:
+    Erik Åldstedt Sund <erikalds@gmail.com>

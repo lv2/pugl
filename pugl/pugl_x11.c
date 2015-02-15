@@ -46,6 +46,8 @@ struct PuglInternalsImpl {
 	Display*   display;
 	int        screen;
 	Window     win;
+	XIM        xim;
+	XIC        xic;
 #ifdef PUGL_HAVE_CAIRO
 	cairo_t*   cr;
 #endif
@@ -192,7 +194,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	                         EnterWindowMask | LeaveWindowMask |
 	                         KeyPressMask | KeyReleaseMask |
 	                         ButtonPressMask | ButtonReleaseMask |
-	                         PointerMotionMask);
+	                         PointerMotionMask | FocusChangeMask);
 
 	impl->win = XCreateWindow(
 		impl->display, xParent,
@@ -229,6 +231,21 @@ puglCreateWindow(PuglView* view, const char* title)
 	if (view->transient_parent) {
 		XSetTransientForHint(impl->display, impl->win,
 		                     (Window)(view->transient_parent));
+	}
+
+	if (!(impl->xim = XOpenIM(impl->display, NULL, NULL, NULL))) {
+		XSetLocaleModifiers("@im=");
+		if (!(impl->xim = XOpenIM(impl->display, NULL, NULL, NULL))) {
+			fprintf(stderr, "warning: XOpenIM failed\n");
+		}
+	}
+
+	if (!(impl->xic = XCreateIC(impl->xim, XNInputStyle,
+	                            XIMPreeditNothing | XIMStatusNothing,
+	                            XNClientWindow, impl->win,
+	                            XNFocusWindow, impl->win,
+	                            NULL))) {
+		fprintf(stderr, "warning: XCreateIC failed\n");
 	}
 
 	XFree(vi);
@@ -300,16 +317,64 @@ keySymToSpecial(KeySym sym)
 	return (PuglKey)0;
 }
 
+/** Return the code point for buf, or the replacement character on error. */
+static uint32_t
+utf8Decode(const uint8_t* buf, size_t len)
+{
+#define FAIL_IF(cond) { if (cond) return 0xFFFD; }
+
+	/* http://en.wikipedia.org/wiki/UTF-8 */
+
+	if (buf[0] < 0x80) {
+		return buf[0];
+	} else if (buf[0] < 0xC2) {
+		return 0xFFFD;
+	} else if (buf[0] < 0xE0) {
+		FAIL_IF(len != 2);
+		FAIL_IF((buf[1] & 0xC0) != 0x80);
+		return (buf[0] << 6) + buf[1] - 0x3080;
+	} else if (buf[0] < 0xF0) {
+		FAIL_IF(len != 3);
+		FAIL_IF((buf[1] & 0xC0) != 0x80);
+		FAIL_IF(buf[0] == 0xE0 && buf[1] < 0xA0);
+		FAIL_IF((buf[2] & 0xC0) != 0x80);
+		return (buf[0] << 12) + (buf[1] << 6) + buf[2] - 0xE2080;
+	} else if (buf[0] < 0xF5) {
+		FAIL_IF(len != 4);
+		FAIL_IF((buf[1] & 0xC0) != 0x80);
+		FAIL_IF(buf[0] == 0xF0 && buf[1] < 0x90);
+		FAIL_IF(buf[0] == 0xF4 && buf[1] >= 0x90);
+		FAIL_IF((buf[2] & 0xC0) != 0x80);
+		FAIL_IF((buf[3] & 0xC0) != 0x80);
+		return ((buf[0] << 18) +
+		        (buf[1] << 12) +
+		        (buf[2] << 6) +
+		        buf[3] - 0x3C82080);
+	}
+	return 0xFFFD;
+}
+
 static void
 translateKey(PuglView* view, XEvent* xevent, PuglEvent* event)
 {
-	KeySym    sym;
-	char      str[5];
-	const int n = XLookupString(&xevent->xkey, str, 4, &sym, NULL);
-	if (n == 1) {
-		event->key.character = str[0];  // TODO: multi-byte support
+	KeySym sym = 0;
+	char*  str = (char*)event->key.utf8;
+	memset(str, 0, 7);
+	event->key.filter = XFilterEvent(xevent, None);
+	if (xevent->type == KeyRelease || event->key.filter || !view->impl->xic) {
+		if (XLookupString(&xevent->xkey, str, 7, &sym, NULL) == 1) {
+			event->key.character = str[0];
+		}
+	} else {
+		Status    status = 0;
+		const int n      = XmbLookupString(
+			view->impl->xic, &xevent->xkey, str, 7, &sym, &status);
+		if (n > 0) {
+			event->key.character = utf8Decode((const uint8_t*)str, n);
+		}
 	}
 	event->key.special = keySymToSpecial(sym);
+	event->key.keycode = xevent->xkey.keycode;
 }
 
 static unsigned
@@ -396,12 +461,12 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.type       = ((xevent.type == KeyPress)
 		                    ? PUGL_KEY_PRESS
 		                    : PUGL_KEY_RELEASE);
-		event.key.time   = xevent.xbutton.time;
-		event.key.x      = xevent.xbutton.x;
-		event.key.y      = xevent.xbutton.y;
-		event.key.x_root = xevent.xbutton.x_root;
-		event.key.y_root = xevent.xbutton.y_root;
-		event.key.state  = translateModifiers(xevent.xbutton.state);
+		event.key.time   = xevent.xkey.time;
+		event.key.x      = xevent.xkey.x;
+		event.key.y      = xevent.xkey.y;
+		event.key.x_root = xevent.xkey.x_root;
+		event.key.y_root = xevent.xkey.y_root;
+		event.key.state  = translateModifiers(xevent.xkey.state);
 		translateKey(view, &xevent, &event);
 		break;
 	case EnterNotify:
@@ -422,6 +487,15 @@ translateEvent(PuglView* view, XEvent xevent)
 			event.crossing.mode = PUGL_CROSSING_UNGRAB;
 		}
 		break;
+
+	case FocusIn:
+	case FocusOut:
+		event.type = ((xevent.type == EnterNotify)
+		              ? PUGL_FOCUS_IN
+		              : PUGL_FOCUS_OUT);
+		event.focus.grab = (xevent.xfocus.mode != NotifyNormal);
+		break;
+
 	default:
 		break;
 	}
@@ -466,6 +540,10 @@ puglProcessEvents(PuglView* view)
 					ignore = true;
 				}
 			}
+		} else if (xevent.type == FocusIn) {
+			XSetICFocus(view->impl->xic);
+		} else if (xevent.type == FocusOut) {
+			XUnsetICFocus(view->impl->xic);
 		}
 
 		if (!ignore) {

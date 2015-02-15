@@ -44,7 +44,9 @@ typedef enum {
 	PUGL_LEAVE_NOTIFY,
 	PUGL_MOTION_NOTIFY,
 	PUGL_NOTHING,
-	PUGL_SCROLL
+	PUGL_SCROLL,
+	PUGL_FOCUS_IN,
+	PUGL_FOCUS_OUT
 } PuglEventType;
 
 /**
@@ -113,9 +115,23 @@ typedef struct {
 /**
    Key press/release event.
 
-   Keys that correspond to a Unicode character are expressed as a character
-   code.  For other keys, `character` will be 0 and `special` indicates the key
-   pressed.
+   Keys that correspond to a Unicode character have `character` and `utf8` set.
+   Other keys will have `character` 0, but `special` may be set if this is a
+   known special key.
+
+   A key press may be part of a multi-key sequence to generate a wide
+   character.  If `filter` is set, this event is part of a multi-key sequence
+   and should be ignored if the application is reading textual input.
+   Following the series of filtered press events, a press event with
+   `character` and `utf8` (but `keycode` 0) will be sent.  This event will have
+   no corresponding release event.
+
+   Generally, an application should either work with raw keyboard press/release
+   events based on `keycode` (ignoring events with `keycode` 0), or
+   read textual input based on `character` or `utf8` (ignoring releases and
+   events with `filter` 1).  Note that blindly appending `utf8` will yield
+   incorrect text, since press events are sent for both individually composed
+   keys and the resulting synthetic multi-byte press.
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_KEY_PRESS or PUGL_KEY_RELEASE. */
@@ -127,8 +143,11 @@ typedef struct {
 	double        x_root;      /**< Root-relative X coordinate. */
 	double        y_root;      /**< Root-relative Y coordinate. */
 	unsigned      state;       /**< Bitwise OR of PuglMod flags. */
+	unsigned      keycode;     /**< Raw key code. */
 	uint32_t      character;   /**< Unicode character code, or 0. */
-	PuglKey       special;     /**< Special key, if character is 0. */
+	PuglKey       special;     /**< Special key, or 0. */
+	uint8_t       utf8[8];     /**< UTF-8 string. */
+	bool          filter;      /**< True if part of a multi-key sequence. */
 } PuglEventKey;
 
 /**
@@ -188,6 +207,16 @@ typedef struct {
 } PuglEventScroll;
 
 /**
+   Keyboard focus event.
+*/
+typedef struct {
+	PuglEventType type;        /**< PUGL_FOCUS_IN or PUGL_FOCUS_OUT. */
+	PuglView*     view;        /**< View that received this event. */
+	bool          send_event;  /**< True iff event was sent explicitly. */
+	bool          grab;        /**< True iff this is a grab/ungrab event. */
+} PuglEventFocus;
+
+/**
    Interface event.
 
    This is a union of all event structs.  The `type` must be checked to
@@ -204,6 +233,7 @@ typedef union {
 	PuglEventKey       key;        /**< PUGL_KEY_PRESS, PUGL_KEY_RELEASE. */
 	PuglEventMotion    motion;     /**< PUGL_MOTION_NOTIFY. */
 	PuglEventScroll    scroll;     /**< PUGL_SCROLL. */
+	PuglEventFocus     focus;      /**< PUGL_FOCUS_IN, PUGL_FOCUS_OUT. */
 } PuglEvent;
 
 /**
