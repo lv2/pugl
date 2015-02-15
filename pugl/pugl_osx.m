@@ -348,7 +348,8 @@ getModifiers(PuglView* view, NSEvent* ev)
 	const NSPoint      wloc  = [self eventLocation:event];
 	const NSPoint      rloc  = [NSEvent mouseLocation];
 	const NSString*    chars = [event characters];
-	const PuglEventKey ev    =  {
+	const char*        str   = [chars UTF8String];
+	PuglEventKey       ev    =  {
 		PUGL_KEY_PRESS,
 		puglview,
 		false,
@@ -358,9 +359,13 @@ getModifiers(PuglView* view, NSEvent* ev)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
-		[chars characterAtIndex:0],
-		0  // TODO: Special keys?
+		[event keyCode],
+		puglDecodeUTF8((const uint8_t*)str),
+		0,  // TODO: Special keys?
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		false
 	};
+	strncpy((char*)ev.utf8, str, 8);
 	puglDispatchEvent(puglview, (PuglEvent*)&ev);
 }
 
@@ -369,6 +374,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 	const NSPoint      wloc  = [self eventLocation:event];
 	const NSPoint      rloc  = [NSEvent mouseLocation];
 	const NSString*    chars = [event characters];
+	const char*        str   = [chars UTF8String];
 	const PuglEventKey ev    =  {
 		PUGL_KEY_RELEASE,
 		puglview,
@@ -379,9 +385,13 @@ getModifiers(PuglView* view, NSEvent* ev)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
-		[chars characterAtIndex:0],
-		0  // TODO: Special keys?
+		[event keyCode],
+		puglDecodeUTF8((const uint8_t*)str),
+		0,  // TODO: Special keys?
+		{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		false,
 	};
+	strncpy((char*)ev.utf8, str, 8);
 	puglDispatchEvent(puglview, (PuglEvent*)&ev);
 }
 
@@ -534,4 +544,10 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->glview;
+}
+
+void*
+puglGetContext(PuglView* view)
+{
+	return NULL;
 }

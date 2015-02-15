@@ -317,43 +317,6 @@ keySymToSpecial(KeySym sym)
 	return (PuglKey)0;
 }
 
-/** Return the code point for buf, or the replacement character on error. */
-static uint32_t
-utf8Decode(const uint8_t* buf, size_t len)
-{
-#define FAIL_IF(cond) { if (cond) return 0xFFFD; }
-
-	/* http://en.wikipedia.org/wiki/UTF-8 */
-
-	if (buf[0] < 0x80) {
-		return buf[0];
-	} else if (buf[0] < 0xC2) {
-		return 0xFFFD;
-	} else if (buf[0] < 0xE0) {
-		FAIL_IF(len != 2);
-		FAIL_IF((buf[1] & 0xC0) != 0x80);
-		return (buf[0] << 6) + buf[1] - 0x3080;
-	} else if (buf[0] < 0xF0) {
-		FAIL_IF(len != 3);
-		FAIL_IF((buf[1] & 0xC0) != 0x80);
-		FAIL_IF(buf[0] == 0xE0 && buf[1] < 0xA0);
-		FAIL_IF((buf[2] & 0xC0) != 0x80);
-		return (buf[0] << 12) + (buf[1] << 6) + buf[2] - 0xE2080;
-	} else if (buf[0] < 0xF5) {
-		FAIL_IF(len != 4);
-		FAIL_IF((buf[1] & 0xC0) != 0x80);
-		FAIL_IF(buf[0] == 0xF0 && buf[1] < 0x90);
-		FAIL_IF(buf[0] == 0xF4 && buf[1] >= 0x90);
-		FAIL_IF((buf[2] & 0xC0) != 0x80);
-		FAIL_IF((buf[3] & 0xC0) != 0x80);
-		return ((buf[0] << 18) +
-		        (buf[1] << 12) +
-		        (buf[2] << 6) +
-		        buf[3] - 0x3C82080);
-	}
-	return 0xFFFD;
-}
-
 static void
 translateKey(PuglView* view, XEvent* xevent, PuglEvent* event)
 {
@@ -370,7 +333,7 @@ translateKey(PuglView* view, XEvent* xevent, PuglEvent* event)
 		const int n      = XmbLookupString(
 			view->impl->xic, &xevent->xkey, str, 7, &sym, &status);
 		if (n > 0) {
-			event->key.character = utf8Decode((const uint8_t*)str, n);
+			event->key.character = puglDecodeUTF8((const uint8_t*)str);
 		}
 	}
 	event->key.special = keySymToSpecial(sym);
