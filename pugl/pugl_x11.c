@@ -329,9 +329,17 @@ translateKey(PuglView* view, XEvent* xevent, PuglEvent* event)
 			event->key.character = str[0];
 		}
 	} else {
-		Status    status = 0;
-		const int n      = XmbLookupString(
+		/* TODO: Not sure about this.  On my system, some characters work with
+		   Xutf8LookupString but not with XmbLookupString, and some are the
+		   opposite. */
+		Status status = 0;
+#ifdef X_HAVE_UTF8_STRING
+		const int n = Xutf8LookupString(
 			view->impl->xic, &xevent->xkey, str, 7, &sym, &status);
+#else
+		const int n = XmbLookupString(
+			view->impl->xic, &xevent->xkey, str, 7, &sym, &status);
+#endif
 		if (n > 0) {
 			event->key.character = puglDecodeUTF8((const uint8_t*)str);
 		}
