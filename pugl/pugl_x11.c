@@ -322,7 +322,7 @@ translateKey(PuglView* view, XEvent* xevent, PuglEvent* event)
 {
 	KeySym sym = 0;
 	char*  str = (char*)event->key.utf8;
-	memset(str, 0, 7);
+	memset(str, 0, 8);
 	event->key.filter = XFilterEvent(xevent, None);
 	if (xevent->type == KeyRelease || event->key.filter || !view->impl->xic) {
 		if (XLookupString(&xevent->xkey, str, 7, &sym, NULL) == 1) {
