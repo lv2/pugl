@@ -143,7 +143,7 @@ puglCreateWindow(PuglView* view, const char* title)
 			RECT mr = { 0, 0, view->min_width, view->min_height };
 			AdjustWindowRectEx(&mr, winFlags, FALSE, WS_EX_TOPMOST);
 			view->min_width  = mr.right - mr.left;
-			view->min_height = wr.bottom - mr.top;
+			view->min_height = mr.bottom - mr.top;
 		}
 	}
 
