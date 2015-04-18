@@ -75,6 +75,7 @@ puglInit(void)
 
 	PuglInternals* impl = puglInitInternals();
 	if (!impl) {
+		free(view);
 		return NULL;
 	}
 
