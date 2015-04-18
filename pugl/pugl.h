@@ -118,19 +118,18 @@ typedef void (*PuglReshapeFunc)(PuglView* view, int width, int height);
    so programs should handle any value gracefully.
 
    @param view The view being scrolled.
+   @param x The window-relative x coordinate of the pointer.
+   @param y The window-relative y coordinate of the pointer.
    @param dx The scroll x distance.
    @param dx The scroll y distance.
 */
-typedef void (*PuglScrollFunc)(PuglView* view,
-                               int       x,
-                               int       y,
-                               float     dx,
-                               float     dy);
+typedef void (*PuglScrollFunc)(PuglView* view, int x, int y, float dx, float dy);
 
 /**
    A function called when a special key is pressed or released.
 
    This callback allows the use of keys that do not have unicode points.
+   Note that some are non-printable keys.
 
    @param view The view the event occured in.
    @param press True if the key was pressed, false if released.
