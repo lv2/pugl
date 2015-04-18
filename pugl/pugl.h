@@ -40,7 +40,11 @@
 #        define PUGL_API PUGL_LIB_IMPORT
 #    endif
 #else
-#    define PUGL_API
+#    ifdef _WIN32
+#        define PUGL_API
+#    else
+#        define PUGL_API __attribute__((visibility("hidden")))
+#    endif
 #endif
 
 #ifdef __cplusplus
