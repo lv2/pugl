@@ -36,14 +36,8 @@
 #ifndef WHEEL_DELTA
 #    define WHEEL_DELTA 120
 #endif
-#ifdef _WIN64
-#    ifndef GWLP_USERDATA
-#        define GWLP_USERDATA (-21)
-#    endif
-#else
-#    ifndef GWL_USERDATA
-#        define GWL_USERDATA (-21)
-#    endif
+#ifndef GWLP_USERDATA
+#    define GWLP_USERDATA (-21)
 #endif
 
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
@@ -150,11 +144,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		return 1;
 	}
 
-#ifdef _WIN64
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
-#else
- 	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
-#endif
 
 	impl->hdc = GetDC(impl->hwnd);
 
@@ -430,11 +420,7 @@ puglProcessEvents(PuglView* view)
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-#ifdef _WIN64
 	PuglView* view = (PuglView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-#else
-	PuglView* view = (PuglView*)GetWindowLongPtr(hwnd, GWL_USERDATA);
-#endif
 
 	switch (message) {
 	case WM_CREATE:
