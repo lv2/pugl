@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @addtogroup pugl
-   @{
-*/
-
 #ifndef PUGL_EVENT_H_INCLUDED
 #define PUGL_EVENT_H_INCLUDED
 
@@ -29,6 +24,11 @@ extern "C" {
 #endif
 
 #include "pugl/common.h"
+
+/**
+   @addtogroup pugl
+   @{
+*/
 
 /**
    The type of a PuglEvent.

@@ -14,17 +14,17 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @addtogroup pugl
-   @{
-*/
-
 #ifndef PUGL_COMMON_H_INCLUDED
 #define PUGL_COMMON_H_INCLUDED
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+   @addtogroup pugl
+   @{
+*/
 
 /**
    A Pugl view.
