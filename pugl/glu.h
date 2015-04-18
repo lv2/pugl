@@ -15,7 +15,7 @@
 */
 
 /**
-   @file gl.h Portable header wrapper for glu.h.
+   @file glu.h Portable header wrapper for glu.h.
 
    Unfortunately, GL includes vary across platforms so this header allows for
    pure portable programs.
