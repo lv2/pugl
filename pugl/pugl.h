@@ -145,12 +145,9 @@ typedef void (*PuglSpecialFunc)(PuglView* view, bool press, PuglKey key);
 
    To create a window, call the various puglInit* functions as necessary, then
    call puglCreateWindow().
-
-   @param pargc Pointer to argument count (unused, for GLUT compatibility).
-   @param argv  Arguments (unused, for GLUT compatibility).
 */
 PUGL_API PuglView*
-puglInit(int* pargc, char** argv);
+puglInit(void);
 
 /**
    Set the parent window before creating a window (for embedding).
