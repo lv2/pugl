@@ -152,9 +152,9 @@ main(int argc, char** argv)
 		}
 	}
 
-	PuglView* view = puglInit(NULL, NULL);
+	PuglView* view = puglInit();
 	puglInitWindowSize(view, 512, 512);
-	puglInitResizable(view, resizable);
+	puglInitUserResizable(view, resizable);
 	puglInitContextType(view, PUGL_CAIRO);
 
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
