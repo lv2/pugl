@@ -116,7 +116,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
-		return NULL;
+		return 1;
 	}
 
 	int winFlags = WS_POPUPWINDOW | WS_CAPTION;
@@ -178,11 +178,11 @@ puglCreateWindow(PuglView* view, const char* title)
 		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
-		return NULL;
+		return 1;
 	}
 	wglMakeCurrent(impl->hdc, impl->hglrc);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 void
