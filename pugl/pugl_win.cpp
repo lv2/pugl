@@ -122,10 +122,10 @@ puglCreateWindow(PuglView* view, const char* title)
 	int winFlags = WS_POPUPWINDOW | WS_CAPTION;
 	if (view->resizable) {
 		winFlags |= WS_SIZEBOX;
-		if (view->min_width || view->min_height) {
+		if (view->min_width > 0 && view->min_height > 0) {
 			// Adjust the minimum window size to accomodate requested view size
 			RECT mr = { 0, 0, view->min_width, view->min_height };
-			AdjustWindowRectEx(&mr, winFlags, FALSE, WS_EX_TOPMOST);
+			AdjustWindowRectEx(&mr, view->parent ? WS_CHILD : winFlags, FALSE, WS_EX_TOPMOST);
 			view->min_width  = mr.right - mr.left;
 			view->min_height = wr.bottom - mr.top;
 		}
@@ -133,16 +133,17 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	// Adjust the window size to accomodate requested view size
 	RECT wr = { 0, 0, view->width, view->height };
-	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
+	AdjustWindowRectEx(&wr, view->parent ? WS_CHILD : winFlags, FALSE, WS_EX_TOPMOST);
 
 	impl->hwnd = CreateWindowEx(
 		WS_EX_TOPMOST,
  		classNameBuf, title,
-		(view->parent ? WS_CHILD : winFlags),
+		view->parent ? (WS_CHILD | WS_VISIBLE) : winFlags,
 		CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
 		(HWND)view->parent, NULL, NULL, NULL);
 
 	if (!impl->hwnd) {
+		UnregisterClass(impl->wc.lpszClassName, NULL);
 		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
@@ -180,7 +181,6 @@ puglCreateWindow(PuglView* view, const char* title)
 		free(view);
 		return 1;
 	}
-	wglMakeCurrent(impl->hdc, impl->hglrc);
 
 	return PUGL_SUCCESS;
 }
@@ -188,17 +188,13 @@ puglCreateWindow(PuglView* view, const char* title)
 void
 puglShowWindow(PuglView* view)
 {
-	PuglInternals* impl = view->impl;
-
-	ShowWindow(impl->hwnd, SW_SHOWNORMAL);
+	ShowWindow(view->impl->hwnd, SW_SHOWNORMAL);
 }
 
 void
 puglHideWindow(PuglView* view)
 {
-	PuglInternals* impl = view->impl;
-
-	ShowWindow(impl->hwnd, SW_HIDE);
+	ShowWindow(view->impl->hwnd, SW_HIDE);
 }
 
 void
@@ -209,6 +205,7 @@ puglDestroy(PuglView* view)
 	ReleaseDC(view->impl->hwnd, view->impl->hdc);
 	DestroyWindow(view->impl->hwnd);
 	UnregisterClass(view->impl->wc.lpszClassName, NULL);
+	free((void*)view->impl->wc.lpszClassName);
 	free(view->impl);
 	free(view);
 }
@@ -231,12 +228,12 @@ puglDisplay(PuglView* view)
 {
 	puglEnterContext(view);
 
+	view->redisplay = false;
 	if (view->displayFunc) {
 		view->displayFunc(view);
 	}
 
 	puglLeaveContext(view, true);
-	view->redisplay = false;
 }
 
 static PuglKey
@@ -355,9 +352,9 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEWHEEL:
 		if (view->scrollFunc) {
+			view->event_timestamp_ms = GetMessageTime();
 			POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 			ScreenToClient(view->impl->hwnd, &pt);
-			view->event_timestamp_ms = GetMessageTime();
 			view->scrollFunc(
 				view, pt.x, pt.y,
 				0.0f, GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA);
@@ -365,9 +362,9 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEHWHEEL:
 		if (view->scrollFunc) {
+			view->event_timestamp_ms = GetMessageTime();
 			POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 			ScreenToClient(view->impl->hwnd, &pt);
-			view->event_timestamp_ms = GetMessageTime();
 			view->scrollFunc(
 				view, pt.x, pt.y,
 				GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA, 0.0f);
@@ -415,7 +412,6 @@ puglProcessEvents(PuglView* view)
 	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
 		handleMessage(view, msg.message, msg.wParam, msg.lParam);
 	}
-
 
 	if (view->redisplay) {
 		InvalidateRect(view->impl->hwnd, NULL, FALSE);
