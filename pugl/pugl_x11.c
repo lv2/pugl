@@ -39,7 +39,6 @@
 #include <cairo/cairo-xlib.h>
 #endif
 
-#include "pugl/event.h"
 #include "pugl/pugl_internal.h"
 
 struct PuglInternalsImpl {
@@ -49,7 +48,8 @@ struct PuglInternalsImpl {
 	XIM        xim;
 	XIC        xic;
 #ifdef PUGL_HAVE_CAIRO
-	cairo_t*   cr;
+	cairo_t*         cr;
+	cairo_surface_t* surface;
 #endif
 #ifdef PUGL_HAVE_GL
 	GLXContext ctx;
@@ -58,7 +58,7 @@ struct PuglInternalsImpl {
 };
 
 PuglInternals*
-puglInitInternals()
+puglInitInternals(void)
 {
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
@@ -118,9 +118,15 @@ createContext(PuglView* view, XVisualInfo* vi)
 #endif
 #ifdef PUGL_HAVE_CAIRO
 	if (view->ctx_type == PUGL_CAIRO) {
-		cairo_surface_t* surface = cairo_xlib_surface_create(
+		impl->surface = cairo_xlib_surface_create(
 			impl->display, impl->win, vi->visual, view->width, view->height);
-		if (!(impl->cr = cairo_create(surface))) {
+		if (impl->surface == NULL) {
+			fprintf(stderr, "failed to create cairo surface\n");
+			return;
+		}
+		impl->cr = cairo_create(impl->surface);
+		if (impl->cr == NULL) {
+			cairo_surface_destroy(impl->surface);
 			fprintf(stderr, "failed to create cairo context\n");
 		}
 	}
@@ -130,14 +136,21 @@ createContext(PuglView* view, XVisualInfo* vi)
 static void
 destroyContext(PuglView* view)
 {
+	PuglInternals* const impl = view->impl;
+
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type == PUGL_GL) {
-		glXDestroyContext(view->impl->display, view->impl->ctx);
+		glXDestroyContext(impl->display, impl->ctx);
+		impl->ctx = NULL;
 	}
 #endif
 #ifdef PUGL_HAVE_CAIRO
 	if (view->ctx_type == PUGL_CAIRO) {
-		glXDestroyContext(view->impl->display, view->impl->ctx);
+		cairo_destroy(impl->cr);
+		impl->cr = NULL;
+
+		cairo_surface_destroy(impl->surface);
+		impl->surface = NULL;
 	}
 #endif
 }
@@ -170,7 +183,7 @@ puglCreateWindow(PuglView* view, const char* title)
 {
 	PuglInternals* const impl = view->impl;
 
-	impl->display = XOpenDisplay(0);
+	impl->display = XOpenDisplay(NULL);
 	impl->screen  = DefaultScreen(impl->display);
 
 	XVisualInfo* const vi = getVisual(view);
@@ -277,7 +290,6 @@ puglDestroy(PuglView* view)
 	XCloseDisplay(view->impl->display);
 	free(view->impl);
 	free(view);
-	view = NULL;
 }
 
 static PuglKey
