@@ -71,26 +71,65 @@ getVisual(PuglView* view)
 
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type == PUGL_GL) {
-		// Try to create double-buffered visual
-		int double_attrs[] = { GLX_RGBA, GLX_DOUBLEBUFFER,
-		                       GLX_RED_SIZE,   4,
-		                       GLX_GREEN_SIZE, 4,
-		                       GLX_BLUE_SIZE,  4,
-		                       GLX_DEPTH_SIZE, 16,
-		                       None };
-		vi = glXChooseVisual(impl->display, impl->screen, double_attrs);
-		if (!vi) {
-			// Failed, create single-buffered visual
-			int single_attrs[] = { GLX_RGBA,
-			                       GLX_RED_SIZE,   4,
-			                       GLX_GREEN_SIZE, 4,
-			                       GLX_BLUE_SIZE,  4,
-			                       GLX_DEPTH_SIZE, 16,
-			                       None };
-			vi = glXChooseVisual(impl->display, impl->screen, single_attrs);
+		/**
+		  Attributes for single-buffered RGBA with at least
+		  4 bits per color and a 16 bit depth buffer.
+		*/
+		int attrListSgl[] = {
+			GLX_RGBA,
+			GLX_RED_SIZE,        4,
+			GLX_GREEN_SIZE,      4,
+			GLX_BLUE_SIZE,       4,
+			GLX_DEPTH_SIZE,      16,
+			GLX_ARB_multisample, 1,
+			None
+		};
+
+		/**
+		  Attributes for double-buffered RGBA with at least
+		  4 bits per color and a 16 bit depth buffer.
+		*/
+		int attrListDbl[] = {
+			GLX_RGBA,
+			GLX_DOUBLEBUFFER,
+			GLX_RED_SIZE,        4,
+			GLX_GREEN_SIZE,      4,
+			GLX_BLUE_SIZE,       4,
+			GLX_DEPTH_SIZE,      16,
+			GLX_ARB_multisample, 1,
+			None
+		};
+
+		/**
+		  Attributes for double-buffered RGBA with multi-sampling
+		  (antialiasing)
+		*/
+		int attrListDblMS[] = {
+			GLX_RGBA,
+			GLX_DOUBLEBUFFER,
+			GLX_RED_SIZE,       4,
+			GLX_GREEN_SIZE,     4,
+			GLX_BLUE_SIZE,      4,
+			GLX_ALPHA_SIZE,     4,
+			GLX_DEPTH_SIZE,     16,
+			GLX_SAMPLE_BUFFERS, 1,
+			GLX_SAMPLES,        4,
+			None
+		};
+
+		impl->doubleBuffered = True;
+
+		vi = glXChooseVisual(impl->display, impl->screen, attrListDblMS);
+
+		if (vi == NULL) {
+			vi = glXChooseVisual(impl->display, impl->screen, attrListDbl);
+			fprintf(stdout, "multisampling (antialiasing) is not available\n");
+		}
+
+		if (vi == NULL) {
+			vi = glXChooseVisual(impl->display, impl->screen, attrListSgl);
 			impl->doubleBuffered = False;
-		} else {
-			impl->doubleBuffered = True;
+			fprintf(stdout, "singlebuffered rendering will be used, no doublebuffering available\n");
 		}
 	}
 #endif
