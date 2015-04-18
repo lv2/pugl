@@ -145,7 +145,7 @@ getVisual(PuglView* view)
 	return vi;
 }
 
-static void
+static bool
 createContext(PuglView* view, XVisualInfo* vi)
 {
 	PuglInternals* const impl = view->impl;
@@ -153,6 +153,7 @@ createContext(PuglView* view, XVisualInfo* vi)
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type == PUGL_GL) {
 		impl->ctx = glXCreateContext(impl->display, vi, 0, GL_TRUE);
+		return (impl->ctx != NULL);
 	}
 #endif
 #ifdef PUGL_HAVE_CAIRO
@@ -161,16 +162,20 @@ createContext(PuglView* view, XVisualInfo* vi)
 			impl->display, impl->win, vi->visual, view->width, view->height);
 		if (impl->surface == NULL) {
 			fprintf(stderr, "failed to create cairo surface\n");
-			return;
+			return false;
 		}
 		impl->cr = cairo_create(impl->surface);
 		if (impl->cr == NULL) {
 			cairo_surface_destroy(impl->surface);
 			impl->surface = NULL;
 			fprintf(stderr, "failed to create cairo context\n");
+			return false;
 		}
+		return true;
 	}
 #endif
+
+	return false;
 }
 
 static void
@@ -228,6 +233,8 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	XVisualInfo* const vi = getVisual(view);
 	if (!vi) {
+		XCloseDisplay(impl->display);
+		impl->display = NULL;
 		return 1;
 	}
 
@@ -254,7 +261,15 @@ puglCreateWindow(PuglView* view, const char* title)
 		0, 0, view->width, view->height, 0, vi->depth, InputOutput, vi->visual,
 		CWBackPixel | CWBorderPixel | CWColormap | CWEventMask, &attr);
 
-	createContext(view, vi);
+	if (!createContext(view, vi)) {
+		XDestroyWindow(impl->display, impl->win);
+		impl->win = 0;
+
+		XCloseDisplay(impl->display);
+		impl->display = NULL;
+
+		return 1;
+	}
 
 	XSizeHints sizeHints;
 	memset(&sizeHints, 0, sizeof(sizeHints));
@@ -265,7 +280,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		sizeHints.max_width  = view->width;
 		sizeHints.max_height = view->height;
 		XSetNormalHints(impl->display, impl->win, &sizeHints);
-	} else if (view->min_width || view->min_height) {
+	} else if (view->min_width > 0 && view->min_height > 0) {
 		sizeHints.flags      = PMinSize;
 		sizeHints.min_width  = view->min_width;
 		sizeHints.min_height = view->min_height;
@@ -303,7 +318,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	XFree(vi);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 void
