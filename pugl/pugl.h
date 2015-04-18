@@ -171,7 +171,7 @@ puglInitWindowMinSize(PuglView* view, int width, int height);
    Enable or disable resizing before creating a window.
 */
 PUGL_API void
-puglInitResizable(PuglView* view, bool resizable);
+puglInitUserResizable(PuglView* view, bool resizable);
 
 /**
    Set transient parent before creating a window.
