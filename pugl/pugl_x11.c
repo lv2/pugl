@@ -127,6 +127,7 @@ createContext(PuglView* view, XVisualInfo* vi)
 		impl->cr = cairo_create(impl->surface);
 		if (impl->cr == NULL) {
 			cairo_surface_destroy(impl->surface);
+			impl->surface = NULL;
 			fprintf(stderr, "failed to create cairo context\n");
 		}
 	}
