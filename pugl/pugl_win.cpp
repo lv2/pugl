@@ -153,7 +153,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	impl->hwnd = CreateWindowEx(
 		WS_EX_TOPMOST,
- 		classNameBuf, title,
+		classNameBuf, title,
 		(view->parent ? WS_CHILD : winFlags),
 		CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
 		(HWND)view->parent, NULL, NULL, NULL);
@@ -168,7 +168,7 @@ puglCreateWindow(PuglView* view, const char* title)
 #ifdef _WIN64
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 #else
- 	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
+	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
 #endif
 
 	impl->hdc = GetDC(impl->hwnd);
@@ -431,7 +431,6 @@ puglProcessEvents(PuglView* view)
 	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
 		handleMessage(view, msg.message, msg.wParam, msg.lParam);
 	}
-
 
 	if (view->redisplay) {
 		InvalidateRect(view->impl->hwnd, NULL, FALSE);
