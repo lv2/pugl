@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2014 David Robillard <http://drobilla.net>
+  Copyright 2012-2015 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -250,7 +250,9 @@ puglDecodeUTF8(const uint8_t* buf)
 static void
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
-	if (view->eventFunc) {
+	if (event->type == PUGL_NOTHING) {
+		return;
+	} else if (view->eventFunc) {
 		view->eventFunc(view, event);
 	}
 
