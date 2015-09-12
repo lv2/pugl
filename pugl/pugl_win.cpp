@@ -425,6 +425,13 @@ puglGrabFocus(PuglView* view)
 }
 
 PuglStatus
+puglWaitForEvent(PuglView* view)
+{
+	WaitMessage();
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglProcessEvents(PuglView* view)
 {
 	MSG msg;

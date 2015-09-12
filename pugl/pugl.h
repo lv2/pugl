@@ -362,10 +362,22 @@ PUGL_API void
 puglGrabFocus(PuglView* view);
 
 /**
+   Block and wait for an event to be ready.
+
+   This can be used in a loop to only process events via puglProcessEvents when
+   necessary.  This function will block indefinitely if no events are
+   available, so is not appropriate for use in programs that need to perform
+   regular updates (e.g. animation).
+*/
+PUGL_API PuglStatus
+puglWaitForEvent(PuglView* view);
+
+/**
    Process all pending window events.
 
    This handles input events as well as rendering, so it should be called
-   regularly and rapidly enough to keep the UI responsive.
+   regularly and rapidly enough to keep the UI responsive.  This function does
+   not block if no events are pending.
 */
 PUGL_API PuglStatus
 puglProcessEvents(PuglView* view);

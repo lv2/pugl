@@ -525,10 +525,24 @@ puglGrabFocus(PuglView* view)
 }
 
 PuglStatus
+puglWaitForEvent(PuglView* view)
+{
+	[view->impl->window nextEventMatchingMask: NSAnyEventMask
+	                                untilDate: [NSDate distantFuture]
+	                                  dequeue: NO];
+
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	NSEvent* ev = [view->impl->window nextEventMatchingMask: NSAnyEventMask];
-	[view->impl->app sendEvent: ev];
+	NSEvent* ev = [view->impl->window nextEventMatchingMask: NSAnyEventMask
+	                                              untilDate: [NSDate distantPast]];
+
+	if (ev) {
+		[view->impl->app sendEvent: ev];
+	}
 
 	return PUGL_SUCCESS;
 }

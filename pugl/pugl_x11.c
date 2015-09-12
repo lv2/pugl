@@ -494,6 +494,14 @@ puglGrabFocus(PuglView* view)
 }
 
 PuglStatus
+puglWaitForEvent(PuglView* view)
+{
+	XEvent xevent;
+	XPeekEvent(view->impl->display, &xevent);
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglProcessEvents(PuglView* view)
 {
 	XEvent xevent;
@@ -544,6 +552,7 @@ puglProcessEvents(PuglView* view)
 		if (view->ctx_type == PUGL_CAIRO) {
 			cairo_xlib_surface_set_size(
 				view->impl->surface, view->width, view->height);
+			view->redisplay = true;
 		}
 #endif
 	}
