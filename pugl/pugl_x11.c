@@ -43,17 +43,18 @@
 #include "pugl/pugl_internal.h"
 
 struct PuglInternalsImpl {
-	Display*   display;
-	int        screen;
-	Window     win;
-	XIM        xim;
-	XIC        xic;
+	Display*         display;
+	int              screen;
+	Window           win;
+	XIM              xim;
+	XIC              xic;
 #ifdef PUGL_HAVE_CAIRO
-	cairo_t*   cr;
+	cairo_surface_t* surface;
+	cairo_t*         cr;
 #endif
 #ifdef PUGL_HAVE_GL
-	GLXContext ctx;
-	Bool       doubleBuffered;
+	GLXContext       ctx;
+	Bool             doubleBuffered;
 #endif
 };
 
@@ -118,9 +119,9 @@ createContext(PuglView* view, XVisualInfo* vi)
 #endif
 #ifdef PUGL_HAVE_CAIRO
 	if (view->ctx_type == PUGL_CAIRO) {
-		cairo_surface_t* surface = cairo_xlib_surface_create(
+		view->impl->surface = cairo_xlib_surface_create(
 			impl->display, impl->win, vi->visual, view->width, view->height);
-		if (!(impl->cr = cairo_create(surface))) {
+		if (!(impl->cr = cairo_create(view->impl->surface))) {
 			fprintf(stderr, "failed to create cairo context\n");
 		}
 	}
@@ -486,6 +487,7 @@ PuglStatus
 puglProcessEvents(PuglView* view)
 {
 	XEvent xevent;
+	bool   resized = false;
 	while (XPending(view->impl->display) > 0) {
 		XNextEvent(view->impl->display, &xevent);
 		bool ignore = false;
@@ -516,6 +518,8 @@ puglProcessEvents(PuglView* view)
 			XSetICFocus(view->impl->xic);
 		} else if (xevent.type == FocusOut) {
 			XUnsetICFocus(view->impl->xic);
+		} else if (xevent.type == ConfigureNotify) {
+			resized = true;
 		}
 
 		if (!ignore) {
@@ -523,6 +527,15 @@ puglProcessEvents(PuglView* view)
 			const PuglEvent event = translateEvent(view, xevent);
 			puglDispatchEvent(view, &event);
 		}
+	}
+
+	if (resized) {
+#ifdef PUGL_HAVE_CAIRO
+		if (view->ctx_type == PUGL_CAIRO) {
+			cairo_xlib_surface_set_size(
+				view->impl->surface, view->width, view->height);
+		}
+#endif
 	}
 
 	if (view->redisplay) {
