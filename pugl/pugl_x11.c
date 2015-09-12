@@ -214,10 +214,20 @@ puglCreateWindow(PuglView* view, const char* title)
 		sizeHints.max_width  = view->width;
 		sizeHints.max_height = view->height;
 		XSetNormalHints(impl->display, impl->win, &sizeHints);
-	} else if (view->min_width || view->min_height) {
-		sizeHints.flags      = PMinSize;
-		sizeHints.min_width  = view->min_width;
-		sizeHints.min_height = view->min_height;
+	} else {
+		if (view->min_width || view->min_height) {
+			sizeHints.flags      = PMinSize;
+			sizeHints.min_width  = view->min_width;
+			sizeHints.min_height = view->min_height;
+		}
+		if (view->min_aspect_x) {
+			sizeHints.flags        |= PAspect;
+			sizeHints.min_aspect.x  = view->min_aspect_x;
+			sizeHints.min_aspect.y  = view->min_aspect_y;
+			sizeHints.max_aspect.x  = view->max_aspect_x;
+			sizeHints.max_aspect.y  = view->max_aspect_y;
+		}
+
 		XSetNormalHints(impl->display, impl->win, &sizeHints);
 	}
 

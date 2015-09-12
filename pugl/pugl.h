@@ -171,6 +171,19 @@ PUGL_API void
 puglInitWindowMinSize(PuglView* view, int width, int height);
 
 /**
+   Set the window aspect ratio range before creating a window.
+
+   The x and y values here represent a ratio of width to height.  To set a
+   fixed aspect ratio, set the minimum and maximum values to the same ratio.
+*/
+PUGL_API void
+puglInitWindowAspectRatio(PuglView* view,
+                          int       min_x,
+                          int       min_y,
+                          int       max_x,
+                          int       max_y);
+
+/**
    Enable or disable resizing before creating a window.
 */
 PUGL_API void

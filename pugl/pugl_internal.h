@@ -55,6 +55,10 @@ struct PuglViewImpl {
 	int      height;
 	int      min_width;
 	int      min_height;
+	int      min_aspect_x;
+	int      min_aspect_y;
+	int      max_aspect_x;
+	int      max_aspect_y;
 	int      mods;
 	bool     mouse_in_view;
 	bool     ignoreKeyRepeat;
@@ -97,6 +101,19 @@ puglInitWindowMinSize(PuglView* view, int width, int height)
 {
 	view->min_width  = width;
 	view->min_height = height;
+}
+
+void
+puglInitWindowAspectRatio(PuglView* view,
+                          int       min_x,
+                          int       min_y,
+                          int       max_x,
+                          int       max_y)
+{
+	view->min_aspect_x = min_x;
+	view->min_aspect_y = min_y;
+	view->max_aspect_x = max_x;
+	view->max_aspect_y = max_y;
 }
 
 void
