@@ -137,7 +137,8 @@ destroyContext(PuglView* view)
 #endif
 #ifdef PUGL_HAVE_CAIRO
 	if (view->ctx_type == PUGL_CAIRO) {
-		glXDestroyContext(view->impl->display, view->impl->ctx);
+		cairo_destroy(view->impl->cr);
+		cairo_surface_destroy(view->impl->surface);
 	}
 #endif
 }
