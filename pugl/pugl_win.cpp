@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2014 David Robillard <http://drobilla.net>
+  Copyright 2012-2015 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -153,7 +153,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	impl->hwnd = CreateWindowEx(
 		WS_EX_TOPMOST,
- 		classNameBuf, title,
+		classNameBuf, title,
 		(view->parent ? WS_CHILD : winFlags),
 		CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
 		(HWND)view->parent, NULL, NULL, NULL);
@@ -168,7 +168,7 @@ puglCreateWindow(PuglView* view, const char* title)
 #ifdef _WIN64
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 #else
- 	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
+	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
 #endif
 
 	impl->hdc = GetDC(impl->hwnd);
@@ -425,13 +425,19 @@ puglGrabFocus(PuglView* view)
 }
 
 PuglStatus
+puglWaitForEvent(PuglView* view)
+{
+	WaitMessage();
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglProcessEvents(PuglView* view)
 {
 	MSG msg;
 	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
 		handleMessage(view, msg.message, msg.wParam, msg.lParam);
 	}
-
 
 	if (view->redisplay) {
 		InvalidateRect(view->impl->hwnd, NULL, FALSE);

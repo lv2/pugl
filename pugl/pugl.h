@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2014 David Robillard <http://drobilla.net>
+  Copyright 2012-2015 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -169,6 +169,19 @@ puglInitWindowSize(PuglView* view, int width, int height);
 */
 PUGL_API void
 puglInitWindowMinSize(PuglView* view, int width, int height);
+
+/**
+   Set the window aspect ratio range before creating a window.
+
+   The x and y values here represent a ratio of width to height.  To set a
+   fixed aspect ratio, set the minimum and maximum values to the same ratio.
+*/
+PUGL_API void
+puglInitWindowAspectRatio(PuglView* view,
+                          int       min_x,
+                          int       min_y,
+                          int       max_x,
+                          int       max_y);
 
 /**
    Enable or disable resizing before creating a window.
@@ -349,10 +362,22 @@ PUGL_API void
 puglGrabFocus(PuglView* view);
 
 /**
+   Block and wait for an event to be ready.
+
+   This can be used in a loop to only process events via puglProcessEvents when
+   necessary.  This function will block indefinitely if no events are
+   available, so is not appropriate for use in programs that need to perform
+   regular updates (e.g. animation).
+*/
+PUGL_API PuglStatus
+puglWaitForEvent(PuglView* view);
+
+/**
    Process all pending window events.
 
    This handles input events as well as rendering, so it should be called
-   regularly and rapidly enough to keep the UI responsive.
+   regularly and rapidly enough to keep the UI responsive.  This function does
+   not block if no events are pending.
 */
 PUGL_API PuglStatus
 puglProcessEvents(PuglView* view);

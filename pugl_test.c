@@ -191,6 +191,7 @@ main(int argc, char** argv)
 	puglShowWindow(view);
 
 	while (!quit) {
+		puglWaitForEvent(view);
 		puglProcessEvents(view);
 	}
 

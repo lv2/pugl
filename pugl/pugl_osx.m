@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2014 David Robillard <http://drobilla.net>
+  Copyright 2012-2015 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -525,10 +525,24 @@ puglGrabFocus(PuglView* view)
 }
 
 PuglStatus
+puglWaitForEvent(PuglView* view)
+{
+	[view->impl->window nextEventMatchingMask: NSAnyEventMask
+	                                untilDate: [NSDate distantFuture]
+	                                  dequeue: NO];
+
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	NSEvent* ev = [view->impl->window nextEventMatchingMask: NSAnyEventMask];
-	[view->impl->app sendEvent: ev];
+	NSEvent* ev = [view->impl->window nextEventMatchingMask: NSAnyEventMask
+	                                              untilDate: [NSDate distantPast]];
+
+	if (ev) {
+		[view->impl->app sendEvent: ev];
+	}
 
 	return PUGL_SUCCESS;
 }

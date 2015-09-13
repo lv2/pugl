@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2014 David Robillard <http://drobilla.net>
+  Copyright 2012-2015 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -55,6 +55,10 @@ struct PuglViewImpl {
 	int      height;
 	int      min_width;
 	int      min_height;
+	int      min_aspect_x;
+	int      min_aspect_y;
+	int      max_aspect_x;
+	int      max_aspect_y;
 	int      mods;
 	bool     mouse_in_view;
 	bool     ignoreKeyRepeat;
@@ -97,6 +101,19 @@ puglInitWindowMinSize(PuglView* view, int width, int height)
 {
 	view->min_width  = width;
 	view->min_height = height;
+}
+
+void
+puglInitWindowAspectRatio(PuglView* view,
+                          int       min_x,
+                          int       min_y,
+                          int       max_x,
+                          int       max_y)
+{
+	view->min_aspect_x = min_x;
+	view->min_aspect_y = min_y;
+	view->max_aspect_x = max_x;
+	view->max_aspect_y = max_y;
 }
 
 void
@@ -250,7 +267,9 @@ puglDecodeUTF8(const uint8_t* buf)
 static void
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
-	if (view->eventFunc) {
+	if (event->type == PUGL_NOTHING) {
+		return;
+	} else if (view->eventFunc) {
 		view->eventFunc(view, event);
 	}
 
