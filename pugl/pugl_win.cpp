@@ -365,9 +365,9 @@ static void
 initKeyEvent(PuglEvent* event, PuglView* view, bool press, LPARAM lParam)
 {
 	POINT rpos = { 0, 0 };
-	GetCursorPos(&pos);
+	GetCursorPos(&rpos);
 
-	POINT cpos = { pt.x, pt.y };
+	POINT cpos = { rpos.x, rpos.y };
 	ScreenToClient(view->impl->hwnd, &rpos);
 
 	event->key.type      = press ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
@@ -456,7 +456,7 @@ translateCharEventToEvent(WPARAM wParam, PuglEvent* event)
 	wcharBufToEvent(buf, wcharCount, event);
 }
 
-static bol
+static bool
 ignoreKeyEvent(PuglView* view, LPARAM lParam)
 {
 	return view->ignoreKeyRepeat && (lParam & (1 << 30));
@@ -521,22 +521,22 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		event.motion.is_hint = false;
 		break;
 	case WM_LBUTTONDOWN:
-		processMouseEvent(&event, view, 1, true, lParam);
+		initMouseEvent(&event, view, 1, true, lParam);
 		break;
 	case WM_MBUTTONDOWN:
-		processMouseEvent(&event, view, 2, true, lParam);
+		initMouseEvent(&event, view, 2, true, lParam);
 		break;
 	case WM_RBUTTONDOWN:
-		processMouseEvent(&event, view, 3, true, lParam);
+		initMouseEvent(&event, view, 3, true, lParam);
 		break;
 	case WM_LBUTTONUP:
-		processMouseEvent(&event, view, 1, false, lParam);
+		initMouseEvent(&event, view, 1, false, lParam);
 		break;
 	case WM_MBUTTONUP:
-		processMouseEvent(&event, view, 2, false, lParam);
+		initMouseEvent(&event, view, 2, false, lParam);
 		break;
 	case WM_RBUTTONUP:
-		processMouseEvent(&event, view, 3, false, lParam);
+		initMouseEvent(&event, view, 3, false, lParam);
 		break;
 	case WM_MOUSEWHEEL:
 		initScrollEvent(&event, view, lParam, wParam);
@@ -548,29 +548,29 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_KEYDOWN:
 		if (!ignoreKeyEvent(view, lParam)) {
-			initKeyEvent(event, view, true, lParam);
-			if (!(event->key.special = keySymToSpecial(wParam))) {
-				event->key.type = PUGL_NOTHING;
+			initKeyEvent(&event, view, true, lParam);
+			if (!(event.key.special = keySymToSpecial(wParam))) {
+				event.key.type = PUGL_NOTHING;
 			}
 		}
 		break;
 	case WM_CHAR:
 		if (!ignoreKeyEvent(view, lParam)) {
-			initKeyEvent(event, view, true, lParam);
-			translateCharEventToEvent(wParam, event);
+			initKeyEvent(&event, view, true, lParam);
+			translateCharEventToEvent(wParam, &event);
 		}
 		break;
 	case WM_DEADCHAR:
 		if (!ignoreKeyEvent(view, lParam)) {
-			initKeyEvent(event, view, true, lParam);
-			translateCharEventToEvent(wParam, event);
-			event->key.filter = 1;
+			initKeyEvent(&event, view, true, lParam);
+			translateCharEventToEvent(wParam, &event);
+			event.key.filter = 1;
 		}
 		break;
 	case WM_KEYUP:
-		initKeyEvent(event, view, false, lParam);
-		if (!(event->key.special = keySymToSpecial(wParam))) {
-			translateMessageParamsToEvent(lParam, wParam, event);
+		initKeyEvent(&event, view, false, lParam);
+		if (!(event.key.special = keySymToSpecial(wParam))) {
+			translateMessageParamsToEvent(lParam, wParam, &event);
 		}
 		break;
 	case WM_QUIT:
