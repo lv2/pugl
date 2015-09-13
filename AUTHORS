@@ -7,5 +7,5 @@ Original GLX inspiration, portability fixes:
 Various fixes and improvements:
     Robin Gareus <robin@gareus.org>
 
-UTF-8 work:
+UTF-8 and Windows event work:
     Erik Åldstedt Sund <erikalds@gmail.com>
