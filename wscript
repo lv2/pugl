@@ -95,6 +95,7 @@ def build(bld):
     # C Headers
     includedir = '${INCLUDEDIR}/pugl-%s/pugl' % PUGL_MAJOR_VERSION
     bld.install_files(includedir, bld.path.ant_glob('pugl/*.h'))
+    bld.install_files(includedir, bld.path.ant_glob('pugl/*.hpp'))
 
     # Pkgconfig file
     autowaf.build_pc(bld, 'PUGL', PUGL_VERSION, PUGL_MAJOR_VERSION, [],
@@ -166,7 +167,7 @@ def build(bld):
             progs += ['pugl_test']
         if bld.is_defined('HAVE_CAIRO'):
             progs += ['pugl_cairo_test']
-            
+
         for prog in progs:
             obj = bld(features     = 'c cprogram',
                       source       = '%s.c' % prog,
