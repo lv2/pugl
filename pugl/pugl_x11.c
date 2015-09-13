@@ -545,11 +545,14 @@ puglProcessEvents(PuglView* view)
 			cairo_xlib_surface_set_size(view->impl->surface,
 			                            event.configure.width,
 			                            event.configure.height);
+			view->redisplay = true;
 		}
 #endif
 
 		// Dispatch event to application
-		puglDispatchEvent(view, &event);
+		if (!(view->redisplay && event.type == PUGL_EXPOSE)) {
+			puglDispatchEvent(view, &event);
+		}
 	}
 
 	if (view->redisplay) {
