@@ -505,10 +505,8 @@ PuglStatus
 puglProcessEvents(PuglView* view)
 {
 	XEvent xevent;
-	bool   resized = false;
 	while (XPending(view->impl->display) > 0) {
 		XNextEvent(view->impl->display, &xevent);
-		bool ignore = false;
 		if (xevent.type == ClientMessage) {
 			// Handle close message
 			char* type = XGetAtomName(view->impl->display,
@@ -529,32 +527,29 @@ puglProcessEvents(PuglView* view)
 				    next.xkey.time == xevent.xkey.time &&
 				    next.xkey.keycode == xevent.xkey.keycode) {
 					XNextEvent(view->impl->display, &xevent);
-					ignore = true;
+					continue;
 				}
 			}
 		} else if (xevent.type == FocusIn) {
 			XSetICFocus(view->impl->xic);
 		} else if (xevent.type == FocusOut) {
 			XUnsetICFocus(view->impl->xic);
-		} else if (xevent.type == ConfigureNotify) {
-			resized = true;
 		}
 
-		if (!ignore) {
-			// Translate and dispatch event
-			const PuglEvent event = translateEvent(view, xevent);
-			puglDispatchEvent(view, &event);
-		}
-	}
+		// Translate X11 event to Pugl event
+		const PuglEvent event = translateEvent(view, xevent);
 
-	if (resized) {
 #ifdef PUGL_HAVE_CAIRO
-		if (view->ctx_type == PUGL_CAIRO) {
-			cairo_xlib_surface_set_size(
-				view->impl->surface, view->width, view->height);
-			view->redisplay = true;
+		if (event.type == PUGL_CONFIGURE && view->ctx_type == PUGL_CAIRO) {
+			// Resize surfaces/contexts before dispatching
+			cairo_xlib_surface_set_size(view->impl->surface,
+			                            event.configure.width,
+			                            event.configure.height);
 		}
 #endif
+
+		// Dispatch event to application
+		puglDispatchEvent(view, &event);
 	}
 
 	if (view->redisplay) {
