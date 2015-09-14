@@ -418,6 +418,7 @@ struct PuglInternalsImpl {
 	NSApplication*  app;
 	PuglOpenGLView* glview;
 	id              window;
+	NSEvent*        nextEvent;
 };
 
 PuglInternals*
@@ -527,9 +528,14 @@ puglGrabFocus(PuglView* view)
 PuglStatus
 puglWaitForEvent(PuglView* view)
 {
-	[view->impl->window nextEventMatchingMask: NSAnyEventMask
-	                                untilDate: [NSDate distantFuture]
-	                                  dequeue: NO];
+	/* OSX supposedly has queue: and untilDate: selectors that can be used for
+	   a blocking non-queueing event check, but if used here cause an
+	   unsupported selector error at runtime.  I have no idea why, so just get
+	   the event and keep it around until the call to puglProcessEvents. */
+	if (!view->impl->nextEvent) {
+		view->impl->nextEvent = [view->impl->window
+		                            nextEventMatchingMask: NSAnyEventMask];
+	}
 
 	return PUGL_SUCCESS;
 }
@@ -537,12 +543,13 @@ puglWaitForEvent(PuglView* view)
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	NSEvent* ev = [view->impl->window nextEventMatchingMask: NSAnyEventMask
-	                                              untilDate: [NSDate distantPast]];
-
-	if (ev) {
-		[view->impl->app sendEvent: ev];
+	if (!view->impl->nextEvent) {
+		view->impl->nextEvent = [view->impl->window
+		                            nextEventMatchingMask: NSAnyEventMask];
 	}
+
+	[view->impl->app sendEvent: view->impl->nextEvent];
+	view->impl->nextEvent = NULL;
 
 	return PUGL_SUCCESS;
 }
