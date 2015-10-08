@@ -101,15 +101,15 @@ printModifiers(PuglView* view)
 static void
 onEvent(PuglView* view, const PuglEvent* event)
 {
-	const uint32_t ucode = event->key.character;
 	if (event->type == PUGL_KEY_PRESS) {
+		const uint32_t ucode = event->key.character;
 		fprintf(stderr, "Key %u (char %u) down (%s)%s\n",
-		        event->key.keycode, event->key.character, event->key.utf8,
+		        event->key.keycode, ucode, event->key.utf8,
 		        event->key.filter ? " (filtered)" : "");
-	}
-	if (ucode == 'q' || ucode == 'Q' || ucode == PUGL_CHAR_ESCAPE ||
-	    ucode == PUGL_CHAR_DELETE || ucode == PUGL_CHAR_BACKSPACE) {
-		quit = 1;
+
+		if (ucode == 'q' || ucode == 'Q' || ucode == PUGL_CHAR_ESCAPE) {
+			quit = 1;
+		}
 	}
 }
 
