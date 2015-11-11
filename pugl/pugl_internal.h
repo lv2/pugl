@@ -28,6 +28,9 @@
    PUGL_HAVE_GL:    Include OpenGL support code.
 */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "pugl/pugl.h"
 #include "pugl/event.h"
 
@@ -120,8 +123,11 @@ puglInitWindowAspectRatio(PuglView* view,
 void
 puglInitWindowClass(PuglView* view, const char* name)
 {
+	const size_t len = strlen(name);
+
 	free(view->windowClass);
-	view->windowClass = strdup(name);
+	view->windowClass = (char*)calloc(1, len + 1);
+	memcpy(view->windowClass, name, len);
 }
 
 void
