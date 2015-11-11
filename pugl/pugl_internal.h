@@ -47,6 +47,7 @@ struct PuglViewImpl {
 
 	PuglInternals* impl;
 
+	char*            windowClass;
 	PuglNativeWindow parent;
 	PuglContextType  ctx_type;
 	uintptr_t        transient_parent;
@@ -114,6 +115,13 @@ puglInitWindowAspectRatio(PuglView* view,
 	view->min_aspect_y = min_y;
 	view->max_aspect_x = max_x;
 	view->max_aspect_y = max_y;
+}
+
+void
+puglInitWindowClass(PuglView* view, const char* name)
+{
+	free(view->windowClass);
+	view->windowClass = strdup(name);
 }
 
 void

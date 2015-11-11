@@ -153,6 +153,12 @@ PUGL_API PuglView*
 puglInit(int* pargc, char** argv);
 
 /**
+   Set the window class name before creating a window.
+*/
+PUGL_API void
+puglInitWindowClass(PuglView* view, const char* name);
+
+/**
    Set the parent window before creating a window (for embedding).
 */
 PUGL_API void

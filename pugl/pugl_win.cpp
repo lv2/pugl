@@ -112,31 +112,25 @@ puglLeaveContext(PuglView* view, bool flush)
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
+	static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
+
 	PuglInternals* impl = view->impl;
 
 	if (!title) {
 		title = "Window";
 	}
 
-	// FIXME: This is nasty, and pugl should not have static anything.
-	// Should class be a parameter?  Does this make sense on other platforms?
-	static int wc_count = 0;
-	char classNameBuf[256];
-	_snprintf(classNameBuf, sizeof(classNameBuf), "x%d%s", wc_count++, title);
-	classNameBuf[sizeof(classNameBuf) - 1] = '\0';
-
-	impl->wc.style         = CS_OWNDC;
-	impl->wc.lpfnWndProc   = wndProc;
-	impl->wc.cbClsExtra    = 0;
-	impl->wc.cbWndExtra    = 0;
-	impl->wc.hInstance     = 0;
-	impl->wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
-	impl->wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-	impl->wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	impl->wc.lpszMenuName  = NULL;
-	impl->wc.lpszClassName = strdup(classNameBuf);
-
-	if (!RegisterClass(&impl->wc)) {
+	WNDCLASSEX wc;
+	memset(&wc, 0, sizeof(wc));
+	wc.cbSize        = sizeof(wc);
+	wc.style         = CS_OWNDC;
+	wc.lpfnWndProc   = wndProc;
+	wc.hInstance     = GetModuleHandle(NULL);
+	wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION); // TODO: user-specified icon
+	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	wc.lpszClassName = view->windowClass ? view->windowClass : DEFAULT_CLASSNAME;
+	if (!RegisterClassEx(&wc)) {
 		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
@@ -161,7 +155,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	impl->hwnd = CreateWindowEx(
 		WS_EX_TOPMOST,
-		classNameBuf, title,
+		wc.lpszClassName, title,
 		(view->parent ? WS_CHILD : winFlags),
 		CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
 		(HWND)view->parent, NULL, NULL, NULL);
