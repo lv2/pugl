@@ -515,6 +515,7 @@ puglDestroy(PuglView* view)
 	if (view->impl->window) {
 		[view->impl->window release];
 	}
+	free(view->windowClass);
 	free(view->impl);
 	free(view);
 }

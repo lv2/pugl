@@ -227,6 +227,7 @@ puglDestroy(PuglView* view)
 	ReleaseDC(view->impl->hwnd, view->impl->hdc);
 	DestroyWindow(view->impl->hwnd);
 	UnregisterClass(view->impl->wc.lpszClassName, NULL);
+	free(view->windowClass);
 	free(view->impl);
 	free(view);
 }

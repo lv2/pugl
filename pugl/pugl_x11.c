@@ -287,6 +287,7 @@ puglDestroy(PuglView* view)
 	destroyContext(view);
 	XDestroyWindow(view->impl->display, view->impl->win);
 	XCloseDisplay(view->impl->display);
+	free(view->windowClass);
 	free(view->impl);
 	free(view);
 	view = NULL;
