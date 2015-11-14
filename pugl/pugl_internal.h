@@ -250,7 +250,7 @@ puglDecodeUTF8(const uint8_t* buf)
 {
 #define FAIL_IF(cond) { if (cond) return 0xFFFD; }
 
-	/* http://en.wikipedia.org/wiki/UTF-8 */
+	// http://en.wikipedia.org/wiki/UTF-8
 
 	if (buf[0] < 0x80) {
 		return buf[0];

@@ -295,7 +295,7 @@ initMouseEvent(PuglEvent* event,
                int        button,
                bool       press,
                LPARAM     lParam)
- {
+{
 	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 	ClientToScreen(view->impl->hwnd, &pt);
 
@@ -340,7 +340,7 @@ utf16_to_code_point(const wchar_t* input, size_t input_size)
 	if ((code_unit & 0xFC00) == 0xD800) {
 		if (input_size < 2) {
 			// "Error: is surrogate but input_size too small"
-			return 0xFFFD; // replacement character
+			return 0xFFFD;  // replacement character
 		}
 
 		unsigned int code_unit_2 = *++input;
@@ -351,7 +351,7 @@ utf16_to_code_point(const wchar_t* input, size_t input_size)
 
 		// TODO: push_back(code_unit_2);
 		// "Error: Unpaired surrogates."
-		return 0xFFFD; // replacement character
+		return 0xFFFD;  // replacement character
 	}
 	return code_unit;
 }

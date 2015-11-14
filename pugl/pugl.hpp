@@ -114,7 +114,7 @@ private:
 	PuglView* _view;
 };
 
-} // namespace pugl
+}  // namespace pugl
 
 /**
    @}
