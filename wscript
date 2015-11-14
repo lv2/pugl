@@ -1,29 +1,24 @@
 #!/usr/bin/env python
 import glob
 import os
+import subprocess
 import sys
+import waflib.Logs as Logs
+import waflib.Options as Options
+import waflib.extras.autowaf as autowaf
 
-from waflib.extras import autowaf as autowaf
-import waflib.Logs as Logs, waflib.Options as Options
-
-# Version of this package (even if built as a child)
-PUGL_VERSION       = '0.2.0'
-PUGL_MAJOR_VERSION = '0'
-
-# Library version (UNIX style major, minor, micro)
+# Library and package version (UNIX style major, minor, micro)
 # major increment <=> incompatible changes
 # minor increment <=> compatible changes (additions)
 # micro increment <=> no interface changes
-# Pugl uses the same version number for both library and package
-PUGL_LIB_VERSION = PUGL_VERSION
+PUGL_VERSION       = '0.2.0'
+PUGL_MAJOR_VERSION = '0'
 
-# Variables for 'waf dist'
-APPNAME = 'pugl'
-VERSION = PUGL_VERSION
-
-# Mandatory variables
-top = '.'
-out = 'build'
+# Mandatory waf variables
+APPNAME = 'pugl'        # Package name for waf dist
+VERSION = PUGL_VERSION  # Package version for waf dist
+top     = '.'           # Source directory
+out     = 'build'       # Build directory
 
 def options(opt):
     opt.load('compiler_c')
@@ -135,7 +130,7 @@ def build(bld):
                   framework       = framework,
                   name            = 'libpugl',
                   target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
-                  vnum            = PUGL_LIB_VERSION,
+                  vnum            = PUGL_VERSION,
                   install_path    = '${LIBDIR}',
                   defines         = defines,
                   cflags          = libflags + [ '-DPUGL_SHARED',
@@ -152,7 +147,7 @@ def build(bld):
                   framework       = framework,
                   name            = 'libpugl_static',
                   target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
-                  vnum            = PUGL_LIB_VERSION,
+                  vnum            = PUGL_VERSION,
                   install_path    = '${LIBDIR}',
                   defines         = defines,
                   cflags          = ['-DPUGL_INTERNAL'])
@@ -193,10 +188,11 @@ def build(bld):
             doxyfile = 'Doxyfile')
 
 def lint(ctx):
+    "checks code for style issues"
     subprocess.call('cpplint.py --filter=+whitespace/comments,-whitespace/tab,-whitespace/braces,-whitespace/labels,-build/header_guard,-readability/casting,-readability/todo,-build/include src/* pugl/*', shell=True)
 
+# Alias .m files to be compiled the same as .c files, gcc will do the right thing.
 from waflib import TaskGen
 @TaskGen.extension('.m')
 def m_hook(self, node):
-    "Alias .m files to be compiled the same as .c files, gcc will do the right thing."
     return self.create_compiled_task('c', node)
