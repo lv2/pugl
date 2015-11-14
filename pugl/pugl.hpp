@@ -43,7 +43,7 @@ public:
 		puglSetDisplayFunc(_view, _onDisplay);
 	}
 
-	~View() { puglDestroy(_view); }
+	virtual ~View() { puglDestroy(_view); }
 
 	virtual void initWindowParent(PuglNativeWindow parent) {
 		puglInitWindowParent(_view, parent);
