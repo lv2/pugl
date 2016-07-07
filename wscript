@@ -22,8 +22,7 @@ out     = 'build'       # Build directory
 
 def options(opt):
     opt.load('compiler_c')
-    if Options.platform == 'win32':
-        opt.load('compiler_cxx')
+    opt.load('compiler_cxx')
     autowaf.set_options(opt)
     opt.add_option('--no-gl', action='store_true', default=False, dest='no_gl',
                    help='Do not build OpenGL support')
@@ -35,15 +34,19 @@ def options(opt):
                    help='Build static library')
     opt.add_option('--shared', action='store_true', default=False, dest='shared',
                    help='Build shared library')
+    opt.add_option('--target', default=None, dest='target',
+                   help='Target platform (e.g. "win32" or "darwin")')
     opt.add_option('--log', action='store_true', default=False, dest='log',
                    help='Print GL information to console')
     opt.add_option('--grab-focus', action='store_true', default=False, dest='grab_focus',
                    help='Work around reparent keyboard issues by grabbing focus')
 
 def configure(conf):
+    conf.env.TARGET_PLATFORM = Options.options.target or Options.platform
     conf.load('compiler_c')
-    if Options.platform == 'win32':
+    if conf.env.TARGET_PLATFORM == 'win32':
         conf.load('compiler_cxx')
+
     autowaf.configure(conf)
     autowaf.set_c99_mode(conf)
     autowaf.display_header('Pugl Configuration')
@@ -66,7 +69,7 @@ def configure(conf):
 
     # Shared library building is broken on win32 for some reason
     conf.env['BUILD_TESTS']  = Options.options.build_tests
-    conf.env['BUILD_SHARED'] = (Options.platform != 'win32' or
+    conf.env['BUILD_SHARED'] = (conf.env.TARGET_PLATFORM != 'win32' or
                                 Options.options.shared)
     conf.env['BUILD_STATIC'] = (Options.options.build_tests or
                                 Options.options.static)
@@ -99,12 +102,12 @@ def build(bld):
     libflags  = [ '-fvisibility=hidden' ]
     framework = []
     libs      = []
-    if Options.platform == 'win32':
+    if bld.env.TARGET_PLATFORM == 'win32':
         lang       = 'cxx'
         lib_source = ['pugl/pugl_win.cpp']
         libs       = ['opengl32', 'glu32', 'gdi32', 'user32']
         defines    = []
-    elif Options.platform == 'darwin':
+    elif bld.env.TARGET_PLATFORM == 'darwin':
         lang       = 'c'  # Objective C, actually
         lib_source = ['pugl/pugl_osx.m']
         framework  = ['Cocoa', 'OpenGL']
