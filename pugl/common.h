@@ -1,5 +1,5 @@
 /*
-  Copyright 2014 David Robillard <http://drobilla.net>
+  Copyright 2014-2016 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -56,8 +56,9 @@ typedef enum {
    Drawing context type.
 */
 typedef enum {
-	PUGL_GL,
-	PUGL_CAIRO
+	PUGL_GL       = 0x1,
+	PUGL_CAIRO    = 0x2,
+	PUGL_CAIRO_GL = 0x3
 } PuglContextType;
 
 /**

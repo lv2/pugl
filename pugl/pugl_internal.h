@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2015 David Robillard <http://drobilla.net>
+  Copyright 2012-2016 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -86,9 +86,10 @@ puglInit(int* pargc, char** argv)
 		return NULL;
 	}
 
-	view->impl   = impl;
-	view->width  = 640;
-	view->height = 480;
+	view->ctx_type = PUGL_GL;
+	view->impl     = impl;
+	view->width    = 640;
+	view->height   = 480;
 
 	return view;
 }
