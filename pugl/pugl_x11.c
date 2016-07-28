@@ -42,6 +42,15 @@
 #include "pugl/event.h"
 #include "pugl/pugl_internal.h"
 
+#ifndef MIN
+#    define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#endif
+
+#ifndef MAX
+#    define MAX(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
+
 struct PuglInternalsImpl {
 	Display*         display;
 	int              screen;
@@ -152,6 +161,12 @@ puglEnterContext(PuglView* view)
 		glXMakeCurrent(view->impl->display, view->impl->win, view->impl->ctx);
 	}
 #endif
+#ifdef PUGL_HAVE_CAIRO
+	if (view->ctx_type == PUGL_CAIRO) {
+		cairo_set_source_rgb(view->impl->cr, 0, 0, 0);
+		cairo_paint(view->impl->cr);
+	}
+#endif
 }
 
 void
@@ -189,8 +204,6 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	XSetWindowAttributes attr;
 	memset(&attr, 0, sizeof(XSetWindowAttributes));
-	attr.background_pixel = BlackPixel(impl->display, impl->screen);
-	attr.border_pixel     = BlackPixel(impl->display, impl->screen);
 	attr.colormap         = cmap;
 	attr.event_mask       = (ExposureMask | StructureNotifyMask |
 	                         EnterWindowMask | LeaveWindowMask |
@@ -201,7 +214,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->win = XCreateWindow(
 		impl->display, xParent,
 		0, 0, view->width, view->height, 0, vi->depth, InputOutput, vi->visual,
-		CWBackPixel | CWBorderPixel | CWColormap | CWEventMask, &attr);
+		CWColormap | CWEventMask, &attr);
 
 	createContext(view, vi);
 
@@ -502,10 +515,28 @@ puglWaitForEvent(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
+static void
+merge_draw_events(PuglEvent* dst, const PuglEvent* src)
+{
+	if (!dst->type) {
+		*dst = *src;
+	} else {
+		dst->expose.x      = MIN(dst->expose.x,      src->expose.x);
+		dst->expose.y      = MIN(dst->expose.y,      src->expose.y);
+		dst->expose.width  = MAX(dst->expose.width,  src->expose.width);
+		dst->expose.height = MAX(dst->expose.height, src->expose.height);
+	}
+}
+
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	XEvent xevent;
+	/* Maintain a single expose/configure event to execute after all pending
+	   events.  This avoids redundant drawing/configuration which prevents a
+	   series of window resizes in the same loop from being laggy. */
+	PuglEvent expose_event = { 0 };
+	PuglEvent config_event = { 0 };
+	XEvent    xevent;
 	while (XPending(view->impl->display) > 0) {
 		XNextEvent(view->impl->display, &xevent);
 		if (xevent.type == ClientMessage) {
@@ -540,27 +571,43 @@ puglProcessEvents(PuglView* view)
 		// Translate X11 event to Pugl event
 		const PuglEvent event = translateEvent(view, xevent);
 
-#ifdef PUGL_HAVE_CAIRO
-		if (event.type == PUGL_CONFIGURE && view->ctx_type == PUGL_CAIRO) {
-			// Resize surfaces/contexts before dispatching
-			cairo_xlib_surface_set_size(view->impl->surface,
-			                            event.configure.width,
-			                            event.configure.height);
-			view->redisplay = true;
-		}
-#endif
-
-		// Dispatch event to application
-		if (!(view->redisplay && event.type == PUGL_EXPOSE)) {
+		if (event.type == PUGL_EXPOSE) {
+			// Expand expose event to be dispatched after loop
+			merge_draw_events(&expose_event, &event);
+		} else if (event.type == PUGL_CONFIGURE) {
+			// Expand configure event to be dispatched after loop
+			merge_draw_events(&config_event, &event);
+		} else {
+			// Dispatch event to application immediately
 			puglDispatchEvent(view, &event);
 		}
 	}
 
+	if (config_event.type) {
+#ifdef PUGL_HAVE_CAIRO
+		if (view->ctx_type == PUGL_CAIRO) {
+			// Resize surfaces/contexts before dispatching
+			view->redisplay = true;
+			cairo_xlib_surface_set_size(view->impl->surface,
+			                            config_event.configure.width,
+			                            config_event.configure.height);
+		}
+#endif
+		puglDispatchEvent(view, (const PuglEvent*)&config_event);
+	}
+
 	if (view->redisplay) {
-		const PuglEventExpose expose = {
-			PUGL_EXPOSE, view, true, 0, 0, view->width, view->height, 0
-		};
-		puglDispatchEvent(view, (const PuglEvent*)&expose);
+		expose_event.expose.type       = PUGL_EXPOSE;
+		expose_event.expose.view       = view;
+		expose_event.expose.send_event = true;
+		expose_event.expose.x          = 0;
+		expose_event.expose.y          = 0;
+		expose_event.expose.width      = view->width;
+		expose_event.expose.height     = view->height;
+	}
+
+	if (expose_event.type) {
+		puglDispatchEvent(view, (const PuglEvent*)&expose_event);
 	}
 
 	return PUGL_SUCCESS;
