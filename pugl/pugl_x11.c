@@ -50,6 +50,34 @@
 #    define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
+#ifdef PUGL_HAVE_GL
+
+/** Attributes for double-buffered RGBA. */
+static int attrListDbl[] = {
+	GLX_RGBA,
+	GLX_DOUBLEBUFFER    , True,
+	GLX_RED_SIZE        , 4,
+	GLX_GREEN_SIZE      , 4,
+	GLX_BLUE_SIZE       , 4,
+	GLX_DEPTH_SIZE      , 16,
+	None
+};
+
+/** Attributes for single-buffered RGBA. */
+static int attrListSgl[] = {
+	GLX_RGBA,
+	GLX_DOUBLEBUFFER    , False,
+	GLX_RED_SIZE        , 4,
+	GLX_GREEN_SIZE      , 4,
+	GLX_BLUE_SIZE       , 4,
+	GLX_DEPTH_SIZE      , 16,
+	None
+};
+
+/** Null-terminated list of attributes in order of preference. */
+static int* attrLists[] = { attrListDbl, attrListSgl, NULL };
+
+#endif  // PUGL_HAVE_GL
 
 struct PuglInternalsImpl {
 	Display*         display;
@@ -63,7 +91,7 @@ struct PuglInternalsImpl {
 #endif
 #ifdef PUGL_HAVE_GL
 	GLXContext       ctx;
-	Bool             doubleBuffered;
+	int              doubleBuffered;
 #endif
 };
 
@@ -81,26 +109,8 @@ getVisual(PuglView* view)
 
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type == PUGL_GL) {
-		// Try to create double-buffered visual
-		int double_attrs[] = { GLX_RGBA, GLX_DOUBLEBUFFER,
-		                       GLX_RED_SIZE,   4,
-		                       GLX_GREEN_SIZE, 4,
-		                       GLX_BLUE_SIZE,  4,
-		                       GLX_DEPTH_SIZE, 16,
-		                       None };
-		vi = glXChooseVisual(impl->display, impl->screen, double_attrs);
-		if (!vi) {
-			// Failed, create single-buffered visual
-			int single_attrs[] = { GLX_RGBA,
-			                       GLX_RED_SIZE,   4,
-			                       GLX_GREEN_SIZE, 4,
-			                       GLX_BLUE_SIZE,  4,
-			                       GLX_DEPTH_SIZE, 16,
-			                       None };
-			vi = glXChooseVisual(impl->display, impl->screen, single_attrs);
-			impl->doubleBuffered = False;
-		} else {
-			impl->doubleBuffered = True;
+		for (int* attr = *attrLists; !vi && *attr; ++attr) {
+			vi = glXChooseVisual(impl->display, impl->screen, attr);
 		}
 	}
 #endif
@@ -124,6 +134,7 @@ createContext(PuglView* view, XVisualInfo* vi)
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type == PUGL_GL) {
 		impl->ctx = glXCreateContext(impl->display, vi, 0, GL_TRUE);
+		glXGetConfig(impl->display, vi, GLX_DOUBLEBUFFER, &impl->doubleBuffered);
 	}
 #endif
 #ifdef PUGL_HAVE_CAIRO
