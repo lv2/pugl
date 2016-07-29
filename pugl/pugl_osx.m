@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2015 David Robillard <http://drobilla.net>
+  Copyright 2012-2016 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -22,11 +22,23 @@
 
 #import <Cocoa/Cocoa.h>
 
-#ifdef PUGL_HAVE_GL
+#include "pugl/cairo_gl.h"
 #include "pugl/gl.h"
-#endif
-
 #include "pugl/pugl_internal.h"
+
+@class PuglOpenGLView;
+
+struct PuglInternalsImpl {
+	NSApplication*   app;
+	PuglOpenGLView*  glview;
+	id               window;
+	NSEvent*         nextEvent;
+#ifdef PUGL_HAVE_CAIRO
+	cairo_surface_t* surface;
+	cairo_t*         cr;
+	PuglCairoGL      cairo_gl;
+#endif
+};
 
 @interface PuglWindow : NSWindow
 {
@@ -176,13 +188,33 @@ puglDisplay(PuglView* view)
 		bounds.size.width,
 		bounds.size.height,
 	};
+
+#ifdef PUGL_HAVE_CAIRO
+	PuglInternals* impl = puglview->impl;
+	if (puglview->ctx_type & PUGL_CAIRO) {
+		cairo_surface_destroy(impl->surface);
+		cairo_destroy(impl->cr);
+		impl->surface = pugl_cairo_gl_create(
+			&impl->cairo_gl, ev.width, ev.height, 4);
+		impl->cr = cairo_create(impl->surface);
+		pugl_cairo_gl_configure(&impl->cairo_gl, ev.width, ev.height);
+	}
+#endif
+
 	puglDispatchEvent(puglview, (PuglEvent*)&ev);
 }
 
 - (void) drawRect:(NSRect)rect
 {
 	puglDisplay(puglview);
-	glFlush();
+
+#ifdef PUGL_HAVE_CAIRO
+	if (puglview->ctx_type & PUGL_CAIRO) {
+		pugl_cairo_gl_draw(
+			&puglview->impl->cairo_gl, puglview->width, puglview->height);
+	}
+#endif
+
 	[[self openGLContext] flushBuffer];
 }
 
@@ -414,13 +446,6 @@ getModifiers(PuglView* view, NSEvent* ev)
 
 @end
 
-struct PuglInternalsImpl {
-	NSApplication*  app;
-	PuglOpenGLView* glview;
-	id              window;
-	NSEvent*        nextEvent;
-};
-
 PuglInternals*
 puglInitInternals()
 {
@@ -430,9 +455,11 @@ puglInitInternals()
 void
 puglEnterContext(PuglView* view)
 {
-#ifdef PUGL_HAVE_GL
-	if (view->ctx_type == PUGL_GL) {
-		[[view->impl->glview openGLContext] makeCurrentContext];
+	[[view->impl->glview openGLContext] makeCurrentContext];
+#ifdef PUGL_HAVE_CAIRO
+	if (view->ctx_type & PUGL_CAIRO) {
+		cairo_set_source_rgb(view->impl->cr, 0, 0, 0);
+		cairo_paint(view->impl->cr);
 	}
 #endif
 }
@@ -440,11 +467,15 @@ puglEnterContext(PuglView* view)
 void
 puglLeaveContext(PuglView* view, bool flush)
 {
-#ifdef PUGL_HAVE_GL
-	if (view->ctx_type == PUGL_GL && flush) {
-		[[view->impl->glview openGLContext] flushBuffer];
+#ifdef PUGL_HAVE_CAIRO
+	if (view->ctx_type & PUGL_CAIRO) {
+		pugl_cairo_gl_draw(&view->impl->cairo_gl, view->width, view->height);
 	}
 #endif
+
+	if (flush) {
+		[[view->impl->glview openGLContext] flushBuffer];
+	}
 }
 
 int
@@ -506,6 +537,9 @@ puglHideWindow(PuglView* view)
 void
 puglDestroy(PuglView* view)
 {
+#ifdef PUGL_HAVE_CAIRO
+	pugl_cairo_gl_free(&view->impl->cairo_gl);
+#endif
 	view->impl->glview->puglview = NULL;
 	[view->impl->glview removeFromSuperview];
 	if (view->impl->window) {
@@ -571,5 +605,10 @@ puglGetNativeWindow(PuglView* view)
 void*
 puglGetContext(PuglView* view)
 {
+#ifdef PUGL_HAVE_CAIRO
+	if (view->ctx_type & PUGL_CAIRO) {
+		return view->impl->cr;
+	}
+#endif
 	return NULL;
 }
