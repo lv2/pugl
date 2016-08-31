@@ -49,6 +49,10 @@ typedef enum {
 	PUGL_FOCUS_OUT
 } PuglEventType;
 
+typedef enum {
+	PUGL_IS_SEND_EVENT = 1
+} PuglEventFlag;
+
 /**
    Reason for a PuglEventCrossing.
 */
@@ -64,7 +68,7 @@ typedef enum {
 typedef struct {
 	PuglEventType type;        /**< Event type. */
 	PuglView*     view;        /**< View that received this event. */
-	bool          send_event;  /**< True iff event was sent explicitly. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 } PuglEventAny;
 
 /**
@@ -75,7 +79,7 @@ typedef struct {
 typedef struct {
 	PuglEventType type;        /**< PUGL_BUTTON_PRESS or PUGL_BUTTON_RELEASE. */
 	PuglView*     view;        /**< View that received this event. */
-	bool          send_event;  /**< True iff event was sent explicitly. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	uint32_t      time;        /**< Time in milliseconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
@@ -91,7 +95,7 @@ typedef struct {
 typedef struct {
 	PuglEventType type;        /**< PUGL_CONFIGURE. */
 	PuglView*     view;        /**< View that received this event. */
-	bool          send_event;  /**< True iff event was sent explicitly. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	double        x;           /**< New parent-relative X coordinate. */
 	double        y;           /**< New parent-relative Y coordinate. */
 	double        width;       /**< New width. */
@@ -104,7 +108,7 @@ typedef struct {
 typedef struct {
 	PuglEventType type;        /**< PUGL_EXPOSE. */
 	PuglView*     view;        /**< View that received this event. */
-	bool          send_event;  /**< True iff event was sent explicitly. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
 	double        width;       /**< Width of exposed region. */
@@ -136,7 +140,7 @@ typedef struct {
 typedef struct {
 	PuglEventType type;        /**< PUGL_KEY_PRESS or PUGL_KEY_RELEASE. */
 	PuglView*     view;        /**< View that received this event. */
-	bool          send_event;  /**< True iff event was sent explicitly. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	uint32_t      time;        /**< Time in milliseconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
@@ -154,16 +158,16 @@ typedef struct {
    Pointer crossing event (enter and leave).
 */
 typedef struct {
-	PuglEventType    type;        /**< PUGL_ENTER_NOTIFY or PUGL_LEAVE_NOTIFY. */
-	PuglView*        view;        /**< View that received this event. */
-	bool             send_event;  /**< True iff event was sent explicitly. */
-	uint32_t         time;        /**< Time in milliseconds. */
-	double           x;           /**< View-relative X coordinate. */
-	double           y;           /**< View-relative Y coordinate. */
-	double           x_root;      /**< Root-relative X coordinate. */
-	double           y_root;      /**< Root-relative Y coordinate. */
-	unsigned         state;       /**< Bitwise OR of PuglMod flags. */
-	PuglCrossingMode mode;        /**< Reason for crossing. */
+	PuglEventType    type;     /**< PUGL_ENTER_NOTIFY or PUGL_LEAVE_NOTIFY. */
+	PuglView*        view;     /**< View that received this event. */
+	uint32_t         flags;    /**< Bitwise OR of PuglEventFlag values. */
+	uint32_t         time;     /**< Time in milliseconds. */
+	double           x;        /**< View-relative X coordinate. */
+	double           y;        /**< View-relative Y coordinate. */
+	double           x_root;   /**< Root-relative X coordinate. */
+	double           y_root;   /**< Root-relative Y coordinate. */
+	unsigned         state;    /**< Bitwise OR of PuglMod flags. */
+	PuglCrossingMode mode;     /**< Reason for crossing. */
 } PuglEventCrossing;
 
 /**
@@ -172,7 +176,7 @@ typedef struct {
 typedef struct {
 	PuglEventType type;        /**< PUGL_MOTION_NOTIFY. */
 	PuglView*     view;        /**< View that received this event. */
-	bool          send_event;  /**< True iff event was sent explicitly. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	uint32_t      time;        /**< Time in milliseconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
@@ -195,7 +199,7 @@ typedef struct {
 typedef struct {
 	PuglEventType type;        /**< PUGL_SCROLL. */
 	PuglView*     view;        /**< View that received this event. */
-	bool          send_event;  /**< True iff event was sent explicitly. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	uint32_t      time;        /**< Time in milliseconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
@@ -212,7 +216,7 @@ typedef struct {
 typedef struct {
 	PuglEventType type;        /**< PUGL_FOCUS_IN or PUGL_FOCUS_OUT. */
 	PuglView*     view;        /**< View that received this event. */
-	bool          send_event;  /**< True iff event was sent explicitly. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	bool          grab;        /**< True iff this is a grab/ungrab event. */
 } PuglEventFocus;
 

@@ -469,9 +469,11 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 
 	memset(&event, 0, sizeof(event));
 
-	event.any.type       = PUGL_NOTHING;
-	event.any.view       = view;
-	event.any.send_event = InSendMessageEx(dummy_ptr);
+	event.any.type = PUGL_NOTHING;
+	event.any.view = view;
+	if (InSendMessageEx(dummy_ptr)) {
+		event.any.flags |= PUGL_IS_SEND_EVENT;
+	}
 
 	setModifiers(view);
 	switch (message) {

@@ -453,8 +453,10 @@ translateEvent(PuglView* view, XEvent xevent)
 	PuglEvent event;
 	memset(&event, 0, sizeof(event));
 
-	event.any.view       = view;
-	event.any.send_event = xevent.xany.send_event;
+	event.any.view = view;
+	if (xevent.xany.send_event) {
+		event.any.flags |= PUGL_IS_SEND_EVENT;
+	}
 
 	switch (xevent.type) {
 	case ConfigureNotify:
@@ -676,7 +678,6 @@ puglProcessEvents(PuglView* view)
 	if (view->redisplay) {
 		expose_event.expose.type       = PUGL_EXPOSE;
 		expose_event.expose.view       = view;
-		expose_event.expose.send_event = true;
 		expose_event.expose.x          = 0;
 		expose_event.expose.y          = 0;
 		expose_event.expose.width      = view->width;

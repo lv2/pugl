@@ -182,7 +182,7 @@ puglDisplay(PuglView* view)
 	const PuglEventConfigure ev     =  {
 		PUGL_CONFIGURE,
 		puglview,
-		false,
+		0,
 		bounds.origin.x,
 		bounds.origin.y,
 		bounds.size.width,
@@ -276,7 +276,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 	const PuglEventMotion ev   =  {
 		PUGL_MOTION_NOTIFY,
 		puglview,
-		false,
+		0,
 		[event timestamp],
 		wloc.x,
 		puglview->height - wloc.y,
@@ -306,7 +306,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 	const PuglEventButton ev   =  {
 		PUGL_BUTTON_PRESS,
 		puglview,
-		false,
+		0,
 		[event timestamp],
 		wloc.x,
 		puglview->height - wloc.y,
@@ -325,7 +325,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 	const PuglEventButton ev   =  {
 		PUGL_BUTTON_RELEASE,
 		puglview,
-		false,
+		0,
 		[event timestamp],
 		wloc.x,
 		puglview->height - wloc.y,
@@ -357,7 +357,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 	const PuglEventScroll ev   =  {
 		PUGL_SCROLL,
 		puglview,
-		false,
+		0,
 		[event timestamp],
 		wloc.x,
 		puglview->height - wloc.y,
@@ -384,7 +384,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 	PuglEventKey       ev    =  {
 		PUGL_KEY_PRESS,
 		puglview,
-		false,
+		0,
 		[event timestamp],
 		wloc.x,
 		puglview->height - wloc.y,
@@ -410,7 +410,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 	const PuglEventKey ev    =  {
 		PUGL_KEY_RELEASE,
 		puglview,
-		false,
+		0,
 		[event timestamp],
 		wloc.x,
 		puglview->height - wloc.y,
