@@ -38,6 +38,7 @@ typedef enum {
 	PUGL_BUTTON_RELEASE,
 	PUGL_CONFIGURE,
 	PUGL_EXPOSE,
+	PUGL_CLOSE,
 	PUGL_KEY_PRESS,
 	PUGL_KEY_RELEASE,
 	PUGL_ENTER_NOTIFY,
@@ -115,6 +116,15 @@ typedef struct {
 	double        height;      /**< Height of exposed region. */
 	int           count;       /**< Number of expose events to follow. */
 } PuglEventExpose;
+
+/**
+   Window close event.
+*/
+typedef struct {
+	PuglEventType type;        /**< PUGL_CLOSE. */
+	PuglView*     view;        /**< View that received this event. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
+} PuglEventClose;
 
 /**
    Key press/release event.

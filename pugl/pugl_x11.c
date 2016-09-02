@@ -461,6 +461,14 @@ translateEvent(PuglView* view, XEvent xevent)
 	}
 
 	switch (xevent.type) {
+	case ClientMessage: {
+		char* type = XGetAtomName(view->impl->display,
+		                          xevent.xclient.message_type);
+		if (!strcmp(type, "WM_PROTOCOLS")) {
+			event.type = PUGL_CLOSE;
+		}
+		break;
+	}
 	case ConfigureNotify:
 		event.type             = PUGL_CONFIGURE;
 		event.configure.x      = xevent.xconfigure.x;
@@ -605,17 +613,7 @@ puglProcessEvents(PuglView* view)
 	XEvent    xevent;
 	while (XPending(view->impl->display) > 0) {
 		XNextEvent(view->impl->display, &xevent);
-		if (xevent.type == ClientMessage) {
-			// Handle close message
-			char* type = XGetAtomName(view->impl->display,
-			                          xevent.xclient.message_type);
-			if (!strcmp(type, "WM_PROTOCOLS") && view->closeFunc) {
-				view->closeFunc(view);
-				view->redisplay = false;
-			}
-			XFree(type);
-			continue;
-		} else if (xevent.type == KeyRelease) {
+		if (xevent.type == KeyRelease) {
 			// Ignore key repeat if necessary
 			if (view->ignoreKeyRepeat &&
 			    XEventsQueued(view->impl->display, QueuedAfterReading)) {

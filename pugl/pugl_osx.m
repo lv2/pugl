@@ -82,8 +82,13 @@ struct PuglInternalsImpl {
 
 - (BOOL)windowShouldClose:(id)sender
 {
-	if (puglview->closeFunc)
-		puglview->closeFunc(puglview);
+	const PuglEventClose ev = {
+		PUGL_CLOSE,
+		puglview,
+		0
+	};
+	puglDispatchEvent(puglview, (PuglEvent*)&ev);
+
 	return YES;
 }
 

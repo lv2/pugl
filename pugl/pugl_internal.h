@@ -324,6 +324,12 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 			puglLeaveContext(view, true);
 		}
 		break;
+	case PUGL_CLOSE:
+		if (view->closeFunc) {
+			view->closeFunc(view);
+		}
+		view->redisplay = false;
+		break;
 	case PUGL_MOTION_NOTIFY:
 		view->event_timestamp_ms = event->motion.time;
 		view->mods               = event->motion.state;
