@@ -526,12 +526,14 @@ void
 puglShowWindow(PuglView* view)
 {
 	[view->impl->window setIsVisible:YES];
+	view->visible = true;
 }
 
 void
 puglHideWindow(PuglView* view)
 {
 	[view->impl->window setIsVisible:NO];
+	view->visible = false;
 }
 
 void

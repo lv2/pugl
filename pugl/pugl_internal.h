@@ -68,6 +68,7 @@ struct PuglViewImpl {
 	bool     ignoreKeyRepeat;
 	bool     redisplay;
 	bool     resizable;
+	bool     visible;
 	uint32_t event_timestamp_ms;
 };
 
@@ -165,6 +166,12 @@ PuglHandle
 puglGetHandle(PuglView* view)
 {
 	return view->handle;
+}
+
+bool
+puglGetVisible(PuglView* view)
+{
+	return view->visible;
 }
 
 uint32_t

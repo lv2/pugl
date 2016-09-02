@@ -209,6 +209,7 @@ puglShowWindow(PuglView* view)
 	PuglInternals* impl = view->impl;
 
 	ShowWindow(impl->hwnd, SW_SHOWNORMAL);
+	view->visible = true;
 }
 
 void
@@ -217,6 +218,7 @@ puglHideWindow(PuglView* view)
 	PuglInternals* impl = view->impl;
 
 	ShowWindow(impl->hwnd, SW_HIDE);
+	view->visible = false;
 }
 
 void

@@ -278,6 +278,12 @@ PUGL_API void*
 puglGetContext(PuglView* view);
 
 /**
+   Return true iff the view is currently visible.
+*/
+PUGL_API bool
+puglGetVisible(PuglView* view);
+
+/**
    Return the timestamp (if any) of the currently-processing event.
 */
 PUGL_API uint32_t

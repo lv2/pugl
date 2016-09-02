@@ -347,12 +347,14 @@ void
 puglShowWindow(PuglView* view)
 {
 	XMapRaised(view->impl->display, view->impl->win);
+	view->visible = true;
 }
 
 void
 puglHideWindow(PuglView* view)
 {
 	XUnmapWindow(view->impl->display, view->impl->win);
+	view->visible = false;
 }
 
 void
