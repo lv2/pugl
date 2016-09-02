@@ -253,12 +253,6 @@ puglSetSpecialFunc(PuglView* view, PuglSpecialFunc specialFunc)
 	view->specialFunc = specialFunc;
 }
 
-void
-puglEnterContext(PuglView* view);
-
-void
-puglLeaveContext(PuglView* view, bool flush);
-
 /** Return the code point for buf, or the replacement character on error. */
 static uint32_t
 puglDecodeUTF8(const uint8_t* buf)

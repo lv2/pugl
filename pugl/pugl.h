@@ -141,7 +141,7 @@ typedef void (*PuglSpecialFunc)(PuglView* view, bool press, PuglKey key);
 */
 
 /**
-   Create a Pugl context.
+   Create a Pugl view.
 
    To create a window, call the various puglInit* functions as necessary, then
    call puglCreateWindow().
@@ -308,6 +308,25 @@ puglGetModifiers(PuglView* view);
 */
 PUGL_API void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore);
+
+/**
+   Enter the drawing context.
+
+   This must be called before any code that accesses the drawing context,
+   including any GL functions.  This is only necessary for code that does so
+   outside the usual draw callback or handling of an expose event.
+*/
+PUGL_API void
+puglEnterContext(PuglView* view);
+
+/**
+   Leave the drawing context.
+
+   This must be called after puglEnterContext and applies the results of the
+   drawing code (for example, by swapping buffers).
+*/
+PUGL_API void
+puglLeaveContext(PuglView* view, bool flush);
 
 /**
    @name Event Callbacks
