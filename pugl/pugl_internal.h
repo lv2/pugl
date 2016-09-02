@@ -174,6 +174,13 @@ puglGetVisible(PuglView* view)
 	return view->visible;
 }
 
+void
+puglGetSize(PuglView* view, int* width, int* height)
+{
+	*width  = view->width;
+	*height = view->height;
+}
+
 uint32_t
 puglGetEventTimestamp(PuglView* view)
 {

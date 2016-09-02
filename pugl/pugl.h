@@ -284,6 +284,12 @@ PUGL_API bool
 puglGetVisible(PuglView* view);
 
 /**
+   Get the current size of the view.
+*/
+PUGL_API void
+puglGetSize(PuglView* view, int* width, int* height);
+
+/**
    Return the timestamp (if any) of the currently-processing event.
 */
 PUGL_API uint32_t
