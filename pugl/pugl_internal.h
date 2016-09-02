@@ -293,7 +293,15 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 	if (event->type == PUGL_NOTHING) {
 		return;
 	} else if (view->eventFunc) {
+		const bool is_draw = (event->type == PUGL_CONFIGURE ||
+		                      event->type == PUGL_EXPOSE);
+		if (is_draw) {
+			puglEnterContext(view);
+		}
 		view->eventFunc(view, event);
+		if (is_draw) {
+			puglLeaveContext(view, event->type == PUGL_EXPOSE);
+		}
 	}
 
 	switch (event->type) {
