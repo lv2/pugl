@@ -84,9 +84,14 @@ typedef enum {
 
 /**
    Special (non-Unicode) keyboard keys.
+
+   The numerical values of these symbols occupy a reserved range of Unicode
+   points, so it is possible to express either a PuglKey value or a Unicode
+   character in the same variable.  This is sometimes useful for interfacing
+   with APIs that do not make this distinction.
 */
 typedef enum {
-	PUGL_KEY_F1 = 1,
+	PUGL_KEY_F1 = 0xE000,
 	PUGL_KEY_F2,
 	PUGL_KEY_F3,
 	PUGL_KEY_F4,
