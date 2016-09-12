@@ -26,7 +26,8 @@
 
 #include "pugl/pugl.h"
 
-static int quit = 0;
+static int  quit    = 0;
+static bool entered = false;
 
 typedef struct {
 	int         x;
@@ -102,6 +103,18 @@ onDisplay(PuglView* view)
 {
 	cairo_t* cr = puglGetContext(view);
 
+	// Draw background
+	int width, height;
+	puglGetSize(view, &width, &height);
+	if (entered) {
+		cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+	} else {
+		cairo_set_source_rgb(cr, 0, 0, 0);
+	}
+	cairo_rectangle(cr, 0, 0, width, height);
+	cairo_fill(cr);
+
+	// Draw button
 	buttonDraw(cr, &toggle_button);
 }
 
@@ -127,6 +140,15 @@ onEvent(PuglView* view, const PuglEvent* event)
 			toggle_button.pressed = !toggle_button.pressed;
 			puglPostRedisplay(view);
 		}
+		break;
+	case PUGL_ENTER_NOTIFY:
+		entered = true;
+		puglPostRedisplay(view);
+		break;
+	case PUGL_LEAVE_NOTIFY:
+		entered = false;
+		puglPostRedisplay(view);
+		break;
 	default: break;
 	}
 }
