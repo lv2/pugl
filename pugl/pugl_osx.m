@@ -452,7 +452,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 @end
 
 PuglInternals*
-puglInitInternals()
+puglInitInternals(void)
 {
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }

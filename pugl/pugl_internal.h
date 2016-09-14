@@ -72,7 +72,7 @@ struct PuglViewImpl {
 	uint32_t event_timestamp_ms;
 };
 
-PuglInternals* puglInitInternals();
+PuglInternals* puglInitInternals(void);
 
 PuglView*
 puglInit(int* pargc, char** argv)

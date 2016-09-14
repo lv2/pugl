@@ -77,7 +77,7 @@ puglInit()
 }
 
 PuglInternals*
-puglInitInternals()
+puglInitInternals(void)
 {
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
