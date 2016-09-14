@@ -561,7 +561,7 @@ translateEvent(PuglView* view, XEvent xevent)
 
 	case FocusIn:
 	case FocusOut:
-		event.type = ((xevent.type == EnterNotify)
+		event.type = ((xevent.type == FocusIn)
 		              ? PUGL_FOCUS_IN
 		              : PUGL_FOCUS_OUT);
 		event.focus.grab = (xevent.xfocus.mode != NotifyNormal);
