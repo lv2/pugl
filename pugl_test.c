@@ -1,5 +1,5 @@
 /*
-  Copyright 2012 David Robillard <http://drobilla.net>
+  Copyright 2012-2016 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -18,17 +18,83 @@
    @file pugl_test.c A simple Pugl test that creates a top-level window.
 */
 
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "pugl/pugl.h"
 #include "pugl/gl.h"
-#include "pugl/glu.h"
+#include "pugl/pugl.h"
 
 static int   quit   = 0;
 static float xAngle = 0.0f;
 static float yAngle = 0.0f;
 static float dist   = 10.0f;
+
+static const float cubeVertices[] = {
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+
+	 1.0f,  1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	 1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+
+	 1.0f,  1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+
+	-1.0f, -1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	 1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f, -1.0f,
+
+	-1.0f,  1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f,
+
+	 1.0f,  1.0f,  1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+
+	 1.0f, -1.0f, -1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f,
+
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	 1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+
+	 1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f
+};
+
+/** Calculate a projection matrix for a given perspective. */
+static void
+perspective(float* m, float fov, float aspect, float zNear, float zFar)
+{
+	const float h     = tan(fov);
+	const float w     = h / aspect;
+	const float depth = zNear - zFar;
+	const float q     = (zFar + zNear) / depth;
+	const float qn    = 2 * zFar * zNear / depth;
+
+	m[0]  = w;  m[1]  = 0;  m[2]  = 0;   m[3]  = 0;
+	m[4]  = 0;  m[5]  = h;  m[6]  = 0;   m[7]  = 0;
+	m[8]  = 0;  m[9]  = 0;  m[10] = q;   m[11] = -1;
+	m[12] = 0;  m[13] = 0;  m[14] = qn;  m[15] = 0;
+}
 
 static void
 onReshape(PuglView* view, int width, int height)
@@ -36,55 +102,31 @@ onReshape(PuglView* view, int width, int height)
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(0, 0, width, height);
-	gluPerspective(45.0f, width/(float)height, 1.0f, 10.0f);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	float projection[16];
+	perspective(projection, 1.8f, width / (float)height, 1.0, 100.0f);
+	glLoadMatrixf(projection);
 }
 
 static void
 onDisplay(PuglView* view)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-
 	glTranslatef(0.0f, 0.0f, dist * -1);
 	glRotatef(xAngle, 0.0f, 1.0f, 0.0f);
 	glRotatef(yAngle, 1.0f, 0.0f, 0.0f);
 
-	glBegin(GL_QUADS);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 
-	glColor3f(0, 0, 0); glVertex3f(-1, -1, -1);
-	glColor3f(0, 0, 1); glVertex3f(-1, -1,  1);
-	glColor3f(0, 1, 1); glVertex3f(-1,  1,  1);
-	glColor3f(0, 1, 0); glVertex3f(-1,  1, -1);
+	glVertexPointer(3, GL_FLOAT, 0, cubeVertices);
+	glColorPointer(3, GL_FLOAT, 0, cubeVertices);
+	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 
-	glColor3f(1, 0, 0); glVertex3f( 1, -1, -1);
-	glColor3f(1, 0, 1); glVertex3f( 1, -1,  1);
-	glColor3f(1, 1, 1); glVertex3f( 1,  1,  1);
-	glColor3f(1, 1, 0); glVertex3f( 1,  1, -1);
-
-	glColor3f(0, 0, 0); glVertex3f(-1, -1, -1);
-	glColor3f(0, 0, 1); glVertex3f(-1, -1,  1);
-	glColor3f(1, 0, 1); glVertex3f( 1, -1,  1);
-	glColor3f(1, 0, 0); glVertex3f( 1, -1, -1);
-
-	glColor3f(0, 1, 0); glVertex3f(-1,  1, -1);
-	glColor3f(0, 1, 1); glVertex3f(-1,  1,  1);
-	glColor3f(1, 1, 1); glVertex3f( 1,  1,  1);
-	glColor3f(1, 1, 0); glVertex3f( 1,  1, -1);
-
-	glColor3f(0, 0, 0); glVertex3f(-1, -1, -1);
-	glColor3f(0, 1, 0); glVertex3f(-1,  1, -1);
-	glColor3f(1, 1, 0); glVertex3f( 1,  1, -1);
-	glColor3f(1, 0, 0); glVertex3f( 1, -1, -1);
-
-	glColor3f(0, 0, 1); glVertex3f(-1, -1,  1);
-	glColor3f(0, 1, 1); glVertex3f(-1,  1,  1);
-	glColor3f(1, 1, 1); glVertex3f( 1,  1,  1);
-	glColor3f(1, 0, 1); glVertex3f( 1, -1,  1);
-
-	glEnd();
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 static void
@@ -142,6 +184,9 @@ onScroll(PuglView* view, int x, int y, float dx, float dy)
 	fprintf(stderr, "Scroll %d %d %f %f ", x, y, dx, dy);
 	printModifiers(view);
 	dist += dy / 4.0f;
+	if (dist < 10.0f) {
+		dist = 10.0f;
+	}
 	puglPostRedisplay(view);
 }
 
@@ -189,6 +234,14 @@ main(int argc, char** argv)
 	puglSetCloseFunc(view, onClose);
 
 	puglCreateWindow(view, "Pugl Test");
+
+	puglEnterContext(view);
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	puglLeaveContext(view, false);
+
 	puglShowWindow(view);
 
 	while (!quit) {

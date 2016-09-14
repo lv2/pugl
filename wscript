@@ -105,7 +105,7 @@ def build(bld):
     if bld.env.TARGET_PLATFORM == 'win32':
         lang       = 'cxx'
         lib_source = ['pugl/pugl_win.cpp']
-        libs       = ['opengl32', 'glu32', 'gdi32', 'user32']
+        libs       = ['opengl32', 'gdi32', 'user32']
         defines    = []
     elif bld.env.TARGET_PLATFORM == 'darwin':
         lang       = 'c'  # Objective C, actually
@@ -118,9 +118,11 @@ def build(bld):
         libs       = ['X11']
         defines    = []
         if bld.is_defined('HAVE_GL'):
-            libs += ['GL', 'GLU']
+            libs += ['GL']
     if bld.env['MSVC_COMPILER']:
         libflags = []
+    else:
+        libs += ['m']
 
     # Shared Library
     if bld.env['BUILD_SHARED']:
