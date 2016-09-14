@@ -323,6 +323,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		                     (Window)(view->transient_parent));
 	}
 
+	XSetLocaleModifiers("");
 	if (!(impl->xim = XOpenIM(impl->display, NULL, NULL, NULL))) {
 		XSetLocaleModifiers("@im=");
 		if (!(impl->xim = XOpenIM(impl->display, NULL, NULL, NULL))) {
@@ -330,10 +331,11 @@ puglCreateWindow(PuglView* view, const char* title)
 		}
 	}
 
-	if (!(impl->xic = XCreateIC(impl->xim, XNInputStyle,
-	                            XIMPreeditNothing | XIMStatusNothing,
+	const XIMStyle im_style = XIMPreeditNothing | XIMStatusNothing;
+	if (!(impl->xic = XCreateIC(impl->xim,
+	                            XNInputStyle,   im_style,
 	                            XNClientWindow, impl->win,
-	                            XNFocusWindow, impl->win,
+	                            XNFocusWindow,  impl->win,
 	                            NULL))) {
 		fprintf(stderr, "warning: XCreateIC failed\n");
 	}

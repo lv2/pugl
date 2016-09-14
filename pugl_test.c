@@ -18,6 +18,7 @@
    @file pugl_test.c A simple Pugl test that creates a top-level window.
 */
 
+#include <locale.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -216,6 +217,8 @@ main(int argc, char** argv)
 			fprintf(stderr, "Unknown option: %s\n", argv[i]);
 		}
 	}
+
+	setlocale(LC_CTYPE, "");
 
 	PuglView* view = puglInit(NULL, NULL);
 	puglInitWindowClass(view, "PuglTest");
