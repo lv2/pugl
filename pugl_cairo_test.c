@@ -149,6 +149,12 @@ onEvent(PuglView* view, const PuglEvent* event)
 		entered = false;
 		puglPostRedisplay(view);
 		break;
+	case PUGL_EXPOSE:
+		onDisplay(view);
+		break;
+	case PUGL_CLOSE:
+		onClose(view);
+		break;
 	default: break;
 	}
 }
@@ -181,8 +187,6 @@ main(int argc, char** argv)
 
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
-	puglSetDisplayFunc(view, onDisplay);
-	puglSetCloseFunc(view, onClose);
 
 	puglCreateWindow(view, "Pugl Test");
 	puglShowWindow(view);

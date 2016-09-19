@@ -61,6 +61,8 @@ static int attrListDbl[] = {
 	GLX_GREEN_SIZE      , 4,
 	GLX_BLUE_SIZE       , 4,
 	GLX_DEPTH_SIZE      , 16,
+	/* GLX_SAMPLE_BUFFERS  , 1, */
+	/* GLX_SAMPLES         , 4, */
 	None
 };
 
@@ -72,6 +74,8 @@ static int attrListSgl[] = {
 	GLX_GREEN_SIZE      , 4,
 	GLX_BLUE_SIZE       , 4,
 	GLX_DEPTH_SIZE      , 16,
+	/* GLX_SAMPLE_BUFFERS  , 1, */
+	/* GLX_SAMPLES         , 4, */
 	None
 };
 
@@ -684,6 +688,7 @@ puglProcessEvents(PuglView* view)
 		expose_event.expose.y          = 0;
 		expose_event.expose.width      = view->width;
 		expose_event.expose.height     = view->height;
+		view->redisplay                = false;
 	}
 
 	if (expose_event.type) {

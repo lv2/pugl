@@ -87,8 +87,6 @@ public:
 	virtual void onDisplay() {}
 
 	virtual void*      getContext()                 { return puglGetContext(_view); }
-	virtual uint32_t   getEventTimestamp()          { return puglGetEventTimestamp(_view); }
-	virtual int        getModifiers()               { return puglGetModifiers(_view); }
 	virtual void       ignoreKeyRepeat(bool ignore) { puglIgnoreKeyRepeat(_view, ignore); }
 	virtual void       grabFocus()                  { puglGrabFocus(_view); }
 	virtual PuglStatus waitForEvent()               { return puglWaitForEvent(_view); }

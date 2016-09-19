@@ -61,80 +61,6 @@ extern "C" {
 typedef void (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 
 /**
-   A function called when the window is closed.
-*/
-typedef void (*PuglCloseFunc)(PuglView* view);
-
-/**
-   A function called to draw the view contents with OpenGL.
-*/
-typedef void (*PuglDisplayFunc)(PuglView* view);
-
-/**
-   A function called when a key is pressed or released.
-   @param view The view the event occured in.
-   @param press True if the key was pressed, false if released.
-   @param key Unicode point of the key pressed.
-*/
-typedef void (*PuglKeyboardFunc)(PuglView* view, bool press, uint32_t key);
-
-/**
-   A function called when the pointer moves.
-   @param view The view the event occured in.
-   @param x The window-relative x coordinate of the pointer.
-   @param y The window-relative y coordinate of the pointer.
-*/
-typedef void (*PuglMotionFunc)(PuglView* view, int x, int y);
-
-/**
-   A function called when a mouse button is pressed or released.
-   @param view The view the event occured in.
-   @param button The button number (1 = left, 2 = middle, 3 = right).
-   @param press True if the key was pressed, false if released.
-   @param x The window-relative x coordinate of the pointer.
-   @param y The window-relative y coordinate of the pointer.
-*/
-typedef void (*PuglMouseFunc)(
-	PuglView* view, int button, bool press, int x, int y);
-
-/**
-   A function called when the view is resized.
-   @param view The view being resized.
-   @param width The new view width.
-   @param height The new view height.
-*/
-typedef void (*PuglReshapeFunc)(PuglView* view, int width, int height);
-
-/**
-   A function called on scrolling (e.g. mouse wheel or track pad).
-
-   The distances used here are in "lines", a single tick of a clicking mouse
-   wheel.  For example, @p dy = 1.0 scrolls 1 line up.  Some systems and
-   devices support finer resolution and/or higher values for fast scrolls,
-   so programs should handle any value gracefully.
-
-   @param view The view being scrolled.
-   @param dx The scroll x distance.
-   @param dx The scroll y distance.
-*/
-typedef void (*PuglScrollFunc)(PuglView* view,
-                               int       x,
-                               int       y,
-                               float     dx,
-                               float     dy);
-
-/**
-   A function called when a special key is pressed or released.
-
-   This callback allows the use of keys that do not have unicode points.
-
-   @param view The view the event occured in.
-   @param press True if the key was pressed, false if released.
-   @param key The key pressed.
-*/
-typedef void (*PuglSpecialFunc)(PuglView* view, bool press, PuglKey key);
-
-/**
    @name Initialization
    Configuration functions which must be called before creating a window.
    @{
@@ -288,20 +214,6 @@ PUGL_API void
 puglGetSize(PuglView* view, int* width, int* height);
 
 /**
-   Return the timestamp (if any) of the currently-processing event.
-*/
-PUGL_API uint32_t
-puglGetEventTimestamp(PuglView* view);
-
-/**
-   Get the currently active modifiers (PuglMod flags).
-
-   This should only be called from an event handler.
-*/
-PUGL_API int
-puglGetModifiers(PuglView* view);
-
-/**
    Ignore synthetic repeated key events.
 */
 PUGL_API void
@@ -337,54 +249,6 @@ puglLeaveContext(PuglView* view, bool flush);
 */
 PUGL_API void
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
-
-/**
-   Set the function to call when the window is closed.
-*/
-PUGL_API void
-puglSetCloseFunc(PuglView* view, PuglCloseFunc closeFunc);
-
-/**
-   Set the display function which should draw the UI using GL.
-*/
-PUGL_API void
-puglSetDisplayFunc(PuglView* view, PuglDisplayFunc displayFunc);
-
-/**
-   Set the function to call on keyboard events.
-*/
-PUGL_API void
-puglSetKeyboardFunc(PuglView* view, PuglKeyboardFunc keyboardFunc);
-
-/**
-   Set the function to call on mouse motion.
-*/
-PUGL_API void
-puglSetMotionFunc(PuglView* view, PuglMotionFunc motionFunc);
-
-/**
-   Set the function to call on mouse button events.
-*/
-PUGL_API void
-puglSetMouseFunc(PuglView* view, PuglMouseFunc mouseFunc);
-
-/**
-   Set the function to call on scroll events.
-*/
-PUGL_API void
-puglSetScrollFunc(PuglView* view, PuglScrollFunc scrollFunc);
-
-/**
-   Set the function to call on special events.
-*/
-PUGL_API void
-puglSetSpecialFunc(PuglView* view, PuglSpecialFunc specialFunc);
-
-/**
-   Set the function to call when the window size changes.
-*/
-PUGL_API void
-puglSetReshapeFunc(PuglView* view, PuglReshapeFunc reshapeFunc);
 
 /**
    @}

@@ -39,14 +39,6 @@ typedef struct PuglInternalsImpl PuglInternals;
 struct PuglViewImpl {
 	PuglHandle       handle;
 	PuglEventFunc    eventFunc;
-	PuglCloseFunc    closeFunc;
-	PuglDisplayFunc  displayFunc;
-	PuglKeyboardFunc keyboardFunc;
-	PuglMotionFunc   motionFunc;
-	PuglMouseFunc    mouseFunc;
-	PuglReshapeFunc  reshapeFunc;
-	PuglScrollFunc   scrollFunc;
-	PuglSpecialFunc  specialFunc;
 
 	PuglInternals* impl;
 
@@ -63,13 +55,10 @@ struct PuglViewImpl {
 	int      min_aspect_y;
 	int      max_aspect_x;
 	int      max_aspect_y;
-	int      mods;
-	bool     mouse_in_view;
 	bool     ignoreKeyRepeat;
 	bool     redisplay;
 	bool     resizable;
 	bool     visible;
-	uint32_t event_timestamp_ms;
 };
 
 PuglInternals* puglInitInternals(void);
@@ -181,18 +170,6 @@ puglGetSize(PuglView* view, int* width, int* height)
 	*height = view->height;
 }
 
-uint32_t
-puglGetEventTimestamp(PuglView* view)
-{
-	return view->event_timestamp_ms;
-}
-
-int
-puglGetModifiers(PuglView* view)
-{
-	return view->mods;
-}
-
 void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore)
 {
@@ -203,54 +180,6 @@ void
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 {
 	view->eventFunc = eventFunc;
-}
-
-void
-puglSetCloseFunc(PuglView* view, PuglCloseFunc closeFunc)
-{
-	view->closeFunc = closeFunc;
-}
-
-void
-puglSetDisplayFunc(PuglView* view, PuglDisplayFunc displayFunc)
-{
-	view->displayFunc = displayFunc;
-}
-
-void
-puglSetKeyboardFunc(PuglView* view, PuglKeyboardFunc keyboardFunc)
-{
-	view->keyboardFunc = keyboardFunc;
-}
-
-void
-puglSetMotionFunc(PuglView* view, PuglMotionFunc motionFunc)
-{
-	view->motionFunc = motionFunc;
-}
-
-void
-puglSetMouseFunc(PuglView* view, PuglMouseFunc mouseFunc)
-{
-	view->mouseFunc = mouseFunc;
-}
-
-void
-puglSetReshapeFunc(PuglView* view, PuglReshapeFunc reshapeFunc)
-{
-	view->reshapeFunc = reshapeFunc;
-}
-
-void
-puglSetScrollFunc(PuglView* view, PuglScrollFunc scrollFunc)
-{
-	view->scrollFunc = scrollFunc;
-}
-
-void
-puglSetSpecialFunc(PuglView* view, PuglSpecialFunc specialFunc)
-{
-	view->specialFunc = specialFunc;
 }
 
 /** Return the code point for buf, or the replacement character on error. */
@@ -292,6 +221,8 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
 	if (event->type == PUGL_NOTHING) {
 		return;
+	} else if (event->type == PUGL_EXPOSE && event->expose.count > 0) {
+		return;
 	} else if (view->eventFunc) {
 		const bool is_draw = (event->type == PUGL_CONFIGURE ||
 		                      event->type == PUGL_EXPOSE);
@@ -302,75 +233,5 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 		if (is_draw) {
 			puglLeaveContext(view, event->type == PUGL_EXPOSE);
 		}
-	}
-
-	switch (event->type) {
-	case PUGL_CONFIGURE:
-		puglEnterContext(view);
-		view->width  = event->configure.width;
-		view->height = event->configure.height;
-		if (view->reshapeFunc) {
-			view->reshapeFunc(view, view->width, view->height);
-		}
-		puglLeaveContext(view, false);
-		break;
-	case PUGL_EXPOSE:
-		if (event->expose.count == 0) {
-			puglEnterContext(view);
-			if (view->displayFunc) {
-				view->displayFunc(view);
-			}
-			view->redisplay = false;
-			puglLeaveContext(view, true);
-		}
-		break;
-	case PUGL_CLOSE:
-		if (view->closeFunc) {
-			view->closeFunc(view);
-		}
-		view->redisplay = false;
-		break;
-	case PUGL_MOTION_NOTIFY:
-		view->event_timestamp_ms = event->motion.time;
-		view->mods               = event->motion.state;
-		if (view->motionFunc) {
-			view->motionFunc(view, event->motion.x, event->motion.y);
-		}
-		break;
-	case PUGL_SCROLL:
-		if (view->scrollFunc) {
-			view->scrollFunc(view,
-			                 event->scroll.x, event->scroll.y,
-			                 event->scroll.dx, event->scroll.dy);
-		}
-		break;
-	case PUGL_BUTTON_PRESS:
-	case PUGL_BUTTON_RELEASE:
-		view->event_timestamp_ms = event->button.time;
-		view->mods               = event->button.state;
-		if (view->mouseFunc) {
-			view->mouseFunc(view,
-			                event->button.button,
-			                event->type == PUGL_BUTTON_PRESS,
-			                event->button.x,
-			                event->button.y);
-		}
-		break;
-	case PUGL_KEY_PRESS:
-	case PUGL_KEY_RELEASE:
-		view->event_timestamp_ms = event->key.time;
-		view->mods               = event->key.state;
-		if (event->key.special && view->specialFunc) {
-			view->specialFunc(view,
-			                  event->type == PUGL_KEY_PRESS,
-			                  event->key.special);
-		} else if (event->key.character && view->keyboardFunc) {
-			view->keyboardFunc(view,
-			                   event->type == PUGL_KEY_PRESS,
-			                   event->key.character);
-		}
-		break;
-	default:
-		break;
 	}
 }
