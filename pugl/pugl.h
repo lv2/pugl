@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2015 David Robillard <http://drobilla.net>
+  Copyright 2012-2016 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -146,8 +146,9 @@ typedef void (*PuglSpecialFunc)(PuglView* view, bool press, PuglKey key);
    To create a window, call the various puglInit* functions as necessary, then
    call puglCreateWindow().
 
-   @param pargc Pointer to argument count (unused, for GLUT compatibility).
-   @param argv  Arguments (unused, for GLUT compatibility).
+   @param pargc Pointer to argument count (currently unused).
+   @param argv  Arguments (currently unused).
+   @return A newly created view.
 */
 PUGL_API PuglView*
 puglInit(int* pargc, char** argv);
@@ -198,8 +199,8 @@ puglInitResizable(PuglView* view, bool resizable);
 /**
    Set transient parent before creating a window.
 
-   On X11, parent_id must be a Window.
-   On OSX, parent_id must be an NSView*.
+   On X11, parent must be a Window.
+   On OSX, parent must be an NSView*.
 */
 PUGL_API void
 puglInitTransientFor(PuglView* view, uintptr_t parent);
@@ -255,9 +256,6 @@ puglGetNativeWindow(PuglView* view);
 
    This is generally a pointer to a struct which contains all necessary state.
    Everything needed in callbacks should be here, not in static variables.
-
-   Note the lack of this facility makes GLUT unsuitable for plugins or
-   non-trivial programs; this mistake is largely why Pugl exists.
 */
 PUGL_API void
 puglSetHandle(PuglView* view, PuglHandle handle);

@@ -1,5 +1,5 @@
 /*
-  Copyright 2014-2015 David Robillard <http://drobilla.net>
+  Copyright 2014-2016 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -34,20 +34,20 @@ extern "C" {
    The type of a PuglEvent.
 */
 typedef enum {
-	PUGL_NOTHING,
-	PUGL_BUTTON_PRESS,
-	PUGL_BUTTON_RELEASE,
-	PUGL_CONFIGURE,
-	PUGL_EXPOSE,
-	PUGL_CLOSE,
-	PUGL_KEY_PRESS,
-	PUGL_KEY_RELEASE,
-	PUGL_ENTER_NOTIFY,
-	PUGL_LEAVE_NOTIFY,
-	PUGL_MOTION_NOTIFY,
-	PUGL_SCROLL,
-	PUGL_FOCUS_IN,
-	PUGL_FOCUS_OUT
+	PUGL_NOTHING,              /**< No event */
+	PUGL_BUTTON_PRESS,         /**< Mouse button press */
+	PUGL_BUTTON_RELEASE,       /**< Mouse button release */
+	PUGL_CONFIGURE,            /**< View moved and/or resized */
+	PUGL_EXPOSE,               /**< View exposed, redraw required */
+	PUGL_CLOSE,                /**< Close view */
+	PUGL_KEY_PRESS,            /**< Key press */
+	PUGL_KEY_RELEASE,          /**< Key release */
+	PUGL_ENTER_NOTIFY,         /**< Pointer entered view */
+	PUGL_LEAVE_NOTIFY,         /**< Pointer left view */
+	PUGL_MOTION_NOTIFY,        /**< Pointer motion */
+	PUGL_SCROLL,               /**< Scroll */
+	PUGL_FOCUS_IN,             /**< Keyboard focus entered view */
+	PUGL_FOCUS_OUT             /**< Keyboard focus left view */
 } PuglEventType;
 
 typedef enum {
@@ -58,9 +58,9 @@ typedef enum {
    Reason for a PuglEventCrossing.
 */
 typedef enum {
-	PUGL_CROSSING_NORMAL,  /**< Crossing due to pointer motion. */
-	PUGL_CROSSING_GRAB,    /**< Crossing due to a grab. */
-	PUGL_CROSSING_UNGRAB   /**< Crossing due to a grab release. */
+	PUGL_CROSSING_NORMAL,      /**< Crossing due to pointer motion. */
+	PUGL_CROSSING_GRAB,        /**< Crossing due to a grab. */
+	PUGL_CROSSING_UNGRAB       /**< Crossing due to a grab release. */
 } PuglCrossingMode;
 
 /**
