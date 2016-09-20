@@ -242,9 +242,10 @@ typedef union {
 	PuglEventAny       any;        /**< Valid for all event types. */
 	PuglEventButton    button;     /**< PUGL_BUTTON_PRESS, PUGL_BUTTON_RELEASE. */
 	PuglEventConfigure configure;  /**< PUGL_CONFIGURE. */
-	PuglEventCrossing  crossing;   /**< PUGL_ENTER_NOTIFY, PUGL_LEAVE_NOTIFY. */
 	PuglEventExpose    expose;     /**< PUGL_EXPOSE. */
+	PuglEventClose     close;      /**< PUGL_CLOSE. */
 	PuglEventKey       key;        /**< PUGL_KEY_PRESS, PUGL_KEY_RELEASE. */
+	PuglEventCrossing  crossing;   /**< PUGL_ENTER_NOTIFY, PUGL_LEAVE_NOTIFY. */
 	PuglEventMotion    motion;     /**< PUGL_MOTION_NOTIFY. */
 	PuglEventScroll    scroll;     /**< PUGL_SCROLL. */
 	PuglEventFocus     focus;      /**< PUGL_FOCUS_IN, PUGL_FOCUS_OUT. */

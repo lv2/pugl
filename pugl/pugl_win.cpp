@@ -268,17 +268,6 @@ keySymToSpecial(int sym)
 	return (PuglKey)0;
 }
 
-static void
-setModifiers(PuglView* view)
-{
-	view->mods = 0;
-	view->mods |= (GetKeyState(VK_SHIFT)   < 0) ? PUGL_MOD_SHIFT  : 0;
-	view->mods |= (GetKeyState(VK_CONTROL) < 0) ? PUGL_MOD_CTRL   : 0;
-	view->mods |= (GetKeyState(VK_MENU)    < 0) ? PUGL_MOD_ALT    : 0;
-	view->mods |= (GetKeyState(VK_LWIN)    < 0) ? PUGL_MOD_SUPER  : 0;
-	view->mods |= (GetKeyState(VK_RWIN)    < 0) ? PUGL_MOD_SUPER  : 0;
-}
-
 static unsigned int
 getModifiers()
 {
@@ -477,7 +466,6 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		event.any.flags |= PUGL_IS_SEND_EVENT;
 	}
 
-	setModifiers(view);
 	switch (message) {
 	case WM_CREATE:
 	case WM_SHOWWINDOW:

@@ -243,7 +243,6 @@ main(int argc, char** argv)
 	puglCreateWindow(view, "Pugl Test");
 
 	puglEnterContext(view);
-	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
