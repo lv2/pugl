@@ -219,19 +219,24 @@ puglDecodeUTF8(const uint8_t* buf)
 static void
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
-	if (event->type == PUGL_NOTHING) {
-		return;
-	} else if (event->type == PUGL_EXPOSE && event->expose.count > 0) {
-		return;
-	} else if (view->eventFunc) {
-		const bool is_draw = (event->type == PUGL_CONFIGURE ||
-		                      event->type == PUGL_EXPOSE);
-		if (is_draw) {
-			puglEnterContext(view);
-		}
+	switch (event->type) {
+	case PUGL_NOTHING:
+		break;
+	case PUGL_CONFIGURE:
+		view->width  = event->configure.width;
+		view->height = event->configure.height;
+		puglEnterContext(view);
 		view->eventFunc(view, event);
-		if (is_draw) {
-			puglLeaveContext(view, event->type == PUGL_EXPOSE);
+		puglLeaveContext(view, false);
+		break;
+	case PUGL_EXPOSE:
+		if (event->expose.count == 0) {
+			puglEnterContext(view);
+			view->eventFunc(view, event);
+			puglLeaveContext(view, true);
 		}
+		break;
+	default:
+		view->eventFunc(view, event);
 	}
 }
