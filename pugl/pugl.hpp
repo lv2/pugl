@@ -38,9 +38,6 @@ public:
 	{
 		puglSetHandle(_view, this);
 		puglSetEventFunc(_view, _onEvent);
-		puglSetCloseFunc(_view, _onClose);
-		puglSetReshapeFunc(_view, _onReshape);
-		puglSetDisplayFunc(_view, _onDisplay);
 	}
 
 	virtual ~View() { puglDestroy(_view); }
@@ -81,10 +78,7 @@ public:
 	virtual void             hideWindow()      { puglHideWindow(_view); }
 	virtual PuglNativeWindow getNativeWindow() { return puglGetNativeWindow(_view); }
 
-	virtual void onEvent(const PuglEvent* event) {}
-	virtual void onClose() {}
-	virtual void onReshape(int width, int height) {}
-	virtual void onDisplay() {}
+	virtual void onEvent(const PuglEvent* event) = 0;
 
 	virtual void*      getContext()                 { return puglGetContext(_view); }
 	virtual void       ignoreKeyRepeat(bool ignore) { puglIgnoreKeyRepeat(_view, ignore); }
@@ -98,15 +92,6 @@ public:
 private:
 	static void _onEvent(PuglView* view, const PuglEvent* event) {
 		((View*)puglGetHandle(view))->onEvent(event);
-	}
-	static void _onClose(PuglView* view) {
-		((View*)puglGetHandle(view))->onClose();
-	}
-	static void _onReshape(PuglView* view, int width, int height) {
-		((View*)puglGetHandle(view))->onReshape(width, height);
-	}
-	static void _onDisplay(PuglView* view) {
-		((View*)puglGetHandle(view))->onDisplay();
 	}
 
 	PuglView* _view;
