@@ -32,7 +32,6 @@
 #include <string.h>
 
 #include "pugl/pugl.h"
-#include "pugl/event.h"
 
 typedef struct PuglInternalsImpl PuglInternals;
 

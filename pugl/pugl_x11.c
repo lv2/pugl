@@ -39,7 +39,6 @@
 #include <cairo/cairo-xlib.h>
 #endif
 
-#include "pugl/event.h"
 #include "pugl/cairo_gl.h"
 #include "pugl/pugl_internal.h"
 
