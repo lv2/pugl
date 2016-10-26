@@ -109,14 +109,6 @@ struct PuglInternalsImpl {
 
 @end
 
-static void
-puglDisplay(PuglView* view)
-{
-	if (view->displayFunc) {
-		view->displayFunc(view);
-	}
-}
-
 @interface PuglOpenGLView : NSOpenGLView
 {
 @public
@@ -211,7 +203,18 @@ puglDisplay(PuglView* view)
 
 - (void) drawRect:(NSRect)rect
 {
-	puglDisplay(puglview);
+	const PuglEventExpose ev =  {
+		PUGL_EXPOSE,
+		puglview,
+		0,
+		rect.origin.x,
+		rect.origin.y,
+		rect.size.width,
+		rect.size.height,
+		0
+	};
+
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 
 #ifdef PUGL_HAVE_CAIRO
 	if (puglview->ctx_type & PUGL_CAIRO) {
@@ -219,8 +222,6 @@ puglDisplay(PuglView* view)
 			&puglview->impl->cairo_gl, puglview->width, puglview->height);
 	}
 #endif
-
-	[[self openGLContext] flushBuffer];
 }
 
 - (BOOL) acceptsFirstResponder
@@ -232,8 +233,6 @@ static unsigned
 getModifiers(PuglView* view, NSEvent* ev)
 {
 	const unsigned modifierFlags = [ev modifierFlags];
-
-	view->event_timestamp_ms = fmod([ev timestamp] * 1000.0, UINT32_MAX);
 
 	unsigned mods = 0;
 	mods |= (modifierFlags & NSShiftKeyMask)     ? PUGL_MOD_SHIFT : 0;
@@ -434,7 +433,8 @@ getModifiers(PuglView* view, NSEvent* ev)
 
 - (void) flagsChanged:(NSEvent*)event
 {
-	if (puglview->specialFunc) {
+	// TODO: Is this a sensible way to handle special keys?
+	/*
 		const unsigned mods = getModifiers(puglview, event);
 		if ((mods & PUGL_MOD_SHIFT) != (puglview->mods & PUGL_MOD_SHIFT)) {
 			puglview->specialFunc(puglview, mods & PUGL_MOD_SHIFT, PUGL_KEY_SHIFT);
@@ -447,6 +447,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 		}
 		puglview->mods = mods;
 	}
+	*/
 }
 
 @end
@@ -585,13 +586,21 @@ puglWaitForEvent(PuglView* view)
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	if (!view->impl->nextEvent) {
-		view->impl->nextEvent = [view->impl->window
-		                            nextEventMatchingMask: NSAnyEventMask];
-	}
+	while (true) {
+		// Get the next event, or use the cached one from puglWaitForEvent
+		if (!view->impl->nextEvent) {
+			view->impl->nextEvent = [view->impl->window
+			                            nextEventMatchingMask: NSAnyEventMask];
+		}
 
-	[view->impl->app sendEvent: view->impl->nextEvent];
-	view->impl->nextEvent = NULL;
+		if (!view->impl->nextEvent) {
+			break;  // No events to process, done
+		}
+
+		// Dispatch event
+		[view->impl->app sendEvent: view->impl->nextEvent];
+		view->impl->nextEvent = NULL;
+	}
 
 	return PUGL_SUCCESS;
 }
