@@ -182,6 +182,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 		        (event->type == PUGL_BUTTON_PRESS) ? "down" : "up",
 		        event->button.x,
 		        event->button.y);
+		printModifiers(view, event->scroll.state);
 		break;
 	case PUGL_SCROLL:
 		fprintf(stderr, "Scroll %f %f %f %f ",
