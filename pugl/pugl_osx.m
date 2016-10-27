@@ -131,6 +131,9 @@ struct PuglInternalsImpl {
 - (void) rightMouseDragged:(NSEvent*)event;
 - (void) rightMouseDown:(NSEvent*)event;
 - (void) rightMouseUp:(NSEvent*)event;
+- (void) otherMouseDragged:(NSEvent*)event;
+- (void) otherMouseDown:(NSEvent*)event;
+- (void) otherMouseUp:(NSEvent*)event;
 - (void) scrollWheel:(NSEvent*)event;
 - (void) keyDown:(NSEvent*)event;
 - (void) keyUp:(NSEvent*)event;
@@ -303,6 +306,11 @@ getModifiers(PuglView* view, NSEvent* ev)
 	[self mouseMoved: event];
 }
 
+- (void) otherMouseDragged:(NSEvent*)event
+{
+	[self mouseMoved: event];
+}
+
 - (void) mouseDown:(NSEvent*)event
 {
 	const NSPoint         wloc = [self eventLocation:event];
@@ -348,6 +356,16 @@ getModifiers(PuglView* view, NSEvent* ev)
 }
 
 - (void) rightMouseUp:(NSEvent*)event
+{
+	[self mouseUp: event];
+}
+
+- (void) otherMouseDown:(NSEvent*)event
+{
+	[self mouseDown: event];
+}
+
+- (void) otherMouseUp:(NSEvent*)event
 {
 	[self mouseUp: event];
 }
