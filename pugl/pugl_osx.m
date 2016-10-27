@@ -317,7 +317,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
-		[event buttonNumber]
+		[event buttonNumber] + 1
 	};
 	puglDispatchEvent(puglview, (PuglEvent*)&ev);
 }
@@ -336,7 +336,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
-		[event buttonNumber]
+		[event buttonNumber] + 1
 	};
 	puglDispatchEvent(puglview, (PuglEvent*)&ev);
 	[self updateTrackingAreas];
