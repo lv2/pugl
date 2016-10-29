@@ -598,6 +598,7 @@ puglProcessEvents(PuglView* view)
 
 	if (view->redisplay) {
 		InvalidateRect(view->impl->hwnd, NULL, FALSE);
+		view->redisplay = false;
 	}
 
 	return PUGL_SUCCESS;
