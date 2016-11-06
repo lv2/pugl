@@ -16,7 +16,7 @@
 
 #if defined(PUGL_HAVE_GL) && defined(PUGL_HAVE_CAIRO)
 
-#include <cairo.h>
+#include <cairo/cairo.h>
 #include <stdint.h>
 
 #include "pugl/gl.h"
