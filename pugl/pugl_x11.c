@@ -595,15 +595,21 @@ puglWaitForEvent(PuglView* view)
 }
 
 static void
-merge_draw_events(PuglEvent* dst, const PuglEvent* src)
+merge_expose_events(PuglEvent* dst, const PuglEvent* src)
 {
 	if (!dst->type) {
 		*dst = *src;
 	} else {
-		dst->expose.x      = MIN(dst->expose.x,      src->expose.x);
-		dst->expose.y      = MIN(dst->expose.y,      src->expose.y);
-		dst->expose.width  = MAX(dst->expose.width,  src->expose.width);
-		dst->expose.height = MAX(dst->expose.height, src->expose.height);
+		const double max_x = MAX(dst->expose.x + dst->expose.width,
+		                         src->expose.x + src->expose.width);
+		const double max_y = MAX(dst->expose.y + dst->expose.height,
+		                         src->expose.y + src->expose.height);
+
+		dst->expose.x      = MIN(dst->expose.x, src->expose.x);
+		dst->expose.y      = MIN(dst->expose.y, src->expose.y);
+		dst->expose.width  = max_x - dst->expose.x;
+		dst->expose.height = max_y - dst->expose.y;
+		dst->expose.count  = MIN(dst->expose.count, src->expose.count);
 	}
 }
 
@@ -642,10 +648,10 @@ puglProcessEvents(PuglView* view)
 
 		if (event.type == PUGL_EXPOSE) {
 			// Expand expose event to be dispatched after loop
-			merge_draw_events(&expose_event, &event);
+			merge_expose_events(&expose_event, &event);
 		} else if (event.type == PUGL_CONFIGURE) {
 			// Expand configure event to be dispatched after loop
-			merge_draw_events(&config_event, &event);
+			config_event = event;
 		} else {
 			// Dispatch event to application immediately
 			puglDispatchEvent(view, &event);
