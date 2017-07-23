@@ -359,7 +359,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
-		[event buttonNumber] + 1
+		(unsigned)[event buttonNumber] + 1
 	};
 	puglDispatchEvent(puglview, (PuglEvent*)&ev);
 }
@@ -378,7 +378,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
-		[event buttonNumber] + 1
+		(unsigned)[event buttonNumber] + 1
 	};
 	puglDispatchEvent(puglview, (PuglEvent*)&ev);
 	[self updateTrackingAreas];
