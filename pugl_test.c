@@ -156,9 +156,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 		quit = 1;
 		break;
 	case PUGL_KEY_PRESS:
-		fprintf(stderr, "Key %u (char %u) press (%s)%s\n",
-		        event->key.keycode, event->key.character, event->key.utf8,
-		        event->key.filter ? " (filtered)" : "");
+		fprintf(stderr, "Key %u (char U+%04X special U+%04X) press (%s)%s\n",
+		        event->key.keycode, event->key.character, event->key.special,
+		        event->key.utf8, event->key.filter ? " (filtered)" : "");
 		if (event->key.character == 'q' ||
 		    event->key.character == 'Q' ||
 		    event->key.character == PUGL_CHAR_ESCAPE) {
@@ -166,9 +166,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 		}
 		break;
 	case PUGL_KEY_RELEASE:
-		fprintf(stderr, "Key %u (char %u) release (%s)%s\n",
-		        event->key.keycode, event->key.character, event->key.utf8,
-		        event->key.filter ? " (filtered)" : "");
+		fprintf(stderr, "Key %u (char U+%04X special U+%04X) release (%s)%s\n",
+		        event->key.keycode, event->key.character, event->key.special,
+		        event->key.utf8, event->key.filter ? " (filtered)" : "");
 		break;
 	case PUGL_MOTION_NOTIFY:
 		xAngle = -(int)event->motion.x % 360;
