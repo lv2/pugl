@@ -64,16 +64,13 @@ struct PuglInternalsImpl {
                   backing:(NSBackingStoreType)bufferingType
                     defer:(BOOL)flag
 {
-	if (![super initWithContentRect:contentRect
-	                      styleMask:(NSClosableWindowMask |
-	                                 NSTitledWindowMask |
-	                                 NSResizableWindowMask)
-	                        backing:NSBackingStoreBuffered defer:NO]) {
-		return nil;
-	}
+	NSWindow* result = [super initWithContentRect:contentRect
+					    styleMask:aStyle
+					      backing:bufferingType
+						defer:NO];
 
-	[self setAcceptsMouseMovedEvents:YES];
-	return (PuglWindow*)self;
+	[result setAcceptsMouseMovedEvents:YES];
+	return (PuglWindow*)result;
 }
 
 - (void)setPuglview:(PuglView*)view
@@ -563,6 +560,19 @@ puglLeaveContext(PuglView* view, bool flush)
 	}
 }
 
+static NSLayoutConstraint*
+puglConstraint(id item, NSLayoutAttribute attribute, float constant)
+{
+	return [NSLayoutConstraint
+		       constraintWithItem: item
+		                attribute: attribute
+		                relatedBy: NSLayoutRelationGreaterThanOrEqual
+		                   toItem: nil
+		                attribute: NSLayoutAttributeNotAnAttribute
+		               multiplier: 1.0
+		                 constant: constant];
+}
+
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
@@ -574,6 +584,15 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->glview           = [PuglOpenGLView new];
 	impl->glview->puglview = view;
 
+	[impl->glview setFrameSize:NSMakeSize(view->width, view->height)];
+	[impl->glview addConstraint:
+		     puglConstraint(impl->glview, NSLayoutAttributeWidth, view->min_width)];
+	[impl->glview addConstraint:
+		     puglConstraint(impl->glview, NSLayoutAttributeHeight, view->min_height)];
+	if (!view->resizable) {
+		[impl->glview setAutoresizingMask:NSViewNotSizable];
+	}
+
 	if (view->transient_parent) {
 		NSView* pview = (NSView*)view->transient_parent;
 		[pview addSubview:impl->glview];
@@ -583,8 +602,18 @@ puglCreateWindow(PuglView* view, const char* title)
 			                        initWithBytes:title
 			                               length:strlen(title)
 			                             encoding:NSUTF8StringEncoding];
+		NSRect frame = NSMakeRect(0, 0, view->min_width, view->min_height);
+		unsigned style = NSClosableWindowMask | NSTitledWindowMask;
+		if (view->resizable) {
+			style |= NSResizableWindowMask;
+		}
 
-		id window = [[PuglWindow new] retain];
+		id window = [[[PuglWindow alloc]
+			initWithContentRect:frame
+			          styleMask:style
+			            backing:NSBackingStoreBuffered
+			              defer:NO
+		              ] retain];
 		[window setPuglview:view];
 		[window setTitle:titleString];
 		if (view->min_width || view->min_height) {
@@ -597,11 +626,6 @@ puglCreateWindow(PuglView* view, const char* title)
 		[impl->app activateIgnoringOtherApps:YES];
 		[window makeFirstResponder:impl->glview];
 		[window makeKeyAndOrderFront:window];
-#if 0
-		if (resizable) {
-			[impl->glview setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-		}
-#endif
 	}
 
 	return 0;
