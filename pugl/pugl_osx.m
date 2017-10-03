@@ -538,12 +538,6 @@ void
 puglEnterContext(PuglView* view)
 {
 	[[view->impl->glview openGLContext] makeCurrentContext];
-#ifdef PUGL_HAVE_CAIRO
-	if (view->ctx_type & PUGL_CAIRO) {
-		cairo_set_source_rgb(view->impl->cr, 0, 0, 0);
-		cairo_paint(view->impl->cr);
-	}
-#endif
 }
 
 void
