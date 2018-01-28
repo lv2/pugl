@@ -275,10 +275,10 @@ translateKey(PuglView* view, XEvent* xevent, PuglEvent* event)
 	event->key.keycode = xevent->xkey.keycode;
 }
 
-static unsigned
+static uint32_t
 translateModifiers(unsigned xstate)
 {
-	unsigned state = 0;
+	uint32_t state = 0;
 	state |= (xstate & ShiftMask)   ? PUGL_MOD_SHIFT  : 0;
 	state |= (xstate & ControlMask) ? PUGL_MOD_CTRL   : 0;
 	state |= (xstate & Mod1Mask)    ? PUGL_MOD_ALT    : 0;

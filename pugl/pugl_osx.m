@@ -37,7 +37,7 @@ struct PuglInternalsImpl {
 	PuglOpenGLView*  glview;
 	id               window;
 	NSEvent*         nextEvent;
-	unsigned         mods;
+	uint32_t         mods;
 #ifdef PUGL_HAVE_CAIRO
 	cairo_surface_t* surface;
 	cairo_t*         cr;
@@ -233,12 +233,12 @@ struct PuglInternalsImpl {
 	return YES;
 }
 
-static unsigned
+static uint32_t
 getModifiers(PuglView* view, NSEvent* ev)
 {
 	const unsigned modifierFlags = [ev modifierFlags];
 
-	unsigned mods = 0;
+	uint32_t mods = 0;
 	mods |= (modifierFlags & NSShiftKeyMask)     ? PUGL_MOD_SHIFT : 0;
 	mods |= (modifierFlags & NSControlKeyMask)   ? PUGL_MOD_CTRL  : 0;
 	mods |= (modifierFlags & NSAlternateKeyMask) ? PUGL_MOD_ALT   : 0;
@@ -359,7 +359,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
-		(unsigned)[event buttonNumber] + 1
+		(uint32_t)[event buttonNumber] + 1
 	};
 	puglDispatchEvent(puglview, (PuglEvent*)&ev);
 }
@@ -378,7 +378,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
-		(unsigned)[event buttonNumber] + 1
+		(uint32_t)[event buttonNumber] + 1
 	};
 	puglDispatchEvent(puglview, (PuglEvent*)&ev);
 	[self updateTrackingAreas];
@@ -486,7 +486,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 
 - (void) flagsChanged:(NSEvent*)event
 {
-	const unsigned mods    = getModifiers(puglview, event);
+	const uint32_t mods    = getModifiers(puglview, event);
 	PuglEventType  type    = PUGL_NOTHING;
 	PuglKey        special = 0;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2016 David Robillard <http://drobilla.net>
+  Copyright 2012-2019 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -223,8 +223,8 @@ typedef struct {
 	double        y;           /**< View-relative Y coordinate. */
 	double        x_root;      /**< Root-relative X coordinate. */
 	double        y_root;      /**< Root-relative Y coordinate. */
-	unsigned      state;       /**< Bitwise OR of PuglMod flags. */
-	unsigned      button;      /**< 1-relative button number. */
+	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
+	uint32_t      button;      /**< 1-relative button number. */
 } PuglEventButton;
 
 /**
@@ -293,8 +293,8 @@ typedef struct {
 	double        y;           /**< View-relative Y coordinate. */
 	double        x_root;      /**< Root-relative X coordinate. */
 	double        y_root;      /**< Root-relative Y coordinate. */
-	unsigned      state;       /**< Bitwise OR of PuglMod flags. */
-	unsigned      keycode;     /**< Raw key code. */
+	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
+	uint32_t      keycode;     /**< Raw key code. */
 	uint32_t      character;   /**< Unicode character code, or 0. */
 	PuglKey       special;     /**< Special key, or 0. */
 	uint8_t       utf8[8];     /**< UTF-8 string. */
@@ -313,7 +313,7 @@ typedef struct {
 	double           y;        /**< View-relative Y coordinate. */
 	double           x_root;   /**< Root-relative X coordinate. */
 	double           y_root;   /**< Root-relative Y coordinate. */
-	unsigned         state;    /**< Bitwise OR of PuglMod flags. */
+	uint32_t         state;    /**< Bitwise OR of PuglMod flags. */
 	PuglCrossingMode mode;     /**< Reason for crossing. */
 } PuglEventCrossing;
 
@@ -329,7 +329,7 @@ typedef struct {
 	double        y;           /**< View-relative Y coordinate. */
 	double        x_root;      /**< Root-relative X coordinate. */
 	double        y_root;      /**< Root-relative Y coordinate. */
-	unsigned      state;       /**< Bitwise OR of PuglMod flags. */
+	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
 	bool          is_hint;     /**< True iff this event is a motion hint. */
 	bool          focus;       /**< True iff this is the focused window. */
 } PuglEventMotion;
@@ -352,7 +352,7 @@ typedef struct {
 	double        y;           /**< View-relative Y coordinate. */
 	double        x_root;      /**< Root-relative X coordinate. */
 	double        y_root;      /**< Root-relative Y coordinate. */
-	unsigned      state;       /**< Bitwise OR of PuglMod flags. */
+	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
 	double        dx;          /**< Scroll X distance in lines. */
 	double        dy;          /**< Scroll Y distance in lines. */
 } PuglEventScroll;

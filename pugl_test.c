@@ -133,7 +133,7 @@ onDisplay(PuglView* view)
 }
 
 static void
-printModifiers(PuglView* view, unsigned mods)
+printModifiers(PuglView* view, uint32_t mods)
 {
 	fprintf(stderr, "Modifiers:%s%s%s%s\n",
 	        (mods & PUGL_MOD_SHIFT) ? " Shift"   : "",

@@ -268,10 +268,10 @@ keySymToSpecial(int sym)
 	return (PuglKey)0;
 }
 
-static unsigned int
+static uint32_t
 getModifiers()
 {
-	unsigned int mods = 0;
+	uint32_t mods = 0;
 	mods |= (GetKeyState(VK_SHIFT)   < 0) ? PUGL_MOD_SHIFT  : 0;
 	mods |= (GetKeyState(VK_CONTROL) < 0) ? PUGL_MOD_CTRL   : 0;
 	mods |= (GetKeyState(VK_MENU)    < 0) ? PUGL_MOD_ALT    : 0;
@@ -323,10 +323,10 @@ initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam, WPARAM wParam)
 	event->scroll.dy     = 0;
 }
 
-static unsigned int
+static uint32_t
 utf16_to_code_point(const wchar_t* input, size_t input_size)
 {
-	unsigned int code_unit = *input;
+	uint32_t code_unit = *input;
 	// Equiv. range check between 0xD800 to 0xDBFF inclusive
 	if ((code_unit & 0xFC00) == 0xD800) {
 		if (input_size < 2) {
@@ -334,7 +334,7 @@ utf16_to_code_point(const wchar_t* input, size_t input_size)
 			return 0xFFFD;  // replacement character
 		}
 
-		unsigned int code_unit_2 = *++input;
+		uint32_t code_unit_2 = *++input;
 		// Equiv. range check between 0xDC00 to 0xDFFF inclusive
 		if ((code_unit_2 & 0xFC00) == 0xDC00) {
 			return (code_unit << 10) + code_unit_2 - 0x35FDC00;
