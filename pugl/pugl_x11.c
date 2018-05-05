@@ -420,6 +420,11 @@ translateKey(PuglView* view, XEvent* xevent, PuglEvent* event)
 	if (xevent->type == KeyRelease || event->key.filter || !view->impl->xic) {
 		if (XLookupString(&xevent->xkey, str, 7, &sym, NULL) == 1) {
 			event->key.character = str[0];
+			//ASCII for control characters
+			if(sym == (sym&0x7f)) {
+				event->key.character = sym;
+				event->key.utf8[0] = sym;
+			}
 		}
 	} else {
 		/* TODO: Not sure about this.  On my system, some characters work with
@@ -435,6 +440,11 @@ translateKey(PuglView* view, XEvent* xevent, PuglEvent* event)
 #endif
 		if (n > 0) {
 			event->key.character = puglDecodeUTF8((const uint8_t*)str);
+			//ASCII for control characters
+			if(sym == (sym&0x7f)) {
+				event->key.character = sym;
+				event->key.utf8[0] = sym;
+			}
 		}
 	}
 	event->key.special = keySymToSpecial(sym);
