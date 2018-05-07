@@ -143,6 +143,34 @@ typedef enum {
 } PuglKey;
 
 /**
+   Drag and Drop action types
+
+   These let dnd source announce how it wants to perform the DnD operation
+ */
+typedef enum {
+	//! Copying indicates that after a DnD, source and target will both
+	//! obtain the associated data, and both instances of the data are not
+	//! linked.
+	//! Example: Dragging a filename from a file browser and dropping it
+	//!          over an UI to ask the UI to load the file. Afterwards, the
+	//!          both have an instance of the file (the UI has the file
+	//!          inside its RAM).
+	PuglDndActionCopy,
+	//! Moving is like copying, except that the associated data will be
+	//! removed from the source afterwards.
+	//! Example: Sorting effects in an audio app in order to change
+	//!          their pipelining order
+	PuglDndActionMove,
+	//! Linking means that after the DnD operation, there will be a link
+	//! from the target to the associated data of the source. This is only
+	//! useful if source and target know a way to communicate to each other
+	//! Example: Dragging a knob from a synthesizer and dropping it on a
+	//!          DAW's controller or automation pattern. Afterwards, the
+	//!          knob will be changed according to the DAW.
+	PuglDndActionLink
+} PuglDndAction;
+
+/**
    The type of a PuglEvent.
 */
 typedef enum {
@@ -163,7 +191,7 @@ typedef enum {
 } PuglEventType;
 
 typedef enum {
-	PUGL_IS_SEND_EVENT = 1
+	PUGL_IS_SEND_EVENT = 1     /**< True iff sent from another thread */
 } PuglEventFlag;
 
 /**
@@ -188,6 +216,13 @@ typedef struct {
    Button press or release event.
 
    For event types PUGL_BUTTON_PRESS and PUGL_BUTTON_RELEASE.
+
+   This event is *not* being suppressed during a drag-and-drop (dnd)
+   operation. Apps must be careful to handle this case correctly by looking
+   at TODO (a parameter to this function, e.g. making press an int and adding
+   a dnd mask for it? or a variable in PuglView?). For example, there may be
+   cases where moving the mouse should not change the widget's parameters
+   while a dnd operation is active.
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_BUTTON_PRESS or PUGL_BUTTON_RELEASE. */
@@ -362,6 +397,149 @@ typedef union {
 	PuglEventScroll    scroll;     /**< PUGL_SCROLL. */
 	PuglEventFocus     focus;      /**< PUGL_FOCUS_IN, PUGL_FOCUS_OUT. */
 } PuglEvent;
+
+/*
+    event functions in old pugl-style
+    TODO: make events of them, but there must be a way to still let the event
+	  dispatch functions return values (as the old functions return values)
+*/
+
+/**
+   Let the source specify how, e.g. with what action, it wants to perform
+   the drag and drop.
+
+   @param rootx The pointer's x coordinates, global to the root window
+   @param rooty The pointer's y coordinates, global to the root window
+*/
+typedef PuglDndAction (*PuglDndSourceActionFunc)(PuglView* view,
+						 int rootx, int rooty);
+
+/**
+   Inform the source that a drag is initiated at (x, y) and let the source
+   accept or deny the drag
+
+   @param x The x coordinate, local to the pugl window
+   @param y The y coordinate, local to the pugl window
+   @return 1 iff the drag shall be accepted
+ */
+typedef int (*PuglDndSourceDragFunc)(PuglView* view, int x, int y);
+
+/**
+   Inform the source that the drop has been finished
+   @param accepted whether the drop has been accepted or not
+*/
+typedef void (*PuglDndSourceFinishedFunc)(PuglView* view, int accepted);
+
+/**
+   Return the key required to initiate DnD
+
+   While this key is being pressed, mouse movements will count as drags, and
+   the view.mouseFunc is not being called
+   @param accepted whether the drop has been accepted or not
+*/
+typedef PuglKey (*PuglDndSourceKeyFunc)(PuglView* view);
+
+/**
+   Ask the source to return the property of the given type
+   @param rootx The pointer's x coordinates, global to the root window
+   @param rooty The pointer's y coordinates, global to the root window
+   @param slot Identifier specifying the type, or NULL
+*/
+typedef const char* (*PuglDndSourceOfferTypeFunc)(PuglView* view,
+						  int rootx, int rooty,
+						  int slot);
+
+/**
+   Ask the source to write out a given property.
+   @param slot Identifier specifying the type
+   @param size Maximum size to write; must not be exceeded.
+   @param buffer An allocated buffer where the property must be written
+   @return The actual number of bytes filled from the buffer,
+	   e.g. for a string str, strlen(str) + 1
+*/
+typedef int (*PuglDndSourceProvideDataFunc)(PuglView* view,
+					    int slot, int size, char* buffer);
+
+/**
+   Let the target say whether it accepts the previous drop.
+   @return A boolean specifying whether the drop was accepted or not.
+*/
+typedef int (*PuglDndTargetAcceptDropFunc)(PuglView* view);
+
+/**
+   Let the target choose for which types it wants to lookup the data.
+
+   All requested types will be returned using dndTargetReceiveData.
+
+   @return A bitmask. The LSB corresponds to slot 0. Set it if you want to
+	   lookup the property at slot 0.
+*/
+typedef int (*PuglDndTargetChooseTypesToLookupFunc)(PuglView* view);
+
+/**
+   Inform the target that the user dropped the mouse.
+
+   dndTargetChooseTypesToLookup() will be called once after this.
+*/
+typedef void (*PuglDndTargetDropFunc)(PuglView* view);
+
+/**
+   Inform the target of a new position and the action.
+
+   This is being sent when the mouse has been moved while being inside the pugl
+   window. It may be suppressed if the PuglDndTargetNoPositionInFunc has
+   been used.
+
+   @param x x coordinate, local to the pugl window
+   @param y y coordinate, local to the pugl window
+   @param action The action the source wants to perform
+   @return whether a drop with this action would be possible here
+*/
+typedef int (*PuglDndTargetInformPositionFunc)(PuglView* view, int x, int y,
+						PuglDndAction action);
+
+/**
+   Inform the target that the mouse pointer is not over it anymore
+*/
+typedef void (*PuglDndTargetLeaveFunc)(PuglView* view);
+
+/**
+   Lets the target define a rectangle in which no
+   new position events shall be sent.
+
+   The target must fill in the values for all arguments or return zero.
+
+   @param x x-coordinate, local to the pugl window
+   @param y y-coordinate, local to the pugl window
+   @param w width
+   @param h height
+   @return zero iff no such rectangle shall be defined
+ */
+typedef int (*PuglDndTargetNoPositionInFunc)(PuglView* view,
+					     int* x, int* y, int* w, int *h);
+
+/**
+   Inform the target that the source offers a mimetype
+   @param slot The slot which the mimetypes has been assigned to
+   @param mimetype Mimetype string, like e.g. "text/plain". On X11,
+	guaranteed to be null terminated. The target can not rely on it
+	existing after the function is left.
+*/
+typedef void (*PuglDndTargetOfferTypeFunc)(PuglView* view,
+					   int slot, const char* mimetype);
+
+/**
+   Retreive a property.
+   @param slot The slot identifying the corresponding mimetype
+   @param size The size of property in bytes. For a string property prop,
+	       this would be strlen(prop)+1
+   @param property The property. The target can not rely on it existing
+		   after the function is left.
+		   The data is always 0-terminated.
+*/
+typedef void (*PuglDndTargetReceiveDataFunc)(PuglView* view,
+					     int slot,
+					     int size, const char* property);
 
 /**
    @name Initialization
@@ -561,6 +739,51 @@ typedef void (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 */
 PUGL_API void
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
+
+/*
+    old pugl-style dnd function setters
+*/
+PUGL_API void
+puglSetDndSourceActionFunc(PuglView* v, PuglDndSourceActionFunc f);
+
+PUGL_API void
+puglSetDndSourceDragFunc(PuglView* v, PuglDndSourceDragFunc f);
+
+PUGL_API void
+puglSetDndSourceFinishedFunc(PuglView* v, PuglDndSourceFinishedFunc f);
+
+PUGL_API void
+puglSetDndSourceKeyFunc(PuglView* v, PuglDndSourceKeyFunc f);
+
+PUGL_API void
+puglSetDndSourceOfferTypeFunc(PuglView* v, PuglDndSourceOfferTypeFunc f);
+
+PUGL_API void
+puglSetDndSourceProvideDataFunc(PuglView* v, PuglDndSourceProvideDataFunc f);
+
+PUGL_API void
+puglSetDndTargetAcceptDropFunc(PuglView* v, PuglDndTargetAcceptDropFunc f);
+
+PUGL_API void
+puglSetDndTargetChooseTypesToLookupFunc(PuglView* v, PuglDndTargetChooseTypesToLookupFunc f);
+
+PUGL_API void
+puglSetDndTargetDropFunc(PuglView* v, PuglDndTargetDropFunc f);
+
+PUGL_API void
+puglSetDndTargetInformPositionFunc(PuglView* v, PuglDndTargetInformPositionFunc f);
+
+PUGL_API void
+puglSetDndTargetLeaveFunc(PuglView* v, PuglDndTargetLeaveFunc f);
+
+PUGL_API void
+puglSetDndTargetNoPositionInFunc(PuglView* v, PuglDndTargetNoPositionInFunc);
+
+PUGL_API void
+puglSetDndTargetOfferTypeFunc(PuglView* v, PuglDndTargetOfferTypeFunc f);
+
+PUGL_API void
+puglSetDndTargetReceiveDataFunc(PuglView* v, PuglDndTargetReceiveDataFunc f);
 
 /**
    Ignore synthetic repeated key events.
