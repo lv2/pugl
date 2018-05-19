@@ -398,11 +398,40 @@ typedef union {
 	PuglEventFocus     focus;      /**< PUGL_FOCUS_IN, PUGL_FOCUS_OUT. */
 } PuglEvent;
 
+typedef enum
+{
+	//! pugl is not acting as a dnd source
+	PuglNotDndSource,
+	//! pugl is source, no dnd in progress, but any mouse click will
+	//! initiate a drag
+	PuglDndSourceReady,
+	//! pugl is source, drag done, but not dropped
+	PuglDndSourceDragged,
+	//! pugl is source, drop started, no acknowledgement from target yet
+	PuglDndSourceDropped,
+} PuglDndSourceStatus;
+
+typedef enum
+{
+	//! pugl is not acting as a dnd target
+	PuglNotDndTarget,
+	//! pugl is target, a drag has been done on the source and the pointer
+	//! is over the pugl window
+	PuglDndTargetDragged,
+	//! pugl is target, the source has initiated the drop, pugl has not
+	//! yet replied
+	PuglDndTargetDropped
+} PuglDndTargetStatus;
+
 /*
     event functions in old pugl-style
-    TODO: make events of them, but there must be a way to still let the event
+    TODO: turn them into events, but there must be a way to still let the event
 	  dispatch functions return values (as the old functions return values)
 */
+
+//! Update the dnd status for the case that pugl may be a dnd source
+typedef void (*PuglDndSourceStatusFunc)(PuglView* view,
+					PuglDndSourceStatus status);
 
 /**
    Let the source specify how, e.g. with what action, it wants to perform
@@ -459,6 +488,10 @@ typedef const char* (*PuglDndSourceOfferTypeFunc)(PuglView* view,
 */
 typedef int (*PuglDndSourceProvideDataFunc)(PuglView* view,
 					    int slot, int size, char* buffer);
+
+//! Update the dnd status for the case that pugl may be a dnd target
+typedef void (*PuglDndTargetStatusFunc)(PuglView* view,
+					PuglDndTargetStatus status);
 
 /**
    Let the target say whether it accepts the previous drop.
@@ -744,6 +777,9 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
     old pugl-style dnd function setters
 */
 PUGL_API void
+puglSetDndSourceStatusFunc(PuglView* v, PuglDndSourceStatusFunc f);
+
+PUGL_API void
 puglSetDndSourceActionFunc(PuglView* v, PuglDndSourceActionFunc f);
 
 PUGL_API void
@@ -760,6 +796,9 @@ puglSetDndSourceOfferTypeFunc(PuglView* v, PuglDndSourceOfferTypeFunc f);
 
 PUGL_API void
 puglSetDndSourceProvideDataFunc(PuglView* v, PuglDndSourceProvideDataFunc f);
+
+PUGL_API void
+puglSetDndTargetStatusFunc(PuglView* v, PuglDndTargetStatusFunc f);
 
 PUGL_API void
 puglSetDndTargetAcceptDropFunc(PuglView* v, PuglDndTargetAcceptDropFunc f);

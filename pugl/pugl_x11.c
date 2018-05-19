@@ -169,7 +169,6 @@ struct PuglInternalsImpl {
 	// last rect returned by status
 	int dnd_source_last_rect_x0, dnd_source_last_rect_x1,
 		dnd_source_last_rect_y0, dnd_source_last_rect_y1;
-	int dnd_source_in_progress; //!< after drag on pugl, and not dropped yet
 	int dnd_target_max_types; //!< size of dnd_target_offered_types
 	Atom* dnd_target_offered_types; //!< offered mimetypes, size: dnd_target_max_types
 };
@@ -179,8 +178,7 @@ puglInitInternals(void)
 {
 	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
 	gettimeofday(&impl->last_process_events, NULL);
-	impl->dnd_source_in_progress = 0;
-	impl->dnd_target_max_types = 3; // WARNING: if >3, you need to support X11 typelists
+	impl->dnd_target_max_types = 3; // WARNING: if >3, you need to implement support for X11 typelists
 	impl->dnd_target_offered_types = malloc(impl->dnd_target_max_types * sizeof(Atom));
 	for(int i = 0; i < impl->dnd_target_max_types; ++i)
 		impl->dnd_target_offered_types[i] = None;
@@ -684,6 +682,36 @@ dumpMsg(PuglInternals* impl, const XClientMessageEvent* m, bool incoming)
  * misc dnd helpers
  */
 
+static void
+setDndSourceStatus(PuglView* view, PuglDndSourceStatus new_status)
+{
+	if(view->dnd_source_status == new_status)
+	{
+		printf("!!! set dnd source status to %d, but it already is... "
+			"internal logic error?\n", new_status);
+	}
+	else
+	{
+		view->dnd_source_status = new_status;
+		view->dndSourceStatusFunc(view, new_status);
+	}
+}
+
+static void
+setDndTargetStatus(PuglView* view, PuglDndTargetStatus new_status)
+{
+	if(view->dnd_target_status == new_status)
+	{
+		printf("!!! set dnd target status to %d, but it already is... "
+			"internal logic error?\n", new_status);
+	}
+	else
+	{
+		view->dnd_target_status = new_status;
+		view->dndTargetStatusFunc(view, new_status);
+	}
+}
+
 //! @param win The window that is "most useful to toolkit dispatchers" ...
 static void
 dndInitMessage(PuglInternals* impl, XClientMessageEvent* msg, Atom dnd_type, Window win)
@@ -851,7 +879,7 @@ handleDndMessages(PuglView* view, const XClientMessageEvent* xclient)
 			status.data.l[3] = 0;
 		}
 		status.data.l[4] = impl->dnd_target_last_action;
-#ifdef DND_PRINT_SOURCE
+#ifdef DND_PRINT_TARGET
 		dumpMsg(impl, &status, false);
 #endif
 		dndSendMessage(impl, &status, toSource);
@@ -862,6 +890,7 @@ handleDndMessages(PuglView* view, const XClientMessageEvent* xclient)
 #ifdef DND_PRINT_TARGET
 		dumpMsg(impl, xclient, true);
 #endif
+		setDndTargetStatus(view, PuglDndTargetDragged);
 		for(int i = 0; i < impl->dnd_target_max_types; ++i)
 		{
 			Atom a = xclient->data.l[2+i];
@@ -884,6 +913,7 @@ handleDndMessages(PuglView* view, const XClientMessageEvent* xclient)
 		view->impl->dnd_target_last_source = None;
 		view->impl->dnd_target_last_action = None;
 		view->dndTargetLeaveFunc(view);
+		setDndTargetStatus(view, PuglNotDndTarget);
 
 	} else if(msg_type == atoms[XdndStatus]) {
 
@@ -924,7 +954,7 @@ handleDndMessages(PuglView* view, const XClientMessageEvent* xclient)
 			long flags = xclient->data.l[1];
 			view->dndSourceFinishedFunc(view, flags & 1);
 
-			impl->dnd_source_in_progress = False;
+			setDndSourceStatus(view, PuglNotDndSource);
 			impl->dnd_source_last_target = None;
 		}
 
@@ -932,6 +962,8 @@ handleDndMessages(PuglView* view, const XClientMessageEvent* xclient)
 #ifdef DND_PRINT_TARGET
 		dumpMsg(view->impl, xclient, true);
 #endif
+		setDndTargetStatus(view, PuglDndTargetDropped);
+
 		PuglInternals* impl = view->impl;
 		impl->time = xclient->data.l[2];
 
@@ -966,6 +998,7 @@ handleDndMessages(PuglView* view, const XClientMessageEvent* xclient)
 		dndSendMessage(impl, &finished, toSource);
 
 		// clean up
+		setDndTargetStatus(view, PuglNotDndTarget);
 		impl->dnd_target_last_source = None;
 		impl->dnd_target_last_action = None;
 	}
@@ -979,7 +1012,7 @@ handleDndButtonEvents(PuglView* view, const XButtonEvent* event, bool pressed)
 {
 	if(pressed)
 	{
-		if(event->button == Button1 && view->dnd_key_pressed)
+		if(event->button == Button1 && view->dnd_source_status == PuglDndSourceReady)
 		{
 			int drag_ok = view->dndSourceDragFunc(view, event->x, event->y);
 			if(drag_ok)
@@ -989,14 +1022,13 @@ handleDndButtonEvents(PuglView* view, const XButtonEvent* event, bool pressed)
 					view->impl->win, CurrentTime);
 				Window new_owner = XGetSelectionOwner(view->impl->display, atoms[XdndSelection]);
 				if(new_owner == view->impl->win)
-				{
-					view->impl->dnd_source_in_progress = 1;
-				}
+				  setDndSourceStatus(view, PuglDndSourceDragged);
 			}
 		}
 	} else { // released
-		if(view->impl->dnd_source_in_progress)
+		if(view->dnd_source_status == PuglDndSourceDragged)
 		{
+			setDndSourceStatus(view, PuglDndSourceDropped);
 			PuglInternals* impl = view->impl;
 			XClientMessageEvent drop;
 			dndInitMessage(impl, &drop, XdndDrop, impl->dnd_source_last_target);
@@ -1010,8 +1042,6 @@ handleDndButtonEvents(PuglView* view, const XButtonEvent* event, bool pressed)
 			{
 				impl->dnd_source_last_target = None;
 			}
-
-			view->impl->dnd_source_in_progress = 0;
 		}
 	}
 }
@@ -1138,7 +1168,7 @@ handleTimeoutEvents(PuglView* view)
 	struct PuglInternalsImpl* const impl = view->impl;
 
 	// 200 ms passed
-	if(    impl->dnd_source_in_progress
+	if(    view->dnd_source_status == PuglDndSourceDragged
 	   && (   curProcessEvents.tv_sec > impl->last_process_events.tv_sec /* seconds wrapped? */
 	       || (curProcessEvents.tv_usec - impl->last_process_events.tv_usec) > 200000 /* 0.2 s passed? */ ))
 	{

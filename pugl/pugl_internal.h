@@ -39,12 +39,21 @@ struct PuglViewImpl {
 	PuglHandle       handle;
 	PuglEventFunc    eventFunc;
 
+	PuglDndSourceStatusFunc              dndSourceStatusFunc;
 	PuglDndSourceActionFunc              dndSourceActionFunc;
 	PuglDndSourceDragFunc                dndSourceDragFunc;
 	PuglDndSourceFinishedFunc            dndSourceFinishedFunc;
+	// TODO: this "key" func
+	//       is just a current fix to help the app finding out
+	//       if mouse events like button presses are during drag+drop
+	//       (which means that values of knobs shall not be changed).
+	//       It might be better to store this information inside of
+	//       PuglEventKey, which is delivered with the mouse events.
 	PuglDndSourceKeyFunc                 dndSourceKeyFunc;
 	PuglDndSourceOfferTypeFunc           dndSourceOfferTypeFunc;
 	PuglDndSourceProvideDataFunc         dndSourceProvideDataFunc;
+
+	PuglDndTargetStatusFunc              dndTargetStatusFunc;
 	PuglDndTargetAcceptDropFunc          dndTargetAcceptDropFunc;
 	PuglDndTargetChooseTypesToLookupFunc dndTargetChooseTypesToLookupFunc;
 	PuglDndTargetDropFunc                dndTargetDropFunc;
@@ -73,12 +82,8 @@ struct PuglViewImpl {
 	bool     redisplay;
 	bool     resizable;
 	bool     visible;
-	// TODO: this is just a current fix to help the app finding out
-	//       if mouse events like button presses are during drag+drop
-	//       (which means that values of knobs shall not be changed).
-	//       It might be better to store this information inside of
-	//       PuglEventKey, which is delivered with the mouse events.
-	bool     dnd_key_pressed;
+	PuglDndSourceStatus dnd_source_status;
+	PuglDndTargetStatus dnd_target_status;
 };
 
 PuglInternals* puglInitInternals(void);
@@ -102,7 +107,8 @@ puglInit(int* pargc, char** argv)
 	view->impl     = impl;
 	view->width    = 640;
 	view->height   = 480;
-	view->dnd_key_pressed = 0;
+	view->dnd_source_status = PuglNotDndSource;
+	view->dnd_target_status = PuglNotDndTarget;
 
 	puglSetDefaultFuncs(view);
 
@@ -208,6 +214,12 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 }
 
 void
+puglSetDndSourceStatusFunc(PuglView* v, PuglDndSourceStatusFunc f)
+{
+	v->dndSourceStatusFunc = f;
+}
+
+void
 puglSetDndSourceActionFunc(PuglView* v, PuglDndSourceActionFunc f)
 {
 	v->dndSourceActionFunc = f;
@@ -241,6 +253,12 @@ void
 puglSetDndSourceProvideDataFunc(PuglView* v, PuglDndSourceProvideDataFunc f)
 {
 	v->dndSourceProvideDataFunc = f;
+}
+
+void
+puglSetDndTargetStatusFunc(PuglView* v, PuglDndTargetStatusFunc f)
+{
+	v->dndTargetStatusFunc = f;
 }
 
 void
@@ -290,6 +308,12 @@ void
 puglSetDndTargetReceiveDataFunc(PuglView* v, PuglDndTargetReceiveDataFunc f)
 {
 	v->dndTargetReceiveDataFunc = f;
+}
+
+void
+puglDefaultDndSourceStatusFunc(PuglView* view, PuglDndSourceStatus status)
+{
+	(void)view; (void)status;
 }
 
 PuglDndAction
@@ -343,6 +367,12 @@ puglDefaultDndSourceProvideDataFunc(PuglView* view, int slot, int size,
 	(void)size;
 	(void)buffer;
 	return 0; /* do not touch the buffer */
+}
+
+void
+puglDefaultDndTargetStatusFunc(PuglView* view, PuglDndTargetStatus status)
+{
+	(void)view; (void)status;
 }
 
 int
@@ -413,12 +443,15 @@ puglDefaultDndTargetReceiveDataFunc(PuglView* view,
 void
 puglSetDefaultFuncs(PuglView* v)
 {
+	puglSetDndSourceStatusFunc(v, puglDefaultDndSourceStatusFunc);
 	puglSetDndSourceActionFunc(v, puglDefaultDndSourceActionFunc);
 	puglSetDndSourceDragFunc(v, puglDefaultDndSourceDragFunc);
 	puglSetDndSourceFinishedFunc(v, puglDefaultDndSourceFinishedFunc);
 	puglSetDndSourceKeyFunc(v, puglDefaultDndSourceKeyFunc);
 	puglSetDndSourceOfferTypeFunc(v, puglDefaultDndSourceOfferTypeFunc);
 	puglSetDndSourceProvideDataFunc(v, puglDefaultDndSourceProvideDataFunc);
+
+	puglSetDndTargetStatusFunc(v, puglDefaultDndTargetStatusFunc);
 	puglSetDndTargetAcceptDropFunc(v, puglDefaultDndTargetAcceptDropFunc);
 	puglSetDndTargetChooseTypesToLookupFunc(v,
 						puglDefaultDndTargetChooseTypesToLookupFunc);
@@ -467,6 +500,7 @@ puglDecodeUTF8(const uint8_t* buf)
 static void
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
+	int do_later = 0;
 	switch (event->type) {
 	case PUGL_NOTHING:
 		break;
@@ -489,14 +523,29 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 		if (event->key.special)
 		{
 			if(event->type == PUGL_KEY_RELEASE &&
-				event->key.special == view->dndSourceKeyFunc(view))
-				view->dnd_key_pressed = 0;
+				event->key.special == view->dndSourceKeyFunc(view) &&
+				view->dnd_source_status == PuglDndSourceReady)
+			{
+				// the mouse event is still part of this dnd operation
+				// this helps the app to suppress mouse events
+				do_later = 1;
+			}
 			else if (event->type == PUGL_KEY_PRESS &&
-				event->key.special == view->dndSourceKeyFunc(view))
-				view->dnd_key_pressed = 1;
+				event->key.special == view->dndSourceKeyFunc(view) &&
+				view->dnd_source_status == PuglNotDndSource)
+			{
+				view->dnd_source_status = PuglDndSourceReady;
+				view->dndSourceStatusFunc(view, PuglDndSourceReady);
+			}
 		}
 		/* no break */
 	default:
 		view->eventFunc(view, event);
+	}
+
+	if(do_later)
+	{
+		view->dnd_source_status = PuglNotDndSource;
+		view->dndSourceStatusFunc(view, PuglNotDndSource);
 	}
 }
