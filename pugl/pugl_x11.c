@@ -510,8 +510,9 @@ translateEvent(PuglView* view, XEvent xevent)
 			case 6: event.scroll.dx = -1.0f; break;
 			case 7: event.scroll.dx =  1.0f; break;
 			}
+			// fallthru
 		}
-		// nobreak
+		// fallthru
 	case ButtonRelease:
 		if (xevent.xbutton.button < 4 || xevent.xbutton.button > 7) {
 			event.button.type   = ((xevent.type == ButtonPress)
