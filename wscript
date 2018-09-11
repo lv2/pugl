@@ -42,13 +42,13 @@ def options(opt):
                    help='Work around reparent keyboard issues by grabbing focus')
 
 def configure(conf):
-    conf.env.TARGET_PLATFORM = Options.options.target or Options.platform
+    conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
     conf.load('compiler_c')
     if conf.env.TARGET_PLATFORM == 'win32':
         conf.load('compiler_cxx')
 
     autowaf.configure(conf)
-    autowaf.set_c99_mode(conf)
+    autowaf.set_c_lang(conf, 'c99')
     autowaf.display_header('Pugl Configuration')
 
     if not Options.options.no_gl:
