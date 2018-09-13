@@ -1,9 +1,6 @@
 #!/usr/bin/env python
-import glob
-import os
 import subprocess
 import sys
-import waflib.Logs as Logs
 import waflib.Options as Options
 import waflib.extras.autowaf as autowaf
 
@@ -23,23 +20,22 @@ out     = 'build'       # Build directory
 def options(opt):
     opt.load('compiler_c')
     opt.load('compiler_cxx')
-    autowaf.set_options(opt)
-    opt.add_option('--no-gl', action='store_true', default=False, dest='no_gl',
-                   help='Do not build OpenGL support')
-    opt.add_option('--no-cairo', action='store_true', default=False, dest='no_cairo',
-                   help='Do not build Cairo support')
-    opt.add_option('--test', action='store_true', default=False, dest='build_tests',
-                   help='Build unit tests')
-    opt.add_option('--static', action='store_true', default=False, dest='static',
-                   help='Build static library')
-    opt.add_option('--shared', action='store_true', default=False, dest='shared',
-                   help='Build shared library')
+    autowaf.set_options(opt, test=True)
+
+    opt = opt.get_option_group('Configuration options')
+    flags = {
+        'no-gl':      'do not build OpenGL support',
+        'no-cairo':   'do not build Cairo support',
+        'static':     'build static library',
+        'log':        'print GL information to console',
+        'grab-focus': 'work around reparent keyboard issues by grabbing focus'}
+
+    for name, desc in flags.items():
+        opt.add_option('--' + name, action='store_true',
+                       dest=name.replace('-', '_'), help=desc)
+
     opt.add_option('--target', default=None, dest='target',
                    help='Target platform (e.g. "win32" or "darwin")')
-    opt.add_option('--log', action='store_true', default=False, dest='log',
-                   help='Print GL information to console')
-    opt.add_option('--grab-focus', action='store_true', default=False, dest='grab_focus',
-                   help='Work around reparent keyboard issues by grabbing focus')
 
 def configure(conf):
     conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
