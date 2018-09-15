@@ -85,8 +85,8 @@ buttonDraw(cairo_t* cr, const Button* but)
 	cairo_set_font_size(cr, 32.0);
 	cairo_text_extents(cr, but->label, &extents);
 	cairo_move_to(cr,
-	              (but->x + but->w / 2) - extents.width / 2,
-	              (but->y + but->h / 2) + extents.height / 2);
+	              (but->x + but->w / 2.0) - extents.width / 2,
+	              (but->y + but->h / 2.0) + extents.height / 2);
 	cairo_set_source_rgba(cr, 0, 0, 0, 1);
 	cairo_show_text(cr, but->label);
 }

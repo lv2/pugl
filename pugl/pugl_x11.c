@@ -35,8 +35,8 @@
 #endif
 
 #ifdef PUGL_HAVE_CAIRO
-#include <cairo/cairo.h>
 #include <cairo/cairo-xlib.h>
+#include <cairo/cairo.h>
 #endif
 
 #include "pugl/cairo_gl.h"

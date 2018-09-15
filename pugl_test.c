@@ -85,7 +85,7 @@ static const float cubeVertices[] = {
 static void
 perspective(float* m, float fov, float aspect, float zNear, float zFar)
 {
-	const float h     = tan(fov);
+	const float h     = tanf(fov);
 	const float w     = h / aspect;
 	const float depth = zNear - zFar;
 	const float q     = (zFar + zNear) / depth;
