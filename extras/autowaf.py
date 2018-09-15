@@ -11,7 +11,7 @@ import os
 import subprocess
 import sys
 
-from waflib import Build, Logs, Options, Utils
+from waflib import Build, Context, Logs, Options, Utils
 from waflib.TaskGen import feature, before, after
 
 global g_is_child
@@ -92,6 +92,11 @@ def set_options(opt, debug_by_default=False, test=False):
                              help='always show test output')
 
     g_step = 1
+
+def add_flags(opt, flags):
+    for name, desc in flags.items():
+        opt.add_option('--' + name, action='store_true',
+                       dest=name.replace('-', '_'), help=desc)
 
 def get_check_func(conf, lang):
     if lang == 'c':
@@ -294,17 +299,31 @@ def configure(conf):
     except:
         pass  # Test options do not exist
 
+    # Define version in configuration
+    appname = getattr(Context.g_module, Context.APPNAME, 'noname')
+    version = getattr(Context.g_module, Context.VERSION, '0.0.0')
+    define(conf, appname.upper() + '_VERSION', version)
+
     conf.env.prepend_value('CFLAGS', '-I' + os.path.abspath('.'))
     conf.env.prepend_value('CXXFLAGS', '-I' + os.path.abspath('.'))
     g_step = 2
 
-def display_summary(conf):
+def display_summary(conf, msgs=None):
     global g_is_child
     Logs.pprint('', '')
     if not g_is_child:
         display_msg(conf, "Install prefix", conf.env['PREFIX'])
-        display_msg(conf, "Debuggable build", bool(conf.env['DEBUG']))
+        if 'COMPILER_CC' in conf.env:
+            display_msg(conf, "C Flags", ' '.join(conf.env['CFLAGS']))
+        if 'COMPILER_CXX' in conf.env:
+            display_msg(conf, "C++ Flags", ' '.join(conf.env['CXXFLAGS']))
+        display_msg(conf, "Debuggable", bool(conf.env['DEBUG']))
         display_msg(conf, "Build documentation", bool(conf.env['DOCS']))
+
+    if msgs is not None:
+        display_msgs(conf, msgs)
+
+    Logs.pprint('', '')
 
 def set_c_lang(conf, lang):
     "Set a specific C language standard, like 'c99' or 'c11'"
@@ -431,9 +450,13 @@ def display_msg(conf, msg, status = None, color = None):
     elif type(status) == bool and not status or status == "False":
         color  = 'YELLOW'
         status = 'no'
-    Logs.pprint('NORMAL', '  %s' % msg.ljust(conf.line_just - 2), sep='')
-    Logs.pprint('NORMAL', ":", sep='')
+    Logs.pprint('BOLD', '%s' % msg.ljust(conf.line_just), sep='')
+    Logs.pprint('BOLD', ":", sep='')
     Logs.pprint(color, status)
+
+def display_msgs(conf, msgs):
+    for k, v in msgs.items():
+        display_msg(conf, k, v)
 
 def link_flags(env, lib):
     return ' '.join(map(lambda x: env['LIB_ST'] % x, env['LIB_' + lib]))
