@@ -94,17 +94,14 @@ def build(bld):
         lang       = 'cxx'
         lib_source = ['pugl/pugl_win.cpp']
         libs       = ['opengl32', 'gdi32', 'user32']
-        defines    = []
     elif bld.env.TARGET_PLATFORM == 'darwin':
         lang       = 'c'  # Objective C, actually
         lib_source = ['pugl/pugl_osx.m']
         framework  = ['Cocoa', 'OpenGL']
-        defines    = []
     else:
         lang       = 'c'
         lib_source = ['pugl/pugl_x11.c']
         libs       = ['X11']
-        defines    = []
         if bld.is_defined('HAVE_GL'):
             libs += ['GL']
     if bld.env['MSVC_COMPILER']:
@@ -112,38 +109,35 @@ def build(bld):
     else:
         libs += ['m']
 
+    common = {
+        'framework': framework,
+        'includes':  ['.', './src'],
+        'uselib':    ['CAIRO'],
+    }
+
+    lib_common = common.copy()
+    lib_common.update({
+        'export_includes': ['.'],
+        'install_path':    '${LIBDIR}',
+        'lib':             libs,
+        'source':          lib_source,
+        'target':          'pugl-%s' % PUGL_MAJOR_VERSION,
+        'vnum':            PUGL_VERSION,
+    })
+
     # Shared Library
     if bld.env['BUILD_SHARED']:
-        obj = bld(features        = '%s %sshlib' % (lang, lang),
-                  export_includes = ['.'],
-                  source          = lib_source,
-                  includes        = ['.', './src'],
-                  lib             = libs,
-                  uselib          = ['CAIRO'],
-                  framework       = framework,
-                  name            = 'libpugl',
-                  target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
-                  vnum            = PUGL_VERSION,
-                  install_path    = '${LIBDIR}',
-                  defines         = defines,
-                  cflags          = libflags + [ '-DPUGL_SHARED',
-                                                 '-DPUGL_INTERNAL' ])
+        obj = bld(**lib_common,
+                  features = '%s %sshlib' % (lang, lang),
+                  name     = 'libpugl',
+                  cflags   = libflags + ['-DPUGL_SHARED', '-DPUGL_INTERNAL'])
 
     # Static library
     if bld.env['BUILD_STATIC']:
-        obj = bld(features        = '%s %sstlib' % (lang, lang),
-                  export_includes = ['.'],
-                  source          = lib_source,
-                  includes        = ['.', './src'],
-                  lib             = libs,
-                  uselib          = ['CAIRO'],
-                  framework       = framework,
-                  name            = 'libpugl_static',
-                  target          = 'pugl-%s' % PUGL_MAJOR_VERSION,
-                  vnum            = PUGL_VERSION,
-                  install_path    = '${LIBDIR}',
-                  defines         = defines,
-                  cflags          = ['-DPUGL_INTERNAL'])
+        obj = bld(**lib_common,
+                  features = '%s %sstlib' % (lang, lang),
+                  name     = 'libpugl_static',
+                  cflags   = ['-DPUGL_INTERNAL'])
 
     if bld.env['BUILD_TESTS']:
         test_libs   = libs
@@ -157,16 +151,13 @@ def build(bld):
             progs += ['pugl_cairo_test']
 
         for prog in progs:
-            obj = bld(features     = 'c cprogram',
+            obj = bld(**common,
+                      features     = 'c cprogram',
                       source       = '%s.c' % prog,
-                      includes     = ['.', './src'],
                       use          = 'libpugl_static',
                       lib          = test_libs,
-                      uselib       = ['CAIRO'],
-                      framework    = framework,
                       target       = prog,
                       install_path = '',
-                      defines      = defines,
                       cflags       = test_cflags)
 
     if bld.env['DOCS']:
