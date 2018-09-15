@@ -20,7 +20,7 @@ out     = 'build'       # Build directory
 def options(opt):
     opt.load('compiler_c')
     opt.load('compiler_cxx')
-    autowaf.set_options(opt, test=True)
+    autowaf.set_options(opt)
 
     opt = opt.get_option_group('Configuration options')
     flags = {
