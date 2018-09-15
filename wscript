@@ -67,12 +67,8 @@ def configure(conf):
     conf.env['BUILD_STATIC'] = (Options.options.test or Options.options.static)
 
     autowaf.define(conf, 'PUGL_VERSION', PUGL_VERSION)
+    autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION)
     conf.write_config_header('pugl_config.h', remove=False)
-
-    conf.env['INCLUDES_PUGL'] = ['%s/pugl-%s' % (conf.env['INCLUDEDIR'],
-                                                 PUGL_MAJOR_VERSION)]
-    conf.env['LIBPATH_PUGL'] = [conf.env['LIBDIR']]
-    conf.env['LIB_PUGL'] = ['pugl-%s' % PUGL_MAJOR_VERSION];
 
     autowaf.display_msg(conf, "OpenGL support", conf.is_defined('HAVE_GL'))
     autowaf.display_msg(conf, "Cairo support", conf.is_defined('HAVE_CAIRO'))
