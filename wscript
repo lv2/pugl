@@ -23,19 +23,17 @@ def options(opt):
     autowaf.set_options(opt)
 
     opt = opt.get_option_group('Configuration options')
-    flags = {
-        'no-gl':      'do not build OpenGL support',
-        'no-cairo':   'do not build Cairo support',
-        'static':     'build static library',
-        'log':        'print GL information to console',
-        'grab-focus': 'work around reparent keyboard issues by grabbing focus'}
-
-    for name, desc in flags.items():
-        opt.add_option('--' + name, action='store_true',
-                       dest=name.replace('-', '_'), help=desc)
-
     opt.add_option('--target', default=None, dest='target',
-                   help='Target platform (e.g. "win32" or "darwin")')
+                   help='target platform (e.g. "win32" or "darwin")')
+
+    autowaf.add_flags(
+        opt,
+        {'no-gl':      'do not build OpenGL support',
+         'no-cairo':   'do not build Cairo support',
+         'static':     'build static library',
+         'test':       'build test programs',
+         'log':        'print GL information to console',
+         'grab-focus': 'work around reparent keyboard issues by grabbing focus'})
 
 def configure(conf):
     conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
@@ -64,11 +62,9 @@ def configure(conf):
         autowaf.define(conf, 'PUGL_VERBOSE', 1)
 
     # Shared library building is broken on win32 for some reason
-    conf.env['BUILD_TESTS']  = Options.options.build_tests
-    conf.env['BUILD_SHARED'] = (conf.env.TARGET_PLATFORM != 'win32' or
-                                Options.options.shared)
-    conf.env['BUILD_STATIC'] = (Options.options.build_tests or
-                                Options.options.static)
+    conf.env['BUILD_TESTS']  = Options.options.test
+    conf.env['BUILD_SHARED'] = conf.env.TARGET_PLATFORM != 'win32'
+    conf.env['BUILD_STATIC'] = (Options.options.test or Options.options.static)
 
     autowaf.define(conf, 'PUGL_VERSION', PUGL_VERSION)
     conf.write_config_header('pugl_config.h', remove=False)
