@@ -93,6 +93,11 @@ def set_options(opt, debug_by_default=False, test=False):
 
     g_step = 1
 
+def add_flags(opt, flags):
+    for name, desc in flags.items():
+        opt.add_option('--' + name, action='store_true',
+                       dest=name.replace('-', '_'), help=desc)
+
 def get_check_func(conf, lang):
     if lang == 'c':
         return conf.check_cc
