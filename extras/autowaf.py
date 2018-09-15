@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#
-# Autowaf, useful waf utilities with support for recursive projects
-# Copyright 2008-2016 David Robillard
-#
-# Licensed under the GNU GPL v2 or later, see COPYING file for details.
-
 import glob
 import os
 import subprocess
@@ -28,8 +20,9 @@ line_just = 40
 # import preproc
 # preproc.go_absolute = True
 
+# Test context that inherits build context to make configuration available
 class TestContext(Build.BuildContext):
-    "Context for test command that inherits build context to make configuration available"
+    "Run tests"
     cmd = 'test'
     fun = 'test'
 
@@ -64,17 +57,20 @@ def set_options(opt, debug_by_default=False, test=False):
 
     # Build options
     if debug_by_default:
-        opts.add_option('--optimize', action='store_false', default=True, dest='debug',
-                        help="build optimized binaries")
+        opts.add_option('--optimize', action='store_false', default=True,
+                        dest='debug', help="build optimized binaries")
     else:
-        opts.add_option('--debug', action='store_true', default=False, dest='debug',
-                        help="build debuggable binaries")
-        opts.add_option('--pardebug', action='store_true', default=False, dest='pardebug',
-                        help="build parallel-installable debuggable libraries with D suffix")
+        opts.add_option('--debug', action='store_true', default=False,
+                        dest='debug', help="build debuggable binaries")
+        opts.add_option('--pardebug', action='store_true', default=False,
+                        dest='pardebug',
+                        help="build debug libraries with D suffix")
 
-    opts.add_option('--strict', action='store_true', default=False, dest='strict',
+    opts.add_option('--strict', action='store_true', default=False,
+                    dest='strict',
                     help="use strict compiler flags and show all warnings")
-    opts.add_option('--ultra-strict', action='store_true', default=False, dest='ultra_strict',
+    opts.add_option('--ultra-strict', action='store_true', default=False,
+                    dest='ultra_strict',
                     help="use extremely strict compiler flags (likely noisy)")
     opts.add_option('--docs', action='store_true', default=False, dest='docs',
                     help="build documentation (requires doxygen)")
@@ -84,11 +80,14 @@ def set_options(opt, debug_by_default=False, test=False):
         test_opts = opt.add_option_group('Test options', '')
         opts.add_option('--test', action='store_true', dest='build_tests',
                         help='build unit tests')
-        opts.add_option('--no-coverage', action='store_true', dest='no_coverage',
+        opts.add_option('--no-coverage', action='store_true',
+                        dest='no_coverage',
                         help='do not instrument code for test coverage')
-        test_opts.add_option('--test-wrapper', type='string', dest='test_wrapper',
+        test_opts.add_option('--test-wrapper', type='string',
+                             dest='test_wrapper',
                              help='command prefix for tests (e.g. valgrind)')
-        test_opts.add_option('--verbose-tests', action='store_true', default=False, dest='verbose_tests',
+        test_opts.add_option('--verbose-tests', action='store_true',
+                             default=False, dest='verbose_tests',
                              help='always show test output')
 
     g_step = 1
@@ -130,7 +129,8 @@ int main() { return !(void(*)())(%s); }
     check_func(fragment=fragment, **args)
 
 def nameify(name):
-    return name.replace('/', '_').replace('++', 'PP').replace('-', '_').replace('.', '_')
+    return (name.replace('/', '_').replace('++', 'PP')
+            .replace('-', '_').replace('.', '_'))
 
 def define(conf, var_name, value):
     conf.define(var_name, value)
@@ -162,13 +162,15 @@ def check_pkg(conf, name, **args):
         pkg_name = name
         if conf.env.PARDEBUG:
             args['mandatory'] = False  # Smash mandatory arg
-            found = conf.check_cfg(package=pkg_name + 'D', args="--cflags --libs", **args)
+            found = conf.check_cfg(package=pkg_name + 'D',
+                                   args="--cflags --libs", **args)
             if found:
                 pkg_name += 'D'
         if mandatory:
             args['mandatory'] = True  # Unsmash mandatory arg
         if not found:
-            found = conf.check_cfg(package=pkg_name, args="--cflags --libs", **args)
+            found = conf.check_cfg(package=pkg_name, args="--cflags --libs",
+                                   **args)
         if found:
             conf.env[pkg_var_name] = pkg_name
         if 'atleast_version' in args:
@@ -198,13 +200,15 @@ def configure(conf):
 
     try:
         conf.load('clang_compilation_database')
-    except:
+    except Exception:
         pass
+
+    prefix = normpath(os.path.abspath(os.path.expanduser(conf.env['PREFIX'])))
 
     conf.env['DOCS'] = Options.options.docs and conf.env.DOXYGEN
     conf.env['DEBUG'] = Options.options.debug or Options.options.pardebug
     conf.env['PARDEBUG'] = Options.options.pardebug
-    conf.env['PREFIX'] = normpath(os.path.abspath(os.path.expanduser(conf.env['PREFIX'])))
+    conf.env['PREFIX'] = prefix
 
     def config_dir(var, opt, default):
         if opt:
@@ -212,16 +216,17 @@ def configure(conf):
         else:
             conf.env[var] = normpath(default)
 
-    opts   = Options.options
-    prefix = conf.env['PREFIX']
+    opts = Options.options
 
-    config_dir('BINDIR',     opts.bindir,     os.path.join(prefix, 'bin'))
-    config_dir('SYSCONFDIR', opts.configdir,  os.path.join(prefix, 'etc'))
-    config_dir('DATADIR',    opts.datadir,    os.path.join(prefix, 'share'))
-    config_dir('INCLUDEDIR', opts.includedir, os.path.join(prefix, 'include'))
-    config_dir('LIBDIR',     opts.libdir,     os.path.join(prefix, 'lib'))
-    config_dir('MANDIR',     opts.mandir,     os.path.join(conf.env['DATADIR'], 'man'))
-    config_dir('DOCDIR',     opts.docdir,     os.path.join(conf.env['DATADIR'], 'doc'))
+    config_dir('BINDIR',     opts.bindir,     os.path.join(prefix,  'bin'))
+    config_dir('SYSCONFDIR', opts.configdir,  os.path.join(prefix,  'etc'))
+    config_dir('DATADIR',    opts.datadir,    os.path.join(prefix,  'share'))
+    config_dir('INCLUDEDIR', opts.includedir, os.path.join(prefix,  'include'))
+    config_dir('LIBDIR',     opts.libdir,     os.path.join(prefix,  'lib'))
+
+    datadir = conf.env['DATADIR']
+    config_dir('MANDIR', opts.mandir, os.path.join(datadir, 'man'))
+    config_dir('DOCDIR', opts.docdir, os.path.join(datadir, 'doc'))
 
     if Options.options.debug:
         if conf.env['MSVC_COMPILER']:
@@ -230,11 +235,11 @@ def configure(conf):
             conf.env['LINKFLAGS'] = ['/DEBUG', '/MANIFEST']
         else:
             conf.env['CFLAGS']   = ['-O0', '-g']
-            conf.env['CXXFLAGS'] = ['-O0',  '-g']
+            conf.env['CXXFLAGS'] = ['-O0', '-g']
     else:
         if conf.env['MSVC_COMPILER']:
-            conf.env['CFLAGS']    = ['/MD', '/FS', '/DNDEBUG']
-            conf.env['CXXFLAGS']  = ['/MD', '/FS', '/DNDEBUG']
+            conf.env['CFLAGS']   = ['/MD', '/FS', '/DNDEBUG']
+            conf.env['CXXFLAGS'] = ['/MD', '/FS', '/DNDEBUG']
         else:
             append_cxx_flags(['-DNDEBUG'])
 
@@ -276,7 +281,8 @@ def configure(conf):
                              msg="Checking for extra C warning flags"):
                 conf.env.append_value('CFLAGS', extra_flags)
             if 'COMPILER_CXX' in conf.env:
-                if conf.check_cxx(cxxflags=['-Werror'] + extra_flags, mandatory=False,
+                if conf.check_cxx(cxxflags=['-Werror'] + extra_flags,
+                                  mandatory=False,
                                   msg="Checking for extra C++ warning flags"):
                     conf.env.append_value('CXXFLAGS', extra_flags)
 
@@ -291,12 +297,14 @@ def configure(conf):
         if not Options.options.no_coverage:
             # Set up unit test code coverage
             if conf.is_defined('CLANG'):
-                for cov in [conf.env.CC[0].replace('clang', 'llvm-cov'), 'llvm-cov']:
+                for cov in [conf.env.CC[0].replace('clang', 'llvm-cov'),
+                            'llvm-cov']:
                     if conf.find_program(cov, var='LLVM_COV', mandatory=False):
                         break
             else:
-                conf.check_cc(lib='gcov', define_name='HAVE_GCOV', mandatory=False)
-    except:
+                conf.check_cc(lib='gcov', define_name='HAVE_GCOV',
+                              mandatory=False)
+    except Exception:
         pass  # Test options do not exist
 
     # Define version in configuration
@@ -332,7 +340,8 @@ def set_c_lang(conf, lang):
         conf.env.append_unique('CFLAGS', ['-TP'])
     else:
         flag = '-std=%s' % lang
-        conf.check(cflags=['-Werror', flag], msg="Checking for flag '%s'" % flag)
+        conf.check(cflags=['-Werror', flag],
+                   msg="Checking for flag '%s'" % flag)
         conf.env.append_unique('CFLAGS', [flag])
 
 def set_cxx_lang(conf, lang):
@@ -343,7 +352,8 @@ def set_cxx_lang(conf, lang):
         conf.env.append_unique('CXXFLAGS', ['/std:%s' % lang])
     else:
         flag = '-std=%s' % lang
-        conf.check(cxxflags=['-Werror', flag], msg="Checking for flag '%s'" % flag)
+        conf.check(cxxflags=['-Werror', flag],
+                   msg="Checking for flag '%s'" % flag)
         conf.env.append_unique('CXXFLAGS', [flag])
 
 def set_modern_c_flags(conf):
@@ -365,7 +375,8 @@ def set_modern_cxx_flags(conf, mandatory=False):
         if conf.env.MSVC_COMPILER:
             conf.env.append_unique('CXXFLAGS', ['/std:c++latest'])
         else:
-            for flag in ['-std=c++14', '-std=c++1y', '-std=c++11', '-std=c++0x']:
+            for lang in ['c++14', 'c++1y', 'c++11', 'c++0x']:
+                flag = '-std=%s' % lang
                 if conf.check(cxxflags=['-Werror', flag], mandatory=False,
                               msg="Checking for flag '%s'" % flag):
                     conf.env.append_unique('CXXFLAGS', [flag])
@@ -420,7 +431,7 @@ def version_lib(self):
             self.target = self.target + 'D'
 
 def set_lib_env(conf, name, version):
-    'Set up environment for local library as if found via pkg-config.'
+    "Set up environment for local library as if found via pkg-config."
     NAME         = name.upper()
     major_ver    = version.split('.')[0]
     pkg_var_name = 'PKG_' + name.replace('-', '_') + '_' + major_ver
@@ -442,7 +453,7 @@ def display_header(title):
     if g_is_child:
         Logs.pprint('BOLD', title)
 
-def display_msg(conf, msg, status = None, color = None):
+def display_msg(conf, msg, status=None, color=None):
     color = 'CYAN'
     if type(status) == bool and status:
         color  = 'GREEN'
@@ -459,10 +470,12 @@ def display_msgs(conf, msgs):
         display_msg(conf, k, v)
 
 def link_flags(env, lib):
-    return ' '.join(map(lambda x: env['LIB_ST'] % x, env['LIB_' + lib]))
+    return ' '.join(map(lambda x: env['LIB_ST'] % x,
+                        env['LIB_' + lib]))
 
 def compile_flags(env, lib):
-    return ' '.join(map(lambda x: env['CPPPATH_ST'] % x, env['INCLUDES_' + lib]))
+    return ' '.join(map(lambda x: env['CPPPATH_ST'] % x,
+                        env['INCLUDES_' + lib]))
 
 def set_recursive():
     global g_is_child
@@ -472,14 +485,15 @@ def is_child():
     global g_is_child
     return g_is_child
 
-# Pkg-config file
 def build_pc(bld, name, version, version_suffix, libs, subst_dict={}):
-    '''Build a pkg-config file for a library.
+    """Build a pkg-config file for a library.
+
     name           -- uppercase variable name     (e.g. 'SOMENAME')
     version        -- version string              (e.g. '1.2.3')
     version_suffix -- name version suffix         (e.g. '2')
     libs           -- string/list of dependencies (e.g. 'LIBFOO GLIB')
-    '''
+    """
+
     pkg_prefix       = bld.env['PREFIX']
     if pkg_prefix[-1] == '/':
         pkg_prefix = pkg_prefix[:-1]
@@ -501,15 +515,15 @@ def build_pc(bld, name, version, version_suffix, libs, subst_dict={}):
     if includedir.startswith(pkg_prefix):
         includedir = includedir.replace(pkg_prefix, '${prefix}')
 
-    obj = bld(features     = 'subst',
-              source       = '%s.pc.in' % name.lower(),
-              target       = target,
-              install_path = os.path.join(bld.env['LIBDIR'], 'pkgconfig'),
-              exec_prefix  = '${prefix}',
-              PREFIX       = pkg_prefix,
-              EXEC_PREFIX  = '${prefix}',
-              LIBDIR       = libdir,
-              INCLUDEDIR   = includedir)
+    obj = bld(features='subst',
+              source='%s.pc.in' % name.lower(),
+              target=target,
+              install_path=os.path.join(bld.env['LIBDIR'], 'pkgconfig'),
+              exec_prefix='${prefix}',
+              PREFIX=pkg_prefix,
+              EXEC_PREFIX='${prefix}',
+              LIBDIR=libdir,
+              INCLUDEDIR=includedir)
 
     if type(libs) != list:
         libs = libs.split()
@@ -531,8 +545,9 @@ def build_dir(name, subdir):
     else:
         return os.path.join('build', subdir)
 
-# Clean up messy Doxygen documentation after it is built
+
 def make_simple_dox(name):
+    "Clean up messy Doxygen documentation after it is built"
     name = name.lower()
     NAME = name.upper()
     try:
@@ -546,11 +561,11 @@ def make_simple_dox(name):
             ['%s_DEPRECATED ' % NAME, ''],
             ['group__%s.html' % name, ''],
             ['&#160;', ''],
-            ['<script.*><\/script>', ''],
-            ['<hr\/><a name="details" id="details"><\/a><h2>.*<\/h2>', ''],
-            ['<link href=\"tabs.css\" rel=\"stylesheet\" type=\"text\/css\"\/>',
+            [r'<script.*><\/script>', ''],
+            [r'<hr\/><a name="details" id="details"><\/a><h2>.*<\/h2>', ''],
+            [r'<link href=\"tabs.css\" rel=\"stylesheet\" type=\"text\/css\"\/>',
              ''],
-            ['<img class=\"footer\" src=\"doxygen.png\" alt=\"doxygen\"\/>',
+            [r'<img class=\"footer\" src=\"doxygen.png\" alt=\"doxygen\"\/>',
              'Doxygen']]:
             os.system("sed -i 's/%s/%s/g' %s" % (i[0], i[1], page))
         os.rename('group__%s.html' % name, 'index.html')
@@ -570,35 +585,36 @@ def make_simple_dox(name):
     except Exception as e:
         Logs.error("Failed to fix up %s documentation: %s" % (name, e))
 
-# Doxygen API documentation
+
 def build_dox(bld, name, version, srcdir, blddir, outdir='', versioned=True):
+    """Build Doxygen API documentation"""
     if not bld.env['DOCS']:
         return
 
-    # Doxygen paths in waf 1.8 are relative to the doxygen file, not build directory
+    # Doxygen paths in are relative to the doxygen file, not build directory
     if is_child():
         src_dir = os.path.join(srcdir, name.lower())
     else:
         src_dir = srcdir
 
-    subst_tg = bld(features     = 'subst',
-                   source       = 'doc/reference.doxygen.in',
-                   target       = 'doc/reference.doxygen',
-                   install_path = '',
-                   name         = 'doxyfile')
+    subst_tg = bld(features='subst',
+                   source='doc/reference.doxygen.in',
+                   target='doc/reference.doxygen',
+                   install_path='',
+                   name='doxyfile')
 
     subst_dict = {
-        name + '_VERSION' : version,
-        name + '_SRCDIR'  : os.path.abspath(src_dir),
-        name + '_DOC_DIR' : ''
+        name + '_VERSION': version,
+        name + '_SRCDIR': os.path.abspath(src_dir),
+        name + '_DOC_DIR': ''
     }
 
     subst_tg.__dict__.update(subst_dict)
 
     subst_tg.post()
 
-    docs = bld(features = 'doxygen',
-               doxyfile = 'doc/reference.doxygen')
+    docs = bld(features='doxygen',
+               doxyfile='doc/reference.doxygen')
 
     docs.post()
 
@@ -613,8 +629,9 @@ def build_dox(bld, name, version, srcdir, blddir, outdir='', versioned=True):
                           bld.path.get_bld().ant_glob('doc/man/man%d/*' % i,
                                                       excl='**/_*'))
 
-# Version code file generation
+
 def build_version_files(header_path, source_path, domain, major, minor, micro):
+    """Generate version code header"""
     header_path = os.path.abspath(header_path)
     source_path = os.path.abspath(source_path)
     text  = "int " + domain + "_major_version = " + str(major) + ";\n"
@@ -704,7 +721,8 @@ def cd_to_build_dir(ctx, appname):
         os.chdir(os.path.join('build', appname))
     else:
         os.chdir('build')
-    Logs.pprint('GREEN', "Waf: Entering directory `%s'" % os.path.abspath(os.getcwd()))
+    Logs.pprint('GREEN', ("Waf: Entering directory `%s'" %
+                          os.path.abspath(os.getcwd())))
 
 def cd_to_orig_dir(ctx, child):
     if child:
@@ -733,8 +751,8 @@ def pre_test(ctx, appname, dirs=['src']):
                 # Clear coverage data
                 subprocess.call(('lcov %s -z' % diropts).split(),
                                 stdout=clear_log, stderr=clear_log)
-            except:
-                Logs.warn('Failed to run lcov, no coverage report will be generated')
+            except Exception:
+                Logs.warn('Failed to run lcov, no coverage report generated')
         finally:
             clear_log.close()
 
@@ -767,11 +785,12 @@ def post_test(ctx, appname, dirs=['src'], remove=['*boost*', 'c++*']):
                 # Generate HTML coverage output
                 if not os.path.isdir('coverage'):
                     os.makedirs('coverage')
-                subprocess.call('genhtml -o coverage coverage-stripped.lcov'.split(),
-                                stdout=coverage_log, stderr=coverage_log)
+                subprocess.call(
+                    'genhtml -o coverage coverage-stripped.lcov'.split(),
+                    stdout=coverage_log, stderr=coverage_log)
 
-            except:
-                Logs.warn('Failed to run lcov, no coverage report will be generated')
+            except Exception:
+                Logs.warn('Failed to run lcov, no coverage report generated')
         finally:
             coverage_stripped_lcov.close()
             coverage_lcov.close()
@@ -779,7 +798,9 @@ def post_test(ctx, appname, dirs=['src'], remove=['*boost*', 'c++*']):
 
     if ctx.autowaf_tests[appname]['failed'] > 0:
         Logs.pprint('RED', '\nSummary:  %d / %d %s tests failed' % (
-            ctx.autowaf_tests[appname]['failed'], ctx.autowaf_tests[appname]['total'], appname))
+            ctx.autowaf_tests[appname]['failed'],
+            ctx.autowaf_tests[appname]['total'],
+            appname))
     else:
         Logs.pprint('GREEN', '\nSummary:  All %d %s tests passed' % (
             ctx.autowaf_tests[appname]['total'], appname))
@@ -788,16 +809,25 @@ def post_test(ctx, appname, dirs=['src'], remove=['*boost*', 'c++*']):
         Logs.pprint('GREEN', 'Coverage: <file://%s>\n'
                     % os.path.abspath('coverage/index.html'))
 
-    Logs.pprint('GREEN', "Waf: Leaving directory `%s'" % os.path.abspath(os.getcwd()))
+    Logs.pprint('GREEN', ("Waf: Leaving directory `%s'" %
+                          os.path.abspath(os.getcwd())))
     top_level = (len(ctx.stack_path) > 1)
     if top_level:
         cd_to_orig_dir(ctx, top_level)
 
-def run_test(ctx, appname, test, desired_status=0, dirs=['src'], name='', header=False, quiet=False):
+def run_test(ctx,
+             appname,
+             test,
+             desired_status=0,
+             dirs=['src'],
+             name='',
+             header=False,
+             quiet=False):
     """Run an individual test.
 
-    `test` is either a shell command string, or a list of [name, return status] for
-    displaying tests implemented in the calling Python code."""
+    `test` is either a shell command string, or a list of [name, return status]
+    for displaying tests implemented in the calling Python code.
+    """
 
     ctx.autowaf_tests_total += 1
     ctx.autowaf_local_tests_total += 1
@@ -821,7 +851,8 @@ def run_test(ctx, appname, test, desired_status=0, dirs=['src'], name='', header
         if name == '':
             name = test
 
-        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(cmd, shell=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = proc.communicate()
         returncode = proc.returncode
 
@@ -851,7 +882,8 @@ def tests_name(ctx, appname, name='*'):
 def begin_tests(ctx, appname, name='*'):
     ctx.autowaf_local_tests_failed = 0
     ctx.autowaf_local_tests_total  = 0
-    Logs.pprint('GREEN', '\n** Begin %s tests' % tests_name(ctx, appname, name))
+    Logs.pprint('GREEN', '\n** Begin %s tests' % (
+        tests_name(ctx, appname, name)))
 
     class Handle:
         def __enter__(self):
@@ -871,7 +903,13 @@ def end_tests(ctx, appname, name='*'):
         Logs.pprint('RED', '** Failed %d / %d %s tests' % (
             failures, ctx.autowaf_local_tests_total, tests_name(ctx, appname, name)))
 
-def run_tests(ctx, appname, tests, desired_status=0, dirs=['src'], name='*', headers=False):
+def run_tests(ctx,
+              appname,
+              tests,
+              desired_status=0,
+              dirs=['src'],
+              name='*',
+              headers=False):
     begin_tests(ctx, appname, name)
 
     diropts  = ''
@@ -884,19 +922,25 @@ def run_tests(ctx, appname, tests, desired_status=0, dirs=['src'], name='*', hea
     end_tests(ctx, appname, name)
 
 def run_ldconfig(ctx):
-    if (ctx.cmd == 'install' and
-        not ctx.env['RAN_LDCONFIG'] and
-        ctx.env['LIBDIR'] and
-        'DESTDIR' not in os.environ and
-        not Options.options.destdir):
+    should_run = (ctx.cmd == 'install' and
+                  not ctx.env['RAN_LDCONFIG'] and
+                  ctx.env['LIBDIR'] and
+                  'DESTDIR' not in os.environ and
+                  not Options.options.destdir)
+
+    if should_run:
         try:
             Logs.info("Waf: Running `/sbin/ldconfig %s'" % ctx.env['LIBDIR'])
             subprocess.call(['/sbin/ldconfig', ctx.env['LIBDIR']])
             ctx.env['RAN_LDCONFIG'] = True
-        except:
+        except Exception:
             pass
 
-def get_rdf_news(name, in_files, top_entries=None, extra_entries=None, dev_dist=None):
+def get_rdf_news(name,
+                 in_files,
+                 top_entries=None,
+                 extra_entries=None,
+                 dev_dist=None):
     import rdflib
     from time import strptime
 
@@ -910,7 +954,7 @@ def get_rdf_news(name, in_files, top_entries=None, extra_entries=None, dev_dist=
     try:
         for i in in_files:
             m.parse(i, format='n3')
-    except:
+    except Exception:
         Logs.warn('Error parsing data, unable to generate NEWS')
         return
 
@@ -992,7 +1036,7 @@ def write_posts(entries, meta, out_dir, status='stable'):
     from time import strftime
     try:
         os.mkdir(out_dir)
-    except:
+    except Exception:
         pass
 
     for i in entries:
@@ -1062,7 +1106,7 @@ def get_news(in_file, entry_props={}):
     while True:
         # Read header line
         head    = f.readline()
-        matches = re.compile('([^ ]*) \((.*)\) ([a-zA-z]*);').match(head)
+        matches = re.compile(r'([^ ]*) \((.*)\) ([a-zA-z]*);').match(head)
         if matches is None:
             break
 
@@ -1133,7 +1177,7 @@ def release(name, version, dist_name=None):
     try:
         os.remove(dist)
         os.remove(dist + '.sig')
-    except:
+    except Exception:
         pass
 
     status = subprocess.check_output('git status --porcelain', shell=True)
