@@ -11,7 +11,7 @@ import os
 import subprocess
 import sys
 
-from waflib import Build, Logs, Options, Utils
+from waflib import Build, Context, Logs, Options, Utils
 from waflib.TaskGen import feature, before, after
 
 global g_is_child
@@ -298,6 +298,11 @@ def configure(conf):
                 conf.check_cc(lib='gcov', define_name='HAVE_GCOV', mandatory=False)
     except:
         pass  # Test options do not exist
+
+    # Define version in configuration
+    appname = getattr(Context.g_module, Context.APPNAME, 'noname')
+    version = getattr(Context.g_module, Context.VERSION, '0.0.0')
+    define(conf, appname.upper() + '_VERSION', version)
 
     conf.env.prepend_value('CFLAGS', '-I' + os.path.abspath('.'))
     conf.env.prepend_value('CXXFLAGS', '-I' + os.path.abspath('.'))
