@@ -308,13 +308,22 @@ def configure(conf):
     conf.env.prepend_value('CXXFLAGS', '-I' + os.path.abspath('.'))
     g_step = 2
 
-def display_summary(conf):
+def display_summary(conf, msgs=None):
     global g_is_child
     Logs.pprint('', '')
     if not g_is_child:
         display_msg(conf, "Install prefix", conf.env['PREFIX'])
-        display_msg(conf, "Debuggable build", bool(conf.env['DEBUG']))
+        if 'COMPILER_CC' in conf.env:
+            display_msg(conf, "C Flags", ' '.join(conf.env['CFLAGS']))
+        if 'COMPILER_CXX' in conf.env:
+            display_msg(conf, "C++ Flags", ' '.join(conf.env['CXXFLAGS']))
+        display_msg(conf, "Debuggable", bool(conf.env['DEBUG']))
         display_msg(conf, "Build documentation", bool(conf.env['DOCS']))
+
+    if msgs is not None:
+        display_msgs(conf, msgs)
+
+    Logs.pprint('', '')
 
 def set_c_lang(conf, lang):
     "Set a specific C language standard, like 'c99' or 'c11'"
@@ -444,6 +453,10 @@ def display_msg(conf, msg, status = None, color = None):
     Logs.pprint('NORMAL', '  %s' % msg.ljust(conf.line_just - 2), sep='')
     Logs.pprint('NORMAL', ":", sep='')
     Logs.pprint(color, status)
+
+def display_msgs(conf, msgs):
+    for k, v in msgs.items():
+        display_msg(conf, k, v)
 
 def link_flags(env, lib):
     return ' '.join(map(lambda x: env['LIB_ST'] % x, env['LIB_' + lib]))
