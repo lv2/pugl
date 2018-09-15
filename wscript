@@ -69,12 +69,13 @@ def configure(conf):
     autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION)
     conf.write_config_header('pugl_config.h', remove=False)
 
-    autowaf.display_msg(conf, "OpenGL support", conf.is_defined('HAVE_GL'))
-    autowaf.display_msg(conf, "Cairo support", conf.is_defined('HAVE_CAIRO'))
-    autowaf.display_msg(conf, "Verbose console output", conf.is_defined('PUGL_VERBOSE'))
-    autowaf.display_msg(conf, "Static library", str(conf.env['BUILD_STATIC']))
-    autowaf.display_msg(conf, "Unit tests", str(conf.env['BUILD_TESTS']))
-    print('')
+    autowaf.display_summary(
+        conf,
+        {"Build static library":   bool(conf.env['BUILD_STATIC']),
+         "Build shared library":   bool(conf.env['BUILD_SHARED']),
+         "OpenGL support":         conf.is_defined('HAVE_GL'),
+         "Cairo support":          conf.is_defined('HAVE_CAIRO'),
+         "Verbose console output": conf.is_defined('PUGL_VERBOSE')})
 
 def build(bld):
     # C Headers
