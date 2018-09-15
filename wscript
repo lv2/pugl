@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import sys
-import waflib.Options as Options
-import waflib.extras.autowaf as autowaf
+from waflib import Options, TaskGen
+from waflib.extras import autowaf
 
 # Library and package version (UNIX style major, minor, micro)
 # major increment <=> incompatible changes
@@ -33,7 +33,7 @@ def options(opt):
          'static':     'build static library',
          'test':       'build test programs',
          'log':        'print GL information to console',
-         'grab-focus': 'work around reparent keyboard issues by grabbing focus'})
+         'grab-focus': 'work around keyboard issues by grabbing focus'})
 
 def configure(conf):
     conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
@@ -85,9 +85,9 @@ def build(bld):
 
     # Pkgconfig file
     autowaf.build_pc(bld, 'PUGL', PUGL_VERSION, PUGL_MAJOR_VERSION, [],
-                     {'PUGL_MAJOR_VERSION' : PUGL_MAJOR_VERSION})
+                     {'PUGL_MAJOR_VERSION': PUGL_MAJOR_VERSION})
 
-    libflags  = [ '-fvisibility=hidden' ]
+    libflags  = ['-fvisibility=hidden']
     framework = []
     libs      = []
     if bld.env.TARGET_PLATFORM == 'win32':
@@ -127,17 +127,17 @@ def build(bld):
 
     # Shared Library
     if bld.env['BUILD_SHARED']:
-        obj = bld(**lib_common,
-                  features = '%s %sshlib' % (lang, lang),
-                  name     = 'libpugl',
-                  cflags   = libflags + ['-DPUGL_SHARED', '-DPUGL_INTERNAL'])
+        bld(**lib_common,
+            features = '%s %sshlib' % (lang, lang),
+            name     = 'libpugl',
+            cflags   = libflags + ['-DPUGL_SHARED', '-DPUGL_INTERNAL'])
 
     # Static library
     if bld.env['BUILD_STATIC']:
-        obj = bld(**lib_common,
-                  features = '%s %sstlib' % (lang, lang),
-                  name     = 'libpugl_static',
-                  cflags   = ['-DPUGL_INTERNAL'])
+        bld(**lib_common,
+            features = '%s %sstlib' % (lang, lang),
+            name     = 'libpugl_static',
+            cflags   = ['-DPUGL_INTERNAL'])
 
     if bld.env['BUILD_TESTS']:
         test_libs   = libs
@@ -151,14 +151,14 @@ def build(bld):
             progs += ['pugl_cairo_test']
 
         for prog in progs:
-            obj = bld(**common,
-                      features     = 'c cprogram',
-                      source       = '%s.c' % prog,
-                      use          = 'libpugl_static',
-                      lib          = test_libs,
-                      target       = prog,
-                      install_path = '',
-                      cflags       = test_cflags)
+            bld(**common,
+                features     = 'c cprogram',
+                source       = '%s.c' % prog,
+                use          = 'libpugl_static',
+                lib          = test_libs,
+                target       = prog,
+                install_path = '',
+                cflags       = test_cflags)
 
     if bld.env['DOCS']:
         bld(features     = 'subst',
@@ -174,18 +174,21 @@ def build(bld):
 def lint(ctx):
     "checks code for style issues"
     import subprocess
+
+    subprocess.call("flake8 wscript --ignore E221,W504,E302,E251,E241",
+                    shell=True)
+
     cmd = ("clang-tidy -p=. -header-filter=.* -checks=\"*," +
            "-clang-analyzer-alpha.*," +
            "-google-readability-todo," +
            "-llvm-header-guard," +
            "-misc-unused-parameters," +
-           "-hicpp-signed-bitwise," + # FIXME?
+           "-hicpp-signed-bitwise," +  # FIXME?
            "-readability-else-after-return\" " +
            "../pugl/*.c ../*.c")
     subprocess.call(cmd, cwd='build', shell=True)
 
-# Alias .m files to be compiled the same as .c files, gcc will do the right thing.
-from waflib import TaskGen
+# Alias .m files to be compiled like .c files, gcc will do the right thing.
 @TaskGen.extension('.m')
 def m_hook(self, node):
     return self.create_compiled_task('c', node)
