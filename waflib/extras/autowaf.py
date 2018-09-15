@@ -450,8 +450,8 @@ def display_msg(conf, msg, status = None, color = None):
     elif type(status) == bool and not status or status == "False":
         color  = 'YELLOW'
         status = 'no'
-    Logs.pprint('NORMAL', '  %s' % msg.ljust(conf.line_just - 2), sep='')
-    Logs.pprint('NORMAL', ":", sep='')
+    Logs.pprint('BOLD', '%s' % msg.ljust(conf.line_just), sep='')
+    Logs.pprint('BOLD', ":", sep='')
     Logs.pprint(color, status)
 
 def display_msgs(conf, msgs):
