@@ -173,7 +173,16 @@ def build(bld):
 
 def lint(ctx):
     "checks code for style issues"
-    subprocess.call('cpplint.py --filter=+whitespace/comments,-whitespace/tab,-whitespace/braces,-whitespace/labels,-build/header_guard,-readability/casting,-readability/todo,-build/include src/* pugl/*', shell=True)
+    import subprocess
+    cmd = ("clang-tidy -p=. -header-filter=.* -checks=\"*," +
+           "-clang-analyzer-alpha.*," +
+           "-google-readability-todo," +
+           "-llvm-header-guard," +
+           "-misc-unused-parameters," +
+           "-hicpp-signed-bitwise," + # FIXME?
+           "-readability-else-after-return\" " +
+           "../pugl/*.c ../*.c")
+    subprocess.call(cmd, cwd='build', shell=True)
 
 # Alias .m files to be compiled the same as .c files, gcc will do the right thing.
 from waflib import TaskGen
