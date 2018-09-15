@@ -48,7 +48,7 @@ def configure(conf):
     if not Options.options.no_gl:
         # TODO: Portable check for OpenGL
         conf.define('HAVE_GL', 1)
-        autowaf.define(conf, 'PUGL_HAVE_GL', 1)
+        conf.define('PUGL_HAVE_GL', 1)
 
     if not Options.options.no_cairo:
         autowaf.check_pkg(conf, 'cairo',
@@ -56,17 +56,16 @@ def configure(conf):
                           atleast_version = '1.0.0',
                           mandatory       = False)
         if conf.is_defined('HAVE_CAIRO'):
-            autowaf.define(conf, 'PUGL_HAVE_CAIRO', 1)
+            conf.define('PUGL_HAVE_CAIRO', 1)
 
     if Options.options.log:
-        autowaf.define(conf, 'PUGL_VERBOSE', 1)
+        conf.define('PUGL_VERBOSE', 1)
 
     # Shared library building is broken on win32 for some reason
     conf.env['BUILD_TESTS']  = Options.options.test
     conf.env['BUILD_SHARED'] = conf.env.TARGET_PLATFORM != 'win32'
     conf.env['BUILD_STATIC'] = (Options.options.test or Options.options.static)
 
-    autowaf.define(conf, 'PUGL_VERSION', PUGL_VERSION)
     autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION)
     conf.write_config_header('pugl_config.h', remove=False)
 
