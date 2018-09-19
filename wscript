@@ -127,17 +127,18 @@ def build(bld):
 
     # Shared Library
     if bld.env['BUILD_SHARED']:
-        bld(**lib_common,
-            features = '%s %sshlib' % (lang, lang),
+        bld(features = '%s %sshlib' % (lang, lang),
             name     = 'libpugl',
-            cflags   = libflags + ['-DPUGL_SHARED', '-DPUGL_INTERNAL'])
+            cflags   = libflags + ['-DPUGL_SHARED', '-DPUGL_INTERNAL'],
+            **lib_common)
 
     # Static library
     if bld.env['BUILD_STATIC']:
-        bld(**lib_common,
-            features = '%s %sstlib' % (lang, lang),
+        bld(features = '%s %sstlib' % (lang, lang),
             name     = 'libpugl_static',
-            cflags   = ['-DPUGL_INTERNAL'])
+            cflags   = ['-DPUGL_INTERNAL'],
+            **lib_common)
+
 
     if bld.env['BUILD_TESTS']:
         test_libs   = libs
@@ -151,14 +152,15 @@ def build(bld):
             progs += ['pugl_cairo_test']
 
         for prog in progs:
-            bld(**common,
-                features     = 'c cprogram',
+            bld(features     = 'c cprogram',
                 source       = '%s.c' % prog,
                 use          = 'libpugl_static',
                 lib          = test_libs,
                 target       = prog,
                 install_path = '',
-                cflags       = test_cflags)
+                cflags       = test_cflags,
+                **common)
+
 
     if bld.env['DOCS']:
         bld(features     = 'subst',
