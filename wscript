@@ -142,7 +142,6 @@ def build(bld):
             cflags   = ['-DPUGL_INTERNAL'],
             **lib_common)
 
-
     if bld.env['BUILD_TESTS']:
         test_libs   = libs
         test_cflags = ['']
@@ -163,7 +162,6 @@ def build(bld):
                 install_path = '',
                 cflags       = test_cflags,
                 **common)
-
 
     if bld.env['DOCS']:
         bld(features     = 'subst',
