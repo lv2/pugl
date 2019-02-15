@@ -18,13 +18,13 @@
    @file pugl_cairo_test.c A simple Pugl test that creates a top-level window.
 */
 
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
+#include "pugl/pugl.h"
 
 #include <cairo/cairo.h>
 
-#include "pugl/pugl.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 static int  quit    = 0;
 static bool entered = false;

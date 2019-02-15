@@ -21,10 +21,10 @@
 #ifndef PUGL_INTERNAL_TYPES_H
 #define PUGL_INTERNAL_TYPES_H
 
-#include "pugl/pugl.h"
-
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
+
+#include "pugl/pugl.h"
 
 /** Platform-specific internals. */
 typedef struct PuglInternalsImpl PuglInternals;

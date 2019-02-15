@@ -19,13 +19,13 @@
    @file pugl_osx.m OSX/Cocoa Pugl Implementation.
 */
 
-#include <stdlib.h>
-
-#import <Cocoa/Cocoa.h>
-
 #include "pugl/cairo_gl.h"
 #include "pugl/gl.h"
 #include "pugl/pugl_internal.h"
+
+#import <Cocoa/Cocoa.h>
+
+#include <stdlib.h>
 
 @class PuglOpenGLView;
 

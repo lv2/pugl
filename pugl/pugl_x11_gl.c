@@ -14,14 +14,14 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#include <stdlib.h>
+#include "pugl/pugl_internal_types.h"
+#include "pugl/pugl_x11.h"
+#include "pugl/pugl_x11_gl.h"
 
 #include <GL/gl.h>
 #include <GL/glx.h>
 
-#include "pugl/pugl_x11.h"
-#include "pugl/pugl_x11_gl.h"
-#include "pugl/pugl_internal_types.h"
+#include <stdlib.h>
 
 typedef struct {
 	GLXContext ctx;

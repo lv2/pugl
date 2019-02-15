@@ -18,6 +18,8 @@
    @file pugl_win.cpp Windows/WGL Pugl Implementation.
 */
 
+#include "pugl/pugl_internal.h"
+
 #include <windows.h>
 #include <windowsx.h>
 #include <GL/gl.h>
@@ -26,8 +28,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wctype.h>
-
-#include "pugl/pugl_internal.h"
 
 #ifndef WM_MOUSEWHEEL
 #    define WM_MOUSEWHEEL 0x020A

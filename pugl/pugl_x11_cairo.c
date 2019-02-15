@@ -14,17 +14,16 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#include <cairo/cairo-xlib.h>
-#include <cairo/cairo.h>
-
-#include <X11/Xutil.h>
-
 #include "pugl/pugl_internal_types.h"
 #include "pugl/pugl_x11.h"
 #include "pugl/pugl_x11_cairo.h"
+
+#include <X11/Xutil.h>
+#include <cairo/cairo-xlib.h>
+#include <cairo/cairo.h>
+
+#include <stdio.h>
+#include <stdlib.h>
 
 typedef struct  {
 	cairo_surface_t* surface;

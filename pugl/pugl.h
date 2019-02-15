@@ -21,6 +21,7 @@
 #ifndef PUGL_H_INCLUDED
 #define PUGL_H_INCLUDED
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #ifdef PUGL_SHARED
@@ -42,8 +43,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-#else
-#    include <stdbool.h>
 #endif
 
 /**
@@ -82,8 +81,8 @@ typedef enum {
    Drawing context type.
 */
 typedef enum {
-	PUGL_GL    = 0x1,  /**< OpenGL (3D) */
-	PUGL_CAIRO = 0x2   /**< Cairo (2D) */
+	PUGL_GL    = 1 << 0,  /**< OpenGL (3D) */
+	PUGL_CAIRO = 1 << 1   /**< Cairo (2D) */
 } PuglContextType;
 
 /**

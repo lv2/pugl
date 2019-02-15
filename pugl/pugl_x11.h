@@ -14,10 +14,11 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#include <X11/Xlib.h>
-
 #include "pugl/pugl.h"
 #include "pugl/pugl_internal_types.h"
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 struct PuglInternalsImpl {
 	Display*        display;

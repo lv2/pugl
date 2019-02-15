@@ -18,13 +18,13 @@
    @file pugl_test.c A simple Pugl test that creates a top-level window.
 */
 
+#include "pugl/gl.h"
+#include "pugl/pugl.h"
+
 #include <locale.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-
-#include "pugl/gl.h"
-#include "pugl/pugl.h"
 
 static int   quit   = 0;
 static float xAngle = 0.0f;

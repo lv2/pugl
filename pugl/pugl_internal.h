@@ -28,11 +28,11 @@
    PUGL_HAVE_GL:    Include OpenGL support code.
 */
 
+#include "pugl/pugl.h"
+#include "pugl/pugl_internal_types.h"
+
 #include <stdlib.h>
 #include <string.h>
-
-#include "pugl/pugl_internal_types.h"
-#include "pugl/pugl.h"
 
 PuglInternals* puglInitInternals(void);
 

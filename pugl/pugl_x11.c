@@ -20,25 +20,24 @@
    @file pugl_x11.c X11 Pugl Implementation.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
+#include "pugl/pugl_internal.h"
+#include "pugl/pugl_x11.h"
+#ifdef PUGL_HAVE_GL
+#include "pugl/pugl_x11_gl.h"
+#endif
+#ifdef PUGL_HAVE_CAIRO
+#include "pugl/pugl_x11_cairo.h"
+#endif
 
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
-#include "pugl/pugl_internal.h"
-#include "pugl/pugl_x11.h"
-
-#ifdef PUGL_HAVE_GL
-#include "pugl/pugl_x11_gl.h"
-#endif
-
-#ifdef PUGL_HAVE_CAIRO
-#include "pugl/pugl_x11_cairo.h"
-#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifndef MIN
 #    define MIN(a, b) (((a) < (b)) ? (a) : (b))
