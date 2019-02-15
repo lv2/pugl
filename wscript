@@ -103,7 +103,10 @@ def build(bld):
         lib_source = ['pugl/pugl_x11.c']
         libs       = ['X11']
         if bld.is_defined('HAVE_GL'):
-            libs += ['GL']
+            lib_source += ['pugl/pugl_x11_gl.c']
+            libs       += ['GL']
+        if bld.is_defined('HAVE_CAIRO'):
+            lib_source += ['pugl/pugl_x11_cairo.c']
     if bld.env['MSVC_COMPILER']:
         libflags = []
     else:

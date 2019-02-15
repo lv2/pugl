@@ -55,5 +55,31 @@ struct PuglViewImpl {
 	bool     visible;
 };
 
+/** Opaque surface used by draw context. */
+typedef void PuglSurface;
+
+/** Drawing context interface. */
+typedef struct {
+	/** Get visual information from display and setup view as necessary. */
+	int (*configure)(PuglView*);
+
+	/** Create surface and drawing context. */
+	int (*create)(PuglView*);
+
+	/** Destroy surface and drawing context. */
+	int (*destroy)(PuglView*);
+
+	/** Enter drawing context. */
+	int (*enter)(PuglView*);
+
+	/** Leave drawing context, explicitly flushing if parameter is true. */
+	int (*leave)(PuglView*, bool);
+
+	/** Resize drawing context to the given width and height. */
+	int (*resize)(PuglView*, int, int);
+
+	/** Return the puglGetContext() handle for the application, if any. */
+	void* (*getHandle)(PuglView*);
+} PuglDrawContext;
 
 #endif // PUGL_INTERNAL_TYPES_H
