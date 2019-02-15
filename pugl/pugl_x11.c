@@ -39,7 +39,6 @@
 #include <cairo/cairo.h>
 #endif
 
-#include "pugl/cairo_gl.h"
 #include "pugl/pugl_internal.h"
 
 #ifndef MIN
@@ -96,9 +95,6 @@ struct PuglInternalsImpl {
 #ifdef PUGL_HAVE_GL
 	GLXContext       ctx;
 	int              doubleBuffered;
-#endif
-#if defined(PUGL_HAVE_CAIRO) && defined(PUGL_HAVE_GL)
-	PuglCairoGL      cairo_gl;
 #endif
 };
 
@@ -165,12 +161,6 @@ createContext(PuglView* view, XVisualInfo* vi)
 			impl->display, impl->win, vi->visual, view->width, view->height);
 	}
 #endif
-#if defined(PUGL_HAVE_GL) && defined(PUGL_HAVE_CAIRO)
-	if (view->ctx_type == PUGL_CAIRO_GL) {
-		impl->surface = pugl_cairo_gl_create(
-			&impl->cairo_gl, view->width, view->height, 4);
-	}
-#endif
 
 #ifdef PUGL_HAVE_CAIRO
 	if (view->ctx_type & PUGL_CAIRO) {
@@ -193,11 +183,6 @@ createContext(PuglView* view, XVisualInfo* vi)
 static void
 destroyContext(PuglView* view)
 {
-#if defined(PUGL_HAVE_CAIRO) && defined(PUGL_HAVE_GL)
-	if (view->ctx_type == PUGL_CAIRO_GL) {
-		pugl_cairo_gl_free(&view->impl->cairo_gl);
-	}
-#endif
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type & PUGL_GL) {
 		glXDestroyContext(view->impl->display, view->impl->ctx);
@@ -226,12 +211,6 @@ puglLeaveContext(PuglView* view, bool flush)
 {
 #ifdef PUGL_HAVE_GL
 	if (flush && view->ctx_type & PUGL_GL) {
-#ifdef PUGL_HAVE_CAIRO
-		if (view->ctx_type == PUGL_CAIRO_GL) {
-			pugl_cairo_gl_draw(&view->impl->cairo_gl, view->width, view->height);
-		}
-#endif
-
 		glFlush();
 		if (view->impl->doubleBuffered) {
 			glXSwapBuffers(view->impl->display, view->impl->win);
@@ -662,21 +641,6 @@ puglProcessEvents(PuglView* view)
 			                            config_event.configure.width,
 			                            config_event.configure.height);
 		}
-#ifdef PUGL_HAVE_GL
-		if (view->ctx_type == PUGL_CAIRO_GL) {
-			view->redisplay = true;
-			cairo_surface_destroy(view->impl->surface);
-			view->impl->surface = pugl_cairo_gl_create(
-				&view->impl->cairo_gl,
-				config_event.configure.width,
-				config_event.configure.height,
-				4);
-			pugl_cairo_gl_configure(&view->impl->cairo_gl,
-			                        config_event.configure.width,
-			                        config_event.configure.height);
-			createCairoContext(view);
-		}
-#endif
 #endif
 		puglDispatchEvent(view, (const PuglEvent*)&config_event);
 	}

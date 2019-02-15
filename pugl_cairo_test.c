@@ -162,19 +162,15 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(int argc, char** argv)
 {
-	bool useGL           = false;
 	bool ignoreKeyRepeat = false;
 	bool resizable       = false;
 	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "-h")) {
 			printf("USAGE: %s [OPTIONS]...\n\n"
-			       "  -g  Use OpenGL\n"
 			       "  -h  Display this help\n"
 			       "  -i  Ignore key repeat\n"
 			       "  -r  Resizable window\n", argv[0]);
 			return 0;
-		} else if (!strcmp(argv[i], "-g")) {
-			useGL = true;
 		} else if (!strcmp(argv[i], "-i")) {
 			ignoreKeyRepeat = true;
 		} else if (!strcmp(argv[i], "-r")) {
@@ -187,7 +183,7 @@ main(int argc, char** argv)
 	PuglView* view = puglInit(NULL, NULL);
 	puglInitWindowSize(view, 512, 512);
 	puglInitResizable(view, resizable);
-	puglInitContextType(view, useGL ? PUGL_CAIRO_GL : PUGL_CAIRO);
+	puglInitContextType(view, PUGL_CAIRO);
 
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);

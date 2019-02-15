@@ -82,9 +82,8 @@ typedef enum {
    Drawing context type.
 */
 typedef enum {
-	PUGL_GL       = 0x1,
-	PUGL_CAIRO    = 0x2,
-	PUGL_CAIRO_GL = 0x3
+	PUGL_GL    = 0x1,  /**< OpenGL (3D) */
+	PUGL_CAIRO = 0x2   /**< Cairo (2D) */
 } PuglContextType;
 
 /**
