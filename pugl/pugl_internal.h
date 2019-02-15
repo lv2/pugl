@@ -31,34 +31,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "pugl/pugl_internal_types.h"
 #include "pugl/pugl.h"
-
-typedef struct PuglInternalsImpl PuglInternals;
-
-struct PuglViewImpl {
-	PuglHandle       handle;
-	PuglEventFunc    eventFunc;
-
-	PuglInternals* impl;
-
-	char*            windowClass;
-	PuglNativeWindow parent;
-	PuglContextType  ctx_type;
-	uintptr_t        transient_parent;
-
-	int      width;
-	int      height;
-	int      min_width;
-	int      min_height;
-	int      min_aspect_x;
-	int      min_aspect_y;
-	int      max_aspect_x;
-	int      max_aspect_y;
-	bool     ignoreKeyRepeat;
-	bool     redisplay;
-	bool     resizable;
-	bool     visible;
-};
 
 PuglInternals* puglInitInternals(void);
 
