@@ -239,6 +239,7 @@ keySymToSpecial(KeySym sym)
 	case XK_Alt_R:     return PUGL_KEY_ALT;
 	case XK_Super_L:   return PUGL_KEY_SUPER;
 	case XK_Super_R:   return PUGL_KEY_SUPER;
+	default:           return (PuglKey)0;
 	}
 	return (PuglKey)0;
 }
