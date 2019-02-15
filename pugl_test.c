@@ -147,7 +147,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_NOTHING:
 		break;
 	case PUGL_CONFIGURE:
-		onReshape(view, event->configure.width, event->configure.height);
+		onReshape(view, (int)event->configure.width, (int)event->configure.height);
 		break;
 	case PUGL_EXPOSE:
 		onDisplay(view);

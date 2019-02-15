@@ -493,8 +493,8 @@ puglProcessEvents(PuglView* view)
 	if (config_event.type) {
 		// Resize drawing context before dispatching
 		view->impl->ctx.resize(view,
-		                       config_event.configure.width,
-		                       config_event.configure.height);
+		                       (int)config_event.configure.width,
+		                       (int)config_event.configure.height);
 		puglDispatchEvent(view, (const PuglEvent*)&config_event);
 	}
 

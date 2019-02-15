@@ -196,8 +196,8 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_NOTHING:
 		break;
 	case PUGL_CONFIGURE:
-		view->width  = event->configure.width;
-		view->height = event->configure.height;
+		view->width  = (int)event->configure.width;
+		view->height = (int)event->configure.height;
 		puglEnterContext(view);
 		view->eventFunc(view, event);
 		puglLeaveContext(view, false);
