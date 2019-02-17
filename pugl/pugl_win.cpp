@@ -631,6 +631,12 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 }
 
+PuglGlFunc
+puglGetProcAddress(const char* name)
+{
+	return (PuglGlFunc)wglGetProcAddress(name);
+}
+
 void
 puglPostRedisplay(PuglView* view)
 {

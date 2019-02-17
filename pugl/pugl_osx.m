@@ -702,6 +702,22 @@ puglProcessEvents(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
+PuglGlFunc
+puglGetProcAddress(const char *name)
+{
+	CFBundleRef framework =
+		CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
+
+	CFStringRef symbol = CFStringCreateWithCString(
+		kCFAllocatorDefault, name, kCFStringEncodingASCII);
+
+	PuglGlFunc func = CFBundleGetFunctionPointerForName(framework, symbol);
+
+	CFRelease(symbol);
+
+	return func;
+}
+
 void
 puglPostRedisplay(PuglView* view)
 {

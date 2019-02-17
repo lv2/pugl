@@ -630,6 +630,17 @@ puglProcessEvents(PuglView* view);
 */
 
 /**
+   OpenGL extension function.
+*/
+typedef void (*PuglGlFunc)();
+
+/**
+   Return the address of an OpenGL extension function.
+*/
+PUGL_API PuglGlFunc
+puglGetProcAddress(const char* name);
+
+/**
    Request a redisplay on the next call to puglProcessEvents().
 */
 PUGL_API void

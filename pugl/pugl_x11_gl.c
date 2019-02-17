@@ -186,6 +186,12 @@ puglX11GlGetHandle(PuglView* view)
 	return NULL;
 }
 
+PuglGlFunc
+puglGetProcAddress(const char* name)
+{
+	return glXGetProcAddress((const GLubyte*)name);
+}
+
 PuglDrawContext puglGetX11GlDrawContext(void)
 {
 	static const PuglDrawContext puglX11GlDrawContext = {
