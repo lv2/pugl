@@ -583,7 +583,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		     puglConstraint(impl->glview, NSLayoutAttributeWidth, view->min_width)];
 	[impl->glview addConstraint:
 		     puglConstraint(impl->glview, NSLayoutAttributeHeight, view->min_height)];
-	if (!view->resizable) {
+	if (!view->hints.resizable) {
 		[impl->glview setAutoresizingMask:NSViewNotSizable];
 	}
 
@@ -598,7 +598,7 @@ puglCreateWindow(PuglView* view, const char* title)
 			                             encoding:NSUTF8StringEncoding];
 		NSRect frame = NSMakeRect(0, 0, view->min_width, view->min_height);
 		unsigned style = NSClosableWindowMask | NSTitledWindowMask;
-		if (view->resizable) {
+		if (view->hints.resizable) {
 			style |= NSResizableWindowMask;
 		}
 

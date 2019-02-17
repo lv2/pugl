@@ -22,47 +22,79 @@
 #include <GL/glx.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef struct {
-	GLXContext ctx;
-	int        doubleBuffered;
+	GLXFBConfig fb_config;
+	GLXContext  ctx;
+	int         double_buffered;
 } PuglX11GlSurface;
+
+static int
+puglX11GlHintValue(const int value)
+{
+	return value == PUGL_DONT_CARE ? (int)GLX_DONT_CARE : value;
+}
+
+static int
+puglX11GlGetAttrib(Display* const    display,
+                   const GLXFBConfig fb_config,
+                   const int         attrib)
+{
+	int value = 0;
+	glXGetFBConfigAttrib(display, fb_config, attrib, &value);
+	return value;
+}
 
 static int
 puglX11GlConfigure(PuglView* view)
 {
-	PuglInternals* const impl = view->impl;
+	PuglInternals* const impl    = view->impl;
+	const int            screen  = impl->screen;
+	Display* const       display = impl->display;
 
-	/** Attributes for double-buffered RGBA. */
-	static int attrListDbl[] = { GLX_RGBA,
-		                         GLX_DOUBLEBUFFER, True,
-		                         GLX_RED_SIZE, 4,
-		                         GLX_GREEN_SIZE, 4,
-		                         GLX_BLUE_SIZE, 4,
-		                         GLX_DEPTH_SIZE, 16,
-		                         /* GLX_SAMPLE_BUFFERS  , 1, */
-		                         /* GLX_SAMPLES         , 4, */
-		                         None };
+	PuglX11GlSurface* const surface =
+		(PuglX11GlSurface*)calloc(1, sizeof(PuglX11GlSurface));
+	impl->surface = surface;
 
-	/** Attributes for single-buffered RGBA. */
-	static int attrListSgl[] = { GLX_RGBA,
-		                         GLX_DOUBLEBUFFER, False,
-		                         GLX_RED_SIZE, 4,
-		                         GLX_GREEN_SIZE, 4,
-		                         GLX_BLUE_SIZE, 4,
-		                         GLX_DEPTH_SIZE, 16,
-		                         /* GLX_SAMPLE_BUFFERS  , 1, */
-		                         /* GLX_SAMPLES         , 4, */
-		                         None };
+	const int attrs[] = {
+		GLX_X_RENDERABLE,  True,
+		GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
+		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+		GLX_SAMPLES,       view->hints.samples,
+		GLX_RED_SIZE,      puglX11GlHintValue(view->hints.red_bits),
+		GLX_GREEN_SIZE,    puglX11GlHintValue(view->hints.green_bits),
+		GLX_BLUE_SIZE,     puglX11GlHintValue(view->hints.blue_bits),
+		GLX_ALPHA_SIZE,    puglX11GlHintValue(view->hints.alpha_bits),
+		GLX_DEPTH_SIZE,    puglX11GlHintValue(view->hints.depth_bits),
+		GLX_STENCIL_SIZE,  puglX11GlHintValue(view->hints.stencil_bits),
+		GLX_DOUBLEBUFFER,  (view->hints.samples
+		                    ? GLX_DONT_CARE
+		                    : view->hints.double_buffer),
+		None
+	};
 
-	/** Null-terminated list of attributes in order of preference. */
-	static int* attrLists[] = { attrListDbl, attrListSgl, NULL };
-
-	if (view->ctx_type & PUGL_GL) {
-		for (int* attr = *attrLists; !impl->vi && *attr; ++attr) {
-			impl->vi = glXChooseVisual(impl->display, impl->screen, attr);
-		}
+	int          n_fbc = 0;
+	GLXFBConfig* fbc   = glXChooseFBConfig(display, screen, attrs, &n_fbc);
+	if (n_fbc <= 0) {
+		fprintf(stderr, "error: Failed to create GL context\n");
+		return 1;
 	}
+
+	surface->fb_config = fbc[0];
+	impl->vi           = glXGetVisualFromFBConfig(impl->display, fbc[0]);
+
+	printf("Using visual 0x%lX: R=%d G=%d B=%d A=%d D=%d"
+	       " DOUBLE=%d SAMPLES=%d\n",
+	       impl->vi->visualid,
+	       puglX11GlGetAttrib(display, fbc[0], GLX_RED_SIZE),
+	       puglX11GlGetAttrib(display, fbc[0], GLX_GREEN_SIZE),
+	       puglX11GlGetAttrib(display, fbc[0], GLX_BLUE_SIZE),
+	       puglX11GlGetAttrib(display, fbc[0], GLX_ALPHA_SIZE),
+	       puglX11GlGetAttrib(display, fbc[0], GLX_DEPTH_SIZE),
+	       puglX11GlGetAttrib(display, fbc[0], GLX_DOUBLEBUFFER),
+	       puglX11GlGetAttrib(display, fbc[0], GLX_SAMPLES));
 
 	return 0;
 }
@@ -70,14 +102,37 @@ puglX11GlConfigure(PuglView* view)
 static int
 puglX11GlCreate(PuglView* view)
 {
-	PuglInternals* const impl = view->impl;
+	PuglInternals* const    impl      = view->impl;
+	PuglX11GlSurface* const surface   = (PuglX11GlSurface*)impl->surface;
+	Display* const          display   = impl->display;
+	const GLXFBConfig       fb_config = surface->fb_config;
 
-	PuglX11GlSurface* surface = (PuglX11GlSurface*)calloc(1, sizeof(PuglX11GlSurface));
+	const int ctx_attrs[] = {
+		GLX_CONTEXT_MAJOR_VERSION_ARB, view->hints.context_version_major,
+		GLX_CONTEXT_MINOR_VERSION_ARB, view->hints.context_version_minor,
+		GLX_CONTEXT_PROFILE_MASK_ARB, (view->hints.use_compat_profile
+		                               ? GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB
+		                               : GLX_CONTEXT_CORE_PROFILE_BIT_ARB),
+		0};
+
+	typedef GLXContext (*CreateContextAttribs)(
+		Display*, GLXFBConfig, GLXContext, Bool, const int*);
+
+	CreateContextAttribs create_context =
+		(CreateContextAttribs)glXGetProcAddress(
+			(GLubyte*)"glXCreateContextAttribsARB");
 
 	impl->surface = surface;
-	surface->ctx = glXCreateContext(impl->display, impl->vi, 0, GL_TRUE);
-	glXGetConfig(
-		impl->display, impl->vi, GLX_DOUBLEBUFFER, &surface->doubleBuffered);
+	surface->ctx  = create_context(display, fb_config, 0, GL_TRUE, ctx_attrs);
+	if (!surface->ctx) {
+		surface->ctx =
+			glXCreateNewContext(display, fb_config, GLX_RGBA_TYPE, 0, True);
+	}
+
+	glXGetConfig(impl->display,
+	             impl->vi,
+	             GLX_DOUBLEBUFFER,
+	             &surface->double_buffered);
 
 	return 0;
 }
@@ -86,9 +141,11 @@ static int
 puglX11GlDestroy(PuglView* view)
 {
 	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
-	glXDestroyContext(view->impl->display, surface->ctx);
-	free(surface);
-	view->impl->surface = NULL;
+	if (surface) {
+		glXDestroyContext(view->impl->display, surface->ctx);
+		free(surface);
+		view->impl->surface = NULL;
+	}
 	return 0;
 }
 
@@ -110,7 +167,7 @@ puglX11GlLeave(PuglView* view, bool flush)
 	}
 
 	glXMakeCurrent(view->impl->display, None, NULL);
-	if (surface->doubleBuffered) {
+	if (surface->double_buffered) {
 		glXSwapBuffers(view->impl->display, view->impl->win);
 	}
 
