@@ -553,7 +553,6 @@ puglGetSize(PuglView* view, int* width, int* height);
 PUGL_API void*
 puglGetContext(PuglView* view);
 
-
 /**
    Enter the drawing context.
 
