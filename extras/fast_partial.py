@@ -17,7 +17,7 @@ Usage::
 	def options(opt):
 		opt.load('fast_partial')
 
-Assuptions:
+Assumptions:
 * Mostly for C/C++/Fortran targets with link tasks (object-only targets are not handled)
 * For full project builds: no --targets and no pruning from subfolders
 * The installation phase is ignored

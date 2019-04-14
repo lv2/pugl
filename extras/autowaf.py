@@ -2,41 +2,48 @@ import glob
 import os
 import subprocess
 import sys
+import time
 
-from waflib import Build, Context, Logs, Options, Utils
+from waflib import Configure, ConfigSet, Build, Context, Logs, Options, Utils
 from waflib.TaskGen import feature, before, after
 
 global g_is_child
 g_is_child = False
 
-# Only run autowaf hooks once (even if sub projects call several times)
-global g_step
-g_step = 0
+NONEMPTY = -10
 
-global line_just
-line_just = 40
+if sys.platform == 'win32':
+    lib_path_name = 'PATH'
+elif sys.platform == 'darwin':
+    lib_path_name = 'DYLD_LIBRARY_PATH'
+else:
+    lib_path_name = 'LD_LIBRARY_PATH'
 
 # Compute dependencies globally
 # import preproc
 # preproc.go_absolute = True
-
-# Test context that inherits build context to make configuration available
-class TestContext(Build.BuildContext):
-    "Run tests"
-    cmd = 'test'
-    fun = 'test'
 
 @feature('c', 'cxx')
 @after('apply_incpaths')
 def include_config_h(self):
     self.env.append_value('INCPATHS', self.bld.bldnode.abspath())
 
-def set_options(opt, debug_by_default=False, test=False):
-    "Add standard autowaf options if they havn't been added yet"
-    global g_step
-    if g_step > 0:
-        return
+class OptionsContext(Options.OptionsContext):
+    def __init__(self, **kwargs):
+        super(OptionsContext, self).__init__(**kwargs)
+        set_options(self)
 
+    def configuration_options(self):
+        return self.get_option_group('Configuration options')
+
+    def add_flags(self, group, flags):
+        """Tersely add flags (a dictionary of longname:desc) to a group"""
+        for name, desc in flags.items():
+            group.add_option('--' + name, action='store_true',
+                             dest=name.replace('-', '_'), help=desc)
+
+def set_options(opt, debug_by_default=False):
+    "Add standard autowaf options"
     opts = opt.get_option_group('Configuration options')
 
     # Standard directory options
@@ -60,42 +67,71 @@ def set_options(opt, debug_by_default=False, test=False):
         opts.add_option('--optimize', action='store_false', default=True,
                         dest='debug', help="build optimized binaries")
     else:
-        opts.add_option('--debug', action='store_true', default=False,
+        opts.add_option('-d', '--debug', action='store_true', default=False,
                         dest='debug', help="build debuggable binaries")
         opts.add_option('--pardebug', action='store_true', default=False,
                         dest='pardebug',
                         help="build debug libraries with D suffix")
 
-    opts.add_option('--strict', action='store_true', default=False,
+    opts.add_option('-s', '--strict', action='store_true', default=False,
                     dest='strict',
                     help="use strict compiler flags and show all warnings")
-    opts.add_option('--ultra-strict', action='store_true', default=False,
+    opts.add_option('-S', '--ultra-strict', action='store_true', default=False,
                     dest='ultra_strict',
                     help="use extremely strict compiler flags (likely noisy)")
     opts.add_option('--docs', action='store_true', default=False, dest='docs',
                     help="build documentation (requires doxygen)")
 
     # Test options
-    if test:
+    if hasattr(Context.g_module, 'test'):
         test_opts = opt.add_option_group('Test options', '')
-        opts.add_option('--test', action='store_true', dest='build_tests',
+        opts.add_option('-T', '--test', action='store_true', dest='build_tests',
                         help='build unit tests')
         opts.add_option('--no-coverage', action='store_true',
                         dest='no_coverage',
                         help='do not instrument code for test coverage')
-        test_opts.add_option('--test-wrapper', type='string',
+        test_opts.add_option('--wrapper', type='string',
                              dest='test_wrapper',
                              help='command prefix for tests (e.g. valgrind)')
-        test_opts.add_option('--verbose-tests', action='store_true',
-                             default=False, dest='verbose_tests',
-                             help='always show test output')
+        test_opts.add_option('--test-filter', type='string',
+                             dest='test_filter',
+                             help='regular expression for tests to run')
 
-    g_step = 1
+    # Run options
+    run_opts = opt.add_option_group('Run options')
+    run_opts.add_option('--cmd', type='string', dest='cmd',
+                        help='command to run from build directory')
 
-def add_flags(opt, flags):
-    for name, desc in flags.items():
-        opt.add_option('--' + name, action='store_true',
-                       dest=name.replace('-', '_'), help=desc)
+class ConfigureContext(Configure.ConfigurationContext):
+    """configures the project"""
+
+    def __init__(self, **kwargs):
+        self.line_just = 45
+        if hasattr(Context.g_module, 'line_just'):
+            self.line_just = Context.g_module.line_just
+
+        super(ConfigureContext, self).__init__(**kwargs)
+        self.run_env = ConfigSet.ConfigSet()
+        self.system_include_paths = set()
+
+    def pre_recurse(self, node):
+        if len(self.stack_path) == 1:
+            Logs.pprint('BOLD', 'Configuring %s' % node.parent.srcpath())
+        super(ConfigureContext, self).pre_recurse(node)
+
+    def store(self):
+        self.env.AUTOWAF_RUN_ENV = self.run_env.get_merged_dict()
+        for path in sorted(self.system_include_paths):
+            if 'COMPILER_CC' in self.env:
+                self.env.append_value('CFLAGS', ['-isystem', path])
+            if 'COMPILER_CXX' in self.env:
+                self.env.append_value('CXXFLAGS', ['-isystem', path])
+
+        super(ConfigureContext, self).store()
+
+    def build_path(self, path='.'):
+        """Return `path` within the build directory"""
+        return str(self.path.get_bld().find_node(path))
 
 def get_check_func(conf, lang):
     if lang == 'c':
@@ -180,6 +216,10 @@ def check_pkg(conf, name, **args):
     else:
         conf.env[var_name] = CheckType.OPTIONAL
 
+    if not conf.env.MSVC_COMPILER and 'system' in args and args['system']:
+        conf.system_include_paths.update(
+            conf.env['INCLUDES_' + nameify(args['uselib_store'])])
+
 def normpath(path):
     if sys.platform == 'win32':
         return os.path.normpath(path).replace('\\', '/')
@@ -187,10 +227,6 @@ def normpath(path):
         return os.path.normpath(path)
 
 def configure(conf):
-    global g_step
-    if g_step > 1:
-        return
-
     def append_cxx_flags(flags):
         conf.env.append_value('CFLAGS', flags)
         conf.env.append_value('CXXFLAGS', flags)
@@ -238,16 +274,37 @@ def configure(conf):
             conf.env['CXXFLAGS'] = ['-O0', '-g']
     else:
         if conf.env['MSVC_COMPILER']:
-            conf.env['CFLAGS']   = ['/MD', '/FS', '/DNDEBUG']
-            conf.env['CXXFLAGS'] = ['/MD', '/FS', '/DNDEBUG']
+            append_cxx_flags(['/MD', '/FS', '/DNDEBUG'])
         else:
             append_cxx_flags(['-DNDEBUG'])
 
     if conf.env.MSVC_COMPILER:
         Options.options.no_coverage = True
-        if Options.options.strict:
-            conf.env.append_value('CFLAGS', ['/Wall'])
-            conf.env.append_value('CXXFLAGS', ['/Wall'])
+        append_cxx_flags(['/nologo',
+                          '/FS',
+                          '/DNDEBUG',
+                          '/D_CRT_SECURE_NO_WARNINGS',
+                          '/experimental:external',
+                          '/external:W0',
+                          '/external:anglebrackets'])
+        conf.env.append_value('LINKFLAGS', '/nologo')
+        if Options.options.strict or Options.options.ultra_strict:
+            ms_strict_flags = ['/Wall',
+                               '/wd4061',
+                               '/wd4200',
+                               '/wd4514',
+                               '/wd4571',
+                               '/wd4625',
+                               '/wd4626',
+                               '/wd4706',
+                               '/wd4710',
+                               '/wd4820',
+                               '/wd5026',
+                               '/wd5027',
+                               '/wd5045']
+            conf.env.append_value('CFLAGS', ms_strict_flags)
+            conf.env.append_value('CXXFLAGS', ms_strict_flags)
+            conf.env.append_value('CXXFLAGS', ['/EHsc'])
     else:
         if Options.options.ultra_strict:
             Options.options.strict = True
@@ -310,16 +367,14 @@ def configure(conf):
     # Define version in configuration
     appname = getattr(Context.g_module, Context.APPNAME, 'noname')
     version = getattr(Context.g_module, Context.VERSION, '0.0.0')
-    define(conf, appname.upper() + '_VERSION', version)
+    defname = appname.upper().replace('-', '_').replace('.', '_')
+    define(conf, defname + '_VERSION', version)
 
     conf.env.prepend_value('CFLAGS', '-I' + os.path.abspath('.'))
     conf.env.prepend_value('CXXFLAGS', '-I' + os.path.abspath('.'))
-    g_step = 2
 
 def display_summary(conf, msgs=None):
-    global g_is_child
-    Logs.pprint('', '')
-    if not g_is_child:
+    if len(conf.stack_path) == 1:
         display_msg(conf, "Install prefix", conf.env['PREFIX'])
         if 'COMPILER_CC' in conf.env:
             display_msg(conf, "C Flags", ' '.join(conf.env['CFLAGS']))
@@ -331,13 +386,11 @@ def display_summary(conf, msgs=None):
     if msgs is not None:
         display_msgs(conf, msgs)
 
-    Logs.pprint('', '')
-
 def set_c_lang(conf, lang):
     "Set a specific C language standard, like 'c99' or 'c11'"
     if conf.env.MSVC_COMPILER:
         # MSVC has no hope or desire to compile C99, just compile as C++
-        conf.env.append_unique('CFLAGS', ['-TP'])
+        conf.env.append_unique('CFLAGS', ['/TP'])
     else:
         flag = '-std=%s' % lang
         conf.check(cflags=['-Werror', flag],
@@ -361,7 +414,7 @@ def set_modern_c_flags(conf):
     if 'COMPILER_CC' in conf.env:
         if conf.env.MSVC_COMPILER:
             # MSVC has no hope or desire to compile C99, just compile as C++
-            conf.env.append_unique('CFLAGS', ['-TP'])
+            conf.env.append_unique('CFLAGS', ['/TP'])
         else:
             for flag in ['-std=c11', '-std=c99']:
                 if conf.check(cflags=['-Werror', flag], mandatory=False,
@@ -436,22 +489,16 @@ def set_lib_env(conf, name, version):
     major_ver    = version.split('.')[0]
     pkg_var_name = 'PKG_' + name.replace('-', '_') + '_' + major_ver
     lib_name     = '%s-%s' % (name, major_ver)
+    lib_path     = [str(conf.path.get_bld())]
     if conf.env.PARDEBUG:
         lib_name += 'D'
     conf.env[pkg_var_name]       = lib_name
     conf.env['INCLUDES_' + NAME] = ['${INCLUDEDIR}/%s-%s' % (name, major_ver)]
-    conf.env['LIBPATH_' + NAME]  = [conf.env.LIBDIR]
+    conf.env['LIBPATH_' + NAME]  = lib_path
     conf.env['LIB_' + NAME]      = [lib_name]
 
-def set_line_just(conf, width):
-    global line_just
-    line_just = max(line_just, width)
-    conf.line_just = line_just
-
-def display_header(title):
-    global g_is_child
-    if g_is_child:
-        Logs.pprint('BOLD', title)
+    conf.run_env.append_unique(lib_path_name, lib_path)
+    conf.define(NAME + '_VERSION', version)
 
 def display_msg(conf, msg, status=None, color=None):
     color = 'CYAN'
@@ -495,7 +542,7 @@ def build_pc(bld, name, version, version_suffix, libs, subst_dict={}):
     """
 
     pkg_prefix       = bld.env['PREFIX']
-    if pkg_prefix[-1] == '/':
+    if len(pkg_prefix) > 1 and pkg_prefix[-1] == '/':
         pkg_prefix = pkg_prefix[:-1]
 
     target = name.lower()
@@ -584,7 +631,8 @@ def make_simple_dox(name):
         os.chdir(top)
     except Exception as e:
         Logs.error("Failed to fix up %s documentation: %s" % (name, e))
-
+    finally:
+        os.chdir(top)
 
 def build_dox(bld, name, version, srcdir, blddir, outdir='', versioned=True):
     """Build Doxygen API documentation"""
@@ -715,211 +763,415 @@ def build_i18n(bld, srcdir, dir, name, sources, copyright_holder=None):
     build_i18n_po(bld, srcdir, dir, name, sources, copyright_holder)
     build_i18n_mo(bld, srcdir, dir, name, sources, copyright_holder)
 
-def cd_to_build_dir(ctx, appname):
-    top_level = (len(ctx.stack_path) > 1)
-    if top_level:
-        os.chdir(os.path.join('build', appname))
+class ExecutionEnvironment:
+    """Context that sets system environment variables for program execution"""
+    def __init__(self, changes):
+        self.original_environ = os.environ.copy()
+
+        self.diff = {}
+        for path_name, paths in changes.items():
+            value = os.pathsep.join(paths)
+            if path_name in os.environ:
+                value += os.pathsep + os.environ[path_name]
+
+            self.diff[path_name] = value
+
+        os.environ.update(self.diff)
+
+    def __str__(self):
+        return '\n'.join({'%s="%s"' % (k, v) for k, v in self.diff.items()})
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        os.environ = self.original_environ
+
+class RunContext(Build.BuildContext):
+    "runs an executable from the build directory"
+    cmd = 'run'
+
+    def execute(self):
+        self.restore()
+        if not self.all_envs:
+            self.load_envs()
+
+        with ExecutionEnvironment(self.env.AUTOWAF_RUN_ENV) as env:
+            if Options.options.verbose:
+                Logs.pprint('GREEN', str(env) + '\n')
+
+            if Options.options.cmd:
+                Logs.pprint('GREEN', 'Running %s' % Options.options.cmd)
+                subprocess.call(Options.options.cmd, shell=True)
+            else:
+                Logs.error("error: Missing --cmd option for run command")
+
+def show_diff(from_lines, to_lines, from_filename, to_filename):
+    import difflib
+    import sys
+
+    same = True
+    for line in difflib.unified_diff(
+            from_lines, to_lines,
+            fromfile=os.path.abspath(from_filename),
+            tofile=os.path.abspath(to_filename)):
+        sys.stderr.write(line)
+        same = False
+
+    return same
+
+def test_file_equals(patha, pathb):
+    import filecmp
+    import io
+
+    for path in (patha, pathb):
+        if not os.access(path, os.F_OK):
+            Logs.pprint('RED', 'error: missing file %s' % path)
+            return False
+
+    if filecmp.cmp(patha, pathb, shallow=False):
+        return True
+
+    with io.open(patha, 'rU', encoding='utf-8') as fa:
+        with io.open(pathb, 'rU', encoding='utf-8') as fb:
+            return show_diff(fa.readlines(), fb.readlines(), patha, pathb)
+
+def bench_time():
+    if hasattr(time, 'perf_counter'): # Added in Python 3.3
+        return time.perf_counter()
     else:
-        os.chdir('build')
-    Logs.pprint('GREEN', ("Waf: Entering directory `%s'" %
-                          os.path.abspath(os.getcwd())))
+        return time.time()
 
-def cd_to_orig_dir(ctx, child):
-    if child:
-        os.chdir(os.path.join('..', '..'))
-    else:
-        os.chdir('..')
+class TestOutput:
+    """Test output that is truthy if result is as expected"""
+    def __init__(self, expected, result=None):
+        self.stdout = self.stderr = None
+        self.expected = expected
+        self.result = result
 
-def pre_test(ctx, appname, dirs=['src']):
-    if not hasattr(ctx, 'autowaf_tests_total'):
-        ctx.autowaf_tests_total        = 0
-        ctx.autowaf_tests_failed       = 0
-        ctx.autowaf_local_tests_total  = 0
-        ctx.autowaf_local_tests_failed = 0
-        ctx.autowaf_tests              = {}
+    def __bool__(self):
+        return self.expected is None or self.result == self.expected
 
-    ctx.autowaf_tests[appname] = {'total': 0, 'failed': 0}
+    __nonzero__ = __bool__
 
-    cd_to_build_dir(ctx, appname)
-    if not ctx.env.NO_COVERAGE:
-        diropts  = ''
-        for i in dirs:
-            diropts += ' -d ' + i
-        clear_log = open('lcov-clear.log', 'w')
+def is_string(s):
+    if sys.version_info[0] < 3:
+        return isinstance(s, basestring)
+    return isinstance(s, str)
+
+class TestScope:
+    """Scope for running tests that maintains pass/fail statistics"""
+    def __init__(self, tst, name, defaults):
+        self.tst = tst
+        self.name = name
+        self.defaults = defaults
+        self.n_failed = 0
+        self.n_total = 0
+
+    def run(self, test, **kwargs):
+        if type(test) == list and 'name' not in kwargs:
+            import pipes
+            kwargs['name'] = ' '.join(map(pipes.quote, test))
+
+        if Options.options.test_filter and 'name' in kwargs:
+            import re
+            found = False
+            for scope in self.tst.stack:
+                if re.search(Options.options.test_filter, scope.name):
+                    found = True
+                    break
+
+            if (not found and
+                not re.search(Options.options.test_filter, self.name) and
+                not re.search(Options.options.test_filter, kwargs['name'])):
+                return True
+
+        if callable(test):
+            output = self._run_callable(test, **kwargs)
+        elif type(test) == list:
+
+            output = self._run_command(test, **kwargs)
+        else:
+            raise Exception("Unknown test type")
+
+        if not output:
+            self.tst.log_bad('FAILED', kwargs['name'])
+
+        return self.tst.test_result(output)
+
+    def _run_callable(self, test, **kwargs):
+        expected = kwargs['expected'] if 'expected' in kwargs else True
+        return TestOutput(expected, test())
+
+    def _run_command(self, test, **kwargs):
+        if 'stderr' in kwargs and kwargs['stderr'] == NONEMPTY:
+            # Run with a temp file for stderr and check that it is non-empty
+            import tempfile
+            with tempfile.TemporaryFile() as stderr:
+                kwargs['stderr'] = stderr
+                output = self.run(test, **kwargs)
+                stderr.seek(0, 2) # Seek to end
+                return (output if not output else
+                        self.run(
+                            lambda: stderr.tell() > 0,
+                            name=kwargs['name'] + ' error message'))
+
         try:
-            try:
-                # Clear coverage data
-                subprocess.call(('lcov %s -z' % diropts).split(),
-                                stdout=clear_log, stderr=clear_log)
-            except Exception:
-                Logs.warn('Failed to run lcov, no coverage report generated')
+            # Run with stdout and stderr set to the appropriate streams
+            out_stream = self._stream('stdout', kwargs)
+            err_stream = self._stream('stderr', kwargs)
+            return self._exec(test, **kwargs)
         finally:
-            clear_log.close()
+            out_stream = out_stream.close() if out_stream else None
+            err_stream = err_stream.close() if err_stream else None
 
-def post_test(ctx, appname, dirs=['src'], remove=['*boost*', 'c++*']):
-    if not ctx.env.NO_COVERAGE:
-        diropts  = ''
-        for i in dirs:
-            diropts += ' -d ' + i
-        coverage_log           = open('lcov-coverage.log', 'w')
-        coverage_lcov          = open('coverage.lcov', 'w')
-        coverage_stripped_lcov = open('coverage-stripped.lcov', 'w')
-        try:
-            try:
-                base = '.'
-                if g_is_child:
-                    base = '..'
+    def _stream(self, stream_name, kwargs):
+        s = kwargs[stream_name] if stream_name in kwargs else None
+        if is_string(s):
+            kwargs[stream_name] = open(s, 'wb')
+            return kwargs[stream_name]
+        return None
 
-                # Generate coverage data
-                lcov_cmd = 'lcov -c %s -b %s' % (diropts, base)
-                if ctx.env.LLVM_COV:
-                    lcov_cmd += ' --gcov-tool %s' % ctx.env.LLVM_COV[0]
-                subprocess.call(lcov_cmd.split(),
-                                stdout=coverage_lcov, stderr=coverage_log)
+    def _exec(self,
+              test,
+              expected=0,
+              name='',
+              stdin=None,
+              stdout=None,
+              stderr=None,
+              verbosity=1):
+        def stream(s):
+            return open(s, 'wb') if type(s) == str else s
 
-                # Strip unwanted stuff
-                subprocess.call(
-                    ['lcov', '--remove', 'coverage.lcov'] + remove,
-                    stdout=coverage_stripped_lcov, stderr=coverage_log)
+        if verbosity > 1:
+            self.tst.log_good('RUN     ', name)
 
-                # Generate HTML coverage output
-                if not os.path.isdir('coverage'):
-                    os.makedirs('coverage')
-                subprocess.call(
-                    'genhtml -o coverage coverage-stripped.lcov'.split(),
-                    stdout=coverage_log, stderr=coverage_log)
-
-            except Exception:
-                Logs.warn('Failed to run lcov, no coverage report generated')
-        finally:
-            coverage_stripped_lcov.close()
-            coverage_lcov.close()
-            coverage_log.close()
-
-    if ctx.autowaf_tests[appname]['failed'] > 0:
-        Logs.pprint('RED', '\nSummary:  %d / %d %s tests failed' % (
-            ctx.autowaf_tests[appname]['failed'],
-            ctx.autowaf_tests[appname]['total'],
-            appname))
-    else:
-        Logs.pprint('GREEN', '\nSummary:  All %d %s tests passed' % (
-            ctx.autowaf_tests[appname]['total'], appname))
-
-    if not ctx.env.NO_COVERAGE:
-        Logs.pprint('GREEN', 'Coverage: <file://%s>\n'
-                    % os.path.abspath('coverage/index.html'))
-
-    Logs.pprint('GREEN', ("Waf: Leaving directory `%s'" %
-                          os.path.abspath(os.getcwd())))
-    top_level = (len(ctx.stack_path) > 1)
-    if top_level:
-        cd_to_orig_dir(ctx, top_level)
-
-def run_test(ctx,
-             appname,
-             test,
-             desired_status=0,
-             dirs=['src'],
-             name='',
-             header=False,
-             quiet=False):
-    """Run an individual test.
-
-    `test` is either a shell command string, or a list of [name, return status]
-    for displaying tests implemented in the calling Python code.
-    """
-
-    ctx.autowaf_tests_total += 1
-    ctx.autowaf_local_tests_total += 1
-    ctx.autowaf_tests[appname]['total'] += 1
-
-    out = (None, None)
-    if type(test) == list:
-        name       = test[0]
-        returncode = test[1]
-    elif callable(test):
-        returncode = test()
-    else:
-        s = test
-        if isinstance(test, type([])):
-            s = ' '.join(test)
-        if header and not quiet:
-            Logs.pprint('Green', '\n** Test %s' % s)
-        cmd = test
         if Options.options.test_wrapper:
-            cmd = Options.options.test_wrapper + ' ' + test
-        if name == '':
-            name = test
+            test = [Options.options.test_wrapper] + test
 
-        proc = subprocess.Popen(cmd, shell=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out = proc.communicate()
-        returncode = proc.returncode
+        output = TestOutput(expected)
+        with open(os.devnull, 'wb') as null:
+            out = null if verbosity < 3 and not stdout else stdout
+            err = null if verbosity < 2 and not stderr else stderr
+            proc = subprocess.Popen(test, stdin=stdin, stdout=out, stderr=err)
+            output.stdout, output.stderr = proc.communicate()
+            output.result = proc.returncode
 
-    success = desired_status is None or returncode == desired_status
-    if success:
-        if not quiet:
-            Logs.pprint('GREEN', '** Pass %s' % name)
-    else:
-        Logs.pprint('RED', '** FAIL %s' % name)
-        ctx.autowaf_tests_failed += 1
-        ctx.autowaf_tests[appname]['failed'] += 1
-        if type(test) != list and not callable(test):
-            Logs.pprint('RED', test)
+        if output and verbosity > 0:
+            self.tst.log_good('      OK', name)
 
-    if Options.options.verbose_tests and type(test) != list and not callable(test):
-        sys.stdout.write(out[0])
-        sys.stderr.write(out[1])
+        return output
 
-    return (success, out)
+class TestContext(Build.BuildContext):
+    "runs test suite"
+    fun = cmd = 'test'
 
-def tests_name(ctx, appname, name='*'):
-    if name == '*':
-        return appname
-    else:
-        return '%s.%s' % (appname, name)
+    def __init__(self, **kwargs):
+        super(TestContext, self).__init__(**kwargs)
+        self.start_time = bench_time()
+        self.max_depth = 1
 
-def begin_tests(ctx, appname, name='*'):
-    ctx.autowaf_local_tests_failed = 0
-    ctx.autowaf_local_tests_total  = 0
-    Logs.pprint('GREEN', '\n** Begin %s tests' % (
-        tests_name(ctx, appname, name)))
+        defaults = {'verbosity': Options.options.verbose}
+        self.stack = [TestScope(self, Context.g_module.APPNAME, defaults)]
 
-    class Handle:
-        def __enter__(self):
-            pass
+    def defaults(self):
+        return self.stack[-1].defaults
 
-        def __exit__(self, type, value, traceback):
-            end_tests(ctx, appname, name)
+    def finalize(self):
+        if self.stack[-1].n_failed > 0:
+            sys.exit(1)
 
-    return Handle()
+        super(TestContext, self).finalize()
 
-def end_tests(ctx, appname, name='*'):
-    failures = ctx.autowaf_local_tests_failed
-    if failures == 0:
-        Logs.pprint('GREEN', '** Passed all %d %s tests' % (
-            ctx.autowaf_local_tests_total, tests_name(ctx, appname, name)))
-    else:
-        Logs.pprint('RED', '** Failed %d / %d %s tests' % (
-            failures, ctx.autowaf_local_tests_total, tests_name(ctx, appname, name)))
+    def __call__(self, test, **kwargs):
+        return self.stack[-1].run(test, **self.args(**kwargs))
 
-def run_tests(ctx,
-              appname,
-              tests,
-              desired_status=0,
-              dirs=['src'],
-              name='*',
-              headers=False):
-    begin_tests(ctx, appname, name)
+    def file_equals(self, from_path, to_path, **kwargs):
+        kwargs.update({'expected': True,
+                       'name': '%s == %s' % (from_path, to_path)})
+        return self(lambda: test_file_equals(from_path, to_path), **kwargs)
 
-    diropts  = ''
-    for i in dirs:
-        diropts += ' -d ' + i
+    def log_good(self, title, fmt, *args):
+        Logs.pprint('GREEN', '[%s] %s' % (title.center(10), fmt % args))
 
-    for i in tests:
-        run_test(ctx, appname, i, desired_status, dirs, i, headers)
+    def log_bad(self, title, fmt, *args):
+        Logs.pprint('RED', '[%s] %s' % (title.center(10), fmt % args))
 
-    end_tests(ctx, appname, name)
+    def pre_recurse(self, node):
+        wscript_module = Context.load_module(node.abspath())
+        group_name = wscript_module.APPNAME
+        self.stack.append(TestScope(self, group_name, self.defaults()))
+        self.max_depth = max(self.max_depth, len(self.stack) - 1)
+
+        bld_dir = node.get_bld().parent
+        if bld_dir != self.path.get_bld():
+            Logs.info('')
+
+        self.original_dir = os.getcwd()
+        Logs.info("Waf: Entering directory `%s'\n", bld_dir)
+        os.chdir(str(bld_dir))
+
+        if not self.env.NO_COVERAGE and str(node.parent) == Context.top_dir:
+            self.clear_coverage()
+
+        self.log_good('=' * 10, 'Running %s tests', group_name)
+        super(TestContext, self).pre_recurse(node)
+
+    def test_result(self, success):
+        self.stack[-1].n_total += 1
+        self.stack[-1].n_failed += 1 if not success else 0
+        return success
+
+    def pop(self):
+        scope = self.stack.pop()
+        self.stack[-1].n_total += scope.n_total
+        self.stack[-1].n_failed += scope.n_failed
+        return scope
+
+    def post_recurse(self, node):
+        super(TestContext, self).post_recurse(node)
+
+        scope = self.pop()
+        duration = (bench_time() - self.start_time) * 1000.0
+        is_top = str(node.parent) == str(Context.top_dir)
+
+        if is_top and self.max_depth > 1:
+            Logs.info('')
+
+        self.log_good('=' * 10, '%d tests from %s ran (%d ms total)',
+                      scope.n_total, scope.name, duration)
+
+        if not self.env.NO_COVERAGE:
+            if is_top:
+                self.gen_coverage()
+
+            if os.path.exists('coverage/index.html'):
+                self.log_good('REPORT', '<file://%s>',
+                              os.path.abspath('coverage/index.html'))
+
+        successes = scope.n_total - scope.n_failed
+        Logs.pprint('GREEN', '[  PASSED  ] %d tests' % successes)
+        if scope.n_failed > 0:
+            Logs.pprint('RED', '[  FAILED  ] %d tests' % scope.n_failed)
+        if is_top:
+            Logs.info("\nWaf: Leaving directory `%s'" % os.getcwd())
+
+        os.chdir(self.original_dir)
+
+    def execute(self):
+        self.restore()
+        if not self.all_envs:
+            self.load_envs()
+
+        if not self.env.BUILD_TESTS:
+            self.fatal('Configuration does not include tests')
+
+        with ExecutionEnvironment(self.env.AUTOWAF_RUN_ENV) as env:
+            if self.defaults()['verbosity'] > 0:
+                Logs.pprint('GREEN', str(env) + '\n')
+            self.recurse([self.run_dir])
+
+    def src_path(self, path):
+        return os.path.relpath(os.path.join(str(self.path), path))
+
+    def args(self, **kwargs):
+        all_kwargs = self.defaults().copy()
+        all_kwargs.update(kwargs)
+        return all_kwargs
+
+    def group(self, name, **kwargs):
+        return TestGroup(
+            self, self.stack[-1].name, name, **self.args(**kwargs))
+
+    def set_test_defaults(self, **kwargs):
+        """Set default arguments to be passed to all tests"""
+        self.stack[-1].defaults.update(kwargs)
+
+    def clear_coverage(self):
+        """Zero old coverage data"""
+        try:
+            with open('cov-clear.log', 'w') as log:
+                subprocess.call(['lcov', '-z', '-d', str(self.path)],
+                                stdout=log, stderr=log)
+
+        except Exception:
+            Logs.warn('Failed to run lcov to clear old coverage data')
+
+    def gen_coverage(self):
+        """Generate coverage data and report"""
+        try:
+            with open('cov.lcov', 'w') as out:
+                with open('cov.log', 'w') as err:
+                    subprocess.call(['lcov', '-c', '--no-external',
+                                     '--rc', 'lcov_branch_coverage=1',
+                                     '-b', '.',
+                                     '-d', str(self.path)],
+                                    stdout=out, stderr=err)
+
+            if not os.path.isdir('coverage'):
+                os.makedirs('coverage')
+
+            with open('genhtml.log', 'w') as log:
+                subprocess.call(['genhtml',
+                                 '-o', 'coverage',
+                                 '--rc', 'genhtml_branch_coverage=1',
+                                 'cov.lcov'],
+                                stdout=log, stderr=log)
+
+            summary = subprocess.check_output(
+                ['lcov', '--summary',
+                 '--rc', 'lcov_branch_coverage=1',
+                 'cov.lcov'],
+                stderr=subprocess.STDOUT).decode('ascii')
+
+            import re
+            lines = re.search('lines\.*: (.*)%.*', summary).group(1)
+            functions = re.search('functions\.*: (.*)%.*', summary).group(1)
+            branches = re.search('branches\.*: (.*)%.*', summary).group(1)
+            self.log_good('COVERAGE', '%s%% lines, %s%% functions, %s%% branches',
+                          lines, functions, branches)
+
+        except Exception:
+            Logs.warn('Failed to run lcov to generate coverage report')
+
+class TestGroup:
+    def __init__(self, tst, suitename, name, **kwargs):
+        self.tst = tst
+        self.suitename = suitename
+        self.name = name
+        self.kwargs = kwargs
+        self.start_time = bench_time()
+        tst.stack.append(TestScope(tst, name, tst.defaults()))
+
+    def label(self):
+        return self.suitename + '.%s' % self.name if self.name else ''
+
+    def args(self, **kwargs):
+        all_kwargs = self.tst.args(**self.kwargs)
+        all_kwargs.update(kwargs)
+        return all_kwargs
+
+    def __enter__(self):
+        if 'verbosity' in self.kwargs and self.kwargs['verbosity'] > 0:
+            self.tst.log_good('-' * 10, self.label())
+        return self
+
+    def __call__(self, test, **kwargs):
+        return self.tst(test, **self.args(**kwargs))
+
+    def file_equals(self, from_path, to_path, **kwargs):
+        return self.tst.file_equals(from_path, to_path, **kwargs)
+
+    def __exit__(self, type, value, traceback):
+        duration = (bench_time() - self.start_time) * 1000.0
+        scope = self.tst.pop()
+        n_passed = scope.n_total - scope.n_failed
+        if scope.n_failed == 0:
+            self.tst.log_good('-' * 10, '%d tests from %s (%d ms total)',
+                              scope.n_total, self.label(), duration)
+        else:
+            self.tst.log_bad('-' * 10, '%d/%d tests from %s (%d ms total)',
+                             n_passed, scope.n_total, self.label(), duration)
 
 def run_ldconfig(ctx):
     should_run = (ctx.cmd == 'install' and

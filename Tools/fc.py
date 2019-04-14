@@ -28,10 +28,24 @@ def modfile(conf, name):
 	Turns a module name into the right module file name.
 	Defaults to all lower case.
 	"""
-	return {'lower'     :name.lower() + '.mod',
-		'lower.MOD' :name.lower() + '.MOD',
-		'UPPER.mod' :name.upper() + '.mod',
-		'UPPER'     :name.upper() + '.MOD'}[conf.env.FC_MOD_CAPITALIZATION or 'lower']
+	if name.find(':') >= 0:
+		# Depending on a submodule!
+		separator = conf.env.FC_SUBMOD_SEPARATOR or '@'
+		# Ancestors of the submodule will be prefixed to the
+		# submodule name, separated by a colon.
+		modpath = name.split(':')
+		# Only the ancestor (actual) module and the submodule name
+		# will be used for the filename.
+		modname = modpath[0] + separator + modpath[-1]
+		suffix = conf.env.FC_SUBMOD_SUFFIX or '.smod'
+	else:
+		modname = name
+		suffix = '.mod'
+
+	return {'lower'     :modname.lower() + suffix.lower(),
+		'lower.MOD' :modname.lower() + suffix.upper(),
+		'UPPER.mod' :modname.upper() + suffix.lower(),
+		'UPPER'     :modname.upper() + suffix.upper()}[conf.env.FC_MOD_CAPITALIZATION or 'lower']
 
 def get_fortran_tasks(tsk):
 	"""

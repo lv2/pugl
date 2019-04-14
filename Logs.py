@@ -276,9 +276,9 @@ def error(*k, **kw):
 
 def warn(*k, **kw):
 	"""
-	Wraps logging.warn
+	Wraps logging.warning
 	"""
-	log.warn(*k, **kw)
+	log.warning(*k, **kw)
 
 def info(*k, **kw):
 	"""

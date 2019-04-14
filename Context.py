@@ -11,13 +11,13 @@ from waflib import Utils, Errors, Logs
 import waflib.Node
 
 # the following 3 constants are updated on each new release (do not touch)
-HEXVERSION=0x2000b00
+HEXVERSION=0x2000f00
 """Constant updated on new releases"""
 
-WAFVERSION="2.0.11"
+WAFVERSION="2.0.15"
 """Constant updated on new releases"""
 
-WAFREVISION="a97f6fb0941091b4966b625f15ec32fa783a8bec"
+WAFREVISION="503db290b73ef738a495e0d116d6f8ee0b98dcc2"
 """Git revision when the waf version is updated"""
 
 ABI = 20
@@ -266,7 +266,7 @@ class Context(ctx):
 				cache[node] = True
 				self.pre_recurse(node)
 				try:
-					function_code = node.read('rU', encoding)
+					function_code = node.read('r', encoding)
 					exec(compile(function_code, node.abspath(), 'exec'), self.exec_dict)
 				finally:
 					self.post_recurse(node)
@@ -613,7 +613,7 @@ class Context(ctx):
 		is typically called once for a programming language group, see for
 		example :py:mod:`waflib.Tools.compiler_c`
 
-		:param var: glob expression, for example 'cxx\_\*.py'
+		:param var: glob expression, for example 'cxx\\_\\*.py'
 		:type var: string
 		:param ban: list of exact file names to exclude
 		:type ban: list of string
@@ -662,7 +662,7 @@ def load_module(path, encoding=None):
 
 	module = imp.new_module(WSCRIPT_FILE)
 	try:
-		code = Utils.readf(path, m='rU', encoding=encoding)
+		code = Utils.readf(path, m='r', encoding=encoding)
 	except EnvironmentError:
 		raise Errors.WafError('Could not read the file %r' % path)
 
@@ -678,7 +678,7 @@ def load_module(path, encoding=None):
 
 def load_tool(tool, tooldir=None, ctx=None, with_sys_path=True):
 	"""
-	Importx a Waf tool as a python module, and stores it in the dict :py:const:`waflib.Context.Context.tools`
+	Imports a Waf tool as a python module, and stores it in the dict :py:const:`waflib.Context.Context.tools`
 
 	:type  tool: string
 	:param tool: Name of the tool
