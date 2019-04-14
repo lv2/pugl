@@ -18,6 +18,8 @@
    @file pugl_test.c A simple Pugl test that creates a top-level window.
 */
 
+#define GL_SILENCE_DEPRECATION 1
+
 #include "pugl/gl.h"
 #include "pugl/pugl.h"
 

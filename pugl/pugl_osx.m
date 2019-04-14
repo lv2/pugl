@@ -19,13 +19,16 @@
    @file pugl_osx.m OSX/Cocoa Pugl Implementation.
 */
 
-#include "pugl/cairo_gl.h"
+#define GL_SILENCE_DEPRECATION 1
+
 #include "pugl/gl.h"
 #include "pugl/pugl_internal.h"
 
 #import <Cocoa/Cocoa.h>
 
 #include <stdlib.h>
+
+#undef PUGL_HAVE_CAIRO
 
 @class PuglOpenGLView;
 
