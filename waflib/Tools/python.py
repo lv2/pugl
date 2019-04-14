@@ -329,6 +329,10 @@ def check_python_headers(conf, features='pyembed pyext'):
 	conf.find_program([''.join(pybin) + '-config', 'python%s-config' % num, 'python-config-%s' % num, 'python%sm-config' % num], var='PYTHON_CONFIG', msg="python-config", mandatory=False)
 
 	if env.PYTHON_CONFIG:
+		# check python-config output only once
+		if conf.env.HAVE_PYTHON_H:
+			return
+
 		# python2.6-config requires 3 runs
 		all_flags = [['--cflags', '--libs', '--ldflags']]
 		if sys.hexversion < 0x2070000:

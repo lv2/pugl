@@ -216,7 +216,10 @@ def parse_options():
 	ctx = Context.create_context('options')
 	ctx.execute()
 	if not Options.commands:
-		Options.commands.append(default_cmd)
+		if isinstance(default_cmd, list):
+			Options.commands.extend(default_cmd)
+		else:
+			Options.commands.append(default_cmd)
 	if Options.options.whelp:
 		ctx.parser.print_help()
 		sys.exit(0)
@@ -280,7 +283,7 @@ def distclean_dir(dirname):
 			pass
 
 	try:
-		shutil.rmtree('c4che')
+		shutil.rmtree(Build.CACHE_DIR)
 	except OSError:
 		pass
 
@@ -598,12 +601,15 @@ def autoconfigure(execute_method):
 			cmd = env.config_cmd or 'configure'
 			if Configure.autoconfig == 'clobber':
 				tmp = Options.options.__dict__
+				launch_dir_tmp = Context.launch_dir
 				if env.options:
 					Options.options.__dict__ = env.options
+				Context.launch_dir = env.launch_dir
 				try:
 					run_command(cmd)
 				finally:
 					Options.options.__dict__ = tmp
+					Context.launch_dir = launch_dir_tmp
 			else:
 				run_command(cmd)
 			run_command(self.cmd)

@@ -37,6 +37,8 @@ class PriorityTasks(object):
 		return len(self.lst)
 	def __iter__(self):
 		return iter(self.lst)
+	def __str__(self):
+		return 'PriorityTasks: [%s]' % '\n  '.join(str(x) for x in self.lst)
 	def clear(self):
 		self.lst = []
 	def append(self, task):
@@ -181,10 +183,12 @@ class Parallel(object):
 		The reverse dependency graph of dependencies obtained from Task.run_after
 		"""
 
-		self.spawner = Spawner(self)
+		self.spawner = None
 		"""
 		Coordinating daemon thread that spawns thread consumers
 		"""
+		if self.numjobs > 1:
+			self.spawner = Spawner(self)
 
 	def get_next_task(self):
 		"""
@@ -254,6 +258,8 @@ class Parallel(object):
 							self.outstanding.append(x)
 							break
 					else:
+						if self.stop or self.error:
+							break
 						raise Errors.WafError('Broken revdeps detected on %r' % self.incomplete)
 				else:
 					tasks = next(self.biter)

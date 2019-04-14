@@ -104,7 +104,7 @@ class BuildContext(Context.Context):
 		"""Amount of jobs to run in parallel"""
 
 		self.targets = Options.options.targets
-		"""List of targets to build (default: \*)"""
+		"""List of targets to build (default: \\*)"""
 
 		self.keep = Options.options.keep
 		"""Whether the build should continue past errors"""
@@ -1055,12 +1055,16 @@ class inst(Task.Task):
 		"""
 		Returns the destination path where files will be installed, pre-pending `destdir`.
 
+		Relative paths will be interpreted relative to `PREFIX` if no `destdir` is given.
+
 		:rtype: string
 		"""
 		if isinstance(self.install_to, Node.Node):
 			dest = self.install_to.abspath()
 		else:
-			dest = Utils.subst_vars(self.install_to, self.env)
+			dest = os.path.normpath(Utils.subst_vars(self.install_to, self.env))
+		if not os.path.isabs(dest):
+		    dest = os.path.join(self.env.PREFIX, dest)
 		if destdir and Options.options.destdir:
 			dest = os.path.join(Options.options.destdir, os.path.splitdrive(dest)[1].lstrip(os.sep))
 		return dest
@@ -1314,7 +1318,8 @@ class CleanContext(BuildContext):
 			lst = []
 			for env in self.all_envs.values():
 				lst.extend(self.root.find_or_declare(f) for f in env[CFG_FILES])
-			for n in self.bldnode.ant_glob('**/*', excl='.lock* *conf_check_*/** config.log c4che/*', quiet=True):
+			excluded_dirs = '.lock* *conf_check_*/** config.log %s/*' % CACHE_DIR
+			for n in self.bldnode.ant_glob('**/*', excl=excluded_dirs, quiet=True):
 				if n in lst:
 					continue
 				n.delete()

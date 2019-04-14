@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+
 from waflib import Options, TaskGen
 from waflib.extras import autowaf
 
@@ -17,33 +18,31 @@ VERSION = PUGL_VERSION  # Package version for waf dist
 top     = '.'           # Source directory
 out     = 'build'       # Build directory
 
-def options(opt):
-    opt.load('compiler_c')
-    opt.load('compiler_cxx')
-    autowaf.set_options(opt)
+def options(ctx):
+    ctx.load('compiler_c')
+    ctx.load('compiler_cxx')
 
-    opt = opt.get_option_group('Configuration options')
-    opt.add_option('--target', default=None, dest='target',
+    opts = ctx.configuration_options()
+    opts.add_option('--target', default=None, dest='target',
                    help='target platform (e.g. "win32" or "darwin")')
 
-    autowaf.add_flags(
-        opt,
+    ctx.add_flags(
+        opts,
         {'no-gl':      'do not build OpenGL support',
          'no-cairo':   'do not build Cairo support',
          'static':     'build static library',
-         'test':       'build test programs',
          'log':        'print GL information to console',
          'grab-focus': 'work around keyboard issues by grabbing focus'})
 
 def configure(conf):
     conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
-    conf.load('compiler_c')
-    if conf.env.TARGET_PLATFORM == 'win32':
-        conf.load('compiler_cxx')
+    conf.load('compiler_c', cache=True)
+    conf.load('autowaf', cache=True)
 
-    autowaf.configure(conf)
+    if conf.env.TARGET_PLATFORM == 'win32':
+        conf.load('compiler_cxx', cache=True)
+
     autowaf.set_c_lang(conf, 'c99')
-    autowaf.display_header('Pugl Configuration')
 
     if not Options.options.no_gl:
         # TODO: Portable check for OpenGL
@@ -62,9 +61,9 @@ def configure(conf):
         conf.define('PUGL_VERBOSE', 1)
 
     # Shared library building is broken on win32 for some reason
-    conf.env['BUILD_TESTS']  = Options.options.test
-    conf.env['BUILD_SHARED'] = conf.env.TARGET_PLATFORM != 'win32'
-    conf.env['BUILD_STATIC'] = (Options.options.test or Options.options.static)
+    conf.env.update({
+        'BUILD_SHARED': conf.env.TARGET_PLATFORM != 'win32',
+        'BUILD_STATIC': conf.env['BUILD_TESTS'] or Options.options.static})
 
     autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION)
     conf.write_config_header('pugl_config.h', remove=False)
@@ -173,6 +172,9 @@ def build(bld):
 
         bld(features = 'doxygen',
             doxyfile = 'Doxyfile')
+
+def test(tst):
+    pass
 
 def lint(ctx):
     "checks code for style issues"
