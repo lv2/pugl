@@ -19,13 +19,16 @@
    @file pugl_osx.m OSX/Cocoa Pugl Implementation.
 */
 
-#include "pugl/cairo_gl.h"
+#define GL_SILENCE_DEPRECATION 1
+
 #include "pugl/gl.h"
 #include "pugl/pugl_internal.h"
 
 #import <Cocoa/Cocoa.h>
 
 #include <stdlib.h>
+
+#undef PUGL_HAVE_CAIRO
 
 @class PuglOpenGLView;
 
@@ -583,7 +586,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		     puglConstraint(impl->glview, NSLayoutAttributeWidth, view->min_width)];
 	[impl->glview addConstraint:
 		     puglConstraint(impl->glview, NSLayoutAttributeHeight, view->min_height)];
-	if (!view->resizable) {
+	if (!view->hints.resizable) {
 		[impl->glview setAutoresizingMask:NSViewNotSizable];
 	}
 
@@ -598,7 +601,7 @@ puglCreateWindow(PuglView* view, const char* title)
 			                             encoding:NSUTF8StringEncoding];
 		NSRect frame = NSMakeRect(0, 0, view->min_width, view->min_height);
 		unsigned style = NSClosableWindowMask | NSTitledWindowMask;
-		if (view->resizable) {
+		if (view->hints.resizable) {
 			style |= NSResizableWindowMask;
 		}
 
@@ -700,6 +703,22 @@ puglProcessEvents(PuglView* view)
 	}
 
 	return PUGL_SUCCESS;
+}
+
+PuglGlFunc
+puglGetProcAddress(const char *name)
+{
+	CFBundleRef framework =
+		CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
+
+	CFStringRef symbol = CFStringCreateWithCString(
+		kCFAllocatorDefault, name, kCFStringEncodingASCII);
+
+	PuglGlFunc func = CFBundleGetFunctionPointerForName(framework, symbol);
+
+	CFRelease(symbol);
+
+	return func;
 }
 
 void

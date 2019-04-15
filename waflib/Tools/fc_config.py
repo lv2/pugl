@@ -178,8 +178,8 @@ def check_fortran_dummy_main(self, *k, **kw):
 # ------------------------------------------------------------------------
 
 GCC_DRIVER_LINE = re.compile('^Driving:')
-POSIX_STATIC_EXT = re.compile('\S+\.a')
-POSIX_LIB_FLAGS = re.compile('-l\S+')
+POSIX_STATIC_EXT = re.compile(r'\S+\.a')
+POSIX_LIB_FLAGS = re.compile(r'-l\S+')
 
 @conf
 def is_link_verbose(self, txt):

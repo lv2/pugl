@@ -88,8 +88,8 @@ puglCreateWindow(PuglView* view, const char* title)
 		return 1;
 	}
 
-	impl->ctx.configure(view);
-	if (!impl->vi) {
+	if (impl->ctx.configure(view) || !impl->vi) {
+		impl->ctx.destroy(view);
 		return 2;
 	}
 
@@ -120,7 +120,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	XSizeHints sizeHints;
 	memset(&sizeHints, 0, sizeof(sizeHints));
-	if (!view->resizable) {
+	if (!view->hints.resizable) {
 		sizeHints.flags      = PMinSize|PMaxSize;
 		sizeHints.min_width  = view->width;
 		sizeHints.min_height = view->height;

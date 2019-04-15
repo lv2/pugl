@@ -1,0 +1,40 @@
+stages:
+  - build
+
+.build_template: &build_definition
+  stage: build
+
+amd64_dbg:
+  <<: *build_definition
+  image: drobilla/debian-stretch
+  script: python ./waf configure build -dsT --no-coverage
+
+amd64_rel:
+  <<: *build_definition
+  image: drobilla/debian-stretch
+  script: python ./waf configure build -sT --no-coverage
+
+mac_dbg:
+  <<: *build_definition
+  script: python ./waf configure build -dsT --no-coverage
+  tags:
+    - macos
+
+mac_rel:
+  <<: *build_definition
+  script: python ./waf configure build -sT --no-coverage
+  tags:
+    - macos
+
+win_dbg:
+  <<: *build_definition
+  script:
+    - python ./waf configure build -dT --no-coverage
+  tags:
+    - windows
+
+win_rel:
+  <<: *build_definition
+  script: python ./waf configure build -T --no-coverage
+  tags:
+    - windows

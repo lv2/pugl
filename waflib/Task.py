@@ -50,6 +50,9 @@ def f(tsk):
 	bld = gen.bld
 	cwdx = tsk.get_cwd()
 	p = env.get_flat
+	def to_list(xx):
+		if isinstance(xx, str): return [xx]
+		return xx
 	tsk.last_cmd = cmd = \'\'\' %s \'\'\' % s
 	return tsk.exec_command(cmd, cwd=cwdx, env=env.env or None)
 '''
@@ -77,7 +80,8 @@ def f(tsk):
 
 COMPILE_TEMPLATE_SIG_VARS = '''
 def f(tsk):
-	super(tsk.__class__, tsk).sig_vars()
+	sig = tsk.generator.bld.hash_env_vars(tsk.env, tsk.vars)
+	tsk.m.update(sig)
 	env = tsk.env
 	gen = tsk.generator
 	bld = gen.bld
@@ -159,10 +163,10 @@ class Task(evil):
 	"""File extensions that objects of this task class may create"""
 
 	before = []
-	"""List of task class names to execute before instances of this class"""
+	"""The instances of this class are executed before the instances of classes whose names are in this list"""
 
 	after = []
-	"""List of task class names to execute after instances of this class"""
+	"""The instances of this class are executed after the instances of classes whose names are in this list"""
 
 	hcode = Utils.SIG_NIL
 	"""String representing an additional hash for the class representation"""
@@ -302,25 +306,31 @@ class Task(evil):
 		if hasattr(self, 'stderr'):
 			kw['stderr'] = self.stderr
 
-		# workaround for command line length limit:
-		# http://support.microsoft.com/kb/830473
-		if not isinstance(cmd, str) and (len(repr(cmd)) >= 8192 if Utils.is_win32 else len(cmd) > 200000):
-			cmd, args = self.split_argfile(cmd)
-			try:
-				(fd, tmp) = tempfile.mkstemp()
-				os.write(fd, '\r\n'.join(args).encode())
-				os.close(fd)
-				if Logs.verbose:
-					Logs.debug('argfile: @%r -> %r', tmp, args)
-				return self.generator.bld.exec_command(cmd + ['@' + tmp], **kw)
-			finally:
+		if not isinstance(cmd, str):
+			if Utils.is_win32:
+				# win32 compares the resulting length http://support.microsoft.com/kb/830473
+				too_long = sum([len(arg) for arg in cmd]) + len(cmd) > 8192
+			else:
+				# non-win32 counts the amount of arguments (200k)
+				too_long = len(cmd) > 200000
+
+			if too_long and getattr(self, 'allow_argsfile', True):
+				# Shunt arguments to a temporary file if the command is too long.
+				cmd, args = self.split_argfile(cmd)
 				try:
-					os.remove(tmp)
-				except OSError:
-					# anti-virus and indexers can keep files open -_-
-					pass
-		else:
-			return self.generator.bld.exec_command(cmd, **kw)
+					(fd, tmp) = tempfile.mkstemp()
+					os.write(fd, '\r\n'.join(args).encode())
+					os.close(fd)
+					if Logs.verbose:
+						Logs.debug('argfile: @%r -> %r', tmp, args)
+					return self.generator.bld.exec_command(cmd + ['@' + tmp], **kw)
+				finally:
+					try:
+						os.remove(tmp)
+					except OSError:
+						# anti-virus and indexers can keep files open -_-
+						pass
+		return self.generator.bld.exec_command(cmd, **kw)
 
 	def process(self):
 		"""
@@ -776,6 +786,8 @@ class Task(evil):
 		Used by :py:meth:`waflib.Task.Task.signature`; it hashes :py:attr:`waflib.Task.Task.env` variables/values
 		When overriding this method, and if scriptlet expressions are used, make sure to follow
 		the code in :py:meth:`waflib.Task.Task.compile_sig_vars` to enable dependencies on scriptlet results.
+
+		This method may be replaced on subclasses by the metaclass to force dependencies on scriptlet code.
 		"""
 		sig = self.generator.bld.hash_env_vars(self.env, self.vars)
 		self.m.update(sig)
@@ -1038,7 +1050,7 @@ def funex(c):
 	exec(c, dc)
 	return dc['f']
 
-re_cond = re.compile('(?P<var>\w+)|(?P<or>\|)|(?P<and>&)')
+re_cond = re.compile(r'(?P<var>\w+)|(?P<or>\|)|(?P<and>&)')
 re_novar = re.compile(r'^(SRC|TGT)\W+.*?$')
 reg_act = re.compile(r'(?P<backslash>\\)|(?P<dollar>\$\$)|(?P<subst>\$\{(?P<var>\w+)(?P<code>.*?)\})', re.M)
 def compile_fun_shell(line):
@@ -1193,7 +1205,7 @@ def compile_fun_noshell(line):
 					# plain code such as ${tsk.inputs[0].abspath()}
 					call = '%s%s' % (var, code)
 					add_dvar(call)
-					app('gen.to_list(%s)' % call)
+					app('to_list(%s)' % call)
 			else:
 				# a plain variable such as # a plain variable like ${AR}
 				app('to_list(env[%r])' % var)

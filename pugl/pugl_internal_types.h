@@ -29,6 +29,21 @@
 /** Platform-specific internals. */
 typedef struct PuglInternalsImpl PuglInternals;
 
+typedef struct {
+	int  context_version_major;
+	int  context_version_minor;
+	int  red_bits;
+	int  green_bits;
+	int  blue_bits;
+	int  alpha_bits;
+	int  depth_bits;
+	int  stencil_bits;
+	int  samples;
+	bool use_compat_profile;
+	bool double_buffer;
+	bool resizable;
+} PuglHints;
+
 /** Cross-platform view definition. */
 struct PuglViewImpl {
 	PuglHandle       handle;
@@ -41,18 +56,18 @@ struct PuglViewImpl {
 	PuglContextType  ctx_type;
 	uintptr_t        transient_parent;
 
-	int      width;
-	int      height;
-	int      min_width;
-	int      min_height;
-	int      min_aspect_x;
-	int      min_aspect_y;
-	int      max_aspect_x;
-	int      max_aspect_y;
-	bool     ignoreKeyRepeat;
-	bool     redisplay;
-	bool     resizable;
-	bool     visible;
+	PuglHints hints;
+	int       width;
+	int       height;
+	int       min_width;
+	int       min_height;
+	int       min_aspect_x;
+	int       min_aspect_y;
+	int       max_aspect_x;
+	int       max_aspect_y;
+	bool      ignoreKeyRepeat;
+	bool      redisplay;
+	bool      visible;
 };
 
 /** Opaque surface used by draw context. */

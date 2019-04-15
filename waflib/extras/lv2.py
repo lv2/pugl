@@ -10,6 +10,33 @@ def options(opt):
                          help='install LV2 bundles to user location')
     conf_opts.add_option('--lv2dir', type='string',
                          help='LV2 bundles [Default: LIBDIR/lv2]')
+
+def register_lv2_path(conf, path):
+    """Return the default LV2_PATH to use for this system"""
+    if 'LV2_PATH' not in conf.run_env and 'LV2_PATH' not in os.environ:
+        conf.run_env['LV2_PATH'] = [conf.env['LV2DIR']]
+
+    conf.run_env.append_unique('LV2_PATH', path)
+
+def default_lv2_path(conf):
+    """Return the default LV2_PATH for the build target as a list"""
+    if conf.env.DEST_OS == 'darwin':
+        return ['~/Library/Audio/Plug-Ins/LV2',
+                '~/.lv2',
+                '/usr/local/lib/lv2',
+                '/usr/lib/lv2',
+                '/Library/Audio/Plug-Ins/LV2']
+    elif conf.env.DEST_OS == 'haiku':
+        return ['~/.lv2',
+                '/boot/common/add-ons/lv2']
+    elif conf.env.DEST_OS == 'win32':
+        return ['%APPDATA%\\\\LV2',
+                '%COMMONPROGRAMFILES%\\\\LV2']
+    else:
+        libdirname = os.path.basename(conf.env.LIBDIR)
+        return ['~/.lv2',
+                '/usr/%s/lv2' % libdirname,
+                '/usr/local/%s/lv2' % libdirname]
     
 def configure(conf):
     def env_path(parent_dir_var, name):
@@ -43,5 +70,6 @@ def configure(conf):
         else:
             conf.env['LV2DIR'] = os.path.join(conf.env['LIBDIR'], 'lv2')
 
-    conf.env['LV2DIR'] = normpath(conf.env['LV2DIR'])
-
+    # Add default LV2_PATH to runtime environment for tests that use plugins
+    if 'LV2_PATH' not in os.environ:
+        conf.run_env['LV2_PATH'] = default_lv2_path(conf)

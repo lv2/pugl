@@ -24,12 +24,95 @@ You would have to run::
    java -jar /path/to/jython.jar waf configure
 
 [1] http://www.jython.org/
+
+Usage
+=====
+
+Load the "java" tool.
+
+def configure(conf):
+	conf.load('java')
+
+Java tools will be autodetected and eventually, if present, the quite
+standard JAVA_HOME environment variable will be used. The also standard
+CLASSPATH variable is used for library searching.
+
+In configuration phase checks can be done on the system environment, for
+example to check if a class is known in the classpath::
+
+	conf.check_java_class('java.io.FileOutputStream')
+
+or if the system supports JNI applications building::
+
+	conf.check_jni_headers()
+
+
+The java tool supports compiling java code, creating jar files and
+creating javadoc documentation. This can be either done separately or
+together in a single definition. For example to manage them separately::
+
+	bld(features  = 'javac',
+		srcdir    = 'src',
+		compat    = '1.7',
+		use       = 'animals',
+		name      = 'cats-src',
+	)
+
+	bld(features  = 'jar',
+		basedir   = '.',
+		destfile  = '../cats.jar',
+		name      = 'cats',
+		use       = 'cats-src'
+	)
+
+
+Or together by defining all the needed attributes::
+
+	bld(features   = 'javac jar javadoc',
+		srcdir     = 'src/',  # folder containing the sources to compile
+		outdir     = 'src',   # folder where to output the classes (in the build directory)
+		compat     = '1.6',   # java compatibility version number
+		classpath  = ['.', '..'],
+
+		# jar
+		basedir    = 'src', # folder containing the classes and other files to package (must match outdir)
+		destfile   = 'foo.jar', # do not put the destfile in the folder of the java classes!
+		use        = 'NNN',
+		jaropts    = ['-C', 'default/src/', '.'], # can be used to give files
+		manifest   = 'src/Manifest.mf', # Manifest file to include
+
+		# javadoc
+		javadoc_package = ['com.meow' , 'com.meow.truc.bar', 'com.meow.truc.foo'],
+		javadoc_output  = 'javadoc',
+	)
+
+External jar dependencies can be mapped to a standard waf "use" dependency by
+setting an environment variable with a CLASSPATH prefix in the configuration,
+for example::
+
+	conf.env.CLASSPATH_NNN = ['aaaa.jar', 'bbbb.jar']
+
+and then NNN can be freely used in rules as::
+
+	use        = 'NNN',
+
+In the java tool the dependencies via use are not transitive by default, as
+this necessity depends on the code. To enable recursive dependency scanning
+use on a specific rule:
+
+		recurse_use = True
+
+Or build-wise by setting RECURSE_JAVA:
+
+		bld.env.RECURSE_JAVA = True
+
+Unit tests can be integrated in the waf unit test environment using the javatest extra.
 """
 
 import os, shutil
 from waflib import Task, Utils, Errors, Node
 from waflib.Configure import conf
-from waflib.TaskGen import feature, before_method, after_method
+from waflib.TaskGen import feature, before_method, after_method, taskgen_method
 
 from waflib.Tools import ccroot
 ccroot.USELIB_VARS['javac'] = set(['CLASSPATH', 'JAVACFLAGS'])
@@ -107,6 +190,32 @@ def apply_java(self):
 	if names:
 		tsk.env.append_value('JAVACFLAGS', ['-sourcepath', names])
 
+
+@taskgen_method
+def java_use_rec(self, name, **kw):
+	"""
+	Processes recursively the *use* attribute for each referred java compilation
+	"""
+	if name in self.tmp_use_seen:
+		return
+
+	self.tmp_use_seen.append(name)
+
+	try:
+		y = self.bld.get_tgen_by_name(name)
+	except Errors.WafError:
+		self.uselib.append(name)
+		return
+	else:
+		y.post()
+		# Add generated JAR name for CLASSPATH. Task ordering (set_run_after)
+		# is already guaranteed by ordering done between the single tasks
+		if hasattr(y, 'jar_task'):
+			self.use_lst.append(y.jar_task.outputs[0].abspath())
+
+	for x in self.to_list(getattr(y, 'use', [])):
+		self.java_use_rec(x)
+
 @feature('javac')
 @before_method('propagate_uselib_vars')
 @after_method('apply_java')
@@ -114,7 +223,8 @@ def use_javac_files(self):
 	"""
 	Processes the *use* attribute referring to other java compilations
 	"""
-	lst = []
+	self.use_lst = []
+	self.tmp_use_seen = []
 	self.uselib = self.to_list(getattr(self, 'uselib', []))
 	names = self.to_list(getattr(self, 'use', []))
 	get = self.bld.get_tgen_by_name
@@ -126,12 +236,17 @@ def use_javac_files(self):
 		else:
 			y.post()
 			if hasattr(y, 'jar_task'):
-				lst.append(y.jar_task.outputs[0].abspath())
+				self.use_lst.append(y.jar_task.outputs[0].abspath())
 				self.javac_task.set_run_after(y.jar_task)
 			else:
 				for tsk in y.tasks:
 					self.javac_task.set_run_after(tsk)
-	self.env.append_value('CLASSPATH', lst)
+
+		# If recurse use scan is enabled recursively add use attribute for each used one
+		if getattr(self, 'recurse_use', False) or self.bld.env.RECURSE_JAVA:
+			self.java_use_rec(x)
+
+	self.env.append_value('CLASSPATH', self.use_lst)
 
 @feature('javac')
 @after_method('apply_java', 'propagate_uselib_vars', 'use_javac_files')
@@ -245,7 +360,7 @@ class jar_create(JTask):
 				return Task.ASK_LATER
 		if not self.inputs:
 			try:
-				self.inputs = [x for x in self.basedir.ant_glob(JAR_RE, remove=False) if id(x) != id(self.outputs[0])]
+				self.inputs = [x for x in self.basedir.ant_glob(JAR_RE, remove=False, quiet=True) if id(x) != id(self.outputs[0])]
 			except Exception:
 				raise Errors.WafError('Could not find the basedir %r for %r' % (self.basedir, self))
 		return super(jar_create, self).runnable_status()
@@ -279,14 +394,14 @@ class javac(JTask):
 			self.inputs  = []
 			for x in self.srcdir:
 				if x.exists():
-					self.inputs.extend(x.ant_glob(SOURCE_RE, remove=False))
+					self.inputs.extend(x.ant_glob(SOURCE_RE, remove=False, quiet=True))
 		return super(javac, self).runnable_status()
 
 	def post_run(self):
 		"""
 		List class files created
 		"""
-		for node in self.generator.outdir.ant_glob('**/*.class'):
+		for node in self.generator.outdir.ant_glob('**/*.class', quiet=True):
 			self.generator.bld.node_sigs[node] = self.uid()
 		self.generator.bld.task_sigs[self.uid()] = self.cache_sig
 
@@ -338,7 +453,7 @@ class javadoc(Task.Task):
 		self.generator.bld.cmd_and_log(lst, cwd=wd, env=env.env or None, quiet=0)
 
 	def post_run(self):
-		nodes = self.generator.javadoc_output.ant_glob('**')
+		nodes = self.generator.javadoc_output.ant_glob('**', quiet=True)
 		for node in nodes:
 			self.generator.bld.node_sigs[node] = self.uid()
 		self.generator.bld.task_sigs[self.uid()] = self.cache_sig

@@ -18,6 +18,8 @@
    @file pugl_test.c A simple Pugl test that creates a top-level window.
 */
 
+#define GL_SILENCE_DEPRECATION 1
+
 #include "pugl/gl.h"
 #include "pugl/pugl.h"
 
@@ -241,7 +243,9 @@ main(int argc, char** argv)
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
-	puglCreateWindow(view, "Pugl Test");
+	if (puglCreateWindow(view, "Pugl Test")) {
+		return 1;
+	}
 
 	puglEnterContext(view);
 	glEnable(GL_DEPTH_TEST);

@@ -43,12 +43,12 @@ from waflib import Errors, Task, TaskGen, Logs, Options, Node, Utils
 
 critical_errors = 0
 CPPLINT_FORMAT = '[CPPLINT] %(filename)s:\nline %(linenum)s, severity %(confidence)s, category: %(category)s\n%(message)s\n'
-RE_EMACS = re.compile('(?P<filename>.*):(?P<linenum>\d+):  (?P<message>.*)  \[(?P<category>.*)\] \[(?P<confidence>\d+)\]')
+RE_EMACS = re.compile(r'(?P<filename>.*):(?P<linenum>\d+):  (?P<message>.*)  \[(?P<category>.*)\] \[(?P<confidence>\d+)\]')
 CPPLINT_RE = {
     'waf': RE_EMACS,
     'emacs': RE_EMACS,
-    'vs7': re.compile('(?P<filename>.*)\((?P<linenum>\d+)\):  (?P<message>.*)  \[(?P<category>.*)\] \[(?P<confidence>\d+)\]'),
-    'eclipse': re.compile('(?P<filename>.*):(?P<linenum>\d+): warning: (?P<message>.*)  \[(?P<category>.*)\] \[(?P<confidence>\d+)\]'),
+    'vs7': re.compile(r'(?P<filename>.*)\((?P<linenum>\d+)\):  (?P<message>.*)  \[(?P<category>.*)\] \[(?P<confidence>\d+)\]'),
+    'eclipse': re.compile(r'(?P<filename>.*):(?P<linenum>\d+): warning: (?P<message>.*)  \[(?P<category>.*)\] \[(?P<confidence>\d+)\]'),
 }
 CPPLINT_STR = ('${CPPLINT} '
                '--verbose=${CPPLINT_LEVEL} '

@@ -138,7 +138,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	}
 
 	int winFlags = WS_POPUPWINDOW | WS_CAPTION;
-	if (view->resizable) {
+	if (view->hints.resizable) {
 		winFlags |= WS_SIZEBOX;
 		if (view->min_width || view->min_height) {
 			// Adjust the minimum window size to accomodate requested view size
@@ -629,6 +629,12 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(hwnd, message, wParam, lParam);
 		}
 	}
+}
+
+PuglGlFunc
+puglGetProcAddress(const char* name)
+{
+	return (PuglGlFunc)wglGetProcAddress(name);
 }
 
 void
