@@ -1,5 +1,6 @@
 /*
   Copyright 2012-2016 David Robillard <http://drobilla.net>
+  Copyright 2019 Thomas Brand <tom@trellis.ch>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -645,6 +646,21 @@ puglGetProcAddress(const char* name);
 */
 PUGL_API void
 puglPostRedisplay(PuglView* view);
+
+/**
+   Toggle fullscreen mode on/off
+*/
+PUGL_API void
+puglToggleFullScreen(PuglView* view);
+
+/**
+   Return the current fullscreen status
+   0: Not in fullscreen mode
+   1: Fullscreen active
+   2: Error (unknown fullscreen status)
+*/
+PUGL_API int
+puglIsFullScreen(PuglView* view);
 
 /**
    Destroy a GL window.

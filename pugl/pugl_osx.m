@@ -1,6 +1,7 @@
 /*
   Copyright 2012-2017 David Robillard <http://drobilla.net>
   Copyright 2017 Hanspeter Portner <dev@open-music-kontrollers.ch>
+  Copyright 2019 Thomas Brand <tom@trellis.ch>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -642,6 +643,20 @@ puglHideWindow(PuglView* view)
 	view->visible = false;
 }
 
+int
+puglIsFullScreen(PuglView* view)
+{
+	return (([view->impl->window styleMask] & NSFullScreenWindowMask)
+		== NSFullScreenWindowMask);
+}
+
+void
+puglToggleFullScreen(PuglView* view)
+{
+	if (!view->hints.resizable) {return;}
+	[view->impl->window toggleFullScreen:nil];
+}
+
 void
 puglDestroy(PuglView* view)
 {
@@ -686,17 +701,13 @@ puglWaitForEvent(PuglView* view)
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	while (true) {
-		// Get the next event, or use the cached one from puglWaitForEvent
-		if (!view->impl->nextEvent) {
-			view->impl->nextEvent = [view->impl->window
-			                            nextEventMatchingMask: NSAnyEventMask];
-		}
+	// Get the next event, or use the cached one from puglWaitForEvent
+	if (!view->impl->nextEvent) {
+		view->impl->nextEvent = [view->impl->window
+		                            nextEventMatchingMask: NSAnyEventMask];
+	}
 
-		if (!view->impl->nextEvent) {
-			break;  // No events to process, done
-		}
-
+	if (view->impl->nextEvent != NULL) {
 		// Dispatch event
 		[view->impl->app sendEvent: view->impl->nextEvent];
 		view->impl->nextEvent = NULL;

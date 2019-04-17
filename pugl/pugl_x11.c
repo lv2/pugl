@@ -2,6 +2,7 @@
   Copyright 2012-2019 David Robillard <http://drobilla.net>
   Copyright 2013 Robin Gareus <robin@gareus.org>
   Copyright 2011-2012 Ben Loftis, Harrison Consoles
+  Copyright 2019 Thomas Brand <tom@trellis.ch>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -190,6 +191,52 @@ puglHideWindow(PuglView* view)
 {
 	XUnmapWindow(view->impl->display, view->impl->win);
 	view->visible = false;
+}
+
+int
+puglIsFullScreen(PuglView* view) {
+	Atom wm_state   = XInternAtom(view->impl->display, "_NET_WM_STATE", False);
+	Atom fullscreen = XInternAtom(view->impl->display, "_NET_WM_STATE_FULLSCREEN", False);
+	Atom type;
+	int format;
+	unsigned long i, num_items, bytes_after;
+	Atom *atoms;
+	//get list of properties
+	int ret=XGetWindowProperty(view->impl->display, view->impl->win
+		, wm_state, 0, 1024, False, XA_ATOM, &type, &format
+		, &num_items, &bytes_after, (unsigned char**)&atoms);
+	if(ret!=Success){return 2;} //error
+	//check if fullscreen flag is among the returned atoms
+	for(i=0; i<num_items; i++) {
+		if(atoms[i]==fullscreen) {
+			XFree(atoms);
+			return 1; //fullscreen true
+		}
+	}
+	XFree(atoms);
+
+	return 0;
+}
+
+void
+puglToggleFullScreen(PuglView* view) {
+	if (!view->hints.resizable) {return;}
+	Atom wm_state   = XInternAtom(view->impl->display, "_NET_WM_STATE", False);
+	Atom fullscreen = XInternAtom(view->impl->display, "_NET_WM_STATE_FULLSCREEN", False);
+	//assemble event
+	XEvent xev;
+	memset(&xev, 0, sizeof(xev));
+	xev.type = ClientMessage;
+	xev.xclient.window = view->impl->win;
+	xev.xclient.message_type = wm_state;
+	xev.xclient.format = 32;
+	xev.xclient.data.l[0] = 2; //toggle
+	xev.xclient.data.l[1] = fullscreen;
+	XMapWindow(view->impl->display, view->impl->win);
+	//send event to X, requesting fullscreen toggle
+	XSendEvent(view->impl->display, DefaultRootWindow(view->impl->display), False,
+		SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+	XFlush(view->impl->display);
 }
 
 void

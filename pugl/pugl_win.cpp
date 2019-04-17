@@ -1,5 +1,6 @@
 /*
   Copyright 2012-2015 David Robillard <http://drobilla.net>
+  Copyright 2019 Thomas Brand <tom@trellis.ch>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -134,12 +135,12 @@ puglCreateWindow(PuglView* view, const char* title)
 		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
-		return NULL;
+		return 1;
 	}
 
 	int winFlags = WS_POPUPWINDOW | WS_CAPTION;
 	if (view->hints.resizable) {
-		winFlags |= WS_SIZEBOX;
+		winFlags = WS_OVERLAPPEDWINDOW; //window with minimize/maximize buttons
 		if (view->min_width || view->min_height) {
 			// Adjust the minimum window size to accomodate requested view size
 			RECT mr = { 0, 0, view->min_width, view->min_height };
@@ -196,7 +197,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		free((void*)impl->wc.lpszClassName);
 		free(impl);
 		free(view);
-		return NULL;
+		return 1;
 	}
 	wglMakeCurrent(impl->hdc, impl->hglrc);
 
@@ -478,6 +479,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		view->height           = rect.bottom - rect.top;
 		event.configure.width  = view->width;
 		event.configure.height = view->height;
+		puglPostRedisplay(view);
 		break;
 	case WM_GETMINMAXINFO:
 		mmi                   = (MINMAXINFO*)lParam;
@@ -641,6 +643,38 @@ void
 puglPostRedisplay(PuglView* view)
 {
 	view->redisplay = true;
+}
+
+int
+puglIsFullScreen(PuglView* view)
+{
+	if(GetWindowLongPtr(view->impl->hwnd, GWL_STYLE) & WS_POPUP)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void
+puglToggleFullScreen(PuglView* view)
+{
+	if (!view->hints.resizable) {return;}
+	if (puglIsFullScreen(view) == 1)
+	{
+		SetWindowLongPtr(view->impl->hwnd, GWL_STYLE, WS_VISIBLE | WS_OVERLAPPEDWINDOW);
+		//half-baked: use min_width, min_height, place at top left of screen
+		SetWindowPos(view->impl->hwnd, NULL, 0, 0, view->min_width, view->min_height, SWP_FRAMECHANGED);
+	}
+	else
+	{
+		int width  = GetSystemMetrics(SM_CXSCREEN);
+		int height = GetSystemMetrics(SM_CYSCREEN);
+		SetWindowLongPtr(view->impl->hwnd, GWL_STYLE, WS_VISIBLE | WS_POPUP);
+		SetWindowPos(view->impl->hwnd, HWND_TOP, 0, 0, width, height, SWP_FRAMECHANGED);
+	}
 }
 
 PuglNativeWindow
