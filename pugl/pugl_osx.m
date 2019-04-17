@@ -686,17 +686,13 @@ puglWaitForEvent(PuglView* view)
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	while (true) {
-		// Get the next event, or use the cached one from puglWaitForEvent
-		if (!view->impl->nextEvent) {
-			view->impl->nextEvent = [view->impl->window
-			                            nextEventMatchingMask: NSAnyEventMask];
-		}
+	// Get the next event, or use the cached one from puglWaitForEvent
+	if (!view->impl->nextEvent) {
+		view->impl->nextEvent = [view->impl->window
+		                            nextEventMatchingMask: NSAnyEventMask];
+	}
 
-		if (!view->impl->nextEvent) {
-			break;  // No events to process, done
-		}
-
+	if (view->impl->nextEvent != NULL) {
 		// Dispatch event
 		[view->impl->app sendEvent: view->impl->nextEvent];
 		view->impl->nextEvent = NULL;
