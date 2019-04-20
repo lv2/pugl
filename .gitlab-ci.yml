@@ -4,14 +4,46 @@ stages:
 .build_template: &build_definition
   stage: build
 
-amd64_dbg:
+arm32_dbg:
   <<: *build_definition
-  image: drobilla/debian-stretch
+  image: lv2plugin/debian-arm32
+  script: python ./waf configure build -dsT --no-coverage
+  variables:
+    CC: "arm-linux-gnueabihf-gcc"
+    CXX: "arm-linux-gnueabihf-g++"
+
+arm32_rel:
+  <<: *build_definition
+  image: lv2plugin/debian-arm32
+  script: python ./waf configure build -sT --no-coverage
+  variables:
+    CC: "arm-linux-gnueabihf-gcc"
+    CXX: "arm-linux-gnueabihf-g++"
+
+arm64_dbg:
+  <<: *build_definition
+  image: lv2plugin/debian-arm64
+  script: python ./waf configure build -dsT --no-coverage
+  variables:
+    CC: "aarch64-linux-gnu-gcc"
+    CXX: "aarch64-linux-gnu-g++"
+
+arm64_rel:
+  <<: *build_definition
+  image: lv2plugin/debian-arm64
+  script: python ./waf configure build -sT --no-coverage
+  variables:
+    CC: "aarch64-linux-gnu-gcc"
+    CXX: "aarch64-linux-gnu-g++"
+
+x64_dbg:
+  <<: *build_definition
+  image: lv2plugin/debian-x64
   script: python ./waf configure build -dsT --no-coverage
 
-amd64_rel:
+x64_rel:
   <<: *build_definition
-  image: drobilla/debian-stretch
+  image: lv2plugin/debian-x64
   script: python ./waf configure build -sT --no-coverage
 
 mac_dbg:
