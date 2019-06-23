@@ -250,6 +250,8 @@ keySymToSpecial(int sym)
 	case VK_F10:     return PUGL_KEY_F10;
 	case VK_F11:     return PUGL_KEY_F11;
 	case VK_F12:     return PUGL_KEY_F12;
+        case VK_BACK:    return PUGL_KEY_BACKSPACE;
+        case VK_DELETE:  return PUGL_KEY_DELETE;
 	case VK_LEFT:    return PUGL_KEY_LEFT;
 	case VK_UP:      return PUGL_KEY_UP;
 	case VK_RIGHT:   return PUGL_KEY_RIGHT;

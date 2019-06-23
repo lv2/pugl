@@ -116,9 +116,7 @@ typedef enum {
    Convenience symbols for ASCII control characters.
 */
 typedef enum {
-	PUGL_CHAR_BACKSPACE = 0x08,
 	PUGL_CHAR_ESCAPE    = 0x1B,
-	PUGL_CHAR_DELETE    = 0x7F
 } PuglChar;
 
 /**
@@ -152,6 +150,8 @@ typedef enum {
 	PUGL_KEY_F10,
 	PUGL_KEY_F11,
 	PUGL_KEY_F12,
+        PUGL_KEY_BACKSPACE,
+        PUGL_KEY_DELETE,
 	PUGL_KEY_LEFT,
 	PUGL_KEY_UP,
 	PUGL_KEY_RIGHT,

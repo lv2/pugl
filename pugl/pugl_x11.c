@@ -222,6 +222,8 @@ keySymToSpecial(KeySym sym)
 	case XK_F10:       return PUGL_KEY_F10;
 	case XK_F11:       return PUGL_KEY_F11;
 	case XK_F12:       return PUGL_KEY_F12;
+        case XK_Delete:    return PUGL_KEY_DELETE;
+        case XK_BackSpace: return PUGL_KEY_BACKSPACE;
 	case XK_Left:      return PUGL_KEY_LEFT;
 	case XK_Up:        return PUGL_KEY_UP;
 	case XK_Right:     return PUGL_KEY_RIGHT;
