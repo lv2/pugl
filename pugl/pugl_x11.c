@@ -336,7 +336,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		break;
 	case MotionNotify:
 		event.type           = PUGL_MOTION_NOTIFY;
-		event.motion.time    = xevent.xmotion.time;
+		event.motion.time    = xevent.xmotion.time / 1e3;
 		event.motion.x       = xevent.xmotion.x;
 		event.motion.y       = xevent.xmotion.y;
 		event.motion.x_root  = xevent.xmotion.x_root;
@@ -347,7 +347,7 @@ translateEvent(PuglView* view, XEvent xevent)
 	case ButtonPress:
 		if (xevent.xbutton.button >= 4 && xevent.xbutton.button <= 7) {
 			event.type           = PUGL_SCROLL;
-			event.scroll.time    = xevent.xbutton.time;
+			event.scroll.time    = xevent.xbutton.time / 1e3;
 			event.scroll.x       = xevent.xbutton.x;
 			event.scroll.y       = xevent.xbutton.y;
 			event.scroll.x_root  = xevent.xbutton.x_root;
@@ -369,7 +369,7 @@ translateEvent(PuglView* view, XEvent xevent)
 			event.button.type   = ((xevent.type == ButtonPress)
 			                       ? PUGL_BUTTON_PRESS
 			                       : PUGL_BUTTON_RELEASE);
-			event.button.time   = xevent.xbutton.time;
+			event.button.time   = xevent.xbutton.time / 1e3;
 			event.button.x      = xevent.xbutton.x;
 			event.button.y      = xevent.xbutton.y;
 			event.button.x_root = xevent.xbutton.x_root;
@@ -383,7 +383,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.type       = ((xevent.type == KeyPress)
 		                    ? PUGL_KEY_PRESS
 		                    : PUGL_KEY_RELEASE);
-		event.key.time   = xevent.xkey.time;
+		event.key.time   = xevent.xkey.time / 1e3;
 		event.key.x      = xevent.xkey.x;
 		event.key.y      = xevent.xkey.y;
 		event.key.x_root = xevent.xkey.x_root;
@@ -396,7 +396,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.type            = ((xevent.type == EnterNotify)
 		                         ? PUGL_ENTER_NOTIFY
 		                         : PUGL_LEAVE_NOTIFY);
-		event.crossing.time   = xevent.xcrossing.time;
+		event.crossing.time   = xevent.xcrossing.time / 1e3;
 		event.crossing.x      = xevent.xcrossing.x;
 		event.crossing.y      = xevent.xcrossing.y;
 		event.crossing.x_root = xevent.xcrossing.x_root;
