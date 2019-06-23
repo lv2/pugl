@@ -595,8 +595,8 @@ puglCreateWindow(PuglView* view, const char* title)
 		[impl->glview setAutoresizingMask:NSViewNotSizable];
 	}
 
-	if (view->transient_parent) {
-		NSView* pview = (NSView*)view->transient_parent;
+	if (view->parent) {
+		NSView* pview = (NSView*)view->parent;
 		[pview addSubview:impl->glview];
 		[impl->glview setHidden:NO];
 	} else {
