@@ -677,8 +677,8 @@ puglWaitForEvent(PuglView* view)
 	   unsupported selector error at runtime.  I have no idea why, so just get
 	   the event and keep it around until the call to puglProcessEvents. */
 	if (!view->impl->nextEvent) {
-		view->impl->nextEvent = [view->impl->window
-		                            nextEventMatchingMask: NSAnyEventMask];
+		view->impl->nextEvent =
+			[view->impl->window nextEventMatchingMask:NSAnyEventMask];
 	}
 
 	return PUGL_SUCCESS;
@@ -690,8 +690,12 @@ puglProcessEvents(PuglView* view)
 	while (true) {
 		// Get the next event, or use the cached one from puglWaitForEvent
 		if (!view->impl->nextEvent) {
-			view->impl->nextEvent = [view->impl->window
-			                            nextEventMatchingMask: NSAnyEventMask];
+			view->impl->nextEvent =
+				[view->impl->window nextEventMatchingMask:NSAnyEventMask
+				                                untilDate:nil
+				                                   inMode:NSDefaultRunLoopMode
+				                                  dequeue:YES];
+
 		}
 
 		if (!view->impl->nextEvent) {
