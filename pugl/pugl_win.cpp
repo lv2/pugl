@@ -280,6 +280,12 @@ getModifiers()
 	return mods;
 }
 
+static double
+translateMessageTime()
+{
+  return GetMessageTime() / 1000.; /* translate ms to seconds */
+}
+
 static void
 initMouseEvent(PuglEvent* event,
                PuglView*  view,
@@ -296,7 +302,7 @@ initMouseEvent(PuglEvent* event,
 		ReleaseCapture();
 	}
 
-	event->button.time   = GetMessageTime();
+	event->button.time   = translateMessageTime();
 	event->button.type   = press ? PUGL_BUTTON_PRESS : PUGL_BUTTON_RELEASE;
 	event->button.x      = GET_X_LPARAM(lParam);
 	event->button.y      = GET_Y_LPARAM(lParam);
@@ -312,7 +318,7 @@ initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam, WPARAM wParam)
 	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 	ScreenToClient(view->impl->hwnd, &pt);
 
-	event->scroll.time   = GetMessageTime();
+	event->scroll.time   = translateMessageTime();
 	event->scroll.type   = PUGL_SCROLL;
 	event->scroll.x      = pt.x;
 	event->scroll.y      = pt.y;
@@ -357,7 +363,7 @@ initKeyEvent(PuglEvent* event, PuglView* view, bool press, LPARAM lParam)
 	ScreenToClient(view->impl->hwnd, &rpos);
 
 	event->key.type      = press ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-	event->key.time      = GetMessageTime();
+	event->key.time      = translateMessageTime();
 	event->key.state     = getModifiers();
 	event->key.x_root    = rpos.x;
 	event->key.y_root    = rpos.y;
@@ -499,7 +505,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		ClientToScreen(view->impl->hwnd, &pt);
 
 		event.motion.type    = PUGL_MOTION_NOTIFY;
-		event.motion.time    = GetMessageTime();
+		event.motion.time    = translateMessageTime();
 		event.motion.x       = GET_X_LPARAM(lParam);
 		event.motion.y       = GET_Y_LPARAM(lParam);
 		event.motion.x_root  = pt.x;

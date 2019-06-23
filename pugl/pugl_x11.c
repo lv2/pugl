@@ -297,6 +297,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.any.flags |= PUGL_IS_SEND_EVENT;
 	}
 
+        const double time_ms_to_s = 1 / 1000.;
 	switch (xevent.type) {
 	case ClientMessage: {
 		char* type = XGetAtomName(view->impl->display,
@@ -323,7 +324,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		break;
 	case MotionNotify:
 		event.type           = PUGL_MOTION_NOTIFY;
-		event.motion.time    = xevent.xmotion.time;
+		event.motion.time    = xevent.xmotion.time * time_ms_to_s;
 		event.motion.x       = xevent.xmotion.x;
 		event.motion.y       = xevent.xmotion.y;
 		event.motion.x_root  = xevent.xmotion.x_root;
@@ -334,7 +335,7 @@ translateEvent(PuglView* view, XEvent xevent)
 	case ButtonPress:
 		if (xevent.xbutton.button >= 4 && xevent.xbutton.button <= 7) {
 			event.type           = PUGL_SCROLL;
-			event.scroll.time    = xevent.xbutton.time;
+			event.scroll.time    = xevent.xbutton.time * time_ms_to_s;
 			event.scroll.x       = xevent.xbutton.x;
 			event.scroll.y       = xevent.xbutton.y;
 			event.scroll.x_root  = xevent.xbutton.x_root;
@@ -356,7 +357,7 @@ translateEvent(PuglView* view, XEvent xevent)
 			event.button.type   = ((xevent.type == ButtonPress)
 			                       ? PUGL_BUTTON_PRESS
 			                       : PUGL_BUTTON_RELEASE);
-			event.button.time   = xevent.xbutton.time;
+			event.button.time   = xevent.xbutton.time * time_ms_to_s;
 			event.button.x      = xevent.xbutton.x;
 			event.button.y      = xevent.xbutton.y;
 			event.button.x_root = xevent.xbutton.x_root;
@@ -370,7 +371,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.type       = ((xevent.type == KeyPress)
 		                    ? PUGL_KEY_PRESS
 		                    : PUGL_KEY_RELEASE);
-		event.key.time   = xevent.xkey.time;
+		event.key.time   = xevent.xkey.time * time_ms_to_s;
 		event.key.x      = xevent.xkey.x;
 		event.key.y      = xevent.xkey.y;
 		event.key.x_root = xevent.xkey.x_root;
@@ -383,7 +384,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.type            = ((xevent.type == EnterNotify)
 		                         ? PUGL_ENTER_NOTIFY
 		                         : PUGL_LEAVE_NOTIFY);
-		event.crossing.time   = xevent.xcrossing.time;
+		event.crossing.time   = xevent.xcrossing.time * time_ms_to_s;
 		event.crossing.x      = xevent.xcrossing.x;
 		event.crossing.y      = xevent.xcrossing.y;
 		event.crossing.x_root = xevent.xcrossing.x_root;
