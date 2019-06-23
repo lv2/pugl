@@ -238,6 +238,8 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		case NSF10FunctionKey:         return PUGL_KEY_F10;
 		case NSF11FunctionKey:         return PUGL_KEY_F11;
 		case NSF12FunctionKey:         return PUGL_KEY_F12;
+		case NSDeleteCharacter:        return PUGL_KEY_BACKSPACE;
+		case NSDeleteFunctionKey:      return PUGL_KEY_DELETE;
 		case NSLeftArrowFunctionKey:   return PUGL_KEY_LEFT;
 		case NSUpArrowFunctionKey:     return PUGL_KEY_UP;
 		case NSRightArrowFunctionKey:  return PUGL_KEY_RIGHT;
