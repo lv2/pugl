@@ -137,7 +137,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		return NULL;
 	}
 
-	int winFlags = WS_POPUPWINDOW | WS_CAPTION;
+	int winFlags = view->parent ? WS_CHILD : WS_POPUPWINDOW | WS_CAPTION;
 	if (view->hints.resizable) {
 		winFlags |= WS_SIZEBOX;
 		if (view->min_width || view->min_height) {
