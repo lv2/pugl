@@ -41,6 +41,8 @@ def configure(conf):
 
     if conf.env.TARGET_PLATFORM == 'win32':
         conf.load('compiler_cxx', cache=True)
+    elif conf.env.TARGET_PLATFORM == 'darwin':
+        conf.env.append_unique('CFLAGS', ['-Wno-deprecated-declarations'])
 
     autowaf.set_c_lang(conf, 'c99')
 
