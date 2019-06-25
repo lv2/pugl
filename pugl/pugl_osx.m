@@ -89,7 +89,7 @@ struct PuglInternalsImpl {
 		puglview,
 		0
 	};
-	puglDispatchEvent(puglview, (PuglEvent*)&ev);
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 
 	return YES;
 }
@@ -202,7 +202,7 @@ struct PuglInternalsImpl {
 	}
 #endif
 
-	puglDispatchEvent(puglview, (PuglEvent*)&ev);
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
 - (void) drawRect:(NSRect)rect
@@ -327,7 +327,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		0,
 		1
 	};
-	puglDispatchEvent(puglview, (PuglEvent*)&ev);
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
 - (void) mouseDragged:(NSEvent*)event
@@ -361,7 +361,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		getModifiers(puglview, event),
 		(uint32_t)[event buttonNumber] + 1
 	};
-	puglDispatchEvent(puglview, (PuglEvent*)&ev);
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
 - (void) mouseUp:(NSEvent*)event
@@ -380,7 +380,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		getModifiers(puglview, event),
 		(uint32_t)[event buttonNumber] + 1
 	};
-	puglDispatchEvent(puglview, (PuglEvent*)&ev);
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 	[self updateTrackingAreas];
 }
 
@@ -423,7 +423,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		[event deltaX],
 		[event deltaY]
 	};
-	puglDispatchEvent(puglview, (PuglEvent*)&ev);
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 	[self updateTrackingAreas];
 }
 
@@ -455,7 +455,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		false
 	};
 	strncpy((char*)ev.utf8, str, 8);
-	puglDispatchEvent(puglview, (PuglEvent*)&ev);
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
 - (void) keyUp:(NSEvent*)event
@@ -464,7 +464,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 	const NSPoint      rloc  = [NSEvent mouseLocation];
 	const NSString*    chars = [event characters];
 	const char*        str   = [chars UTF8String];
-	const PuglEventKey ev    =  {
+	PuglEventKey       ev    =  {
 		PUGL_KEY_RELEASE,
 		puglview,
 		0,
@@ -481,7 +481,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		false,
 	};
 	strncpy((char*)ev.utf8, str, 8);
-	puglDispatchEvent(puglview, (PuglEvent*)&ev);
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
 - (void) flagsChanged:(NSEvent*)event
@@ -523,7 +523,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 			{ 0, 0, 0, 0, 0, 0, 0, 0 },
 			false
 		};
-		puglDispatchEvent(puglview, (PuglEvent*)&ev);
+		puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 	}
 
 	puglview->impl->mods = mods;
