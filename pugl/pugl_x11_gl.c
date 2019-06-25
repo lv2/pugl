@@ -120,7 +120,7 @@ puglX11GlCreate(PuglView* view)
 
 	CreateContextAttribs create_context =
 		(CreateContextAttribs)glXGetProcAddress(
-			(GLubyte*)"glXCreateContextAttribsARB");
+			(const GLubyte*)"glXCreateContextAttribsARB");
 
 	impl->surface = surface;
 	surface->ctx  = create_context(display, fb_config, 0, GL_TRUE, ctx_attrs);
