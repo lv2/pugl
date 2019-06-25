@@ -155,11 +155,16 @@ def build(bld):
             progs += ['pugl_cairo_test']
 
         for prog in progs:
+            if bld.env.TARGET_PLATFORM == 'darwin':
+                target = '{0}.app/Contents/MacOS/{0}'.format(prog)
+            else:
+                target = prog
+
             bld(features     = 'c cprogram',
                 source       = '%s.c' % prog,
                 use          = 'libpugl_static',
                 lib          = test_libs,
-                target       = prog,
+                target       = target,
                 install_path = '',
                 cflags       = test_cflags,
                 **common)
