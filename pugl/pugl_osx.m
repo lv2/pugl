@@ -173,6 +173,7 @@ struct PuglInternalsImpl {
 
 - (void) reshape
 {
+	[super reshape];
 	[[self openGLContext] update];
 
 	if (!puglview) {
