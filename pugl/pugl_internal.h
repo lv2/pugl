@@ -37,7 +37,7 @@
 PuglInternals* puglInitInternals(void);
 
 static PuglHints
-puglDefaultHints()
+puglDefaultHints(void)
 {
 	static const PuglHints hints = {
 		2, 0, 4, 4, 4, 4, 24, 8, 0, true, true, false

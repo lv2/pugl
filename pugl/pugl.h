@@ -632,7 +632,7 @@ puglProcessEvents(PuglView* view);
 /**
    OpenGL extension function.
 */
-typedef void (*PuglGlFunc)();
+typedef void (*PuglGlFunc)(void);
 
 /**
    Return the address of an OpenGL extension function.
