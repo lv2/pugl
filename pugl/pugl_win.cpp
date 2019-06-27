@@ -84,7 +84,6 @@ puglLeaveContext(PuglView* view, bool flush)
 {
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type == PUGL_GL && flush) {
-		glFlush();
 		SwapBuffers(view->impl->hdc);
 	}
 #endif
