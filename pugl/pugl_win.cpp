@@ -291,7 +291,7 @@ initMouseEvent(PuglEvent* event,
 }
 
 static void
-initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam, WPARAM wParam)
+initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam, WPARAM)
 {
 	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 	ScreenToClient(view->impl->hwnd, &pt);
@@ -380,7 +380,7 @@ wcharBufToEvent(wchar_t* buf, int n, PuglEvent* event)
 }
 
 static void
-translateMessageParamsToEvent(LPARAM lParam, WPARAM wParam, PuglEvent* event)
+translateMessageParamsToEvent(LPARAM, WPARAM wParam, PuglEvent* event)
 {
 	/* TODO: This is a kludge.  Would be nice to use ToUnicode here, but this
 	   breaks composed keys because it messes with the keyboard state.  Not
@@ -400,7 +400,7 @@ translateMessageParamsToEvent(LPARAM lParam, WPARAM wParam, PuglEvent* event)
 	// So, since Google refuses to give me a better solution, and if no one
 	// else has a better solution, I will make a hack...
 	wchar_t buf[5] = { 0, 0, 0, 0, 0 };
-	UINT c = MapVirtualKey(wParam, MAPVK_VK_TO_CHAR);
+	WPARAM c = MapVirtualKey(wParam, MAPVK_VK_TO_CHAR);
 	buf[0] = c & 0xffff;
 	// TODO: This does not take caps lock into account
 	// TODO: Dead keys should affect key releases as well
@@ -558,13 +558,13 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 void
-puglGrabFocus(PuglView* view)
+puglGrabFocus(PuglView*)
 {
 	// TODO
 }
 
 PuglStatus
-puglWaitForEvent(PuglView* view)
+puglWaitForEvent(PuglView*)
 {
 	WaitMessage();
 	return PUGL_SUCCESS;
