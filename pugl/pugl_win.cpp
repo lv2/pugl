@@ -60,22 +60,6 @@ struct PuglInternalsImpl {
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-PuglView*
-puglInit()
-{
-	PuglView*      view = (PuglView*)calloc(1, sizeof(PuglView));
-	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
-	if (!view || !impl) {
-		return NULL;
-	}
-
-	view->impl   = impl;
-	view->width  = 640;
-	view->height = 480;
-
-	return view;
-}
-
 PuglInternals*
 puglInitInternals(void)
 {
@@ -456,7 +440,6 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	RECT        rect;
 	MINMAXINFO* mmi;
 	POINT       pt;
-	bool        dispatchThisEvent = true;
 
 	memset(&event, 0, sizeof(event));
 
