@@ -28,10 +28,12 @@
 #include <stdio.h>
 #include <string.h>
 
-static int   quit   = 0;
-static float xAngle = 0.0f;
-static float yAngle = 0.0f;
-static float dist   = 10.0f;
+static int   quit       = 0;
+static float xAngle     = 0.0f;
+static float yAngle     = 0.0f;
+static float dist       = 10.0f;
+static float lastMouseX = 0.0;
+static float lastMouseY = 0.0;
 
 static const float cubeVertices[] = {
 	-1.0f, -1.0f, -1.0f,
@@ -173,8 +175,10 @@ onEvent(PuglView* view, const PuglEvent* event)
 		        event->key.utf8, event->key.filter ? " (filtered)" : "");
 		break;
 	case PUGL_MOTION_NOTIFY:
-		xAngle = -(int)event->motion.x % 360;
-		yAngle = (int)event->motion.y % 360;
+		xAngle = fmodf(xAngle + (event->motion.x - lastMouseX), 360.0f);
+		yAngle = fmodf(yAngle + (event->motion.y - lastMouseY), 360.0f);
+		lastMouseX = event->motion.x;
+		lastMouseY = event->motion.y;
 		puglPostRedisplay(view);
 		break;
 	case PUGL_BUTTON_PRESS:
@@ -216,16 +220,20 @@ main(int argc, char** argv)
 {
 	int  samples         = 0;
 	int  doubleBuffer    = PUGL_FALSE;
+	bool continuous      = false;
 	bool ignoreKeyRepeat = false;
 	bool resizable       = false;
 	for (int i = 1; i < argc; ++i) {
 		if (!strcmp(argv[i], "-a")) {
 			samples = 4;
+		} else if (!strcmp(argv[i], "-c")) {
+			continuous = true;
 		} else if (!strcmp(argv[i], "-d")) {
 			doubleBuffer = PUGL_TRUE;
 		} else if (!strcmp(argv[i], "-h")) {
 			printf("USAGE: %s [OPTIONS]...\n\n"
 			       "  -a  Enable anti-aliasing\n"
+			       "  -c  Continuously animate and draw\n"
 			       "  -d  Enable double-buffering\n"
 			       "  -h  Display this help\n"
 			       "  -i  Ignore key repeat\n"
@@ -266,9 +274,36 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
+	const double startTime      = puglGetTime(view);
+	double       lastTime       = startTime;
+	double       lastReportTime = startTime;
+	unsigned     frames         = 0;
+
 	while (!quit) {
-		puglWaitForEvent(view);
+		const double thisTime = puglGetTime(view);
+
+		if (continuous) {
+			xAngle = fmodf(xAngle + (thisTime - lastTime) * 100.0f, 360.0f);
+			yAngle = fmodf(yAngle + (thisTime - lastTime) * 100.0f, 360.0f);
+			puglPostRedisplay(view);
+		} else {
+			puglWaitForEvent(view);
+		}
+
 		puglProcessEvents(view);
+
+		if (continuous && thisTime > lastReportTime + 5) {
+			const double fps = frames / (thisTime - lastReportTime);
+			fprintf(stderr,
+			        "%u frames in %.0f seconds = %.3f FPS\n",
+			        frames, thisTime - lastReportTime, fps);
+
+			lastReportTime = thisTime;
+			frames         = 0;
+		}
+
+		lastTime = thisTime;
+		++frames;
 	}
 
 	puglDestroy(view);
