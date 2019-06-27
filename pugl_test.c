@@ -214,11 +214,19 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(int argc, char** argv)
 {
+	int  samples         = 0;
+	int  doubleBuffer    = PUGL_FALSE;
 	bool ignoreKeyRepeat = false;
 	bool resizable       = false;
 	for (int i = 1; i < argc; ++i) {
-		if (!strcmp(argv[i], "-h")) {
+		if (!strcmp(argv[i], "-a")) {
+			samples = 4;
+		} else if (!strcmp(argv[i], "-d")) {
+			doubleBuffer = PUGL_TRUE;
+		} else if (!strcmp(argv[i], "-h")) {
 			printf("USAGE: %s [OPTIONS]...\n\n"
+			       "  -a  Enable anti-aliasing\n"
+			       "  -d  Enable double-buffering\n"
 			       "  -h  Display this help\n"
 			       "  -i  Ignore key repeat\n"
 			       "  -r  Resizable window\n", argv[0]);
@@ -239,6 +247,9 @@ main(int argc, char** argv)
 	puglInitWindowSize(view, 512, 512);
 	puglInitWindowMinSize(view, 256, 256);
 	puglInitResizable(view, resizable);
+
+	puglInitWindowHint(view, PUGL_SAMPLES, samples);
+	puglInitWindowHint(view, PUGL_DOUBLE_BUFFER, doubleBuffer);
 
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
