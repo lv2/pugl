@@ -465,6 +465,8 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		view->height           = rect.bottom - rect.top;
 		event.configure.width  = view->width;
 		event.configure.height = view->height;
+		InvalidateRect(view->impl->hwnd, NULL, FALSE);
+		UpdateWindow(view->impl->hwnd);
 		break;
 	case WM_GETMINMAXINFO:
 		mmi                   = (MINMAXINFO*)lParam;
