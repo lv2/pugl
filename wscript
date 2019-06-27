@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import sys
 
 from waflib import Options, TaskGen
@@ -175,7 +176,8 @@ def build(bld):
             target       = 'Doxyfile',
             install_path = '',
             name         = 'Doxyfile',
-            PUGL_VERSION = PUGL_VERSION)
+            PUGL_VERSION = PUGL_VERSION,
+            PUGL_SRCDIR  = os.path.abspath(bld.path.srcpath()))
 
         bld(features = 'doxygen',
             doxyfile = 'Doxyfile')

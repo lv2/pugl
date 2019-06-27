@@ -473,9 +473,6 @@ puglInitContextType(PuglView* view, PuglContextType type);
 
 /**
    @}
-*/
-
-/**
    @name Windows
    Functions for creating and managing a visible window for a view.
    @{
@@ -574,9 +571,6 @@ puglLeaveContext(PuglView* view, bool flush);
 
 /**
    @}
-*/
-
-/**
    @name Event Handling
    @{
 */
