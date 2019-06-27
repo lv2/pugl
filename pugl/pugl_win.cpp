@@ -186,7 +186,16 @@ puglCreateWindow(PuglView* view, const char* title)
 		free(view);
 		return NULL;
 	}
+
 	wglMakeCurrent(impl->hdc, impl->hglrc);
+
+	typedef BOOL (*SwapIntervalFunc)(int);
+
+	SwapIntervalFunc swapInterval = (SwapIntervalFunc)wglGetProcAddress(
+		"wglSwapIntervalEXT");
+	if (swapInterval) {
+		swapInterval(1);
+	}
 
 	return 0;
 }
