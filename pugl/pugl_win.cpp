@@ -55,6 +55,7 @@ struct PuglInternalsImpl {
 	HDC      hdc;
 	HGLRC    hglrc;
 	WNDCLASS wc;
+	double   timerFrequency;
 };
 
 LRESULT CALLBACK
@@ -98,6 +99,10 @@ puglCreateWindow(PuglView* view, const char* title)
 	static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
 
 	PuglInternals* impl = view->impl;
+
+	LARGE_INTEGER frequency;
+	QueryPerformanceFrequency(&frequency);
+	impl->timerFrequency = frequency.QuadPart;
 
 	if (!title) {
 		title = "Window";
@@ -617,6 +622,14 @@ PuglGlFunc
 puglGetProcAddress(const char* name)
 {
 	return (PuglGlFunc)wglGetProcAddress(name);
+}
+
+double
+puglGetTime(PuglView* view)
+{
+    LARGE_INTEGER count;
+    QueryPerformanceCounter(&count);
+    return double(count.QuadPart) / view->impl->timerFrequency;
 }
 
 void

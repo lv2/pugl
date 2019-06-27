@@ -27,6 +27,7 @@
 #import <Cocoa/Cocoa.h>
 
 #include <stdlib.h>
+#include <time.h>
 
 #undef PUGL_HAVE_CAIRO
 
@@ -724,6 +725,14 @@ puglGetProcAddress(const char *name)
 	CFRelease(symbol);
 
 	return func;
+}
+
+double
+puglGetTime(PuglView* view)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (double)ts.tv_sec + ts.tv_nsec / 1000000000.0;
 }
 
 void

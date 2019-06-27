@@ -635,6 +635,16 @@ PUGL_API PuglGlFunc
 puglGetProcAddress(const char* name);
 
 /**
+   Return the time in seconds.
+
+   This is a monotonically increasing clock with high resolution.  The returned
+   time is only useful to compare against other times returned by this
+   function, its absolute value has no meaning.
+*/
+PUGL_API double
+puglGetTime(PuglView* view);
+
+/**
    Request a redisplay on the next call to puglProcessEvents().
 */
 PUGL_API void

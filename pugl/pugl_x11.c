@@ -20,6 +20,7 @@
    @file pugl_x11.c X11 Pugl Implementation.
 */
 
+#define _POSIX_C_SOURCE 199309L
 
 #include "pugl/pugl_internal.h"
 #include "pugl/pugl_x11.h"
@@ -38,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #ifndef MIN
 #    define MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -514,6 +516,14 @@ puglProcessEvents(PuglView* view)
 	}
 
 	return PUGL_SUCCESS;
+}
+
+double
+puglGetTime(PuglView* view)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return (double)ts.tv_sec + ts.tv_nsec / 1000000000.0;
 }
 
 void
