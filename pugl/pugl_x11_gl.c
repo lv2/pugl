@@ -69,9 +69,7 @@ puglX11GlConfigure(PuglView* view)
 		GLX_ALPHA_SIZE,    puglX11GlHintValue(view->hints.alpha_bits),
 		GLX_DEPTH_SIZE,    puglX11GlHintValue(view->hints.depth_bits),
 		GLX_STENCIL_SIZE,  puglX11GlHintValue(view->hints.stencil_bits),
-		GLX_DOUBLEBUFFER,  (view->hints.samples
-		                    ? GLX_DONT_CARE
-		                    : view->hints.double_buffer),
+		GLX_DOUBLEBUFFER,  puglX11GlHintValue(view->hints.double_buffer),
 		None
 	};
 
@@ -162,14 +160,13 @@ puglX11GlLeave(PuglView* view, bool flush)
 {
 	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
 
-	if (flush) {
+	if (flush && surface->double_buffered) {
+		glXSwapBuffers(view->impl->display, view->impl->win);
+	} else if (flush) {
 		glFlush();
 	}
 
 	glXMakeCurrent(view->impl->display, None, NULL);
-	if (surface->double_buffered) {
-		glXSwapBuffers(view->impl->display, view->impl->win);
-	}
 
 	return 0;
 }

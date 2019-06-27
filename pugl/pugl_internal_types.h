@@ -39,8 +39,8 @@ typedef struct {
 	int  depth_bits;
 	int  stencil_bits;
 	int  samples;
+	int  double_buffer;
 	bool use_compat_profile;
-	bool double_buffer;
 	bool resizable;
 } PuglHints;
 
