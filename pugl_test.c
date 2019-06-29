@@ -181,7 +181,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 		        event->key.utf8, event->key.filter ? " (filtered)" : "");
 		break;
 	case PUGL_MOTION_NOTIFY:
-		xAngle = fmodf(xAngle + (float)(event->motion.x - lastMouseX), 360.0f);
+		xAngle = fmodf(xAngle - (float)(event->motion.x - lastMouseX), 360.0f);
 		yAngle = fmodf(yAngle + (float)(event->motion.y - lastMouseY), 360.0f);
 		lastMouseX = event->motion.x;
 		lastMouseY = event->motion.y;
