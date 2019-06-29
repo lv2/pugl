@@ -28,12 +28,12 @@
 #include <stdio.h>
 #include <string.h>
 
-static int   quit       = 0;
-static float xAngle     = 0.0f;
-static float yAngle     = 0.0f;
-static float dist       = 10.0f;
-static float lastMouseX = 0.0;
-static float lastMouseY = 0.0;
+static int    quit       = 0;
+static float  xAngle     = 0.0f;
+static float  yAngle     = 0.0f;
+static float  dist       = 10.0f;
+static double lastMouseX = 0.0;
+static double lastMouseY = 0.0;
 
 static const float cubeVertices[] = {
 	-1.0f, -1.0f, -1.0f,
@@ -104,6 +104,8 @@ perspective(float* m, float fov, float aspect, float zNear, float zFar)
 static void
 onReshape(PuglView* view, int width, int height)
 {
+	(void)view;
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(0, 0, width, height);
@@ -116,6 +118,8 @@ onReshape(PuglView* view, int width, int height)
 static void
 onDisplay(PuglView* view)
 {
+	(void)view;
+
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0.0f, 0.0f, dist * -1);
@@ -137,6 +141,8 @@ onDisplay(PuglView* view)
 static void
 printModifiers(PuglView* view, uint32_t mods)
 {
+	(void)view;
+
 	fprintf(stderr, "Modifiers:%s%s%s%s\n",
 	        (mods & PUGL_MOD_SHIFT) ? " Shift"   : "",
 	        (mods & PUGL_MOD_CTRL)  ? " Ctrl"    : "",
@@ -175,8 +181,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 		        event->key.utf8, event->key.filter ? " (filtered)" : "");
 		break;
 	case PUGL_MOTION_NOTIFY:
-		xAngle = fmodf(xAngle + (event->motion.x - lastMouseX), 360.0f);
-		yAngle = fmodf(yAngle + (event->motion.y - lastMouseY), 360.0f);
+		xAngle = fmodf(xAngle + (float)(event->motion.x - lastMouseX), 360.0f);
+		yAngle = fmodf(yAngle + (float)(event->motion.y - lastMouseY), 360.0f);
 		lastMouseX = event->motion.x;
 		lastMouseY = event->motion.y;
 		puglPostRedisplay(view);
@@ -194,7 +200,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 		fprintf(stderr, "Scroll %f %f %f %f ",
 		        event->scroll.x, event->scroll.y, event->scroll.dx, event->scroll.dy);
 		printModifiers(view, event->scroll.state);
-		dist += event->scroll.dy;
+		dist += (float)event->scroll.dy;
 		if (dist < 10.0f) {
 			dist = 10.0f;
 		}
@@ -274,13 +280,13 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
-	const double startTime      = puglGetTime(view);
-	double       lastTime       = startTime;
-	double       lastReportTime = startTime;
-	unsigned     frames         = 0;
+	const float startTime      = (float)puglGetTime(view);
+	float       lastTime       = startTime;
+	float       lastReportTime = startTime;
+	unsigned    frames         = 0;
 
 	while (!quit) {
-		const double thisTime = puglGetTime(view);
+		const float thisTime = (float)puglGetTime(view);
 
 		if (continuous) {
 			xAngle = fmodf(xAngle + (thisTime - lastTime) * 100.0f, 360.0f);

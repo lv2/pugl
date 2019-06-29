@@ -42,6 +42,8 @@ def configure(conf):
 
     if conf.env.TARGET_PLATFORM == 'win32':
         conf.load('compiler_cxx', cache=True)
+        if conf.env.MSVC_COMPILER:
+            conf.env.append_unique('CXXFLAGS', ['/wd4191'])
     elif conf.env.TARGET_PLATFORM == 'darwin':
         conf.env.append_unique('CFLAGS', ['-Wno-deprecated-declarations'])
 

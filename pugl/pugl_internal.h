@@ -48,6 +48,9 @@ puglDefaultHints(void)
 PuglView*
 puglInit(int* pargc, char** argv)
 {
+	(void)pargc;
+	(void)argv;
+
 	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
 	if (!view) {
 		return NULL;
@@ -210,7 +213,7 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 }
 
 /** Return the code point for buf, or the replacement character on error. */
-static uint32_t
+static inline uint32_t
 puglDecodeUTF8(const uint8_t* buf)
 {
 #define FAIL_IF(cond) { if (cond) return 0xFFFD; }
@@ -223,12 +226,12 @@ puglDecodeUTF8(const uint8_t* buf)
 		return 0xFFFD;
 	} else if (buf[0] < 0xE0) {
 		FAIL_IF((buf[1] & 0xC0) != 0x80);
-		return (buf[0] << 6) + buf[1] - 0x3080;
+		return (buf[0] << 6) + buf[1] - 0x3080u;
 	} else if (buf[0] < 0xF0) {
 		FAIL_IF((buf[1] & 0xC0) != 0x80);
 		FAIL_IF(buf[0] == 0xE0 && buf[1] < 0xA0);
 		FAIL_IF((buf[2] & 0xC0) != 0x80);
-		return (buf[0] << 12) + (buf[1] << 6) + buf[2] - 0xE2080;
+		return (buf[0] << 12) + (buf[1] << 6) + buf[2] - 0xE2080u;
 	} else if (buf[0] < 0xF5) {
 		FAIL_IF((buf[1] & 0xC0) != 0x80);
 		FAIL_IF(buf[0] == 0xF0 && buf[1] < 0x90);
@@ -238,7 +241,7 @@ puglDecodeUTF8(const uint8_t* buf)
 		return ((buf[0] << 18) +
 		        (buf[1] << 12) +
 		        (buf[2] << 6) +
-		        buf[3] - 0x3C82080);
+		        buf[3] - 0x3C82080u);
 	}
 	return 0xFFFD;
 }

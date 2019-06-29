@@ -102,7 +102,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	LARGE_INTEGER frequency;
 	QueryPerformanceFrequency(&frequency);
-	impl->timerFrequency = frequency.QuadPart;
+	impl->timerFrequency = static_cast<double>(frequency.QuadPart);
 
 	if (!title) {
 		title = "Window";
@@ -125,7 +125,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		return NULL;
 	}
 
-	int winFlags = view->parent ? WS_CHILD : WS_POPUPWINDOW | WS_CAPTION;
+	unsigned winFlags = view->parent ? WS_CHILD : WS_POPUPWINDOW | WS_CAPTION;
 	if (view->hints.resizable) {
 		winFlags |= WS_SIZEBOX;
 		if (view->min_width || view->min_height) {
@@ -232,7 +232,7 @@ puglDestroy(PuglView* view)
 }
 
 static PuglKey
-keySymToSpecial(int sym)
+keySymToSpecial(WPARAM sym)
 {
 	switch (sym) {
 	case VK_F1:      return PUGL_KEY_F1;
@@ -293,14 +293,14 @@ initMouseEvent(PuglEvent* event,
 		ReleaseCapture();
 	}
 
-	event->button.time   = GetMessageTime();
+	event->button.time   = static_cast<uint32_t>(GetMessageTime());
 	event->button.type   = press ? PUGL_BUTTON_PRESS : PUGL_BUTTON_RELEASE;
 	event->button.x      = GET_X_LPARAM(lParam);
 	event->button.y      = GET_Y_LPARAM(lParam);
 	event->button.x_root = pt.x;
 	event->button.y_root = pt.y;
 	event->button.state  = getModifiers();
-	event->button.button = button;
+	event->button.button = static_cast<uint32_t>(button);
 }
 
 static void
@@ -309,7 +309,7 @@ initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam, WPARAM)
 	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 	ScreenToClient(view->impl->hwnd, &pt);
 
-	event->scroll.time   = GetMessageTime();
+	event->scroll.time   = static_cast<uint32_t>(GetMessageTime());
 	event->scroll.type   = PUGL_SCROLL;
 	event->scroll.x      = pt.x;
 	event->scroll.y      = pt.y;
@@ -321,7 +321,7 @@ initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam, WPARAM)
 }
 
 static uint32_t
-utf16_to_code_point(const wchar_t* input, size_t input_size)
+utf16_to_code_point(const wchar_t* input, const int input_size)
 {
 	uint32_t code_unit = *input;
 	// Equiv. range check between 0xD800 to 0xDBFF inclusive
@@ -354,13 +354,13 @@ initKeyEvent(PuglEvent* event, PuglView* view, bool press, LPARAM lParam)
 	ScreenToClient(view->impl->hwnd, &rpos);
 
 	event->key.type      = press ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-	event->key.time      = GetMessageTime();
+	event->key.time      = static_cast<uint32_t>(GetMessageTime());
 	event->key.state     = getModifiers();
 	event->key.x_root    = rpos.x;
 	event->key.y_root    = rpos.y;
 	event->key.x         = cpos.x;
 	event->key.y         = cpos.y;
-	event->key.keycode   = (lParam & 0xFF0000) >> 16;
+	event->key.keycode   = static_cast<uint32_t>((lParam & 0xFF0000) >> 16);
 	event->key.character = 0;
 	event->key.special   = static_cast<PuglKey>(0);
 	event->key.filter    = 0;
@@ -413,7 +413,7 @@ translateMessageParamsToEvent(LPARAM, WPARAM wParam, PuglEvent* event)
 	// So, since Google refuses to give me a better solution, and if no one
 	// else has a better solution, I will make a hack...
 	wchar_t buf[5] = { 0, 0, 0, 0, 0 };
-	WPARAM c = MapVirtualKey(wParam, MAPVK_VK_TO_CHAR);
+	WPARAM c = MapVirtualKey(static_cast<unsigned>(wParam), MAPVK_VK_TO_CHAR);
 	buf[0] = c & 0xffff;
 	// TODO: This does not take caps lock into account
 	// TODO: Dead keys should affect key releases as well
@@ -497,7 +497,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		ClientToScreen(view->impl->hwnd, &pt);
 
 		event.motion.type    = PUGL_MOTION_NOTIFY;
-		event.motion.time    = GetMessageTime();
+		event.motion.time    = static_cast<uint32_t>(GetMessageTime());
 		event.motion.x       = GET_X_LPARAM(lParam);
 		event.motion.y       = GET_Y_LPARAM(lParam);
 		event.motion.x_root  = pt.x;
