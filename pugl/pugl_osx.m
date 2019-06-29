@@ -147,15 +147,25 @@ struct PuglInternalsImpl {
 
 - (id) initWithFrame:(NSRect)frame
 {
+	const int major   = puglview->hints.context_version_major;
+	const int profile = ((puglview->hints.use_compat_profile || major < 3)
+	                     ? NSOpenGLProfileVersionLegacy
+	                     : puglview->hints.context_version_major >= 4
+	                       ? NSOpenGLProfileVersion4_1Core
+	                       : NSOpenGLProfileVersion3_2Core);
+
 	NSOpenGLPixelFormatAttribute pixelAttribs[16] = {
 		NSOpenGLPFADoubleBuffer,
 		NSOpenGLPFAAccelerated,
-		NSOpenGLPFAColorSize, 32,
-		NSOpenGLPFADepthSize, 32,
-		0
-	};
+		NSOpenGLPFAOpenGLProfile, profile,
+		NSOpenGLPFAColorSize,     32,
+		NSOpenGLPFADepthSize,     32,
+		NSOpenGLPFAMultisample,   puglview->hints.samples ? 1 : 0,
+		NSOpenGLPFASampleBuffers, puglview->hints.samples ? 1 : 0,
+		NSOpenGLPFASamples,       puglview->hints.samples,
+		0};
 
-	NSOpenGLPixelFormat* pixelFormat = [
+	NSOpenGLPixelFormat *pixelFormat = [
 		[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttribs];
 
 	if (pixelFormat) {
@@ -580,8 +590,9 @@ puglCreateWindow(PuglView* view, const char* title)
 	[NSAutoreleasePool new];
 	impl->app = [NSApplication sharedApplication];
 
-	impl->glview           = [PuglOpenGLView new];
+	impl->glview           = [PuglOpenGLView alloc];
 	impl->glview->puglview = view;
+	[impl->glview init];
 
 	[impl->glview setFrameSize:NSMakeSize(view->width, view->height)];
 	[impl->glview addConstraint:
