@@ -534,24 +534,24 @@ static void
 wcharBufToEvent(wchar_t* buf, int n, PuglEvent* event)
 {
 	if (n > 0) {
-		char* charp = (char*)event->key.utf8;
+		char* charp = (char*)event->key.string;
 		if (!WideCharToMultiByte(CP_UTF8, 0, buf, n,
 		                         charp, 8, NULL, NULL)) {
 			/* error: could not convert to utf-8,
 			   GetLastError has details */
-			memset(event->key.utf8, 0, 8);
+			memset(event->key.string, 0, 8);
 			// replacement character
-			event->key.utf8[0] = 0xEF;
-			event->key.utf8[1] = 0xBF;
-			event->key.utf8[2] = 0xBD;
+			event->key.string[0] = 0xEF;
+			event->key.string[1] = 0xBF;
+			event->key.string[2] = 0xBD;
 		}
 
 		event->key.character = utf16_to_code_point(buf, n);
 	} else {
 		// replacement character
-		event->key.utf8[0]   = 0xEF;
-		event->key.utf8[1]   = 0xBF;
-		event->key.utf8[2]   = 0xBD;
+		event->key.string[0] = 0xEF;
+		event->key.string[1] = 0xBF;
+		event->key.string[2] = 0xBD;
 		event->key.character = 0xFFFD;
 	}
 }

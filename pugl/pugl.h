@@ -261,23 +261,23 @@ typedef struct {
 /**
    Key press/release event.
 
-   Keys that correspond to a Unicode character have `character` and `utf8` set.
-   Other keys will have `character` 0, but `special` may be set if this is a
-   known special key.
+   Keys that correspond to a Unicode character have `character` and `string`
+   set.  Other keys will have `character` 0, but `special` may be set if this
+   is a known special key.
 
    A key press may be part of a multi-key sequence to generate a wide
    character.  If `filter` is set, this event is part of a multi-key sequence
    and should be ignored if the application is reading textual input.
    Following the series of filtered press events, a press event with
-   `character` and `utf8` (but `keycode` 0) will be sent.  This event will have
-   no corresponding release event.
+   `character` and `string` (but `keycode` 0) will be sent.  This event will
+   have no corresponding release event.
 
    Generally, an application should either work with raw keyboard press/release
-   events based on `keycode` (ignoring events with `keycode` 0), or
-   read textual input based on `character` or `utf8` (ignoring releases and
-   events with `filter` 1).  Note that blindly appending `utf8` will yield
-   incorrect text, since press events are sent for both individually composed
-   keys and the resulting synthetic multi-byte press.
+   events based on `keycode` (ignoring events with `keycode` 0), or read
+   textual input based on `character` or `string` (ignoring releases and events
+   with `filter` 1).  Note that blindly appending `string` will yield incorrect
+   text, since press events are sent for both individually composed keys and
+   the resulting synthetic multi-byte press.
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_KEY_PRESS or PUGL_KEY_RELEASE. */
@@ -291,7 +291,7 @@ typedef struct {
 	uint32_t      keycode;     /**< Raw key code. */
 	uint32_t      character;   /**< Unicode character code, or 0. */
 	PuglKey       special;     /**< Special key, or 0. */
-	uint8_t       utf8[8];     /**< UTF-8 string. */
+	char          string[8];   /**< UTF-8 string. */
 	bool          filter;      /**< True if part of a multi-key sequence. */
 } PuglEventKey;
 

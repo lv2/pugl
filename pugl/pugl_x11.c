@@ -257,12 +257,11 @@ static void
 translateKey(PuglView* view, XEvent* xevent, PuglEventKey* event)
 {
 	KeySym sym = 0;
-	char*  str = (char*)event->utf8;
-	memset(str, 0, 8);
+	memset(event->string, 0, 8);
 	event->filter = XFilterEvent(xevent, None);
 	if (xevent->type == KeyRelease || event->filter || !view->impl->xic) {
-		if (XLookupString(&xevent->xkey, str, 7, &sym, NULL) == 1) {
-			event->character = (uint8_t)str[0];
+		if (XLookupString(&xevent->xkey, event->string, 7, &sym, NULL) == 1) {
+			event->character = (uint8_t)event->string[0];
 		}
 	} else {
 		/* TODO: Not sure about this.  On my system, some characters work with
@@ -271,13 +270,13 @@ translateKey(PuglView* view, XEvent* xevent, PuglEventKey* event)
 		Status status = 0;
 #ifdef X_HAVE_UTF8_STRING
 		const int n = Xutf8LookupString(
-			view->impl->xic, &xevent->xkey, str, 7, &sym, &status);
+			view->impl->xic, &xevent->xkey, event->string, 7, &sym, &status);
 #else
 		const int n = XmbLookupString(
-			view->impl->xic, &xevent->xkey, str, 7, &sym, &status);
+			view->impl->xic, &xevent->xkey, event->string, 7, &sym, &status);
 #endif
 		if (n > 0) {
-			event->character = puglDecodeUTF8((const uint8_t*)str);
+			event->character = puglDecodeUTF8((const uint8_t*)event->string);
 		}
 	}
 	event->special = keySymToSpecial(sym);

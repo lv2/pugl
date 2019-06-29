@@ -439,7 +439,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		{ 0, 0, 0, 0, 0, 0, 0, 0 },
 		false
 	};
-	strncpy((char*)ev.utf8, str, 8);
+	strncpy(ev.string, str, 8);
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
@@ -464,7 +464,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		{ 0, 0, 0, 0, 0, 0, 0, 0 },
 		false,
 	};
-	strncpy((char*)ev.utf8, str, 8);
+	strncpy(ev.string, str, 8);
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
