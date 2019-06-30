@@ -51,12 +51,13 @@
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
 
 struct PuglInternalsImpl {
-	HWND     hwnd;
-	HDC      hdc;
-	HGLRC    hglrc;
-	WNDCLASS wc;
-	double   timerFrequency;
+	HWND   hwnd;
+	HDC    hdc;
+	HGLRC  hglrc;
+	double timerFrequency;
 };
+
+static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
 
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -96,8 +97,6 @@ puglLeaveContext(PuglView* view, bool flush)
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
-	static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
-
 	PuglInternals* impl = view->impl;
 
 	LARGE_INTEGER frequency;
@@ -108,6 +107,8 @@ puglCreateWindow(PuglView* view, const char* title)
 		title = "Window";
 	}
 
+	const char* className = view->windowClass ? view->windowClass : DEFAULT_CLASSNAME;
+
 	WNDCLASSEX wc;
 	memset(&wc, 0, sizeof(wc));
 	wc.cbSize        = sizeof(wc);
@@ -117,12 +118,9 @@ puglCreateWindow(PuglView* view, const char* title)
 	wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION); // TODO: user-specified icon
 	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wc.lpszClassName = view->windowClass ? view->windowClass : DEFAULT_CLASSNAME;
+	wc.lpszClassName = className;
 	if (!RegisterClassEx(&wc)) {
-		free((void*)impl->wc.lpszClassName);
-		free(impl);
-		free(view);
-		return NULL;
+		return 1;
 	}
 
 	unsigned winFlags = view->parent ? WS_CHILD : WS_POPUPWINDOW | WS_CAPTION;
@@ -143,16 +141,13 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	impl->hwnd = CreateWindowEx(
 		WS_EX_TOPMOST,
-		wc.lpszClassName, title,
+		className, title,
 		(view->parent ? WS_CHILD : winFlags),
 		CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
 		(HWND)view->parent, NULL, NULL, NULL);
 
 	if (!impl->hwnd) {
-		free((void*)impl->wc.lpszClassName);
-		free(impl);
-		free(view);
-		return 1;
+		return 2;
 	}
 
 #ifdef _WIN64
@@ -180,11 +175,8 @@ puglCreateWindow(PuglView* view, const char* title)
 	if (!impl->hglrc) {
 		ReleaseDC(impl->hwnd, impl->hdc);
 		DestroyWindow(impl->hwnd);
-		UnregisterClass(impl->wc.lpszClassName, NULL);
-		free((void*)impl->wc.lpszClassName);
-		free(impl);
-		free(view);
-		return NULL;
+		UnregisterClass(className, NULL);
+		return 3;
 	}
 
 	wglMakeCurrent(impl->hdc, impl->hglrc);
@@ -221,14 +213,16 @@ puglHideWindow(PuglView* view)
 void
 puglDestroy(PuglView* view)
 {
-	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(view->impl->hglrc);
-	ReleaseDC(view->impl->hwnd, view->impl->hdc);
-	DestroyWindow(view->impl->hwnd);
-	UnregisterClass(view->impl->wc.lpszClassName, NULL);
-	free(view->windowClass);
-	free(view->impl);
-	free(view);
+	if (view) {
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(view->impl->hglrc);
+		ReleaseDC(view->impl->hwnd, view->impl->hdc);
+		DestroyWindow(view->impl->hwnd);
+		UnregisterClass(view->windowClass ? view->windowClass : DEFAULT_CLASSNAME, NULL);
+		free(view->windowClass);
+		free(view->impl);
+		free(view);
+	}
 }
 
 static PuglKey
