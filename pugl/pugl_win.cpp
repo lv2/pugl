@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2015 David Robillard <http://drobilla.net>
+  Copyright 2012-2019 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -50,11 +50,53 @@
 
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
 
+#define WGL_DRAW_TO_WINDOW_ARB    0x2001
+#define WGL_ACCELERATION_ARB      0x2003
+#define WGL_SUPPORT_OPENGL_ARB    0x2010
+#define WGL_DOUBLE_BUFFER_ARB     0x2011
+#define WGL_PIXEL_TYPE_ARB        0x2013
+#define WGL_COLOR_BITS_ARB        0x2014
+#define WGL_RED_BITS_ARB          0x2015
+#define WGL_GREEN_BITS_ARB        0x2017
+#define WGL_BLUE_BITS_ARB         0x2019
+#define WGL_ALPHA_BITS_ARB        0x201b
+#define WGL_DEPTH_BITS_ARB        0x2022
+#define WGL_STENCIL_BITS_ARB      0x2023
+#define WGL_FULL_ACCELERATION_ARB 0x2027
+#define WGL_TYPE_RGBA_ARB         0x202b
+#define WGL_SAMPLE_BUFFERS_ARB    0x2041
+#define WGL_SAMPLES_ARB           0x2042
+
+#define WGL_CONTEXT_MAJOR_VERSION_ARB 0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB 0x2092
+#define WGL_CONTEXT_LAYER_PLANE_ARB   0x2093
+#define WGL_CONTEXT_FLAGS_ARB         0x2094
+#define WGL_CONTEXT_PROFILE_MASK_ARB  0x9126
+
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB          0x00000001
+#define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+
 struct PuglInternalsImpl {
 	HWND   hwnd;
 	HDC    hdc;
 	HGLRC  hglrc;
 	double timerFrequency;
+};
+
+// Scoped class to manage the fake window used during window creation
+struct PuglFakeWindow {
+	PuglFakeWindow(HWND wnd) : hwnd{wnd}, hdc{wnd ? GetDC(wnd) : 0} {}
+	PuglFakeWindow(const PuglFakeWindow&) = delete;
+
+	~PuglFakeWindow() {
+		if (hwnd) {
+			ReleaseDC(hwnd, hdc);
+			DestroyWindow(hwnd);
+		}
+	}
+
+	HWND hwnd;
+	HDC  hdc;
 };
 
 static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
@@ -94,21 +136,49 @@ puglLeaveContext(PuglView* view, bool flush)
 	EndPaint(view->impl->hwnd, &ps);
 }
 
+static PIXELFORMATDESCRIPTOR
+puglGetPixelFormatDescriptor(const PuglHints* hints)
+{
+	const int rgbBits = hints->red_bits + hints->green_bits + hints->blue_bits;
+
+	PIXELFORMATDESCRIPTOR pfd;
+	ZeroMemory(&pfd, sizeof(pfd));
+	pfd.nSize        = sizeof(pfd);
+	pfd.nVersion     = 1;
+	pfd.dwFlags      = PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL|PFD_DOUBLEBUFFER;
+	pfd.iPixelType   = PFD_TYPE_RGBA;
+	pfd.cColorBits   = (BYTE)rgbBits;
+	pfd.cRedBits     = (BYTE)hints->red_bits;
+	pfd.cGreenBits   = (BYTE)hints->green_bits;
+	pfd.cBlueBits    = (BYTE)hints->blue_bits;
+	pfd.cAlphaBits   = (BYTE)hints->alpha_bits;
+	pfd.cDepthBits   = (BYTE)hints->depth_bits;
+	pfd.cStencilBits = (BYTE)hints->stencil_bits;
+	pfd.iLayerType   = PFD_MAIN_PLANE;
+	return pfd;
+}
+
+template <typename Proc>
+Proc puglGetProc(const char* name)
+{
+	return reinterpret_cast<Proc>(wglGetProcAddress(name));
+}
+
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
-	PuglInternals* impl = view->impl;
+	typedef BOOL (*WglChoosePixelFormat)(
+		HDC, const int*, const FLOAT*, UINT, int*, UINT*);
 
-	LARGE_INTEGER frequency;
-	QueryPerformanceFrequency(&frequency);
-	impl->timerFrequency = static_cast<double>(frequency.QuadPart);
+	typedef HGLRC (*WglCreateContextAttribs)(HDC, HGLRC, const int*);
 
-	if (!title) {
-		title = "Window";
-	}
+	typedef BOOL (*WglSwapInterval)(int);
 
 	const char* className = view->windowClass ? view->windowClass : DEFAULT_CLASSNAME;
 
+	title = title ? title : "Window";
+
+	// Register window class
 	WNDCLASSEX wc;
 	memset(&wc, 0, sizeof(wc));
 	wc.cbSize        = sizeof(wc);
@@ -123,6 +193,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		return 1;
 	}
 
+	// Calculate window flags
 	unsigned winFlags = view->parent ? WS_CHILD : WS_POPUPWINDOW | WS_CAPTION;
 	if (view->hints.resizable) {
 		winFlags |= WS_SIZEBOX;
@@ -139,55 +210,128 @@ puglCreateWindow(PuglView* view, const char* title)
 	RECT wr = { 0, 0, view->width, view->height };
 	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
 
-	impl->hwnd = CreateWindowEx(
-		WS_EX_TOPMOST,
-		className, title,
-		(view->parent ? WS_CHILD : winFlags),
-		CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
-		(HWND)view->parent, NULL, NULL, NULL);
+	// Create fake window for getting at GL context
+	PuglFakeWindow fakeWin(
+		CreateWindowEx(WS_EX_TOPMOST,
+		               className, title,
+		               (view->parent ? WS_CHILD : winFlags),
+		               CW_USEDEFAULT, CW_USEDEFAULT,
+		               wr.right-wr.left, wr.bottom-wr.top,
+		               (HWND)view->parent, NULL, NULL, NULL));
 
-	if (!impl->hwnd) {
+	if (!fakeWin.hwnd) {
 		return 2;
 	}
+
+	// Choose pixel format for fake window
+	const auto fakePfd      = puglGetPixelFormatDescriptor(&view->hints);
+	const int  fakeFormatId = ChoosePixelFormat(fakeWin.hdc, &fakePfd);
+	if (!fakeFormatId) {
+		return 3;
+	} else if (!SetPixelFormat(fakeWin.hdc, fakeFormatId, &fakePfd)) {
+		return 4;
+	}
+
+	HGLRC fakeRc = wglCreateContext(fakeWin.hdc);
+	if (!fakeRc) {
+		return 5;
+	}
+
+	wglMakeCurrent(fakeWin.hdc, fakeRc);
+
+	auto wglChoosePixelFormat = puglGetProc<WglChoosePixelFormat>(
+		"wglChoosePixelFormatARB");
+	auto wglCreateContextAttribs = puglGetProc<WglCreateContextAttribs>(
+		"wglCreateContextAttribsARB");
+	auto wglSwapInterval = puglGetProc<WglSwapInterval>(
+		"wglSwapIntervalEXT");
+
+	PuglInternals* impl = view->impl;
+
+	if (wglChoosePixelFormat && wglCreateContextAttribs) {
+		// Now create real window
+		impl->hwnd = CreateWindowEx(
+			WS_EX_TOPMOST,
+			className, title,
+			(view->parent ? WS_CHILD : winFlags),
+			CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
+			(HWND)view->parent, NULL, NULL, NULL);
+
+		impl->hdc = GetDC(impl->hwnd);
+
+		const int pixelAttrs[] = {
+			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+			WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
+			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+			WGL_DOUBLE_BUFFER_ARB,  view->hints.double_buffer,
+			WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
+			WGL_SAMPLE_BUFFERS_ARB, view->hints.samples ? 1 : 0,
+			WGL_SAMPLES_ARB,        view->hints.samples,
+			WGL_RED_BITS_ARB,       view->hints.red_bits,
+			WGL_GREEN_BITS_ARB,     view->hints.green_bits,
+			WGL_BLUE_BITS_ARB,      view->hints.blue_bits,
+			WGL_ALPHA_BITS_ARB,     view->hints.alpha_bits,
+			WGL_DEPTH_BITS_ARB,     view->hints.depth_bits,
+			WGL_STENCIL_BITS_ARB,   view->hints.stencil_bits,
+			0,
+		};
+
+		// Choose pixel format based on hints
+		int  pixelFormatId;
+		UINT numFormats;
+		if (!wglChoosePixelFormat(impl->hdc, pixelAttrs, NULL, 1u, &pixelFormatId, &numFormats)) {
+			return 6;
+		}
+
+		// Set desired pixel format
+		PIXELFORMATDESCRIPTOR pfd;
+		DescribePixelFormat(impl->hdc, pixelFormatId, sizeof(pfd), &pfd);
+		if (!SetPixelFormat(impl->hdc, pixelFormatId, &pfd)) {
+			return 7;
+		}
+
+		// Create final GL context
+		const int contextAttribs[] = {
+			WGL_CONTEXT_MAJOR_VERSION_ARB, view->hints.context_version_major,
+			WGL_CONTEXT_MINOR_VERSION_ARB, view->hints.context_version_minor,
+			WGL_CONTEXT_PROFILE_MASK_ARB, (view->hints.use_compat_profile
+			                               ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB
+			                               : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB),
+			0
+		};
+
+		if (!(impl->hglrc = wglCreateContextAttribs(impl->hdc, 0, contextAttribs))) {
+			return 8;
+		}
+
+		// Switch to new context
+		wglMakeCurrent(NULL, NULL);
+		wglDeleteContext(fakeRc);
+		if (!wglMakeCurrent(impl->hdc, impl->hglrc)) {
+			return 9;
+		}
+	} else {
+		// Modern extensions not available, just use the original "fake" window
+		impl->hwnd   = fakeWin.hwnd;
+		impl->hdc    = fakeWin.hdc;
+		impl->hglrc  = fakeRc;
+		fakeWin.hwnd = 0;
+		fakeWin.hdc  = 0;
+	}
+
+	if (wglSwapInterval) {
+		wglSwapInterval(1);
+	}
+
+	LARGE_INTEGER frequency;
+	QueryPerformanceFrequency(&frequency);
+	impl->timerFrequency = static_cast<double>(frequency.QuadPart);
 
 #ifdef _WIN64
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 #else
 	SetWindowLongPtr(impl->hwnd, GWL_USERDATA, (LONG)view);
 #endif
-
-	impl->hdc = GetDC(impl->hwnd);
-
-	PIXELFORMATDESCRIPTOR pfd;
-	ZeroMemory(&pfd, sizeof(pfd));
-	pfd.nSize      = sizeof(pfd);
-	pfd.nVersion   = 1;
-	pfd.dwFlags    = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = 24;
-	pfd.cDepthBits = 16;
-	pfd.iLayerType = PFD_MAIN_PLANE;
-
-	int format = ChoosePixelFormat(impl->hdc, &pfd);
-	SetPixelFormat(impl->hdc, format, &pfd);
-
-	impl->hglrc = wglCreateContext(impl->hdc);
-	if (!impl->hglrc) {
-		ReleaseDC(impl->hwnd, impl->hdc);
-		DestroyWindow(impl->hwnd);
-		UnregisterClass(className, NULL);
-		return 3;
-	}
-
-	wglMakeCurrent(impl->hdc, impl->hglrc);
-
-	typedef BOOL (*SwapIntervalFunc)(int);
-
-	SwapIntervalFunc swapInterval = (SwapIntervalFunc)wglGetProcAddress(
-		"wglSwapIntervalEXT");
-	if (swapInterval) {
-		swapInterval(1);
-	}
 
 	return 0;
 }
