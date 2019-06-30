@@ -22,6 +22,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
+
 #include <GL/gl.h>
 
 #include <stdio.h>

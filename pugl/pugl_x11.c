@@ -24,6 +24,7 @@
 
 #include "pugl/pugl_internal.h"
 #include "pugl/pugl_x11.h"
+
 #ifdef PUGL_HAVE_GL
 #include "pugl/pugl_x11_gl.h"
 #endif
