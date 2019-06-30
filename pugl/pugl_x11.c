@@ -309,6 +309,16 @@ translateEvent(PuglView* view, XEvent xevent)
 		}
 		break;
 	}
+	case MapNotify: {
+		XWindowAttributes attrs = {0};
+		XGetWindowAttributes(view->impl->display, view->impl->win, &attrs);
+		event.type             = PUGL_CONFIGURE;
+		event.configure.x      = attrs.x;
+		event.configure.y      = attrs.y;
+		event.configure.width  = attrs.width;
+		event.configure.height = attrs.height;
+		break;
+	}
 	case ConfigureNotify:
 		event.type             = PUGL_CONFIGURE;
 		event.configure.x      = xevent.xconfigure.x;
