@@ -46,6 +46,38 @@ x64_rel:
   image: lv2plugin/debian-x64
   script: python ./waf configure build -sT --no-coverage
 
+mingw32_dbg:
+  <<: *build_definition
+  image: lv2plugin/debian-mingw32
+  script: python ./waf configure build -dsT --no-coverage --target=win32
+  variables:
+    CC: "i686-w64-mingw32-gcc"
+    CXX: "i686-w64-mingw32-g++"
+
+mingw32_rel:
+  <<: *build_definition
+  image: lv2plugin/debian-mingw32
+  script: python ./waf configure build -sT --no-coverage --target=win32
+  variables:
+    CC: "i686-w64-mingw32-gcc"
+    CXX: "i686-w64-mingw32-g++"
+
+mingw64_dbg:
+  <<: *build_definition
+  image: lv2plugin/debian-mingw64
+  script: python ./waf configure build -dsT --no-coverage --target=win32
+  variables:
+    CC: "x86_64-w64-mingw32-gcc"
+    CXX: "x86_64-w64-mingw32-g++"
+
+mingw64_rel:
+  <<: *build_definition
+  image: lv2plugin/debian-mingw64
+  script: python ./waf configure build -sT --no-coverage --target=win32
+  variables:
+    CC: "x86_64-w64-mingw32-gcc"
+    CXX: "x86_64-w64-mingw32-g++"
+
 mac_dbg:
   <<: *build_definition
   script: python ./waf configure build -dsT --no-coverage
