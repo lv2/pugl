@@ -21,7 +21,6 @@ out     = 'build'       # Build directory
 
 def options(ctx):
     ctx.load('compiler_c')
-    ctx.load('compiler_cxx')
 
     opts = ctx.configuration_options()
     opts.add_option('--target', default=None, dest='target',
@@ -41,9 +40,8 @@ def configure(conf):
     conf.load('autowaf', cache=True)
 
     if conf.env.TARGET_PLATFORM == 'win32':
-        conf.load('compiler_cxx', cache=True)
         if conf.env.MSVC_COMPILER:
-            conf.env.append_unique('CXXFLAGS', ['/wd4191'])
+            conf.env.append_unique('CFLAGS', ['/wd4191'])
     elif conf.env.TARGET_PLATFORM == 'darwin':
         conf.env.append_unique('CFLAGS', ['-Wno-deprecated-declarations'])
 
@@ -95,15 +93,12 @@ def build(bld):
     framework = []
     libs      = []
     if bld.env.TARGET_PLATFORM == 'win32':
-        lang       = 'cxx'
-        lib_source = ['pugl/pugl_win.cpp']
+        lib_source = ['pugl/pugl_win.c']
         libs       = ['opengl32', 'gdi32', 'user32']
     elif bld.env.TARGET_PLATFORM == 'darwin':
-        lang       = 'c'  # Objective C, actually
         lib_source = ['pugl/pugl_osx.m']
         framework  = ['Cocoa', 'OpenGL']
     else:
-        lang       = 'c'
         lib_source = ['pugl/pugl_x11.c']
         libs       = ['X11']
         if bld.is_defined('HAVE_GL'):
@@ -134,14 +129,14 @@ def build(bld):
 
     # Shared Library
     if bld.env['BUILD_SHARED']:
-        bld(features = '%s %sshlib' % (lang, lang),
+        bld(features = 'c cshlib',
             name     = 'libpugl',
             cflags   = libflags + ['-DPUGL_SHARED', '-DPUGL_INTERNAL'],
             **lib_common)
 
     # Static library
     if bld.env['BUILD_STATIC']:
-        bld(features = '%s %sstlib' % (lang, lang),
+        bld(features = 'c cstlib',
             name     = 'libpugl_static',
             cflags   = ['-DPUGL_INTERNAL'],
             **lib_common)

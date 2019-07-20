@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl_win.cpp Windows/WGL Pugl Implementation.
+   @file pugl_win.c Windows/WGL Pugl Implementation.
 */
 
 #include "pugl/pugl_internal.h"
@@ -79,22 +79,19 @@ struct PuglInternalsImpl {
 };
 
 // Scoped class to manage the fake window used during window creation
-struct PuglFakeWindow {
-	PuglFakeWindow(HWND wnd) : hwnd{wnd}, hdc{wnd ? GetDC(wnd) : 0} {}
-	PuglFakeWindow(const PuglFakeWindow&) = delete;
-
-	~PuglFakeWindow() {
-		if (hwnd) {
-			ReleaseDC(hwnd, hdc);
-			DestroyWindow(hwnd);
-		}
-	}
-
+typedef struct {
 	HWND hwnd;
 	HDC  hdc;
-};
+} PuglFakeWindow;
 
 static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
+
+static PuglFakeWindow
+puglMakeFakeWindow(HWND wnd)
+{
+	const PuglFakeWindow fakeWin = {wnd, wnd ? GetDC(wnd) : 0};
+	return fakeWin;
+}
 
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -153,10 +150,15 @@ puglGetPixelFormatDescriptor(const PuglHints* hints)
 	return pfd;
 }
 
-template <typename Proc>
-Proc puglGetProc(const char* name)
+static int
+puglWinError(PuglFakeWindow* fakeWin, const int status)
 {
-	return reinterpret_cast<Proc>(wglGetProcAddress(name));
+	if (fakeWin->hwnd) {
+		ReleaseDC(fakeWin->hwnd, fakeWin->hdc);
+		DestroyWindow(fakeWin->hwnd);
+	}
+
+	return status;
 }
 
 int
@@ -206,7 +208,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
 
 	// Create fake window for getting at GL context
-	PuglFakeWindow fakeWin(
+	PuglFakeWindow fakeWin = puglMakeFakeWindow(
 		CreateWindowEx(WS_EX_TOPMOST,
 		               className, title,
 		               (view->parent ? WS_CHILD : winFlags),
@@ -215,31 +217,32 @@ puglCreateWindow(PuglView* view, const char* title)
 		               (HWND)view->parent, NULL, NULL, NULL));
 
 	if (!fakeWin.hwnd) {
-		return 2;
+		return puglWinError(&fakeWin, 2);
 	}
 
 	// Choose pixel format for fake window
-	const auto fakePfd      = puglGetPixelFormatDescriptor(&view->hints);
-	const int  fakeFormatId = ChoosePixelFormat(fakeWin.hdc, &fakePfd);
+	const PIXELFORMATDESCRIPTOR fakePfd = puglGetPixelFormatDescriptor(
+		&view->hints);
+	const int fakeFormatId = ChoosePixelFormat(fakeWin.hdc, &fakePfd);
 	if (!fakeFormatId) {
-		return 3;
+		return puglWinError(&fakeWin, 3);
 	} else if (!SetPixelFormat(fakeWin.hdc, fakeFormatId, &fakePfd)) {
-		return 4;
+		return puglWinError(&fakeWin, 4);
 	}
 
 	HGLRC fakeRc = wglCreateContext(fakeWin.hdc);
 	if (!fakeRc) {
-		return 5;
+		return puglWinError(&fakeWin, 5);
 	}
 
 	wglMakeCurrent(fakeWin.hdc, fakeRc);
 
-	auto wglChoosePixelFormat = puglGetProc<WglChoosePixelFormat>(
-		"wglChoosePixelFormatARB");
-	auto wglCreateContextAttribs = puglGetProc<WglCreateContextAttribs>(
-		"wglCreateContextAttribsARB");
-	auto wglSwapInterval = puglGetProc<WglSwapInterval>(
-		"wglSwapIntervalEXT");
+	WglChoosePixelFormat wglChoosePixelFormat = (WglChoosePixelFormat)(
+		wglGetProcAddress("wglChoosePixelFormatARB"));
+	WglCreateContextAttribs wglCreateContextAttribs = (WglCreateContextAttribs)(
+		wglGetProcAddress("wglCreateContextAttribsARB"));
+	WglSwapInterval wglSwapInterval = (WglSwapInterval)(
+		wglGetProcAddress("wglSwapIntervalEXT"));
 
 	PuglInternals* impl = view->impl;
 
@@ -275,14 +278,14 @@ puglCreateWindow(PuglView* view, const char* title)
 		int  pixelFormatId;
 		UINT numFormats;
 		if (!wglChoosePixelFormat(impl->hdc, pixelAttrs, NULL, 1u, &pixelFormatId, &numFormats)) {
-			return 6;
+			return puglWinError(&fakeWin, 6);
 		}
 
 		// Set desired pixel format
 		PIXELFORMATDESCRIPTOR pfd;
 		DescribePixelFormat(impl->hdc, pixelFormatId, sizeof(pfd), &pfd);
 		if (!SetPixelFormat(impl->hdc, pixelFormatId, &pfd)) {
-			return 7;
+			return puglWinError(&fakeWin, 7);
 		}
 
 		// Create final GL context
@@ -296,15 +299,18 @@ puglCreateWindow(PuglView* view, const char* title)
 		};
 
 		if (!(impl->hglrc = wglCreateContextAttribs(impl->hdc, 0, contextAttribs))) {
-			return 8;
+			return puglWinError(&fakeWin, 8);
 		}
 
 		// Switch to new context
 		wglMakeCurrent(NULL, NULL);
 		wglDeleteContext(fakeRc);
 		if (!wglMakeCurrent(impl->hdc, impl->hglrc)) {
-			return 9;
+			return puglWinError(&fakeWin, 9);
 		}
+
+		ReleaseDC(fakeWin.hwnd, fakeWin.hdc);
+		DestroyWindow(fakeWin.hwnd);
 	} else {
 		// Modern extensions not available, just use the original "fake" window
 		impl->hwnd   = fakeWin.hwnd;
@@ -320,7 +326,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	LARGE_INTEGER frequency;
 	QueryPerformanceFrequency(&frequency);
-	impl->timerFrequency = static_cast<double>(frequency.QuadPart);
+	impl->timerFrequency = (double)frequency.QuadPart;
 
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
@@ -395,7 +401,7 @@ keySymToSpecial(WPARAM sym)
 }
 
 static uint32_t
-getModifiers()
+getModifiers(void)
 {
 	uint32_t mods = 0;
 	mods |= (GetKeyState(VK_SHIFT)   < 0) ? PUGL_MOD_SHIFT  : 0;
@@ -422,23 +428,23 @@ initMouseEvent(PuglEvent* event,
 		ReleaseCapture();
 	}
 
-	event->button.time   = static_cast<uint32_t>(GetMessageTime());
+	event->button.time   = (uint32_t)GetMessageTime();
 	event->button.type   = press ? PUGL_BUTTON_PRESS : PUGL_BUTTON_RELEASE;
 	event->button.x      = GET_X_LPARAM(lParam);
 	event->button.y      = GET_Y_LPARAM(lParam);
 	event->button.x_root = pt.x;
 	event->button.y_root = pt.y;
 	event->button.state  = getModifiers();
-	event->button.button = static_cast<uint32_t>(button);
+	event->button.button = (uint32_t)button;
 }
 
 static void
-initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam, WPARAM)
+initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam)
 {
 	POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 	ScreenToClient(view->impl->hwnd, &pt);
 
-	event->scroll.time   = static_cast<uint32_t>(GetMessageTime());
+	event->scroll.time   = (uint32_t)GetMessageTime();
 	event->scroll.type   = PUGL_SCROLL;
 	event->scroll.x      = pt.x;
 	event->scroll.y      = pt.y;
@@ -483,15 +489,15 @@ initKeyEvent(PuglEvent* event, PuglView* view, bool press, LPARAM lParam)
 	ScreenToClient(view->impl->hwnd, &rpos);
 
 	event->key.type      = press ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-	event->key.time      = static_cast<uint32_t>(GetMessageTime());
+	event->key.time      = (uint32_t)GetMessageTime();
 	event->key.state     = getModifiers();
 	event->key.x_root    = rpos.x;
 	event->key.y_root    = rpos.y;
 	event->key.x         = cpos.x;
 	event->key.y         = cpos.y;
-	event->key.keycode   = static_cast<uint32_t>((lParam & 0xFF0000) >> 16);
+	event->key.keycode   = (uint32_t)((lParam & 0xFF0000) >> 16);
 	event->key.character = 0;
-	event->key.special   = static_cast<PuglKey>(0);
+	event->key.special   = (PuglKey)0;
 	event->key.filter    = 0;
 }
 
@@ -499,7 +505,7 @@ static void
 wcharBufToEvent(wchar_t* buf, int n, PuglEvent* event)
 {
 	if (n > 0) {
-		char* charp = reinterpret_cast<char*>(event->key.utf8);
+		char* charp = (char*)event->key.utf8;
 		if (!WideCharToMultiByte(CP_UTF8, 0, buf, n,
 		                         charp, 8, NULL, NULL)) {
 			/* error: could not convert to utf-8,
@@ -522,8 +528,10 @@ wcharBufToEvent(wchar_t* buf, int n, PuglEvent* event)
 }
 
 static void
-translateMessageParamsToEvent(LPARAM, WPARAM wParam, PuglEvent* event)
+translateMessageParamsToEvent(LPARAM lParam, WPARAM wParam, PuglEvent* event)
 {
+	(void)lParam;
+
 	/* TODO: This is a kludge.  Would be nice to use ToUnicode here, but this
 	   breaks composed keys because it messes with the keyboard state.  Not
 	   sure how to correctly handle this on Windows. */
@@ -542,7 +550,7 @@ translateMessageParamsToEvent(LPARAM, WPARAM wParam, PuglEvent* event)
 	// So, since Google refuses to give me a better solution, and if no one
 	// else has a better solution, I will make a hack...
 	wchar_t buf[5] = { 0, 0, 0, 0, 0 };
-	WPARAM c = MapVirtualKey(static_cast<unsigned>(wParam), MAPVK_VK_TO_CHAR);
+	WPARAM c = MapVirtualKey((unsigned)wParam, MAPVK_VK_TO_CHAR);
 	buf[0] = c & 0xffff;
 	// TODO: This does not take caps lock into account
 	// TODO: Dead keys should affect key releases as well
@@ -626,7 +634,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		ClientToScreen(view->impl->hwnd, &pt);
 
 		event.motion.type    = PUGL_MOTION_NOTIFY;
-		event.motion.time    = static_cast<uint32_t>(GetMessageTime());
+		event.motion.time    = (uint32_t)GetMessageTime();
 		event.motion.x       = GET_X_LPARAM(lParam);
 		event.motion.y       = GET_Y_LPARAM(lParam);
 		event.motion.x_root  = pt.x;
@@ -653,11 +661,11 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		initMouseEvent(&event, view, 3, false, lParam);
 		break;
 	case WM_MOUSEWHEEL:
-		initScrollEvent(&event, view, lParam, wParam);
+		initScrollEvent(&event, view, lParam);
 		event.scroll.dy = GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
 		break;
 	case WM_MOUSEHWHEEL:
-		initScrollEvent(&event, view, lParam, wParam);
+		initScrollEvent(&event, view, lParam);
 		event.scroll.dx = GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
 		break;
 	case WM_KEYDOWN:
@@ -702,14 +710,16 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 void
-puglGrabFocus(PuglView*)
+puglGrabFocus(PuglView* view)
 {
+	(void)view;
 	// TODO
 }
 
 PuglStatus
-puglWaitForEvent(PuglView*)
+puglWaitForEvent(PuglView* view)
 {
+	(void)view;
 	WaitMessage();
 	return PUGL_SUCCESS;
 }
@@ -765,7 +775,7 @@ puglGetTime(PuglView* view)
 {
     LARGE_INTEGER count;
     QueryPerformanceCounter(&count);
-    return double(count.QuadPart) / view->impl->timerFrequency;
+    return (double)count.QuadPart / view->impl->timerFrequency;
 }
 
 void
