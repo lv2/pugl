@@ -484,32 +484,31 @@ initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam)
 	event->scroll.dy     = 0;
 }
 
+/** Return the code point for buf, or the replacement character on error. */
 static uint32_t
-utf16_to_code_point(const wchar_t* input, const int input_size)
+puglDecodeUTF16(const wchar_t* buf, const int len)
 {
-	uint32_t code_unit = *input;
-	// Equiv. range check between 0xD800 to 0xDBFF inclusive
-	if ((code_unit & 0xFC00) == 0xD800) {
-		if (input_size < 2) {
-			// "Error: is surrogate but input_size too small"
-			return 0xFFFD;  // replacement character
+	const uint32_t c0 = buf[0];
+	const uint32_t c1 = buf[0];
+    if (c0 >= 0xD800 && c0 < 0xDC00) {
+		if (len < 2) {
+			return 0xFFFD;  // Surrogate, but length is only 1
+		} else if (c1 >= 0xDC00 && c1 <= 0xDFFF) {
+			return ((c0 & 0x03FF) << 10) + (c1 & 0x03FF) + 0x10000;
 		}
 
-		uint32_t code_unit_2 = *++input;
-		// Equiv. range check between 0xDC00 to 0xDFFF inclusive
-		if ((code_unit_2 & 0xFC00) == 0xDC00) {
-			return (code_unit << 10) + code_unit_2 - 0x35FDC00;
-		}
-
-		// TODO: push_back(code_unit_2);
-		// "Error: Unpaired surrogates."
-		return 0xFFFD;  // replacement character
+		return 0xFFFD;  // Unpaired surrogates
 	}
-	return code_unit;
+
+    return c0;
 }
 
 static void
-initKeyEvent(PuglEvent* event, PuglView* view, bool press, LPARAM lParam)
+initKeyEvent(PuglEventKey* event,
+             PuglView*     view,
+             bool          press,
+             WPARAM        wParam,
+             LPARAM        lParam)
 {
 	POINT rpos = { 0, 0 };
 	GetCursorPos(&rpos);
@@ -517,92 +516,46 @@ initKeyEvent(PuglEvent* event, PuglView* view, bool press, LPARAM lParam)
 	POINT cpos = { rpos.x, rpos.y };
 	ScreenToClient(view->impl->hwnd, &rpos);
 
-	event->key.type      = press ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-	event->key.time      = GetMessageTime() / 1e3;
-	event->key.state     = getModifiers();
-	event->key.x_root    = rpos.x;
-	event->key.y_root    = rpos.y;
-	event->key.x         = cpos.x;
-	event->key.y         = cpos.y;
-	event->key.keycode   = (uint32_t)((lParam & 0xFF0000) >> 16);
-	event->key.character = 0;
-	event->key.special   = (PuglKey)0;
-	event->key.filter    = 0;
-}
+	const unsigned vkey  = (unsigned)wParam;
+	const unsigned vcode = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
+	const unsigned kchar = MapVirtualKey(vkey, MAPVK_VK_TO_CHAR);
+	const bool     dead  = kchar >> (sizeof(UINT) * 8 - 1) & 1;
 
-static void
-wcharBufToEvent(wchar_t* buf, int n, PuglEvent* event)
-{
-	if (n > 0) {
-		char* charp = (char*)event->key.string;
-		if (!WideCharToMultiByte(CP_UTF8, 0, buf, n,
-		                         charp, 8, NULL, NULL)) {
-			/* error: could not convert to utf-8,
-			   GetLastError has details */
-			memset(event->key.string, 0, 8);
-			// replacement character
-			event->key.string[0] = 0xEF;
-			event->key.string[1] = 0xBF;
-			event->key.string[2] = 0xBD;
-		}
+	event->type    = press ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
+	event->time    = GetMessageTime() / 1e3;
+	event->state   = getModifiers();
+	event->x_root  = rpos.x;
+	event->y_root  = rpos.y;
+	event->x       = cpos.x;
+	event->y       = cpos.y;
+	event->keycode = (uint32_t)((lParam & 0xFF0000) >> 16);
+	event->key     = 0;
 
-		event->key.character = utf16_to_code_point(buf, n);
-	} else {
-		// replacement character
-		event->key.string[0] = 0xEF;
-		event->key.string[1] = 0xBF;
-		event->key.string[2] = 0xBD;
-		event->key.character = 0xFFFD;
+	const PuglKey special = keySymToSpecial(vkey);
+	if (special) {
+		event->key = special;
+	} else if (!dead) {
+		// Translate unshifted key
+		BYTE    keyboardState[256] = {0};
+		wchar_t buf[5]             = {0};
+		const int ulen = ToUnicode(vkey, vcode, keyboardState, buf, 4, 1<<2);
+		event->key = puglDecodeUTF16(buf, ulen);
 	}
 }
 
 static void
-translateMessageParamsToEvent(LPARAM lParam, WPARAM wParam, PuglEvent* event)
+initCharEvent(PuglEvent* event, PuglView* view, WPARAM wParam, LPARAM lParam)
 {
-	(void)lParam;
+	const wchar_t utf16[2] = { wParam & 0xFFFF, (wParam >> 16) & 0xFFFF };
 
-	/* TODO: This is a kludge.  Would be nice to use ToUnicode here, but this
-	   breaks composed keys because it messes with the keyboard state.  Not
-	   sure how to correctly handle this on Windows. */
+	initKeyEvent(&event->key, view, true, wParam, lParam);
+	event->type           = PUGL_TEXT;
+	event->text.character = puglDecodeUTF16(utf16, 2);
 
-	// This is how I really want to do this, but it breaks composed keys (é,
-	// è, ü, ö, and so on) because ToUnicode messes with the keyboard state.
-
-	//wchar_t buf[5];
-	//BYTE keyboard_state[256];
-	//int wcharCount = 0;
-	//GetKeyboardState(keyboard_state);
-	//wcharCount = ToUnicode(wParam, MapVirtualKey(wParam, MAPVK_VK_TO_VSC),
-	//                       keyboard_state, buf, 4, 0);
-	//wcharBufToEvent(buf, wcharCount, event);
-
-	// So, since Google refuses to give me a better solution, and if no one
-	// else has a better solution, I will make a hack...
-	wchar_t buf[5] = { 0, 0, 0, 0, 0 };
-	WPARAM c = MapVirtualKey((unsigned)wParam, MAPVK_VK_TO_CHAR);
-	buf[0] = c & 0xffff;
-	// TODO: This does not take caps lock into account
-	// TODO: Dead keys should affect key releases as well
-	if (!(event->key.state && PUGL_MOD_SHIFT))
-		buf[0] = towlower(buf[0]);
-	wcharBufToEvent(buf, 1, event);
-	event->key.filter = ((c >> 31) & 0x1);
-}
-
-static void
-translateCharEventToEvent(WPARAM wParam, PuglEvent* event)
-{
-	wchar_t buf[2];
-	int wcharCount;
-	if (wParam & 0xFFFF0000) {
-		wcharCount = 2;
-		buf[0] = (wParam & 0xFFFF);
-		buf[1] = ((wParam >> 16) & 0xFFFF);
-	} else {
-		wcharCount = 1;
-		buf[0] = (wParam & 0xFFFF);
+	if (!WideCharToMultiByte(
+		    CP_UTF8, 0, utf16, 2, event->text.string, 8, NULL, NULL)) {
+		memset(event->text.string, 0, 8);
 	}
-	wcharBufToEvent(buf, wcharCount, event);
 }
 
 static bool
@@ -780,30 +733,14 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_KEYDOWN:
 		if (!ignoreKeyEvent(view, lParam)) {
-			initKeyEvent(&event, view, true, lParam);
-			if (!(event.key.special = keySymToSpecial(wParam))) {
-				event.key.type = PUGL_NOTHING;
-			}
-		}
-		break;
-	case WM_CHAR:
-		if (!ignoreKeyEvent(view, lParam)) {
-			initKeyEvent(&event, view, true, lParam);
-			translateCharEventToEvent(wParam, &event);
-		}
-		break;
-	case WM_DEADCHAR:
-		if (!ignoreKeyEvent(view, lParam)) {
-			initKeyEvent(&event, view, true, lParam);
-			translateCharEventToEvent(wParam, &event);
-			event.key.filter = 1;
+			initKeyEvent(&event.key, view, true, wParam, lParam);
 		}
 		break;
 	case WM_KEYUP:
-		initKeyEvent(&event, view, false, lParam);
-		if (!(event.key.special = keySymToSpecial(wParam))) {
-			translateMessageParamsToEvent(lParam, wParam, &event);
-		}
+		initKeyEvent(&event.key, view, false, wParam, lParam);
+		break;
+	case WM_CHAR:
+		initCharEvent(&event, view, wParam, lParam);
 		break;
 	case WM_SETFOCUS:
 		stopFlashing(view);

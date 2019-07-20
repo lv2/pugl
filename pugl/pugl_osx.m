@@ -92,13 +92,14 @@ struct PuglInternalsImpl {
 
 @end
 
-@interface PuglOpenGLView : NSOpenGLView
+@interface PuglOpenGLView : NSOpenGLView<NSTextInputClient>
 {
 @public
-	PuglView*       puglview;
-	NSTrackingArea* trackingArea;
-	NSTimer*        timer;
-	NSTimer*        urgentTimer;
+	PuglView*                  puglview;
+	NSTrackingArea*            trackingArea;
+    NSMutableAttributedString* markedText;
+	NSTimer*                   timer;
+	NSTimer*                   urgentTimer;
 }
 
 @end
@@ -421,10 +422,13 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 	const NSPoint      wloc  = [self eventLocation:event];
 	const NSPoint      rloc  = [NSEvent mouseLocation];
-	const NSString*    chars = [event characters];
-	const char*        str   = [chars UTF8String];
-	const uint32_t     code  = puglDecodeUTF8((const uint8_t*)str);
-	PuglEventKey       ev    =  {
+	const PuglKey      spec  = keySymToSpecial(puglview, event);
+	const NSString*    chars = [event charactersIgnoringModifiers];
+	const char*        str   = [[chars lowercaseString] UTF8String];
+	const uint32_t     code  = (
+		spec ? spec : puglDecodeUTF8((const uint8_t*)str));
+
+	const PuglEventKey ev =  {
 		PUGL_KEY_PRESS,
 		0,
 		[event timestamp],
@@ -434,22 +438,27 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
 		[event keyCode],
-		(code != 0xFFFD) ? code : 0,
-		keySymToSpecial(puglview, event),
-		{ 0, 0, 0, 0, 0, 0, 0, 0 },
-		false
+		(code != 0xFFFD) ? code : 0
 	};
-	strncpy(ev.string, str, 8);
+
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+
+	if (!spec) {
+		[self interpretKeyEvents:@[event]];
+	}
 }
 
 - (void) keyUp:(NSEvent*)event
 {
 	const NSPoint      wloc  = [self eventLocation:event];
 	const NSPoint      rloc  = [NSEvent mouseLocation];
-	const NSString*    chars = [event characters];
-	const char*        str   = [chars UTF8String];
-	PuglEventKey       ev    =  {
+	const PuglKey      spec  = keySymToSpecial(puglview, event);
+	const NSString*    chars = [event charactersIgnoringModifiers];
+	const char*        str   = [[chars lowercaseString] UTF8String];
+	const uint32_t     code  =
+		(spec ? spec : puglDecodeUTF8((const uint8_t*)str));
+
+	const PuglEventKey ev = {
 		PUGL_KEY_RELEASE,
 		0,
 		[event timestamp],
@@ -459,13 +468,107 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(puglview, event),
 		[event keyCode],
-		puglDecodeUTF8((const uint8_t*)str),
-		keySymToSpecial(puglview, event),
-		{ 0, 0, 0, 0, 0, 0, 0, 0 },
-		false,
+		(code != 0xFFFD) ? code : 0
 	};
-	strncpy(ev.string, str, 8);
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+}
+
+- (BOOL) hasMarkedText
+{
+	return [markedText length] > 0;
+}
+
+- (NSRange) markedRange
+{
+	return (([markedText length] > 0)
+	        ? NSMakeRange(0, [markedText length] - 1)
+	        : NSMakeRange(NSNotFound, 0));
+}
+
+- (NSRange) selectedRange
+{
+	return NSMakeRange(NSNotFound, 0);
+}
+
+- (void)setMarkedText:(id)string
+        selectedRange:(NSRange)selected
+     replacementRange:(NSRange)replacement
+{
+	[markedText release];
+	markedText = (
+		[string isKindOfClass:[NSAttributedString class]]
+		? [[NSMutableAttributedString alloc] initWithAttributedString:string]
+		: [[NSMutableAttributedString alloc] initWithString:string]);
+}
+
+- (void) unmarkText
+{
+	[[markedText mutableString] setString:@""];
+}
+
+- (NSArray*) validAttributesForMarkedText
+{
+	return @[];
+}
+
+- (NSAttributedString*)
+ attributedSubstringForProposedRange:(NSRange)range
+                         actualRange:(NSRangePointer)actual
+{
+	return nil;
+}
+
+- (NSUInteger) characterIndexForPoint:(NSPoint)point
+{
+	return 0;
+}
+
+- (NSRect) firstRectForCharacterRange:(NSRange)range
+                          actualRange:(NSRangePointer)actual
+{
+	const NSRect frame = [(id)puglview bounds];
+	return NSMakeRect(frame.origin.x, frame.origin.y, 0.0, 0.0);
+}
+
+- (void) insertText:(id)string
+   replacementRange:(NSRange)replacement
+{
+	NSEvent* const  event      = [NSApp currentEvent];
+	NSString* const characters =
+		([string isKindOfClass:[NSAttributedString class]]
+		 ? [string string]
+		 : (NSString*)string);
+
+	const NSPoint wloc = [self eventLocation:event];
+	const NSPoint rloc = [NSEvent mouseLocation];
+	for (size_t i = 0; i < [characters length]; ++i) {
+		const uint32_t code    = [characters characterAtIndex:i];
+		char           utf8[8] = {0};
+		NSUInteger     len     = 0;
+
+		[characters getBytes:utf8
+		           maxLength:sizeof(utf8)
+		          usedLength:&len
+		            encoding:NSUTF8StringEncoding
+		             options:0
+		               range:NSMakeRange(i, i + 1)
+		      remainingRange:nil];
+
+		PuglEventText ev = { PUGL_TEXT,
+		                     0,
+		                     [event timestamp],
+		                     wloc.x,
+		                     puglview->height - wloc.y,
+		                     rloc.x,
+		                     [[NSScreen mainScreen] frame].size.height - rloc.y,
+		                     getModifiers(puglview, event),
+		                     [event keyCode],
+		                     code,
+		                     { 0, 0, 0, 0, 0, 0, 0, 0 } };
+
+		memcpy(ev.string, utf8, len);
+		puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+	}
 }
 
 - (void) flagsChanged:(NSEvent*)event
@@ -501,10 +604,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 			[[NSScreen mainScreen] frame].size.height - rloc.y,
 			mods,
 			[event keyCode],
-			0,
-			special,
-			{ 0, 0, 0, 0, 0, 0, 0, 0 },
-			false
+			special
 		};
 		puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 	}
@@ -648,8 +748,10 @@ puglCreateWindow(PuglView* view, const char* title)
 	[NSAutoreleasePool new];
 	impl->app = [NSApplication sharedApplication];
 
-	impl->glview           = [PuglOpenGLView alloc];
-	impl->glview->puglview = view;
+	impl->glview               = [PuglOpenGLView alloc];
+	impl->glview->trackingArea = nil;
+	impl->glview->markedText   = [[NSMutableAttributedString alloc] init];
+	impl->glview->puglview     = view;
 
 	[impl->glview initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
 	[impl->glview addConstraint:
@@ -705,6 +807,8 @@ puglCreateWindow(PuglView* view, const char* title)
 		[window makeFirstResponder:impl->glview];
 		[window makeKeyAndOrderFront:window];
 	}
+
+	[impl->glview updateTrackingAreas];
 
 	return 0;
 }

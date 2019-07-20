@@ -101,16 +101,15 @@ printEvent(const PuglEvent* event, const char* prefix)
 {
 	switch (event->type) {
 	case PUGL_KEY_PRESS:
-		return fprintf(stderr, "%sKey %u (char U+%04X special U+%04X) press (%s)%s\n",
-		               prefix,
-		               event->key.keycode, event->key.character, event->key.special,
-		               event->key.string, event->key.filter ? " (filtered)" : "");
-
+		return fprintf(stderr, "%sKey press   code %3u key  U+%04X\n",
+		               prefix, event->key.keycode, event->key.key);
 	case PUGL_KEY_RELEASE:
-		return fprintf(stderr, "%sKey %u (char U+%04X special U+%04X) release (%s)%s\n",
-		               prefix,
-		               event->key.keycode, event->key.character, event->key.special,
-		               event->key.string, event->key.filter ? " (filtered)" : "");
+		return fprintf(stderr, "%sKey release code %3u key  U+%04X\n",
+		               prefix, event->key.keycode, event->key.key);
+	case PUGL_TEXT:
+		return fprintf(stderr, "%sText entry  code %3u char U+%04X (%s)\n",
+		               prefix, event->text.keycode,
+		               event->text.character, event->text.string);
 	case PUGL_BUTTON_PRESS:
 	case PUGL_BUTTON_RELEASE:
 		return (fprintf(stderr, "%sMouse %d %s at %f,%f ",

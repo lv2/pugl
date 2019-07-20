@@ -129,9 +129,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 {
 	switch (event->type) {
 	case PUGL_KEY_PRESS:
-		if (event->key.character == 'q' ||
-		    event->key.character == 'Q' ||
-		    event->key.character == PUGL_CHAR_ESCAPE) {
+		if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
 			quit = 1;
 		}
 		break;

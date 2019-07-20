@@ -113,15 +113,6 @@ typedef enum {
 } PuglWindowHintValue;
 
 /**
-   Convenience symbols for ASCII control characters.
-*/
-typedef enum {
-	PUGL_CHAR_BACKSPACE = 0x08,
-	PUGL_CHAR_ESCAPE    = 0x1B,
-	PUGL_CHAR_DELETE    = 0x7F
-} PuglChar;
-
-/**
    Keyboard modifier flags.
 */
 typedef enum {
@@ -132,14 +123,24 @@ typedef enum {
 } PuglMod;
 
 /**
-   Special (non-Unicode) keyboard keys.
+   Special keyboard keys.
 
-   The numerical values of these symbols occupy a reserved range of Unicode
-   points, so it is possible to express either a PuglKey value or a Unicode
-   character in the same variable.  This is sometimes useful for interfacing
-   with APIs that do not make this distinction.
+   All keys, special or not, are expressed as a Unicode code point.  This
+   enumeration defines constants for special keys that do not have a standard
+   code point, and some convenience constants for control characters.
+
+   Keys that do not have a standard code point use values in the Private Use
+   Area in the Basic Multilingual Plane (U+E000 to U+F8FF).  Applications must
+   take care to not interpret these values beyond key detection, the mapping
+   used here is arbitrary and specific to Pugl.
 */
 typedef enum {
+	// ASCII control codes
+	PUGL_KEY_BACKSPACE = 0x08,
+	PUGL_KEY_ESCAPE    = 0x1B,
+	PUGL_KEY_DELETE    = 0x7F,
+
+	// Unicode Private Use Area
 	PUGL_KEY_F1 = 0xE000,
 	PUGL_KEY_F2,
 	PUGL_KEY_F3,
@@ -179,6 +180,7 @@ typedef enum {
 	PUGL_CLOSE,                /**< Close view */
 	PUGL_KEY_PRESS,            /**< Key press */
 	PUGL_KEY_RELEASE,          /**< Key release */
+	PUGL_TEXT,                 /**< Character entry */
 	PUGL_ENTER_NOTIFY,         /**< Pointer entered view */
 	PUGL_LEAVE_NOTIFY,         /**< Pointer left view */
 	PUGL_MOTION_NOTIFY,        /**< Pointer motion */
@@ -261,23 +263,14 @@ typedef struct {
 /**
    Key press/release event.
 
-   Keys that correspond to a Unicode character have `character` and `string`
-   set.  Other keys will have `character` 0, but `special` may be set if this
-   is a known special key.
+   This represents low-level key press and release events.  This event type
+   should be used for "raw" keyboard handing (key bindings, for example), but
+   must not be interpreted as text input.
 
-   A key press may be part of a multi-key sequence to generate a wide
-   character.  If `filter` is set, this event is part of a multi-key sequence
-   and should be ignored if the application is reading textual input.
-   Following the series of filtered press events, a press event with
-   `character` and `string` (but `keycode` 0) will be sent.  This event will
-   have no corresponding release event.
-
-   Generally, an application should either work with raw keyboard press/release
-   events based on `keycode` (ignoring events with `keycode` 0), or read
-   textual input based on `character` or `string` (ignoring releases and events
-   with `filter` 1).  Note that blindly appending `string` will yield incorrect
-   text, since press events are sent for both individually composed keys and
-   the resulting synthetic multi-byte press.
+   Keys are represented as Unicode code points, using the "natural" code point
+   for the key wherever possible (see @ref PuglKey for details).  The `key`
+   field will be set to the code for the pressed key, without any modifiers
+   applied (by the shift or control keys).
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_KEY_PRESS or PUGL_KEY_RELEASE. */
@@ -289,11 +282,28 @@ typedef struct {
 	double        y_root;      /**< Root-relative Y coordinate. */
 	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
 	uint32_t      keycode;     /**< Raw key code. */
-	uint32_t      character;   /**< Unicode character code, or 0. */
-	PuglKey       special;     /**< Special key, or 0. */
-	char          string[8];   /**< UTF-8 string. */
-	bool          filter;      /**< True if part of a multi-key sequence. */
+	uint32_t      key;         /**< Unshifted Unicode character code, or 0. */
 } PuglEventKey;
+
+/**
+   Character input event.
+
+   This represents text input, usually as the result of a key press.  The text
+   is given both as a Unicode character code and a UTF-8 string.
+*/
+typedef struct {
+	PuglEventType type;        /**< PUGL_CHAR. */
+	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
+	uint32_t      time;        /**< Time in milliseconds. */
+	double        x;           /**< View-relative X coordinate. */
+	double        y;           /**< View-relative Y coordinate. */
+	double        x_root;      /**< Root-relative X coordinate. */
+	double        y_root;      /**< Root-relative Y coordinate. */
+	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
+	uint32_t      keycode;     /**< Raw key code. */
+	uint32_t      character;   /**< Unicode character code */
+	char          string[8];   /**< UTF-8 string. */
+} PuglEventText;
 
 /**
    Pointer crossing event (enter and leave).
@@ -372,6 +382,7 @@ typedef union {
 	PuglEventExpose    expose;     /**< PUGL_EXPOSE. */
 	PuglEventClose     close;      /**< PUGL_CLOSE. */
 	PuglEventKey       key;        /**< PUGL_KEY_PRESS, PUGL_KEY_RELEASE. */
+	PuglEventText      text;       /**< PUGL_TEXT. */
 	PuglEventCrossing  crossing;   /**< PUGL_ENTER_NOTIFY, PUGL_LEAVE_NOTIFY. */
 	PuglEventMotion    motion;     /**< PUGL_MOTION_NOTIFY. */
 	PuglEventScroll    scroll;     /**< PUGL_SCROLL. */
