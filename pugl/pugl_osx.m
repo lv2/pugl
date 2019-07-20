@@ -120,27 +120,6 @@ struct PuglInternalsImpl {
 	NSTimer*        timer;
 }
 
-- (id) initWithFrame:(NSRect)frame;
-- (void) reshape;
-- (void) drawRect:(NSRect)rect;
-- (NSPoint) eventLocation:(NSEvent*)event;
-- (void) mouseEntered:(NSEvent*)event;
-- (void) mouseExited:(NSEvent*)event;
-- (void) mouseMoved:(NSEvent*)event;
-- (void) mouseDragged:(NSEvent*)event;
-- (void) rightMouseDragged:(NSEvent*)event;
-- (void) mouseDown:(NSEvent*)event;
-- (void) mouseUp:(NSEvent*)event;
-- (void) rightMouseDown:(NSEvent*)event;
-- (void) rightMouseUp:(NSEvent*)event;
-- (void) otherMouseDragged:(NSEvent*)event;
-- (void) otherMouseDown:(NSEvent*)event;
-- (void) otherMouseUp:(NSEvent*)event;
-- (void) scrollWheel:(NSEvent*)event;
-- (void) keyDown:(NSEvent*)event;
-- (void) keyUp:(NSEvent*)event;
-- (void) flagsChanged:(NSEvent*)event;
-
 @end
 
 @implementation PuglOpenGLView
