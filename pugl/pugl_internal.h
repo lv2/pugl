@@ -56,13 +56,12 @@ puglInit(int* pargc, char** argv)
 		return NULL;
 	}
 
-	view->hints = puglDefaultHints();
-
 	PuglInternals* impl = puglInitInternals();
 	if (!impl) {
 		return NULL;
 	}
 
+	view->hints    = puglDefaultHints();
 	view->ctx_type = PUGL_GL;
 	view->impl     = impl;
 	view->width    = 640;

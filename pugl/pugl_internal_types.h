@@ -66,7 +66,6 @@ struct PuglViewImpl {
 	int       max_aspect_x;
 	int       max_aspect_y;
 	bool      ignoreKeyRepeat;
-	bool      redisplay;
 	bool      visible;
 };
 

@@ -106,8 +106,6 @@ puglX11CairoResize(PuglView* view, int width, int height)
 	PuglInternals* const       impl    = view->impl;
 	PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
-	view->redisplay = true;
-
 	if (view->ctx_type == PUGL_CAIRO) {
 		cairo_xlib_surface_set_size(surface->surface, width, height);
 	}

@@ -749,7 +749,6 @@ puglGetTime(PuglView* view)
 void
 puglPostRedisplay(PuglView* view)
 {
-	//view->redisplay = true; // unused
 	[view->impl->glview setNeedsDisplay: YES];
 }
 

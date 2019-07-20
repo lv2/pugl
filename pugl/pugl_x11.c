@@ -512,16 +512,6 @@ puglProcessEvents(PuglView* view)
 		puglDispatchEvent(view, (const PuglEvent*)&config_event);
 	}
 
-	if (view->redisplay) {
-		expose_event.expose.type       = PUGL_EXPOSE;
-		expose_event.expose.view       = view;
-		expose_event.expose.x          = 0;
-		expose_event.expose.y          = 0;
-		expose_event.expose.width      = view->width;
-		expose_event.expose.height     = view->height;
-		view->redisplay                = false;
-	}
-
 	if (expose_event.type) {
 		puglDispatchEvent(view, (const PuglEvent*)&expose_event);
 	}
@@ -540,7 +530,13 @@ puglGetTime(PuglView* view)
 void
 puglPostRedisplay(PuglView* view)
 {
-	view->redisplay = true;
+	XExposeEvent ev = {Expose, 0, True,
+	                   view->impl->display, view->impl->win,
+	                   0, 0,
+	                   view->width, view->height,
+	                   0};
+
+	XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
 }
 
 PuglNativeWindow

@@ -733,11 +733,6 @@ puglProcessEvents(PuglView* view)
 		handleMessage(view, msg.message, msg.wParam, msg.lParam);
 	}
 
-	if (view->redisplay) {
-		InvalidateRect(view->impl->hwnd, NULL, FALSE);
-		view->redisplay = false;
-	}
-
 	return PUGL_SUCCESS;
 }
 
@@ -781,7 +776,7 @@ puglGetTime(PuglView* view)
 void
 puglPostRedisplay(PuglView* view)
 {
-	view->redisplay = true;
+	RedrawWindow(view->impl->hwnd, NULL, NULL, RDW_INVALIDATE);
 }
 
 PuglNativeWindow
