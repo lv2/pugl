@@ -44,6 +44,7 @@
 #endif
 
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
+#define PUGL_RESIZE_TIMER_ID 9461
 
 #define WGL_DRAW_TO_WINDOW_ARB    0x2001
 #define WGL_ACCELERATION_ARB      0x2003
@@ -75,7 +76,9 @@ struct PuglInternalsImpl {
 	HWND   hwnd;
 	HDC    hdc;
 	HGLRC  hglrc;
+	DWORD  refreshRate;
 	double timerFrequency;
+	bool   resizing;
 };
 
 // Scoped class to manage the fake window used during window creation
@@ -180,6 +183,11 @@ puglCreateWindow(PuglView* view, const char* title)
 	const char* className = view->windowClass ? view->windowClass : DEFAULT_CLASSNAME;
 
 	title = title ? title : "Window";
+
+	// Get refresh rate for resize draw timer
+	DEVMODEA devMode = {0};
+	EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &devMode);
+	view->impl->refreshRate = devMode.dmDisplayFrequency;
 
 	// Register window class
 	WNDCLASSEX wc;
@@ -584,6 +592,23 @@ ignoreKeyEvent(PuglView* view, LPARAM lParam)
 	return view->ignoreKeyRepeat && (lParam & (1 << 30));
 }
 
+static RECT
+handleConfigure(PuglView* view, PuglEvent* event)
+{
+	RECT rect;
+	GetWindowRect(view->impl->hwnd, &rect);
+	view->width  = rect.right - rect.left;
+	view->height = rect.bottom - rect.top;
+
+	event->configure.type   = PUGL_CONFIGURE;
+	event->configure.x      = rect.left;
+	event->configure.y      = rect.top;
+	event->configure.width  = view->width;
+	event->configure.height = view->height;
+
+	return rect;
+}
+
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -603,18 +628,31 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) {
 	case WM_SHOWWINDOW:
-	case WM_SIZE:
-		GetWindowRect(view->impl->hwnd, &rect);
-		event.configure.type   = PUGL_CONFIGURE;
-		event.configure.x      = rect.left;
-		event.configure.y      = rect.top;
-		view->width            = rect.right - rect.left;
-		view->height           = rect.bottom - rect.top;
-		event.configure.width  = view->width;
-		event.configure.height = view->height;
+		rect = handleConfigure(view, &event);
 		InvalidateRect(view->impl->hwnd, &rect, FALSE);
 		UpdateWindow(view->impl->hwnd);
-		puglPostRedisplay(view);
+		break;
+	case WM_SIZE:
+		handleConfigure(view, &event);
+		if (!view->impl->resizing) {
+			puglPostRedisplay(view);
+		}
+		break;
+	case WM_ENTERSIZEMOVE:
+		view->impl->resizing = true;
+		SetTimer(view->impl->hwnd,
+		         PUGL_RESIZE_TIMER_ID,
+		         1000 / view->impl->refreshRate,
+		         NULL);
+		break;
+	case WM_TIMER:
+		if (wParam == PUGL_RESIZE_TIMER_ID) {
+			puglPostRedisplay(view);
+		}
+		break;
+	case WM_EXITSIZEMOVE:
+		KillTimer(view->impl->hwnd, PUGL_RESIZE_TIMER_ID);
+		view->impl->resizing = false;
 		break;
 	case WM_GETMINMAXINFO:
 		mmi                   = (MINMAXINFO*)lParam;
