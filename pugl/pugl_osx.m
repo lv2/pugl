@@ -680,10 +680,9 @@ puglGrabFocus(PuglView* view)
 PuglStatus
 puglWaitForEvent(PuglView* view)
 {
-	/* OSX supposedly has queue: and untilDate: selectors that can be used for
-	   a blocking non-queueing event check, but if used here cause an
-	   unsupported selector error at runtime.  I have no idea why, so just get
-	   the event and keep it around until the call to puglProcessEvents. */
+	/* Note that dequeue:NO is broken (it blocks forever even when events are
+	   pending), so we work around this by dequeueing the event here and
+	   storing it in view->impl->nextEvent for later processing. */
 	if (!view->impl->nextEvent) {
 		view->impl->nextEvent =
 			[view->impl->window nextEventMatchingMask:NSAnyEventMask];
@@ -695,24 +694,19 @@ puglWaitForEvent(PuglView* view)
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	while (true) {
-		// Get the next event, or use the cached one from puglWaitForEvent
-		if (!view->impl->nextEvent) {
-			view->impl->nextEvent =
-				[view->impl->window nextEventMatchingMask:NSAnyEventMask
-				                                untilDate:nil
-				                                   inMode:NSDefaultRunLoopMode
-				                                  dequeue:YES];
-
-		}
-
-		if (!view->impl->nextEvent) {
-			break;  // No events to process, done
-		}
-
-		// Dispatch event
+	if (view->impl->nextEvent) {
+		// Process event that was dequeued earier by puglWaitForEvent
 		[view->impl->app sendEvent: view->impl->nextEvent];
 		view->impl->nextEvent = NULL;
+	}
+
+	// Process all pending events
+	for (NSEvent* ev = NULL;
+	     (ev = [view->impl->window nextEventMatchingMask:NSAnyEventMask
+	                                           untilDate:nil
+	                                              inMode:NSDefaultRunLoopMode
+	                                             dequeue:YES]);) {
+		[view->impl->app sendEvent: ev];
 	}
 
 	return PUGL_SUCCESS;
