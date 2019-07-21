@@ -77,6 +77,10 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->display = display;
 	impl->screen  = DefaultScreen(display);
 
+	// Intern the various atoms we will need
+	impl->atoms.WM_PROTOCOLS     = XInternAtom(display, "WM_PROTOCOLS", 0);
+	impl->atoms.WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+
 	if (view->ctx_type == PUGL_GL) {
 #ifdef PUGL_HAVE_GL
 		impl->ctx = puglGetX11GlDrawContext();
@@ -153,8 +157,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	}
 
 	if (!view->parent) {
-		Atom wmDelete = XInternAtom(display, "WM_DELETE_WINDOW", True);
-		XSetWMProtocols(display, win, &wmDelete, 1);
+		XSetWMProtocols(display, win, &view->impl->atoms.WM_DELETE_WINDOW, 1);
 	}
 
 	if (view->transient_parent) {
@@ -301,14 +304,14 @@ translateEvent(PuglView* view, XEvent xevent)
 	}
 
 	switch (xevent.type) {
-	case ClientMessage: {
-		char* type = XGetAtomName(view->impl->display,
-		                          xevent.xclient.message_type);
-		if (!strcmp(type, "WM_PROTOCOLS")) {
-			event.type = PUGL_CLOSE;
+	case ClientMessage:
+		if (xevent.xclient.message_type == view->impl->atoms.WM_PROTOCOLS) {
+			const Atom protocol = xevent.xclient.data.l[0];
+			if (protocol == view->impl->atoms.WM_DELETE_WINDOW) {
+				event.type = PUGL_CLOSE;
+			}
 		}
 		break;
-	}
 	case MapNotify: {
 		XWindowAttributes attrs = {0};
 		XGetWindowAttributes(view->impl->display, view->impl->win, &attrs);

@@ -29,4 +29,9 @@ struct PuglInternalsImpl {
 	XIC             xic;
 	PuglDrawContext ctx;
 	PuglSurface*    surface;
+
+	struct {
+		Atom WM_PROTOCOLS;
+		Atom WM_DELETE_WINDOW;
+	} atoms;
 };
