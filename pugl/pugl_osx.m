@@ -661,6 +661,11 @@ puglCreateWindow(PuglView* view, const char* title)
 		}
 		impl->window = window;
 
+		if (view->min_aspect_x && view->min_aspect_y) {
+			[window setContentAspectRatio:NSMakeSize(view->min_aspect_x,
+			                                         view->min_aspect_y)];
+		}
+
 		[window setContentView:impl->glview];
 		[impl->app activateIgnoringOtherApps:YES];
 		[window makeFirstResponder:impl->glview];
