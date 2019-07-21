@@ -190,7 +190,10 @@ main(int argc, char** argv)
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
-	puglCreateWindow(view, "Pugl Test");
+	if (puglCreateWindow(view, "Pugl Test")) {
+		return 1;
+	}
+
 	puglShowWindow(view);
 
 	while (!quit) {
