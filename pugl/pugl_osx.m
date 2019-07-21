@@ -115,9 +115,9 @@ struct PuglInternalsImpl {
 @interface PuglOpenGLView : NSOpenGLView
 {
 @public
-	PuglView* puglview;
-
+	PuglView*       puglview;
 	NSTrackingArea* trackingArea;
+	NSTimer*        timer;
 }
 
 - (id) initWithFrame:(NSRect)frame;
@@ -535,6 +535,36 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 	}
 
 	puglview->impl->mods = mods;
+}
+
+- (BOOL) preservesContentInLiveResize
+{
+	return NO;
+}
+
+- (void) viewWillStartLiveResize
+{
+	timer = [NSTimer timerWithTimeInterval:(1 / 60.0)
+	                                target:self
+	                              selector:@selector(resizeTick)
+	                              userInfo:nil
+	                               repeats:YES];
+	[[NSRunLoop currentRunLoop] addTimer:timer
+	                             forMode:NSRunLoopCommonModes];
+
+	[super viewWillStartLiveResize];
+}
+
+- (void) resizeTick
+{
+	puglPostRedisplay(puglview);
+}
+
+- (void) viewDidEndLiveResize
+{
+	[super viewDidEndLiveResize];
+	[timer invalidate];
+	timer = NULL;
 }
 
 @end
