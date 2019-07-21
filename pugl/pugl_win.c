@@ -653,6 +653,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		rect = handleConfigure(view, &event);
 		InvalidateRect(view->impl->hwnd, &rect, FALSE);
 		UpdateWindow(view->impl->hwnd);
+		puglPostRedisplay(view);
 		break;
 	case WM_SIZE:
 		handleConfigure(view, &event);
