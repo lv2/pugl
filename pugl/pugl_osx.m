@@ -673,7 +673,9 @@ puglCreateWindow(PuglView* view, const char* title)
 			                               length:strlen(title)
 			                             encoding:NSUTF8StringEncoding];
 		NSRect frame = NSMakeRect(0, 0, view->min_width, view->min_height);
-		unsigned style = NSClosableWindowMask | NSTitledWindowMask;
+		unsigned style = (NSClosableWindowMask |
+		                  NSTitledWindowMask |
+		                  NSMiniaturizableWindowMask );
 		if (view->hints.resizable) {
 			style |= NSResizableWindowMask;
 		}
