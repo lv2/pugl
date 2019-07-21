@@ -103,28 +103,24 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	if (!impl->ctx.configure) {
 		return 1;
-	}
-
-	if (impl->ctx.configure(view) || !impl->vi) {
+	} else if (impl->ctx.configure(view) || !impl->vi) {
 		impl->ctx.destroy(view);
 		return 2;
 	}
 
-	Window xParent = view->parent
-		? (Window)view->parent
-		: RootWindow(display, impl->screen);
+	Window xParent = view->parent ? (Window)view->parent
+	                              : RootWindow(display, impl->screen);
 
 	Colormap cmap = XCreateColormap(
 		display, xParent, impl->vi->visual, AllocNone);
 
-	XSetWindowAttributes attr;
-	memset(&attr, 0, sizeof(XSetWindowAttributes));
-	attr.colormap         = cmap;
-	attr.event_mask       = (ExposureMask | StructureNotifyMask |
-	                         EnterWindowMask | LeaveWindowMask |
-	                         KeyPressMask | KeyReleaseMask |
-	                         ButtonPressMask | ButtonReleaseMask |
-	                         PointerMotionMask | FocusChangeMask);
+	XSetWindowAttributes attr = {0};
+	attr.colormap   = cmap;
+	attr.event_mask = (ExposureMask | StructureNotifyMask |
+	                   EnterWindowMask | LeaveWindowMask |
+	                   KeyPressMask | KeyReleaseMask |
+	                   ButtonPressMask | ButtonReleaseMask |
+	                   PointerMotionMask | FocusChangeMask);
 
 	const Window win = impl->win = XCreateWindow(
 		display, xParent,
@@ -135,15 +131,13 @@ puglCreateWindow(PuglView* view, const char* title)
 		return 3;
 	}
 
-	XSizeHints sizeHints;
-	memset(&sizeHints, 0, sizeof(sizeHints));
+	XSizeHints sizeHints = {0};
 	if (!view->hints.resizable) {
 		sizeHints.flags      = PMinSize|PMaxSize;
 		sizeHints.min_width  = view->width;
 		sizeHints.min_height = view->height;
 		sizeHints.max_width  = view->width;
 		sizeHints.max_height = view->height;
-		XSetNormalHints(display, win, &sizeHints);
 	} else {
 		if (view->min_width || view->min_height) {
 			sizeHints.flags      = PMinSize;
@@ -157,9 +151,8 @@ puglCreateWindow(PuglView* view, const char* title)
 			sizeHints.max_aspect.x  = view->max_aspect_x;
 			sizeHints.max_aspect.y  = view->max_aspect_y;
 		}
-
-		XSetNormalHints(display, win, &sizeHints);
 	}
+	XSetNormalHints(display, win, &sizeHints);
 
 	if (title) {
 		XStoreName(display, win, title);
@@ -304,13 +297,9 @@ translateModifiers(unsigned xstate)
 static PuglEvent
 translateEvent(PuglView* view, XEvent xevent)
 {
-	PuglEvent event;
-	memset(&event, 0, sizeof(event));
-
-	event.any.view = view;
-	if (xevent.xany.send_event) {
-		event.any.flags |= PUGL_IS_SEND_EVENT;
-	}
+	PuglEvent event  = {0};
+	event.any.view   = view;
+	event.any.flags |= xevent.xany.send_event ? PUGL_IS_SEND_EVENT : 0;
 
 	switch (xevent.type) {
 	case ClientMessage:
@@ -424,9 +413,7 @@ translateEvent(PuglView* view, XEvent xevent)
 
 	case FocusIn:
 	case FocusOut:
-		event.type = ((xevent.type == FocusIn)
-		              ? PUGL_FOCUS_IN
-		              : PUGL_FOCUS_OUT);
+		event.type = (xevent.type == FocusIn) ? PUGL_FOCUS_IN : PUGL_FOCUS_OUT;
 		event.focus.grab = (xevent.xfocus.mode != NotifyNormal);
 		break;
 
@@ -449,7 +436,6 @@ puglRequestAttention(PuglView* view)
 {
 	PuglInternals* const impl  = view->impl;
 	XEvent               event = {0};
-
 	event.type                 = ClientMessage;
 	event.xclient.window       = impl->win;
 	event.xclient.format       = 32;
