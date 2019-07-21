@@ -712,7 +712,7 @@ puglDestroy(PuglView* view)
 void
 puglGrabFocus(PuglView* view)
 {
-	// TODO
+	[view->impl->window makeKeyWindow];
 }
 
 PuglStatus

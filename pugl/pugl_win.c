@@ -799,8 +799,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 void
 puglGrabFocus(PuglView* view)
 {
-	(void)view;
-	// TODO
+	SetFocus(view->impl->hwnd);
 }
 
 PuglStatus
