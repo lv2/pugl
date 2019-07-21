@@ -5,6 +5,6 @@ includedir=@INCLUDEDIR@
 
 Name: Pugl
 Version: @PUGL_VERSION@
-Description: Lightweight portable OpenGL API
+Description: Minimal portable API for embeddable GUIs
 Libs: -L${libdir} -l@LIB_PUGL@
 Cflags: -I${includedir}/pugl-@PUGL_MAJOR_VERSION@
