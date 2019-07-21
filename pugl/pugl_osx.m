@@ -59,8 +59,6 @@ struct PuglInternalsImpl {
                    backing:(NSBackingStoreType)bufferingType
                      defer:(BOOL)flag;
 - (void) setPuglview:(PuglView*)view;
-- (BOOL) windowShouldClose:(id)sender;
-- (BOOL) canBecomeKeyWindow:(id)sender;
 @end
 
 @implementation PuglWindow
@@ -85,18 +83,6 @@ struct PuglInternalsImpl {
 	[self setContentSize:NSMakeSize(view->width, view->height)];
 }
 
-- (BOOL)windowShouldClose:(id)sender
-{
-	const PuglEventClose ev = {
-		PUGL_CLOSE,
-		puglview,
-		0
-	};
-	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-
-	return YES;
-}
-
 - (BOOL) canBecomeKeyWindow
 {
 	return YES;
@@ -105,11 +91,6 @@ struct PuglInternalsImpl {
 - (BOOL) canBecomeMainWindow
 {
 	return YES;
-}
-
-- (BOOL) canBecomeKeyWindow:(id)sender
-{
-	return NO;
 }
 
 @end
@@ -572,6 +553,47 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 @end
 
+@interface PuglWindowDelegate : NSObject<NSWindowDelegate>
+{
+	PuglWindow* window;
+}
+
+- (instancetype) initWithPuglWindow:(PuglWindow*)window;
+
+@end
+
+@implementation PuglWindowDelegate
+
+- (instancetype) initWithPuglWindow:(PuglWindow*)puglWindow
+{
+	if ((self = [super init])) {
+		window = puglWindow;
+	}
+
+	return self;
+}
+
+- (BOOL) windowShouldClose:(id)sender
+{
+	const PuglEventClose ev = { PUGL_CLOSE, window->puglview, 0 };
+	puglDispatchEvent(window->puglview, (const PuglEvent*)&ev);
+	return YES;
+}
+
+- (void) windowDidBecomeKey:(NSNotification*)notification
+{
+	const PuglEventFocus ev = { PUGL_FOCUS_IN, window->puglview, 0, false };
+	puglDispatchEvent(window->puglview, (const PuglEvent*)&ev);
+}
+
+- (void) windowDidResignKey:(NSNotification*)notification
+{
+	const PuglEventFocus ev = { PUGL_FOCUS_OUT, window->puglview, 0, false };
+	puglDispatchEvent(window->puglview, (const PuglEvent*)&ev);
+}
+
+@end
+
 PuglInternals*
 puglInitInternals(void)
 {
@@ -660,6 +682,9 @@ puglCreateWindow(PuglView* view, const char* title)
 			                                     view->min_height)];
 		}
 		impl->window = window;
+
+		((NSWindow*)window).delegate = [[PuglWindowDelegate alloc]
+			                  initWithPuglWindow:window];
 
 		if (view->min_aspect_x && view->min_aspect_y) {
 			[window setContentAspectRatio:NSMakeSize(view->min_aspect_x,
