@@ -28,12 +28,15 @@
 #include <stdio.h>
 #include <string.h>
 
-static int    quit       = 0;
-static float  xAngle     = 0.0f;
-static float  yAngle     = 0.0f;
-static float  dist       = 10.0f;
-static double lastMouseX = 0.0;
-static double lastMouseY = 0.0;
+static bool     continuous   = false;
+static int      quit         = 0;
+static float    xAngle       = 0.0f;
+static float    yAngle       = 0.0f;
+static float    dist         = 10.0f;
+static double   lastMouseX   = 0.0;
+static double   lastMouseY   = 0.0;
+static float    lastDrawTime = 0.0;
+static unsigned framesDrawn  = 0;
 
 static const float cubeVertices[] = {
 	-1.0f, -1.0f, -1.0f,
@@ -118,7 +121,11 @@ onReshape(PuglView* view, int width, int height)
 static void
 onDisplay(PuglView* view)
 {
-	(void)view;
+	const float thisTime = (float)puglGetTime(view);
+	if (continuous) {
+		xAngle = fmodf(xAngle + (thisTime - lastDrawTime) * 100.0f, 360.0f);
+		yAngle = fmodf(yAngle + (thisTime - lastDrawTime) * 100.0f, 360.0f);
+	}
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -136,6 +143,9 @@ onDisplay(PuglView* view)
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
+
+	lastDrawTime = thisTime;
+	++framesDrawn;
 }
 
 static void
@@ -226,7 +236,6 @@ main(int argc, char** argv)
 {
 	int  samples         = 0;
 	int  doubleBuffer    = PUGL_FALSE;
-	bool continuous      = false;
 	bool ignoreKeyRepeat = false;
 	bool resizable       = false;
 	for (int i = 1; i < argc; ++i) {
@@ -280,17 +289,11 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
-	const float startTime      = (float)puglGetTime(view);
-	float       lastTime       = startTime;
-	float       lastReportTime = startTime;
-	unsigned    frames         = 0;
-
+	float lastReportTime = (float)puglGetTime(view);
 	while (!quit) {
 		const float thisTime = (float)puglGetTime(view);
 
 		if (continuous) {
-			xAngle = fmodf(xAngle + (thisTime - lastTime) * 100.0f, 360.0f);
-			yAngle = fmodf(yAngle + (thisTime - lastTime) * 100.0f, 360.0f);
 			puglPostRedisplay(view);
 		} else {
 			puglWaitForEvent(view);
@@ -299,17 +302,14 @@ main(int argc, char** argv)
 		puglProcessEvents(view);
 
 		if (continuous && thisTime > lastReportTime + 5) {
-			const double fps = frames / (thisTime - lastReportTime);
+			const double fps = framesDrawn / (thisTime - lastReportTime);
 			fprintf(stderr,
 			        "%u frames in %.0f seconds = %.3f FPS\n",
-			        frames, thisTime - lastReportTime, fps);
+			        framesDrawn, thisTime - lastReportTime, fps);
 
 			lastReportTime = thisTime;
-			frames         = 0;
+			framesDrawn    = 0;
 		}
-
-		lastTime = thisTime;
-		++frames;
 	}
 
 	puglDestroy(view);
