@@ -1,11 +1,8 @@
-Author:
-    David Robillard <d@drobilla.net>
+Pugl is primarily written and maintained by David Robillard <d@drobilla.net>
+with contributions from (in increasing chronological order):
 
-Original GLX inspiration, portability fixes:
-    Ben Loftis
-
-Various fixes and improvements:
-    Robin Gareus <robin@gareus.org>
-
-UTF-8 and Windows event work:
-    Erik Åldstedt Sund <erikalds@gmail.com>
+Ben Loftis <ben@harrisonconsoles.com>
+Robin Gareus <robin@gareus.org>
+Erik Åldstedt Sund <erikalds@gmail.com>
+Hanspeter Portner <dev@open-music-kontrollers.ch>
+Stefan Westerfeld <stefan@space.twc.de>
