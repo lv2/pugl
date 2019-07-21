@@ -205,7 +205,6 @@ typedef enum {
 */
 typedef struct {
 	PuglEventType type;        /**< Event type. */
-	PuglView*     view;        /**< View that received this event. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 } PuglEventAny;
 
@@ -216,7 +215,6 @@ typedef struct {
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_BUTTON_PRESS or PUGL_BUTTON_RELEASE. */
-	PuglView*     view;        /**< View that received this event. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
@@ -232,7 +230,6 @@ typedef struct {
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_CONFIGURE. */
-	PuglView*     view;        /**< View that received this event. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	double        x;           /**< New parent-relative X coordinate. */
 	double        y;           /**< New parent-relative Y coordinate. */
@@ -245,7 +242,6 @@ typedef struct {
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_EXPOSE. */
-	PuglView*     view;        /**< View that received this event. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
@@ -259,7 +255,6 @@ typedef struct {
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_CLOSE. */
-	PuglView*     view;        /**< View that received this event. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 } PuglEventClose;
 
@@ -286,7 +281,6 @@ typedef struct {
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_KEY_PRESS or PUGL_KEY_RELEASE. */
-	PuglView*     view;        /**< View that received this event. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
@@ -306,7 +300,6 @@ typedef struct {
 */
 typedef struct {
 	PuglEventType    type;     /**< PUGL_ENTER_NOTIFY or PUGL_LEAVE_NOTIFY. */
-	PuglView*        view;     /**< View that received this event. */
 	uint32_t         flags;    /**< Bitwise OR of PuglEventFlag values. */
 	double           time;     /**< Time in seconds. */
 	double           x;        /**< View-relative X coordinate. */
@@ -322,7 +315,6 @@ typedef struct {
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_MOTION_NOTIFY. */
-	PuglView*     view;        /**< View that received this event. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
@@ -345,7 +337,6 @@ typedef struct {
  */
 typedef struct {
 	PuglEventType type;        /**< PUGL_SCROLL. */
-	PuglView*     view;        /**< View that received this event. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
@@ -362,7 +353,6 @@ typedef struct {
 */
 typedef struct {
 	PuglEventType type;        /**< PUGL_FOCUS_IN or PUGL_FOCUS_OUT. */
-	PuglView*     view;        /**< View that received this event. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
 	bool          grab;        /**< True iff this is a grab/ungrab event. */
 } PuglEventFocus;

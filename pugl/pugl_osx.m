@@ -154,7 +154,6 @@ struct PuglInternalsImpl {
 	const NSRect             bounds = [self bounds];
 	const PuglEventConfigure ev     =  {
 		PUGL_CONFIGURE,
-		puglview,
 		0,
 		bounds.origin.x,
 		bounds.origin.y,
@@ -181,7 +180,6 @@ struct PuglInternalsImpl {
 {
 	const PuglEventExpose ev =  {
 		PUGL_EXPOSE,
-		puglview,
 		0,
 		rect.origin.x,
 		rect.origin.y,
@@ -284,7 +282,6 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 	const NSPoint           rloc = [NSEvent mouseLocation];
 	const PuglEventCrossing ev   =  {
 		type,
-		view->puglview,
 		0,
 		[event timestamp],
 		wloc.x,
@@ -313,7 +310,6 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventMotion ev   =  {
 		PUGL_MOTION_NOTIFY,
-		puglview,
 		0,
 		[event timestamp],
 		wloc.x,
@@ -348,7 +344,6 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventButton ev   =  {
 		PUGL_BUTTON_PRESS,
-		puglview,
 		0,
 		[event timestamp],
 		wloc.x,
@@ -367,7 +362,6 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventButton ev   =  {
 		PUGL_BUTTON_RELEASE,
-		puglview,
 		0,
 		[event timestamp],
 		wloc.x,
@@ -406,7 +400,6 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventScroll ev   =  {
 		PUGL_SCROLL,
-		puglview,
 		0,
 		[event timestamp],
 		wloc.x,
@@ -433,7 +426,6 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 	const uint32_t     code  = puglDecodeUTF8((const uint8_t*)str);
 	PuglEventKey       ev    =  {
 		PUGL_KEY_PRESS,
-		puglview,
 		0,
 		[event timestamp],
 		wloc.x,
@@ -459,7 +451,6 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 	const char*        str   = [chars UTF8String];
 	PuglEventKey       ev    =  {
 		PUGL_KEY_RELEASE,
-		puglview,
 		0,
 		[event timestamp],
 		wloc.x,
@@ -502,7 +493,6 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		const NSPoint rloc = [NSEvent mouseLocation];
 		PuglEventKey  ev   = {
 			type,
-			puglview,
 			0,
 			[event timestamp],
 			wloc.x,
@@ -581,8 +571,9 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 - (BOOL) windowShouldClose:(id)sender
 {
-	const PuglEventClose ev = { PUGL_CLOSE, window->puglview, 0 };
-	puglDispatchEvent(window->puglview, (const PuglEvent*)&ev);
+	PuglEvent ev = { 0 };
+	ev.type = PUGL_CLOSE;
+	puglDispatchEvent(window->puglview, &ev);
 	return YES;
 }
 
@@ -594,14 +585,18 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		glview->urgentTimer = NULL;
 	}
 
-	const PuglEventFocus ev = { PUGL_FOCUS_IN, window->puglview, 0, false };
-	puglDispatchEvent(window->puglview, (const PuglEvent*)&ev);
+	PuglEvent ev = { 0 };
+	ev.type       = PUGL_FOCUS_IN;
+	ev.focus.grab = false;
+	puglDispatchEvent(window->puglview, &ev);
 }
 
 - (void) windowDidResignKey:(NSNotification*)notification
 {
-	const PuglEventFocus ev = { PUGL_FOCUS_OUT, window->puglview, 0, false };
-	puglDispatchEvent(window->puglview, (const PuglEvent*)&ev);
+	PuglEvent ev = { 0 };
+	ev.type       = PUGL_FOCUS_OUT;
+	ev.focus.grab = false;
+	puglDispatchEvent(window->puglview, &ev);
 }
 
 @end

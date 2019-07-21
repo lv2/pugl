@@ -636,7 +636,6 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
 
 	const PuglEventCrossing ev = {
 		type,
-		view,
 		0,
 		GetMessageTime() / 1e3,
 		(double)pos.x,
@@ -670,7 +669,6 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	memset(&event, 0, sizeof(event));
 
 	event.any.type = PUGL_NOTHING;
-	event.any.view = view;
 	if (InSendMessageEx(dummy_ptr)) {
 		event.any.flags |= PUGL_IS_SEND_EVENT;
 	}

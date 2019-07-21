@@ -296,9 +296,8 @@ translateModifiers(const unsigned xstate)
 static PuglEvent
 translateEvent(PuglView* view, XEvent xevent)
 {
-	PuglEvent event  = {0};
-	event.any.view   = view;
-	event.any.flags |= xevent.xany.send_event ? PUGL_IS_SEND_EVENT : 0;
+	PuglEvent event = {0};
+	event.any.flags = xevent.xany.send_event ? PUGL_IS_SEND_EVENT : 0;
 
 	switch (xevent.type) {
 	case ClientMessage:
