@@ -63,10 +63,10 @@ struct PuglInternalsImpl {
 
 @implementation PuglWindow
 
-- (id)initWithContentRect:(NSRect)contentRect
-                styleMask:(unsigned int)aStyle
-                  backing:(NSBackingStoreType)bufferingType
-                    defer:(BOOL)flag
+- (id) initWithContentRect:(NSRect)contentRect
+                 styleMask:(unsigned int)aStyle
+                   backing:(NSBackingStoreType)bufferingType
+                     defer:(BOOL)flag
 {
 	NSWindow* result = [super initWithContentRect:contentRect
 					    styleMask:aStyle
@@ -291,7 +291,7 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 	return (PuglKey)0;
 }
 
--(void)updateTrackingAreas
+- (void) updateTrackingAreas
 {
 	if (trackingArea != nil) {
 		[self removeTrackingArea:trackingArea];
@@ -314,11 +314,11 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 	return [self convertPoint:[event locationInWindow] fromView:nil];
 }
 
-- (void)mouseEntered:(NSEvent*)theEvent
+- (void) mouseEntered:(NSEvent*)theEvent
 {
 }
 
-- (void)mouseExited:(NSEvent*)theEvent
+- (void) mouseExited:(NSEvent*)theEvent
 {
 }
 
