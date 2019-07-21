@@ -61,7 +61,7 @@ puglX11CairoCreate(PuglView* view)
 		return 1;
 	}
 
-	int st = cairo_surface_status(surface->surface);
+	cairo_status_t st = cairo_surface_status(surface->surface);
 	if (st) {
 		fprintf(stderr, "error: failed to create cairo surface (%s)\n",
 		        cairo_status_to_string(st));
@@ -72,7 +72,7 @@ puglX11CairoCreate(PuglView* view)
 		fprintf(stderr, "error: cairo context is invalid (%s)\n",
 		        cairo_status_to_string(st));
 	}
-	return st;
+	return (int)st;
 }
 
 static int

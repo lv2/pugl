@@ -216,7 +216,7 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 static inline uint32_t
 puglDecodeUTF8(const uint8_t* buf)
 {
-#define FAIL_IF(cond) { if (cond) return 0xFFFD; }
+#define FAIL_IF(cond) do { if (cond) return 0xFFFD; } while (0)
 
 	// http://en.wikipedia.org/wiki/UTF-8
 

@@ -247,7 +247,7 @@ keySymToSpecial(KeySym sym)
 	case XK_Alt_R:     return PUGL_KEY_ALT;
 	case XK_Super_L:   return PUGL_KEY_SUPER;
 	case XK_Super_R:   return PUGL_KEY_SUPER;
-	default:           return (PuglKey)0;
+	default: break;
 	}
 	return (PuglKey)0;
 }
@@ -261,7 +261,7 @@ translateKey(PuglView* view, XEvent* xevent, PuglEventKey* event)
 	event->filter = XFilterEvent(xevent, None);
 	if (xevent->type == KeyRelease || event->filter || !view->impl->xic) {
 		if (XLookupString(&xevent->xkey, str, 7, &sym, NULL) == 1) {
-			event->character = str[0];
+			event->character = (uint8_t)str[0];
 		}
 	} else {
 		/* TODO: Not sure about this.  On my system, some characters work with
@@ -304,7 +304,7 @@ translateEvent(PuglView* view, XEvent xevent)
 	switch (xevent.type) {
 	case ClientMessage:
 		if (xevent.xclient.message_type == view->impl->atoms.WM_PROTOCOLS) {
-			const Atom protocol = xevent.xclient.data.l[0];
+			const Atom protocol = (Atom)xevent.xclient.data.l[0];
 			if (protocol == view->impl->atoms.WM_DELETE_WINDOW) {
 				event.type = PUGL_CLOSE;
 			}
@@ -357,10 +357,10 @@ translateEvent(PuglView* view, XEvent xevent)
 			event.scroll.dx      = 0.0;
 			event.scroll.dy      = 0.0;
 			switch (xevent.xbutton.button) {
-			case 4: event.scroll.dy =  1.0f; break;
-			case 5: event.scroll.dy = -1.0f; break;
-			case 6: event.scroll.dx = -1.0f; break;
-			case 7: event.scroll.dx =  1.0f; break;
+			case 4: event.scroll.dy =  1.0; break;
+			case 5: event.scroll.dy = -1.0; break;
+			case 6: event.scroll.dx = -1.0; break;
+			case 7: event.scroll.dx =  1.0; break;
 			}
 			// fallthru
 		}
@@ -564,7 +564,7 @@ puglPostRedisplay(PuglView* view)
 PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
-	return view->impl->win;
+	return (PuglNativeWindow)view->impl->win;
 }
 
 void*
