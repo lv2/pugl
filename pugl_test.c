@@ -220,18 +220,20 @@ onEvent(PuglView* view, const PuglEvent* event)
 		puglPostRedisplay(view);
 		break;
 	case PUGL_ENTER_NOTIFY:
-		fprintf(stderr, "Entered\n");
+		fprintf(stderr, "Mouse enter at %f,%f\n",
+		        event->crossing.x, event->crossing.y);
 		mouseEntered = true;
 		break;
 	case PUGL_LEAVE_NOTIFY:
-		fprintf(stderr, "Exited\n");
+		fprintf(stderr, "Mouse leave at %f,%f\n",
+		        event->crossing.x, event->crossing.y);
 		mouseEntered = false;
 		break;
 	case PUGL_FOCUS_IN:
-		fprintf(stderr, "Focus in\n");
+		fprintf(stderr, "Focus in%s\n", event->focus.grab ? " (grab)" : "");
 		break;
 	case PUGL_FOCUS_OUT:
-		fprintf(stderr, "Focus out\n");
+		fprintf(stderr, "Focus out%s\n", event->focus.grab ? " (ungrab)" : "");
 		break;
 	}
 }
