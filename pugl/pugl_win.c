@@ -207,9 +207,11 @@ puglCreateWindow(PuglView* view, const char* title)
 	}
 
 	// Calculate window flags
-	unsigned winFlags = view->parent ? WS_CHILD : WS_POPUPWINDOW | WS_CAPTION;
+	unsigned winFlags = (view->parent
+	                     ? WS_CHILD
+	                     : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX));
 	if (view->hints.resizable) {
-		winFlags |= WS_SIZEBOX;
+		winFlags |= WS_SIZEBOX | WS_MAXIMIZEBOX;
 		if (view->min_width || view->min_height) {
 			// Adjust the minimum window size to accomodate requested view size
 			RECT mr = { 0, 0, view->min_width, view->min_height };
