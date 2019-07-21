@@ -79,6 +79,7 @@ struct PuglInternalsImpl {
 	DWORD  refreshRate;
 	double timerFrequency;
 	bool   resizing;
+	bool   mouseTracked;
 };
 
 // Scoped class to manage the fake window used during window creation
@@ -609,6 +610,27 @@ handleConfigure(PuglView* view, PuglEvent* event)
 	return rect;
 }
 
+static void
+handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
+{
+	POINT root_pos = pos;
+	ClientToScreen(view->impl->hwnd, &root_pos);
+
+	const PuglEventCrossing ev = {
+		type,
+		view,
+		0,
+		(uint32_t)GetMessageTime(),
+		(double)pos.x,
+		(double)pos.y,
+		(double)root_pos.x,
+		(double)root_pos.y,
+		getModifiers(),
+		PUGL_CROSSING_NORMAL
+	};
+	puglDispatchEvent(view, (const PuglEvent*)&ev);
+}
+
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -673,8 +695,19 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		pt.x = GET_X_LPARAM(lParam);
 		pt.y = GET_Y_LPARAM(lParam);
-		ClientToScreen(view->impl->hwnd, &pt);
 
+		if (!view->impl->mouseTracked) {
+			TRACKMOUSEEVENT tme = {0};
+			tme.cbSize    = sizeof(tme);
+			tme.dwFlags   = TME_LEAVE;
+			tme.hwndTrack = view->impl->hwnd;
+			TrackMouseEvent(&tme);
+
+			handleCrossing(view, PUGL_ENTER_NOTIFY, pt);
+			view->impl->mouseTracked = true;
+		}
+
+		ClientToScreen(view->impl->hwnd, &pt);
 		event.motion.type    = PUGL_MOTION_NOTIFY;
 		event.motion.time    = (uint32_t)GetMessageTime();
 		event.motion.x       = GET_X_LPARAM(lParam);
@@ -683,6 +716,12 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		event.motion.y_root  = pt.y;
 		event.motion.state   = getModifiers();
 		event.motion.is_hint = false;
+		break;
+	case WM_MOUSELEAVE:
+		GetCursorPos(&pt);
+		ScreenToClient(view->impl->hwnd, &pt);
+		handleCrossing(view, PUGL_LEAVE_NOTIFY, pt);
+		view->impl->mouseTracked = false;
 		break;
 	case WM_LBUTTONDOWN:
 		initMouseEvent(&event, view, 1, true, lParam);
