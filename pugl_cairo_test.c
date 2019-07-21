@@ -181,7 +181,9 @@ main(int argc, char** argv)
 	}
 
 	PuglView* view = puglInit(NULL, NULL);
+	puglInitWindowClass(view, "PuglCairoTest");
 	puglInitWindowSize(view, 512, 512);
+	puglInitWindowMinSize(view, 256, 256);
 	puglInitResizable(view, resizable);
 	puglInitContextType(view, PUGL_CAIRO);
 
