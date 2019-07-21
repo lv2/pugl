@@ -71,10 +71,11 @@ puglLeaveContext(PuglView* view, bool flush)
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
-	PuglInternals* const impl = view->impl;
+	PuglInternals* const impl    = view->impl;
+	Display* const       display = XOpenDisplay(0);
 
-	impl->display = XOpenDisplay(0);
-	impl->screen  = DefaultScreen(impl->display);
+	impl->display = display;
+	impl->screen  = DefaultScreen(display);
 
 	if (view->ctx_type == PUGL_GL) {
 #ifdef PUGL_HAVE_GL
@@ -98,10 +99,10 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	Window xParent = view->parent
 		? (Window)view->parent
-		: RootWindow(impl->display, impl->screen);
+		: RootWindow(display, impl->screen);
 
 	Colormap cmap = XCreateColormap(
-		impl->display, xParent, impl->vi->visual, AllocNone);
+		display, xParent, impl->vi->visual, AllocNone);
 
 	XSetWindowAttributes attr;
 	memset(&attr, 0, sizeof(XSetWindowAttributes));
@@ -112,8 +113,8 @@ puglCreateWindow(PuglView* view, const char* title)
 	                         ButtonPressMask | ButtonReleaseMask |
 	                         PointerMotionMask | FocusChangeMask);
 
-	impl->win = XCreateWindow(
-		impl->display, xParent,
+	const Window win = impl->win = XCreateWindow(
+		display, xParent,
 		0, 0, view->width, view->height, 0, impl->vi->depth, InputOutput,
 		impl->vi->visual, CWColormap | CWEventMask, &attr);
 
@@ -129,7 +130,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		sizeHints.min_height = view->height;
 		sizeHints.max_width  = view->width;
 		sizeHints.max_height = view->height;
-		XSetNormalHints(impl->display, impl->win, &sizeHints);
+		XSetNormalHints(display, win, &sizeHints);
 	} else {
 		if (view->min_width || view->min_height) {
 			sizeHints.flags      = PMinSize;
@@ -144,27 +145,26 @@ puglCreateWindow(PuglView* view, const char* title)
 			sizeHints.max_aspect.y  = view->max_aspect_y;
 		}
 
-		XSetNormalHints(impl->display, impl->win, &sizeHints);
+		XSetNormalHints(display, win, &sizeHints);
 	}
 
 	if (title) {
-		XStoreName(impl->display, impl->win, title);
+		XStoreName(display, win, title);
 	}
 
 	if (!view->parent) {
-		Atom wmDelete = XInternAtom(impl->display, "WM_DELETE_WINDOW", True);
-		XSetWMProtocols(impl->display, impl->win, &wmDelete, 1);
+		Atom wmDelete = XInternAtom(display, "WM_DELETE_WINDOW", True);
+		XSetWMProtocols(display, win, &wmDelete, 1);
 	}
 
 	if (view->transient_parent) {
-		XSetTransientForHint(impl->display, impl->win,
-		                     (Window)(view->transient_parent));
+		XSetTransientForHint(display, win, (Window)(view->transient_parent));
 	}
 
 	XSetLocaleModifiers("");
-	if (!(impl->xim = XOpenIM(impl->display, NULL, NULL, NULL))) {
+	if (!(impl->xim = XOpenIM(display, NULL, NULL, NULL))) {
 		XSetLocaleModifiers("@im=");
-		if (!(impl->xim = XOpenIM(impl->display, NULL, NULL, NULL))) {
+		if (!(impl->xim = XOpenIM(display, NULL, NULL, NULL))) {
 			fprintf(stderr, "warning: XOpenIM failed\n");
 		}
 	}
@@ -172,8 +172,8 @@ puglCreateWindow(PuglView* view, const char* title)
 	const XIMStyle im_style = XIMPreeditNothing | XIMStatusNothing;
 	if (!(impl->xic = XCreateIC(impl->xim,
 	                            XNInputStyle,   im_style,
-	                            XNClientWindow, impl->win,
-	                            XNFocusWindow,  impl->win,
+	                            XNClientWindow, win,
+	                            XNFocusWindow,  win,
 	                            NULL))) {
 		fprintf(stderr, "warning: XCreateIC failed\n");
 	}
