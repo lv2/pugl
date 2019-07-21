@@ -776,6 +776,12 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 			translateMessageParamsToEvent(lParam, wParam, &event);
 		}
 		break;
+	case WM_SETFOCUS:
+		event.type = PUGL_FOCUS_IN;
+		break;
+	case WM_KILLFOCUS:
+		event.type = PUGL_FOCUS_OUT;
+		break;
 	case WM_QUIT:
 	case PUGL_LOCAL_CLOSE_MSG:
 		event.close.type = PUGL_CLOSE;
