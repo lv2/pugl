@@ -54,17 +54,14 @@ struct PuglInternalsImpl {
 	PuglView* puglview;
 }
 
-- (id) initWithContentRect:(NSRect)contentRect
-                 styleMask:(unsigned int)aStyle
-                   backing:(NSBackingStoreType)bufferingType
-                     defer:(BOOL)flag;
 - (void) setPuglview:(PuglView*)view;
+
 @end
 
 @implementation PuglWindow
 
 - (id) initWithContentRect:(NSRect)contentRect
-                 styleMask:(unsigned int)aStyle
+                 styleMask:(NSWindowStyleMask)aStyle
                    backing:(NSBackingStoreType)bufferingType
                      defer:(BOOL)flag
 {
