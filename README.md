@@ -1,27 +1,31 @@
-PUGL
+Pugl
 ====
 
-Pugl is a minimal portable API for GUIs which supports embedding and is
-suitable for use in plugins.  It works on X11, Mac OS X, and Windows.  GUIs can
-be drawn with OpenGL or Cairo.
+Pugl (PlUgin Graphics Library) is a minimal portable API for GUIs which is
+suitable for use in plugins.  It works on X11, MacOS, and Windows, and supports
+OpenGL and Cairo graphics contexts.
 
-Pugl is vaguely similar to GLUT, but with some significant distinctions:
+Pugl is vaguely similar to other libraries like GLUT and GLFW, but with some
+significant distinctions:
 
- * Minimal in scope, providing only what is necessary to draw and receive
-   keyboard and mouse input.
+ * Minimal in scope, providing only a small interface to isolate
+   platform-specific details from applications.
 
- * No reliance on static data whatsoever, so the API can be used in plugins or
-   multiple independent parts of a program.
+ * Support for embedding in other windows, so Pugl can be used to draw several
+   "widgets" inside a larger GUI.
 
- * Single implementation, which is small, liberally licensed Free / Open Source
-   Software, and suitable for direct inclusion in programs if avoiding a
-   library dependency is desired.
+ * Simple and extensible event-based API that makes dispatching in application
+   or toolkit code easy without too much boilerplate.
 
- * Support for embedding in other windows, so Pugl code can draw to a widget
-   inside a larger GUI.
+ * Unlike GLFW, context is explicit and there is no static data whatsoever, so
+   Pugl can be used in plugins or several independent parts of a program.
 
- * More complete support for keyboard input, including additional "special"
-   keys, modifiers, and support for detecting individual modifier key presses.
+ * Unlike GLUT, there is a single implementation which is modern, small,
+   liberally licensed Free Software, and suitable for vendoring and static
+   linking to avoid dependency problems.
+
+ * More complete support for keyboard input than GLUT, including additional
+   "special" keys, modifiers, and international text input.
 
 For more information, see <http://drobilla.net/software/pugl>.
 
