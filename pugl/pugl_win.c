@@ -45,6 +45,7 @@
 
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
 #define PUGL_RESIZE_TIMER_ID 9461
+#define PUGL_URGENT_TIMER_ID 9462
 
 #define WGL_DRAW_TO_WINDOW_ARB    0x2001
 #define WGL_ACCELERATION_ARB      0x2003
@@ -631,6 +632,13 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
 	puglDispatchEvent(view, (const PuglEvent*)&ev);
 }
 
+static void
+stopFlashing(PuglView* view)
+{
+	KillTimer(view->impl->hwnd, PUGL_URGENT_TIMER_ID);
+	FlashWindow(view->impl->hwnd, FALSE);
+}
+
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -671,6 +679,8 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_TIMER:
 		if (wParam == PUGL_RESIZE_TIMER_ID) {
 			puglPostRedisplay(view);
+		} else if (wParam == PUGL_URGENT_TIMER_ID) {
+			FlashWindow(view->impl->hwnd, TRUE);
 		}
 		break;
 	case WM_EXITSIZEMOVE:
@@ -704,6 +714,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 			tme.hwndTrack = view->impl->hwnd;
 			TrackMouseEvent(&tme);
 
+			stopFlashing(view);
 			handleCrossing(view, PUGL_ENTER_NOTIFY, pt);
 			view->impl->mouseTracked = true;
 		}
@@ -778,6 +789,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_SETFOCUS:
+		stopFlashing(view);
 		event.type = PUGL_FOCUS_IN;
 		break;
 	case WM_KILLFOCUS:
@@ -800,6 +812,15 @@ void
 puglGrabFocus(PuglView* view)
 {
 	SetFocus(view->impl->hwnd);
+}
+
+void
+puglRequestAttention(PuglView* view)
+{
+	if (!view->impl->mouseTracked || GetFocus() != view->impl->hwnd) {
+		FlashWindow(view->impl->hwnd, TRUE);
+		SetTimer(view->impl->hwnd, PUGL_URGENT_TIMER_ID, 500, NULL);
+	}
 }
 
 PuglStatus

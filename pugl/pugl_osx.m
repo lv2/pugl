@@ -101,6 +101,7 @@ struct PuglInternalsImpl {
 	PuglView*       puglview;
 	NSTrackingArea* trackingArea;
 	NSTimer*        timer;
+	NSTimer*        urgentTimer;
 }
 
 @end
@@ -544,6 +545,11 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 	puglPostRedisplay(puglview);
 }
 
+- (void) urgentTick
+{
+    [NSApp requestUserAttention:NSInformationalRequest];
+}
+
 - (void) viewDidEndLiveResize
 {
 	[super viewDidEndLiveResize];
@@ -582,6 +588,12 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 - (void) windowDidBecomeKey:(NSNotification*)notification
 {
+	PuglOpenGLView* glview = window->puglview->impl->glview;
+	if (window->puglview->impl->glview->urgentTimer) {
+		[glview->urgentTimer invalidate];
+		glview->urgentTimer = NULL;
+	}
+
 	const PuglEventFocus ev = { PUGL_FOCUS_IN, window->puglview, 0, false };
 	puglDispatchEvent(window->puglview, (const PuglEvent*)&ev);
 }
@@ -738,6 +750,20 @@ void
 puglGrabFocus(PuglView* view)
 {
 	[view->impl->window makeKeyWindow];
+}
+
+void
+puglRequestAttention(PuglView* view)
+{
+	if (![view->impl->window isKeyWindow]) {
+		[NSApp requestUserAttention:NSInformationalRequest];
+		view->impl->glview->urgentTimer =
+			[NSTimer scheduledTimerWithTimeInterval:2.0
+			                                 target:view->impl->glview
+			                               selector:@selector(urgentTick)
+			                               userInfo:nil
+			                                repeats:YES];
+	}
 }
 
 PuglStatus

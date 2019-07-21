@@ -599,6 +599,16 @@ PUGL_API void
 puglGrabFocus(PuglView* view);
 
 /**
+   Request user attention.
+
+   This hints to the system that the window or application requires attention
+   from the user.  The exact effect depends on the platform, but is usually
+   something like flashing a task bar entry.
+*/
+PUGL_API void
+puglRequestAttention(PuglView* view);
+
+/**
    Block and wait for an event to be ready.
 
    This can be used in a loop to only process events via puglProcessEvents when

@@ -50,6 +50,12 @@
 #    define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
+enum WmClientStateMessageAction {
+	WM_STATE_REMOVE,
+	WM_STATE_ADD,
+	WM_STATE_TOGGLE
+};
+
 PuglInternals*
 puglInitInternals(void)
 {
@@ -80,6 +86,9 @@ puglCreateWindow(PuglView* view, const char* title)
 	// Intern the various atoms we will need
 	impl->atoms.WM_PROTOCOLS     = XInternAtom(display, "WM_PROTOCOLS", 0);
 	impl->atoms.WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+	impl->atoms.NET_WM_STATE     = XInternAtom(display, "_NET_WM_STATE", 0);
+	impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION =
+		XInternAtom(display, "_NET_WM_STATE_DEMANDS_ATTENTION", 0);
 
 	if (view->ctx_type == PUGL_GL) {
 #ifdef PUGL_HAVE_GL
@@ -433,6 +442,30 @@ puglGrabFocus(PuglView* view)
 {
 	XSetInputFocus(
 		view->impl->display, view->impl->win, RevertToPointerRoot, CurrentTime);
+}
+
+void
+puglRequestAttention(PuglView* view)
+{
+	PuglInternals* const impl  = view->impl;
+	XEvent               event = {0};
+
+	event.type                 = ClientMessage;
+	event.xclient.window       = impl->win;
+	event.xclient.format       = 32;
+	event.xclient.message_type = impl->atoms.NET_WM_STATE;
+	event.xclient.data.l[0]    = WM_STATE_ADD;
+	event.xclient.data.l[1]    = impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION;
+	event.xclient.data.l[2]    = 0;
+	event.xclient.data.l[3]    = 1;
+	event.xclient.data.l[4]    = 0;
+
+	const Window root = RootWindow(impl->display, impl->screen);
+	XSendEvent(impl->display,
+	           root,
+	           False,
+	           SubstructureNotifyMask | SubstructureRedirectMask,
+	           (XEvent*)&event);
 }
 
 PuglStatus

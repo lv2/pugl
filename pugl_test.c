@@ -297,7 +297,8 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
-	float lastReportTime = (float)puglGetTime(view);
+	float lastReportTime     = (float)puglGetTime(view);
+	bool  requestedAttention = false;
 	while (!quit) {
 		const float thisTime = (float)puglGetTime(view);
 
@@ -308,6 +309,11 @@ main(int argc, char** argv)
 		}
 
 		puglProcessEvents(view);
+
+		if (!requestedAttention && thisTime > 5) {
+			puglRequestAttention(view);
+			requestedAttention = true;
+		}
 
 		if (continuous && thisTime > lastReportTime + 5) {
 			const double fps = framesDrawn / (thisTime - lastReportTime);
