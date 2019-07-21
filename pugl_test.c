@@ -37,6 +37,7 @@ static double   lastMouseX   = 0.0;
 static double   lastMouseY   = 0.0;
 static float    lastDrawTime = 0.0;
 static unsigned framesDrawn  = 0;
+static bool     mouseEntered = false;
 
 static const float cubeVertices[] = {
 	-1.0f, -1.0f, -1.0f,
@@ -133,6 +134,8 @@ onDisplay(PuglView* view)
 	glRotatef(xAngle, 0.0f, 1.0f, 0.0f);
 	glRotatef(yAngle, 1.0f, 0.0f, 0.0f);
 
+	const float bg = mouseEntered ? 0.2f : 0.0f;
+	glClearColor(bg, bg, bg, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -218,9 +221,11 @@ onEvent(PuglView* view, const PuglEvent* event)
 		break;
 	case PUGL_ENTER_NOTIFY:
 		fprintf(stderr, "Entered\n");
+		mouseEntered = true;
 		break;
 	case PUGL_LEAVE_NOTIFY:
 		fprintf(stderr, "Exited\n");
+		mouseEntered = false;
 		break;
 	case PUGL_FOCUS_IN:
 		fprintf(stderr, "Focus in\n");
