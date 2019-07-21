@@ -99,7 +99,13 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 PuglInternals*
 puglInitInternals(void)
 {
-	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
+	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+
+	LARGE_INTEGER frequency;
+	QueryPerformanceFrequency(&frequency);
+	impl->timerFrequency = (double)frequency.QuadPart;
+
+	return impl;
 }
 
 void
@@ -323,10 +329,6 @@ puglCreateWindow(PuglView* view, const char* title)
 	if (wglSwapInterval) {
 		wglSwapInterval(1);
 	}
-
-	LARGE_INTEGER frequency;
-	QueryPerformanceFrequency(&frequency);
-	impl->timerFrequency = (double)frequency.QuadPart;
 
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
@@ -770,7 +772,8 @@ puglGetTime(PuglView* view)
 {
     LARGE_INTEGER count;
     QueryPerformanceCounter(&count);
-    return (double)count.QuadPart / view->impl->timerFrequency;
+    const double now = (double)count.QuadPart / view->impl->timerFrequency;
+    return now - view->start_time;
 }
 
 void

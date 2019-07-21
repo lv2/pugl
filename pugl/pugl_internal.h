@@ -61,11 +61,12 @@ puglInit(int* pargc, char** argv)
 		return NULL;
 	}
 
-	view->hints    = puglDefaultHints();
-	view->ctx_type = PUGL_GL;
-	view->impl     = impl;
-	view->width    = 640;
-	view->height   = 480;
+	view->hints      = puglDefaultHints();
+	view->ctx_type   = PUGL_GL;
+	view->impl       = impl;
+	view->width      = 640;
+	view->height     = 480;
+	view->start_time = puglGetTime(view);
 
 	return view;
 }

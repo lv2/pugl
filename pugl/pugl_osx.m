@@ -743,7 +743,7 @@ puglGetTime(PuglView* view)
 {
 	struct timespec ts;
 	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return (double)ts.tv_sec + ts.tv_nsec / 1000000000.0;
+	return ((double)ts.tv_sec + ts.tv_nsec / 1000000000.0) - view->start_time;
 }
 
 void
