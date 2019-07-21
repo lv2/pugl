@@ -301,11 +301,12 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 	const int opts = (NSTrackingMouseEnteredAndExited |
 	                  NSTrackingMouseMoved |
 	                  NSTrackingActiveAlways);
-	trackingArea = [ [NSTrackingArea alloc] initWithRect:[self bounds]
-	                                             options:opts
-	                                               owner:self
-	                                            userInfo:nil];
+	trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds]
+	                                            options:opts
+	                                              owner:self
+	                                           userInfo:nil];
 	[self addTrackingArea:trackingArea];
+	[super updateTrackingAreas];
 }
 
 - (NSPoint) eventLocation:(NSEvent*)event
@@ -315,7 +316,6 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 
 - (void)mouseEntered:(NSEvent*)theEvent
 {
-	[self updateTrackingAreas];
 }
 
 - (void)mouseExited:(NSEvent*)theEvent
@@ -393,7 +393,6 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		(uint32_t)[event buttonNumber] + 1
 	};
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-	[self updateTrackingAreas];
 }
 
 - (void) rightMouseDown:(NSEvent*)event
@@ -418,8 +417,6 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 
 - (void) scrollWheel:(NSEvent*)event
 {
-	[self updateTrackingAreas];
-
 	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventScroll ev   =  {
@@ -436,7 +433,6 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 		[event deltaY]
 	};
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-	[self updateTrackingAreas];
 }
 
 - (void) keyDown:(NSEvent*)event
