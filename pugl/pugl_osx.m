@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2017 David Robillard <http://drobilla.net>
+  Copyright 2012-2019 David Robillard <http://drobilla.net>
   Copyright 2017 Hanspeter Portner <dev@open-music-kontrollers.ch>
 
   Permission to use, copy, modify, and/or distribute this software for any
@@ -24,12 +24,14 @@
 #include "pugl/gl.h"
 #include "pugl/pugl_internal.h"
 
+#ifdef PUGL_HAVE_CAIRO
+#include "pugl/cairo_gl.h"
+#endif
+
 #import <Cocoa/Cocoa.h>
 
 #include <stdlib.h>
 #include <time.h>
-
-#undef PUGL_HAVE_CAIRO
 
 @class PuglOpenGLView;
 
