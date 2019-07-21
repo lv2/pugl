@@ -602,7 +602,6 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	switch (message) {
-	case WM_CREATE:
 	case WM_SHOWWINDOW:
 	case WM_SIZE:
 		GetWindowRect(view->impl->hwnd, &rect);
@@ -613,8 +612,9 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		view->height           = rect.bottom - rect.top;
 		event.configure.width  = view->width;
 		event.configure.height = view->height;
-		InvalidateRect(view->impl->hwnd, NULL, FALSE);
+		InvalidateRect(view->impl->hwnd, &rect, FALSE);
 		UpdateWindow(view->impl->hwnd);
+		puglPostRedisplay(view);
 		break;
 	case WM_GETMINMAXINFO:
 		mmi                   = (MINMAXINFO*)lParam;
@@ -630,6 +630,8 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		event.expose.height = rect.bottom - rect.top;
 		event.expose.count  = 0;
 		break;
+	case WM_ERASEBKGND:
+		return true;
 	case WM_MOUSEMOVE:
 		pt.x = GET_X_LPARAM(lParam);
 		pt.y = GET_Y_LPARAM(lParam);
@@ -702,8 +704,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		event.close.type = PUGL_CLOSE;
 		break;
 	default:
-		return DefWindowProc(
-			view->impl->hwnd, message, wParam, lParam);
+		return DefWindowProc(view->impl->hwnd, message, wParam, lParam);
 	}
 
 	puglDispatchEvent(view, &event);
@@ -779,7 +780,8 @@ puglGetTime(PuglView* view)
 void
 puglPostRedisplay(PuglView* view)
 {
-	RedrawWindow(view->impl->hwnd, NULL, NULL, RDW_INVALIDATE);
+	RedrawWindow(view->impl->hwnd, NULL, NULL,
+	             RDW_INVALIDATE|RDW_INTERNALPAINT);
 }
 
 PuglNativeWindow
