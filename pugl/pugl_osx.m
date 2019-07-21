@@ -293,12 +293,34 @@ keySymToSpecial(PuglView* view, NSEvent* ev)
 	return [self convertPoint:[event locationInWindow] fromView:nil];
 }
 
-- (void) mouseEntered:(NSEvent*)theEvent
+static void
+handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 {
+	const NSPoint           wloc = [view eventLocation:event];
+	const NSPoint           rloc = [NSEvent mouseLocation];
+	const PuglEventCrossing ev   =  {
+		type,
+		view->puglview,
+		0,
+		[event timestamp],
+		wloc.x,
+		view->puglview->height - wloc.y,
+		rloc.x,
+		[[NSScreen mainScreen] frame].size.height - rloc.y,
+		getModifiers(view->puglview, event),
+		PUGL_CROSSING_NORMAL
+	};
+	puglDispatchEvent(view->puglview, (const PuglEvent*)&ev);
 }
 
-- (void) mouseExited:(NSEvent*)theEvent
+- (void) mouseEntered:(NSEvent*)event
 {
+	handleCrossing(self, event, PUGL_ENTER_NOTIFY);
+}
+
+- (void) mouseExited:(NSEvent*)event
+{
+	handleCrossing(self, event, PUGL_LEAVE_NOTIFY);
 }
 
 - (void) mouseMoved:(NSEvent*)event
