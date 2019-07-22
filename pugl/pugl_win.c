@@ -661,15 +661,13 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message) {
 	case WM_SHOWWINDOW:
 		rect = handleConfigure(view, &event);
-		InvalidateRect(view->impl->hwnd, &rect, FALSE);
-		UpdateWindow(view->impl->hwnd);
 		puglPostRedisplay(view);
 		break;
 	case WM_SIZE:
-		handleConfigure(view, &event);
-		if (!view->impl->resizing) {
-			puglPostRedisplay(view);
-		}
+		rect = handleConfigure(view, &event);
+		RedrawWindow(view->impl->hwnd, NULL, NULL,
+		             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT|
+		             RDW_UPDATENOW);
 		break;
 	case WM_ENTERSIZEMOVE:
 		view->impl->resizing = true;
@@ -680,7 +678,8 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_TIMER:
 		if (wParam == PUGL_RESIZE_TIMER_ID) {
-			puglPostRedisplay(view);
+			RedrawWindow(view->impl->hwnd, NULL, NULL,
+			             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT);
 		} else if (wParam == PUGL_URGENT_TIMER_ID) {
 			FlashWindow(view->impl->hwnd, TRUE);
 		}
@@ -688,6 +687,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_EXITSIZEMOVE:
 		KillTimer(view->impl->hwnd, PUGL_RESIZE_TIMER_ID);
 		view->impl->resizing = false;
+		puglPostRedisplay(view);
 		break;
 	case WM_GETMINMAXINFO:
 		mmi                   = (MINMAXINFO*)lParam;
@@ -887,7 +887,8 @@ void
 puglPostRedisplay(PuglView* view)
 {
 	RedrawWindow(view->impl->hwnd, NULL, NULL,
-	             RDW_INVALIDATE|RDW_INTERNALPAINT);
+	             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT);
+	UpdateWindow(view->impl->hwnd);
 }
 
 PuglNativeWindow
