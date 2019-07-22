@@ -151,24 +151,70 @@ onDisplay(PuglView* view)
 	++framesDrawn;
 }
 
-static void
-printModifiers(PuglView* view, uint32_t mods)
+static int
+printModifiers(const uint32_t mods)
 {
-	(void)view;
+	return fprintf(stderr, "Modifiers:%s%s%s%s\n",
+	               (mods & PUGL_MOD_SHIFT) ? " Shift"   : "",
+	               (mods & PUGL_MOD_CTRL)  ? " Ctrl"    : "",
+	               (mods & PUGL_MOD_ALT)   ? " Alt"     : "",
+	               (mods & PUGL_MOD_SUPER) ? " Super" : "");
+}
 
-	fprintf(stderr, "Modifiers:%s%s%s%s\n",
-	        (mods & PUGL_MOD_SHIFT) ? " Shift"   : "",
-	        (mods & PUGL_MOD_CTRL)  ? " Ctrl"    : "",
-	        (mods & PUGL_MOD_ALT)   ? " Alt"     : "",
-	        (mods & PUGL_MOD_SUPER) ? " Super" : "");
+static int
+printEvent(const PuglEvent* event, const char* prefix)
+{
+	switch (event->type) {
+	case PUGL_KEY_PRESS:
+		return fprintf(stderr, "%sKey %u (char U+%04X special U+%04X) press (%s)%s\n",
+		               prefix,
+		               event->key.keycode, event->key.character, event->key.special,
+		               event->key.utf8, event->key.filter ? " (filtered)" : "");
+
+	case PUGL_KEY_RELEASE:
+		return fprintf(stderr, "%sKey %u (char U+%04X special U+%04X) release (%s)%s\n",
+		               prefix,
+		               event->key.keycode, event->key.character, event->key.special,
+		               event->key.utf8, event->key.filter ? " (filtered)" : "");
+	case PUGL_BUTTON_PRESS:
+	case PUGL_BUTTON_RELEASE:
+		return (fprintf(stderr, "%sMouse %d %s at %f,%f ",
+		                prefix,
+		                event->button.button,
+		                (event->type == PUGL_BUTTON_PRESS) ? "down" : "up",
+		                event->button.x,
+		                event->button.y) +
+		        printModifiers(event->scroll.state));
+	case PUGL_SCROLL:
+		return (fprintf(stderr, "%sScroll %f %f %f %f ",
+		                prefix,
+		                event->scroll.x, event->scroll.y,
+		                event->scroll.dx, event->scroll.dy) +
+		        printModifiers(event->scroll.state));
+	case PUGL_ENTER_NOTIFY:
+		return fprintf(stderr, "%sMouse enter at %f,%f\n",
+		               prefix, event->crossing.x, event->crossing.y);
+	case PUGL_LEAVE_NOTIFY:
+		return fprintf(stderr, "%sMouse leave at %f,%f\n",
+		               prefix, event->crossing.x, event->crossing.y);
+	case PUGL_FOCUS_IN:
+		return fprintf(stderr, "%sFocus in%s\n",
+		               prefix, event->focus.grab ? " (grab)" : "");
+	case PUGL_FOCUS_OUT:
+		return fprintf(stderr, "%sFocus out%s\n",
+		               prefix, event->focus.grab ? " (ungrab)" : "");
+	default: break;
+	}
+
+	return 0;
 }
 
 static void
 onEvent(PuglView* view, const PuglEvent* event)
 {
+	printEvent(event, "Event: ");
+
 	switch (event->type) {
-	case PUGL_NOTHING:
-		break;
 	case PUGL_CONFIGURE:
 		onReshape(view, (int)event->configure.width, (int)event->configure.height);
 		break;
@@ -179,19 +225,11 @@ onEvent(PuglView* view, const PuglEvent* event)
 		quit = 1;
 		break;
 	case PUGL_KEY_PRESS:
-		fprintf(stderr, "Key %u (char U+%04X special U+%04X) press (%s)%s\n",
-		        event->key.keycode, event->key.character, event->key.special,
-		        event->key.utf8, event->key.filter ? " (filtered)" : "");
 		if (event->key.character == 'q' ||
 		    event->key.character == 'Q' ||
 		    event->key.character == PUGL_CHAR_ESCAPE) {
 			quit = 1;
 		}
-		break;
-	case PUGL_KEY_RELEASE:
-		fprintf(stderr, "Key %u (char U+%04X special U+%04X) release (%s)%s\n",
-		        event->key.keycode, event->key.character, event->key.special,
-		        event->key.utf8, event->key.filter ? " (filtered)" : "");
 		break;
 	case PUGL_MOTION_NOTIFY:
 		xAngle = fmodf(xAngle - (float)(event->motion.x - lastMouseX), 360.0f);
@@ -200,19 +238,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 		lastMouseY = event->motion.y;
 		puglPostRedisplay(view);
 		break;
-	case PUGL_BUTTON_PRESS:
-	case PUGL_BUTTON_RELEASE:
-		fprintf(stderr, "Mouse %d %s at %f,%f ",
-		        event->button.button,
-		        (event->type == PUGL_BUTTON_PRESS) ? "down" : "up",
-		        event->button.x,
-		        event->button.y);
-		printModifiers(view, event->scroll.state);
-		break;
 	case PUGL_SCROLL:
-		fprintf(stderr, "Scroll %f %f %f %f ",
-		        event->scroll.x, event->scroll.y, event->scroll.dx, event->scroll.dy);
-		printModifiers(view, event->scroll.state);
 		dist += (float)event->scroll.dy;
 		if (dist < 10.0f) {
 			dist = 10.0f;
@@ -220,20 +246,12 @@ onEvent(PuglView* view, const PuglEvent* event)
 		puglPostRedisplay(view);
 		break;
 	case PUGL_ENTER_NOTIFY:
-		fprintf(stderr, "Mouse enter at %f,%f\n",
-		        event->crossing.x, event->crossing.y);
 		mouseEntered = true;
 		break;
 	case PUGL_LEAVE_NOTIFY:
-		fprintf(stderr, "Mouse leave at %f,%f\n",
-		        event->crossing.x, event->crossing.y);
 		mouseEntered = false;
 		break;
-	case PUGL_FOCUS_IN:
-		fprintf(stderr, "Focus in%s\n", event->focus.grab ? " (grab)" : "");
-		break;
-	case PUGL_FOCUS_OUT:
-		fprintf(stderr, "Focus out%s\n", event->focus.grab ? " (ungrab)" : "");
+	default:
 		break;
 	}
 }
