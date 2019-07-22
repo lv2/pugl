@@ -213,14 +213,12 @@ struct PuglInternalsImpl {
 static uint32_t
 getModifiers(PuglView* view, NSEvent* ev)
 {
-	const unsigned modifierFlags = [ev modifierFlags];
+	const NSEventModifierFlags modifierFlags = [ev modifierFlags];
 
-	uint32_t mods = 0;
-	mods |= (modifierFlags & NSShiftKeyMask)     ? PUGL_MOD_SHIFT : 0;
-	mods |= (modifierFlags & NSControlKeyMask)   ? PUGL_MOD_CTRL  : 0;
-	mods |= (modifierFlags & NSAlternateKeyMask) ? PUGL_MOD_ALT   : 0;
-	mods |= (modifierFlags & NSCommandKeyMask)   ? PUGL_MOD_SUPER : 0;
-	return mods;
+	return (((modifierFlags & NSShiftKeyMask)     ? PUGL_MOD_SHIFT : 0) |
+	        ((modifierFlags & NSControlKeyMask)   ? PUGL_MOD_CTRL  : 0) |
+	        ((modifierFlags & NSAlternateKeyMask) ? PUGL_MOD_ALT   : 0) |
+	        ((modifierFlags & NSCommandKeyMask)   ? PUGL_MOD_SUPER : 0));
 }
 
 static PuglKey

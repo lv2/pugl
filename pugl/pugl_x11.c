@@ -285,14 +285,12 @@ translateKey(PuglView* view, XEvent* xevent, PuglEventKey* event)
 }
 
 static uint32_t
-translateModifiers(unsigned xstate)
+translateModifiers(const unsigned xstate)
 {
-	uint32_t state = 0;
-	state |= (xstate & ShiftMask)   ? PUGL_MOD_SHIFT  : 0;
-	state |= (xstate & ControlMask) ? PUGL_MOD_CTRL   : 0;
-	state |= (xstate & Mod1Mask)    ? PUGL_MOD_ALT    : 0;
-	state |= (xstate & Mod4Mask)    ? PUGL_MOD_SUPER  : 0;
-	return state;
+	return (((xstate & ShiftMask)   ? PUGL_MOD_SHIFT  : 0) |
+	        ((xstate & ControlMask) ? PUGL_MOD_CTRL   : 0) |
+	        ((xstate & Mod1Mask)    ? PUGL_MOD_ALT    : 0) |
+	        ((xstate & Mod4Mask)    ? PUGL_MOD_SUPER  : 0));
 }
 
 static PuglEvent
