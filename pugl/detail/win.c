@@ -120,6 +120,20 @@ puglInitViewInternals(void)
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
 
+PuglStatus
+puglPollEvents(PuglWorld* world, const double timeout)
+{
+	(void)world;
+
+	if (timeout < 0) {
+		WaitMessage();
+	} else {
+		MsgWaitForMultipleObjects(
+			0, NULL, FALSE, (DWORD)(timeout * 1e3), QS_ALLEVENTS);
+	}
+	return PUGL_SUCCESS;
+}
+
 int
 puglCreateWindow(PuglView* view, const char* title)
 {

@@ -816,29 +816,35 @@ puglRequestAttention(PuglView* view)
 }
 
 PuglStatus
-puglWaitForEvent(PuglView* view)
+puglPollEvents(PuglWorld* world, const double timeout)
 {
+	NSDate* date = ((timeout < 0) ? [NSDate distantFuture] :
+	                (timeout == 0) ? nil :
+	                [NSDate dateWithTimeIntervalSinceNow:timeout]);
+
 	/* Note that dequeue:NO is broken (it blocks forever even when events are
-	   pending), so we work around this by dequeueing the event here and
-	   storing it in view->impl->nextEvent for later processing. */
-	if (!view->impl->nextEvent) {
-		view->impl->nextEvent =
-			[view->impl->window nextEventMatchingMask:NSAnyEventMask];
-	}
+	   pending), so we work around this by dequeueing the event then posting it
+	   back to the front of the queue. */
+	NSEvent* event = [world->impl->app
+	                     nextEventMatchingMask:NSAnyEventMask
+	                     untilDate:date
+	                     inMode:NSDefaultRunLoopMode
+	                     dequeue:YES];
+
+	[world->impl->app postEvent:event atStart:true];
 
 	return PUGL_SUCCESS;
 }
 
 PuglStatus
+puglWaitForEvent(PuglView* view)
+{
+	return puglPollEvents(view->world, -1.0);
+}
+
+PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	if (view->impl->nextEvent) {
-		// Process event that was dequeued earier by puglWaitForEvent
-		[view->world->impl->app sendEvent: view->impl->nextEvent];
-		view->impl->nextEvent = NULL;
-	}
-
-	// Process all pending events
 	for (NSEvent* ev = NULL;
 	     (ev = [view->impl->window nextEventMatchingMask:NSAnyEventMask
 	                                           untilDate:nil

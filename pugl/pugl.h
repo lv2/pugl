@@ -88,6 +88,8 @@ typedef void* PuglHandle;
 */
 typedef enum {
 	PUGL_SUCCESS,
+	PUGL_FAILURE,
+	PUGL_ERR_UNKNOWN,
 	PUGL_ERR_CREATE_WINDOW,
 	PUGL_ERR_SET_FORMAT,
 	PUGL_ERR_CREATE_CONTEXT,
@@ -456,6 +458,20 @@ PUGL_API double
 puglGetTime(const PuglWorld* world);
 
 /**
+   Poll for events that are ready to be processed.
+
+   This polls for events that are ready for any view in the application,
+   potentially blocking depending on `timeout`.
+
+   @param world The world for all the views to poll.
+   @param timeout Maximum time to wait, in seconds.  If zero, the call returns
+   immediately, if negative, the call blocks indefinitely.
+   @return PUGL_SUCCESS if events are read, PUGL_FAILURE if not, or an error.
+*/
+PUGL_API PuglStatus
+puglPollEvents(PuglWorld* world, double timeout);
+
+/**
    @}
    @name Initialization
    Configuration functions which must be called before creating a window.
@@ -728,8 +744,10 @@ puglRequestAttention(PuglView* view);
    necessary.  This function will block indefinitely if no events are
    available, so is not appropriate for use in programs that need to perform
    regular updates (e.g. animation).
+
+   @deprecated Use puglPollEvents().
 */
-PUGL_API PuglStatus
+PUGL_API PUGL_DEPRECATED_BY("puglPollEvents") PuglStatus
 puglWaitForEvent(PuglView* view);
 
 /**

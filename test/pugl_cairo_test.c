@@ -227,7 +227,7 @@ main(int argc, char** argv)
 		if (continuous) {
 			puglPostRedisplay(view);
 		} else {
-			puglWaitForEvent(view);
+			puglPollEvents(world, -1);
 		}
 
 		puglProcessEvents(view);

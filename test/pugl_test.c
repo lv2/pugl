@@ -212,7 +212,7 @@ main(int argc, char** argv)
 		if (app.continuous) {
 			puglPostRedisplay(view);
 		} else {
-			puglWaitForEvent(view);
+			puglPollEvents(app.world, -1);
 		}
 
 		puglProcessEvents(view);

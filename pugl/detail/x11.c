@@ -32,6 +32,7 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
+#include <sys/select.h>
 #include <sys/time.h>
 
 #include <stdbool.h>
@@ -100,6 +101,30 @@ PuglInternals*
 puglInitViewInternals(void)
 {
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
+}
+
+PuglStatus
+puglPollEvents(PuglWorld* world, const double timeout)
+{
+	XFlush(world->impl->display);
+
+	const int fd   = ConnectionNumber(world->impl->display);
+	const int nfds = fd + 1;
+	int       ret  = 0;
+	fd_set    fds;
+	FD_ZERO(&fds);
+	FD_SET(fd, &fds);
+
+	if (timeout < 0.0) {
+		ret = select(nfds, &fds, NULL, NULL, NULL);
+	} else {
+		const long     sec  = (long)timeout;
+		const long     msec = (long)((timeout - (double)sec) * 1e6);
+		struct timeval tv   = {sec, msec};
+		ret = select(nfds, &fds, NULL, NULL, &tv);
+	}
+
+	return ret < 0 ? PUGL_ERR_UNKNOWN : ret == 0 ? PUGL_FAILURE : PUGL_SUCCESS;
 }
 
 int
@@ -193,6 +218,7 @@ void
 puglShowWindow(PuglView* view)
 {
 	XMapRaised(view->impl->display, view->impl->win);
+	puglPostRedisplay(view);
 	view->visible = true;
 }
 

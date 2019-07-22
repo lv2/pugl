@@ -60,6 +60,5 @@ struct PuglInternalsImpl {
 	PuglWrapperView* wrapperView;
 	NSView*          drawView;
 	id               window;
-	NSEvent*         nextEvent;
 	uint32_t         mods;
 };
