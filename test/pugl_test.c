@@ -181,9 +181,11 @@ main(int argc, char** argv)
 
 	app.world = puglNewWorld();
 
+	const PuglRect frame = { 0, 0, 512, 512 };
+
 	PuglView* view = puglNewView(app.world);
 	puglInitWindowClass(view, "PuglTest");
-	puglInitWindowSize(view, 512, 512);
+	puglSetFrame(view, frame);
 	puglInitWindowMinSize(view, 256, 256);
 	puglInitWindowAspectRatio(view, 1, 1, 16, 9);
 	puglInitBackend(view, puglGlBackend());

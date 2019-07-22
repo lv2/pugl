@@ -115,8 +115,9 @@ onDisplay(PuglView* view)
 	cairo_t* cr = (cairo_t*)puglGetContext(view);
 
 	// Draw background
-	int width, height;
-	puglGetSize(view, &width, &height);
+	const PuglRect frame  = puglGetFrame(view);
+	const double   width  = frame.width;
+	const double   height = frame.height;
 	if (entered) {
 		cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
 	} else {
@@ -126,8 +127,8 @@ onDisplay(PuglView* view)
 	cairo_fill(cr);
 
 	// Scale to view size
-	const double scaleX = (width - (512 / (double)width)) / 512.0;
-	const double scaleY = (height - (512 / (double)height)) / 512.0;
+	const double scaleX = (width - (512 / width)) / 512.0;
+	const double scaleY = (height - (512 / height)) / 512.0;
 	cairo_scale(cr, scaleX, scaleY);
 
 	// Draw button
@@ -206,9 +207,11 @@ main(int argc, char** argv)
 
 	world = puglNewWorld();
 
+	const PuglRect frame = { 0, 0, 512, 512 };
+
 	PuglView* view = puglNewView(world);
 	puglInitWindowClass(view, "PuglCairoTest");
-	puglInitWindowSize(view, 512, 512);
+	puglSetFrame(view, frame);
 	puglInitWindowMinSize(view, 256, 256);
 	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);
 	puglInitBackend(view, puglCairoBackend());

@@ -406,16 +406,20 @@ handleConfigure(PuglView* view, PuglEvent* event)
 {
 	RECT rect;
 	GetClientRect(view->impl->hwnd, &rect);
-	view->width  = rect.right - rect.left;
-	view->height = rect.bottom - rect.top;
+	view->frame.x      = rect.left;
+	view->frame.y      = rect.top;
+	view->frame.width  = rect.right - rect.left;
+	view->frame.height = rect.bottom - rect.top;
 
 	event->configure.type   = PUGL_CONFIGURE;
-	event->configure.x      = rect.left;
-	event->configure.y      = rect.top;
-	event->configure.width  = view->width;
-	event->configure.height = view->height;
+	event->configure.x      = view->frame.x;
+	event->configure.y      = view->frame.y;
+	event->configure.width  = view->frame.width;
+	event->configure.height = view->frame.height;
 
-	view->backend->resize(view, view->width, view->height);
+	view->backend->resize(view,
+	                      rect.right - rect.left,
+	                      rect.bottom - rect.top);
 	return rect;
 }
 
@@ -744,4 +748,30 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->hwnd;
+}
+
+PuglStatus
+puglSetFrame(PuglView* view, const PuglRect frame)
+{
+	view->frame = frame;
+
+	if (view->impl->hwnd) {
+		RECT rect = { (long)frame.x,
+		              (long)frame.y,
+		              (long)frame.x + (long)frame.width,
+		              (long)frame.y + (long)frame.height };
+
+		AdjustWindowRectEx(&rect, puglWinGetWindowFlags(view),
+		                   FALSE,
+		                   puglWinGetWindowExFlags(view));
+
+		if (!SetWindowPos(view->impl->hwnd, HWND_TOP,
+		                  rect.left, rect.top,
+		                  rect.right - rect.left, rect.bottom - rect.top,
+		                  (SWP_NOACTIVATE|SWP_NOOWNERZORDER|SWP_NOZORDER))) {
+			return PUGL_ERR_UNKNOWN;
+		}
+	}
+
+	return PUGL_SUCCESS;
 }

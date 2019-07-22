@@ -31,6 +31,31 @@
 
 #include <stdlib.h>
 
+static NSRect
+rectToScreen(NSRect rect)
+{
+	const double screenHeight = [[NSScreen mainScreen] frame].size.height;
+
+	rect.origin.y = screenHeight - rect.origin.y - rect.size.height;
+	return rect;
+}
+
+static void
+updateViewRect(PuglView* view)
+{
+	NSWindow* const window = view->impl->window;
+	if (window) {
+		const double screenHeight = [[NSScreen mainScreen] frame].size.height;
+		const NSRect frame        = [window frame];
+		const NSRect content      = [window contentRectForFrameRect:frame];
+
+		view->frame.x      = content.origin.x;
+		view->frame.y      = screenHeight - content.origin.y - content.size.height;
+		view->frame.width  = content.size.width;
+		view->frame.height = content.size.height;
+	}
+}
+
 @implementation PuglWindow
 
 - (id) initWithContentRect:(NSRect)contentRect
@@ -52,7 +77,7 @@
 - (void)setPuglview:(PuglView*)view
 {
 	puglview = view;
-	[self setContentSize:NSMakeSize(view->width, view->height)];
+	[self setContentSize:NSMakeSize(view->frame.width, view->frame.height)];
 }
 
 - (BOOL) canBecomeKeyWindow
@@ -79,6 +104,22 @@
 
 - (void) dispatchExpose:(NSRect)rect
 {
+	if (reshaped) {
+		updateViewRect(puglview);
+
+		const PuglEventConfigure ev =  {
+			PUGL_CONFIGURE,
+			0,
+			puglview->frame.x,
+			puglview->frame.y,
+			puglview->frame.width,
+			puglview->frame.height,
+		};
+
+		puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+		reshaped = false;
+	}
+
 	const PuglEventExpose ev = {
 		PUGL_EXPOSE,
 		0,
@@ -102,18 +143,9 @@
 	return YES;
 }
 
-- (void) dispatchConfigure:(NSRect)bounds
+- (void) setReshaped
 {
-	const PuglEventConfigure ev = {
-		PUGL_CONFIGURE,
-		0,
-		bounds.origin.x,
-		bounds.origin.y,
-		bounds.size.width,
-		bounds.size.height,
-	};
-
-	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+	reshaped = true;
 }
 
 static uint32_t
@@ -608,6 +640,13 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	return YES;
 }
 
+- (void) windowDidMove:(NSNotification*)notification
+{
+	(void)notification;
+
+	updateViewRect(window->puglview);
+}
+
 - (void) windowDidBecomeKey:(NSNotification*)notification
 {
 	(void)notification;
@@ -684,7 +723,8 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->wrapperView->puglview   = view;
 	impl->wrapperView->markedText = [[NSMutableAttributedString alloc] init];
 	[impl->wrapperView setAutoresizesSubviews:YES];
-	[impl->wrapperView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
+	[impl->wrapperView initWithFrame:
+		     NSMakeRect(0, 0, view->frame.width, view->frame.height)];
 	[impl->wrapperView addConstraint:
 		     puglConstraint(impl->wrapperView, NSLayoutAttributeWidth, view->min_width)];
 	[impl->wrapperView addConstraint:
@@ -712,7 +752,11 @@ puglCreateWindow(PuglView* view, const char* title)
 			                        initWithBytes:title
 			                               length:strlen(title)
 			                             encoding:NSUTF8StringEncoding];
-		NSRect frame = NSMakeRect(0, 0, view->min_width, view->min_height);
+
+		const NSRect frame = rectToScreen(
+			NSMakeRect(view->frame.x, view->frame.y,
+			           view->min_width, view->min_height));
+
 		unsigned style = (NSClosableWindowMask |
 		                  NSTitledWindowMask |
 		                  NSMiniaturizableWindowMask );
@@ -757,6 +801,7 @@ void
 puglShowWindow(PuglView* view)
 {
 	[view->impl->window setIsVisible:YES];
+	updateViewRect(view);
 	view->visible = true;
 }
 
@@ -895,4 +940,29 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->wrapperView;
+}
+
+PuglStatus
+puglSetFrame(PuglView* view, const PuglRect frame)
+{
+	PuglInternals* const impl = view->impl;
+
+	// Update view frame to exactly the requested frame in Pugl coordinates
+	view->frame = frame;
+
+	const NSRect rect = NSMakeRect(frame.x, frame.y, frame.width, frame.height);
+	if (impl->window) {
+		// Resize window to fit new content rect
+		const NSRect windowFrame = [
+			impl->window frameRectForContentRect:rectToScreen(rect)];
+
+		[impl->window setFrame:windowFrame display:NO];
+	}
+
+	// Resize views
+	const NSRect drawRect = NSMakeRect(0, 0, frame.width, frame.height);
+	[impl->wrapperView setFrame:(impl->window ? drawRect : rect)];
+	[impl->drawView setFrame:drawRect];
+
+	return PUGL_SUCCESS;
 }

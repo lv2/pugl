@@ -42,7 +42,7 @@ puglWinCairoCreateDrawContext(PuglView* view)
 
 	surface->drawDc     = CreateCompatibleDC(impl->hdc);
 	surface->drawBitmap = CreateCompatibleBitmap(
-		impl->hdc, view->width, view->height);
+		impl->hdc, (int)view->frame.width, (int)view->frame.height);
 
 	DeleteObject(SelectObject(surface->drawDc, surface->drawBitmap));
 
@@ -87,7 +87,7 @@ puglWinCairoConfigure(PuglView* view)
 		return st;
 	}
 
-	impl->pfd  = puglWinGetPixelFormatDescriptor(&view->hints);
+	impl->pfd  = puglWinGetPixelFormatDescriptor(view->hints);
 	impl->pfId = ChoosePixelFormat(impl->hdc, &impl->pfd);
 
 	if (!SetPixelFormat(impl->hdc, impl->pfId, &impl->pfd)) {
@@ -150,7 +150,8 @@ puglWinCairoLeave(PuglView* view, bool drawing)
 
 	cairo_restore(surface->cr);
 	cairo_surface_flush(surface->surface);
-	BitBlt(impl->hdc, 0, 0, view->width, view->height,
+	BitBlt(impl->hdc,
+	       0, 0, (int)view->frame.width, (int)view->frame.height,
 	       surface->drawDc, 0, 0, SRCCOPY);
 
 	PAINTSTRUCT ps;
@@ -162,11 +163,9 @@ puglWinCairoLeave(PuglView* view, bool drawing)
 
 static int
 puglWinCairoResize(PuglView* view,
-                   int       width,
-                   int       height)
+                   int       PUGL_UNUSED(width),
+                   int       PUGL_UNUSED(height))
 {
-	view->width = width;
-	view->height = height;
 	int st = 0;
 	if ((st = puglWinCairoDestroyDrawContext(view)) ||
 	    (st = puglWinCairoCreateDrawContext(view))) {

@@ -146,6 +146,8 @@ puglCreateWindow(PuglView* view, const char* title)
 	PuglWorld* const     world   = view->world;
 	PuglX11Atoms* const  atoms   = &view->world->impl->atoms;
 	Display* const       display = world->impl->display;
+	const int            width   = (int)view->frame.width;
+	const int            height  = (int)view->frame.height;
 
 	impl->display = display;
 	impl->screen  = DefaultScreen(display);
@@ -169,7 +171,8 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	const Window win = impl->win = XCreateWindow(
 		display, xParent,
-		0, 0, view->width, view->height, 0, impl->vi->depth, InputOutput,
+		(int)view->frame.x, (int)view->frame.y, width, height,
+		0, impl->vi->depth, InputOutput,
 		impl->vi->visual, CWColormap | CWEventMask, &attr);
 
 	if (view->backend->create(view)) {
@@ -179,10 +182,10 @@ puglCreateWindow(PuglView* view, const char* title)
 	XSizeHints sizeHints = {0};
 	if (!view->hints[PUGL_RESIZABLE]) {
 		sizeHints.flags      = PMinSize|PMaxSize;
-		sizeHints.min_width  = view->width;
-		sizeHints.min_height = view->height;
-		sizeHints.max_width  = view->width;
-		sizeHints.max_height = view->height;
+		sizeHints.min_width  = width;
+		sizeHints.min_height = height;
+		sizeHints.max_width  = width;
+		sizeHints.max_height = height;
 	} else {
 		if (view->min_width || view->min_height) {
 			sizeHints.flags      = PMinSize;
@@ -201,8 +204,9 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	if (title) {
 		XStoreName(display, win, title);
-		XChangeProperty(display, win, atoms->NET_WM_NAME, atoms->UTF8_STRING, 8,
-		                PropModeReplace, (const uint8_t*)title, strlen(title));
+		XChangeProperty(display, win, atoms->NET_WM_NAME,
+		                atoms->UTF8_STRING, 8, PropModeReplace,
+		                (const uint8_t*)title, (int)strlen(title));
 	}
 
 	if (!view->parent) {
@@ -628,9 +632,14 @@ puglDispatchEvents(PuglWorld* world)
 			puglEnterContext(view, mustExpose);
 
 			if (configure->type) {
-				view->width  = (int)configure->configure.width;
-				view->height = (int)configure->configure.height;
-				view->backend->resize(view, view->width, view->height);
+				view->frame.x      = configure->configure.x;
+				view->frame.y      = configure->configure.y;
+				view->frame.width  = configure->configure.width;
+				view->frame.height = configure->configure.height;
+
+				view->backend->resize(view,
+				                      (int)view->frame.width,
+				                      (int)view->frame.height);
 				view->eventFunc(view, &view->impl->pendingConfigure);
 			}
 
@@ -667,7 +676,7 @@ puglPostRedisplay(PuglView* view)
 	XExposeEvent ev = {Expose, 0, True,
 	                   view->impl->display, view->impl->win,
 	                   0, 0,
-	                   view->width, view->height,
+	                   view->frame.width, view->frame.height,
 	                   0};
 
 	XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
@@ -677,4 +686,19 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->win;
+}
+
+PuglStatus
+puglSetFrame(PuglView* view, const PuglRect frame)
+{
+	view->frame = frame;
+
+	if (view->impl->win &&
+	    XMoveResizeWindow(view->world->impl->display, view->impl->win,
+	                      (int)frame.x, (int)frame.y,
+	                      (int)frame.width, (int)frame.height)) {
+		return PUGL_ERR_UNKNOWN;
+	}
+
+	return PUGL_SUCCESS;
 }

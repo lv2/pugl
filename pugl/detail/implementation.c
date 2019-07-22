@@ -89,9 +89,9 @@ puglNewView(PuglWorld* const world)
 		return NULL;
 	}
 
-	view->world      = world;
-	view->width      = 640;
-	view->height     = 480;
+	view->world        = world;
+	view->frame.width  = 640;
+	view->frame.height = 480;
 
 	puglSetDefaultHints(view->hints);
 
@@ -138,8 +138,8 @@ puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value)
 void
 puglInitWindowSize(PuglView* view, int width, int height)
 {
-	view->width  = width;
-	view->height = height;
+	view->frame.width  = width;
+	view->frame.height = height;
 }
 
 void
@@ -218,8 +218,14 @@ puglGetVisible(PuglView* view)
 void
 puglGetSize(PuglView* view, int* width, int* height)
 {
-	*width  = view->width;
-	*height = view->height;
+	*width  = (int)view->frame.width;
+	*height = (int)view->frame.height;
+}
+
+PuglRect
+puglGetFrame(const PuglView* view)
+{
+	return view->frame;
 }
 
 void*
@@ -293,8 +299,6 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_NOTHING:
 		break;
 	case PUGL_CONFIGURE:
-		view->width  = (int)event->configure.width;
-		view->height = (int)event->configure.height;
 		puglEnterContext(view, false);
 		view->eventFunc(view, event);
 		puglLeaveContext(view, false);

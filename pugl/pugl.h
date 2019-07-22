@@ -126,6 +126,19 @@ typedef enum {
 } PuglWindowHintValue;
 
 /**
+   A rectangle.
+
+   This is used to describe things like view position and size.  Pugl generally
+   uses coordinates where the top left corner is 0,0.
+*/
+typedef struct {
+	double x;
+	double y;
+	double width;
+	double height;
+} PuglRect;
+
+/**
    Keyboard modifier flags.
 */
 typedef enum {
@@ -539,8 +552,10 @@ puglInitWindowParent(PuglView* view, PuglNativeWindow parent);
 
 /**
    Set the window size before creating a window.
+
+   @deprecated Use puglSetFrame().
 */
-PUGL_API void
+PUGL_API PUGL_DEPRECATED_BY("puglSetFrame") void
 puglInitWindowSize(PuglView* view, int width, int height);
 
 /**
@@ -655,8 +670,20 @@ puglGetVisible(PuglView* view);
 /**
    Get the current size of the view.
 */
-PUGL_API void
+PUGL_API PUGL_DEPRECATED_BY("puglGetFrame") void
 puglGetSize(PuglView* view, int* width, int* height);
+
+/**
+   Get the current position and size of the view.
+*/
+PUGL_API PuglRect
+puglGetFrame(const PuglView* view);
+
+/**
+   Set the current position and size of the view.
+*/
+PUGL_API PuglStatus
+puglSetFrame(PuglView* view, PuglRect frame);
 
 /**
    @name Context

@@ -82,15 +82,7 @@ typedef NSUInteger NSWindowStyleMask;
 	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
 	[super reshape];
-	[wrapper dispatchConfigure:[self bounds]];
-}
-
-- (void) update
-{
-	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
-
-	[super update];
-	[wrapper dispatchConfigure:[self bounds]];
+	[wrapper setReshaped];
 }
 
 - (void) drawRect:(NSRect)rect
@@ -112,9 +104,11 @@ puglMacGlCreate(PuglView* view)
 {
 	PuglInternals*  impl     = view->impl;
 	PuglOpenGLView* drawView = [PuglOpenGLView alloc];
+	const NSRect    rect     = NSMakeRect(
+		0, 0, view->frame.width, view->frame.height);
 
 	drawView->puglview = view;
-	[drawView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
+	[drawView initWithFrame:rect];
 	if (view->hints[PUGL_RESIZABLE]) {
 		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 	} else {

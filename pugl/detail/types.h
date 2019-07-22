@@ -56,8 +56,7 @@ struct PuglViewImpl {
 	PuglNativeWindow   parent;
 	uintptr_t          transient_parent;
 	PuglHints          hints;
-	int                width;
-	int                height;
+	PuglRect           frame;
 	int                min_width;
 	int                min_height;
 	int                min_aspect_x;

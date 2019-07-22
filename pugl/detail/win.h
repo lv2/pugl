@@ -95,7 +95,8 @@ puglWinCreateWindow(const PuglView* const view,
 	const unsigned winExFlags = puglWinGetWindowExFlags(view);
 
 	// Calculate total window size to accommodate requested view size
-	RECT wr = { 0, 0, view->width, view->height };
+	RECT wr = { (long)view->frame.x, (long)view->frame.y,
+	            (long)view->frame.width, (long)view->frame.height };
 	AdjustWindowRectEx(&wr, winFlags, FALSE, winExFlags);
 
 	// Create window and get drawing context
