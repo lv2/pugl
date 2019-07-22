@@ -41,6 +41,14 @@
 #    define PUGL_API
 #endif
 
+#if defined(__clang__)
+#    define PUGL_DEPRECATED_BY(name) __attribute__((deprecated("", name)))
+#elif defined(__GNUC__)
+#    define PUGL_DEPRECATED_BY(name) __attribute__((deprecated("Use " name)))
+#else
+#    define PUGL_DEPRECATED_BY(name)
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -474,8 +482,10 @@ puglInitWindowAspectRatio(PuglView* view,
 
 /**
    Enable or disable resizing before creating a window.
+
+   @deprecated Use puglInitWindowHint() with @ref PUGL_RESIZABLE.
 */
-PUGL_API void
+PUGL_API PUGL_DEPRECATED_BY("puglInitWindowHint") void
 puglInitResizable(PuglView* view, bool resizable);
 
 /**

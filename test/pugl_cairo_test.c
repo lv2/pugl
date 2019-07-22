@@ -184,7 +184,7 @@ main(int argc, char** argv)
 	puglInitWindowClass(view, "PuglCairoTest");
 	puglInitWindowSize(view, 512, 512);
 	puglInitWindowMinSize(view, 256, 256);
-	puglInitResizable(view, resizable);
+	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);
 	puglInitContextType(view, PUGL_CAIRO);
 
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
