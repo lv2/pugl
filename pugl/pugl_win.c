@@ -839,7 +839,7 @@ puglProcessEvents(PuglView* view)
 	MSG msg;
 	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&msg);
-		handleMessage(view, msg.message, msg.wParam, msg.lParam);
+		DispatchMessage(&msg);
 	}
 
 	return PUGL_SUCCESS;
