@@ -79,6 +79,7 @@ struct PuglInternalsImpl {
 	HGLRC  hglrc;
 	DWORD  refreshRate;
 	double timerFrequency;
+	bool   flashing;
 	bool   resizing;
 	bool   mouseTracked;
 };
@@ -653,8 +654,10 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
 static void
 stopFlashing(PuglView* view)
 {
-	KillTimer(view->impl->hwnd, PUGL_URGENT_TIMER_ID);
-	FlashWindow(view->impl->hwnd, FALSE);
+	if (view->impl->flashing) {
+		KillTimer(view->impl->hwnd, PUGL_URGENT_TIMER_ID);
+		FlashWindow(view->impl->hwnd, FALSE);
+	}
 }
 
 static LRESULT
@@ -838,6 +841,7 @@ puglRequestAttention(PuglView* view)
 	if (!view->impl->mouseTracked || GetFocus() != view->impl->hwnd) {
 		FlashWindow(view->impl->hwnd, TRUE);
 		SetTimer(view->impl->hwnd, PUGL_URGENT_TIMER_ID, 500, NULL);
+		view->impl->flashing = true;
 	}
 }
 
