@@ -353,6 +353,7 @@ puglShowWindow(PuglView* view)
 	PuglInternals* impl = view->impl;
 
 	ShowWindow(impl->hwnd, SW_SHOWNORMAL);
+	SetFocus(impl->hwnd);
 	view->visible = true;
 }
 
