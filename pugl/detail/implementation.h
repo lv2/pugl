@@ -30,8 +30,17 @@
 extern "C" {
 #endif
 
-/** Allocate and initialise internals (implemented once per platform) */
-PuglInternals* puglInitInternals(void);
+/** Allocate and initialise world internals (implemented once per platform) */
+PuglWorldInternals* puglInitWorldInternals(void);
+
+/** Destroy and free world internals (implemented once per platform) */
+void puglFreeWorldInternals(PuglWorld* world);
+
+/** Allocate and initialise view internals (implemented once per platform) */
+PuglInternals* puglInitViewInternals(void);
+
+/** Destroy and free view internals (implemented once per platform) */
+void puglFreeViewInternals(PuglView* view);
 
 /** Return the Unicode code point for `buf` or the replacement character. */
 uint32_t puglDecodeUTF8(const uint8_t* buf);

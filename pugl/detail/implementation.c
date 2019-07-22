@@ -46,24 +46,84 @@ puglSetDefaultHints(PuglHints hints)
 PuglView*
 puglInit(int* PUGL_UNUSED(pargc), char** PUGL_UNUSED(argv))
 {
-	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
-	if (!view) {
+	return puglNewView(puglNewWorld());
+}
+
+void
+puglDestroy(PuglView* const view)
+{
+	PuglWorld* const world = view->world;
+
+	puglFreeView(view);
+	puglFreeWorld(world);
+}
+
+PuglWorld*
+puglNewWorld(void)
+{
+	PuglWorld* world = (PuglWorld*)calloc(1, sizeof(PuglWorld));
+	if (!world || !(world->impl = puglInitWorldInternals())) {
+		free(world);
 		return NULL;
 	}
 
-	PuglInternals* impl = puglInitInternals();
-	if (!impl) {
+	return world;
+}
+
+void
+puglFreeWorld(PuglWorld* const world)
+{
+	puglFreeWorldInternals(world);
+	free(world->views);
+	free(world);
+}
+
+PuglView*
+puglNewView(PuglWorld* const world)
+{
+	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
+	if (!view || !(view->impl = puglInitViewInternals())) {
 		free(view);
 		return NULL;
 	}
 
-	view->impl       = impl;
+	view->world      = world;
 	view->width      = 640;
 	view->height     = 480;
 	view->start_time = puglGetTime(view);
 
 	puglSetDefaultHints(view->hints);
+
+	// Add to world view list
+	++world->numViews;
+	world->views = (PuglView**)realloc(world->views,
+	                                   world->numViews * sizeof(PuglView*));
+	world->views[world->numViews - 1] = view;
+
 	return view;
+}
+
+void
+puglFreeView(PuglView* view)
+{
+	// Remove from world view list
+	PuglWorld* world = view->world;
+	for (size_t i = 0; i < world->numViews; ++i) {
+		if (world->views[i] == view) {
+			if (i == world->numViews - 1) {
+				world->views[i] = NULL;
+			} else {
+				memmove(world->views + i, world->views + i + 1,
+				        sizeof(PuglView*) * (world->numViews - i - 1));
+				world->views[world->numViews - 1] = NULL;
+			}
+			--world->numViews;
+		}
+	}
+
+	puglFreeViewInternals(view);
+	free(view->windowClass);
+	free(view);
 }
 
 void

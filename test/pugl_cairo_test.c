@@ -202,7 +202,8 @@ main(int argc, char** argv)
 		}
 	}
 
-	PuglView* view = puglInit(NULL, NULL);
+	PuglWorld* world = puglNewWorld();
+	PuglView*  view  = puglNewView(world);
 	puglInitWindowClass(view, "PuglCairoTest");
 	puglInitWindowSize(view, 512, 512);
 	puglInitWindowMinSize(view, 256, 256);
@@ -233,6 +234,7 @@ main(int argc, char** argv)
 		}
 	}
 
-	puglDestroy(view);
+	puglFreeView(view);
+	puglFreeWorld(world);
 	return 0;
 }

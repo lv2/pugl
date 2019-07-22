@@ -566,7 +566,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 - (void) urgentTick
 {
-    [NSApp requestUserAttention:NSInformationalRequest];
+    [puglview->world->impl->app requestUserAttention:NSInformationalRequest];
 }
 
 - (void) viewDidEndLiveResize
@@ -636,8 +636,27 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 @end
 
+PuglWorldInternals*
+puglInitWorldInternals(void)
+{
+	PuglWorldInternals* impl = (PuglWorldInternals*)calloc(
+		1, sizeof(PuglWorldInternals));
+
+	impl->app             = [NSApplication sharedApplication];
+	impl->autoreleasePool = [NSAutoreleasePool new];
+
+	return impl;
+}
+
+void
+puglFreeWorldInternals(PuglWorld* world)
+{
+	[world->impl->autoreleasePool drain];
+	free(world->impl);
+}
+
 PuglInternals*
-puglInitInternals(void)
+puglInitViewInternals(void)
 {
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
@@ -659,9 +678,6 @@ int
 puglCreateWindow(PuglView* view, const char* title)
 {
 	PuglInternals* impl = view->impl;
-
-	[NSAutoreleasePool new];
-	impl->app = [NSApplication sharedApplication];
 
 	// Create wrapper view to handle input
 	impl->wrapperView             = [PuglWrapperView alloc];
@@ -727,7 +743,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		}
 
 		[window setContentView:impl->wrapperView];
-		[impl->app activateIgnoringOtherApps:YES];
+		[view->world->impl->app activateIgnoringOtherApps:YES];
 		[window makeFirstResponder:impl->wrapperView];
 		[window makeKeyAndOrderFront:window];
 	}
@@ -752,7 +768,7 @@ puglHideWindow(PuglView* view)
 }
 
 void
-puglDestroy(PuglView* view)
+puglFreeViewInternals(PuglView* view)
 {
 	view->backend->destroy(view);
 	[view->impl->wrapperView removeFromSuperview];
@@ -764,9 +780,7 @@ puglDestroy(PuglView* view)
 	if (view->impl->window) {
 		[view->impl->window release];
 	}
-	free(view->windowClass);
 	free(view->impl);
-	free(view);
 }
 
 void
@@ -791,7 +805,7 @@ void
 puglRequestAttention(PuglView* view)
 {
 	if (![view->impl->window isKeyWindow]) {
-		[NSApp requestUserAttention:NSInformationalRequest];
+		[view->world->impl->app requestUserAttention:NSInformationalRequest];
 		view->impl->wrapperView->urgentTimer =
 			[NSTimer scheduledTimerWithTimeInterval:2.0
 			                                 target:view->impl->wrapperView
@@ -820,7 +834,7 @@ puglProcessEvents(PuglView* view)
 {
 	if (view->impl->nextEvent) {
 		// Process event that was dequeued earier by puglWaitForEvent
-		[view->impl->app sendEvent: view->impl->nextEvent];
+		[view->world->impl->app sendEvent: view->impl->nextEvent];
 		view->impl->nextEvent = NULL;
 	}
 
@@ -830,7 +844,7 @@ puglProcessEvents(PuglView* view)
 	                                           untilDate:nil
 	                                              inMode:NSDefaultRunLoopMode
 	                                             dequeue:YES]);) {
-		[view->impl->app sendEvent: ev];
+		[view->world->impl->app sendEvent: ev];
 	}
 
 	return PUGL_SUCCESS;

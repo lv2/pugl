@@ -24,6 +24,7 @@
 #include "pugl/pugl.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 // Unused parameter macro to suppresses warnings and make it impossible to use
@@ -35,7 +36,10 @@
 #   define PUGL_UNUSED(name)
 #endif
 
-/** Platform-specific internals. */
+/** Platform-specific world internals. */
+typedef struct PuglWorldInternalsImpl PuglWorldInternals;
+
+/** Platform-specific view internals. */
 typedef struct PuglInternalsImpl PuglInternals;
 
 /** View hints. */
@@ -43,6 +47,7 @@ typedef int PuglHints[PUGL_NUM_WINDOW_HINTS];
 
 /** Cross-platform view definition. */
 struct PuglViewImpl {
+	PuglWorld*         world;
 	const PuglBackend* backend;
 	PuglInternals*     impl;
 	PuglHandle         handle;
@@ -61,6 +66,13 @@ struct PuglViewImpl {
 	int                max_aspect_x;
 	int                max_aspect_y;
 	bool               visible;
+};
+
+/** Cross-platform world definition. */
+struct PuglWorldImpl {
+	PuglWorldInternals* impl;
+	size_t              numViews;
+	PuglView**          views;
 };
 
 /** Opaque surface used by graphics backend. */

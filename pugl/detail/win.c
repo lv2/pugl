@@ -88,10 +88,14 @@ puglRegisterWindowClass(const char* name)
 	return RegisterClassEx(&wc);
 }
 
-PuglInternals*
-puglInitInternals(void)
+PuglWorldInternals*
+puglInitWorldInternals(void)
 {
-	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+	PuglWorldInternals* impl = (PuglWorldInternals*)calloc(
+		1, sizeof(PuglWorldInternals));
+	if (!impl) {
+		return NULL;
+	}
 
 	HMODULE user32 = LoadLibrary("user32.dll");
 	if (user32) {
@@ -108,6 +112,12 @@ puglInitInternals(void)
 	impl->timerFrequency = (double)frequency.QuadPart;
 
 	return impl;
+}
+
+PuglInternals*
+puglInitViewInternals(void)
+{
+	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
 
 int
@@ -171,17 +181,21 @@ puglHideWindow(PuglView* view)
 }
 
 void
-puglDestroy(PuglView* view)
+puglFreeViewInternals(PuglView* view)
 {
 	if (view) {
 		view->backend->destroy(view);
 		ReleaseDC(view->impl->hwnd, view->impl->hdc);
 		DestroyWindow(view->impl->hwnd);
 		UnregisterClass(view->windowClass ? view->windowClass : DEFAULT_CLASSNAME, NULL);
-		free(view->windowClass);
 		free(view->impl);
-		free(view);
 	}
+}
+
+void
+puglFreeWorldInternals(PuglWorld* world)
+{
+	free(world->impl);
 }
 
 static PuglKey
@@ -694,8 +708,8 @@ puglGetTime(PuglView* view)
 {
     LARGE_INTEGER count;
     QueryPerformanceCounter(&count);
-    const double now = (double)count.QuadPart / view->impl->timerFrequency;
-    return now - view->start_time;
+    return ((double)count.QuadPart / view->world->impl->timerFrequency -
+            view->start_time);
 }
 
 void

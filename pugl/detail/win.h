@@ -26,6 +26,10 @@
 
 typedef PIXELFORMATDESCRIPTOR PuglWinPFD;
 
+struct PuglWorldInternalsImpl {
+	double timerFrequency;
+};
+
 struct PuglInternalsImpl {
 	PuglWinPFD   pfd;
 	int          pfId;
@@ -33,7 +37,6 @@ struct PuglInternalsImpl {
 	HDC          hdc;
 	PuglSurface* surface;
 	DWORD        refreshRate;
-	double       timerFrequency;
 	bool         flashing;
 	bool         resizing;
 	bool         mouseTracked;

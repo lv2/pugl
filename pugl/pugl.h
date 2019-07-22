@@ -415,23 +415,72 @@ typedef union {
 } PuglEvent;
 
 /**
+   @name World
+   The top level context of a Pugl application.
+   @{
+*/
+
+/**
+   The "world" of application state.
+
+   The world represents things that are not associated with a particular view.
+   Several worlds can be created in a process (which is the case when many
+   plugins use Pugl, for example), but code using different worlds must be
+   isolated so they are never mixed.  Views are strongly associated with the
+   world they were created for.
+*/
+typedef struct PuglWorldImpl PuglWorld;
+
+/**
+   Create a new world.
+
+   @return A newly created world.
+*/
+PUGL_API PuglWorld*
+puglNewWorld(void);
+
+/**
+   Free a world allocated with puglNewWorld().
+*/
+PUGL_API void
+puglFreeWorld(PuglWorld* world);
+
+/**
+   @}
    @name Initialization
    Configuration functions which must be called before creating a window.
    @{
 */
 
 /**
-   Create a Pugl view.
+   Create a Pugl application and view.
 
    To create a window, call the various puglInit* functions as necessary, then
    call puglCreateWindow().
+
+   @deprecated Use puglNewApp() and puglNewView().
 
    @param pargc Pointer to argument count (currently unused).
    @param argv  Arguments (currently unused).
    @return A newly created view.
 */
-PUGL_API PuglView*
+PUGL_API PUGL_DEPRECATED_BY("puglNewView") PuglView*
 puglInit(int* pargc, char** argv);
+
+/**
+   Create a new view.
+
+   A view represents a window, but a window will not be shown until configured
+   with the various puglInit functions and shown with puglShowWindow().
+*/
+PUGL_API PuglView*
+puglNewView(PuglWorld* world);
+
+/**
+   Free a view created with puglNewView().
+*/
+PUGL_API void
+puglFreeView(PuglView* view);
 
 /**
    Set a hint before creating a window.
@@ -715,9 +764,11 @@ PUGL_API void
 puglPostRedisplay(PuglView* view);
 
 /**
-   Destroy a GL window.
+   Destroy an app and view created with `puglInit()`.
+
+   @deprecated Use puglFreeApp() and puglFreeView().
 */
-PUGL_API void
+PUGL_API PUGL_DEPRECATED_BY("puglFreeView") void
 puglDestroy(PuglView* view);
 
 /**

@@ -23,6 +23,10 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+struct PuglWorldInternalsImpl {
+	Display* display;
+};
+
 struct PuglInternalsImpl {
 	Display*     display;
 	int          screen;

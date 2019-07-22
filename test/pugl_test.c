@@ -34,16 +34,17 @@
 
 typedef struct
 {
-	bool     continuous;
-	int      quit;
-	float    xAngle;
-	float    yAngle;
-	float    dist;
-	double   lastMouseX;
-	double   lastMouseY;
-	double   lastDrawTime;
-	unsigned framesDrawn;
-	bool     mouseEntered;
+	PuglWorld* world;
+	bool       continuous;
+	int        quit;
+	float      xAngle;
+	float      yAngle;
+	float      dist;
+	double     lastMouseX;
+	double     lastMouseY;
+	double     lastDrawTime;
+	unsigned   framesDrawn;
+	bool       mouseEntered;
 } PuglTestApp;
 
 static void
@@ -178,7 +179,9 @@ main(int argc, char** argv)
 		}
 	}
 
-	PuglView* view = puglInit(NULL, NULL);
+	app.world = puglNewWorld();
+
+	PuglView* view = puglNewView(app.world);
 	puglInitWindowClass(view, "PuglTest");
 	puglInitWindowSize(view, 512, 512);
 	puglInitWindowMinSize(view, 256, 256);
@@ -224,6 +227,8 @@ main(int argc, char** argv)
 		}
 	}
 
-	puglDestroy(view);
+	puglFreeView(view);
+	puglFreeWorld(app.world);
+
 	return 0;
 }

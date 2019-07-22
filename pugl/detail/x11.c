@@ -60,8 +60,24 @@ static const long eventMask =
 	 EnterWindowMask | LeaveWindowMask | PointerMotionMask |
 	 ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask);
 
+PuglWorldInternals*
+puglInitWorldInternals(void)
+{
+	Display* display = XOpenDisplay(NULL);
+	if (!display) {
+		return NULL;
+	}
+
+	PuglWorldInternals* impl = (PuglWorldInternals*)calloc(
+		1, sizeof(PuglWorldInternals));
+
+	impl->display = display;
+
+	return impl;
+}
+
 PuglInternals*
-puglInitInternals(void)
+puglInitViewInternals(void)
 {
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
@@ -70,7 +86,7 @@ int
 puglCreateWindow(PuglView* view, const char* title)
 {
 	PuglInternals* const impl    = view->impl;
-	Display* const       display = XOpenDisplay(0);
+	Display* const       display = view->world->impl->display;
 
 	impl->display = display;
 	impl->screen  = DefaultScreen(display);
@@ -183,7 +199,7 @@ puglHideWindow(PuglView* view)
 }
 
 void
-puglDestroy(PuglView* view)
+puglFreeViewInternals(PuglView* view)
 {
 	if (view) {
 		if (view->impl->xic) {
@@ -194,12 +210,16 @@ puglDestroy(PuglView* view)
 		}
 		view->backend->destroy(view);
 		XDestroyWindow(view->impl->display, view->impl->win);
-		XCloseDisplay(view->impl->display);
 		XFree(view->impl->vi);
-		free(view->windowClass);
 		free(view->impl);
-		free(view);
 	}
+}
+
+void
+puglFreeWorldInternals(PuglWorld* world)
+{
+	XCloseDisplay(world->impl->display);
+	free(world->impl);
 }
 
 static PuglKey

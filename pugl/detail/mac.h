@@ -50,6 +50,11 @@
 
 @end
 
+struct PuglWorldInternalsImpl {
+	NSApplication*     app;
+	NSAutoreleasePool* autoreleasePool;
+};
+
 struct PuglInternalsImpl {
 	NSApplication*   app;
 	PuglWrapperView* wrapperView;
