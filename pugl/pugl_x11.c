@@ -56,6 +56,11 @@ enum WmClientStateMessageAction {
 	WM_STATE_TOGGLE
 };
 
+static const long eventMask =
+	(ExposureMask | StructureNotifyMask | FocusChangeMask |
+	 EnterWindowMask | LeaveWindowMask | PointerMotionMask |
+	 ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask);
+
 PuglInternals*
 puglInitInternals(void)
 {
@@ -116,11 +121,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	XSetWindowAttributes attr = {0};
 	attr.colormap   = cmap;
-	attr.event_mask = (ExposureMask | StructureNotifyMask |
-	                   EnterWindowMask | LeaveWindowMask |
-	                   KeyPressMask | KeyReleaseMask |
-	                   ButtonPressMask | ButtonReleaseMask |
-	                   PointerMotionMask | FocusChangeMask);
+	attr.event_mask = eventMask;
 
 	const Window win = impl->win = XCreateWindow(
 		display, xParent,
