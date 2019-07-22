@@ -488,28 +488,29 @@ puglProcessEvents(PuglView* view)
 	/* Maintain a single expose/configure event to execute after all pending
 	   events.  This avoids redundant drawing/configuration which prevents a
 	   series of window resizes in the same loop from being laggy. */
-	PuglEvent expose_event = { 0 };
-	PuglEvent config_event = { 0 };
-	XEvent    xevent;
-	while (XPending(view->impl->display) > 0) {
-		XNextEvent(view->impl->display, &xevent);
+	PuglInternals* const impl         = view->impl;
+	PuglEvent            expose_event = { 0 };
+	PuglEvent            config_event = { 0 };
+	XEvent               xevent;
+	while (XPending(impl->display) > 0) {
+		XNextEvent(impl->display, &xevent);
 		if (xevent.type == KeyRelease) {
 			// Ignore key repeat if necessary
 			if (view->ignoreKeyRepeat &&
-			    XEventsQueued(view->impl->display, QueuedAfterReading)) {
+			    XEventsQueued(impl->display, QueuedAfterReading)) {
 				XEvent next;
-				XPeekEvent(view->impl->display, &next);
+				XPeekEvent(impl->display, &next);
 				if (next.type == KeyPress &&
 				    next.xkey.time == xevent.xkey.time &&
 				    next.xkey.keycode == xevent.xkey.keycode) {
-					XNextEvent(view->impl->display, &xevent);
+					XNextEvent(impl->display, &xevent);
 					continue;
 				}
 			}
 		} else if (xevent.type == FocusIn) {
-			XSetICFocus(view->impl->xic);
+			XSetICFocus(impl->xic);
 		} else if (xevent.type == FocusOut) {
-			XUnsetICFocus(view->impl->xic);
+			XUnsetICFocus(impl->xic);
 		}
 
 		// Translate X11 event to Pugl event
@@ -533,7 +534,7 @@ puglProcessEvents(PuglView* view)
 		if (config_event.type) {
 			view->width  = (int)config_event.configure.width;
 			view->height = (int)config_event.configure.height;
-			view->impl->ctx.resize(view, view->width, view->height);
+			impl->ctx.resize(view, view->width, view->height);
 			view->eventFunc(view, (const PuglEvent*)&config_event);
 		}
 
