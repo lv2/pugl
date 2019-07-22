@@ -600,11 +600,11 @@ puglProcessEvents(PuglView* view)
 }
 
 double
-puglGetTime(PuglView* view)
+puglGetTime(const PuglWorld* world)
 {
 	struct timespec ts;
 	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return ((double)ts.tv_sec + ts.tv_nsec / 1000000000.0) - view->start_time;
+	return ((double)ts.tv_sec + ts.tv_nsec / 1000000000.0) - world->startTime;
 }
 
 void

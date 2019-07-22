@@ -67,6 +67,8 @@ puglNewWorld(void)
 		return NULL;
 	}
 
+	world->startTime = puglGetTime(world);
+
 	return world;
 }
 
@@ -90,7 +92,6 @@ puglNewView(PuglWorld* const world)
 	view->world      = world;
 	view->width      = 640;
 	view->height     = 480;
-	view->start_time = puglGetTime(view);
 
 	puglSetDefaultHints(view->hints);
 

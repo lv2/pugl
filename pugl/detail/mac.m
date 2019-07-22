@@ -868,9 +868,9 @@ puglGetProcAddress(const char *name)
 }
 
 double
-puglGetTime(PuglView* view)
+puglGetTime(const PuglWorld* world)
 {
-	return (mach_absolute_time() / 1e9) - view->start_time;
+	return (mach_absolute_time() / 1e9) - world->startTime;
 }
 
 void

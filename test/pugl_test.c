@@ -70,7 +70,7 @@ onDisplay(PuglView* view)
 {
 	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
-	const double thisTime = puglGetTime(view);
+	const double thisTime = puglGetTime(app->world);
 	if (app->continuous) {
 		const double dTime = thisTime - app->lastDrawTime;
 		app->xAngle = fmodf((float)(app->xAngle + dTime * 100.0f), 360.0f);
@@ -204,10 +204,10 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
-	PuglFpsPrinter fpsPrinter         = { puglGetTime(view) };
+	PuglFpsPrinter fpsPrinter         = { puglGetTime(app.world) };
 	bool           requestedAttention = false;
 	while (!app.quit) {
-		const double thisTime = puglGetTime(view);
+		const double thisTime = puglGetTime(app.world);
 
 		if (app.continuous) {
 			puglPostRedisplay(view);
@@ -223,7 +223,7 @@ main(int argc, char** argv)
 		}
 
 		if (app.continuous) {
-			puglPrintFps(view, &fpsPrinter, &app.framesDrawn);
+			puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
 		}
 	}
 

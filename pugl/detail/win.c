@@ -704,12 +704,12 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 double
-puglGetTime(PuglView* view)
+puglGetTime(const PuglWorld* world)
 {
     LARGE_INTEGER count;
     QueryPerformanceCounter(&count);
-    return ((double)count.QuadPart / view->world->impl->timerFrequency -
-            view->start_time);
+    return ((double)count.QuadPart / world->impl->timerFrequency -
+            world->startTime);
 }
 
 void

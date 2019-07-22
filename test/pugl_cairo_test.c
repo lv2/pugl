@@ -30,6 +30,8 @@
 #include <stdio.h>
 #include <string.h>
 
+static PuglWorld* world = NULL;
+
 static bool     continuous  = false;
 static int      quit        = 0;
 static bool     entered     = false;
@@ -130,7 +132,7 @@ onDisplay(PuglView* view)
 
 	// Draw button
 	for (Button* b = buttons; b->label; ++b) {
-		buttonDraw(cr, b, continuous ? puglGetTime(view) : 0.0);
+		buttonDraw(cr, b, continuous ? puglGetTime(world) : 0.0);
 	}
 
 	++framesDrawn;
@@ -202,8 +204,9 @@ main(int argc, char** argv)
 		}
 	}
 
-	PuglWorld* world = puglNewWorld();
-	PuglView*  view  = puglNewView(world);
+	world = puglNewWorld();
+
+	PuglView* view = puglNewView(world);
 	puglInitWindowClass(view, "PuglCairoTest");
 	puglInitWindowSize(view, 512, 512);
 	puglInitWindowMinSize(view, 256, 256);
@@ -219,7 +222,7 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
-	PuglFpsPrinter fpsPrinter = { puglGetTime(view) };
+	PuglFpsPrinter fpsPrinter = { puglGetTime(world) };
 	while (!quit) {
 		if (continuous) {
 			puglPostRedisplay(view);
@@ -230,7 +233,7 @@ main(int argc, char** argv)
 		puglProcessEvents(view);
 
 		if (continuous) {
-			puglPrintFps(view, &fpsPrinter, &framesDrawn);
+			puglPrintFps(world, &fpsPrinter, &framesDrawn);
 		}
 	}
 

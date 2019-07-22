@@ -148,11 +148,11 @@ printEvent(const PuglEvent* event, const char* prefix)
 }
 
 static inline void
-puglPrintFps(PuglView*       view,
-             PuglFpsPrinter* printer,
-             unsigned* const framesDrawn)
+puglPrintFps(const PuglWorld* world,
+             PuglFpsPrinter*  printer,
+             unsigned* const  framesDrawn)
 {
-	const double thisTime = puglGetTime(view);
+	const double thisTime = puglGetTime(world);
 	if (thisTime > printer->lastReportTime + 5) {
 		const double fps = *framesDrawn / (thisTime - printer->lastReportTime);
 		fprintf(stderr,
