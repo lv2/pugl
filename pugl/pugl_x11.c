@@ -527,16 +527,22 @@ puglProcessEvents(PuglView* view)
 		}
 	}
 
-	if (config_event.type) {
-		// Resize drawing context before dispatching
-		view->impl->ctx.resize(view,
-		                       (int)config_event.configure.width,
-		                       (int)config_event.configure.height);
-		puglDispatchEvent(view, (const PuglEvent*)&config_event);
-	}
+	if (config_event.type || expose_event.type) {
+		puglEnterContext(view);
 
-	if (expose_event.type) {
-		puglDispatchEvent(view, (const PuglEvent*)&expose_event);
+		if (config_event.type) {
+			view->width  = (int)config_event.configure.width;
+			view->height = (int)config_event.configure.height;
+			view->impl->ctx.resize(view, view->width, view->height);
+			view->eventFunc(view, (const PuglEvent*)&config_event);
+		}
+
+		if (expose_event.type && expose_event.expose.count == 0) {
+			view->eventFunc(view, (const PuglEvent*)&expose_event);
+			puglLeaveContext(view, true);
+		} else {
+			puglLeaveContext(view, false);
+		}
 	}
 
 	return PUGL_SUCCESS;
