@@ -172,6 +172,22 @@ puglWinError(PuglFakeWindow* fakeWin, const int status)
 	return status;
 }
 
+static unsigned
+getWindowFlags(PuglView* view)
+{
+	return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+	        (view->parent
+	         ? WS_CHILD
+	         : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX |
+	            (view->hints.resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0))));
+}
+
+static unsigned
+getWindowExFlags(PuglView* view)
+{
+	return WS_EX_NOINHERITLAYOUT | (view->parent ? 0u : WS_EX_APPWINDOW);
+}
+
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
@@ -207,15 +223,13 @@ puglCreateWindow(PuglView* view, const char* title)
 	}
 
 	// Calculate window flags
-	unsigned winFlags = (view->parent
-	                     ? WS_CHILD
-	                     : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX));
+	const unsigned winFlags   = getWindowFlags(view);
+	const unsigned winExFlags = getWindowExFlags(view);
 	if (view->hints.resizable) {
-		winFlags |= WS_SIZEBOX | WS_MAXIMIZEBOX;
 		if (view->min_width || view->min_height) {
 			// Adjust the minimum window size to accomodate requested view size
 			RECT mr = { 0, 0, view->min_width, view->min_height };
-			AdjustWindowRectEx(&mr, winFlags, FALSE, WS_EX_TOPMOST);
+			AdjustWindowRectEx(&mr, winFlags, FALSE, winExFlags);
 			view->min_width  = mr.right - mr.left;
 			view->min_height = mr.bottom - mr.top;
 		}
@@ -223,13 +237,13 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	// Adjust the window size to accomodate requested view size
 	RECT wr = { 0, 0, view->width, view->height };
-	AdjustWindowRectEx(&wr, winFlags, FALSE, WS_EX_TOPMOST);
+	AdjustWindowRectEx(&wr, winFlags, FALSE, winExFlags);
 
 	// Create fake window for getting at GL context
 	PuglFakeWindow fakeWin = puglMakeFakeWindow(
-		CreateWindowEx(WS_EX_TOPMOST,
+		CreateWindowEx(winExFlags,
 		               className, title,
-		               (view->parent ? WS_CHILD : winFlags),
+		               winFlags,
 		               CW_USEDEFAULT, CW_USEDEFAULT,
 		               wr.right-wr.left, wr.bottom-wr.top,
 		               (HWND)view->parent, NULL, NULL, NULL));
@@ -267,9 +281,9 @@ puglCreateWindow(PuglView* view, const char* title)
 	if (wglChoosePixelFormat && wglCreateContextAttribs) {
 		// Now create real window
 		impl->hwnd = CreateWindowEx(
-			WS_EX_TOPMOST,
+			winExFlags,
 			className, title,
-			(view->parent ? WS_CHILD : winFlags),
+			winFlags,
 			CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
 			(HWND)view->parent, NULL, NULL, NULL);
 
