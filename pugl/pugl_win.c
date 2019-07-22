@@ -600,7 +600,7 @@ static RECT
 handleConfigure(PuglView* view, PuglEvent* event)
 {
 	RECT rect;
-	GetWindowRect(view->impl->hwnd, &rect);
+	GetClientRect(view->impl->hwnd, &rect);
 	view->width  = rect.right - rect.left;
 	view->height = rect.bottom - rect.top;
 
