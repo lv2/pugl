@@ -45,4 +45,6 @@ struct PuglInternalsImpl {
 	Window       win;
 	XIC          xic;
 	PuglSurface* surface;
+	PuglEvent    pendingConfigure;
+	PuglEvent    pendingExpose;
 };

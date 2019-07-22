@@ -842,18 +842,24 @@ puglWaitForEvent(PuglView* view)
 	return puglPollEvents(view->world, -1.0);
 }
 
-PuglStatus
-puglProcessEvents(PuglView* view)
+PUGL_API PuglStatus
+puglDispatchEvents(PuglWorld* world)
 {
 	for (NSEvent* ev = NULL;
-	     (ev = [view->impl->window nextEventMatchingMask:NSAnyEventMask
-	                                           untilDate:nil
-	                                              inMode:NSDefaultRunLoopMode
-	                                             dequeue:YES]);) {
-		[view->world->impl->app sendEvent: ev];
+	     (ev = [world->impl->app nextEventMatchingMask:NSAnyEventMask
+	                                         untilDate:nil
+	                                            inMode:NSDefaultRunLoopMode
+	                                           dequeue:YES]);) {
+		[world->impl->app sendEvent: ev];
 	}
 
 	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglProcessEvents(PuglView* view)
+{
+	return puglDispatchEvents(view->world);
 }
 
 PuglGlFunc

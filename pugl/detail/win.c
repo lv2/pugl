@@ -682,16 +682,22 @@ puglWaitForEvent(PuglView* PUGL_UNUSED(view))
 	return PUGL_SUCCESS;
 }
 
-PuglStatus
-puglProcessEvents(PuglView* view)
+PUGL_API PuglStatus
+puglDispatchEvents(PuglWorld* PUGL_UNUSED(world))
 {
 	MSG msg;
-	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
 	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglProcessEvents(PuglView* view)
+{
+	return puglDispatchEvents(view->world);
 }
 
 LRESULT CALLBACK

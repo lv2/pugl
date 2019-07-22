@@ -472,6 +472,17 @@ PUGL_API PuglStatus
 puglPollEvents(PuglWorld* world, double timeout);
 
 /**
+   Dispatch any pending events to views.
+
+   This processes all pending events, dispatching them to the appropriate
+   views.  View event handlers will be called in the scope of this call.  This
+   function does not block, if no events are pending it will return
+   immediately.
+*/
+PUGL_API PuglStatus
+puglDispatchEvents(PuglWorld* world);
+
+/**
    @}
    @name Initialization
    Configuration functions which must be called before creating a window.
@@ -756,8 +767,10 @@ puglWaitForEvent(PuglView* view);
    This handles input events as well as rendering, so it should be called
    regularly and rapidly enough to keep the UI responsive.  This function does
    not block if no events are pending.
+
+   @deprecated Use puglDispatchEvents().
 */
-PUGL_API PuglStatus
+PUGL_API PUGL_DEPRECATED_BY("puglDispatchEvents") PuglStatus
 puglProcessEvents(PuglView* view);
 
 /**

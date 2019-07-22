@@ -127,6 +127,18 @@ puglPollEvents(PuglWorld* world, const double timeout)
 	return ret < 0 ? PUGL_ERR_UNKNOWN : ret == 0 ? PUGL_FAILURE : PUGL_SUCCESS;
 }
 
+static PuglView*
+puglFindView(PuglWorld* world, const Window window)
+{
+	for (size_t i = 0; i < world->numViews; ++i) {
+		if (world->views[i]->impl->win == window) {
+			return world->views[i];
+		}
+	}
+
+	return NULL;
+}
+
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
@@ -557,30 +569,32 @@ merge_expose_events(PuglEvent* dst, const PuglEvent* src)
 	}
 }
 
-PuglStatus
-puglProcessEvents(PuglView* view)
+PUGL_API PuglStatus
+puglDispatchEvents(PuglWorld* world)
 {
-	/* Maintain a single expose/configure event to execute after all pending
-	   events.  This avoids redundant drawing/configuration which prevents a
-	   series of window resizes in the same loop from being laggy. */
-	PuglInternals* const impl         = view->impl;
-	PuglEvent            expose_event = { 0 };
-	PuglEvent            config_event = { 0 };
-	XEvent               xevent;
-	while (XPending(impl->display) > 0) {
-		XNextEvent(impl->display, &xevent);
-		if (xevent.type == KeyRelease) {
-			// Ignore key repeat if necessary
-			if (view->hints[PUGL_IGNORE_KEY_REPEAT] &&
-			    XEventsQueued(impl->display, QueuedAfterReading)) {
-				XEvent next;
-				XPeekEvent(impl->display, &next);
-				if (next.type == KeyPress &&
-				    next.xkey.time == xevent.xkey.time &&
-				    next.xkey.keycode == xevent.xkey.keycode) {
-					XNextEvent(impl->display, &xevent);
-					continue;
-				}
+	// Flush just once at the start to fill event queue
+	Display* display = world->impl->display;
+	XFlush(display);
+
+	// Process all queued events (locally, without flushing or reading)
+	while (XEventsQueued(display, QueuedAlready) > 0) {
+		XEvent xevent;
+		XNextEvent(display, &xevent);
+
+		PuglView* view = puglFindView(world, xevent.xany.window);
+		if (!view) {
+			continue;
+		}
+
+		// Handle special events
+		PuglInternals* const impl = view->impl;
+		if (xevent.type == KeyRelease && view->hints[PUGL_IGNORE_KEY_REPEAT]) {
+			XEvent next;
+			if (XCheckTypedWindowEvent(display, impl->win, KeyPress, &next) &&
+			    next.type == KeyPress &&
+			    next.xkey.time == xevent.xkey.time &&
+			    next.xkey.keycode == xevent.xkey.keycode) {
+				continue;
 			}
 		} else if (xevent.type == FocusIn) {
 			XSetICFocus(impl->xic);
@@ -593,36 +607,50 @@ puglProcessEvents(PuglView* view)
 
 		if (event.type == PUGL_EXPOSE) {
 			// Expand expose event to be dispatched after loop
-			merge_expose_events(&expose_event, &event);
+			merge_expose_events(&view->impl->pendingExpose, &event);
 		} else if (event.type == PUGL_CONFIGURE) {
 			// Expand configure event to be dispatched after loop
-			config_event = event;
+			view->impl->pendingConfigure = event;
 		} else {
 			// Dispatch event to application immediately
 			puglDispatchEvent(view, &event);
 		}
 	}
 
-	if (config_event.type || expose_event.type) {
-		const bool draw = expose_event.type && expose_event.expose.count == 0;
+	// Flush pending configure and expose events for all views
+	for (size_t i = 0; i < world->numViews; ++i) {
+		PuglView* const  view      = world->views[i];
+		PuglEvent* const configure = &view->impl->pendingConfigure;
+		PuglEvent* const expose    = &view->impl->pendingExpose;
 
-		puglEnterContext(view, draw);
+		if (configure->type || expose->type) {
+			const bool mustExpose = expose->type && expose->expose.count == 0;
+			puglEnterContext(view, mustExpose);
 
-		if (config_event.type) {
-			view->width  = (int)config_event.configure.width;
-			view->height = (int)config_event.configure.height;
-			view->backend->resize(view, view->width, view->height);
-			view->eventFunc(view, (const PuglEvent*)&config_event);
+			if (configure->type) {
+				view->width  = (int)configure->configure.width;
+				view->height = (int)configure->configure.height;
+				view->backend->resize(view, view->width, view->height);
+				view->eventFunc(view, &view->impl->pendingConfigure);
+			}
+
+			if (mustExpose) {
+				view->eventFunc(view, &view->impl->pendingExpose);
+			}
+
+			puglLeaveContext(view, mustExpose);
+			configure->type = 0;
+			expose->type    = 0;
 		}
-
-		if (draw) {
-			view->eventFunc(view, (const PuglEvent*)&expose_event);
-		}
-
-		puglLeaveContext(view, draw);
 	}
 
 	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglProcessEvents(PuglView* view)
+{
+	return puglDispatchEvents(view->world);
 }
 
 double

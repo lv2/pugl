@@ -215,7 +215,7 @@ main(int argc, char** argv)
 			puglPollEvents(app.world, -1);
 		}
 
-		puglProcessEvents(view);
+		puglDispatchEvents(app.world);
 
 		if (!requestedAttention && thisTime > 5.0) {
 			puglRequestAttention(view);

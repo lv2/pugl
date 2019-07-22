@@ -230,7 +230,7 @@ main(int argc, char** argv)
 			puglPollEvents(world, -1);
 		}
 
-		puglProcessEvents(view);
+		puglDispatchEvents(world);
 
 		if (continuous) {
 			puglPrintFps(world, &fpsPrinter, &framesDrawn);
