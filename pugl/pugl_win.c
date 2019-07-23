@@ -401,32 +401,43 @@ static PuglKey
 keySymToSpecial(WPARAM sym)
 {
 	switch (sym) {
-	case VK_F1:      return PUGL_KEY_F1;
-	case VK_F2:      return PUGL_KEY_F2;
-	case VK_F3:      return PUGL_KEY_F3;
-	case VK_F4:      return PUGL_KEY_F4;
-	case VK_F5:      return PUGL_KEY_F5;
-	case VK_F6:      return PUGL_KEY_F6;
-	case VK_F7:      return PUGL_KEY_F7;
-	case VK_F8:      return PUGL_KEY_F8;
-	case VK_F9:      return PUGL_KEY_F9;
-	case VK_F10:     return PUGL_KEY_F10;
-	case VK_F11:     return PUGL_KEY_F11;
-	case VK_F12:     return PUGL_KEY_F12;
-	case VK_LEFT:    return PUGL_KEY_LEFT;
-	case VK_UP:      return PUGL_KEY_UP;
-	case VK_RIGHT:   return PUGL_KEY_RIGHT;
-	case VK_DOWN:    return PUGL_KEY_DOWN;
-	case VK_PRIOR:   return PUGL_KEY_PAGE_UP;
-	case VK_NEXT:    return PUGL_KEY_PAGE_DOWN;
-	case VK_HOME:    return PUGL_KEY_HOME;
-	case VK_END:     return PUGL_KEY_END;
-	case VK_INSERT:  return PUGL_KEY_INSERT;
-	case VK_SHIFT:   return PUGL_KEY_SHIFT;
-	case VK_CONTROL: return PUGL_KEY_CTRL;
-	case VK_MENU:    return PUGL_KEY_ALT;
-	case VK_LWIN:    return PUGL_KEY_SUPER;
-	case VK_RWIN:    return PUGL_KEY_SUPER;
+	case VK_F1:       return PUGL_KEY_F1;
+	case VK_F2:       return PUGL_KEY_F2;
+	case VK_F3:       return PUGL_KEY_F3;
+	case VK_F4:       return PUGL_KEY_F4;
+	case VK_F5:       return PUGL_KEY_F5;
+	case VK_F6:       return PUGL_KEY_F6;
+	case VK_F7:       return PUGL_KEY_F7;
+	case VK_F8:       return PUGL_KEY_F8;
+	case VK_F9:       return PUGL_KEY_F9;
+	case VK_F10:      return PUGL_KEY_F10;
+	case VK_F11:      return PUGL_KEY_F11;
+	case VK_F12:      return PUGL_KEY_F12;
+	case VK_LEFT:     return PUGL_KEY_LEFT;
+	case VK_UP:       return PUGL_KEY_UP;
+	case VK_RIGHT:    return PUGL_KEY_RIGHT;
+	case VK_DOWN:     return PUGL_KEY_DOWN;
+	case VK_PRIOR:    return PUGL_KEY_PAGE_UP;
+	case VK_NEXT:     return PUGL_KEY_PAGE_DOWN;
+	case VK_HOME:     return PUGL_KEY_HOME;
+	case VK_END:      return PUGL_KEY_END;
+	case VK_INSERT:   return PUGL_KEY_INSERT;
+	case VK_SHIFT:
+	case VK_LSHIFT:   return PUGL_KEY_SHIFT_L;
+	case VK_RSHIFT:   return PUGL_KEY_SHIFT_R;
+	case VK_CONTROL:
+	case VK_LCONTROL: return PUGL_KEY_CTRL_L;
+	case VK_RCONTROL: return PUGL_KEY_CTRL_R;
+	case VK_MENU:
+	case VK_LMENU:    return PUGL_KEY_ALT_L;
+	case VK_RMENU:    return PUGL_KEY_ALT_R;
+	case VK_LWIN:     return PUGL_KEY_SUPER_L;
+	case VK_RWIN:     return PUGL_KEY_SUPER_R;
+	case VK_CAPITAL:  return PUGL_KEY_CAPS_LOCK;
+	case VK_SCROLL:   return PUGL_KEY_SCROLL_LOCK;
+	case VK_NUMLOCK:  return PUGL_KEY_NUM_LOCK;
+	case VK_SNAPSHOT: return PUGL_KEY_PRINT_SCREEN;
+	case VK_PAUSE:    return PUGL_KEY_PAUSE;
 	}
 	return (PuglKey)0;
 }
@@ -516,10 +527,15 @@ initKeyEvent(PuglEventKey* event,
 	POINT cpos = { rpos.x, rpos.y };
 	ScreenToClient(view->impl->hwnd, &rpos);
 
-	const unsigned vkey  = (unsigned)wParam;
+	const unsigned scode = (uint32_t)((lParam & 0xFF0000) >> 16);
+	const unsigned vkey  = ((wParam == VK_SHIFT)
+	                        ? MapVirtualKey(scode, MAPVK_VSC_TO_VK_EX)
+	                        : (unsigned)wParam);
+
 	const unsigned vcode = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
 	const unsigned kchar = MapVirtualKey(vkey, MAPVK_VK_TO_CHAR);
 	const bool     dead  = kchar >> (sizeof(UINT) * 8 - 1) & 1;
+	const bool     ext   = lParam & 0x01000000;
 
 	event->type    = press ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
 	event->time    = GetMessageTime() / 1e3;
@@ -533,7 +549,11 @@ initKeyEvent(PuglEventKey* event,
 
 	const PuglKey special = keySymToSpecial(vkey);
 	if (special) {
-		event->key = special;
+		if (ext && (special == PUGL_KEY_CTRL || special == PUGL_KEY_ALT)) {
+			event->key = special + 1u; // Right hand key
+		} else {
+			event->key = special;
+		}
 	} else if (!dead) {
 		// Translate unshifted key
 		BYTE    keyboardState[256] = {0};
@@ -749,6 +769,14 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KILLFOCUS:
 		event.type = PUGL_FOCUS_OUT;
 		break;
+	case WM_SYSKEYDOWN:
+		initKeyEvent(&event.key, view, true, wParam, lParam);
+		break;
+	case WM_SYSKEYUP:
+		initKeyEvent(&event.key, view, false, wParam, lParam);
+		break;
+	case WM_SYSCHAR:
+		return TRUE;
 	case WM_QUIT:
 	case PUGL_LOCAL_CLOSE_MSG:
 		event.close.type = PUGL_CLOSE;
