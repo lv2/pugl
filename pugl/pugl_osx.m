@@ -671,6 +671,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		NSView* pview = (NSView*)view->parent;
 		[pview addSubview:impl->glview];
 		[impl->glview setHidden:NO];
+		[[impl->glview window] makeFirstResponder:impl->glview];
 	} else {
 		NSString* titleString = [[NSString alloc]
 			                        initWithBytes:title
