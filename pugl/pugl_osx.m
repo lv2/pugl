@@ -200,6 +200,11 @@ struct PuglInternalsImpl {
 #endif
 }
 
+- (BOOL) isFlipped
+{
+	return YES;
+}
+
 - (BOOL) acceptsFirstResponder
 {
 	return YES;
