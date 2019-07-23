@@ -159,7 +159,7 @@ def build(bld):
                 target = prog
 
             bld(features     = 'c cprogram',
-                source       = '%s.c' % prog,
+                source       = 'test/%s.c' % prog,
                 use          = 'libpugl_static',
                 lib          = test_libs,
                 target       = target,
