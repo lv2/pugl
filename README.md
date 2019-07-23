@@ -2,31 +2,31 @@ Pugl
 ====
 
 Pugl (PlUgin Graphics Library) is a minimal portable API for GUIs which is
-suitable for use in plugins.  It works on X11, MacOS, and Windows, and supports
-OpenGL and Cairo graphics contexts.
+suitable for use in plugins.  It works on X11, MacOS, and Windows, and
+optionally supports OpenGL and Cairo graphics contexts.
 
-Pugl is vaguely similar to other libraries like GLUT and GLFW, but with some
-significant distinctions:
+Pugl is vaguely similar to libraries like GLUT and GLFW, but with some
+distinguishing features:
 
- * Minimal in scope, providing only a small interface to isolate
+ * Minimal in scope, providing only a thin interface to isolate
    platform-specific details from applications.
 
- * Support for embedding in other windows, so Pugl can be used to draw several
-   "widgets" inside a larger GUI.
+ * Zero dependencies, aside from standard system libraries.
+
+ * Support for embedding in native windows, for example as a plugin or
+   component within a larger application that is not based on Pugl.
 
  * Simple and extensible event-based API that makes dispatching in application
-   or toolkit code easy without too much boilerplate.
+   or toolkit code easy with minimal boilerplate.
 
- * Unlike GLFW, context is explicit and there is no static data whatsoever, so
-   Pugl can be used in plugins or several independent parts of a program.
+ * Suitable not only for continuously rendering applications like games, but
+   also event-driven applications that only draw when necessary.
 
- * Unlike GLUT, there is a single implementation which is modern, small,
-   liberally licensed Free Software, and suitable for vendoring and static
-   linking to avoid dependency problems.
+ * Explicit context and no static data whatsoever, so that several instances
+   can be used within a single program at once.
 
- * More complete support for keyboard input than GLUT, including additional
-   "special" keys, modifiers, and international text input.
-
-For more information, see <http://drobilla.net/software/pugl>.
+ * Small, liberally licensed Free Software implementation that is suitable for
+   vendoring and/or static linking.  Pugl can be installed as a library, or
+   used by simply copying the headers into a project.
 
  -- David Robillard <d@drobilla.net>
