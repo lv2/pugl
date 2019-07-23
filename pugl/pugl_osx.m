@@ -657,9 +657,8 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	impl->glview           = [PuglOpenGLView alloc];
 	impl->glview->puglview = view;
-	[impl->glview init];
 
-	[impl->glview setFrameSize:NSMakeSize(view->width, view->height)];
+	[impl->glview initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
 	[impl->glview addConstraint:
 		     puglConstraint(impl->glview, NSLayoutAttributeWidth, view->min_width)];
 	[impl->glview addConstraint:
