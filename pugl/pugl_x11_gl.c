@@ -94,6 +94,8 @@ puglX11GlConfigure(PuglView* view)
 	       puglX11GlGetAttrib(display, fbc[0], GLX_DOUBLEBUFFER),
 	       puglX11GlGetAttrib(display, fbc[0], GLX_SAMPLES));
 
+	XFree(fbc);
+
 	return 0;
 }
 
