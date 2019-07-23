@@ -207,9 +207,8 @@ main(int argc, char** argv)
 
 	world = puglNewWorld();
 
-	const PuglRect frame = { 0, 0, 512, 512 };
-
-	PuglView* view = puglNewView(world);
+	PuglRect  frame = { 0, 0, 512, 512 };
+	PuglView* view  = puglNewView(world);
 	puglInitWindowClass(view, "PuglCairoTest");
 	puglSetFrame(view, frame);
 	puglInitWindowMinSize(view, 256, 256);

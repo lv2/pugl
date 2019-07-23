@@ -24,54 +24,49 @@ typedef struct {
 	double lastReportTime;
 } PuglFpsPrinter;
 
-static const float cubeVertices[] = {
-	-1.0f, -1.0f, -1.0f,
-	-1.0f, -1.0f,  1.0f,
-	-1.0f,  1.0f,  1.0f,
+static const float cubeStripVertices[] = {
+	-1.0f,  1.0f,  1.0f, // Front top left
+	 1.0f,  1.0f,  1.0f, // Front top right
+	-1.0f, -1.0f,  1.0f, // Front bottom left
+	 1.0f, -1.0f,  1.0f, // Front bottom right
+	 1.0f, -1.0f, -1.0f, // Back bottom right
+	 1.0f,  1.0f,  1.0f, // Front top right
+	 1.0f,  1.0f, -1.0f, // Back top right
+	-1.0f,  1.0f,  1.0f, // Front top left
+	-1.0f,  1.0f, -1.0f, // Back top left
+	-1.0f, -1.0f,  1.0f, // Front bottom left
+	-1.0f, -1.0f, -1.0f, // Back bottom left
+	 1.0f, -1.0f, -1.0f, // Back bottom right
+	-1.0f,  1.0f, -1.0f, // Back top left
+	 1.0f,  1.0f, -1.0f  // Back top right
+};
 
-	 1.0f,  1.0f, -1.0f,
-	-1.0f, -1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
+static const float cubeFrontLineLoop[] = {
+	-1.0f,  1.0f,  1.0f, // Front top left
+	 1.0f,  1.0f,  1.0f, // Front top right
+	 1.0f, -1.0f,  1.0f, // Front bottom right
+	-1.0f, -1.0f,  1.0f, // Front bottom left
+};
 
-	 1.0f, -1.0f,  1.0f,
-	-1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
+static const float cubeBackLineLoop[] = {
+	-1.0f,  1.0f, -1.0f, // Back top left
+	 1.0f,  1.0f, -1.0f, // Back top right
+	 1.0f, -1.0f, -1.0f, // Back bottom right
+	-1.0f, -1.0f, -1.0f, // Back bottom left
+};
 
-	 1.0f,  1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	-1.0f, -1.0f, -1.0f,
+static const float cubeSideLines[] = {
+	-1.0f,  1.0f,  1.0f, // Front top left
+	-1.0f,  1.0f, -1.0f, // Back top left
 
-	-1.0f, -1.0f, -1.0f,
-	-1.0f,  1.0f,  1.0f,
-	-1.0f,  1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f, // Front bottom left
+	-1.0f, -1.0f, -1.0f, // Back bottom left
 
-	 1.0f, -1.0f,  1.0f,
-	-1.0f, -1.0f,  1.0f,
-	-1.0f, -1.0f, -1.0f,
+	 1.0f,  1.0f,  1.0f, // Front top right
+	 1.0f,  1.0f, -1.0f, // Back top right
 
-	-1.0f,  1.0f,  1.0f,
-	-1.0f, -1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f,
-
-	 1.0f,  1.0f,  1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f,  1.0f, -1.0f,
-
-	 1.0f, -1.0f, -1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f,
-
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
-
-	 1.0f,  1.0f,  1.0f,
-	-1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f,  1.0f,
-
-	 1.0f,  1.0f,  1.0f,
-	-1.0f,  1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f
+	 1.0f, -1.0f,  1.0f, // Front bottom right
+	 1.0f, -1.0f, -1.0f, // Back bottom right
 };
 
 /** Calculate a projection matrix for a given perspective. */
