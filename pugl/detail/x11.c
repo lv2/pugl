@@ -443,6 +443,15 @@ puglGrabFocus(PuglView* view)
 		view->impl->display, view->impl->win, RevertToNone, CurrentTime);
 }
 
+bool
+puglHasFocus(const PuglView* view)
+{
+	int    revertTo      = 0;
+	Window focusedWindow = 0;
+	XGetInputFocus(view->impl->display, &focusedWindow, &revertTo);
+	return focusedWindow == view->impl->win;
+}
+
 void
 puglRequestAttention(PuglView* view)
 {

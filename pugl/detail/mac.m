@@ -778,6 +778,15 @@ puglGrabFocus(PuglView* view)
 	[window makeFirstResponder:view->impl->wrapperView];
 }
 
+bool
+puglHasFocus(const PuglView* view)
+{
+	PuglInternals* const impl = view->impl;
+
+	return ([[impl->wrapperView window] isKeyWindow] &&
+	        [[impl->wrapperView window] firstResponder] == impl->wrapperView);
+}
+
 void
 puglRequestAttention(PuglView* view)
 {

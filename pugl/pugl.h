@@ -641,6 +641,12 @@ PUGL_API PUGL_DEPRECATED_BY("puglInitWindowHint") void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore);
 
 /**
+   Return true iff `view` has the input focus.
+*/
+PUGL_API bool
+puglHasFocus(const PuglView* view);
+
+/**
    Grab the input focus.
 */
 PUGL_API void

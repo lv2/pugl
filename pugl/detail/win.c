@@ -631,10 +631,16 @@ puglGrabFocus(PuglView* view)
 	SetFocus(view->impl->hwnd);
 }
 
+bool
+puglHasFocus(const PuglView* view)
+{
+	return GetFocus() == view->impl->hwnd;
+}
+
 void
 puglRequestAttention(PuglView* view)
 {
-	if (!view->impl->mouseTracked || GetFocus() != view->impl->hwnd) {
+	if (!view->impl->mouseTracked || !puglHasFocus(view)) {
 		FlashWindow(view->impl->hwnd, TRUE);
 		SetTimer(view->impl->hwnd, PUGL_URGENT_TIMER_ID, 500, NULL);
 		view->impl->flashing = true;
