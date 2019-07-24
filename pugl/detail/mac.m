@@ -772,7 +772,10 @@ puglDestroy(PuglView* view)
 void
 puglGrabFocus(PuglView* view)
 {
-	[view->impl->window makeKeyWindow];
+	NSWindow* window = [view->impl->wrapperView window];
+
+	[window makeKeyWindow];
+	[window makeFirstResponder:view->impl->wrapperView];
 }
 
 void

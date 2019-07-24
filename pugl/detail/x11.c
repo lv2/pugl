@@ -440,7 +440,7 @@ void
 puglGrabFocus(PuglView* view)
 {
 	XSetInputFocus(
-		view->impl->display, view->impl->win, RevertToPointerRoot, CurrentTime);
+		view->impl->display, view->impl->win, RevertToNone, CurrentTime);
 }
 
 void
