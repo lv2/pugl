@@ -117,27 +117,28 @@ puglInitInternals(void)
 void
 puglEnterContext(PuglView* view)
 {
-	PAINTSTRUCT ps;
-	BeginPaint(view->impl->hwnd, &ps);
-
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type == PUGL_GL) {
 		wglMakeCurrent(view->impl->hdc, view->impl->hglrc);
 	}
 #endif
+
+	PAINTSTRUCT ps;
+	BeginPaint(view->impl->hwnd, &ps);
 }
 
 void
 puglLeaveContext(PuglView* view, bool flush)
 {
+	PAINTSTRUCT ps;
+	EndPaint(view->impl->hwnd, &ps);
+
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type == PUGL_GL && flush) {
 		SwapBuffers(view->impl->hdc);
 	}
 #endif
 
-	PAINTSTRUCT ps;
-	EndPaint(view->impl->hwnd, &ps);
 }
 
 static PIXELFORMATDESCRIPTOR
