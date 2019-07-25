@@ -739,6 +739,8 @@ puglLeaveContext(PuglView* view, bool flush)
 	if (flush) {
 		[[view->impl->glview openGLContext] flushBuffer];
 	}
+
+	[NSOpenGLContext clearCurrentContext];
 }
 
 static NSLayoutConstraint*

@@ -139,6 +139,7 @@ puglLeaveContext(PuglView* view, bool flush)
 	}
 #endif
 
+	wglMakeCurrent(NULL, NULL);
 }
 
 static PIXELFORMATDESCRIPTOR
