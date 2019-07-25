@@ -20,6 +20,7 @@
 
 #include <cairo.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef struct {
 	unsigned texture_id;
