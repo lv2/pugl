@@ -452,6 +452,11 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	return NSMakeRect(frame.origin.x, frame.origin.y, 0.0, 0.0);
 }
 
+- (void) doCommandBySelector:(SEL)selector
+{
+	(void)selector;
+}
+
 - (void) insertText:(id)string
    replacementRange:(NSRange)replacement
 {
