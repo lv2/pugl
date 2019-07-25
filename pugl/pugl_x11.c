@@ -205,6 +205,12 @@ void
 puglDestroy(PuglView* view)
 {
 	if (view) {
+		if (view->impl->xic) {
+			XDestroyIC(view->impl->xic);
+		}
+		if (view->impl->xim) {
+			XCloseIM(view->impl->xim);
+		}
 		view->impl->ctx.destroy(view);
 		XDestroyWindow(view->impl->display, view->impl->win);
 		XCloseDisplay(view->impl->display);
