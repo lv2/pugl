@@ -46,28 +46,25 @@ typedef struct {
 
 /** Cross-platform view definition. */
 struct PuglViewImpl {
+	PuglInternals*   impl;
 	PuglHandle       handle;
 	PuglEventFunc    eventFunc;
-
-	PuglInternals* impl;
-
 	char*            windowClass;
 	PuglNativeWindow parent;
-	PuglContextType  ctx_type;
 	double           start_time;
 	uintptr_t        transient_parent;
-
-	PuglHints hints;
-	int       width;
-	int       height;
-	int       min_width;
-	int       min_height;
-	int       min_aspect_x;
-	int       min_aspect_y;
-	int       max_aspect_x;
-	int       max_aspect_y;
-	bool      ignoreKeyRepeat;
-	bool      visible;
+	PuglContextType  ctx_type;
+	PuglHints        hints;
+	int              width;
+	int              height;
+	int              min_width;
+	int              min_height;
+	int              min_aspect_x;
+	int              min_aspect_y;
+	int              max_aspect_x;
+	int              max_aspect_y;
+	bool             ignoreKeyRepeat;
+	bool             visible;
 };
 
 /** Opaque surface used by draw context. */
