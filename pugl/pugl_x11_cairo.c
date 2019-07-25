@@ -19,8 +19,8 @@
 #include "pugl/pugl_x11_cairo.h"
 
 #include <X11/Xutil.h>
-#include <cairo/cairo-xlib.h>
-#include <cairo/cairo.h>
+#include <cairo-xlib.h>
+#include <cairo.h>
 
 #include <stdio.h>
 #include <stdlib.h>
