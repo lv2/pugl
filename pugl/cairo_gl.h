@@ -18,7 +18,7 @@
 
 #include "pugl/gl.h"
 
-#include <cairo/cairo.h>
+#include <cairo.h>
 #include <stdint.h>
 
 typedef struct {
