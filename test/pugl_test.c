@@ -170,7 +170,7 @@ main(int argc, char** argv)
 	puglInitWindowClass(view, "PuglTest");
 	puglInitWindowSize(view, 512, 512);
 	puglInitWindowMinSize(view, 256, 256);
-	puglInitWindowAspectRatio(view, 1, 1, 1, 1);
+	puglInitWindowAspectRatio(view, 1, 1, 16, 9);
 	puglInitResizable(view, resizable);
 
 	puglInitWindowHint(view, PUGL_SAMPLES, samples);

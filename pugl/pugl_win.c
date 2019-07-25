@@ -634,6 +634,45 @@ stopFlashing(PuglView* view)
 	}
 }
 
+static void
+constrainAspect(const PuglView* const view,
+                RECT* const           size,
+                const WPARAM          wParam)
+{
+	const float minAspect = view->min_aspect_x / (float)view->min_aspect_y;
+	const float maxAspect = view->max_aspect_x / (float)view->max_aspect_y;
+	const int   w         = size->right - size->left;
+	const int   h         = size->bottom - size->top;
+	const float a         = w / (float)h;
+
+	switch (wParam) {
+	case WMSZ_TOP:
+		size->top = (a < minAspect ? (LONG)(size->bottom - w * minAspect) :
+		             a > maxAspect ? (LONG)(size->bottom - w * maxAspect) :
+		             size->top);
+		break;
+	case WMSZ_TOPRIGHT:
+	case WMSZ_RIGHT:
+	case WMSZ_BOTTOMRIGHT:
+		size->right = (a < minAspect ? (LONG)(size->left + h * minAspect) :
+		               a > maxAspect ? (LONG)(size->left + h * maxAspect) :
+		               size->right);
+		break;
+	case WMSZ_BOTTOM:
+		size->bottom = (a < minAspect ? (LONG)(size->top + w * minAspect) :
+		                a > maxAspect ? (LONG)(size->top + w * maxAspect) :
+		                size->bottom);
+		break;
+	case WMSZ_BOTTOMLEFT:
+	case WMSZ_LEFT:
+	case WMSZ_TOPLEFT:
+		size->left = (a < minAspect ? (LONG)(size->right - h * minAspect) :
+		              a > maxAspect ? (LONG)(size->right - h * maxAspect) :
+		              size->left);
+		break;
+	}
+}
+
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -660,6 +699,12 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		RedrawWindow(view->impl->hwnd, NULL, NULL,
 		             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT|
 		             RDW_UPDATENOW);
+		break;
+	case WM_SIZING:
+		if (view->min_aspect_x) {
+			constrainAspect(view, (RECT*)lParam, wParam);
+			return TRUE;
+		}
 		break;
 	case WM_ENTERSIZEMOVE:
 		view->impl->resizing = true;

@@ -457,6 +457,10 @@ puglInitWindowMinSize(PuglView* view, int width, int height);
 
    The x and y values here represent a ratio of width to height.  To set a
    fixed aspect ratio, set the minimum and maximum values to the same ratio.
+
+   Note that setting different minimum and maximum constraints does not
+   currenty work on MacOS (the minimum is used), so only setting a fixed aspect
+   ratio works properly across all platforms.
 */
 PUGL_API void
 puglInitWindowAspectRatio(PuglView* view,
