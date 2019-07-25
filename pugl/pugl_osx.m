@@ -30,8 +30,9 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include <mach/mach_time.h>
+
 #include <stdlib.h>
-#include <time.h>
 
 @class PuglOpenGLView;
 
@@ -928,9 +929,7 @@ puglGetProcAddress(const char *name)
 double
 puglGetTime(PuglView* view)
 {
-	struct timespec ts;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return ((double)ts.tv_sec + ts.tv_nsec / 1000000000.0) - view->start_time;
+	return (mach_absolute_time() / 1e9) - view->start_time;
 }
 
 void
