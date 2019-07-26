@@ -45,8 +45,6 @@ typedef NSUInteger NSWindowStyleMask;
 @class PuglOpenGLView;
 
 struct PuglInternalsImpl {
-	const PuglBackend* backend;
-
 	NSApplication*   app;
 	PuglOpenGLView*  glview;
 	id               window;
@@ -175,7 +173,7 @@ struct PuglInternalsImpl {
 		bounds.size.height,
 	};
 
-	puglview->impl->backend->resize(puglview, ev.width, ev.height);
+	puglview->backend->resize(puglview, ev.width, ev.height);
 
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
@@ -729,13 +727,13 @@ puglInitInternals(void)
 void
 puglEnterContext(PuglView* view, bool drawing)
 {
-	view->impl->backend->enter(view, drawing);
+	view->backend->enter(view, drawing);
 }
 
 void
 puglLeaveContext(PuglView* view, bool drawing)
 {
-	view->impl->backend->leave(view, drawing);
+	view->backend->leave(view, drawing);
 }
 
 static NSLayoutConstraint*
@@ -759,10 +757,10 @@ puglCreateWindow(PuglView* view, const char* title)
 	[NSAutoreleasePool new];
 	impl->app = [NSApplication sharedApplication];
 
-	impl->backend = puglGlBackend();
+	view->backend = puglGlBackend();
 	if (view->ctx_type == PUGL_CAIRO) {
 #ifdef PUGL_HAVE_CAIRO
-		impl->backend = puglCairoBackend();
+		view->backend = puglCairoBackend();
 #endif
 	}
 
@@ -848,7 +846,7 @@ puglHideWindow(PuglView* view)
 void
 puglDestroy(PuglView* view)
 {
-	view->impl->backend->destroy(view);
+	view->backend->destroy(view);
 	view->impl->glview->puglview = NULL;
 	[view->impl->glview removeFromSuperview];
 	if (view->impl->window) {
@@ -956,7 +954,7 @@ puglGetNativeWindow(PuglView* view)
 void*
 puglGetContext(PuglView* view)
 {
-	return view->impl->backend->getContext(view);
+	return view->backend->getContext(view);
 }
 
 // Backend

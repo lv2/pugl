@@ -85,13 +85,13 @@ puglInitInternals(void)
 void
 puglEnterContext(PuglView* view, bool drawing)
 {
-	view->impl->backend->enter(view, drawing);
+	view->backend->enter(view, drawing);
 }
 
 void
 puglLeaveContext(PuglView* view, bool drawing)
 {
-	view->impl->backend->leave(view, drawing);
+	view->backend->leave(view, drawing);
 }
 
 int
@@ -105,12 +105,12 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	if (view->ctx_type == PUGL_GL) {
 #ifdef PUGL_HAVE_GL
-		impl->backend = puglGlBackend();
+		view->backend = puglGlBackend();
 #endif
 	}
 	if (view->ctx_type == PUGL_CAIRO) {
 #ifdef PUGL_HAVE_CAIRO
-		impl->backend = puglCairoBackend();
+		view->backend = puglCairoBackend();
 #endif
 	}
 
@@ -134,14 +134,14 @@ puglCreateWindow(PuglView* view, const char* title)
 		return 1;
 	}
 
-	if (!impl->backend->configure) {
+	if (!view->backend || !view->backend->configure) {
 		return 1;
 	}
 
-	int st = impl->backend->configure(view);
+	int st = view->backend->configure(view);
 	if (st || !impl->surface) {
 		return 2;
-	} else if ((st = impl->backend->create(view))) {
+	} else if ((st = view->backend->create(view))) {
 		return 3;
 	}
 
@@ -174,7 +174,7 @@ void
 puglDestroy(PuglView* view)
 {
 	if (view) {
-		view->impl->backend->destroy(view);
+		view->backend->destroy(view);
 		ReleaseDC(view->impl->hwnd, view->impl->hdc);
 		DestroyWindow(view->impl->hwnd);
 		UnregisterClass(view->windowClass ? view->windowClass : DEFAULT_CLASSNAME, NULL);
@@ -387,7 +387,7 @@ handleConfigure(PuglView* view, PuglEvent* event)
 	event->configure.width  = view->width;
 	event->configure.height = view->height;
 
-	view->impl->backend->resize(view, view->width, view->height);
+	view->backend->resize(view, view->width, view->height);
 	return rect;
 }
 
@@ -709,5 +709,5 @@ puglGetNativeWindow(PuglView* view)
 void*
 puglGetContext(PuglView* view)
 {
-	return view->impl->backend->getContext(view);
+	return view->backend->getContext(view);
 }

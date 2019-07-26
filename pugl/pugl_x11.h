@@ -27,7 +27,6 @@ struct PuglInternalsImpl {
 	Window       win;
 	XIM          xim;
 	XIC          xic;
-	const PuglBackend* backend;
 	PuglSurface* surface;
 
 	struct {

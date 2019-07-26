@@ -27,7 +27,6 @@ struct PuglInternalsImpl {
 	int          pfId;
 	HWND         hwnd;
 	HDC          hdc;
-	const PuglBackend* backend;
 	PuglSurface* surface;
 	DWORD        refreshRate;
 	double       timerFrequency;

@@ -38,6 +38,9 @@
 /** Platform-specific internals. */
 typedef struct PuglInternalsImpl PuglInternals;
 
+/** Graphics backend interface. */
+typedef struct PuglBackendImpl PuglBackend;
+
 typedef struct {
 	int  context_version_major;
 	int  context_version_minor;
@@ -55,32 +58,33 @@ typedef struct {
 
 /** Cross-platform view definition. */
 struct PuglViewImpl {
-	PuglInternals*   impl;
-	PuglHandle       handle;
-	PuglEventFunc    eventFunc;
-	char*            windowClass;
-	PuglNativeWindow parent;
-	double           start_time;
-	uintptr_t        transient_parent;
-	PuglContextType  ctx_type;
-	PuglHints        hints;
-	int              width;
-	int              height;
-	int              min_width;
-	int              min_height;
-	int              min_aspect_x;
-	int              min_aspect_y;
-	int              max_aspect_x;
-	int              max_aspect_y;
-	bool             ignoreKeyRepeat;
-	bool             visible;
+	const PuglBackend* backend;
+	PuglInternals*     impl;
+	PuglHandle         handle;
+	PuglEventFunc      eventFunc;
+	char*              windowClass;
+	PuglNativeWindow   parent;
+	double             start_time;
+	uintptr_t          transient_parent;
+	PuglContextType    ctx_type;
+	PuglHints          hints;
+	int                width;
+	int                height;
+	int                min_width;
+	int                min_height;
+	int                min_aspect_x;
+	int                min_aspect_y;
+	int                max_aspect_x;
+	int                max_aspect_y;
+	bool               ignoreKeyRepeat;
+	bool               visible;
 };
 
 /** Opaque surface used by draw context. */
 typedef void PuglSurface;
 
 /** Graphics backend interface. */
-typedef struct {
+struct PuglBackendImpl {
 	/** Get visual information from display and setup view as necessary. */
 	int (*configure)(PuglView*);
 
@@ -101,6 +105,6 @@ typedef struct {
 
 	/** Return the puglGetContext() handle for the application, if any. */
 	void* (*getContext)(PuglView*);
-} PuglBackend;
+};
 
 #endif // PUGL_INTERNAL_TYPES_H
