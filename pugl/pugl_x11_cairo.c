@@ -52,10 +52,8 @@ puglX11CairoCreate(PuglView* view)
 
 	impl->surface = surface;
 
-	if (view->ctx_type == PUGL_CAIRO) {
-		surface->surface = cairo_xlib_surface_create(
-			impl->display, impl->win, impl->vi->visual, view->width, view->height);
-	}
+	surface->surface = cairo_xlib_surface_create(
+		impl->display, impl->win, impl->vi->visual, view->width, view->height);
 
 	if (!surface->surface) {
 		return 1;
@@ -106,9 +104,7 @@ puglX11CairoResize(PuglView* view, int width, int height)
 	PuglInternals* const       impl    = view->impl;
 	PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
-	if (view->ctx_type == PUGL_CAIRO) {
-		cairo_xlib_surface_set_size(surface->surface, width, height);
-	}
+	cairo_xlib_surface_set_size(surface->surface, width, height);
 
 	return 0;
 }
