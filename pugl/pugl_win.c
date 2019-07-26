@@ -177,7 +177,7 @@ puglWinError(PuglFakeWindow* fakeWin, const int status)
 }
 
 static unsigned
-getWindowFlags(PuglView* view)
+getWindowFlags(const PuglView* view)
 {
 	return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 	        (view->parent
@@ -187,7 +187,7 @@ getWindowFlags(PuglView* view)
 }
 
 static unsigned
-getWindowExFlags(PuglView* view)
+getWindowExFlags(const PuglView* view)
 {
 	return WS_EX_NOINHERITLAYOUT | (view->parent ? 0u : WS_EX_APPWINDOW);
 }
