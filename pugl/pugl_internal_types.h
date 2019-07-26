@@ -63,7 +63,6 @@ struct PuglViewImpl {
 	PuglNativeWindow   parent;
 	double             start_time;
 	uintptr_t          transient_parent;
-	PuglContextType    ctx_type;
 	PuglHints          hints;
 	int                width;
 	int                height;

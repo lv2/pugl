@@ -745,13 +745,6 @@ puglCreateWindow(PuglView* view, const char* title)
 	[NSAutoreleasePool new];
 	impl->app = [NSApplication sharedApplication];
 
-	view->backend = puglGlBackend();
-	if (view->ctx_type == PUGL_CAIRO) {
-#ifdef PUGL_HAVE_CAIRO
-		view->backend = puglCairoBackend();
-#endif
-	}
-
 	impl->glview               = [PuglOpenGLView alloc];
 	impl->glview->trackingArea = nil;
 	impl->glview->markedText   = [[NSMutableAttributedString alloc] init];

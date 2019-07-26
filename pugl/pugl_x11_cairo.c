@@ -118,7 +118,8 @@ puglX11CairoGetContext(PuglView* view)
 	return surface->cr;
 }
 
-const PuglBackend* puglCairoBackend(void)
+const PuglBackend*
+puglCairoBackend(void)
 {
 	static const PuglBackend backend = {
 		puglX11CairoConfigure,

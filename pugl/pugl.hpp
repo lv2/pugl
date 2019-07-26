@@ -66,8 +66,8 @@ public:
 		puglInitTransientFor(_view, parent);
 	}
 
-	virtual void initContextType(PuglContextType type) {
-		puglInitContextType(_view, type);
+	virtual void initBackend(const PuglBackend* backend) {
+		puglInitBackend(_view, backend);
 	}
 
 	virtual void createWindow(const char* title) {

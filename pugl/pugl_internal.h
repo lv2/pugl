@@ -17,15 +17,9 @@
 /**
    @file pugl_internal.h Private platform-independent definitions.
 
-   Note this file contains function definitions, so it must be compiled into
-   the final binary exactly once.  Each platform specific implementation file
-   including it once should achieve this.
-
-   If you are copying the pugl code into your source tree, the following
-   symbols can be defined to tweak pugl behaviour:
-
-   PUGL_HAVE_CAIRO: Include Cairo support code.
-   PUGL_HAVE_GL:    Include OpenGL support code.
+   Note that this file contains function definitions, so it must be compiled
+   into the final binary exactly once.  Each platform specific implementation
+   file including it once should achieve this.
 */
 
 #include "pugl/pugl.h"
@@ -59,7 +53,6 @@ puglInit(int* PUGL_UNUSED(pargc), char** PUGL_UNUSED(argv))
 	}
 
 	view->hints      = puglDefaultHints();
-	view->ctx_type   = PUGL_GL;
 	view->impl       = impl;
 	view->width      = 640;
 	view->height     = 480;
@@ -166,10 +159,11 @@ puglInitTransientFor(PuglView* view, uintptr_t parent)
 	view->transient_parent = parent;
 }
 
-void
-puglInitContextType(PuglView* view, PuglContextType type)
+int
+puglInitBackend(PuglView* view, const PuglBackend* backend)
 {
-	view->ctx_type = type;
+	view->backend = backend;
+	return 0;
 }
 
 void

@@ -25,13 +25,6 @@
 #include "pugl/pugl_internal.h"
 #include "pugl/pugl_x11.h"
 
-#ifdef PUGL_HAVE_GL
-#include "pugl/pugl_gl_backend.h"
-#endif
-#ifdef PUGL_HAVE_CAIRO
-#include "pugl/pugl_cairo_backend.h"
-#endif
-
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -82,17 +75,6 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->atoms.NET_WM_STATE     = XInternAtom(display, "_NET_WM_STATE", 0);
 	impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION =
 		XInternAtom(display, "_NET_WM_STATE_DEMANDS_ATTENTION", 0);
-
-	if (view->ctx_type == PUGL_GL) {
-#ifdef PUGL_HAVE_GL
-		view->backend = puglGlBackend();
-#endif
-	}
-	if (view->ctx_type == PUGL_CAIRO) {
-#ifdef PUGL_HAVE_CAIRO
-		view->backend = puglCairoBackend();
-#endif
-	}
 
 	if (!view->backend || !view->backend->configure) {
 		return 1;

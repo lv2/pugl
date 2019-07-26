@@ -19,6 +19,7 @@
 */
 
 #include "pugl/pugl.h"
+#include "pugl/pugl_cairo_backend.h"
 
 #include <cairo.h>
 
@@ -185,7 +186,7 @@ main(int argc, char** argv)
 	puglInitWindowSize(view, 512, 512);
 	puglInitWindowMinSize(view, 256, 256);
 	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);
-	puglInitContextType(view, PUGL_CAIRO);
+	puglInitBackend(view, puglCairoBackend());
 
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);

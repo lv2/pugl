@@ -94,14 +94,6 @@ typedef enum {
 } PuglStatus;
 
 /**
-   Drawing context type.
-*/
-typedef enum {
-	PUGL_GL    = 1 << 0,  /**< OpenGL (3D) */
-	PUGL_CAIRO = 1 << 1   /**< Cairo (2D) */
-} PuglContextType;
-
-/**
    Window hint.
 */
 typedef enum {
@@ -503,10 +495,15 @@ PUGL_API void
 puglInitTransientFor(PuglView* view, uintptr_t parent);
 
 /**
-   Set the context type before creating a window.
+   Set the graphics backend to use.
+
+   This needs to be called once before creating the window to set the graphics
+   backend.  There are two backend accessors included with pugl:
+   puglGlBackend() and puglCairoBackend(), declared in pugl_gl_backend.h and
+   pugl_cairo_backend.h, respectively.
 */
-PUGL_API void
-puglInitContextType(PuglView* view, PuglContextType type);
+PUGL_API int
+puglInitBackend(PuglView* view, const PuglBackend* backend);
 
 /**
    @}
@@ -581,8 +578,10 @@ puglGetSize(PuglView* view, int* width, int* height);
 /**
    Get the drawing context.
 
-   For PUGL_GL contexts, this is unused and returns NULL.
-   For PUGL_CAIRO contexts, this returns a pointer to a cairo_t.
+   The context is only guaranteed to be available during an expose.
+
+   For OpenGL backends, this is unused and returns NULL.
+   For Cairo backends, this returns a pointer to a `cairo_t`.
 */
 PUGL_API void*
 puglGetContext(PuglView* view);

@@ -21,13 +21,6 @@
 #include "pugl/pugl_internal.h"
 #include "pugl/pugl_win.h"
 
-#ifdef PUGL_HAVE_GL
-#include "pugl/pugl_gl_backend.h"
-#endif
-#ifdef PUGL_HAVE_CAIRO
-#include "pugl/pugl_cairo_backend.h"
-#endif
-
 #include <windows.h>
 #include <windowsx.h>
 
@@ -90,17 +83,6 @@ puglCreateWindow(PuglView* view, const char* title)
 	const char* className = view->windowClass ? view->windowClass : DEFAULT_CLASSNAME;
 
 	title = title ? title : "Window";
-
-	if (view->ctx_type == PUGL_GL) {
-#ifdef PUGL_HAVE_GL
-		view->backend = puglGlBackend();
-#endif
-	}
-	if (view->ctx_type == PUGL_CAIRO) {
-#ifdef PUGL_HAVE_CAIRO
-		view->backend = puglCairoBackend();
-#endif
-	}
 
 	// Get refresh rate for resize draw timer
 	DEVMODEA devMode = {0};

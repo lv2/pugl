@@ -24,6 +24,7 @@
 
 #include "pugl/gl.h"
 #include "pugl/pugl.h"
+#include "pugl/pugl_gl_backend.h"
 
 #include <locale.h>
 #include <math.h>
@@ -171,6 +172,7 @@ main(int argc, char** argv)
 	puglInitWindowSize(view, 512, 512);
 	puglInitWindowMinSize(view, 256, 256);
 	puglInitWindowAspectRatio(view, 1, 1, 16, 9);
+	puglInitBackend(view, puglGlBackend());
 
 	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);
 	puglInitWindowHint(view, PUGL_SAMPLES, samples);
