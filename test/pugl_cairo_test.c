@@ -101,7 +101,7 @@ buttonTouches(const Button* but, double x, double y)
 static void
 onDisplay(PuglView* view)
 {
-	cairo_t* cr = puglGetContext(view);
+	cairo_t* cr = (cairo_t*)puglGetContext(view);
 
 	// Draw background
 	int width, height;
