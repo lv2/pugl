@@ -740,21 +740,21 @@ puglInitInternals(void)
 }
 
 void
-puglEnterContext(PuglView* view)
+puglEnterContext(PuglView* view, bool PUGL_UNUSED(drawing))
 {
 	[[view->impl->glview openGLContext] makeCurrentContext];
 }
 
 void
-puglLeaveContext(PuglView* view, bool flush)
+puglLeaveContext(PuglView* view, bool drawing)
 {
+	if (drawing) {
 #ifdef PUGL_HAVE_CAIRO
-	if (view->ctx_type & PUGL_CAIRO) {
-		pugl_cairo_gl_draw(&view->impl->cairo_gl, view->width, view->height);
-	}
+		if (view->ctx_type & PUGL_CAIRO) {
+			pugl_cairo_gl_draw(&view->impl->cairo_gl, view->width, view->height);
+		}
 #endif
 
-	if (flush) {
 		[[view->impl->glview openGLContext] flushBuffer];
 	}
 

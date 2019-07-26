@@ -68,15 +68,15 @@ puglInitInternals(void)
 }
 
 void
-puglEnterContext(PuglView* view)
+puglEnterContext(PuglView* view, bool drawing)
 {
-	view->impl->backend->enter(view);
+	view->impl->backend->enter(view, drawing);
 }
 
 void
-puglLeaveContext(PuglView* view, bool flush)
+puglLeaveContext(PuglView* view, bool drawing)
 {
-	view->impl->backend->leave(view, flush);
+	view->impl->backend->leave(view, drawing);
 }
 
 int
@@ -559,7 +559,9 @@ puglProcessEvents(PuglView* view)
 	}
 
 	if (config_event.type || expose_event.type) {
-		puglEnterContext(view);
+		const bool draw = expose_event.type && expose_event.expose.count == 0;
+
+		puglEnterContext(view, draw);
 
 		if (config_event.type) {
 			view->width  = (int)config_event.configure.width;
@@ -568,12 +570,11 @@ puglProcessEvents(PuglView* view)
 			view->eventFunc(view, (const PuglEvent*)&config_event);
 		}
 
-		if (expose_event.type && expose_event.expose.count == 0) {
+		if (draw) {
 			view->eventFunc(view, (const PuglEvent*)&expose_event);
-			puglLeaveContext(view, true);
-		} else {
-			puglLeaveContext(view, false);
 		}
+
+		puglLeaveContext(view, draw);
 	}
 
 	return PUGL_SUCCESS;

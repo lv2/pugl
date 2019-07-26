@@ -572,21 +572,28 @@ puglGetContext(PuglView* view);
 /**
    Enter the drawing context.
 
-   This must be called before any code that accesses the drawing context,
-   including any GL functions.  This is only necessary for code that does so
-   outside the usual draw callback or handling of an expose event.
+   Note that pugl automatically enters and leaves the drawing context during
+   configure and expose events, so it is not normally necessary to call this.
+   However, it can be used to enter the drawing context elsewhere, for example
+   to call any GL functions during setup.
+
+   @param view The view being entered.
+   @param drawing If true, prepare for drawing.
 */
 PUGL_API void
-puglEnterContext(PuglView* view);
+puglEnterContext(PuglView* view, bool drawing);
 
 /**
    Leave the drawing context.
 
-   This must be called after puglEnterContext and applies the results of the
-   drawing code (for example, by swapping buffers).
+   This must be called after puglEnterContext() with a matching `drawing`
+   parameter.
+
+   @param view The view being left.
+   @param drawing If true, finish drawing, for example by swapping buffers.
 */
 PUGL_API void
-puglLeaveContext(PuglView* view, bool flush);
+puglLeaveContext(PuglView* view, bool drawing);
 
 /**
    @}

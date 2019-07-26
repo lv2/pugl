@@ -115,7 +115,7 @@ puglInitInternals(void)
 }
 
 void
-puglEnterContext(PuglView* view)
+puglEnterContext(PuglView* view, bool drawing)
 {
 #ifdef PUGL_HAVE_GL
 	if (view->ctx_type == PUGL_GL) {
@@ -123,19 +123,23 @@ puglEnterContext(PuglView* view)
 	}
 #endif
 
-	PAINTSTRUCT ps;
-	BeginPaint(view->impl->hwnd, &ps);
+	if (drawing) {
+		PAINTSTRUCT ps;
+		BeginPaint(view->impl->hwnd, &ps);
+	}
 }
 
 void
-puglLeaveContext(PuglView* view, bool flush)
+puglLeaveContext(PuglView* view, bool drawing)
 {
-	PAINTSTRUCT ps;
-	EndPaint(view->impl->hwnd, &ps);
+	if (drawing) {
+		PAINTSTRUCT ps;
+		EndPaint(view->impl->hwnd, &ps);
 
 #ifdef PUGL_HAVE_GL
-	if (view->ctx_type == PUGL_GL && flush) {
-		SwapBuffers(view->impl->hdc);
+		if (view->ctx_type == PUGL_GL) {
+			SwapBuffers(view->impl->hdc);
+		}
 	}
 #endif
 

@@ -90,10 +90,10 @@ typedef struct {
 	/** Destroy surface and drawing context. */
 	int (*destroy)(PuglView*);
 
-	/** Enter drawing context. */
-	int (*enter)(PuglView*);
+	/** Enter drawing context, for drawing if parameter is true. */
+	int (*enter)(PuglView*, bool);
 
-	/** Leave drawing context, explicitly flushing if parameter is true. */
+	/** Leave drawing context, after drawing if parameter is true. */
 	int (*leave)(PuglView*, bool);
 
 	/** Resize drawing context to the given width and height. */

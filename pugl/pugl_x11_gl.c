@@ -150,7 +150,7 @@ puglX11GlDestroy(PuglView* view)
 }
 
 static int
-puglX11GlEnter(PuglView* view)
+puglX11GlEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 {
 	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
 	glXMakeCurrent(view->impl->display, view->impl->win, surface->ctx);
@@ -158,13 +158,13 @@ puglX11GlEnter(PuglView* view)
 }
 
 static int
-puglX11GlLeave(PuglView* view, bool flush)
+puglX11GlLeave(PuglView* view, bool drawing)
 {
 	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
 
-	if (flush && surface->double_buffered) {
+	if (drawing && surface->double_buffered) {
 		glXSwapBuffers(view->impl->display, view->impl->win);
-	} else if (flush) {
+	} else if (drawing) {
 		glFlush();
 	}
 

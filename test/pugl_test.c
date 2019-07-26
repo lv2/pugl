@@ -183,7 +183,7 @@ main(int argc, char** argv)
 		return 1;
 	}
 
-	puglEnterContext(view);
+	puglEnterContext(view, false);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
