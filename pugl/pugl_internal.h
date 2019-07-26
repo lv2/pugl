@@ -197,6 +197,24 @@ puglGetSize(PuglView* view, int* width, int* height)
 	*height = view->height;
 }
 
+void*
+puglGetContext(PuglView* view)
+{
+	return view->backend->getContext(view);
+}
+
+void
+puglEnterContext(PuglView* view, bool drawing)
+{
+	view->backend->enter(view, drawing);
+}
+
+void
+puglLeaveContext(PuglView* view, bool drawing)
+{
+	view->backend->leave(view, drawing);
+}
+
 void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore)
 {

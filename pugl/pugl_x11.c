@@ -67,18 +67,6 @@ puglInitInternals(void)
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
 
-void
-puglEnterContext(PuglView* view, bool drawing)
-{
-	view->backend->enter(view, drawing);
-}
-
-void
-puglLeaveContext(PuglView* view, bool drawing)
-{
-	view->backend->leave(view, drawing);
-}
-
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
@@ -604,10 +592,4 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->win;
-}
-
-void*
-puglGetContext(PuglView* view)
-{
-	return view->backend->getContext(view);
 }

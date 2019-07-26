@@ -724,18 +724,6 @@ puglInitInternals(void)
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
 
-void
-puglEnterContext(PuglView* view, bool drawing)
-{
-	view->backend->enter(view, drawing);
-}
-
-void
-puglLeaveContext(PuglView* view, bool drawing)
-{
-	view->backend->leave(view, drawing);
-}
-
 static NSLayoutConstraint*
 puglConstraint(id item, NSLayoutAttribute attribute, float constant)
 {
@@ -949,12 +937,6 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->glview;
-}
-
-void*
-puglGetContext(PuglView* view)
-{
-	return view->backend->getContext(view);
 }
 
 // Backend
