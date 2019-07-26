@@ -97,8 +97,14 @@ def build(bld):
     framework = []
     libs      = []
     if bld.env.TARGET_PLATFORM == 'win32':
-        lib_source = ['pugl/pugl_win.c', 'pugl/pugl_win_gl.c']
-        libs       = ['opengl32', 'gdi32', 'user32']
+        lib_source = ['pugl/pugl_win.c']
+        libs       = ['gdi32', 'user32']
+        if bld.is_defined('HAVE_GL'):
+            lib_source += ['pugl/pugl_win_gl.c']
+            libs       += ['opengl32']
+        if bld.is_defined('HAVE_CAIRO'):
+            lib_source += ['pugl/pugl_win_cairo.c']
+            libs       += ['cairo']
     elif bld.env.TARGET_PLATFORM == 'darwin':
         lib_source = ['pugl/pugl_osx.m']
         framework  = ['Cocoa', 'OpenGL']

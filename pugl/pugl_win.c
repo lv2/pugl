@@ -24,6 +24,9 @@
 #ifdef PUGL_HAVE_GL
 #include "pugl/pugl_gl_backend.h"
 #endif
+#ifdef PUGL_HAVE_CAIRO
+#include "pugl/pugl_cairo_backend.h"
+#endif
 
 #include <windows.h>
 #include <windowsx.h>
@@ -91,6 +94,11 @@ puglCreateWindow(PuglView* view, const char* title)
 	if (view->ctx_type == PUGL_GL) {
 #ifdef PUGL_HAVE_GL
 		impl->backend = puglGlBackend();
+#endif
+	}
+	if (view->ctx_type == PUGL_CAIRO) {
+#ifdef PUGL_HAVE_CAIRO
+		impl->backend = puglCairoBackend();
 #endif
 	}
 
@@ -367,6 +375,7 @@ handleConfigure(PuglView* view, PuglEvent* event)
 	event->configure.width  = view->width;
 	event->configure.height = view->height;
 
+	view->impl->backend->resize(view, view->width, view->height);
 	return rect;
 }
 
@@ -683,4 +692,10 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->hwnd;
+}
+
+void*
+puglGetContext(PuglView* view)
+{
+	return view->impl->backend->getContext(view);
 }
