@@ -14,9 +14,9 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+#include "pugl/pugl_cairo_backend.h"
 #include "pugl/pugl_internal_types.h"
 #include "pugl/pugl_x11.h"
-#include "pugl/pugl_x11_cairo.h"
 
 #include <X11/Xutil.h>
 #include <cairo-xlib.h>
@@ -118,9 +118,9 @@ puglX11CairoGetContext(PuglView* view)
 	return surface->cr;
 }
 
-PuglBackend puglGetX11CairoBackend(void)
+const PuglBackend* puglCairoBackend(void)
 {
-	static const PuglBackend puglX11CairoBackend = {
+	static const PuglBackend backend = {
 		puglX11CairoConfigure,
 		puglX11CairoCreate,
 		puglX11CairoDestroy,
@@ -130,5 +130,5 @@ PuglBackend puglGetX11CairoBackend(void)
 		puglX11CairoGetContext
 	};
 
-	return puglX11CairoBackend;
+	return &backend;
 }

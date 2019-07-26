@@ -14,9 +14,9 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+#include "pugl/pugl_gl_backend.h"
 #include "pugl/pugl_internal_types.h"
 #include "pugl/pugl_x11.h"
-#include "pugl/pugl_x11_gl.h"
 
 #include <GL/gl.h>
 #include <GL/glx.h>
@@ -193,9 +193,9 @@ puglGetProcAddress(const char* name)
 	return glXGetProcAddress((const GLubyte*)name);
 }
 
-PuglBackend puglGetX11GlBackend(void)
+const PuglBackend* puglGlBackend(void)
 {
-	static const PuglBackend puglX11GlBackend = {
+	static const PuglBackend backend = {
 		puglX11GlConfigure,
 		puglX11GlCreate,
 		puglX11GlDestroy,
@@ -205,5 +205,5 @@ PuglBackend puglGetX11GlBackend(void)
 		puglX11GlGetContext
 	};
 
-	return puglX11GlBackend;
+	return &backend;
 }

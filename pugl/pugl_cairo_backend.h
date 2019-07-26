@@ -14,9 +14,20 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#ifndef PUGL_X11_GL_H
-#define PUGL_X11_GL_H
+#ifndef PUGL_CAIRO_BACKEND_H
+#define PUGL_CAIRO_BACKEND_H
 
-PuglBackend puglGetX11GlBackend(void);
+#include "pugl/pugl_internal_types.h"
 
-#endif // PUGL_X11_GL_H
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+PUGL_API const PuglBackend*
+puglCairoBackend(void);
+
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif
+
+#endif // PUGL_CAIRO_BACKEND_H

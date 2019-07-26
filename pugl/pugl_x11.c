@@ -26,10 +26,10 @@
 #include "pugl/pugl_x11.h"
 
 #ifdef PUGL_HAVE_GL
-#include "pugl/pugl_x11_gl.h"
+#include "pugl/pugl_gl_backend.h"
 #endif
 #ifdef PUGL_HAVE_CAIRO
-#include "pugl/pugl_x11_cairo.h"
+#include "pugl/pugl_cairo_backend.h"
 #endif
 
 #include <X11/Xatom.h>
@@ -70,13 +70,13 @@ puglInitInternals(void)
 void
 puglEnterContext(PuglView* view)
 {
-	view->impl->backend.enter(view);
+	view->impl->backend->enter(view);
 }
 
 void
 puglLeaveContext(PuglView* view, bool flush)
 {
-	view->impl->backend.leave(view, flush);
+	view->impl->backend->leave(view, flush);
 }
 
 int
@@ -97,19 +97,19 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	if (view->ctx_type == PUGL_GL) {
 #ifdef PUGL_HAVE_GL
-		impl->backend = puglGetX11GlBackend();
+		impl->backend = puglGlBackend();
 #endif
 	}
 	if (view->ctx_type == PUGL_CAIRO) {
 #ifdef PUGL_HAVE_CAIRO
-		impl->backend = puglGetX11CairoBackend();
+		impl->backend = puglCairoBackend();
 #endif
 	}
 
-	if (!impl->backend.configure) {
+	if (!impl->backend->configure) {
 		return 1;
-	} else if (impl->backend.configure(view) || !impl->vi) {
-		impl->backend.destroy(view);
+	} else if (impl->backend->configure(view) || !impl->vi) {
+		impl->backend->destroy(view);
 		return 2;
 	}
 
@@ -128,7 +128,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		0, 0, view->width, view->height, 0, impl->vi->depth, InputOutput,
 		impl->vi->visual, CWColormap | CWEventMask, &attr);
 
-	if (impl->backend.create(view)) {
+	if (impl->backend->create(view)) {
 		return 3;
 	}
 
@@ -211,7 +211,7 @@ puglDestroy(PuglView* view)
 		if (view->impl->xim) {
 			XCloseIM(view->impl->xim);
 		}
-		view->impl->backend.destroy(view);
+		view->impl->backend->destroy(view);
 		XDestroyWindow(view->impl->display, view->impl->win);
 		XCloseDisplay(view->impl->display);
 		XFree(view->impl->vi);
@@ -564,7 +564,7 @@ puglProcessEvents(PuglView* view)
 		if (config_event.type) {
 			view->width  = (int)config_event.configure.width;
 			view->height = (int)config_event.configure.height;
-			impl->backend.resize(view, view->width, view->height);
+			impl->backend->resize(view, view->width, view->height);
 			view->eventFunc(view, (const PuglEvent*)&config_event);
 		}
 
@@ -608,5 +608,5 @@ puglGetNativeWindow(PuglView* view)
 void*
 puglGetContext(PuglView* view)
 {
-	return view->impl->backend.getContext(view);
+	return view->impl->backend->getContext(view);
 }
