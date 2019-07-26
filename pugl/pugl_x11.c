@@ -70,13 +70,13 @@ puglInitInternals(void)
 void
 puglEnterContext(PuglView* view)
 {
-	view->impl->ctx.enter(view);
+	view->impl->backend.enter(view);
 }
 
 void
 puglLeaveContext(PuglView* view, bool flush)
 {
-	view->impl->ctx.leave(view, flush);
+	view->impl->backend.leave(view, flush);
 }
 
 int
@@ -97,19 +97,19 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	if (view->ctx_type == PUGL_GL) {
 #ifdef PUGL_HAVE_GL
-		impl->ctx = puglGetX11GlDrawContext();
+		impl->backend = puglGetX11GlBackend();
 #endif
 	}
 	if (view->ctx_type == PUGL_CAIRO) {
 #ifdef PUGL_HAVE_CAIRO
-		impl->ctx = puglGetX11CairoDrawContext();
+		impl->backend = puglGetX11CairoBackend();
 #endif
 	}
 
-	if (!impl->ctx.configure) {
+	if (!impl->backend.configure) {
 		return 1;
-	} else if (impl->ctx.configure(view) || !impl->vi) {
-		impl->ctx.destroy(view);
+	} else if (impl->backend.configure(view) || !impl->vi) {
+		impl->backend.destroy(view);
 		return 2;
 	}
 
@@ -128,7 +128,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		0, 0, view->width, view->height, 0, impl->vi->depth, InputOutput,
 		impl->vi->visual, CWColormap | CWEventMask, &attr);
 
-	if (impl->ctx.create(view)) {
+	if (impl->backend.create(view)) {
 		return 3;
 	}
 
@@ -211,7 +211,7 @@ puglDestroy(PuglView* view)
 		if (view->impl->xim) {
 			XCloseIM(view->impl->xim);
 		}
-		view->impl->ctx.destroy(view);
+		view->impl->backend.destroy(view);
 		XDestroyWindow(view->impl->display, view->impl->win);
 		XCloseDisplay(view->impl->display);
 		XFree(view->impl->vi);
@@ -564,7 +564,7 @@ puglProcessEvents(PuglView* view)
 		if (config_event.type) {
 			view->width  = (int)config_event.configure.width;
 			view->height = (int)config_event.configure.height;
-			impl->ctx.resize(view, view->width, view->height);
+			impl->backend.resize(view, view->width, view->height);
 			view->eventFunc(view, (const PuglEvent*)&config_event);
 		}
 
@@ -608,5 +608,5 @@ puglGetNativeWindow(PuglView* view)
 void*
 puglGetContext(PuglView* view)
 {
-	return view->impl->ctx.getHandle(view);
+	return view->impl->backend.getHandle(view);
 }

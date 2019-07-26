@@ -17,6 +17,6 @@
 #ifndef PUGL_X11_CAIRO_H
 #define PUGL_X11_CAIRO_H
 
-PuglDrawContext puglGetX11CairoDrawContext(void);
+PuglBackend puglGetX11CairoBackend(void);
 
 #endif // PUGL_X11_CAIRO_H

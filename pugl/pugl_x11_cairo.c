@@ -118,9 +118,9 @@ puglX11CairoGetHandle(PuglView* view)
 	return surface->cr;
 }
 
-PuglDrawContext puglGetX11CairoDrawContext(void)
+PuglBackend puglGetX11CairoBackend(void)
 {
-	static const PuglDrawContext puglX11CairoDrawContext = {
+	static const PuglBackend puglX11CairoBackend = {
 		puglX11CairoConfigure,
 		puglX11CairoCreate,
 		puglX11CairoDestroy,
@@ -130,5 +130,5 @@ PuglDrawContext puglGetX11CairoDrawContext(void)
 		puglX11CairoGetHandle
 	};
 
-	return puglX11CairoDrawContext;
+	return puglX11CairoBackend;
 }

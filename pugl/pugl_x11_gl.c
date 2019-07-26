@@ -193,9 +193,9 @@ puglGetProcAddress(const char* name)
 	return glXGetProcAddress((const GLubyte*)name);
 }
 
-PuglDrawContext puglGetX11GlDrawContext(void)
+PuglBackend puglGetX11GlBackend(void)
 {
-	static const PuglDrawContext puglX11GlDrawContext = {
+	static const PuglBackend puglX11GlBackend = {
 		puglX11GlConfigure,
 		puglX11GlCreate,
 		puglX11GlDestroy,
@@ -205,5 +205,5 @@ PuglDrawContext puglGetX11GlDrawContext(void)
 		puglX11GlGetHandle
 	};
 
-	return puglX11GlDrawContext;
+	return puglX11GlBackend;
 }

@@ -17,6 +17,6 @@
 #ifndef PUGL_X11_GL_H
 #define PUGL_X11_GL_H
 
-PuglDrawContext puglGetX11GlDrawContext(void);
+PuglBackend puglGetX11GlBackend(void);
 
 #endif // PUGL_X11_GL_H

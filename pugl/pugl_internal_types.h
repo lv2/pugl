@@ -79,7 +79,7 @@ struct PuglViewImpl {
 /** Opaque surface used by draw context. */
 typedef void PuglSurface;
 
-/** Drawing context interface. */
+/** Graphics backend interface. */
 typedef struct {
 	/** Get visual information from display and setup view as necessary. */
 	int (*configure)(PuglView*);
@@ -101,6 +101,6 @@ typedef struct {
 
 	/** Return the puglGetContext() handle for the application, if any. */
 	void* (*getHandle)(PuglView*);
-} PuglDrawContext;
+} PuglBackend;
 
 #endif // PUGL_INTERNAL_TYPES_H

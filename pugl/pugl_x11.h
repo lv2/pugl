@@ -21,14 +21,14 @@
 #include <X11/Xutil.h>
 
 struct PuglInternalsImpl {
-	Display*        display;
-	int             screen;
-	XVisualInfo*    vi;
-	Window          win;
-	XIM             xim;
-	XIC             xic;
-	PuglDrawContext ctx;
-	PuglSurface*    surface;
+	Display*     display;
+	int          screen;
+	XVisualInfo* vi;
+	Window       win;
+	XIM          xim;
+	XIC          xic;
+	PuglBackend  backend;
+	PuglSurface* surface;
 
 	struct {
 		Atom WM_PROTOCOLS;
