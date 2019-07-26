@@ -38,9 +38,6 @@
 /** Platform-specific internals. */
 typedef struct PuglInternalsImpl PuglInternals;
 
-/** Graphics backend interface. */
-typedef struct PuglBackendImpl PuglBackend;
-
 typedef struct {
 	int  context_version_major;
 	int  context_version_minor;

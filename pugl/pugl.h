@@ -65,6 +65,11 @@ extern "C" {
 typedef struct PuglViewImpl PuglView;
 
 /**
+   Graphics backend interface.
+*/
+typedef struct PuglBackendImpl PuglBackend;
+
+/**
    A native window handle.
 
    On X11, this is a Window.
