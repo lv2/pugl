@@ -15,15 +15,18 @@
 */
 
 /**
-   @file pugl_win.c Windows/WGL Pugl Implementation.
+   @file pugl_win.c Windows Pugl Implementation.
 */
 
 #include "pugl/pugl_internal.h"
+#include "pugl/pugl_win.h"
+
+#ifdef PUGL_HAVE_GL
+#include "pugl/pugl_gl_backend.h"
+#endif
 
 #include <windows.h>
 #include <windowsx.h>
-
-#include <GL/gl.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,57 +50,7 @@
 #define PUGL_RESIZE_TIMER_ID 9461
 #define PUGL_URGENT_TIMER_ID 9462
 
-#define WGL_DRAW_TO_WINDOW_ARB    0x2001
-#define WGL_ACCELERATION_ARB      0x2003
-#define WGL_SUPPORT_OPENGL_ARB    0x2010
-#define WGL_DOUBLE_BUFFER_ARB     0x2011
-#define WGL_PIXEL_TYPE_ARB        0x2013
-#define WGL_COLOR_BITS_ARB        0x2014
-#define WGL_RED_BITS_ARB          0x2015
-#define WGL_GREEN_BITS_ARB        0x2017
-#define WGL_BLUE_BITS_ARB         0x2019
-#define WGL_ALPHA_BITS_ARB        0x201b
-#define WGL_DEPTH_BITS_ARB        0x2022
-#define WGL_STENCIL_BITS_ARB      0x2023
-#define WGL_FULL_ACCELERATION_ARB 0x2027
-#define WGL_TYPE_RGBA_ARB         0x202b
-#define WGL_SAMPLE_BUFFERS_ARB    0x2041
-#define WGL_SAMPLES_ARB           0x2042
-
-#define WGL_CONTEXT_MAJOR_VERSION_ARB 0x2091
-#define WGL_CONTEXT_MINOR_VERSION_ARB 0x2092
-#define WGL_CONTEXT_LAYER_PLANE_ARB   0x2093
-#define WGL_CONTEXT_FLAGS_ARB         0x2094
-#define WGL_CONTEXT_PROFILE_MASK_ARB  0x9126
-
-#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB          0x00000001
-#define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
-
-struct PuglInternalsImpl {
-	HWND   hwnd;
-	HDC    hdc;
-	HGLRC  hglrc;
-	DWORD  refreshRate;
-	double timerFrequency;
-	bool   flashing;
-	bool   resizing;
-	bool   mouseTracked;
-};
-
-// Scoped class to manage the fake window used during window creation
-typedef struct {
-	HWND hwnd;
-	HDC  hdc;
-} PuglFakeWindow;
-
 static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
-
-static PuglFakeWindow
-puglMakeFakeWindow(HWND wnd)
-{
-	const PuglFakeWindow fakeWin = {wnd, wnd ? GetDC(wnd) : 0};
-	return fakeWin;
-}
 
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
@@ -117,98 +70,29 @@ puglInitInternals(void)
 void
 puglEnterContext(PuglView* view, bool drawing)
 {
-#ifdef PUGL_HAVE_GL
-	if (view->ctx_type == PUGL_GL) {
-		wglMakeCurrent(view->impl->hdc, view->impl->hglrc);
-	}
-#endif
-
-	if (drawing) {
-		PAINTSTRUCT ps;
-		BeginPaint(view->impl->hwnd, &ps);
-	}
+	view->impl->backend->enter(view, drawing);
 }
 
 void
 puglLeaveContext(PuglView* view, bool drawing)
 {
-	if (drawing) {
-		PAINTSTRUCT ps;
-		EndPaint(view->impl->hwnd, &ps);
-
-#ifdef PUGL_HAVE_GL
-		if (view->ctx_type == PUGL_GL) {
-			SwapBuffers(view->impl->hdc);
-		}
-	}
-#endif
-
-	wglMakeCurrent(NULL, NULL);
-}
-
-static PIXELFORMATDESCRIPTOR
-puglGetPixelFormatDescriptor(const PuglHints* hints)
-{
-	const int rgbBits = hints->red_bits + hints->green_bits + hints->blue_bits;
-
-	PIXELFORMATDESCRIPTOR pfd;
-	ZeroMemory(&pfd, sizeof(pfd));
-	pfd.nSize        = sizeof(pfd);
-	pfd.nVersion     = 1;
-	pfd.dwFlags      = PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL;
-	pfd.dwFlags     |= hints->double_buffer ? PFD_DOUBLEBUFFER : 0;
-	pfd.iPixelType   = PFD_TYPE_RGBA;
-	pfd.cColorBits   = (BYTE)rgbBits;
-	pfd.cRedBits     = (BYTE)hints->red_bits;
-	pfd.cGreenBits   = (BYTE)hints->green_bits;
-	pfd.cBlueBits    = (BYTE)hints->blue_bits;
-	pfd.cAlphaBits   = (BYTE)hints->alpha_bits;
-	pfd.cDepthBits   = (BYTE)hints->depth_bits;
-	pfd.cStencilBits = (BYTE)hints->stencil_bits;
-	pfd.iLayerType   = PFD_MAIN_PLANE;
-	return pfd;
-}
-
-static int
-puglWinError(PuglFakeWindow* fakeWin, const int status)
-{
-	if (fakeWin->hwnd) {
-		ReleaseDC(fakeWin->hwnd, fakeWin->hdc);
-		DestroyWindow(fakeWin->hwnd);
-	}
-
-	return status;
-}
-
-static unsigned
-getWindowFlags(const PuglView* view)
-{
-	return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
-	        (view->parent
-	         ? WS_CHILD
-	         : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX |
-	            (view->hints.resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0))));
-}
-
-static unsigned
-getWindowExFlags(const PuglView* view)
-{
-	return WS_EX_NOINHERITLAYOUT | (view->parent ? 0u : WS_EX_APPWINDOW);
+	view->impl->backend->leave(view, drawing);
 }
 
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
-	typedef BOOL (*WglChoosePixelFormat)(
-		HDC, const int*, const FLOAT*, UINT, int*, UINT*);
-
-	typedef HGLRC (*WglCreateContextAttribs)(HDC, HGLRC, const int*);
-
-	typedef BOOL (*WglSwapInterval)(int);
+	PuglInternals* impl = view->impl;
 
 	const char* className = view->windowClass ? view->windowClass : DEFAULT_CLASSNAME;
 
 	title = title ? title : "Window";
+
+	if (view->ctx_type == PUGL_GL) {
+#ifdef PUGL_HAVE_GL
+		impl->backend = puglGlBackend();
+#endif
+	}
 
 	// Get refresh rate for resize draw timer
 	DEVMODEA devMode = {0};
@@ -230,140 +114,18 @@ puglCreateWindow(PuglView* view, const char* title)
 		return 1;
 	}
 
-	// Calculate window flags
-	const unsigned winFlags   = getWindowFlags(view);
-	const unsigned winExFlags = getWindowExFlags(view);
-	if (view->hints.resizable) {
-		if (view->min_width || view->min_height) {
-			// Adjust the minimum window size to accomodate requested view size
-			RECT mr = { 0, 0, view->min_width, view->min_height };
-			AdjustWindowRectEx(&mr, winFlags, FALSE, winExFlags);
-			view->min_width  = mr.right - mr.left;
-			view->min_height = mr.bottom - mr.top;
-		}
+	if (!impl->backend->configure) {
+		return 1;
 	}
 
-	// Adjust the window size to accomodate requested view size
-	RECT wr = { 0, 0, view->width, view->height };
-	AdjustWindowRectEx(&wr, winFlags, FALSE, winExFlags);
-
-	// Create fake window for getting at GL context
-	PuglFakeWindow fakeWin = puglMakeFakeWindow(
-		CreateWindowEx(winExFlags,
-		               className, title,
-		               winFlags,
-		               CW_USEDEFAULT, CW_USEDEFAULT,
-		               wr.right-wr.left, wr.bottom-wr.top,
-		               (HWND)view->parent, NULL, NULL, NULL));
-
-	if (!fakeWin.hwnd) {
-		return puglWinError(&fakeWin, 2);
+	int st = impl->backend->configure(view);
+	if (st || !impl->surface) {
+		return 2;
+	} else if ((st = impl->backend->create(view))) {
+		return 3;
 	}
 
-	// Choose pixel format for fake window
-	const PIXELFORMATDESCRIPTOR fakePfd = puglGetPixelFormatDescriptor(
-		&view->hints);
-	const int fakeFormatId = ChoosePixelFormat(fakeWin.hdc, &fakePfd);
-	if (!fakeFormatId) {
-		return puglWinError(&fakeWin, 3);
-	} else if (!SetPixelFormat(fakeWin.hdc, fakeFormatId, &fakePfd)) {
-		return puglWinError(&fakeWin, 4);
-	}
-
-	HGLRC fakeRc = wglCreateContext(fakeWin.hdc);
-	if (!fakeRc) {
-		return puglWinError(&fakeWin, 5);
-	}
-
-	wglMakeCurrent(fakeWin.hdc, fakeRc);
-
-	WglChoosePixelFormat wglChoosePixelFormat = (WglChoosePixelFormat)(
-		wglGetProcAddress("wglChoosePixelFormatARB"));
-	WglCreateContextAttribs wglCreateContextAttribs = (WglCreateContextAttribs)(
-		wglGetProcAddress("wglCreateContextAttribsARB"));
-	WglSwapInterval wglSwapInterval = (WglSwapInterval)(
-		wglGetProcAddress("wglSwapIntervalEXT"));
-
-	PuglInternals* impl = view->impl;
-
-	if (wglChoosePixelFormat && wglCreateContextAttribs) {
-		// Now create real window
-		impl->hwnd = CreateWindowEx(
-			winExFlags,
-			className, title,
-			winFlags,
-			CW_USEDEFAULT, CW_USEDEFAULT, wr.right-wr.left, wr.bottom-wr.top,
-			(HWND)view->parent, NULL, NULL, NULL);
-
-		impl->hdc = GetDC(impl->hwnd);
-
-		const int pixelAttrs[] = {
-			WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-			WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
-			WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-			WGL_DOUBLE_BUFFER_ARB,  view->hints.double_buffer,
-			WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
-			WGL_SAMPLE_BUFFERS_ARB, view->hints.samples ? 1 : 0,
-			WGL_SAMPLES_ARB,        view->hints.samples,
-			WGL_RED_BITS_ARB,       view->hints.red_bits,
-			WGL_GREEN_BITS_ARB,     view->hints.green_bits,
-			WGL_BLUE_BITS_ARB,      view->hints.blue_bits,
-			WGL_ALPHA_BITS_ARB,     view->hints.alpha_bits,
-			WGL_DEPTH_BITS_ARB,     view->hints.depth_bits,
-			WGL_STENCIL_BITS_ARB,   view->hints.stencil_bits,
-			0,
-		};
-
-		// Choose pixel format based on hints
-		int  pixelFormatId;
-		UINT numFormats;
-		if (!wglChoosePixelFormat(impl->hdc, pixelAttrs, NULL, 1u, &pixelFormatId, &numFormats)) {
-			return puglWinError(&fakeWin, 6);
-		}
-
-		// Set desired pixel format
-		PIXELFORMATDESCRIPTOR pfd;
-		DescribePixelFormat(impl->hdc, pixelFormatId, sizeof(pfd), &pfd);
-		if (!SetPixelFormat(impl->hdc, pixelFormatId, &pfd)) {
-			return puglWinError(&fakeWin, 7);
-		}
-
-		// Create final GL context
-		const int contextAttribs[] = {
-			WGL_CONTEXT_MAJOR_VERSION_ARB, view->hints.context_version_major,
-			WGL_CONTEXT_MINOR_VERSION_ARB, view->hints.context_version_minor,
-			WGL_CONTEXT_PROFILE_MASK_ARB, (view->hints.use_compat_profile
-			                               ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB
-			                               : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB),
-			0
-		};
-
-		if (!(impl->hglrc = wglCreateContextAttribs(impl->hdc, 0, contextAttribs))) {
-			return puglWinError(&fakeWin, 8);
-		}
-
-		// Switch to new context
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(fakeRc);
-		if (!wglMakeCurrent(impl->hdc, impl->hglrc)) {
-			return puglWinError(&fakeWin, 9);
-		}
-
-		ReleaseDC(fakeWin.hwnd, fakeWin.hdc);
-		DestroyWindow(fakeWin.hwnd);
-	} else {
-		// Modern extensions not available, just use the original "fake" window
-		impl->hwnd   = fakeWin.hwnd;
-		impl->hdc    = fakeWin.hdc;
-		impl->hglrc  = fakeRc;
-		fakeWin.hwnd = 0;
-		fakeWin.hdc  = 0;
-	}
-
-	if (wglSwapInterval) {
-		wglSwapInterval(1);
-	}
-
+	SetWindowText(impl->hwnd, title);
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
 	return 0;
@@ -392,8 +154,7 @@ void
 puglDestroy(PuglView* view)
 {
 	if (view) {
-		wglMakeCurrent(NULL, NULL);
-		wglDeleteContext(view->impl->hglrc);
+		view->impl->backend->destroy(view);
 		ReleaseDC(view->impl->hwnd, view->impl->hdc);
 		DestroyWindow(view->impl->hwnd);
 		UnregisterClass(view->windowClass ? view->windowClass : DEFAULT_CLASSNAME, NULL);
@@ -899,12 +660,6 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(hwnd, message, wParam, lParam);
 		}
 	}
-}
-
-PuglGlFunc
-puglGetProcAddress(const char* name)
-{
-	return (PuglGlFunc)wglGetProcAddress(name);
 }
 
 double

@@ -97,7 +97,7 @@ def build(bld):
     framework = []
     libs      = []
     if bld.env.TARGET_PLATFORM == 'win32':
-        lib_source = ['pugl/pugl_win.c']
+        lib_source = ['pugl/pugl_win.c', 'pugl/pugl_win_gl.c']
         libs       = ['opengl32', 'gdi32', 'user32']
     elif bld.env.TARGET_PLATFORM == 'darwin':
         lib_source = ['pugl/pugl_osx.m']

@@ -74,7 +74,10 @@ typedef void* PuglHandle;
    Return status code.
 */
 typedef enum {
-	PUGL_SUCCESS = 0
+	PUGL_SUCCESS,
+	PUGL_ERR_CREATE_WINDOW,
+	PUGL_ERR_SET_FORMAT,
+	PUGL_ERR_CREATE_CONTEXT,
 } PuglStatus;
 
 /**
