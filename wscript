@@ -19,12 +19,13 @@ VERSION = PUGL_VERSION  # Package version for waf dist
 top     = '.'           # Source directory
 out     = 'build'       # Build directory
 
+
 def options(ctx):
     ctx.load('compiler_c')
 
     opts = ctx.configuration_options()
     opts.add_option('--target', default=None, dest='target',
-                   help='target platform (e.g. "win32" or "darwin")')
+                    help='target platform (e.g. "win32" or "darwin")')
 
     ctx.add_flags(
         opts,
@@ -33,6 +34,7 @@ def options(ctx):
          'static':     'build static library',
          'log':        'print GL information to console',
          'grab-focus': 'work around keyboard issues by grabbing focus'})
+
 
 def configure(conf):
     conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
@@ -82,6 +84,7 @@ def configure(conf):
          "OpenGL support":         conf.is_defined('HAVE_GL'),
          "Cairo support":          conf.is_defined('HAVE_CAIRO'),
          "Verbose console output": conf.is_defined('PUGL_VERBOSE')})
+
 
 def build(bld):
     # C Headers
@@ -196,14 +199,16 @@ def build(bld):
         bld(features = 'doxygen',
             doxyfile = 'Doxyfile')
 
+
 def test(tst):
     pass
+
 
 def lint(ctx):
     "checks code for style issues"
     import subprocess
 
-    subprocess.call("flake8 wscript --ignore E221,W504,E302,E251,E241",
+    subprocess.call("flake8 wscript --ignore E221,W504,E251,E241",
                     shell=True)
 
     cmd = ("clang-tidy -p=. -header-filter=.* -checks=\"*," +
