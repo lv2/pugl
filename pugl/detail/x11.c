@@ -24,12 +24,17 @@
 
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/x11.h"
+#include "pugl/pugl.h"
 
-#include <X11/Xatom.h>
+#include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
+#include <sys/time.h>
+
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

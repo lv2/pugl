@@ -3,7 +3,7 @@
 import os
 import sys
 
-from waflib import Options, TaskGen
+from waflib import Logs, Options, TaskGen
 from waflib.extras import autowaf
 
 # Library and package version (UNIX style major, minor, micro)
@@ -127,7 +127,7 @@ def build(bld):
 
     common = {
         'framework': framework,
-        'includes':  ['.', './src'],
+        'includes':  ['.'],
         'uselib':    ['CAIRO'],
     }
 
@@ -228,6 +228,11 @@ def lint(ctx):
            "../pugl/detail/*.c")
 
     subprocess.call(cmd, cwd='build', shell=True)
+
+    try:
+        subprocess.call(['iwyu_tool.py', '-o', 'clang', '-p', 'build'])
+    except Exception:
+        Logs.warn('Failed to call iwyu_tool.py')
 
 # Alias .m files to be compiled like .c files, gcc will do the right thing.
 @TaskGen.extension('.m')

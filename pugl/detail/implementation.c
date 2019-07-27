@@ -21,6 +21,7 @@
 #include "pugl/detail/implementation.h"
 #include "pugl/pugl.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 

@@ -20,11 +20,16 @@
 
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/x11.h"
+#include "pugl/pugl.h"
 #include "pugl/pugl_gl_backend.h"
 
 #include <GL/gl.h>
 #include <GL/glx.h>
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 

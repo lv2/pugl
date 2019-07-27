@@ -23,6 +23,7 @@
 
 #include "pugl/detail/implementation.h"
 #include "pugl/gl.h"
+#include "pugl/pugl.h"
 #include "pugl/pugl_gl_backend.h"
 
 #ifdef PUGL_HAVE_CAIRO

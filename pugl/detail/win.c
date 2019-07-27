@@ -20,10 +20,12 @@
 
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/win.h"
+#include "pugl/pugl.h"
 
 #include <windows.h>
 #include <windowsx.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

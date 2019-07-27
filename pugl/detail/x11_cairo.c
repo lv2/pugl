@@ -20,12 +20,14 @@
 
 #include "pugl/detail/types.h"
 #include "pugl/detail/x11.h"
+#include "pugl/pugl.h"
 #include "pugl/pugl_cairo_backend.h"
 
 #include <X11/Xutil.h>
 #include <cairo-xlib.h>
 #include <cairo.h>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
