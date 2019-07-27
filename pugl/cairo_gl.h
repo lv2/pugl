@@ -14,8 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#if defined(PUGL_HAVE_GL) && defined(PUGL_HAVE_CAIRO)
-
 #include "pugl/gl.h"
 
 #include <cairo.h>
@@ -99,5 +97,3 @@ pugl_cairo_gl_draw(PuglCairoGL* ctx, int width, int height)
 	glDisable(GL_TEXTURE_RECTANGLE_ARB);
 	glPopMatrix();
 }
-
-#endif
