@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl.h API for Pugl, a minimal portable API for OpenGL.
+   @file pugl.h Public API.
 */
 
 #ifndef PUGL_H_INCLUDED

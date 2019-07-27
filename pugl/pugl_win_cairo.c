@@ -15,7 +15,7 @@
 */
 
 /**
-   @file win_cairo.c Cairo graphics backend for Windows.
+   @file pugl_win_cairo.c Cairo graphics backend for Windows.
 */
 
 #include "pugl/pugl_cairo_backend.h"

@@ -14,6 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/**
+   @file pugl_x11.h Shared definitions for X11 implementation.
+*/
+
 #include "pugl/pugl.h"
 #include "pugl/pugl_internal_types.h"
 

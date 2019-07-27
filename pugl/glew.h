@@ -15,7 +15,7 @@
 */
 
 /**
-   @file gl.h Portable header wrapper for glew.h.
+   @file glew.h Portable header wrapper for glew.h.
 
    Unfortunately, GL includes vary across platforms so this header allows for
    pure portable programs.

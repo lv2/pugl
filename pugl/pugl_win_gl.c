@@ -14,6 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/**
+   @file pugl_win_gl.c OpenGL graphics backend for Windows.
+*/
+
 #include "pugl/pugl_gl_backend.h"
 #include "pugl/pugl_internal_types.h"
 #include "pugl/pugl_win.h"

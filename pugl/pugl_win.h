@@ -14,6 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/**
+   @file pugl_win.h Shared definitions for Windows implementation.
+*/
+
 #include "pugl/pugl_internal_types.h"
 
 #include <windows.h>

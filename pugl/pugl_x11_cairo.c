@@ -14,6 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/**
+   @file pugl_x11_cairo.c Cairo graphics backend for X11.
+*/
+
 #include "pugl/pugl_cairo_backend.h"
 #include "pugl/pugl_internal_types.h"
 #include "pugl/pugl_x11.h"

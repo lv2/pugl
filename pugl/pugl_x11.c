@@ -17,7 +17,7 @@
 */
 
 /**
-   @file pugl_x11.c X11 Pugl Implementation.
+   @file pugl_x11.c X11 implementation.
 */
 
 #define _POSIX_C_SOURCE 199309L

@@ -14,6 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+/**
+   @file cairo_gl.h Generic Cairo to OpenGL drawing support.
+*/
+
 #include "pugl/gl.h"
 
 #include <cairo.h>

@@ -16,7 +16,7 @@
 */
 
 /**
-   @file pugl_osx.m OSX/Cocoa Pugl Implementation.
+   @file pugl_osx.m MacOS implementation.
 */
 
 #define GL_SILENCE_DEPRECATION 1

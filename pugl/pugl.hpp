@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl.hpp C++ API for Pugl, a minimal portable API for OpenGL.
+   @file pugl.hpp C++ wrapper for API.
 */
 
 #ifndef PUGL_HPP_INCLUDED

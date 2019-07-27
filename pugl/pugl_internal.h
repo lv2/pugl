@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl_internal.h Private platform-independent definitions.
+   @file pugl_internal.h Platform-independent implementation.
 
    Note that this file contains function definitions, so it must be compiled
    into the final binary exactly once.  Each platform specific implementation

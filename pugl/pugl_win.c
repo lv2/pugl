@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl_win.c Windows Pugl Implementation.
+   @file pugl_win.c Windows implementation.
 */
 
 #include "pugl/pugl_internal.h"
