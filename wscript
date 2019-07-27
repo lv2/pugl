@@ -48,9 +48,12 @@ def configure(conf):
     elif conf.env.TARGET_PLATFORM == 'darwin':
         conf.env.append_unique('CFLAGS', ['-Wno-deprecated-declarations'])
 
-    if Options.options.strict and not conf.env.MSVC_COMPILER:
-        conf.env.append_value('CFLAGS', ['-Wunused-parameter'])
-        conf.env.append_value('CXXFLAGS', ['-Wunused-parameter'])
+    if not conf.env.MSVC_COMPILER:
+        conf.env.append_value('LINKFLAGS', ['-fvisibility=hidden'])
+        for f in ('CFLAGS', 'CXXFLAGS'):
+            conf.env.append_value(f, ['-fvisibility=hidden'])
+            if Options.options.strict:
+                conf.env.append_value(f, ['-Wunused-parameter'])
 
     autowaf.set_c_lang(conf, 'c99')
 
@@ -99,7 +102,7 @@ def build(bld):
     autowaf.build_pc(bld, 'PUGL', PUGL_VERSION, PUGL_MAJOR_VERSION, [],
                      {'PUGL_MAJOR_VERSION': PUGL_MAJOR_VERSION})
 
-    libflags   = ['-fvisibility=hidden'] if not bld.env.MSVC_COMPILER else []
+    libflags   = []
     framework  = []
     libs       = []
     lib_source = ['pugl/detail/implementation.c']
