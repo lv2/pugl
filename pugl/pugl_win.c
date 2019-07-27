@@ -53,6 +53,8 @@
 #define PUGL_RESIZE_TIMER_ID 9461
 #define PUGL_URGENT_TIMER_ID 9462
 
+typedef BOOL (WINAPI *PFN_SetProcessDPIAware)(void);
+
 static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
 
 LRESULT CALLBACK
@@ -62,6 +64,16 @@ PuglInternals*
 puglInitInternals(void)
 {
 	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+
+	HMODULE user32 = LoadLibrary("user32.dll");
+	if (user32) {
+		PFN_SetProcessDPIAware SetProcessDPIAware =
+			(PFN_SetProcessDPIAware)GetProcAddress(
+				user32, "SetProcessDPIAware");
+		if (SetProcessDPIAware) {
+			SetProcessDPIAware();
+		}
+	}
 
 	LARGE_INTEGER frequency;
 	QueryPerformanceFrequency(&frequency);
