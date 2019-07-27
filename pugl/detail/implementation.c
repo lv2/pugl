@@ -43,6 +43,7 @@ puglInit(int* PUGL_UNUSED(pargc), char** PUGL_UNUSED(argv))
 
 	PuglInternals* impl = puglInitInternals();
 	if (!impl) {
+		free(view);
 		return NULL;
 	}
 
