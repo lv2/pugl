@@ -31,7 +31,8 @@ def options(ctx):
         opts,
         {'no-gl':      'do not build OpenGL support',
          'no-cairo':   'do not build Cairo support',
-         'static':     'build static library',
+         'no-static':  'do not build static library',
+         'no-shared':  'do not build shared library',
          'log':        'print GL information to console',
          'grab-focus': 'work around keyboard issues by grabbing focus'})
 
@@ -71,7 +72,8 @@ def configure(conf):
 
     # Shared library building is broken on win32 for some reason
     conf.env.update({
-        'BUILD_STATIC': conf.env.BUILD_TESTS or Options.options.static})
+        'BUILD_SHARED': not Options.options.no_shared,
+        'BUILD_STATIC': conf.env.BUILD_TESTS or not Options.options.no_static})
 
     autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION)
     conf.write_config_header('pugl_config.h', remove=False)
