@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl.h Public API.
+   @file pugl.h Public Pugl API.
 */
 
 #ifndef PUGL_H_INCLUDED

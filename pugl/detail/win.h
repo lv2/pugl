@@ -15,10 +15,10 @@
 */
 
 /**
-   @file pugl_win.h Shared definitions for Windows implementation.
+   @file win.h Shared definitions for Windows implementation.
 */
 
-#include "pugl/pugl_internal_types.h"
+#include "pugl/detail/implementation.h"
 
 #include <windows.h>
 

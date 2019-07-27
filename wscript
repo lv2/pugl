@@ -93,29 +93,30 @@ def build(bld):
     autowaf.build_pc(bld, 'PUGL', PUGL_VERSION, PUGL_MAJOR_VERSION, [],
                      {'PUGL_MAJOR_VERSION': PUGL_MAJOR_VERSION})
 
-    libflags  = ['-fvisibility=hidden']
-    framework = []
-    libs      = []
+    libflags   = ['-fvisibility=hidden']
+    framework  = []
+    libs       = []
+    lib_source = ['pugl/detail/implementation.c']
     if bld.env.TARGET_PLATFORM == 'win32':
-        lib_source = ['pugl/pugl_win.c']
-        libs       = ['gdi32', 'user32']
+        lib_source += ['pugl/detail/win.c']
+        libs        = ['gdi32', 'user32']
         if bld.is_defined('HAVE_GL'):
-            lib_source += ['pugl/pugl_win_gl.c']
+            lib_source += ['pugl/detail/win_gl.c']
             libs       += ['opengl32']
         if bld.is_defined('HAVE_CAIRO'):
-            lib_source += ['pugl/pugl_win_cairo.c']
+            lib_source += ['pugl/detail/win_cairo.c']
             libs       += ['cairo']
     elif bld.env.TARGET_PLATFORM == 'darwin':
-        lib_source = ['pugl/pugl_osx.m']
-        framework  = ['Cocoa', 'OpenGL']
+        lib_source += ['pugl/detail/mac.m']
+        framework   = ['Cocoa', 'OpenGL']
     else:
-        lib_source = ['pugl/pugl_x11.c']
-        libs       = ['X11']
+        lib_source += ['pugl/detail/x11.c']
+        libs        = ['X11']
         if bld.is_defined('HAVE_GL'):
-            lib_source += ['pugl/pugl_x11_gl.c']
+            lib_source += ['pugl/detail/x11_gl.c']
             libs       += ['GL']
         if bld.is_defined('HAVE_CAIRO'):
-            lib_source += ['pugl/pugl_x11_cairo.c']
+            lib_source += ['pugl/detail/x11_cairo.c']
     if bld.env['MSVC_COMPILER']:
         libflags = []
     else:
@@ -212,7 +213,7 @@ def lint(ctx):
            "-misc-unused-parameters," +
            "-hicpp-signed-bitwise," +  # FIXME?
            "-readability-else-after-return\" " +
-           "../pugl/*.c ../*.c")
+           "../pugl/detail/*.c ../test/*.c")
     subprocess.call(cmd, cwd='build', shell=True)
 
 # Alias .m files to be compiled like .c files, gcc will do the right thing.

@@ -15,12 +15,12 @@
 */
 
 /**
-   @file pugl_win_cairo.c Cairo graphics backend for Windows.
+   @file win_cairo.c Cairo graphics backend for Windows.
 */
 
+#include "pugl/detail/types.h"
+#include "pugl/detail/win.h"
 #include "pugl/pugl_cairo_backend.h"
-#include "pugl/pugl_internal_types.h"
-#include "pugl/pugl_win.h"
 
 #include <cairo-win32.h>
 #include <cairo.h>

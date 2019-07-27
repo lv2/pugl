@@ -15,20 +15,14 @@
 */
 
 /**
-   @file pugl_internal.h Platform-independent implementation.
-
-   Note that this file contains function definitions, so it must be compiled
-   into the final binary exactly once.  Each platform specific implementation
-   file including it once should achieve this.
+   @file implementation.c Platform-independent implementation.
 */
 
+#include "pugl/detail/implementation.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_internal_types.h"
 
 #include <stdlib.h>
 #include <string.h>
-
-PuglInternals* puglInitInternals(void);
 
 static PuglHints
 puglDefaultHints(void)
@@ -222,7 +216,7 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 }
 
 /** Return the code point for buf, or the replacement character on error. */
-static inline uint32_t
+uint32_t
 puglDecodeUTF8(const uint8_t* buf)
 {
 #define FAIL_IF(cond) do { if (cond) return 0xFFFD; } while (0)
@@ -255,7 +249,7 @@ puglDecodeUTF8(const uint8_t* buf)
 	return 0xFFFD;
 }
 
-static void
+void
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
 	switch (event->type) {

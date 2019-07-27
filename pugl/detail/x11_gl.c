@@ -15,12 +15,12 @@
 */
 
 /**
-   @file pugl_x11_gl.c OpenGL graphics backend for X11.
+   @file x11_gl.c OpenGL graphics backend for X11.
 */
 
+#include "pugl/detail/implementation.h"
+#include "pugl/detail/x11.h"
 #include "pugl/pugl_gl_backend.h"
-#include "pugl/pugl_internal_types.h"
-#include "pugl/pugl_x11.h"
 
 #include <GL/gl.h>
 #include <GL/glx.h>

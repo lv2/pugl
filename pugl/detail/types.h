@@ -15,11 +15,11 @@
 */
 
 /**
-   @file pugl_internal_types.h Private platform-independent type definitions.
+   @file types.h Shared internal type definitions.
 */
 
-#ifndef PUGL_INTERNAL_TYPES_H
-#define PUGL_INTERNAL_TYPES_H
+#ifndef PUGL_DETAIL_TYPES_H
+#define PUGL_DETAIL_TYPES_H
 
 #include "pugl/pugl.h"
 
@@ -38,6 +38,7 @@
 /** Platform-specific internals. */
 typedef struct PuglInternalsImpl PuglInternals;
 
+/** View hints. */
 typedef struct {
 	int  context_version_major;
 	int  context_version_minor;
@@ -76,7 +77,7 @@ struct PuglViewImpl {
 	bool               visible;
 };
 
-/** Opaque surface used by draw context. */
+/** Opaque surface used by graphics backend. */
 typedef void PuglSurface;
 
 /** Graphics backend interface. */
@@ -103,4 +104,4 @@ struct PuglBackendImpl {
 	void* (*getContext)(PuglView*);
 };
 
-#endif // PUGL_INTERNAL_TYPES_H
+#endif // PUGL_DETAIL_TYPES_H

@@ -15,28 +15,32 @@
 */
 
 /**
-   @file pugl_x11.h Shared definitions for X11 implementation.
+   @file implementation.h Shared declarations for implementation.
 */
 
+#ifndef PUGL_DETAIL_IMPLEMENTATION_H
+#define PUGL_DETAIL_IMPLEMENTATION_H
+
+#include "pugl/detail/types.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_internal_types.h"
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
+#include <stdint.h>
 
-struct PuglInternalsImpl {
-	Display*     display;
-	int          screen;
-	XVisualInfo* vi;
-	Window       win;
-	XIM          xim;
-	XIC          xic;
-	PuglSurface* surface;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	struct {
-		Atom WM_PROTOCOLS;
-		Atom WM_DELETE_WINDOW;
-		Atom NET_WM_STATE;
-		Atom NET_WM_STATE_DEMANDS_ATTENTION;
-	} atoms;
-};
+/** Allocate and initialise internals (implemented once per platform) */
+PuglInternals* puglInitInternals(void);
+
+/** Return the Unicode code point for `buf` or the replacement character. */
+uint32_t puglDecodeUTF8(const uint8_t* buf);
+
+/** Dispatch `event` to `view`, optimising configure/expose if possible. */
+void puglDispatchEvent(PuglView* view, const PuglEvent* event);
+
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif
+
+#endif // PUGL_DETAIL_IMPLEMENTATION_H

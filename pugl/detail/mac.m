@@ -16,18 +16,18 @@
 */
 
 /**
-   @file pugl_osx.m MacOS implementation.
+   @file mac.m MacOS implementation.
 */
 
 #define GL_SILENCE_DEPRECATION 1
 
+#include "pugl/detail/implementation.h"
 #include "pugl/gl.h"
 #include "pugl/pugl_gl_backend.h"
-#include "pugl/pugl_internal.h"
 
 #ifdef PUGL_HAVE_CAIRO
+#include "pugl/detail/cairo_gl.h"
 #include "pugl/pugl_cairo_backend.h"
-#include "pugl/cairo_gl.h"
 #endif
 
 #import <Cocoa/Cocoa.h>

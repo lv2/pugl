@@ -15,11 +15,11 @@
 */
 
 /**
-   @file pugl_win.c Windows implementation.
+   @file win.c Windows implementation.
 */
 
-#include "pugl/pugl_internal.h"
-#include "pugl/pugl_win.h"
+#include "pugl/detail/implementation.h"
+#include "pugl/detail/win.h"
 
 #include <windows.h>
 #include <windowsx.h>

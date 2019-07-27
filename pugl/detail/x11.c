@@ -17,13 +17,13 @@
 */
 
 /**
-   @file pugl_x11.c X11 implementation.
+   @file x11.c X11 implementation.
 */
 
 #define _POSIX_C_SOURCE 199309L
 
-#include "pugl/pugl_internal.h"
-#include "pugl/pugl_x11.h"
+#include "pugl/detail/implementation.h"
+#include "pugl/detail/x11.h"
 
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>

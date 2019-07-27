@@ -15,12 +15,12 @@
 */
 
 /**
-   @file pugl_win_gl.c OpenGL graphics backend for Windows.
+   @file win_gl.c OpenGL graphics backend for Windows.
 */
 
+#include "pugl/detail/types.h"
+#include "pugl/detail/win.h"
 #include "pugl/pugl_gl_backend.h"
-#include "pugl/pugl_internal_types.h"
-#include "pugl/pugl_win.h"
 
 #include <windows.h>
 
