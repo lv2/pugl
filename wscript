@@ -72,15 +72,15 @@ def configure(conf):
     # Shared library building is broken on win32 for some reason
     conf.env.update({
         'BUILD_SHARED': conf.env.TARGET_PLATFORM != 'win32',
-        'BUILD_STATIC': conf.env['BUILD_TESTS'] or Options.options.static})
+        'BUILD_STATIC': conf.env.BUILD_TESTS or Options.options.static})
 
     autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION)
     conf.write_config_header('pugl_config.h', remove=False)
 
     autowaf.display_summary(
         conf,
-        {"Build static library":   bool(conf.env['BUILD_STATIC']),
-         "Build shared library":   bool(conf.env['BUILD_SHARED']),
+        {"Build static library":   bool(conf.env.BUILD_STATIC),
+         "Build shared library":   bool(conf.env.BUILD_SHARED),
          "OpenGL support":         conf.is_defined('HAVE_GL'),
          "Cairo support":          conf.is_defined('HAVE_CAIRO'),
          "Verbose console output": conf.is_defined('PUGL_VERBOSE')})
@@ -120,7 +120,7 @@ def build(bld):
             libs       += ['GL']
         if bld.is_defined('HAVE_CAIRO'):
             lib_source += ['pugl/detail/x11_cairo.c']
-    if bld.env['MSVC_COMPILER']:
+    if bld.env.MSVC_COMPILER:
         libflags = []
     else:
         libs += ['m']
@@ -142,20 +142,20 @@ def build(bld):
     })
 
     # Shared Library
-    if bld.env['BUILD_SHARED']:
+    if bld.env.BUILD_SHARED:
         bld(features = 'c cshlib',
             name     = 'libpugl',
             cflags   = libflags + ['-DPUGL_SHARED', '-DPUGL_INTERNAL'],
             **lib_common)
 
     # Static library
-    if bld.env['BUILD_STATIC']:
+    if bld.env.BUILD_STATIC:
         bld(features = 'c cstlib',
             name     = 'libpugl_static',
             cflags   = ['-DPUGL_INTERNAL'],
             **lib_common)
 
-    if bld.env['BUILD_TESTS']:
+    if bld.env.BUILD_TESTS:
         test_libs   = libs
         test_cflags = ['']
 
@@ -187,7 +187,7 @@ def build(bld):
                 cflags       = test_cflags,
                 **common)
 
-    if bld.env['DOCS']:
+    if bld.env.DOCS:
         bld(features     = 'subst',
             source       = 'Doxyfile.in',
             target       = 'Doxyfile',
