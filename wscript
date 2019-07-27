@@ -71,7 +71,6 @@ def configure(conf):
 
     # Shared library building is broken on win32 for some reason
     conf.env.update({
-        'BUILD_SHARED': conf.env.TARGET_PLATFORM != 'win32',
         'BUILD_STATIC': conf.env.BUILD_TESTS or Options.options.static})
 
     autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION)
