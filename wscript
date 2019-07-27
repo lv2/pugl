@@ -59,6 +59,8 @@ def configure(conf):
         conf.define('HAVE_GL', 1)
         conf.define('PUGL_HAVE_GL', 1)
 
+    conf.check(features='c cshlib', lib='m', uselib_store='M', mandatory=False)
+
     if not Options.options.no_cairo:
         autowaf.check_pkg(conf, 'cairo',
                           uselib_store    = 'CAIRO',
@@ -97,7 +99,7 @@ def build(bld):
     autowaf.build_pc(bld, 'PUGL', PUGL_VERSION, PUGL_MAJOR_VERSION, [],
                      {'PUGL_MAJOR_VERSION': PUGL_MAJOR_VERSION})
 
-    libflags   = ['-fvisibility=hidden']
+    libflags   = ['-fvisibility=hidden'] if not bld.env.MSVC_COMPILER else []
     framework  = []
     libs       = []
     lib_source = ['pugl/detail/implementation.c']
@@ -121,15 +123,10 @@ def build(bld):
             libs       += ['GL']
         if bld.is_defined('HAVE_CAIRO'):
             lib_source += ['pugl/detail/x11_cairo.c']
-    if bld.env.MSVC_COMPILER:
-        libflags = []
-    else:
-        libs += ['m']
 
     common = {
         'framework': framework,
         'includes':  ['.'],
-        'uselib':    ['CAIRO'],
     }
 
     lib_common = common.copy()
@@ -137,6 +134,7 @@ def build(bld):
         'export_includes': ['.'],
         'install_path':    '${LIBDIR}',
         'lib':             libs,
+        'uselib':          ['CAIRO'],
         'source':          lib_source,
         'target':          'pugl-%s' % PUGL_MAJOR_VERSION,
         'vnum':            PUGL_VERSION,
@@ -183,6 +181,7 @@ def build(bld):
                 source       = 'test/%s.c' % prog,
                 use          = 'libpugl_static',
                 lib          = test_libs,
+                uselib       = ['CAIRO', 'M'],
                 target       = target,
                 install_path = '',
                 cflags       = test_cflags,
