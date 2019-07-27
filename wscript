@@ -159,6 +159,12 @@ def build(bld):
         for prog in progs:
             if bld.env.TARGET_PLATFORM == 'darwin':
                 target = '{0}.app/Contents/MacOS/{0}'.format(prog)
+
+                bld(features     = 'subst',
+                    source       = 'resources/Info.plist.in',
+                    target       = '{}.app/Contents/Info.plist'.format(prog),
+                    install_path = '',
+                    NAME         = prog)
             else:
                 target = prog
 
