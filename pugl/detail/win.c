@@ -395,35 +395,35 @@ constrainAspect(const PuglView* const view,
                 RECT* const           size,
                 const WPARAM          wParam)
 {
-	const float minAspect = view->min_aspect_x / (float)view->min_aspect_y;
-	const float maxAspect = view->max_aspect_x / (float)view->max_aspect_y;
-	const int   w         = size->right - size->left;
-	const int   h         = size->bottom - size->top;
-	const float a         = w / (float)h;
+	const float minA = (float)view->min_aspect_x / (float)view->min_aspect_y;
+	const float maxA = (float)view->max_aspect_x / (float)view->max_aspect_y;
+	const int   w    = size->right - size->left;
+	const int   h    = size->bottom - size->top;
+	const float a    = (float)w / (float)h;
 
 	switch (wParam) {
 	case WMSZ_TOP:
-		size->top = (a < minAspect ? (LONG)(size->bottom - w * minAspect) :
-		             a > maxAspect ? (LONG)(size->bottom - w * maxAspect) :
+		size->top = (a < minA ? (LONG)(size->bottom - w * minA) :
+		             a > maxA ? (LONG)(size->bottom - w * maxA) :
 		             size->top);
 		break;
 	case WMSZ_TOPRIGHT:
 	case WMSZ_RIGHT:
 	case WMSZ_BOTTOMRIGHT:
-		size->right = (a < minAspect ? (LONG)(size->left + h * minAspect) :
-		               a > maxAspect ? (LONG)(size->left + h * maxAspect) :
+		size->right = (a < minA ? (LONG)(size->left + h * minA) :
+		               a > maxA ? (LONG)(size->left + h * maxA) :
 		               size->right);
 		break;
 	case WMSZ_BOTTOM:
-		size->bottom = (a < minAspect ? (LONG)(size->top + w * minAspect) :
-		                a > maxAspect ? (LONG)(size->top + w * maxAspect) :
+		size->bottom = (a < minA ? (LONG)(size->top + w * minA) :
+		                a > maxA ? (LONG)(size->top + w * maxA) :
 		                size->bottom);
 		break;
 	case WMSZ_BOTTOMLEFT:
 	case WMSZ_LEFT:
 	case WMSZ_TOPLEFT:
-		size->left = (a < minAspect ? (LONG)(size->right - h * minAspect) :
-		              a > maxAspect ? (LONG)(size->right - h * maxAspect) :
+		size->left = (a < minA ? (LONG)(size->right - h * minA) :
+		              a > maxA ? (LONG)(size->right - h * maxA) :
 		              size->left);
 		break;
 	}

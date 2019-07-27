@@ -25,8 +25,8 @@
 #include <GL/gl.h>
 #include <GL/glx.h>
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct {
 	GLXFBConfig fb_config;

@@ -452,7 +452,7 @@ puglRequestAttention(PuglView* view)
 	           root,
 	           False,
 	           SubstructureNotifyMask | SubstructureRedirectMask,
-	           (XEvent*)&event);
+	           &event);
 }
 
 PuglStatus

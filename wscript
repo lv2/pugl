@@ -207,13 +207,21 @@ def lint(ctx):
                     shell=True)
 
     cmd = ("clang-tidy -p=. -header-filter=.* -checks=\"*," +
+           "-bugprone-suspicious-string-compare," +
            "-clang-analyzer-alpha.*," +
+           "-cppcoreguidelines-avoid-magic-numbers," +
            "-google-readability-todo," +
+           "-hicpp-multiway-paths-covered," +
+           "-hicpp-signed-bitwise," +
+           "-hicpp-uppercase-literal-suffix," +
            "-llvm-header-guard," +
+           "-misc-misplaced-const," +
            "-misc-unused-parameters," +
-           "-hicpp-signed-bitwise," +  # FIXME?
-           "-readability-else-after-return\" " +
-           "../pugl/detail/*.c ../test/*.c")
+           "-readability-else-after-return," +
+           "-readability-magic-numbers," +
+           "-readability-uppercase-literal-suffix\" " +
+           "../pugl/detail/*.c")
+
     subprocess.call(cmd, cwd='build', shell=True)
 
 # Alias .m files to be compiled like .c files, gcc will do the right thing.
