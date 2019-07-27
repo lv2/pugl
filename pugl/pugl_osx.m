@@ -22,9 +22,11 @@
 #define GL_SILENCE_DEPRECATION 1
 
 #include "pugl/gl.h"
+#include "pugl/pugl_gl_backend.h"
 #include "pugl/pugl_internal.h"
 
 #ifdef PUGL_HAVE_CAIRO
+#include "pugl/pugl_cairo_backend.h"
 #include "pugl/cairo_gl.h"
 #endif
 
@@ -43,6 +45,8 @@ typedef NSUInteger NSWindowStyleMask;
 @class PuglOpenGLView;
 
 struct PuglInternalsImpl {
+	const PuglBackend* backend;
+
 	NSApplication*   app;
 	PuglOpenGLView*  glview;
 	id               window;
@@ -171,17 +175,7 @@ struct PuglInternalsImpl {
 		bounds.size.height,
 	};
 
-#ifdef PUGL_HAVE_CAIRO
-	PuglInternals* impl = puglview->impl;
-	if (puglview->ctx_type & PUGL_CAIRO) {
-		cairo_surface_destroy(impl->surface);
-		cairo_destroy(impl->cr);
-		impl->surface = pugl_cairo_gl_create(
-			&impl->cairo_gl, ev.width, ev.height, 4);
-		impl->cr = cairo_create(impl->surface);
-		pugl_cairo_gl_configure(&impl->cairo_gl, ev.width, ev.height);
-	}
-#endif
+	puglview->impl->backend->resize(puglview, ev.width, ev.height);
 
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
@@ -199,13 +193,6 @@ struct PuglInternalsImpl {
 	};
 
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-
-#ifdef PUGL_HAVE_CAIRO
-	if (puglview->ctx_type & PUGL_CAIRO) {
-		pugl_cairo_gl_draw(
-			&puglview->impl->cairo_gl, puglview->width, puglview->height);
-	}
-#endif
 }
 
 - (BOOL) isFlipped
@@ -740,25 +727,15 @@ puglInitInternals(void)
 }
 
 void
-puglEnterContext(PuglView* view, bool PUGL_UNUSED(drawing))
+puglEnterContext(PuglView* view, bool drawing)
 {
-	[[view->impl->glview openGLContext] makeCurrentContext];
+	view->impl->backend->enter(view, drawing);
 }
 
 void
 puglLeaveContext(PuglView* view, bool drawing)
 {
-	if (drawing) {
-#ifdef PUGL_HAVE_CAIRO
-		if (view->ctx_type & PUGL_CAIRO) {
-			pugl_cairo_gl_draw(&view->impl->cairo_gl, view->width, view->height);
-		}
-#endif
-
-		[[view->impl->glview openGLContext] flushBuffer];
-	}
-
-	[NSOpenGLContext clearCurrentContext];
+	view->impl->backend->leave(view, drawing);
 }
 
 static NSLayoutConstraint*
@@ -781,6 +758,13 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	[NSAutoreleasePool new];
 	impl->app = [NSApplication sharedApplication];
+
+	impl->backend = puglGlBackend();
+	if (view->ctx_type == PUGL_CAIRO) {
+#ifdef PUGL_HAVE_CAIRO
+		impl->backend = puglCairoBackend();
+#endif
+	}
 
 	impl->glview               = [PuglOpenGLView alloc];
 	impl->glview->trackingArea = nil;
@@ -864,9 +848,7 @@ puglHideWindow(PuglView* view)
 void
 puglDestroy(PuglView* view)
 {
-#ifdef PUGL_HAVE_CAIRO
-	pugl_cairo_gl_free(&view->impl->cairo_gl);
-#endif
+	view->impl->backend->destroy(view);
 	view->impl->glview->puglview = NULL;
 	[view->impl->glview removeFromSuperview];
 	if (view->impl->window) {
@@ -974,10 +956,141 @@ puglGetNativeWindow(PuglView* view)
 void*
 puglGetContext(PuglView* view)
 {
-#ifdef PUGL_HAVE_CAIRO
-	if (view->ctx_type & PUGL_CAIRO) {
-		return view->impl->cr;
+	return view->impl->backend->getContext(view);
+}
+
+// Backend
+
+static int
+puglMacConfigure(PuglView* PUGL_UNUSED(view))
+{
+	return 0;
+}
+
+static int
+puglMacCreate(PuglView* PUGL_UNUSED(view))
+{
+	return 0;
+}
+
+static int
+puglMacGlDestroy(PuglView* PUGL_UNUSED(view))
+{
+	return 0;
+}
+
+static int
+puglMacGlEnter(PuglView* view, bool PUGL_UNUSED(drawing))
+{
+	[[view->impl->glview openGLContext] makeCurrentContext];
+	return 0;
+}
+
+static int
+puglMacGlLeave(PuglView* view, bool drawing)
+{
+	if (drawing) {
+		[[view->impl->glview openGLContext] flushBuffer];
 	}
-#endif
+
+	[NSOpenGLContext clearCurrentContext];
+
+	return 0;
+}
+
+static int
+puglMacGlResize(PuglView* PUGL_UNUSED(view),
+                int       PUGL_UNUSED(width),
+                int       PUGL_UNUSED(height))
+{
+	return 0;
+}
+
+static void*
+puglMacGlGetContext(PuglView* PUGL_UNUSED(view))
+{
 	return NULL;
 }
+
+const PuglBackend* puglGlBackend(void)
+{
+	static const PuglBackend backend = {
+		puglMacConfigure,
+		puglMacCreate,
+		puglMacGlDestroy,
+		puglMacGlEnter,
+		puglMacGlLeave,
+		puglMacGlResize,
+		puglMacGlGetContext
+	};
+
+	return &backend;
+}
+
+#ifdef PUGL_HAVE_CAIRO
+
+static int
+puglMacCairoDestroy(PuglView* view)
+{
+	pugl_cairo_gl_free(&view->impl->cairo_gl);
+	return 0;
+}
+
+static int
+puglMacCairoEnter(PuglView* view, bool PUGL_UNUSED(drawing))
+{
+	[[view->impl->glview openGLContext] makeCurrentContext];
+
+	return 0;
+}
+
+static int
+puglMacCairoLeave(PuglView* view, bool drawing)
+{
+	if (drawing) {
+		pugl_cairo_gl_draw(&view->impl->cairo_gl, view->width, view->height);
+		[[view->impl->glview openGLContext] flushBuffer];
+	}
+
+	[NSOpenGLContext clearCurrentContext];
+
+	return 0;
+}
+
+
+static int
+puglMacCairoResize(PuglView* view, int width, int height)
+{
+	PuglInternals* impl = view->impl;
+
+	cairo_surface_destroy(impl->surface);
+	cairo_destroy(impl->cr);
+	impl->surface = pugl_cairo_gl_create(&impl->cairo_gl, width, height, 4);
+	impl->cr = cairo_create(impl->surface);
+	pugl_cairo_gl_configure(&impl->cairo_gl, width, height);
+
+	return 0;
+}
+
+static void*
+puglMacCairoGetContext(PuglView* view)
+{
+	return view->impl->cr;
+}
+
+const PuglBackend* puglCairoBackend(void)
+{
+	static const PuglBackend backend = {
+		puglMacConfigure,
+		puglMacCreate,
+		puglMacCairoDestroy,
+		puglMacCairoEnter,
+		puglMacCairoLeave,
+		puglMacCairoResize,
+		puglMacCairoGetContext
+	};
+
+	return &backend;
+}
+
+#endif
