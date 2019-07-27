@@ -46,11 +46,8 @@ puglDefaultHints(void)
 }
 
 PuglView*
-puglInit(int* pargc, char** argv)
+puglInit(int* PUGL_UNUSED(pargc), char** PUGL_UNUSED(argv))
 {
-	(void)pargc;
-	(void)argv;
-
 	PuglView* view = (PuglView*)calloc(1, sizeof(PuglView));
 	if (!view) {
 		return NULL;

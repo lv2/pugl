@@ -174,18 +174,16 @@ puglX11GlLeave(PuglView* view, bool flush)
 }
 
 static int
-puglX11GlResize(PuglView* view, int width, int height)
+puglX11GlResize(PuglView* PUGL_UNUSED(view),
+                int       PUGL_UNUSED(width),
+                int       PUGL_UNUSED(height))
 {
-	(void)view;
-	(void)width;
-	(void)height;
 	return 0;
 }
 
 static void*
-puglX11GlGetHandle(PuglView* view)
+puglX11GlGetHandle(PuglView* PUGL_UNUSED(view))
 {
-	(void)view;
 	return NULL;
 }
 

@@ -72,6 +72,8 @@ struct PuglInternalsImpl {
                    backing:(NSBackingStoreType)bufferingType
                      defer:(BOOL)flag
 {
+	(void)flag;
+
 	NSWindow* result = [super initWithContentRect:contentRect
 					    styleMask:aStyle
 					      backing:bufferingType
@@ -217,7 +219,7 @@ struct PuglInternalsImpl {
 }
 
 static uint32_t
-getModifiers(PuglView* view, NSEvent* ev)
+getModifiers(const NSEvent* const ev)
 {
 	const NSEventModifierFlags modifierFlags = [ev modifierFlags];
 
@@ -228,7 +230,7 @@ getModifiers(PuglView* view, NSEvent* ev)
 }
 
 static PuglKey
-keySymToSpecial(PuglView* view, NSEvent* ev)
+keySymToSpecial(const NSEvent* const ev)
 {
 	NSString* chars = [ev charactersIgnoringModifiers];
 	if ([chars length] == 1) {
@@ -303,7 +305,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		wloc.y,
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
-		getModifiers(view->puglview, event),
+		getModifiers(event),
 		PUGL_CROSSING_NORMAL
 	};
 	puglDispatchEvent(view->puglview, (const PuglEvent*)&ev);
@@ -331,7 +333,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		wloc.y,
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
-		getModifiers(puglview, event),
+		getModifiers(event),
 		0,
 		1
 	};
@@ -365,7 +367,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		wloc.y,
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
-		getModifiers(puglview, event),
+		getModifiers(event),
 		(uint32_t)[event buttonNumber] + 1
 	};
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
@@ -383,7 +385,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		wloc.y,
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
-		getModifiers(puglview, event),
+		getModifiers(event),
 		(uint32_t)[event buttonNumber] + 1
 	};
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
@@ -421,7 +423,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		wloc.y,
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
-		getModifiers(puglview, event),
+		getModifiers(event),
 		[event deltaX],
 		[event deltaY]
 	};
@@ -436,7 +438,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 	const NSPoint      wloc  = [self eventLocation:event];
 	const NSPoint      rloc  = [NSEvent mouseLocation];
-	const PuglKey      spec  = keySymToSpecial(puglview, event);
+	const PuglKey      spec  = keySymToSpecial(event);
 	const NSString*    chars = [event charactersIgnoringModifiers];
 	const char*        str   = [[chars lowercaseString] UTF8String];
 	const uint32_t     code  = (
@@ -450,7 +452,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		wloc.y,
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
-		getModifiers(puglview, event),
+		getModifiers(event),
 		[event keyCode],
 		(code != 0xFFFD) ? code : 0
 	};
@@ -466,7 +468,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 {
 	const NSPoint      wloc  = [self eventLocation:event];
 	const NSPoint      rloc  = [NSEvent mouseLocation];
-	const PuglKey      spec  = keySymToSpecial(puglview, event);
+	const PuglKey      spec  = keySymToSpecial(event);
 	const NSString*    chars = [event charactersIgnoringModifiers];
 	const char*        str   = [[chars lowercaseString] UTF8String];
 	const uint32_t     code  =
@@ -480,7 +482,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		wloc.y,
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
-		getModifiers(puglview, event),
+		getModifiers(event),
 		[event keyCode],
 		(code != 0xFFFD) ? code : 0
 	};
@@ -508,6 +510,8 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
         selectedRange:(NSRange)selected
      replacementRange:(NSRange)replacement
 {
+	(void)selected;
+	(void)replacement;
 	[markedText release];
 	markedText = (
 		[string isKindOfClass:[NSAttributedString class]]
@@ -529,17 +533,23 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
  attributedSubstringForProposedRange:(NSRange)range
                          actualRange:(NSRangePointer)actual
 {
+	(void)range;
+	(void)actual;
 	return nil;
 }
 
 - (NSUInteger) characterIndexForPoint:(NSPoint)point
 {
+	(void)point;
 	return 0;
 }
 
 - (NSRect) firstRectForCharacterRange:(NSRange)range
                           actualRange:(NSRangePointer)actual
 {
+	(void)range;
+	(void)actual;
+
 	const NSRect frame = [(id)puglview bounds];
 	return NSMakeRect(frame.origin.x, frame.origin.y, 0.0, 0.0);
 }
@@ -547,6 +557,8 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 - (void) insertText:(id)string
    replacementRange:(NSRange)replacement
 {
+	(void)replacement;
+
 	NSEvent* const  event      = [NSApp currentEvent];
 	NSString* const characters =
 		([string isKindOfClass:[NSAttributedString class]]
@@ -575,7 +587,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 		                     wloc.y,
 		                     rloc.x,
 		                     [[NSScreen mainScreen] frame].size.height - rloc.y,
-		                     getModifiers(puglview, event),
+		                     getModifiers(event),
 		                     [event keyCode],
 		                     code,
 		                     { 0, 0, 0, 0, 0, 0, 0, 0 } };
@@ -587,7 +599,7 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 - (void) flagsChanged:(NSEvent*)event
 {
-	const uint32_t mods    = getModifiers(puglview, event);
+	const uint32_t mods    = getModifiers(event);
 	PuglEventType  type    = PUGL_NOTHING;
 	PuglKey        special = 0;
 
@@ -685,6 +697,8 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 - (BOOL) windowShouldClose:(id)sender
 {
+	(void)sender;
+
 	PuglEvent ev = { 0 };
 	ev.type = PUGL_CLOSE;
 	puglDispatchEvent(window->puglview, &ev);
@@ -693,6 +707,8 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 - (void) windowDidBecomeKey:(NSNotification*)notification
 {
+	(void)notification;
+
 	PuglOpenGLView* glview = window->puglview->impl->glview;
 	if (window->puglview->impl->glview->urgentTimer) {
 		[glview->urgentTimer invalidate];
@@ -707,6 +723,8 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 - (void) windowDidResignKey:(NSNotification*)notification
 {
+	(void)notification;
+
 	PuglEvent ev = { 0 };
 	ev.type       = PUGL_FOCUS_OUT;
 	ev.focus.grab = false;

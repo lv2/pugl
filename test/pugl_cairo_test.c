@@ -94,6 +94,7 @@ buttonDraw(cairo_t* cr, const Button* but)
 static bool
 buttonTouches(const Button* but, double x, double y)
 {
+	(void)but;
 	return (x >= toggle_button.x && x <= toggle_button.x + toggle_button.w &&
 	        y >= toggle_button.y && y <= toggle_button.y + toggle_button.h);
 }
@@ -121,6 +122,7 @@ onDisplay(PuglView* view)
 static void
 onClose(PuglView* view)
 {
+	(void)view;
 	quit = 1;
 }
 

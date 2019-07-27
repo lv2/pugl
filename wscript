@@ -45,6 +45,10 @@ def configure(conf):
     elif conf.env.TARGET_PLATFORM == 'darwin':
         conf.env.append_unique('CFLAGS', ['-Wno-deprecated-declarations'])
 
+    if Options.options.strict and not conf.env.MSVC_COMPILER:
+        conf.env.append_value('CFLAGS', ['-Wunused-parameter'])
+        conf.env.append_value('CXXFLAGS', ['-Wunused-parameter'])
+
     autowaf.set_c_lang(conf, 'c99')
 
     if not Options.options.no_gl:

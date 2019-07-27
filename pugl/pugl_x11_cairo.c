@@ -89,13 +89,13 @@ puglX11CairoDestroy(PuglView* view)
 }
 
 static int
-puglX11CairoEnter(PuglView* view)
+puglX11CairoEnter(PuglView* PUGL_UNUSED(view))
 {
 	return 0;
 }
 
 static int
-puglX11CairoLeave(PuglView* view, bool flush)
+puglX11CairoLeave(PuglView* PUGL_UNUSED(view), bool PUGL_UNUSED(flush))
 {
 	return 0;
 }

@@ -856,9 +856,8 @@ puglRequestAttention(PuglView* view)
 }
 
 PuglStatus
-puglWaitForEvent(PuglView* view)
+puglWaitForEvent(PuglView* PUGL_UNUSED(view))
 {
-	(void)view;
 	WaitMessage();
 	return PUGL_SUCCESS;
 }

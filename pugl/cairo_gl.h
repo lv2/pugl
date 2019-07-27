@@ -55,6 +55,9 @@ pugl_cairo_gl_free(PuglCairoGL* ctx)
 static void
 pugl_cairo_gl_configure(PuglCairoGL* ctx, int width, int height)
 {
+	(void)ctx;
+	(void)width;
+	(void)height;
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_RECTANGLE_ARB);
 

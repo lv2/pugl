@@ -21,10 +21,19 @@
 #ifndef PUGL_INTERNAL_TYPES_H
 #define PUGL_INTERNAL_TYPES_H
 
+#include "pugl/pugl.h"
+
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "pugl/pugl.h"
+// Unused parameter macro to suppresses warnings and make it impossible to use
+#if defined(__cplusplus) || defined(_MSC_VER)
+#   define PUGL_UNUSED(name)
+#elif defined(__GNUC__)
+#   define PUGL_UNUSED(name) name##_unused __attribute__((__unused__))
+#else
+#   define PUGL_UNUSED(name)
+#endif
 
 /** Platform-specific internals. */
 typedef struct PuglInternalsImpl PuglInternals;
