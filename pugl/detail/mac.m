@@ -49,7 +49,7 @@ typedef NSUInteger NSWindowStyleMask;
 struct PuglInternalsImpl {
 	NSApplication*   app;
 	PuglWrapperView* wrapperView;
-	PuglOpenGLView*  drawView;
+	NSView*          drawView;
 	id               window;
 	NSEvent*         nextEvent;
 	uint32_t         mods;
@@ -772,13 +772,10 @@ puglCreateWindow(PuglView* view, const char* title)
 		     puglConstraint(impl->wrapperView, NSLayoutAttributeHeight, view->min_height)];
 
 	// Create draw view to be rendered to
-	impl->drawView           = [PuglOpenGLView alloc];
-	impl->drawView->puglview = view;
-	[impl->drawView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
-	if (view->hints.resizable) {
-		[impl->drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	} else {
-		[impl->drawView setAutoresizingMask:NSViewNotSizable];
+	int st = 0;
+	if ((st = view->backend->configure(view)) ||
+	    (st = view->backend->create(view))) {
+		return st;
 	}
 
 	// Add draw view to wraper view
@@ -855,14 +852,11 @@ void
 puglDestroy(PuglView* view)
 {
 	view->backend->destroy(view);
-	[view->impl->drawView removeFromSuperview];
 	[view->impl->wrapperView removeFromSuperview];
-	view->impl->drawView->puglview    = NULL;
 	view->impl->wrapperView->puglview = NULL;
 	if (view->impl->window) {
 		[view->impl->window close];
 	}
-	[view->impl->drawView release];
 	[view->impl->wrapperView release];
 	if (view->impl->window) {
 		[view->impl->window release];
@@ -971,29 +965,51 @@ puglMacConfigure(PuglView* PUGL_UNUSED(view))
 }
 
 static int
-puglMacCreate(PuglView* PUGL_UNUSED(view))
+puglMacGlCreate(PuglView* view)
 {
+	PuglInternals*  impl     = view->impl;
+	PuglOpenGLView* drawView = [PuglOpenGLView alloc];
+
+	drawView->puglview = view;
+	[drawView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
+	if (view->hints.resizable) {
+		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+	} else {
+		[drawView setAutoresizingMask:NSViewNotSizable];
+	}
+
+	impl->drawView = drawView;
 	return 0;
 }
 
 static int
-puglMacGlDestroy(PuglView* PUGL_UNUSED(view))
+puglMacGlDestroy(PuglView* view)
 {
+	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+
+	[drawView removeFromSuperview];
+	[drawView release];
+
+	view->impl->drawView = nil;
 	return 0;
 }
 
 static int
 puglMacGlEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 {
-	[[view->impl->drawView openGLContext] makeCurrentContext];
+	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+
+	[[drawView openGLContext] makeCurrentContext];
 	return 0;
 }
 
 static int
 puglMacGlLeave(PuglView* view, bool drawing)
 {
+	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+
 	if (drawing) {
-		[[view->impl->drawView openGLContext] flushBuffer];
+		[[drawView openGLContext] flushBuffer];
 	}
 
 	[NSOpenGLContext clearCurrentContext];
@@ -1019,7 +1035,7 @@ const PuglBackend* puglGlBackend(void)
 {
 	static const PuglBackend backend = {
 		puglMacConfigure,
-		puglMacCreate,
+		puglMacGlCreate,
 		puglMacGlDestroy,
 		puglMacGlEnter,
 		puglMacGlLeave,
@@ -1033,16 +1049,24 @@ const PuglBackend* puglGlBackend(void)
 #ifdef PUGL_HAVE_CAIRO
 
 static int
+puglMacCairoCreate(PuglView* view)
+{
+	return puglMacGlCreate(view);
+}
+
+static int
 puglMacCairoDestroy(PuglView* view)
 {
 	pugl_cairo_gl_free(&view->impl->cairo_gl);
-	return 0;
+	return puglMacGlDestroy(view);
 }
 
 static int
 puglMacCairoEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 {
-	[[view->impl->drawView openGLContext] makeCurrentContext];
+	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+
+	[[drawView openGLContext] makeCurrentContext];
 
 	return 0;
 }
@@ -1050,9 +1074,11 @@ puglMacCairoEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 static int
 puglMacCairoLeave(PuglView* view, bool drawing)
 {
+	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+
 	if (drawing) {
 		pugl_cairo_gl_draw(&view->impl->cairo_gl, view->width, view->height);
-		[[view->impl->drawView openGLContext] flushBuffer];
+		[[drawView openGLContext] flushBuffer];
 	}
 
 	[NSOpenGLContext clearCurrentContext];
@@ -1085,7 +1111,7 @@ const PuglBackend* puglCairoBackend(void)
 {
 	static const PuglBackend backend = {
 		puglMacConfigure,
-		puglMacCreate,
+		puglMacCairoCreate,
 		puglMacCairoDestroy,
 		puglMacCairoEnter,
 		puglMacCairoLeave,
