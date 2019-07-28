@@ -43,11 +43,13 @@ typedef NSUInteger NSEventModifierFlags;
 typedef NSUInteger NSWindowStyleMask;
 #endif
 
+@class PuglWrapperView;
 @class PuglOpenGLView;
 
 struct PuglInternalsImpl {
 	NSApplication*   app;
-	PuglOpenGLView*  glview;
+	PuglWrapperView* wrapperView;
+	PuglOpenGLView*  drawView;
 	id               window;
 	NSEvent*         nextEvent;
 	uint32_t         mods;
@@ -104,7 +106,7 @@ struct PuglInternalsImpl {
 
 @end
 
-@interface PuglOpenGLView : NSOpenGLView<NSTextInputClient>
+@interface PuglWrapperView : NSView<NSTextInputClient>
 {
 @public
 	PuglView*                  puglview;
@@ -116,83 +118,7 @@ struct PuglInternalsImpl {
 
 @end
 
-@implementation PuglOpenGLView
-
-- (id) initWithFrame:(NSRect)frame
-{
-	const int major   = puglview->hints.context_version_major;
-	const int profile = ((puglview->hints.use_compat_profile || major < 3)
-	                     ? NSOpenGLProfileVersionLegacy
-	                     : puglview->hints.context_version_major >= 4
-	                       ? NSOpenGLProfileVersion4_1Core
-	                       : NSOpenGLProfileVersion3_2Core);
-
-	NSOpenGLPixelFormatAttribute pixelAttribs[16] = {
-		NSOpenGLPFADoubleBuffer,
-		NSOpenGLPFAAccelerated,
-		NSOpenGLPFAOpenGLProfile, profile,
-		NSOpenGLPFAColorSize,     32,
-		NSOpenGLPFADepthSize,     32,
-		NSOpenGLPFAMultisample,   puglview->hints.samples ? 1 : 0,
-		NSOpenGLPFASampleBuffers, puglview->hints.samples ? 1 : 0,
-		NSOpenGLPFASamples,       puglview->hints.samples,
-		0};
-
-	NSOpenGLPixelFormat *pixelFormat = [
-		[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttribs];
-
-	if (pixelFormat) {
-		self = [super initWithFrame:frame pixelFormat:pixelFormat];
-		[pixelFormat release];
-	} else {
-		self = [super initWithFrame:frame];
-	}
-
-	if (self) {
-		[[self openGLContext] makeCurrentContext];
-		[self reshape];
-	}
-	return self;
-}
-
-- (void) reshape
-{
-	[super reshape];
-	[[self openGLContext] update];
-
-	if (!puglview) {
-		return;
-	}
-
-	const NSRect             bounds = [self bounds];
-	const PuglEventConfigure ev     =  {
-		PUGL_CONFIGURE,
-		0,
-		bounds.origin.x,
-		bounds.origin.y,
-		bounds.size.width,
-		bounds.size.height,
-	};
-
-	puglview->backend->resize(puglview, ev.width, ev.height);
-
-	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-}
-
-- (void) drawRect:(NSRect)rect
-{
-	const PuglEventExpose ev =  {
-		PUGL_EXPOSE,
-		0,
-		rect.origin.x,
-		rect.origin.y,
-		rect.size.width,
-		rect.size.height,
-		0
-	};
-
-	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-}
+@implementation PuglWrapperView
 
 - (BOOL) isFlipped
 {
@@ -279,7 +205,7 @@ keySymToSpecial(const NSEvent* const ev)
 }
 
 static void
-handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
+handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	const NSPoint           wloc = [view eventLocation:event];
 	const NSPoint           rloc = [NSEvent mouseLocation];
@@ -661,6 +587,94 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 
 @end
 
+@interface PuglOpenGLView : NSOpenGLView
+{
+@public
+	PuglView* puglview;
+}
+
+@end
+
+@implementation PuglOpenGLView
+
+- (id) initWithFrame:(NSRect)frame
+{
+	const int major   = puglview->hints.context_version_major;
+	const int profile = ((puglview->hints.use_compat_profile || major < 3)
+	                     ? NSOpenGLProfileVersionLegacy
+	                     : puglview->hints.context_version_major >= 4
+	                       ? NSOpenGLProfileVersion4_1Core
+	                       : NSOpenGLProfileVersion3_2Core);
+
+	NSOpenGLPixelFormatAttribute pixelAttribs[16] = {
+		NSOpenGLPFADoubleBuffer,
+		NSOpenGLPFAAccelerated,
+		NSOpenGLPFAOpenGLProfile, profile,
+		NSOpenGLPFAColorSize,     32,
+		NSOpenGLPFADepthSize,     32,
+		NSOpenGLPFAMultisample,   puglview->hints.samples ? 1 : 0,
+		NSOpenGLPFASampleBuffers, puglview->hints.samples ? 1 : 0,
+		NSOpenGLPFASamples,       puglview->hints.samples,
+		0};
+
+	NSOpenGLPixelFormat* pixelFormat = [
+		[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttribs];
+
+	if (pixelFormat) {
+		self = [super initWithFrame:frame pixelFormat:pixelFormat];
+		[pixelFormat release];
+	} else {
+		self = [super initWithFrame:frame];
+	}
+
+	if (self) {
+		[[self openGLContext] makeCurrentContext];
+		[self reshape];
+	}
+	return self;
+}
+
+- (void) reshape
+{
+	[super reshape];
+	[[self openGLContext] update];
+
+	if (!puglview) {
+		return;
+	}
+
+	const NSRect             bounds = [self bounds];
+	const PuglEventConfigure ev     =  {
+		PUGL_CONFIGURE,
+		0,
+		bounds.origin.x,
+		bounds.origin.y,
+		bounds.size.width,
+		bounds.size.height,
+	};
+
+	puglview->backend->resize(puglview, ev.width, ev.height);
+
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+}
+
+- (void) drawRect:(NSRect)rect
+{
+	const PuglEventExpose ev =  {
+		PUGL_EXPOSE,
+		0,
+		rect.origin.x,
+		rect.origin.y,
+		rect.size.width,
+		rect.size.height,
+		0
+	};
+
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+}
+
+@end
+
 @interface PuglWindowDelegate : NSObject<NSWindowDelegate>
 {
 	PuglWindow* window;
@@ -695,10 +709,10 @@ handleCrossing(PuglOpenGLView* view, NSEvent* event, const PuglEventType type)
 {
 	(void)notification;
 
-	PuglOpenGLView* glview = window->puglview->impl->glview;
-	if (window->puglview->impl->glview->urgentTimer) {
-		[glview->urgentTimer invalidate];
-		glview->urgentTimer = NULL;
+	PuglWrapperView* wrapperView = window->puglview->impl->wrapperView;
+	if (wrapperView->urgentTimer) {
+		[wrapperView->urgentTimer invalidate];
+		wrapperView->urgentTimer = NULL;
 	}
 
 	PuglEvent ev = { 0 };
@@ -746,25 +760,37 @@ puglCreateWindow(PuglView* view, const char* title)
 	[NSAutoreleasePool new];
 	impl->app = [NSApplication sharedApplication];
 
-	impl->glview               = [PuglOpenGLView alloc];
-	impl->glview->trackingArea = nil;
-	impl->glview->markedText   = [[NSMutableAttributedString alloc] init];
-	impl->glview->puglview     = view;
+	// Create wrapper view to handle input
+	impl->wrapperView             = [PuglWrapperView alloc];
+	impl->wrapperView->puglview   = view;
+	impl->wrapperView->markedText = [[NSMutableAttributedString alloc] init];
+	[impl->wrapperView setAutoresizesSubviews:YES];
+	[impl->wrapperView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
+	[impl->wrapperView addConstraint:
+		     puglConstraint(impl->wrapperView, NSLayoutAttributeWidth, view->min_width)];
+	[impl->wrapperView addConstraint:
+		     puglConstraint(impl->wrapperView, NSLayoutAttributeHeight, view->min_height)];
 
-	[impl->glview initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
-	[impl->glview addConstraint:
-		     puglConstraint(impl->glview, NSLayoutAttributeWidth, view->min_width)];
-	[impl->glview addConstraint:
-		     puglConstraint(impl->glview, NSLayoutAttributeHeight, view->min_height)];
-	if (!view->hints.resizable) {
-		[impl->glview setAutoresizingMask:NSViewNotSizable];
+	// Create draw view to be rendered to
+	impl->drawView           = [PuglOpenGLView alloc];
+	impl->drawView->puglview = view;
+	[impl->drawView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
+	if (view->hints.resizable) {
+		[impl->drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+	} else {
+		[impl->drawView setAutoresizingMask:NSViewNotSizable];
 	}
+
+	// Add draw view to wraper view
+	[impl->wrapperView addSubview:impl->drawView];
+	[impl->wrapperView setHidden:NO];
+	[impl->drawView setHidden:NO];
 
 	if (view->parent) {
 		NSView* pview = (NSView*)view->parent;
-		[pview addSubview:impl->glview];
-		[impl->glview setHidden:NO];
-		[[impl->glview window] makeFirstResponder:impl->glview];
+		[pview addSubview:impl->wrapperView];
+		[impl->drawView setHidden:NO];
+		[[impl->drawView window] makeFirstResponder:impl->wrapperView];
 	} else {
 		NSString* titleString = [[NSString alloc]
 			                        initWithBytes:title
@@ -800,13 +826,13 @@ puglCreateWindow(PuglView* view, const char* title)
 			                                         view->min_aspect_y)];
 		}
 
-		[window setContentView:impl->glview];
+		[window setContentView:impl->wrapperView];
 		[impl->app activateIgnoringOtherApps:YES];
-		[window makeFirstResponder:impl->glview];
+		[window makeFirstResponder:impl->wrapperView];
 		[window makeKeyAndOrderFront:window];
 	}
 
-	[impl->glview updateTrackingAreas];
+	[impl->wrapperView updateTrackingAreas];
 
 	return 0;
 }
@@ -829,12 +855,15 @@ void
 puglDestroy(PuglView* view)
 {
 	view->backend->destroy(view);
-	view->impl->glview->puglview = NULL;
-	[view->impl->glview removeFromSuperview];
+	[view->impl->drawView removeFromSuperview];
+	[view->impl->wrapperView removeFromSuperview];
+	view->impl->drawView->puglview    = NULL;
+	view->impl->wrapperView->puglview = NULL;
 	if (view->impl->window) {
 		[view->impl->window close];
 	}
-	[view->impl->glview release];
+	[view->impl->drawView release];
+	[view->impl->wrapperView release];
 	if (view->impl->window) {
 		[view->impl->window release];
 	}
@@ -854,9 +883,9 @@ puglRequestAttention(PuglView* view)
 {
 	if (![view->impl->window isKeyWindow]) {
 		[NSApp requestUserAttention:NSInformationalRequest];
-		view->impl->glview->urgentTimer =
+		view->impl->wrapperView->urgentTimer =
 			[NSTimer scheduledTimerWithTimeInterval:2.0
-			                                 target:view->impl->glview
+			                                 target:view->impl->wrapperView
 			                               selector:@selector(urgentTick)
 			                               userInfo:nil
 			                                repeats:YES];
@@ -924,13 +953,13 @@ puglGetTime(PuglView* view)
 void
 puglPostRedisplay(PuglView* view)
 {
-	[view->impl->glview setNeedsDisplay: YES];
+	[view->impl->drawView setNeedsDisplay: YES];
 }
 
 PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
-	return (PuglNativeWindow)view->impl->glview;
+	return (PuglNativeWindow)view->impl->wrapperView;
 }
 
 // Backend
@@ -956,7 +985,7 @@ puglMacGlDestroy(PuglView* PUGL_UNUSED(view))
 static int
 puglMacGlEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 {
-	[[view->impl->glview openGLContext] makeCurrentContext];
+	[[view->impl->drawView openGLContext] makeCurrentContext];
 	return 0;
 }
 
@@ -964,7 +993,7 @@ static int
 puglMacGlLeave(PuglView* view, bool drawing)
 {
 	if (drawing) {
-		[[view->impl->glview openGLContext] flushBuffer];
+		[[view->impl->drawView openGLContext] flushBuffer];
 	}
 
 	[NSOpenGLContext clearCurrentContext];
@@ -1013,7 +1042,7 @@ puglMacCairoDestroy(PuglView* view)
 static int
 puglMacCairoEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 {
-	[[view->impl->glview openGLContext] makeCurrentContext];
+	[[view->impl->drawView openGLContext] makeCurrentContext];
 
 	return 0;
 }
@@ -1023,7 +1052,7 @@ puglMacCairoLeave(PuglView* view, bool drawing)
 {
 	if (drawing) {
 		pugl_cairo_gl_draw(&view->impl->cairo_gl, view->width, view->height);
-		[[view->impl->glview openGLContext] flushBuffer];
+		[[view->impl->drawView openGLContext] flushBuffer];
 	}
 
 	[NSOpenGLContext clearCurrentContext];
