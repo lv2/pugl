@@ -123,7 +123,12 @@ def build(bld):
             libs       += ['cairo']
     elif bld.env.TARGET_PLATFORM == 'darwin':
         lib_source += ['pugl/detail/mac.m']
-        framework   = ['Cocoa', 'OpenGL']
+        framework   = ['Cocoa']
+        if bld.is_defined('HAVE_GL'):
+            lib_source += ['pugl/detail/mac_gl.m']
+            framework  += ['OpenGL']
+        if bld.is_defined('HAVE_CAIRO'):
+            lib_source += ['pugl/detail/mac_cairo.m']
     else:
         lib_source += ['pugl/detail/x11.c']
         libs        = ['X11']

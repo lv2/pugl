@@ -22,50 +22,14 @@
 #define GL_SILENCE_DEPRECATION 1
 
 #include "pugl/detail/implementation.h"
-#include "pugl/gl.h"
+#include "pugl/detail/mac.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_gl_backend.h"
-
-#ifdef PUGL_HAVE_CAIRO
-#include "pugl/pugl_cairo_backend.h"
-
-#include <cairo-quartz.h>
-#endif
 
 #import <Cocoa/Cocoa.h>
 
 #include <mach/mach_time.h>
 
 #include <stdlib.h>
-
-#ifndef __MAC_10_10
-#define NSOpenGLProfileVersion4_1Core NSOpenGLProfileVersion3_2Core
-typedef NSUInteger NSEventModifierFlags;
-typedef NSUInteger NSWindowStyleMask;
-#endif
-
-@class PuglWrapperView;
-@class PuglOpenGLView;
-@class PuglCairoView;
-
-struct PuglInternalsImpl {
-	NSApplication*   app;
-	PuglWrapperView* wrapperView;
-	NSView*          drawView;
-	id               window;
-	NSEvent*         nextEvent;
-	uint32_t         mods;
-};
-
-@interface PuglWindow : NSWindow
-{
-@public
-	PuglView* puglview;
-}
-
-- (void) setPuglview:(PuglView*)view;
-
-@end
 
 @implementation PuglWindow
 
@@ -103,19 +67,30 @@ struct PuglInternalsImpl {
 
 @end
 
-@interface PuglWrapperView : NSView<NSTextInputClient>
+@implementation PuglWrapperView
+
+- (void) resizeWithOldSuperviewSize:(NSSize)oldSize
 {
-@public
-	PuglView*                  puglview;
-	NSTrackingArea*            trackingArea;
-    NSMutableAttributedString* markedText;
-	NSTimer*                   timer;
-	NSTimer*                   urgentTimer;
+	[super resizeWithOldSuperviewSize:oldSize];
+
+	const NSRect bounds = [self bounds];
+	puglview->backend->resize(puglview, bounds.size.width, bounds.size.height);
 }
 
-@end
+- (void) drawRect:(NSRect)rect
+{
+	const PuglEventExpose ev =  {
+		PUGL_EXPOSE,
+		0,
+		rect.origin.x,
+		rect.origin.y,
+		rect.size.width,
+		rect.size.height,
+		0
+	};
 
-@implementation PuglWrapperView
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+}
 
 - (BOOL) isFlipped
 {
@@ -125,6 +100,20 @@ struct PuglInternalsImpl {
 - (BOOL) acceptsFirstResponder
 {
 	return YES;
+}
+
+- (void) dispatchConfigure:(NSRect)bounds
+{
+	const PuglEventConfigure ev =  {
+		PUGL_CONFIGURE,
+		0,
+		bounds.origin.x,
+		bounds.origin.y,
+		bounds.size.width,
+		bounds.size.height,
+	};
+
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
 static uint32_t
@@ -584,147 +573,6 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 @end
 
-@interface PuglOpenGLView : NSOpenGLView
-{
-@public
-	PuglView* puglview;
-}
-
-@end
-
-@implementation PuglOpenGLView
-
-- (id) initWithFrame:(NSRect)frame
-{
-	const int major   = puglview->hints.context_version_major;
-	const int profile = ((puglview->hints.use_compat_profile || major < 3)
-	                     ? NSOpenGLProfileVersionLegacy
-	                     : puglview->hints.context_version_major >= 4
-	                       ? NSOpenGLProfileVersion4_1Core
-	                       : NSOpenGLProfileVersion3_2Core);
-
-	NSOpenGLPixelFormatAttribute pixelAttribs[16] = {
-		NSOpenGLPFADoubleBuffer,
-		NSOpenGLPFAAccelerated,
-		NSOpenGLPFAOpenGLProfile, profile,
-		NSOpenGLPFAColorSize,     32,
-		NSOpenGLPFADepthSize,     32,
-		NSOpenGLPFAMultisample,   puglview->hints.samples ? 1 : 0,
-		NSOpenGLPFASampleBuffers, puglview->hints.samples ? 1 : 0,
-		NSOpenGLPFASamples,       puglview->hints.samples,
-		0};
-
-	NSOpenGLPixelFormat* pixelFormat = [
-		[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttribs];
-
-	if (pixelFormat) {
-		self = [super initWithFrame:frame pixelFormat:pixelFormat];
-		[pixelFormat release];
-	} else {
-		self = [super initWithFrame:frame];
-	}
-
-	if (self) {
-		[[self openGLContext] makeCurrentContext];
-		[self reshape];
-	}
-	return self;
-}
-
-- (void) reshape
-{
-	[super reshape];
-	[[self openGLContext] update];
-
-	if (!puglview) {
-		return;
-	}
-
-	const NSRect             bounds = [self bounds];
-	const PuglEventConfigure ev     =  {
-		PUGL_CONFIGURE,
-		0,
-		bounds.origin.x,
-		bounds.origin.y,
-		bounds.size.width,
-		bounds.size.height,
-	};
-
-	puglview->backend->resize(puglview, ev.width, ev.height);
-
-	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-}
-
-- (void) drawRect:(NSRect)rect
-{
-	const PuglEventExpose ev =  {
-		PUGL_EXPOSE,
-		0,
-		rect.origin.x,
-		rect.origin.y,
-		rect.size.width,
-		rect.size.height,
-		0
-	};
-
-	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-}
-
-@end
-
-@interface PuglCairoView : NSView
-{
-@public
-	PuglView*        puglview;
-	cairo_surface_t* surface;
-	cairo_t*         cr;
-}
-
-@end
-
-@implementation PuglCairoView
-
-- (id) initWithFrame:(NSRect)frame
-{
-	return (self = [super initWithFrame:frame]);
-}
-
-- (void) resizeWithOldSuperviewSize:(NSSize)oldSize
-{
-	[super resizeWithOldSuperviewSize:oldSize];
-
-	const NSRect bounds = [self bounds];
-	puglview->backend->resize(puglview, bounds.size.width, bounds.size.height);
-
-	const PuglEventConfigure ev =  {
-		PUGL_CONFIGURE,
-		0,
-		bounds.origin.x,
-		bounds.origin.y,
-		bounds.size.width,
-		bounds.size.height,
-	};
-
-	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-}
-
-- (void) drawRect:(NSRect)rect
-{
-	const PuglEventExpose ev =  {
-		PUGL_EXPOSE,
-		0,
-		rect.origin.x,
-		rect.origin.y,
-		rect.size.width,
-		rect.size.height,
-		0
-	};
-
-	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
-}
-
-@end
-
 @interface PuglWindowDelegate : NSObject<NSWindowDelegate>
 {
 	PuglWindow* window;
@@ -997,7 +845,7 @@ puglGetTime(PuglView* view)
 void
 puglPostRedisplay(PuglView* view)
 {
-	[view->impl->drawView setNeedsDisplay: YES];
+	[view->impl->wrapperView setNeedsDisplay: YES];
 }
 
 PuglNativeWindow
@@ -1005,205 +853,3 @@ puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->wrapperView;
 }
-
-// Backend
-
-static int
-puglMacConfigure(PuglView* PUGL_UNUSED(view))
-{
-	return 0;
-}
-
-static int
-puglMacGlCreate(PuglView* view)
-{
-	PuglInternals*  impl     = view->impl;
-	PuglOpenGLView* drawView = [PuglOpenGLView alloc];
-
-	drawView->puglview = view;
-	[drawView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
-	if (view->hints.resizable) {
-		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	} else {
-		[drawView setAutoresizingMask:NSViewNotSizable];
-	}
-
-	impl->drawView = drawView;
-	return 0;
-}
-
-static int
-puglMacGlDestroy(PuglView* view)
-{
-	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
-
-	[drawView removeFromSuperview];
-	[drawView release];
-
-	view->impl->drawView = nil;
-	return 0;
-}
-
-static int
-puglMacGlEnter(PuglView* view, bool PUGL_UNUSED(drawing))
-{
-	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
-
-	[[drawView openGLContext] makeCurrentContext];
-	return 0;
-}
-
-static int
-puglMacGlLeave(PuglView* view, bool drawing)
-{
-	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
-
-	if (drawing) {
-		[[drawView openGLContext] flushBuffer];
-	}
-
-	[NSOpenGLContext clearCurrentContext];
-
-	return 0;
-}
-
-static int
-puglMacGlResize(PuglView* PUGL_UNUSED(view),
-                int       PUGL_UNUSED(width),
-                int       PUGL_UNUSED(height))
-{
-	return 0;
-}
-
-static void*
-puglMacGlGetContext(PuglView* PUGL_UNUSED(view))
-{
-	return NULL;
-}
-
-const PuglBackend* puglGlBackend(void)
-{
-	static const PuglBackend backend = {
-		puglMacConfigure,
-		puglMacGlCreate,
-		puglMacGlDestroy,
-		puglMacGlEnter,
-		puglMacGlLeave,
-		puglMacGlResize,
-		puglMacGlGetContext
-	};
-
-	return &backend;
-}
-
-#ifdef PUGL_HAVE_CAIRO
-
-static int
-puglMacCairoCreate(PuglView* view)
-{
-	PuglInternals* impl     = view->impl;
-	PuglCairoView* drawView = [PuglCairoView alloc];
-
-	drawView->puglview = view;
-	[drawView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
-	if (view->hints.resizable) {
-		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	} else {
-		[drawView setAutoresizingMask:NSViewNotSizable];
-	}
-
-	impl->drawView = drawView;
-	return 0;
-}
-
-static int
-puglMacCairoDestroy(PuglView* view)
-{
-	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
-
-	[drawView removeFromSuperview];
-	[drawView release];
-
-	view->impl->drawView = nil;
-	return 0;
-}
-
-static int
-puglMacCairoEnter(PuglView* view, bool drawing)
-{
-	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
-	if (!drawing) {
-		return 0;
-	}
-
-	// Get Quartz context and transform to Cairo coordinates (TL origin)
-	CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
-	CGContextTranslateCTM(context, 0.0, view->height);
-	CGContextScaleCTM(context, 1.0, -1.0);
-
-	// Create a Cairo surface and context for drawing to Quartz
-	assert(!drawView->surface);
-	assert(!drawView->cr);
-
-	drawView->surface = cairo_quartz_surface_create_for_cg_context(
-		context, view->width, view->height);
-
-	drawView->cr = cairo_create(drawView->surface);
-
-	return 0;
-}
-
-static int
-puglMacCairoLeave(PuglView* view, bool drawing)
-{
-	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
-	if (!drawing) {
-		return 0;
-	}
-
-	CGContextRef context = cairo_quartz_surface_get_cg_context(drawView->surface);
-
-	cairo_destroy(drawView->cr);
-	cairo_surface_destroy(drawView->surface);
-
-	CGContextFlush(context);
-
-	drawView->cr      = NULL;
-	drawView->surface = NULL;
-
-	return 0;
-}
-
-static int
-puglMacCairoResize(PuglView* PUGL_UNUSED(view),
-                   int       PUGL_UNUSED(width),
-                   int       PUGL_UNUSED(height))
-{
-	// No need to resize, the surface is created for the drawing context
-	return 0;
-}
-
-static void*
-puglMacCairoGetContext(PuglView* view)
-{
-	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
-
-	return drawView->cr;
-}
-
-const PuglBackend* puglCairoBackend(void)
-{
-	static const PuglBackend backend = {
-		puglMacConfigure,
-		puglMacCairoCreate,
-		puglMacCairoDestroy,
-		puglMacCairoEnter,
-		puglMacCairoLeave,
-		puglMacCairoResize,
-		puglMacCairoGetContext
-	};
-
-	return &backend;
-}
-
-#endif
