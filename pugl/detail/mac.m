@@ -27,8 +27,9 @@
 #include "pugl/pugl_gl_backend.h"
 
 #ifdef PUGL_HAVE_CAIRO
-#include "pugl/detail/cairo_gl.h"
 #include "pugl/pugl_cairo_backend.h"
+
+#include <cairo-quartz.h>
 #endif
 
 #import <Cocoa/Cocoa.h>
@@ -45,6 +46,7 @@ typedef NSUInteger NSWindowStyleMask;
 
 @class PuglWrapperView;
 @class PuglOpenGLView;
+@class PuglCairoView;
 
 struct PuglInternalsImpl {
 	NSApplication*   app;
@@ -53,11 +55,6 @@ struct PuglInternalsImpl {
 	id               window;
 	NSEvent*         nextEvent;
 	uint32_t         mods;
-#ifdef PUGL_HAVE_CAIRO
-	cairo_surface_t* surface;
-	cairo_t*         cr;
-	PuglCairoGL      cairo_gl;
-#endif
 };
 
 @interface PuglWindow : NSWindow
@@ -675,6 +672,59 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 @end
 
+@interface PuglCairoView : NSView
+{
+@public
+	PuglView*        puglview;
+	cairo_surface_t* surface;
+	cairo_t*         cr;
+}
+
+@end
+
+@implementation PuglCairoView
+
+- (id) initWithFrame:(NSRect)frame
+{
+	return (self = [super initWithFrame:frame]);
+}
+
+- (void) resizeWithOldSuperviewSize:(NSSize)oldSize
+{
+	[super resizeWithOldSuperviewSize:oldSize];
+
+	const NSRect bounds = [self bounds];
+	puglview->backend->resize(puglview, bounds.size.width, bounds.size.height);
+
+	const PuglEventConfigure ev =  {
+		PUGL_CONFIGURE,
+		0,
+		bounds.origin.x,
+		bounds.origin.y,
+		bounds.size.width,
+		bounds.size.height,
+	};
+
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+}
+
+- (void) drawRect:(NSRect)rect
+{
+	const PuglEventExpose ev =  {
+		PUGL_EXPOSE,
+		0,
+		rect.origin.x,
+		rect.origin.y,
+		rect.size.width,
+		rect.size.height,
+		0
+	};
+
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+}
+
+@end
+
 @interface PuglWindowDelegate : NSObject<NSWindowDelegate>
 {
 	PuglWindow* window;
@@ -1051,22 +1101,54 @@ const PuglBackend* puglGlBackend(void)
 static int
 puglMacCairoCreate(PuglView* view)
 {
-	return puglMacGlCreate(view);
+	PuglInternals* impl     = view->impl;
+	PuglCairoView* drawView = [PuglCairoView alloc];
+
+	drawView->puglview = view;
+	[drawView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
+	if (view->hints.resizable) {
+		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+	} else {
+		[drawView setAutoresizingMask:NSViewNotSizable];
+	}
+
+	impl->drawView = drawView;
+	return 0;
 }
 
 static int
 puglMacCairoDestroy(PuglView* view)
 {
-	pugl_cairo_gl_free(&view->impl->cairo_gl);
-	return puglMacGlDestroy(view);
+	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
+
+	[drawView removeFromSuperview];
+	[drawView release];
+
+	view->impl->drawView = nil;
+	return 0;
 }
 
 static int
-puglMacCairoEnter(PuglView* view, bool PUGL_UNUSED(drawing))
+puglMacCairoEnter(PuglView* view, bool drawing)
 {
-	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
+	if (!drawing) {
+		return 0;
+	}
 
-	[[drawView openGLContext] makeCurrentContext];
+	// Get Quartz context and transform to Cairo coordinates (TL origin)
+	CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
+	CGContextTranslateCTM(context, 0.0, view->height);
+	CGContextScaleCTM(context, 1.0, -1.0);
+
+	// Create a Cairo surface and context for drawing to Quartz
+	assert(!drawView->surface);
+	assert(!drawView->cr);
+
+	drawView->surface = cairo_quartz_surface_create_for_cg_context(
+		context, view->width, view->height);
+
+	drawView->cr = cairo_create(drawView->surface);
 
 	return 0;
 }
@@ -1074,37 +1156,39 @@ puglMacCairoEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 static int
 puglMacCairoLeave(PuglView* view, bool drawing)
 {
-	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
-
-	if (drawing) {
-		pugl_cairo_gl_draw(&view->impl->cairo_gl, view->width, view->height);
-		[[drawView openGLContext] flushBuffer];
+	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
+	if (!drawing) {
+		return 0;
 	}
 
-	[NSOpenGLContext clearCurrentContext];
+	CGContextRef context = cairo_quartz_surface_get_cg_context(drawView->surface);
+
+	cairo_destroy(drawView->cr);
+	cairo_surface_destroy(drawView->surface);
+
+	CGContextFlush(context);
+
+	drawView->cr      = NULL;
+	drawView->surface = NULL;
 
 	return 0;
 }
 
-
 static int
-puglMacCairoResize(PuglView* view, int width, int height)
+puglMacCairoResize(PuglView* PUGL_UNUSED(view),
+                   int       PUGL_UNUSED(width),
+                   int       PUGL_UNUSED(height))
 {
-	PuglInternals* impl = view->impl;
-
-	cairo_surface_destroy(impl->surface);
-	cairo_destroy(impl->cr);
-	impl->surface = pugl_cairo_gl_create(&impl->cairo_gl, width, height, 4);
-	impl->cr = cairo_create(impl->surface);
-	pugl_cairo_gl_configure(&impl->cairo_gl, width, height);
-
+	// No need to resize, the surface is created for the drawing context
 	return 0;
 }
 
 static void*
 puglMacCairoGetContext(PuglView* view)
 {
-	return view->impl->cr;
+	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
+
+	return drawView->cr;
 }
 
 const PuglBackend* puglCairoBackend(void)
