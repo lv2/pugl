@@ -264,7 +264,8 @@ def build(bld):
             build_test('pugl_test', platform, 'gl', uselib=['M'])
 
         if bld.is_defined('HAVE_CAIRO'):
-            build_test('pugl_cairo_test', platform, 'cairo', uselib=['CAIRO'])
+            build_test('pugl_cairo_test', platform, 'cairo',
+                       uselib=['M', 'CAIRO'])
 
     if bld.env.DOCS:
         bld(features     = 'subst',

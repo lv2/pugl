@@ -23,23 +23,30 @@
 
 #include <cairo.h>
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
-static int  quit    = 0;
-static bool entered = false;
+static bool     continuous  = false;
+static int      quit        = 0;
+static bool     entered     = false;
+static bool     mouseDown   = false;
+static unsigned framesDrawn = 0;
 
 typedef struct {
 	int         x;
 	int         y;
 	int         w;
 	int         h;
-	bool        pressed;
 	const char* label;
 } Button;
 
-static Button toggle_button = { 16, 16, 128, 64, false, "Test" };
+static Button buttons[] = { { 128, 128, 64, 64, "1"   },
+                            { 384, 128, 64, 64, "2"   },
+                            { 128, 384, 64, 64, "3"   },
+                            { 384, 384, 64, 64, "4"   },
+                            { 0,   0,   0,   0,  NULL } };
 
 static void
 roundedBox(cairo_t* cr, double x, double y, double w, double h)
@@ -65,15 +72,19 @@ roundedBox(cairo_t* cr, double x, double y, double w, double h)
 }
 
 static void
-buttonDraw(cairo_t* cr, const Button* but)
+buttonDraw(cairo_t* cr, const Button* but, const double time)
 {
+	cairo_save(cr);
+	cairo_translate(cr, but->x, but->y);
+	cairo_rotate(cr, sin(time) * 3.141592);
+
 	// Draw base
-	if (but->pressed) {
+	if (mouseDown) {
 		cairo_set_source_rgba(cr, 0.4, 0.9, 0.1, 1);
 	} else {
 		cairo_set_source_rgba(cr, 0.3, 0.5, 0.1, 1);
 	}
-	roundedBox(cr, but->x, but->y, but->w, but->h);
+	roundedBox(cr, 0, 0, but->w, but->h);
 	cairo_fill_preserve(cr);
 
 	// Draw border
@@ -86,18 +97,12 @@ buttonDraw(cairo_t* cr, const Button* but)
 	cairo_set_font_size(cr, 32.0);
 	cairo_text_extents(cr, but->label, &extents);
 	cairo_move_to(cr,
-	              (but->x + but->w / 2.0) - extents.width / 2,
-	              (but->y + but->h / 2.0) + extents.height / 2);
+	              (but->w / 2.0) - extents.width / 2,
+	              (but->h / 2.0) + extents.height / 2);
 	cairo_set_source_rgba(cr, 0, 0, 0, 1);
 	cairo_show_text(cr, but->label);
-}
 
-static bool
-buttonTouches(const Button* but, double x, double y)
-{
-	(void)but;
-	return (x >= toggle_button.x && x <= toggle_button.x + toggle_button.w &&
-	        y >= toggle_button.y && y <= toggle_button.y + toggle_button.h);
+	cairo_restore(cr);
 }
 
 static void
@@ -116,8 +121,17 @@ onDisplay(PuglView* view)
 	cairo_rectangle(cr, 0, 0, width, height);
 	cairo_fill(cr);
 
+	// Scale to view size
+	const double scaleX = (width - (512 / (double)width)) / 512.0;
+	const double scaleY = (height - (512 / (double)height)) / 512.0;
+	cairo_scale(cr, scaleX, scaleY);
+
 	// Draw button
-	buttonDraw(cr, &toggle_button);
+	for (Button* b = buttons; b->label; ++b) {
+		buttonDraw(cr, b, continuous ? puglGetTime(view) : 0.0);
+	}
+
+	++framesDrawn;
 }
 
 static void
@@ -137,10 +151,12 @@ onEvent(PuglView* view, const PuglEvent* event)
 		}
 		break;
 	case PUGL_BUTTON_PRESS:
-		if (buttonTouches(&toggle_button, event->button.x, event->button.y)) {
-			toggle_button.pressed = !toggle_button.pressed;
-			puglPostRedisplay(view);
-		}
+		mouseDown = true;
+		puglPostRedisplay(view);
+		break;
+	case PUGL_BUTTON_RELEASE:
+		mouseDown = false;
+		puglPostRedisplay(view);
 		break;
 	case PUGL_ENTER_NOTIFY:
 		entered = true;
@@ -166,8 +182,11 @@ main(int argc, char** argv)
 	bool ignoreKeyRepeat = false;
 	bool resizable       = false;
 	for (int i = 1; i < argc; ++i) {
-		if (!strcmp(argv[i], "-h")) {
+		if (!strcmp(argv[i], "-c")) {
+			continuous = true;
+		} else if (!strcmp(argv[i], "-h")) {
 			printf("USAGE: %s [OPTIONS]...\n\n"
+			       "  -c  Continuously animate and draw\n"
 			       "  -h  Display this help\n"
 			       "  -i  Ignore key repeat\n"
 			       "  -r  Resizable window\n", argv[0]);
@@ -197,9 +216,27 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
+	float lastReportTime = (float)puglGetTime(view);
 	while (!quit) {
-		puglWaitForEvent(view);
+		const float thisTime = (float)puglGetTime(view);
+
+		if (continuous) {
+			puglPostRedisplay(view);
+		} else {
+			puglWaitForEvent(view);
+		}
+
 		puglProcessEvents(view);
+
+		if (continuous && thisTime > lastReportTime + 5) {
+			const double fps = framesDrawn / (thisTime - lastReportTime);
+			fprintf(stderr,
+			        "%u frames in %.0f seconds = %.3f FPS\n",
+			        framesDrawn, thisTime - lastReportTime, fps);
+
+			lastReportTime = thisTime;
+			framesDrawn    = 0;
+		}
 	}
 
 	puglDestroy(view);
