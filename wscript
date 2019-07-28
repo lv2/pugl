@@ -94,6 +94,39 @@ def configure(conf):
          "Verbose console output": conf.is_defined('PUGL_VERBOSE')})
 
 
+def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
+    "Builds a pkg-config file for a library"
+    env = bld.env
+    prefix = env.PREFIX
+    xprefix = os.path.dirname(env.LIBDIR)
+
+    uselib   = deps.get('uselib', [])
+    pkg_deps = [l for l in uselib if 'PKG_' + l.lower() in env]
+    lib_deps = [l for l in uselib if 'PKG_' + l.lower() not in env]
+
+    link_flags = [env.LIB_ST % l for l in deps.get('lib', [])]
+    for l in lib_deps:
+        link_flags += [env.LIB_ST % l for l in env['LIB_' + l]]
+    for f in deps.get('framework', []):
+        link_flags += ['-framework', f]
+
+    bld(features='subst',
+        source='pugl.pc.in',
+        target='%s-%s.pc' % (target, PUGL_MAJOR_VERSION),
+        install_path=os.path.join(env.LIBDIR, 'pkgconfig'),
+
+        PREFIX=prefix,
+        EXEC_PREFIX='${prefix}' if xprefix == prefix else xprefix,
+        LIBDIR='${exec_prefix}/' + os.path.basename(env.LIBDIR),
+        INCLUDEDIR=env.INCLUDEDIR.replace(prefix, '${prefix}', 1),
+
+        NAME=name,
+        DESCRIPTION=desc,
+        PUGL_MAJOR_VERSION=PUGL_MAJOR_VERSION,
+        REQUIRES=' '.join(requires + [p.lower() for p in pkg_deps]),
+        LIBS=' '.join(link_flags))
+
+
 def build(bld):
     # C Headers
     includedir = '${INCLUDEDIR}/pugl-%s/pugl' % PUGL_MAJOR_VERSION
@@ -104,102 +137,134 @@ def build(bld):
         bld.install_files(detaildir, bld.path.ant_glob('pugl/detail/*.h'))
         bld.install_files(detaildir, bld.path.ant_glob('pugl/detail/*.c'))
 
-    # Pkgconfig file
-    autowaf.build_pc(bld, 'PUGL', PUGL_VERSION, PUGL_MAJOR_VERSION, [],
-                     {'PUGL_MAJOR_VERSION': PUGL_MAJOR_VERSION})
+    # Library dependencies of pugl libraries (for buiding tests)
+    deps = {}
 
-    libflags   = []
-    framework  = []
-    libs       = []
+    def build_pugl_lib(name, **kwargs):
+        deps[name] = {}
+        for k in ('lib', 'framework', 'uselib'):
+            deps[name][k] = kwargs.get(k, [])
+
+        args = kwargs.copy()
+        args.update({'includes':        ['.'],
+                     'export_includes': ['.'],
+                     'install_path':    '${LIBDIR}',
+                     'vnum':            PUGL_VERSION})
+
+        if bld.env.BUILD_SHARED:
+            bld(features = 'c cshlib',
+                name     = name,
+                target   = 'pugl_' + name,
+                cflags   = ['-DPUGL_INTERNAL', '-DPUGL_SHARED'],
+                **args)
+
+        if bld.env.BUILD_STATIC:
+            bld(features = 'c cstlib',
+                name     = 'pugl_%s_static' % name,
+                target   = 'pugl_' + name,
+                cflags   = ['-DPUGL_INTERNAL'],
+                **args)
+
+    def build_platform(platform, **kwargs):
+        build_pugl_lib(platform, **kwargs)
+        _build_pc_file(bld, 'Pugl', 'Pugl GUI library core',
+                       'pugl', 'pugl_%s' % platform,
+                       deps=kwargs)
+
+    def build_backend(platform, backend, **kwargs):
+        name  = '%s_%s' % (platform, backend)
+        label = 'OpenGL' if backend == 'gl' else backend.title()
+        build_pugl_lib(name, **kwargs)
+        _build_pc_file(bld, 'Pugl %s' % label,
+                       'Pugl GUI library with %s backend' % label,
+                       'pugl-%s' % backend, 'pugl_' + name,
+                       deps=kwargs,
+                       requires=['pugl-%s' % PUGL_MAJOR_VERSION])
+
     lib_source = ['pugl/detail/implementation.c']
     if bld.env.TARGET_PLATFORM == 'win32':
-        lib_source += ['pugl/detail/win.c']
-        libs        = ['gdi32', 'user32']
+        platform = 'win'
+        build_platform('win',
+                       lib=['gdi32', 'user32'],
+                       source=lib_source + ['pugl/detail/win.c'])
+
         if bld.is_defined('HAVE_GL'):
-            lib_source += ['pugl/detail/win_gl.c']
-            libs       += ['opengl32']
+            build_backend('win', 'gl',
+                          lib=['gdi32', 'user32', 'opengl32'],
+                          source=['pugl/detail/win_gl.c'])
+
         if bld.is_defined('HAVE_CAIRO'):
-            lib_source += ['pugl/detail/win_cairo.c']
-            libs       += ['cairo']
+            build_backend('win', 'cairo',
+                          uselib=['CAIRO'],
+                          lib=['gdi32', 'user32'],
+                          source=['pugl/detail/win_cairo.c'])
+
     elif bld.env.TARGET_PLATFORM == 'darwin':
-        lib_source += ['pugl/detail/mac.m']
-        framework   = ['Cocoa']
+        platform = 'mac'
+        build_platform('mac',
+                       framework=['Cocoa'],
+                       source=lib_source + ['pugl/detail/mac.m'])
+
         if bld.is_defined('HAVE_GL'):
-            lib_source += ['pugl/detail/mac_gl.m']
-            framework  += ['OpenGL']
+            build_backend('mac', 'gl',
+                          framework=['Cocoa', 'OpenGL'],
+                          source=['pugl/detail/mac_gl.m'])
+
         if bld.is_defined('HAVE_CAIRO'):
-            lib_source += ['pugl/detail/mac_cairo.m']
+            build_backend('mac', 'cairo',
+                          framework=['Cocoa'],
+                          uselib=['CAIRO'],
+                          source=['pugl/detail/mac_cairo.m'])
     else:
-        lib_source += ['pugl/detail/x11.c']
-        libs        = ['X11']
+        platform = 'x11'
+        build_platform('x11',
+                       lib=['X11'],
+                       source=lib_source + ['pugl/detail/x11.c'])
+
         if bld.is_defined('HAVE_GL'):
-            lib_source += ['pugl/detail/x11_gl.c']
-            libs       += ['GL']
+            build_backend('x11', 'gl',
+                          lib=['X11', 'GL'],
+                          source=['pugl/detail/x11_gl.c'])
+
         if bld.is_defined('HAVE_CAIRO'):
-            lib_source += ['pugl/detail/x11_cairo.c']
+            build_backend('x11', 'cairo',
+                          lib=['X11'],
+                          uselib=['CAIRO'],
+                          source=['pugl/detail/x11_cairo.c'])
 
-    common = {
-        'framework': framework,
-        'includes':  ['.'],
-    }
+    def build_test(prog, platform, backend, **kwargs):
+        use = ['pugl_%s_static' % platform,
+               'pugl_%s_%s_static' % (platform, backend)]
 
-    lib_common = common.copy()
-    lib_common.update({
-        'export_includes': ['.'],
-        'install_path':    '${LIBDIR}',
-        'lib':             libs,
-        'uselib':          ['CAIRO'],
-        'source':          lib_source,
-        'target':          'pugl-%s' % PUGL_MAJOR_VERSION,
-        'vnum':            PUGL_VERSION,
-    })
+        target = prog
+        if bld.env.TARGET_PLATFORM == 'darwin':
+            target = '{0}.app/Contents/MacOS/{0}'.format(prog)
 
-    # Shared Library
-    if bld.env.BUILD_SHARED:
-        bld(features = 'c cshlib',
-            name     = 'libpugl',
-            cflags   = libflags + ['-DPUGL_SHARED', '-DPUGL_INTERNAL'],
-            **lib_common)
+            bld(features     = 'subst',
+                source       = 'resources/Info.plist.in',
+                target       = '{}.app/Contents/Info.plist'.format(prog),
+                install_path = '',
+                NAME         = prog)
 
-    # Static library
-    if bld.env.BUILD_STATIC:
-        bld(features = 'c cstlib',
-            name     = 'libpugl_static',
-            cflags   = ['-DPUGL_INTERNAL'],
-            **lib_common)
+        backend_lib = platform + '_' + backend
+        for k in ('lib', 'framework', 'uselib'):
+            kwargs.update({k: (kwargs.get(k, []) +
+                               deps.get(platform, {}).get(k, []) +
+                               deps.get(backend_lib, {}).get(k, []))})
+
+        bld(features     = 'c cprogram',
+            source       = 'test/%s.c' % prog,
+            target       = target,
+            use          = use,
+            install_path = '',
+            **kwargs)
 
     if bld.env.BUILD_TESTS:
-        test_libs   = libs
-        test_cflags = ['']
-
-        # Test programs
-        progs = []
         if bld.is_defined('HAVE_GL'):
-            progs += ['pugl_test']
+            build_test('pugl_test', platform, 'gl', uselib=['M'])
+
         if bld.is_defined('HAVE_CAIRO'):
-            progs += ['pugl_cairo_test']
-
-        for prog in progs:
-            if bld.env.TARGET_PLATFORM == 'darwin':
-                target = '{0}.app/Contents/MacOS/{0}'.format(prog)
-
-                bld(features     = 'subst',
-                    source       = 'resources/Info.plist.in',
-                    target       = '{}.app/Contents/Info.plist'.format(prog),
-                    install_path = '',
-                    NAME         = prog)
-            else:
-                target = prog
-
-            bld(features     = 'c cprogram',
-                source       = 'test/%s.c' % prog,
-                use          = 'libpugl_static',
-                lib          = test_libs,
-                uselib       = ['CAIRO', 'M'],
-                target       = target,
-                install_path = '',
-                cflags       = test_cflags,
-                **common)
+            build_test('pugl_cairo_test', platform, 'cairo', uselib=['CAIRO'])
 
     if bld.env.DOCS:
         bld(features     = 'subst',

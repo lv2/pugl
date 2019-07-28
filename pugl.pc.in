@@ -3,8 +3,9 @@ exec_prefix=@EXEC_PREFIX@
 libdir=@LIBDIR@
 includedir=@INCLUDEDIR@
 
-Name: Pugl
+Name: @NAME@
+Description: @DESCRIPTION@
 Version: @PUGL_VERSION@
-Description: Minimal portable API for embeddable GUIs
-Libs: -L${libdir} -l@LIB_PUGL@
+Requires: @REQUIRES@
+Libs: -L${libdir} @LIBS@
 Cflags: -I${includedir}/pugl-@PUGL_MAJOR_VERSION@
