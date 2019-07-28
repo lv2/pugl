@@ -29,15 +29,17 @@ def options(ctx):
 
     ctx.add_flags(
         opts,
-        {'no-gl':      'do not build OpenGL support',
-         'no-cairo':   'do not build Cairo support',
-         'no-static':  'do not build static library',
-         'no-shared':  'do not build shared library',
-         'log':        'print GL information to console',
-         'grab-focus': 'work around keyboard issues by grabbing focus'})
+        {'all-headers': 'install complete header implementation',
+         'no-gl':       'do not build OpenGL support',
+         'no-cairo':    'do not build Cairo support',
+         'no-static':   'do not build static library',
+         'no-shared':   'do not build shared library',
+         'log':         'print GL information to console',
+         'grab-focus':  'work around keyboard issues by grabbing focus'})
 
 
 def configure(conf):
+    conf.env.ALL_HEADERS     = Options.options.all_headers
     conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
     conf.load('compiler_c', cache=True)
     conf.load('autowaf', cache=True)
@@ -97,6 +99,10 @@ def build(bld):
     includedir = '${INCLUDEDIR}/pugl-%s/pugl' % PUGL_MAJOR_VERSION
     bld.install_files(includedir, bld.path.ant_glob('pugl/*.h'))
     bld.install_files(includedir, bld.path.ant_glob('pugl/*.hpp'))
+    if bld.env.ALL_HEADERS:
+        detaildir = os.path.join(includedir, 'detail')
+        bld.install_files(detaildir, bld.path.ant_glob('pugl/detail/*.h'))
+        bld.install_files(detaildir, bld.path.ant_glob('pugl/detail/*.c'))
 
     # Pkgconfig file
     autowaf.build_pc(bld, 'PUGL', PUGL_VERSION, PUGL_MAJOR_VERSION, [],
