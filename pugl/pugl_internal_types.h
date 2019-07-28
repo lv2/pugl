@@ -100,7 +100,7 @@ typedef struct {
 	int (*resize)(PuglView*, int, int);
 
 	/** Return the puglGetContext() handle for the application, if any. */
-	void* (*getHandle)(PuglView*);
+	void* (*getContext)(PuglView*);
 } PuglBackend;
 
 #endif // PUGL_INTERNAL_TYPES_H

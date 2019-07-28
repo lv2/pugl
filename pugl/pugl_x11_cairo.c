@@ -110,7 +110,7 @@ puglX11CairoResize(PuglView* view, int width, int height)
 }
 
 static void*
-puglX11CairoGetHandle(PuglView* view)
+puglX11CairoGetContext(PuglView* view)
 {
 	PuglInternals* const       impl    = view->impl;
 	PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
@@ -127,7 +127,7 @@ PuglBackend puglGetX11CairoBackend(void)
 		puglX11CairoEnter,
 		puglX11CairoLeave,
 		puglX11CairoResize,
-		puglX11CairoGetHandle
+		puglX11CairoGetContext
 	};
 
 	return puglX11CairoBackend;

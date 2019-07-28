@@ -608,5 +608,5 @@ puglGetNativeWindow(PuglView* view)
 void*
 puglGetContext(PuglView* view)
 {
-	return view->impl->backend.getHandle(view);
+	return view->impl->backend.getContext(view);
 }

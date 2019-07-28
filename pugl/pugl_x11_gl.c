@@ -182,7 +182,7 @@ puglX11GlResize(PuglView* PUGL_UNUSED(view),
 }
 
 static void*
-puglX11GlGetHandle(PuglView* PUGL_UNUSED(view))
+puglX11GlGetContext(PuglView* PUGL_UNUSED(view))
 {
 	return NULL;
 }
@@ -202,7 +202,7 @@ PuglBackend puglGetX11GlBackend(void)
 		puglX11GlEnter,
 		puglX11GlLeave,
 		puglX11GlResize,
-		puglX11GlGetHandle
+		puglX11GlGetContext
 	};
 
 	return puglX11GlBackend;
