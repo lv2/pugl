@@ -945,7 +945,8 @@ puglGetProcAddress(const char *name)
 	CFStringRef symbol = CFStringCreateWithCString(
 		kCFAllocatorDefault, name, kCFStringEncodingASCII);
 
-	PuglGlFunc func = CFBundleGetFunctionPointerForName(framework, symbol);
+	PuglGlFunc func = (PuglGlFunc)CFBundleGetFunctionPointerForName(
+		framework, symbol);
 
 	CFRelease(symbol);
 
