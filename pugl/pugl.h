@@ -316,7 +316,7 @@ typedef struct {
 typedef struct {
 	PuglEventType type;        /**< PUGL_CHAR. */
 	uint32_t      flags;       /**< Bitwise OR of PuglEventFlag values. */
-	double        time;        /**< Time in milliseconds. */
+	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
 	double        x_root;      /**< Root-relative X coordinate. */
