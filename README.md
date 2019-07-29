@@ -29,4 +29,43 @@ distinguishing features:
    vendoring and/or static linking.  Pugl can be installed as a library, or
    used by simply copying the headers into a project.
 
+Stability
+---------
+
+Pugl is currently being developed towards a long-term stable API.  For the time
+being, however, the API may break occasionally.  Please report any relevant
+feedback, or file feature requests, so that we can ensure that the released API
+is stable for as long as possible.
+
+Distribution
+------------
+
+Pugl is designed for flexible distribution.  It can be used by simply including
+the source code, or installed and linked against as a static or shared library.
+Static linking or direct inclusion is a good idea for plugins that will be
+distributed as binaries to avoid dependency problems.
+
+If you are including the code, please use a submodule so that suitable changes
+can be merged upstream to keep fragmentation to a minimum.
+
+When installed, Pugl is split into different libraries to keep dependencies
+minimal.  The core implementation is separate from graphics backends:
+
+ * The core implementation for a particular platform is in one library:
+   `pugl_x11`, `pugl_mac`, or `pugl_win`.  This does not depend on backends or
+   their dependencies (it is possible to add backends without changing the
+   other Pugl code whatsoever, or use custom backends in applications).
+
+ * Backends for platforms are in separate libraries, which depend on the core:
+   `pugl_x11_cairo`, `pugl_x11_gl`, `pugl_x11_cairo`, and so on.
+
+Applications must link against the core and at least one backend.  Normally,
+this can be achieved by simply depending on the package `pugl-gl-0` or
+`pugl-cairo-0`.  Though it is possible to compile everything into a monolithic
+library, distributions should retain this separation so that GL applications
+don't depend on Cairo and its dependencies, or vice-versa.
+
+Distributions are encouraged to include static libraries if possible so that
+developers can build portable plugin binaries.
+
  -- David Robillard <d@drobilla.net>
