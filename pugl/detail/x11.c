@@ -132,6 +132,9 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	if (title) {
 		XStoreName(display, win, title);
+		Atom netWmName = XInternAtom(display, "_NET_WM_NAME", False);
+		Atom utf8String = XInternAtom(display, "UTF8_STRING", False);
+		XChangeProperty(display, win, netWmName, utf8String, 8, PropModeReplace, (unsigned char *)title, strlen(title));
 	}
 
 	if (!view->parent) {
