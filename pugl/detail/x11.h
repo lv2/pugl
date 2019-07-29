@@ -33,8 +33,10 @@ struct PuglInternalsImpl {
 	PuglSurface* surface;
 
 	struct {
+		Atom UTF8_STRING;
 		Atom WM_PROTOCOLS;
 		Atom WM_DELETE_WINDOW;
+		Atom NET_WM_NAME;
 		Atom NET_WM_STATE;
 		Atom NET_WM_STATE_DEMANDS_ATTENTION;
 	} atoms;

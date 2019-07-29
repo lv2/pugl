@@ -75,8 +75,10 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->screen  = DefaultScreen(display);
 
 	// Intern the various atoms we will need
+	impl->atoms.UTF8_STRING      = XInternAtom(display, "UTF8_STRING", 0);
 	impl->atoms.WM_PROTOCOLS     = XInternAtom(display, "WM_PROTOCOLS", 0);
 	impl->atoms.WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+	impl->atoms.NET_WM_NAME      = XInternAtom(display, "_NET_WM_NAME", 0);
 	impl->atoms.NET_WM_STATE     = XInternAtom(display, "_NET_WM_STATE", 0);
 	impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION =
 		XInternAtom(display, "_NET_WM_STATE_DEMANDS_ATTENTION", 0);
@@ -132,6 +134,9 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	if (title) {
 		XStoreName(display, win, title);
+		XChangeProperty(display, win,
+		                impl->atoms.NET_WM_NAME, impl->atoms.UTF8_STRING, 8,
+		                PropModeReplace, (const uint8_t*)title, strlen(title));
 	}
 
 	if (!view->parent) {

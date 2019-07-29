@@ -182,7 +182,9 @@ main(int argc, char** argv)
 	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
-	if (puglCreateWindow(view, "Pugl Test")) {
+	const uint8_t title[] = { 'P', 'u', 'g', 'l', ' ',
+	                          'P', 'r', 0xC3, 0xBC, 'f', 'u', 'n', 'g' };
+	if (puglCreateWindow(view, (const char*)title)) {
 		return 1;
 	}
 
