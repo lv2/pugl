@@ -170,7 +170,6 @@ puglWinCairoResize(PuglView* view,
 	int st = 0;
 	if ((st = puglWinCairoDestroyDrawContext(view)) ||
 	    (st = puglWinCairoCreateDrawContext(view))) {
-		fprintf(stderr, "ERR\n");
 		return st;
 	}
 
