@@ -52,6 +52,19 @@ typedef BOOL (WINAPI *PFN_SetProcessDPIAware)(void);
 
 static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
 
+static wchar_t*
+puglUtf8ToWideChar(const char* const utf8)
+{
+    const int len = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0);
+    if (len > 0) {
+	    wchar_t* result = (wchar_t*)calloc(len, sizeof(wchar_t));
+	    MultiByteToWideChar(CP_UTF8, 0, utf8, -1, result, len);
+	    return result;
+    }
+
+    return NULL;
+}
+
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -117,7 +130,12 @@ puglCreateWindow(PuglView* view, const char* title)
 		return 3;
 	}
 
-	SetWindowText(impl->hwnd, title);
+	wchar_t* wtitle = puglUtf8ToWideChar(title);
+	if (wtitle) {
+		SetWindowTextW(impl->hwnd, wtitle);
+		free(wtitle);
+	}
+
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
 	return 0;
