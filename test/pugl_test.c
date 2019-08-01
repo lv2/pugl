@@ -183,7 +183,7 @@ main(int argc, char** argv)
 	puglSetEventFunc(view, onEvent);
 
 	const uint8_t title[] = { 'P', 'u', 'g', 'l', ' ',
-	                          'P', 'r', 0xC3, 0xBC, 'f', 'u', 'n', 'g' };
+	                          'P', 'r', 0xC3, 0xBC, 'f', 'u', 'n', 'g', 0 };
 	if (puglCreateWindow(view, (const char*)title)) {
 		return 1;
 	}
