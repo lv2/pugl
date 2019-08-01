@@ -67,24 +67,32 @@ puglWinGetPixelFormatDescriptor(const PuglHints hints)
 	return pfd;
 }
 
+static inline unsigned
+puglWinGetWindowFlags(const PuglView* const view)
+{
+	const bool resizable = view->hints[PUGL_RESIZABLE];
+	return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+	        (view->parent
+	         ? WS_CHILD
+	         : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX |
+	            (resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0))));
+}
+
+static inline unsigned
+puglWinGetWindowExFlags(const PuglView* const view)
+{
+	return WS_EX_NOINHERITLAYOUT | (view->parent ? 0u : WS_EX_APPWINDOW);
+}
+
 static inline PuglStatus
 puglWinCreateWindow(const PuglView* const view,
                     const char* const     title,
                     HWND* const           hwnd,
                     HDC* const            hdc)
 {
-	const char* className = view->windowClass ? view->windowClass : "Pugl";
-	const bool  resizable = view->hints[PUGL_RESIZABLE];
-
-	const unsigned winFlags =
-		(WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
-		 (view->parent
-		  ? WS_CHILD
-		  : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX |
-		     (resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0))));
-
-	const unsigned winExFlags =
-		WS_EX_NOINHERITLAYOUT | (view->parent ? 0u : WS_EX_APPWINDOW);
+	const char*    className  = view->windowClass ? view->windowClass : "Pugl";
+	const unsigned winFlags   = puglWinGetWindowFlags(view);
+	const unsigned winExFlags = puglWinGetWindowExFlags(view);
 
 	// Calculate total window size to accommodate requested view size
 	RECT wr = { 0, 0, view->width, view->height };
