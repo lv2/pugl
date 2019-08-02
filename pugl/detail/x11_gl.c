@@ -18,7 +18,7 @@
    @file x11_gl.c OpenGL graphics backend for X11.
 */
 
-#include "pugl/detail/implementation.h"
+#include "pugl/detail/types.h"
 #include "pugl/detail/x11.h"
 #include "pugl/pugl.h"
 #include "pugl/pugl_gl_backend.h"
