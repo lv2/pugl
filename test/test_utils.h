@@ -20,6 +20,10 @@
 #include <stdint.h>
 #include <stdio.h>
 
+typedef struct {
+	double lastReportTime;
+} PuglFpsPrinter;
+
 static const float cubeVertices[] = {
 	-1.0f, -1.0f, -1.0f,
 	-1.0f, -1.0f,  1.0f,
@@ -71,7 +75,7 @@ static const float cubeVertices[] = {
 };
 
 /** Calculate a projection matrix for a given perspective. */
-static void
+static inline void
 perspective(float* m, float fov, float aspect, float zNear, float zFar)
 {
 	const float h     = tanf(fov);
@@ -86,7 +90,7 @@ perspective(float* m, float fov, float aspect, float zNear, float zFar)
 	m[12] = 0;  m[13] = 0;  m[14] = qn;  m[15] = 0;
 }
 
-static int
+static inline int
 printModifiers(const uint32_t mods)
 {
 	return fprintf(stderr, "Modifiers:%s%s%s%s\n",
@@ -96,7 +100,7 @@ printModifiers(const uint32_t mods)
 	               (mods & PUGL_MOD_SUPER) ? " Super" : "");
 }
 
-static int
+static inline int
 printEvent(const PuglEvent* event, const char* prefix)
 {
 	switch (event->type) {
@@ -141,4 +145,23 @@ printEvent(const PuglEvent* event, const char* prefix)
 	}
 
 	return 0;
+}
+
+static inline void
+puglPrintFps(PuglView*       view,
+             PuglFpsPrinter* printer,
+             unsigned* const framesDrawn)
+{
+	const double thisTime = puglGetTime(view);
+	if (thisTime > printer->lastReportTime + 5) {
+		const double fps = *framesDrawn / (thisTime - printer->lastReportTime);
+		fprintf(stderr,
+		        "%u frames in %.0f seconds = %.3f FPS\n",
+		        *framesDrawn,
+		        thisTime - printer->lastReportTime,
+		        fps);
+
+		printer->lastReportTime = thisTime;
+		*framesDrawn            = 0;
+	}
 }

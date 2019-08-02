@@ -18,6 +18,8 @@
    @file pugl_cairo_test.c A simple Pugl test that creates a top-level window.
 */
 
+#include "test_utils.h"
+
 #include "pugl/pugl.h"
 #include "pugl/pugl_cairo_backend.h"
 
@@ -216,10 +218,8 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
-	float lastReportTime = (float)puglGetTime(view);
+	PuglFpsPrinter fpsPrinter = { puglGetTime(view) };
 	while (!quit) {
-		const float thisTime = (float)puglGetTime(view);
-
 		if (continuous) {
 			puglPostRedisplay(view);
 		} else {
@@ -228,14 +228,8 @@ main(int argc, char** argv)
 
 		puglProcessEvents(view);
 
-		if (continuous && thisTime > lastReportTime + 5) {
-			const double fps = framesDrawn / (thisTime - lastReportTime);
-			fprintf(stderr,
-			        "%u frames in %.0f seconds = %.3f FPS\n",
-			        framesDrawn, thisTime - lastReportTime, fps);
-
-			lastReportTime = thisTime;
-			framesDrawn    = 0;
+		if (continuous) {
+			puglPrintFps(view, &fpsPrinter, &framesDrawn);
 		}
 	}
 

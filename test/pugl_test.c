@@ -196,8 +196,8 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
-	float lastReportTime     = (float)puglGetTime(view);
-	bool  requestedAttention = false;
+	PuglFpsPrinter fpsPrinter         = { puglGetTime(view) };
+	bool           requestedAttention = false;
 	while (!quit) {
 		const float thisTime = (float)puglGetTime(view);
 
@@ -214,14 +214,8 @@ main(int argc, char** argv)
 			requestedAttention = true;
 		}
 
-		if (continuous && thisTime > lastReportTime + 5) {
-			const double fps = framesDrawn / (thisTime - lastReportTime);
-			fprintf(stderr,
-			        "%u frames in %.0f seconds = %.3f FPS\n",
-			        framesDrawn, thisTime - lastReportTime, fps);
-
-			lastReportTime = thisTime;
-			framesDrawn    = 0;
+		if (continuous) {
+			puglPrintFps(view, &fpsPrinter, &framesDrawn);
 		}
 	}
 
