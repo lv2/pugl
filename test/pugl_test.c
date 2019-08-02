@@ -31,16 +31,19 @@
 #include <stdio.h>
 #include <string.h>
 
-static bool     continuous   = false;
-static int      quit         = 0;
-static float    xAngle       = 0.0f;
-static float    yAngle       = 0.0f;
-static float    dist         = 10.0f;
-static double   lastMouseX   = 0.0;
-static double   lastMouseY   = 0.0;
-static float    lastDrawTime = 0.0;
-static unsigned framesDrawn  = 0;
-static bool     mouseEntered = false;
+typedef struct
+{
+	bool     continuous;
+	int      quit;
+	float    xAngle;
+	float    yAngle;
+	float    dist;
+	double   lastMouseX;
+	double   lastMouseY;
+	double   lastDrawTime;
+	unsigned framesDrawn;
+	bool     mouseEntered;
+} PuglTestApp;
 
 static void
 onReshape(PuglView* view, int width, int height)
@@ -63,19 +66,22 @@ onReshape(PuglView* view, int width, int height)
 static void
 onDisplay(PuglView* view)
 {
-	const float thisTime = (float)puglGetTime(view);
-	if (continuous) {
-		xAngle = fmodf(xAngle + (thisTime - lastDrawTime) * 100.0f, 360.0f);
-		yAngle = fmodf(yAngle + (thisTime - lastDrawTime) * 100.0f, 360.0f);
+	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
+
+	const double thisTime = puglGetTime(view);
+	if (app->continuous) {
+		const double dTime = thisTime - app->lastDrawTime;
+		app->xAngle = fmodf((float)(app->xAngle + dTime * 100.0f), 360.0f);
+		app->yAngle = fmodf((float)(app->yAngle + dTime * 100.0f), 360.0f);
 	}
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, dist * -1);
-	glRotatef(xAngle, 0.0f, 1.0f, 0.0f);
-	glRotatef(yAngle, 1.0f, 0.0f, 0.0f);
+	glTranslatef(0.0f, 0.0f, app->dist * -1);
+	glRotatef(app->xAngle, 0.0f, 1.0f, 0.0f);
+	glRotatef(app->yAngle, 1.0f, 0.0f, 0.0f);
 
-	const float bg = mouseEntered ? 0.2f : 0.0f;
+	const float bg = app->mouseEntered ? 0.2f : 0.0f;
 	glClearColor(bg, bg, bg, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -88,13 +94,15 @@ onDisplay(PuglView* view)
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 
-	lastDrawTime = thisTime;
-	++framesDrawn;
+	app->lastDrawTime = thisTime;
+	++app->framesDrawn;
 }
 
 static void
 onEvent(PuglView* view, const PuglEvent* event)
 {
+	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
+
 	printEvent(event, "Event: ");
 
 	switch (event->type) {
@@ -105,32 +113,29 @@ onEvent(PuglView* view, const PuglEvent* event)
 		onDisplay(view);
 		break;
 	case PUGL_CLOSE:
-		quit = 1;
+		app->quit = 1;
 		break;
 	case PUGL_KEY_PRESS:
 		if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
-			quit = 1;
+			app->quit = 1;
 		}
 		break;
 	case PUGL_MOTION_NOTIFY:
-		xAngle = fmodf(xAngle - (float)(event->motion.x - lastMouseX), 360.0f);
-		yAngle = fmodf(yAngle + (float)(event->motion.y - lastMouseY), 360.0f);
-		lastMouseX = event->motion.x;
-		lastMouseY = event->motion.y;
+		app->xAngle = fmodf(app->xAngle - (float)(event->motion.x - app->lastMouseX), 360.0f);
+		app->yAngle = fmodf(app->yAngle + (float)(event->motion.y - app->lastMouseY), 360.0f);
+		app->lastMouseX = event->motion.x;
+		app->lastMouseY = event->motion.y;
 		puglPostRedisplay(view);
 		break;
 	case PUGL_SCROLL:
-		dist += (float)event->scroll.dy;
-		if (dist < 10.0f) {
-			dist = 10.0f;
-		}
+		app->dist = fmaxf(10.0f, app->dist + (float)event->scroll.dy);
 		puglPostRedisplay(view);
 		break;
 	case PUGL_ENTER_NOTIFY:
-		mouseEntered = true;
+		app->mouseEntered = true;
 		break;
 	case PUGL_LEAVE_NOTIFY:
-		mouseEntered = false;
+		app->mouseEntered = false;
 		break;
 	default:
 		break;
@@ -140,6 +145,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(int argc, char** argv)
 {
+	PuglTestApp app = {0};
+	app.dist = 10;
+
 	int  samples         = 0;
 	int  doubleBuffer    = PUGL_FALSE;
 	bool ignoreKeyRepeat = false;
@@ -148,7 +156,7 @@ main(int argc, char** argv)
 		if (!strcmp(argv[i], "-a")) {
 			samples = 4;
 		} else if (!strcmp(argv[i], "-c")) {
-			continuous = true;
+			app.continuous = true;
 		} else if (!strcmp(argv[i], "-d")) {
 			doubleBuffer = PUGL_TRUE;
 		} else if (!strcmp(argv[i], "-h")) {
@@ -182,6 +190,7 @@ main(int argc, char** argv)
 
 	puglInitWindowHint(view, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
+	puglSetHandle(view, &app);
 
 	const uint8_t title[] = { 'P', 'u', 'g', 'l', ' ',
 	                          'P', 'r', 0xC3, 0xBC, 'f', 'u', 'n', 'g', 0 };
@@ -193,10 +202,10 @@ main(int argc, char** argv)
 
 	PuglFpsPrinter fpsPrinter         = { puglGetTime(view) };
 	bool           requestedAttention = false;
-	while (!quit) {
-		const float thisTime = (float)puglGetTime(view);
+	while (!app.quit) {
+		const double thisTime = puglGetTime(view);
 
-		if (continuous) {
+		if (app.continuous) {
 			puglPostRedisplay(view);
 		} else {
 			puglWaitForEvent(view);
@@ -204,13 +213,13 @@ main(int argc, char** argv)
 
 		puglProcessEvents(view);
 
-		if (!requestedAttention && thisTime > 5) {
+		if (!requestedAttention && thisTime > 5.0) {
 			puglRequestAttention(view);
 			requestedAttention = true;
 		}
 
-		if (continuous) {
-			puglPrintFps(view, &fpsPrinter, &framesDrawn);
+		if (app.continuous) {
+			puglPrintFps(view, &fpsPrinter, &app.framesDrawn);
 		}
 	}
 
