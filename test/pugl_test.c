@@ -180,7 +180,7 @@ main(int argc, char** argv)
 	puglInitWindowHint(view, PUGL_SAMPLES, samples);
 	puglInitWindowHint(view, PUGL_DOUBLE_BUFFER, doubleBuffer);
 
-	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
+	puglInitWindowHint(view, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
 	const uint8_t title[] = { 'P', 'u', 'g', 'l', ' ',

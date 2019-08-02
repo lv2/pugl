@@ -109,6 +109,7 @@ typedef enum {
 	PUGL_SAMPLES,               /**< Number of samples per pixel (AA) */
 	PUGL_DOUBLE_BUFFER,         /**< True if double buffering should be used */
 	PUGL_RESIZABLE,             /**< True if window should be resizable */
+	PUGL_IGNORE_KEY_REPEAT,     /**< True if key repeat events are ignored */
 } PuglWindowHint;
 
 /**
@@ -631,8 +632,10 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
 /**
    Ignore synthetic repeated key events.
+
+   @deprecated Use puglInitWindowHint() with @ref PUGL_IGNORE_KEY_REPEAT.
 */
-PUGL_API void
+PUGL_API PUGL_DEPRECATED_BY("puglInitWindowHint") void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore);
 
 /**

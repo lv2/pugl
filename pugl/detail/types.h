@@ -52,6 +52,7 @@ typedef struct {
 	int  double_buffer;
 	bool use_compat_profile;
 	bool resizable;
+	bool ignoreKeyRepeat;
 } PuglHints;
 
 /** Cross-platform view definition. */
@@ -73,7 +74,6 @@ struct PuglViewImpl {
 	int                min_aspect_y;
 	int                max_aspect_x;
 	int                max_aspect_y;
-	bool               ignoreKeyRepeat;
 	bool               visible;
 };
 

@@ -330,7 +330,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 - (void) keyDown:(NSEvent*)event
 {
-	if (puglview->ignoreKeyRepeat && [event isARepeat]) {
+	if (puglview->hints.ignoreKeyRepeat && [event isARepeat]) {
 		return;
 	}
 

@@ -209,7 +209,7 @@ main(int argc, char** argv)
 	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);
 	puglInitBackend(view, puglCairoBackend());
 
-	puglIgnoreKeyRepeat(view, ignoreKeyRepeat);
+	puglInitWindowHint(view, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
 	if (puglCreateWindow(view, "Pugl Test")) {

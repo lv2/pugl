@@ -506,7 +506,7 @@ puglProcessEvents(PuglView* view)
 		XNextEvent(impl->display, &xevent);
 		if (xevent.type == KeyRelease) {
 			// Ignore key repeat if necessary
-			if (view->ignoreKeyRepeat &&
+			if (view->hints.ignoreKeyRepeat &&
 			    XEventsQueued(impl->display, QueuedAfterReading)) {
 				XEvent next;
 				XPeekEvent(impl->display, &next);

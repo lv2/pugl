@@ -29,7 +29,7 @@ static PuglHints
 puglDefaultHints(void)
 {
 	static const PuglHints hints = {
-		2, 0, 4, 4, 4, 4, 24, 8, 0, true, true, false
+		2, 0, 4, 4, 4, 4, 24, 8, 0, true, true, false, false
 	};
 	return hints;
 }
@@ -96,6 +96,9 @@ puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value)
 		break;
 	case PUGL_RESIZABLE:
 		view->hints.resizable = value;
+		break;
+	case PUGL_IGNORE_KEY_REPEAT:
+		view->hints.ignoreKeyRepeat = value;
 		break;
 	}
 }
@@ -208,7 +211,7 @@ puglLeaveContext(PuglView* view, bool drawing)
 void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore)
 {
-	view->ignoreKeyRepeat = ignore;
+	puglInitWindowHint(view, PUGL_IGNORE_KEY_REPEAT, ignore);
 }
 
 void

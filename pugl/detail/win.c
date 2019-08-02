@@ -360,7 +360,7 @@ initCharEvent(PuglEvent* event, PuglView* view, WPARAM wParam, LPARAM lParam)
 static bool
 ignoreKeyEvent(PuglView* view, LPARAM lParam)
 {
-	return view->ignoreKeyRepeat && (lParam & (1 << 30));
+	return view->hints.ignoreKeyRepeat && (lParam & (1 << 30));
 }
 
 static RECT
