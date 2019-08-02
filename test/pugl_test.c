@@ -26,7 +26,6 @@
 #include "pugl/pugl.h"
 #include "pugl/pugl_gl_backend.h"
 
-#include <locale.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -169,8 +168,6 @@ main(int argc, char** argv)
 			fprintf(stderr, "Unknown option: %s\n", argv[i]);
 		}
 	}
-
-	setlocale(LC_CTYPE, "");
 
 	PuglView* view = puglInit(NULL, NULL);
 	puglInitWindowClass(view, "PuglTest");
