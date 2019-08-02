@@ -55,8 +55,8 @@ static int
 puglX11CairoCreate(PuglView* view)
 {
 	PuglInternals* const impl    = view->impl;
-	const double         width   = view->width;
-	const double         height  = view->height;
+	const int            width   = view->width;
+	const int            height  = view->height;
 	PuglX11CairoSurface  surface = { 0 };
 
 	surface.back = cairo_xlib_surface_create(

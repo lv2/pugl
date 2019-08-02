@@ -57,7 +57,7 @@ puglUtf8ToWideChar(const char* const utf8)
 {
     const int len = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0);
     if (len > 0) {
-	    wchar_t* result = (wchar_t*)calloc(len, sizeof(wchar_t));
+	    wchar_t* result = (wchar_t*)calloc((size_t)len, sizeof(wchar_t));
 	    MultiByteToWideChar(CP_UTF8, 0, utf8, -1, result, len);
 	    return result;
     }
