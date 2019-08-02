@@ -48,6 +48,10 @@ onReshape(PuglView* view, int width, int height)
 {
 	(void)view;
 
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(0, 0, width, height);
@@ -187,12 +191,6 @@ main(int argc, char** argv)
 	if (puglCreateWindow(view, (const char*)title)) {
 		return 1;
 	}
-
-	puglEnterContext(view, false);
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	puglLeaveContext(view, false);
 
 	puglShowWindow(view);
 
