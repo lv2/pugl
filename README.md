@@ -53,11 +53,10 @@ minimal.  The core implementation is separate from graphics backends:
 
  * The core implementation for a particular platform is in one library:
    `pugl_x11`, `pugl_mac`, or `pugl_win`.  This does not depend on backends or
-   their dependencies (it is possible to add backends without changing the
-   other Pugl code whatsoever, or use custom backends in applications).
+   their dependencies.
 
  * Backends for platforms are in separate libraries, which depend on the core:
-   `pugl_x11_cairo`, `pugl_x11_gl`, `pugl_x11_cairo`, and so on.
+   `pugl_x11_cairo`, `pugl_x11_gl`, `pugl_mac_cairo`, and so on.
 
 Applications must link against the core and at least one backend.  Normally,
 this can be achieved by simply depending on the package `pugl-gl-0` or
