@@ -573,9 +573,27 @@ merge_expose_events(PuglEvent* dst, const PuglEvent* src)
 	}
 }
 
+static void
+sendRedisplayEvent(PuglView* view)
+{
+	XExposeEvent ev = { Expose, 0, True, view->impl->display, view->impl->win,
+	                    0, 0, (int)view->frame.width, (int)view->frame.height,
+	                    0 };
+
+	XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
+}
+
 PUGL_API PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
+	// Send expose events for any views with pending redisplays
+	for (size_t i = 0; i < world->numViews; ++i) {
+		if (world->views[i]->redisplay) {
+			sendRedisplayEvent(world->views[i]);
+			world->views[i]->redisplay = false;
+		}
+	}
+
 	// Flush just once at the start to fill event queue
 	Display* display = world->impl->display;
 	XFlush(display);
@@ -673,13 +691,7 @@ puglGetTime(const PuglWorld* world)
 void
 puglPostRedisplay(PuglView* view)
 {
-	XExposeEvent ev = {Expose, 0, True,
-	                   view->impl->display, view->impl->win,
-	                   0, 0,
-	                   view->frame.width, view->frame.height,
-	                   0};
-
-	XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
+	view->redisplay = true;
 }
 
 PuglNativeWindow
