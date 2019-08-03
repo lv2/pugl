@@ -73,6 +73,17 @@ puglInitWorldInternals(void)
 
 	impl->display = display;
 
+	// Intern the various atoms we will need
+	impl->atoms.UTF8_STRING      = XInternAtom(display, "UTF8_STRING", 0);
+	impl->atoms.WM_PROTOCOLS     = XInternAtom(display, "WM_PROTOCOLS", 0);
+	impl->atoms.WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+	impl->atoms.NET_WM_NAME      = XInternAtom(display, "_NET_WM_NAME", 0);
+	impl->atoms.NET_WM_STATE     = XInternAtom(display, "_NET_WM_STATE", 0);
+	impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION =
+		XInternAtom(display, "_NET_WM_STATE_DEMANDS_ATTENTION", 0);
+
+	XFlush(display);
+
 	return impl;
 }
 
@@ -86,19 +97,12 @@ int
 puglCreateWindow(PuglView* view, const char* title)
 {
 	PuglInternals* const impl    = view->impl;
-	Display* const       display = view->world->impl->display;
+	PuglWorld* const     world   = view->world;
+	PuglX11Atoms* const  atoms   = &view->world->impl->atoms;
+	Display* const       display = world->impl->display;
 
 	impl->display = display;
 	impl->screen  = DefaultScreen(display);
-
-	// Intern the various atoms we will need
-	impl->atoms.UTF8_STRING      = XInternAtom(display, "UTF8_STRING", 0);
-	impl->atoms.WM_PROTOCOLS     = XInternAtom(display, "WM_PROTOCOLS", 0);
-	impl->atoms.WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", 0);
-	impl->atoms.NET_WM_NAME      = XInternAtom(display, "_NET_WM_NAME", 0);
-	impl->atoms.NET_WM_STATE     = XInternAtom(display, "_NET_WM_STATE", 0);
-	impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION =
-		XInternAtom(display, "_NET_WM_STATE_DEMANDS_ATTENTION", 0);
 
 	if (!view->backend || !view->backend->configure) {
 		return 1;
@@ -151,13 +155,12 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	if (title) {
 		XStoreName(display, win, title);
-		XChangeProperty(display, win,
-		                impl->atoms.NET_WM_NAME, impl->atoms.UTF8_STRING, 8,
+		XChangeProperty(display, win, atoms->NET_WM_NAME, atoms->UTF8_STRING, 8,
 		                PropModeReplace, (const uint8_t*)title, strlen(title));
 	}
 
 	if (!view->parent) {
-		XSetWMProtocols(display, win, &view->impl->atoms.WM_DELETE_WINDOW, 1);
+		XSetWMProtocols(display, win, &atoms->WM_DELETE_WINDOW, 1);
 	}
 
 	if (view->transient_parent) {
@@ -330,14 +333,16 @@ translateModifiers(const unsigned xstate)
 static PuglEvent
 translateEvent(PuglView* view, XEvent xevent)
 {
+	const PuglX11Atoms* atoms = &view->world->impl->atoms;
+
 	PuglEvent event = {0};
 	event.any.flags = xevent.xany.send_event ? PUGL_IS_SEND_EVENT : 0;
 
 	switch (xevent.type) {
 	case ClientMessage:
-		if (xevent.xclient.message_type == view->impl->atoms.WM_PROTOCOLS) {
+		if (xevent.xclient.message_type == atoms->WM_PROTOCOLS) {
 			const Atom protocol = (Atom)xevent.xclient.data.l[0];
-			if (protocol == view->impl->atoms.WM_DELETE_WINDOW) {
+			if (protocol == atoms->WM_DELETE_WINDOW) {
 				event.type = PUGL_CLOSE;
 			}
 		}
@@ -475,14 +480,16 @@ puglHasFocus(const PuglView* view)
 void
 puglRequestAttention(PuglView* view)
 {
-	PuglInternals* const impl  = view->impl;
-	XEvent               event = {0};
+	PuglInternals* const      impl  = view->impl;
+	const PuglX11Atoms* const atoms = &view->world->impl->atoms;
+	XEvent                    event = {0};
+
 	event.type                 = ClientMessage;
 	event.xclient.window       = impl->win;
 	event.xclient.format       = 32;
-	event.xclient.message_type = impl->atoms.NET_WM_STATE;
+	event.xclient.message_type = atoms->NET_WM_STATE;
 	event.xclient.data.l[0]    = WM_STATE_ADD;
-	event.xclient.data.l[1]    = impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION;
+	event.xclient.data.l[1]    = atoms->NET_WM_STATE_DEMANDS_ATTENTION;
 	event.xclient.data.l[2]    = 0;
 	event.xclient.data.l[3]    = 1;
 	event.xclient.data.l[4]    = 0;
