@@ -75,7 +75,7 @@ puglMacCairoCreate(PuglView* view)
 
 	drawView->puglview = view;
 	[drawView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
-	if (view->hints.resizable) {
+	if (view->hints[PUGL_RESIZABLE]) {
 		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 	} else {
 		[drawView setAutoresizingMask:NSViewNotSizable];

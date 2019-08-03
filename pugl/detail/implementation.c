@@ -25,13 +25,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-static PuglHints
-puglDefaultHints(void)
+static void
+puglSetDefaultHints(PuglHints hints)
 {
-	static const PuglHints hints = {
-		2, 0, 4, 4, 4, 4, 24, 8, 0, true, true, false, false
-	};
-	return hints;
+	hints[PUGL_USE_COMPAT_PROFILE]    = PUGL_TRUE;
+	hints[PUGL_CONTEXT_VERSION_MAJOR] = 2;
+	hints[PUGL_CONTEXT_VERSION_MINOR] = 0;
+	hints[PUGL_RED_BITS]              = 4;
+	hints[PUGL_GREEN_BITS]            = 4;
+	hints[PUGL_BLUE_BITS]             = 4;
+	hints[PUGL_ALPHA_BITS]            = 4;
+	hints[PUGL_DEPTH_BITS]            = 24;
+	hints[PUGL_STENCIL_BITS]          = 8;
+	hints[PUGL_SAMPLES]               = 0;
+	hints[PUGL_DOUBLE_BUFFER]         = PUGL_FALSE;
+	hints[PUGL_RESIZABLE]             = PUGL_FALSE;
+	hints[PUGL_IGNORE_KEY_REPEAT]     = PUGL_FALSE;
 }
 
 PuglView*
@@ -48,58 +57,20 @@ puglInit(int* PUGL_UNUSED(pargc), char** PUGL_UNUSED(argv))
 		return NULL;
 	}
 
-	view->hints      = puglDefaultHints();
 	view->impl       = impl;
 	view->width      = 640;
 	view->height     = 480;
 	view->start_time = puglGetTime(view);
 
+	puglSetDefaultHints(view->hints);
 	return view;
 }
 
 void
 puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value)
 {
-	switch (hint) {
-	case PUGL_USE_COMPAT_PROFILE:
-		view->hints.use_compat_profile = value;
-		break;
-	case PUGL_CONTEXT_VERSION_MAJOR:
-		view->hints.context_version_major = value;
-		break;
-	case PUGL_CONTEXT_VERSION_MINOR:
-		view->hints.context_version_minor = value;
-		break;
-	case PUGL_RED_BITS:
-		view->hints.red_bits = value;
-		break;
-	case PUGL_GREEN_BITS:
-		view->hints.green_bits = value;
-		break;
-	case PUGL_BLUE_BITS:
-		view->hints.blue_bits = value;
-		break;
-	case PUGL_ALPHA_BITS:
-		view->hints.alpha_bits = value;
-		break;
-	case PUGL_DEPTH_BITS:
-		view->hints.depth_bits = value;
-		break;
-	case PUGL_STENCIL_BITS:
-		view->hints.stencil_bits = value;
-		break;
-	case PUGL_SAMPLES:
-		view->hints.samples = value;
-		break;
-	case PUGL_DOUBLE_BUFFER:
-		view->hints.double_buffer = value;
-		break;
-	case PUGL_RESIZABLE:
-		view->hints.resizable = value;
-		break;
-	case PUGL_IGNORE_KEY_REPEAT:
-		view->hints.ignoreKeyRepeat = value;
-		break;
+	if (hint < PUGL_NUM_WINDOW_HINTS) {
+		view->hints[hint] = value;
 	}
 }
 
@@ -149,7 +120,7 @@ puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
 void
 puglInitResizable(PuglView* view, bool resizable)
 {
-	view->hints.resizable = resizable;
+	view->hints[PUGL_RESIZABLE] = resizable;
 }
 
 void

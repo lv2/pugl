@@ -40,24 +40,26 @@ struct PuglInternalsImpl {
 };
 
 static inline PuglWinPFD
-puglWinGetPixelFormatDescriptor(const PuglHints* const hints)
+puglWinGetPixelFormatDescriptor(const PuglHints hints)
 {
-	const int rgbBits = hints->red_bits + hints->green_bits + hints->blue_bits;
+	const int rgbBits = (hints[PUGL_RED_BITS] +
+	                     hints[PUGL_GREEN_BITS] +
+	                     hints[PUGL_BLUE_BITS]);
 
 	PuglWinPFD pfd;
 	ZeroMemory(&pfd, sizeof(pfd));
 	pfd.nSize        = sizeof(pfd);
 	pfd.nVersion     = 1;
 	pfd.dwFlags      = PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL;
-	pfd.dwFlags     |= hints->double_buffer ? PFD_DOUBLEBUFFER : 0;
+	pfd.dwFlags     |= hints[PUGL_DOUBLE_BUFFER] ? PFD_DOUBLEBUFFER : 0;
 	pfd.iPixelType   = PFD_TYPE_RGBA;
 	pfd.cColorBits   = (BYTE)rgbBits;
-	pfd.cRedBits     = (BYTE)hints->red_bits;
-	pfd.cGreenBits   = (BYTE)hints->green_bits;
-	pfd.cBlueBits    = (BYTE)hints->blue_bits;
-	pfd.cAlphaBits   = (BYTE)hints->alpha_bits;
-	pfd.cDepthBits   = (BYTE)hints->depth_bits;
-	pfd.cStencilBits = (BYTE)hints->stencil_bits;
+	pfd.cRedBits     = (BYTE)hints[PUGL_RED_BITS];
+	pfd.cGreenBits   = (BYTE)hints[PUGL_GREEN_BITS];
+	pfd.cBlueBits    = (BYTE)hints[PUGL_BLUE_BITS];
+	pfd.cAlphaBits   = (BYTE)hints[PUGL_ALPHA_BITS];
+	pfd.cDepthBits   = (BYTE)hints[PUGL_DEPTH_BITS];
+	pfd.cStencilBits = (BYTE)hints[PUGL_STENCIL_BITS];
 	pfd.iLayerType   = PFD_MAIN_PLANE;
 	return pfd;
 }
@@ -69,13 +71,14 @@ puglWinCreateWindow(const PuglView* const view,
                     HDC* const            hdc)
 {
 	const char* className = view->windowClass ? view->windowClass : "Pugl";
+	const bool  resizable = view->hints[PUGL_RESIZABLE];
 
 	const unsigned winFlags =
 		(WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 		 (view->parent
 		  ? WS_CHILD
 		  : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX |
-		     (view->hints.resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0))));
+		     (resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0))));
 
 	const unsigned winExFlags =
 		WS_EX_NOINHERITLAYOUT | (view->parent ? 0u : WS_EX_APPWINDOW);

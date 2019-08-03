@@ -39,21 +39,7 @@
 typedef struct PuglInternalsImpl PuglInternals;
 
 /** View hints. */
-typedef struct {
-	int  context_version_major;
-	int  context_version_minor;
-	int  red_bits;
-	int  green_bits;
-	int  blue_bits;
-	int  alpha_bits;
-	int  depth_bits;
-	int  stencil_bits;
-	int  samples;
-	int  double_buffer;
-	bool use_compat_profile;
-	bool resizable;
-	bool ignoreKeyRepeat;
-} PuglHints;
+typedef int PuglHints[PUGL_NUM_WINDOW_HINTS];
 
 /** Cross-platform view definition. */
 struct PuglViewImpl {

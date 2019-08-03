@@ -40,12 +40,14 @@ typedef NSUInteger NSWindowStyleMask;
 
 - (id) initWithFrame:(NSRect)frame
 {
-	const int major   = puglview->hints.context_version_major;
-	const int profile = ((puglview->hints.use_compat_profile || major < 3)
-	                     ? NSOpenGLProfileVersionLegacy
-	                     : puglview->hints.context_version_major >= 4
-	                       ? NSOpenGLProfileVersion4_1Core
-	                       : NSOpenGLProfileVersion3_2Core);
+	const bool compat  = puglview->hints[PUGL_USE_COMPAT_PROFILE];
+	const int  samples = puglview->hints[PUGL_SAMPLES];
+	const int  major   = puglview->hints[PUGL_CONTEXT_VERSION_MAJOR];
+	const int  profile = ((compat || major < 3)
+	                      ? NSOpenGLProfileVersionLegacy
+	                      : (major >= 4
+	                         ? NSOpenGLProfileVersion4_1Core
+	                         : NSOpenGLProfileVersion3_2Core));
 
 	NSOpenGLPixelFormatAttribute pixelAttribs[16] = {
 		NSOpenGLPFADoubleBuffer,
@@ -53,9 +55,9 @@ typedef NSUInteger NSWindowStyleMask;
 		NSOpenGLPFAOpenGLProfile, profile,
 		NSOpenGLPFAColorSize,     32,
 		NSOpenGLPFADepthSize,     32,
-		NSOpenGLPFAMultisample,   puglview->hints.samples ? 1 : 0,
-		NSOpenGLPFASampleBuffers, puglview->hints.samples ? 1 : 0,
-		NSOpenGLPFASamples,       puglview->hints.samples,
+		NSOpenGLPFAMultisample,   samples ? 1 : 0,
+		NSOpenGLPFASampleBuffers, samples ? 1 : 0,
+		NSOpenGLPFASamples,       samples,
 		0};
 
 	NSOpenGLPixelFormat* pixelFormat = [
@@ -113,7 +115,7 @@ puglMacGlCreate(PuglView* view)
 
 	drawView->puglview = view;
 	[drawView initWithFrame:NSMakeRect(0, 0, view->width, view->height)];
-	if (view->hints.resizable) {
+	if (view->hints[PUGL_RESIZABLE]) {
 		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 	} else {
 		[drawView setAutoresizingMask:NSViewNotSizable];

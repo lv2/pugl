@@ -111,16 +111,16 @@ puglWinGlConfigure(PuglView* view)
 		WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
 		WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
 		WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-		WGL_DOUBLE_BUFFER_ARB,  view->hints.double_buffer,
+		WGL_DOUBLE_BUFFER_ARB,  view->hints[PUGL_DOUBLE_BUFFER],
 		WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
-		WGL_SAMPLE_BUFFERS_ARB, view->hints.samples ? 1 : 0,
-		WGL_SAMPLES_ARB,        view->hints.samples,
-		WGL_RED_BITS_ARB,       view->hints.red_bits,
-		WGL_GREEN_BITS_ARB,     view->hints.green_bits,
-		WGL_BLUE_BITS_ARB,      view->hints.blue_bits,
-		WGL_ALPHA_BITS_ARB,     view->hints.alpha_bits,
-		WGL_DEPTH_BITS_ARB,     view->hints.depth_bits,
-		WGL_STENCIL_BITS_ARB,   view->hints.stencil_bits,
+		WGL_SAMPLE_BUFFERS_ARB, view->hints[PUGL_SAMPLES] ? 1 : 0,
+		WGL_SAMPLES_ARB,        view->hints[PUGL_SAMPLES],
+		WGL_RED_BITS_ARB,       view->hints[PUGL_RED_BITS],
+		WGL_GREEN_BITS_ARB,     view->hints[PUGL_GREEN_BITS],
+		WGL_BLUE_BITS_ARB,      view->hints[PUGL_BLUE_BITS],
+		WGL_ALPHA_BITS_ARB,     view->hints[PUGL_ALPHA_BITS],
+		WGL_DEPTH_BITS_ARB,     view->hints[PUGL_DEPTH_BITS],
+		WGL_STENCIL_BITS_ARB,   view->hints[PUGL_STENCIL_BITS],
 		0,
 	};
 
@@ -137,7 +137,7 @@ puglWinGlConfigure(PuglView* view)
 	}
 
 	// Set pixel format for fake window
-	const PuglWinPFD fakePfd  = puglWinGetPixelFormatDescriptor(&view->hints);
+	const PuglWinPFD fakePfd  = puglWinGetPixelFormatDescriptor(view->hints);
 	const int        fakePfId = ChoosePixelFormat(fakeWin.hdc, &fakePfd);
 	if (!fakePfId) {
 		return puglWinError(&fakeWin, PUGL_ERR_SET_FORMAT);
@@ -188,10 +188,10 @@ puglWinGlCreate(PuglView* view)
 	PuglStatus              st      = PUGL_SUCCESS;
 
 	const int contextAttribs[] = {
-		WGL_CONTEXT_MAJOR_VERSION_ARB, view->hints.context_version_major,
-		WGL_CONTEXT_MINOR_VERSION_ARB, view->hints.context_version_minor,
+		WGL_CONTEXT_MAJOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MAJOR],
+		WGL_CONTEXT_MINOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MINOR],
 		WGL_CONTEXT_PROFILE_MASK_ARB,
-		(view->hints.use_compat_profile
+		(view->hints[PUGL_USE_COMPAT_PROFILE]
 		 ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB
 		 : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB),
 		0

@@ -330,7 +330,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 - (void) keyDown:(NSEvent*)event
 {
-	if (puglview->hints.ignoreKeyRepeat && [event isARepeat]) {
+	if (puglview->hints[PUGL_IGNORE_KEY_REPEAT] && [event isARepeat]) {
 		return;
 	}
 
@@ -700,7 +700,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		unsigned style = (NSClosableWindowMask |
 		                  NSTitledWindowMask |
 		                  NSMiniaturizableWindowMask );
-		if (view->hints.resizable) {
+		if (view->hints[PUGL_RESIZABLE]) {
 			style |= NSResizableWindowMask;
 		}
 

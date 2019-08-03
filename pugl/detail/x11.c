@@ -111,7 +111,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	}
 
 	XSizeHints sizeHints = {0};
-	if (!view->hints.resizable) {
+	if (!view->hints[PUGL_RESIZABLE]) {
 		sizeHints.flags      = PMinSize|PMaxSize;
 		sizeHints.min_width  = view->width;
 		sizeHints.min_height = view->height;
@@ -507,7 +507,7 @@ puglProcessEvents(PuglView* view)
 		XNextEvent(impl->display, &xevent);
 		if (xevent.type == KeyRelease) {
 			// Ignore key repeat if necessary
-			if (view->hints.ignoreKeyRepeat &&
+			if (view->hints[PUGL_IGNORE_KEY_REPEAT] &&
 			    XEventsQueued(impl->display, QueuedAfterReading)) {
 				XEvent next;
 				XPeekEvent(impl->display, &next);

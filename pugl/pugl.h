@@ -110,6 +110,8 @@ typedef enum {
 	PUGL_DOUBLE_BUFFER,         /**< True if double buffering should be used */
 	PUGL_RESIZABLE,             /**< True if window should be resizable */
 	PUGL_IGNORE_KEY_REPEAT,     /**< True if key repeat events are ignored */
+
+	PUGL_NUM_WINDOW_HINTS
 } PuglWindowHint;
 
 /**

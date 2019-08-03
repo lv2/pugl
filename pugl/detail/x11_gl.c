@@ -71,14 +71,14 @@ puglX11GlConfigure(PuglView* view)
 		GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
 		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
 		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
-		GLX_SAMPLES,       view->hints.samples,
-		GLX_RED_SIZE,      puglX11GlHintValue(view->hints.red_bits),
-		GLX_GREEN_SIZE,    puglX11GlHintValue(view->hints.green_bits),
-		GLX_BLUE_SIZE,     puglX11GlHintValue(view->hints.blue_bits),
-		GLX_ALPHA_SIZE,    puglX11GlHintValue(view->hints.alpha_bits),
-		GLX_DEPTH_SIZE,    puglX11GlHintValue(view->hints.depth_bits),
-		GLX_STENCIL_SIZE,  puglX11GlHintValue(view->hints.stencil_bits),
-		GLX_DOUBLEBUFFER,  puglX11GlHintValue(view->hints.double_buffer),
+		GLX_SAMPLES,       view->hints[PUGL_SAMPLES],
+		GLX_RED_SIZE,      puglX11GlHintValue(view->hints[PUGL_RED_BITS]),
+		GLX_GREEN_SIZE,    puglX11GlHintValue(view->hints[PUGL_GREEN_BITS]),
+		GLX_BLUE_SIZE,     puglX11GlHintValue(view->hints[PUGL_BLUE_BITS]),
+		GLX_ALPHA_SIZE,    puglX11GlHintValue(view->hints[PUGL_ALPHA_BITS]),
+		GLX_DEPTH_SIZE,    puglX11GlHintValue(view->hints[PUGL_DEPTH_BITS]),
+		GLX_STENCIL_SIZE,  puglX11GlHintValue(view->hints[PUGL_STENCIL_BITS]),
+		GLX_DOUBLEBUFFER,  puglX11GlHintValue(view->hints[PUGL_DOUBLE_BUFFER]),
 		None
 	};
 
@@ -117,9 +117,9 @@ puglX11GlCreate(PuglView* view)
 	const GLXFBConfig       fb_config = surface->fb_config;
 
 	const int ctx_attrs[] = {
-		GLX_CONTEXT_MAJOR_VERSION_ARB, view->hints.context_version_major,
-		GLX_CONTEXT_MINOR_VERSION_ARB, view->hints.context_version_minor,
-		GLX_CONTEXT_PROFILE_MASK_ARB, (view->hints.use_compat_profile
+		GLX_CONTEXT_MAJOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MAJOR],
+		GLX_CONTEXT_MINOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MINOR],
+		GLX_CONTEXT_PROFILE_MASK_ARB, (view->hints[PUGL_USE_COMPAT_PROFILE]
 		                               ? GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB
 		                               : GLX_CONTEXT_CORE_PROFILE_BIT_ARB),
 		0};
