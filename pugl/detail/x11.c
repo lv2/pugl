@@ -82,6 +82,15 @@ puglInitWorldInternals(void)
 	impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION =
 		XInternAtom(display, "_NET_WM_STATE_DEMANDS_ATTENTION", 0);
 
+	// Open input method
+	XSetLocaleModifiers("");
+	if (!(impl->xim = XOpenIM(display, NULL, NULL, NULL))) {
+		XSetLocaleModifiers("@im=");
+		if (!(impl->xim = XOpenIM(display, NULL, NULL, NULL))) {
+			fprintf(stderr, "warning: XOpenIM failed\n");
+		}
+	}
+
 	XFlush(display);
 
 	return impl;
@@ -167,16 +176,9 @@ puglCreateWindow(PuglView* view, const char* title)
 		XSetTransientForHint(display, win, (Window)(view->transient_parent));
 	}
 
-	XSetLocaleModifiers("");
-	if (!(impl->xim = XOpenIM(display, NULL, NULL, NULL))) {
-		XSetLocaleModifiers("@im=");
-		if (!(impl->xim = XOpenIM(display, NULL, NULL, NULL))) {
-			fprintf(stderr, "warning: XOpenIM failed\n");
-		}
-	}
-
+	// Create input context
 	const XIMStyle im_style = XIMPreeditNothing | XIMStatusNothing;
-	if (!(impl->xic = XCreateIC(impl->xim,
+	if (!(impl->xic = XCreateIC(world->impl->xim,
 	                            XNInputStyle,   im_style,
 	                            XNClientWindow, win,
 	                            XNFocusWindow,  win,
@@ -208,9 +210,6 @@ puglFreeViewInternals(PuglView* view)
 		if (view->impl->xic) {
 			XDestroyIC(view->impl->xic);
 		}
-		if (view->impl->xim) {
-			XCloseIM(view->impl->xim);
-		}
 		view->backend->destroy(view);
 		XDestroyWindow(view->impl->display, view->impl->win);
 		XFree(view->impl->vi);
@@ -221,6 +220,9 @@ puglFreeViewInternals(PuglView* view)
 void
 puglFreeWorldInternals(PuglWorld* world)
 {
+	if (world->impl->xim) {
+		XCloseIM(world->impl->xim);
+	}
 	XCloseDisplay(world->impl->display);
 	free(world->impl);
 }

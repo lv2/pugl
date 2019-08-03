@@ -35,6 +35,7 @@ typedef struct {
 struct PuglWorldInternalsImpl {
 	Display*     display;
 	PuglX11Atoms atoms;
+	XIM          xim;
 };
 
 struct PuglInternalsImpl {
@@ -42,7 +43,6 @@ struct PuglInternalsImpl {
 	int          screen;
 	XVisualInfo* vi;
 	Window       win;
-	XIM          xim;
 	XIC          xic;
 	PuglSurface* surface;
 };
