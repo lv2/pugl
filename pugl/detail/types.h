@@ -64,6 +64,7 @@ struct PuglViewImpl {
 	int                max_aspect_x;
 	int                max_aspect_y;
 	bool               visible;
+	bool               redisplay;
 };
 
 /** Cross-platform world definition. */
