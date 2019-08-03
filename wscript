@@ -104,7 +104,7 @@ def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
     pkg_deps = [l for l in uselib if 'PKG_' + l.lower() in env]
     lib_deps = [l for l in uselib if 'PKG_' + l.lower() not in env]
 
-    link_flags = [env.LIB_ST % l for l in deps.get('lib', [])]
+    link_flags = [env.LIB_ST % l for l in (deps.get('lib', []) + [libname])]
     for l in lib_deps:
         link_flags += [env.LIB_ST % l for l in env['LIB_' + l]]
     for f in deps.get('framework', []):
