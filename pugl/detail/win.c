@@ -52,6 +52,9 @@ typedef BOOL (WINAPI *PFN_SetProcessDPIAware)(void);
 
 static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
 
+LRESULT CALLBACK
+wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
 static wchar_t*
 puglUtf8ToWideChar(const char* const utf8)
 {
@@ -65,8 +68,25 @@ puglUtf8ToWideChar(const char* const utf8)
     return NULL;
 }
 
-LRESULT CALLBACK
-wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+static bool
+puglRegisterWindowClass(const char* name)
+{
+	WNDCLASSEX wc = { 0 };
+	if (GetClassInfoEx(GetModuleHandle(NULL), name, &wc)) {
+		return true; // Already registered
+	}
+
+	wc.cbSize        = sizeof(wc);
+	wc.style         = CS_OWNDC;
+	wc.lpfnWndProc   = wndProc;
+	wc.hInstance     = GetModuleHandle(NULL);
+	wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
+	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+	wc.lpszClassName = name;
+
+	return RegisterClassEx(&wc);
+}
 
 PuglInternals*
 puglInitInternals(void)
@@ -104,18 +124,8 @@ puglCreateWindow(PuglView* view, const char* title)
 	EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &devMode);
 	view->impl->refreshRate = devMode.dmDisplayFrequency;
 
-	// Register window class
-	WNDCLASSEX wc;
-	memset(&wc, 0, sizeof(wc));
-	wc.cbSize        = sizeof(wc);
-	wc.style         = CS_OWNDC;
-	wc.lpfnWndProc   = wndProc;
-	wc.hInstance     = GetModuleHandle(NULL);
-	wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION); // TODO: user-specified icon
-	wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wc.lpszClassName = className;
-	if (!RegisterClassEx(&wc)) {
+	// Register window class if necessary
+	if (!puglRegisterWindowClass(className)) {
 		return 1;
 	}
 
