@@ -45,6 +45,7 @@
 #endif
 
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
+#define PUGL_LOCAL_MARK_MSG  (WM_USER + 51)
 #define PUGL_RESIZE_TIMER_ID 9461
 #define PUGL_URGENT_TIMER_ID 9462
 
@@ -689,10 +690,26 @@ puglWaitForEvent(PuglView* PUGL_UNUSED(view))
 PUGL_API PuglStatus
 puglDispatchEvents(PuglWorld* PUGL_UNUSED(world))
 {
-	MSG msg;
+	/* Windows has no facility to process only currently queued messages, which
+	   causes the event loop to run forever in cases like mouse movement where
+	   the queue is constantly being filled with new messages.  To work around
+	   this, we post a message to ourselves before starting, record its time
+	   when it is received, then break the loop on the first message that was
+	   created afterwards. */
+	PostMessage(NULL, PUGL_LOCAL_MARK_MSG, 0, 0);
+
+	long markTime = 0;
+	MSG  msg;
 	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		if (msg.message == PUGL_LOCAL_MARK_MSG) {
+			markTime = GetMessageTime();
+		} else {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+			if (markTime != 0 && GetMessageTime() > markTime) {
+				break;
+			}
+		}
 	}
 
 	return PUGL_SUCCESS;
