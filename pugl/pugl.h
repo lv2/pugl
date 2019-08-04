@@ -529,6 +529,16 @@ PUGL_API PuglWorld*
 puglGetWorld(PuglView* view);
 
 /**
+   Set the title of the window.
+
+   This only makes sense for non-embedded views that will have a corresponding
+   top-level window, and sets the title, typically displayed in the title bar
+   or in window switchers.
+*/
+PUGL_API PuglStatus
+puglSetWindowTitle(PuglView* view, const char* title);
+
+/**
    Set a hint to configure window properties.
 
    This only has an effect when called before puglCreateWindow().

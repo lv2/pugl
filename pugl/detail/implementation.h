@@ -30,6 +30,9 @@
 extern "C" {
 #endif
 
+/** Reallocate and set `*dest` to `string`. */
+void puglSetString(char** dest, const char* string);
+
 /** Allocate and initialise world internals (implemented once per platform) */
 PuglWorldInternals* puglInitWorldInternals(void);
 

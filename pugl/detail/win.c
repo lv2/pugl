@@ -161,10 +161,8 @@ puglCreateWindow(PuglView* view, const char* title)
 		return 3;
 	}
 
-	wchar_t* wtitle = puglUtf8ToWideChar(title);
-	if (wtitle) {
-		SetWindowTextW(impl->hwnd, wtitle);
-		free(wtitle);
+	if (title) {
+		puglSetWindowTitle(view, title);
 	}
 
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
@@ -773,6 +771,20 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->hwnd;
+}
+
+PuglStatus
+puglSetWindowTitle(PuglView* view, const char* title)
+{
+	puglSetString(&view->title, title);
+
+	wchar_t* wtitle = puglUtf8ToWideChar(title);
+	if (wtitle) {
+		SetWindowTextW(view->impl->hwnd, wtitle);
+		free(wtitle);
+	}
+
+	return PUGL_SUCCESS;
 }
 
 PuglStatus

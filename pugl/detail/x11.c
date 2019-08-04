@@ -215,10 +215,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	XSetClassHint(display, win, &classHint);
 
 	if (title) {
-		XStoreName(display, win, title);
-		XChangeProperty(display, win, atoms->NET_WM_NAME,
-		                atoms->UTF8_STRING, 8, PropModeReplace,
-		                (const uint8_t*)title, (int)strlen(title));
+		puglSetWindowTitle(view, title);
 	}
 
 	if (!view->parent) {
@@ -710,6 +707,21 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->win;
+}
+
+PuglStatus
+puglSetWindowTitle(PuglView* view, const char* title)
+{
+	Display*                  display = view->world->impl->display;
+	const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
+
+	puglSetString(&view->title, title);
+	XStoreName(display, view->impl->win, title);
+	XChangeProperty(display, view->impl->win, atoms->NET_WM_NAME,
+	                atoms->UTF8_STRING, 8, PropModeReplace,
+	                (const uint8_t*)title, (int)strlen(title));
+
+	return PUGL_SUCCESS;
 }
 
 PuglStatus

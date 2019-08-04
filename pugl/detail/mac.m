@@ -777,6 +777,7 @@ puglCreateWindow(PuglView* view, const char* title)
 			                                     view->minHeight)];
 		}
 		impl->window = window;
+		puglSetWindowTitle(view, title);
 
 		((NSWindow*)window).delegate = [[PuglWindowDelegate alloc]
 			                  initWithPuglWindow:window];
@@ -940,6 +941,23 @@ PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {
 	return (PuglNativeWindow)view->impl->wrapperView;
+}
+
+PuglStatus
+puglSetWindowTitle(PuglView* view, const char* title)
+{
+	puglSetString(&view->title, title);
+
+	NSString* titleString = [[NSString alloc]
+		                        initWithBytes:title
+		                               length:strlen(title)
+		                             encoding:NSUTF8StringEncoding];
+
+	if (view->impl->window) {
+		[view->impl->window setTitle:titleString];
+	}
+
+	return PUGL_SUCCESS;
 }
 
 PuglStatus

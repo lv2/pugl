@@ -52,6 +52,7 @@ struct PuglViewImpl {
 	PuglInternals*     impl;
 	PuglHandle         handle;
 	PuglEventFunc      eventFunc;
+	char*              title;
 	PuglNativeWindow   parent;
 	uintptr_t          transientParent;
 	PuglHints          hints;

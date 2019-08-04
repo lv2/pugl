@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void
+void
 puglSetString(char** dest, const char* string)
 {
 	const size_t len = strlen(string);
