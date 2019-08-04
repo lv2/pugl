@@ -775,32 +775,55 @@ puglPostRedisplay(PuglView* view);
    @param argv  Arguments (currently unused).
    @return A newly created view.
 */
-PUGL_API PUGL_DEPRECATED_BY("puglNewView") PuglView*
-puglInit(int* pargc, char** argv);
+static inline PUGL_DEPRECATED_BY("puglNewView") PuglView*
+puglInit(const int* pargc, char** argv)
+{
+	(void)pargc;
+	(void)argv;
+
+	return puglNewView(puglNewWorld());
+}
 
 /**
    Destroy an app and view created with `puglInit()`.
 
    @deprecated Use puglFreeApp() and puglFreeView().
 */
-PUGL_API PUGL_DEPRECATED_BY("puglFreeView") void
-puglDestroy(PuglView* view);
+static inline PUGL_DEPRECATED_BY("puglFreeView") void
+puglDestroy(PuglView* view)
+{
+	PuglWorld* const world = puglGetWorld(view);
+
+	puglFreeView(view);
+	puglFreeWorld(world);
+}
 
 /**
    Set the window size before creating a window.
 
    @deprecated Use puglSetFrame().
 */
-PUGL_API PUGL_DEPRECATED_BY("puglSetFrame") void
-puglInitWindowSize(PuglView* view, int width, int height);
+static inline PUGL_DEPRECATED_BY("puglSetFrame") void
+puglInitWindowSize(PuglView* view, int width, int height)
+{
+	PuglRect frame = puglGetFrame(view);
+
+	frame.width = width;
+	frame.height = height;
+
+	puglSetFrame(view, frame);
+}
 
 /**
    Enable or disable resizing before creating a window.
 
    @deprecated Use puglInitWindowHint() with @ref PUGL_RESIZABLE.
 */
-PUGL_API PUGL_DEPRECATED_BY("puglInitWindowHint") void
-puglInitResizable(PuglView* view, bool resizable);
+static inline PUGL_DEPRECATED_BY("puglInitWindowHint") void
+puglInitResizable(PuglView* view, bool resizable)
+{
+	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);
+}
 
 /**
    Get the current size of the view.
@@ -808,16 +831,25 @@ puglInitResizable(PuglView* view, bool resizable);
    @deprecated Use puglGetFrame().
 
 */
-PUGL_API PUGL_DEPRECATED_BY("puglGetFrame") void
-puglGetSize(PuglView* view, int* width, int* height);
+static inline PUGL_DEPRECATED_BY("puglGetFrame") void
+puglGetSize(PuglView* view, int* width, int* height)
+{
+	const PuglRect frame = puglGetFrame(view);
+
+	*width  = (int)frame.width;
+	*height = (int)frame.height;
+}
 
 /**
    Ignore synthetic repeated key events.
 
    @deprecated Use puglInitWindowHint() with @ref PUGL_IGNORE_KEY_REPEAT.
 */
-PUGL_API PUGL_DEPRECATED_BY("puglInitWindowHint") void
-puglIgnoreKeyRepeat(PuglView* view, bool ignore);
+static inline PUGL_DEPRECATED_BY("puglInitWindowHint") void
+puglIgnoreKeyRepeat(PuglView* view, bool ignore)
+{
+	puglInitWindowHint(view, PUGL_IGNORE_KEY_REPEAT, ignore);
+}
 
 /**
    Block and wait for an event to be ready.

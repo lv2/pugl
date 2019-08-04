@@ -44,21 +44,6 @@ puglSetDefaultHints(PuglHints hints)
 	hints[PUGL_IGNORE_KEY_REPEAT]     = PUGL_FALSE;
 }
 
-PuglView*
-puglInit(int* PUGL_UNUSED(pargc), char** PUGL_UNUSED(argv))
-{
-	return puglNewView(puglNewWorld());
-}
-
-void
-puglDestroy(PuglView* const view)
-{
-	PuglWorld* const world = view->world;
-
-	puglFreeView(view);
-	puglFreeWorld(world);
-}
-
 PuglWorld*
 puglNewWorld(void)
 {
@@ -143,13 +128,6 @@ puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value)
 }
 
 void
-puglInitWindowSize(PuglView* view, int width, int height)
-{
-	view->frame.width  = width;
-	view->frame.height = height;
-}
-
-void
 puglInitWindowMinSize(PuglView* view, int width, int height)
 {
 	view->minWidth  = width;
@@ -186,12 +164,6 @@ puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
 }
 
 void
-puglInitResizable(PuglView* view, bool resizable)
-{
-	view->hints[PUGL_RESIZABLE] = resizable;
-}
-
-void
 puglInitTransientFor(PuglView* view, uintptr_t parent)
 {
 	view->transientParent = parent;
@@ -222,13 +194,6 @@ puglGetVisible(PuglView* view)
 	return view->visible;
 }
 
-void
-puglGetSize(PuglView* view, int* width, int* height)
-{
-	*width  = (int)view->frame.width;
-	*height = (int)view->frame.height;
-}
-
 PuglRect
 puglGetFrame(const PuglView* view)
 {
@@ -251,12 +216,6 @@ void
 puglLeaveContext(PuglView* view, bool drawing)
 {
 	view->backend->leave(view, drawing);
-}
-
-void
-puglIgnoreKeyRepeat(PuglView* view, bool ignore)
-{
-	puglInitWindowHint(view, PUGL_IGNORE_KEY_REPEAT, ignore);
 }
 
 void
