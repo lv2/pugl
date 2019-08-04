@@ -290,8 +290,8 @@ initMouseEvent(PuglEvent* event,
 	event->button.type   = press ? PUGL_BUTTON_PRESS : PUGL_BUTTON_RELEASE;
 	event->button.x      = GET_X_LPARAM(lParam);
 	event->button.y      = GET_Y_LPARAM(lParam);
-	event->button.x_root = pt.x;
-	event->button.y_root = pt.y;
+	event->button.xRoot  = pt.x;
+	event->button.yRoot  = pt.y;
 	event->button.state  = getModifiers();
 	event->button.button = (uint32_t)button;
 }
@@ -306,8 +306,8 @@ initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam)
 	event->scroll.type   = PUGL_SCROLL;
 	event->scroll.x      = pt.x;
 	event->scroll.y      = pt.y;
-	event->scroll.x_root = GET_X_LPARAM(lParam);
-	event->scroll.y_root = GET_Y_LPARAM(lParam);
+	event->scroll.xRoot  = GET_X_LPARAM(lParam);
+	event->scroll.yRoot  = GET_Y_LPARAM(lParam);
 	event->scroll.state  = getModifiers();
 	event->scroll.dx     = 0;
 	event->scroll.dy     = 0;
@@ -358,8 +358,8 @@ initKeyEvent(PuglEventKey* event,
 	event->type    = press ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
 	event->time    = GetMessageTime() / 1e3;
 	event->state   = getModifiers();
-	event->x_root  = rpos.x;
-	event->y_root  = rpos.y;
+	event->xRoot   = rpos.x;
+	event->yRoot   = rpos.y;
 	event->x       = cpos.x;
 	event->y       = cpos.y;
 	event->keycode = (uint32_t)((lParam & 0xFF0000) >> 16);
@@ -463,8 +463,8 @@ constrainAspect(const PuglView* const view,
                 RECT* const           size,
                 const WPARAM          wParam)
 {
-	const float minA = (float)view->min_aspect_x / (float)view->min_aspect_y;
-	const float maxA = (float)view->max_aspect_x / (float)view->max_aspect_y;
+	const float minA = (float)view->minAspectX / (float)view->minAspectY;
+	const float maxA = (float)view->maxAspectX / (float)view->maxAspectY;
 	const int   w    = size->right - size->left;
 	const int   h    = size->bottom - size->top;
 	const float a    = (float)w / (float)h;
@@ -524,7 +524,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		InvalidateRect(view->impl->hwnd, NULL, false);
 		break;
 	case WM_SIZING:
-		if (view->min_aspect_x) {
+		if (view->minAspectX) {
 			constrainAspect(view, (RECT*)lParam, wParam);
 			return TRUE;
 		}
@@ -553,8 +553,8 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_GETMINMAXINFO:
 		mmi                   = (MINMAXINFO*)lParam;
-		mmi->ptMinTrackSize.x = view->min_width;
-		mmi->ptMinTrackSize.y = view->min_height;
+		mmi->ptMinTrackSize.x = view->minWidth;
+		mmi->ptMinTrackSize.y = view->minHeight;
 		break;
 	case WM_PAINT:
 		GetUpdateRect(view->impl->hwnd, &rect, false);
@@ -588,10 +588,10 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		event.motion.time    = GetMessageTime() / 1e3;
 		event.motion.x       = GET_X_LPARAM(lParam);
 		event.motion.y       = GET_Y_LPARAM(lParam);
-		event.motion.x_root  = pt.x;
-		event.motion.y_root  = pt.y;
+		event.motion.xRoot   = pt.x;
+		event.motion.yRoot   = pt.y;
 		event.motion.state   = getModifiers();
-		event.motion.is_hint = false;
+		event.motion.isHint  = false;
 		break;
 	case WM_MOUSELEAVE:
 		GetCursorPos(&pt);

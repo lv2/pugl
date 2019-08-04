@@ -187,17 +187,17 @@ puglCreateWindow(PuglView* view, const char* title)
 		sizeHints.max_width  = width;
 		sizeHints.max_height = height;
 	} else {
-		if (view->min_width || view->min_height) {
+		if (view->minWidth || view->minHeight) {
 			sizeHints.flags      = PMinSize;
-			sizeHints.min_width  = view->min_width;
-			sizeHints.min_height = view->min_height;
+			sizeHints.min_width  = view->minWidth;
+			sizeHints.min_height = view->minHeight;
 		}
-		if (view->min_aspect_x) {
+		if (view->minAspectX) {
 			sizeHints.flags        |= PAspect;
-			sizeHints.min_aspect.x  = view->min_aspect_x;
-			sizeHints.min_aspect.y  = view->min_aspect_y;
-			sizeHints.max_aspect.x  = view->max_aspect_x;
-			sizeHints.max_aspect.y  = view->max_aspect_y;
+			sizeHints.min_aspect.x  = view->minAspectX;
+			sizeHints.min_aspect.y  = view->minAspectY;
+			sizeHints.max_aspect.x  = view->maxAspectX;
+			sizeHints.max_aspect.y  = view->maxAspectY;
 		}
 	}
 	XSetNormalHints(display, win, &sizeHints);
@@ -213,8 +213,8 @@ puglCreateWindow(PuglView* view, const char* title)
 		XSetWMProtocols(display, win, &atoms->WM_DELETE_WINDOW, 1);
 	}
 
-	if (view->transient_parent) {
-		XSetTransientForHint(display, win, (Window)(view->transient_parent));
+	if (view->transientParent) {
+		XSetTransientForHint(display, win, (Window)(view->transientParent));
 	}
 
 	// Create input context
@@ -421,10 +421,10 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.motion.time    = xevent.xmotion.time / 1e3;
 		event.motion.x       = xevent.xmotion.x;
 		event.motion.y       = xevent.xmotion.y;
-		event.motion.x_root  = xevent.xmotion.x_root;
-		event.motion.y_root  = xevent.xmotion.y_root;
+		event.motion.xRoot   = xevent.xmotion.x_root;
+		event.motion.yRoot   = xevent.xmotion.y_root;
 		event.motion.state   = translateModifiers(xevent.xmotion.state);
-		event.motion.is_hint = (xevent.xmotion.is_hint == NotifyHint);
+		event.motion.isHint  = (xevent.xmotion.is_hint == NotifyHint);
 		break;
 	case ButtonPress:
 		if (xevent.xbutton.button >= 4 && xevent.xbutton.button <= 7) {
@@ -432,8 +432,8 @@ translateEvent(PuglView* view, XEvent xevent)
 			event.scroll.time    = xevent.xbutton.time / 1e3;
 			event.scroll.x       = xevent.xbutton.x;
 			event.scroll.y       = xevent.xbutton.y;
-			event.scroll.x_root  = xevent.xbutton.x_root;
-			event.scroll.y_root  = xevent.xbutton.y_root;
+			event.scroll.xRoot   = xevent.xbutton.x_root;
+			event.scroll.yRoot   = xevent.xbutton.y_root;
 			event.scroll.state   = translateModifiers(xevent.xbutton.state);
 			event.scroll.dx      = 0.0;
 			event.scroll.dy      = 0.0;
@@ -454,8 +454,8 @@ translateEvent(PuglView* view, XEvent xevent)
 			event.button.time   = xevent.xbutton.time / 1e3;
 			event.button.x      = xevent.xbutton.x;
 			event.button.y      = xevent.xbutton.y;
-			event.button.x_root = xevent.xbutton.x_root;
-			event.button.y_root = xevent.xbutton.y_root;
+			event.button.xRoot  = xevent.xbutton.x_root;
+			event.button.yRoot  = xevent.xbutton.y_root;
 			event.button.state  = translateModifiers(xevent.xbutton.state);
 			event.button.button = xevent.xbutton.button;
 		}
@@ -468,8 +468,8 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.key.time   = xevent.xkey.time / 1e3;
 		event.key.x      = xevent.xkey.x;
 		event.key.y      = xevent.xkey.y;
-		event.key.x_root = xevent.xkey.x_root;
-		event.key.y_root = xevent.xkey.y_root;
+		event.key.xRoot  = xevent.xkey.x_root;
+		event.key.yRoot  = xevent.xkey.y_root;
 		event.key.state  = translateModifiers(xevent.xkey.state);
 		translateKey(view, &xevent, &event);
 		break;
@@ -481,8 +481,8 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.crossing.time   = xevent.xcrossing.time / 1e3;
 		event.crossing.x      = xevent.xcrossing.x;
 		event.crossing.y      = xevent.xcrossing.y;
-		event.crossing.x_root = xevent.xcrossing.x_root;
-		event.crossing.y_root = xevent.xcrossing.y_root;
+		event.crossing.xRoot  = xevent.xcrossing.x_root;
+		event.crossing.yRoot  = xevent.xcrossing.y_root;
 		event.crossing.state  = translateModifiers(xevent.xcrossing.state);
 		event.crossing.mode   = PUGL_CROSSING_NORMAL;
 		if (xevent.xcrossing.mode == NotifyGrab) {

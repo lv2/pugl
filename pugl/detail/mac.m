@@ -726,9 +726,9 @@ puglCreateWindow(PuglView* view, const char* title)
 	[impl->wrapperView initWithFrame:
 		     NSMakeRect(0, 0, view->frame.width, view->frame.height)];
 	[impl->wrapperView addConstraint:
-		     puglConstraint(impl->wrapperView, NSLayoutAttributeWidth, view->min_width)];
+		     puglConstraint(impl->wrapperView, NSLayoutAttributeWidth, view->minWidth)];
 	[impl->wrapperView addConstraint:
-		     puglConstraint(impl->wrapperView, NSLayoutAttributeHeight, view->min_height)];
+		     puglConstraint(impl->wrapperView, NSLayoutAttributeHeight, view->minHeight)];
 
 	// Create draw view to be rendered to
 	int st = 0;
@@ -755,7 +755,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 		const NSRect frame = rectToScreen(
 			NSMakeRect(view->frame.x, view->frame.y,
-			           view->min_width, view->min_height));
+			           view->minWidth, view->minHeight));
 
 		unsigned style = (NSClosableWindowMask |
 		                  NSTitledWindowMask |
@@ -772,18 +772,18 @@ puglCreateWindow(PuglView* view, const char* title)
 		              ] retain];
 		[window setPuglview:view];
 		[window setTitle:titleString];
-		if (view->min_width || view->min_height) {
-			[window setContentMinSize:NSMakeSize(view->min_width,
-			                                     view->min_height)];
+		if (view->minWidth || view->minHeight) {
+			[window setContentMinSize:NSMakeSize(view->minWidth,
+			                                     view->minHeight)];
 		}
 		impl->window = window;
 
 		((NSWindow*)window).delegate = [[PuglWindowDelegate alloc]
 			                  initWithPuglWindow:window];
 
-		if (view->min_aspect_x && view->min_aspect_y) {
-			[window setContentAspectRatio:NSMakeSize(view->min_aspect_x,
-			                                         view->min_aspect_y)];
+		if (view->minAspectX && view->minAspectY) {
+			[window setContentAspectRatio:NSMakeSize(view->minAspectX,
+			                                         view->minAspectY)];
 		}
 
 		[window setContentView:impl->wrapperView];

@@ -146,21 +146,21 @@ puglInitWindowSize(PuglView* view, int width, int height)
 void
 puglInitWindowMinSize(PuglView* view, int width, int height)
 {
-	view->min_width  = width;
-	view->min_height = height;
+	view->minWidth  = width;
+	view->minHeight = height;
 }
 
 void
 puglInitWindowAspectRatio(PuglView* view,
-                          int       min_x,
-                          int       min_y,
-                          int       max_x,
-                          int       max_y)
+                          int       minX,
+                          int       minY,
+                          int       maxX,
+                          int       maxY)
 {
-	view->min_aspect_x = min_x;
-	view->min_aspect_y = min_y;
-	view->max_aspect_x = max_x;
-	view->max_aspect_y = max_y;
+	view->minAspectX = minX;
+	view->minAspectY = minY;
+	view->maxAspectX = maxX;
+	view->maxAspectY = maxY;
 }
 
 void
@@ -188,7 +188,7 @@ puglInitResizable(PuglView* view, bool resizable)
 void
 puglInitTransientFor(PuglView* view, uintptr_t parent)
 {
-	view->transient_parent = parent;
+	view->transientParent = parent;
 }
 
 int

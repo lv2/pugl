@@ -262,8 +262,8 @@ typedef struct {
 	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
-	double        x_root;      /**< Root-relative X coordinate. */
-	double        y_root;      /**< Root-relative Y coordinate. */
+	double        xRoot;       /**< Root-relative X coordinate. */
+	double        yRoot;       /**< Root-relative Y coordinate. */
 	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
 	uint32_t      button;      /**< 1-relative button number. */
 } PuglEventButton;
@@ -319,8 +319,8 @@ typedef struct {
 	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
-	double        x_root;      /**< Root-relative X coordinate. */
-	double        y_root;      /**< Root-relative Y coordinate. */
+	double        xRoot;       /**< Root-relative X coordinate. */
+	double        yRoot;       /**< Root-relative Y coordinate. */
 	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
 	uint32_t      keycode;     /**< Raw key code. */
 	uint32_t      key;         /**< Unshifted Unicode character code, or 0. */
@@ -338,8 +338,8 @@ typedef struct {
 	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
-	double        x_root;      /**< Root-relative X coordinate. */
-	double        y_root;      /**< Root-relative Y coordinate. */
+	double        xRoot;       /**< Root-relative X coordinate. */
+	double        yRoot;       /**< Root-relative Y coordinate. */
 	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
 	uint32_t      keycode;     /**< Raw key code. */
 	uint32_t      character;   /**< Unicode character code */
@@ -355,8 +355,8 @@ typedef struct {
 	double           time;     /**< Time in seconds. */
 	double           x;        /**< View-relative X coordinate. */
 	double           y;        /**< View-relative Y coordinate. */
-	double           x_root;   /**< Root-relative X coordinate. */
-	double           y_root;   /**< Root-relative Y coordinate. */
+	double           xRoot;    /**< Root-relative X coordinate. */
+	double           yRoot;    /**< Root-relative Y coordinate. */
 	uint32_t         state;    /**< Bitwise OR of PuglMod flags. */
 	PuglCrossingMode mode;     /**< Reason for crossing. */
 } PuglEventCrossing;
@@ -370,10 +370,10 @@ typedef struct {
 	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
-	double        x_root;      /**< Root-relative X coordinate. */
-	double        y_root;      /**< Root-relative Y coordinate. */
+	double        xRoot;       /**< Root-relative X coordinate. */
+	double        yRoot;       /**< Root-relative Y coordinate. */
 	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
-	bool          is_hint;     /**< True iff this event is a motion hint. */
+	bool          isHint;      /**< True iff this event is a motion hint. */
 	bool          focus;       /**< True iff this is the focused window. */
 } PuglEventMotion;
 
@@ -392,8 +392,8 @@ typedef struct {
 	double        time;        /**< Time in seconds. */
 	double        x;           /**< View-relative X coordinate. */
 	double        y;           /**< View-relative Y coordinate. */
-	double        x_root;      /**< Root-relative X coordinate. */
-	double        y_root;      /**< Root-relative Y coordinate. */
+	double        xRoot;       /**< Root-relative X coordinate. */
+	double        yRoot;       /**< Root-relative Y coordinate. */
 	uint32_t      state;       /**< Bitwise OR of PuglMod flags. */
 	double        dx;          /**< Scroll X distance in lines. */
 	double        dy;          /**< Scroll Y distance in lines. */
@@ -577,10 +577,10 @@ puglInitWindowMinSize(PuglView* view, int width, int height);
 */
 PUGL_API void
 puglInitWindowAspectRatio(PuglView* view,
-                          int       min_x,
-                          int       min_y,
-                          int       max_x,
-                          int       max_y);
+                          int       minX,
+                          int       minY,
+                          int       maxX,
+                          int       maxY);
 
 /**
    Enable or disable resizing before creating a window.
