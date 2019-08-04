@@ -525,6 +525,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_ENTERSIZEMOVE:
+	case WM_ENTERMENULOOP:
 		view->impl->resizing = true;
 		SetTimer(view->impl->hwnd,
 		         PUGL_RESIZE_TIMER_ID,
@@ -540,6 +541,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_EXITSIZEMOVE:
+	case WM_EXITMENULOOP:
 		KillTimer(view->impl->hwnd, PUGL_RESIZE_TIMER_ID);
 		view->impl->resizing = false;
 		puglPostRedisplay(view);
