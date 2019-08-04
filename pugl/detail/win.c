@@ -51,8 +51,6 @@
 
 typedef BOOL (WINAPI *PFN_SetProcessDPIAware)(void);
 
-static const TCHAR* DEFAULT_CLASSNAME = "Pugl";
-
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -140,9 +138,7 @@ puglCreateWindow(PuglView* view, const char* title)
 {
 	PuglInternals* impl = view->impl;
 
-	const char* className = view->windowClass ? view->windowClass : DEFAULT_CLASSNAME;
-
-	title = title ? title : "Window";
+	title = title ? title : view->world->className;
 
 	// Get refresh rate for resize draw timer
 	DEVMODEA devMode = {0};
@@ -150,7 +146,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	view->impl->refreshRate = devMode.dmDisplayFrequency;
 
 	// Register window class if necessary
-	if (!puglRegisterWindowClass(className)) {
+	if (!puglRegisterWindowClass(view->world->className)) {
 		return 1;
 	}
 
@@ -202,7 +198,6 @@ puglFreeViewInternals(PuglView* view)
 		view->backend->destroy(view);
 		ReleaseDC(view->impl->hwnd, view->impl->hdc);
 		DestroyWindow(view->impl->hwnd);
-		UnregisterClass(view->windowClass ? view->windowClass : DEFAULT_CLASSNAME, NULL);
 		free(view->impl);
 	}
 }
@@ -210,6 +205,7 @@ puglFreeViewInternals(PuglView* view)
 void
 puglFreeWorldInternals(PuglWorld* world)
 {
+	UnregisterClass(world->className, NULL);
 	free(world->impl);
 }
 

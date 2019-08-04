@@ -206,10 +206,10 @@ main(int argc, char** argv)
 	}
 
 	world = puglNewWorld();
+	puglSetClassName(world, "PuglCairoTest");
 
 	PuglRect  frame = { 0, 0, 512, 512 };
 	PuglView* view  = puglNewView(world);
-	puglInitWindowClass(view, "PuglCairoTest");
 	puglSetFrame(view, frame);
 	puglSetMinSize(view, 256, 256);
 	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);

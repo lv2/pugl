@@ -314,8 +314,9 @@ main(int argc, char** argv)
 	app.parent = puglNewView(app.world);
 	app.child  = puglNewView(app.world);
 
+	puglSetClassName(app.world, "Pugl Test");
+
 	const PuglRect parentFrame = { 0, 0, 512, 512 };
-	puglInitWindowClass(app.parent, "PuglTest");
 	puglSetFrame(app.parent, parentFrame);
 	puglSetMinSize(app.parent, borderWidth * 3, borderWidth * 3);
 	puglSetAspectRatio(app.parent, 1, 1, 16, 9);
@@ -336,7 +337,6 @@ main(int argc, char** argv)
 		return 1;
 	}
 
-	puglInitWindowClass(app.child, "PuglTest");
 	puglSetFrame(app.child, getChildFrame(parentFrame));
 	puglInitWindowParent(app.child, puglGetNativeWindow(app.parent));
 

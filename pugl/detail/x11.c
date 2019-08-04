@@ -211,6 +211,9 @@ puglCreateWindow(PuglView* view, const char* title)
 	XSizeHints sizeHints = getSizeHints(view);
 	XSetNormalHints(display, win, &sizeHints);
 
+	XClassHint classHint = { world->className, world->className };
+	XSetClassHint(display, win, &classHint);
+
 	if (title) {
 		XStoreName(display, win, title);
 		XChangeProperty(display, win, atoms->NET_WM_NAME,

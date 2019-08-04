@@ -52,7 +52,6 @@ struct PuglViewImpl {
 	PuglInternals*     impl;
 	PuglHandle         handle;
 	PuglEventFunc      eventFunc;
-	char*              windowClass;
 	PuglNativeWindow   parent;
 	uintptr_t          transientParent;
 	PuglHints          hints;
@@ -70,6 +69,7 @@ struct PuglViewImpl {
 /** Cross-platform world definition. */
 struct PuglWorldImpl {
 	PuglWorldInternals* impl;
+	char*               className;
 	double              startTime;
 	size_t              numViews;
 	PuglView**          views;

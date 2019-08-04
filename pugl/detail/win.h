@@ -90,7 +90,7 @@ puglWinCreateWindow(const PuglView* const view,
                     HWND* const           hwnd,
                     HDC* const            hdc)
 {
-	const char*    className  = view->windowClass ? view->windowClass : "Pugl";
+	const char*    className  = (const char*)view->world->className;
 	const unsigned winFlags   = puglWinGetWindowFlags(view);
 	const unsigned winExFlags = puglWinGetWindowExFlags(view);
 

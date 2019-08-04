@@ -454,6 +454,18 @@ PUGL_API void
 puglFreeWorld(PuglWorld* world);
 
 /**
+   Set the class name of the application.
+
+   This is a stable identifier for the application, used as the window
+   class/instance name on X11 and Windows.  It is not displayed to the user,
+   but can be used in scripts and by window managers, so it should be the same
+   for every instance of the application, but different from other
+   applications.
+*/
+PUGL_API PuglStatus
+puglSetClassName(PuglWorld* world, const char* name);
+
+/**
    Return the time in seconds.
 
    This is a monotonically increasing clock with high resolution.  The returned
@@ -521,12 +533,6 @@ puglGetWorld(PuglView* view);
 */
 PUGL_API void
 puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value);
-
-/**
-   Set the window class name before creating a window.
-*/
-PUGL_API void
-puglInitWindowClass(PuglView* view, const char* name);
 
 /**
    Set the parent window before creating a window (for embedding).
@@ -794,6 +800,15 @@ puglDestroy(PuglView* view)
 
 	puglFreeView(view);
 	puglFreeWorld(world);
+}
+
+/**
+   Set the window class name before creating a window.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetClassName") void
+puglInitWindowClass(PuglView* view, const char* name)
+{
+	puglSetClassName(puglGetWorld(view), name);
 }
 
 /**

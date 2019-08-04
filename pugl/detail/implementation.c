@@ -26,6 +26,15 @@
 #include <string.h>
 
 static void
+puglSetString(char** dest, const char* string)
+{
+	const size_t len = strlen(string);
+
+	*dest = (char*)realloc(*dest, len + 1);
+	strncpy(*dest, string, len + 1);
+}
+
+static void
 puglSetDefaultHints(PuglHints hints)
 {
 	hints[PUGL_USE_COMPAT_PROFILE]    = PUGL_TRUE;
@@ -54,6 +63,7 @@ puglNewWorld(void)
 	}
 
 	world->startTime = puglGetTime(world);
+	puglSetString(&world->className, "Pugl");
 
 	return world;
 }
@@ -62,8 +72,16 @@ void
 puglFreeWorld(PuglWorld* const world)
 {
 	puglFreeWorldInternals(world);
+	free(world->className);
 	free(world->views);
 	free(world);
+}
+
+PuglStatus
+puglSetClassName(PuglWorld* const world, const char* const name)
+{
+	puglSetString(&world->className, name);
+	return PUGL_SUCCESS;
 }
 
 PuglView*
@@ -109,7 +127,6 @@ puglFreeView(PuglView* view)
 	}
 
 	puglFreeViewInternals(view);
-	free(view->windowClass);
 	free(view);
 }
 
@@ -125,16 +142,6 @@ puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value)
 	if (hint < PUGL_NUM_WINDOW_HINTS) {
 		view->hints[hint] = value;
 	}
-}
-
-void
-puglInitWindowClass(PuglView* view, const char* name)
-{
-	const size_t len = strlen(name);
-
-	free(view->windowClass);
-	view->windowClass = (char*)calloc(1, len + 1);
-	memcpy(view->windowClass, name, len);
 }
 
 void
