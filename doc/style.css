@@ -387,6 +387,10 @@ table.memberdecls {
   line-height: 1.3em;
 }
 
+tr.inherit_header td {
+  padding: 1em 0 0.5em 0;
+}
+
 .mdescLeft,.mdescRight,.memItemLeft,.memItemRight,.memTemplItemLeft,.memTemplItemRight,.memTemplParams {
   margin: 0;
   padding: 0;
@@ -420,9 +424,9 @@ td.memSeparator {
 }
 
 td.mlabels-right {
-  vertical-align: top;
-  padding-top: 4px;
   color: #B4C342;
+  font-weight: normal;
+  margin-left: 1em;
 }
 
 .memtitle {
