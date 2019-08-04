@@ -41,14 +41,6 @@
 #    define PUGL_API
 #endif
 
-#if defined(__clang__)
-#    define PUGL_DEPRECATED_BY(name) __attribute__((deprecated("", name)))
-#elif defined(__GNUC__)
-#    define PUGL_DEPRECATED_BY(name) __attribute__((deprecated("Use " name)))
-#else
-#    define PUGL_DEPRECATED_BY(name)
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -504,21 +496,6 @@ puglDispatchEvents(PuglWorld* world);
 */
 
 /**
-   Create a Pugl application and view.
-
-   To create a window, call the various puglInit* functions as necessary, then
-   call puglCreateWindow().
-
-   @deprecated Use puglNewApp() and puglNewView().
-
-   @param pargc Pointer to argument count (currently unused).
-   @param argv  Arguments (currently unused).
-   @return A newly created view.
-*/
-PUGL_API PUGL_DEPRECATED_BY("puglNewView") PuglView*
-puglInit(int* pargc, char** argv);
-
-/**
    Create a new view.
 
    A view represents a window, but a window will not be shown until configured
@@ -558,14 +535,6 @@ PUGL_API void
 puglInitWindowParent(PuglView* view, PuglNativeWindow parent);
 
 /**
-   Set the window size before creating a window.
-
-   @deprecated Use puglSetFrame().
-*/
-PUGL_API PUGL_DEPRECATED_BY("puglSetFrame") void
-puglInitWindowSize(PuglView* view, int width, int height);
-
-/**
    Set the minimum window size before creating a window.
 */
 PUGL_API void
@@ -587,14 +556,6 @@ puglInitWindowAspectRatio(PuglView* view,
                           int       minY,
                           int       maxX,
                           int       maxY);
-
-/**
-   Enable or disable resizing before creating a window.
-
-   @deprecated Use puglInitWindowHint() with @ref PUGL_RESIZABLE.
-*/
-PUGL_API PUGL_DEPRECATED_BY("puglInitWindowHint") void
-puglInitResizable(PuglView* view, bool resizable);
 
 /**
    Set transient parent before creating a window.
@@ -675,12 +636,6 @@ PUGL_API bool
 puglGetVisible(PuglView* view);
 
 /**
-   Get the current size of the view.
-*/
-PUGL_API PUGL_DEPRECATED_BY("puglGetFrame") void
-puglGetSize(PuglView* view, int* width, int* height);
-
-/**
    Get the current position and size of the view.
 */
 PUGL_API PuglRect
@@ -753,14 +708,6 @@ PUGL_API void
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
 /**
-   Ignore synthetic repeated key events.
-
-   @deprecated Use puglInitWindowHint() with @ref PUGL_IGNORE_KEY_REPEAT.
-*/
-PUGL_API PUGL_DEPRECATED_BY("puglInitWindowHint") void
-puglIgnoreKeyRepeat(PuglView* view, bool ignore);
-
-/**
    Return true iff `view` has the input focus.
 */
 PUGL_API bool
@@ -781,6 +728,96 @@ puglGrabFocus(PuglView* view);
 */
 PUGL_API void
 puglRequestAttention(PuglView* view);
+
+/**
+   @}
+*/
+
+/**
+   OpenGL extension function.
+*/
+typedef void (*PuglGlFunc)(void);
+
+/**
+   Return the address of an OpenGL extension function.
+*/
+PUGL_API PuglGlFunc
+puglGetProcAddress(const char* name);
+
+/**
+   Request a redisplay on the next call to puglProcessEvents().
+*/
+PUGL_API void
+puglPostRedisplay(PuglView* view);
+
+/**
+   @name Deprecated API
+   @{
+*/
+
+#if defined(__clang__)
+#    define PUGL_DEPRECATED_BY(name) __attribute__((deprecated("", name)))
+#elif defined(__GNUC__)
+#    define PUGL_DEPRECATED_BY(name) __attribute__((deprecated("Use " name)))
+#else
+#    define PUGL_DEPRECATED_BY(name)
+#endif
+
+/**
+   Create a Pugl application and view.
+
+   To create a window, call the various puglInit* functions as necessary, then
+   call puglCreateWindow().
+
+   @deprecated Use puglNewApp() and puglNewView().
+
+   @param pargc Pointer to argument count (currently unused).
+   @param argv  Arguments (currently unused).
+   @return A newly created view.
+*/
+PUGL_API PUGL_DEPRECATED_BY("puglNewView") PuglView*
+puglInit(int* pargc, char** argv);
+
+/**
+   Destroy an app and view created with `puglInit()`.
+
+   @deprecated Use puglFreeApp() and puglFreeView().
+*/
+PUGL_API PUGL_DEPRECATED_BY("puglFreeView") void
+puglDestroy(PuglView* view);
+
+/**
+   Set the window size before creating a window.
+
+   @deprecated Use puglSetFrame().
+*/
+PUGL_API PUGL_DEPRECATED_BY("puglSetFrame") void
+puglInitWindowSize(PuglView* view, int width, int height);
+
+/**
+   Enable or disable resizing before creating a window.
+
+   @deprecated Use puglInitWindowHint() with @ref PUGL_RESIZABLE.
+*/
+PUGL_API PUGL_DEPRECATED_BY("puglInitWindowHint") void
+puglInitResizable(PuglView* view, bool resizable);
+
+/**
+   Get the current size of the view.
+
+   @deprecated Use puglGetFrame().
+
+*/
+PUGL_API PUGL_DEPRECATED_BY("puglGetFrame") void
+puglGetSize(PuglView* view, int* width, int* height);
+
+/**
+   Ignore synthetic repeated key events.
+
+   @deprecated Use puglInitWindowHint() with @ref PUGL_IGNORE_KEY_REPEAT.
+*/
+PUGL_API PUGL_DEPRECATED_BY("puglInitWindowHint") void
+puglIgnoreKeyRepeat(PuglView* view, bool ignore);
 
 /**
    Block and wait for an event to be ready.
@@ -809,34 +846,6 @@ puglProcessEvents(PuglView* view);
 
 /**
    @}
-*/
-
-/**
-   OpenGL extension function.
-*/
-typedef void (*PuglGlFunc)(void);
-
-/**
-   Return the address of an OpenGL extension function.
-*/
-PUGL_API PuglGlFunc
-puglGetProcAddress(const char* name);
-
-/**
-   Request a redisplay on the next call to puglProcessEvents().
-*/
-PUGL_API void
-puglPostRedisplay(PuglView* view);
-
-/**
-   Destroy an app and view created with `puglInit()`.
-
-   @deprecated Use puglFreeApp() and puglFreeView().
-*/
-PUGL_API PUGL_DEPRECATED_BY("puglFreeView") void
-puglDestroy(PuglView* view);
-
-/**
    @}
 */
 
