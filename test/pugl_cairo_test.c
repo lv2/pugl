@@ -31,8 +31,8 @@
 #include <string.h>
 
 static PuglWorld* world = NULL;
+PuglTestOptions   opts  = {0};
 
-static bool     continuous  = false;
 static int      quit        = 0;
 static bool     entered     = false;
 static bool     mouseDown   = false;
@@ -133,7 +133,7 @@ onDisplay(PuglView* view)
 
 	// Draw button
 	for (Button* b = buttons; b->label; ++b) {
-		buttonDraw(cr, b, continuous ? puglGetTime(world) : 0.0);
+		buttonDraw(cr, b, opts.continuous ? puglGetTime(world) : 0.0);
 	}
 
 	++framesDrawn;
@@ -184,25 +184,10 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(int argc, char** argv)
 {
-	bool ignoreKeyRepeat = false;
-	bool resizable       = false;
-	for (int i = 1; i < argc; ++i) {
-		if (!strcmp(argv[i], "-c")) {
-			continuous = true;
-		} else if (!strcmp(argv[i], "-h")) {
-			printf("USAGE: %s [OPTIONS]...\n\n"
-			       "  -c  Continuously animate and draw\n"
-			       "  -h  Display this help\n"
-			       "  -i  Ignore key repeat\n"
-			       "  -r  Resizable window\n", argv[0]);
-			return 0;
-		} else if (!strcmp(argv[i], "-i")) {
-			ignoreKeyRepeat = true;
-		} else if (!strcmp(argv[i], "-r")) {
-			resizable = true;
-		} else {
-			fprintf(stderr, "Unknown option: %s\n", argv[i]);
-		}
+	opts = puglParseTestOptions(&argc, &argv);
+	if (opts.help) {
+		puglPrintTestUsage("pugl_test", "");
+		return 1;
 	}
 
 	world = puglNewWorld();
@@ -212,10 +197,10 @@ main(int argc, char** argv)
 	PuglView* view  = puglNewView(world);
 	puglSetFrame(view, frame);
 	puglSetMinSize(view, 256, 256);
-	puglSetViewHint(view, PUGL_RESIZABLE, resizable);
+	puglSetViewHint(view, PUGL_RESIZABLE, opts.resizable);
 	puglSetBackend(view, puglCairoBackend());
 
-	puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
+	puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
 	if (puglCreateWindow(view, "Pugl Test")) {
@@ -226,7 +211,7 @@ main(int argc, char** argv)
 
 	PuglFpsPrinter fpsPrinter = { puglGetTime(world) };
 	while (!quit) {
-		if (continuous) {
+		if (opts.continuous) {
 			puglPostRedisplay(view);
 		} else {
 			puglPollEvents(world, -1);
@@ -234,7 +219,7 @@ main(int argc, char** argv)
 
 		puglDispatchEvents(world);
 
-		if (continuous) {
+		if (opts.continuous) {
 			puglPrintFps(world, &fpsPrinter, &framesDrawn);
 		}
 	}

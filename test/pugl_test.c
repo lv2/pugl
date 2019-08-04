@@ -281,34 +281,13 @@ main(int argc, char** argv)
 	PuglTestApp app = {0};
 	app.dist = 10;
 
-	int  samples         = 0;
-	int  doubleBuffer    = PUGL_FALSE;
-	bool ignoreKeyRepeat = false;
-	bool resizable       = false;
-	for (int i = 1; i < argc; ++i) {
-		if (!strcmp(argv[i], "-a")) {
-			samples = 4;
-		} else if (!strcmp(argv[i], "-c")) {
-			app.continuous = true;
-		} else if (!strcmp(argv[i], "-d")) {
-			doubleBuffer = PUGL_TRUE;
-		} else if (!strcmp(argv[i], "-h")) {
-			printf("USAGE: %s [OPTIONS]...\n\n"
-			       "  -a  Enable anti-aliasing\n"
-			       "  -c  Continuously animate and draw\n"
-			       "  -d  Enable double-buffering\n"
-			       "  -h  Display this help\n"
-			       "  -i  Ignore key repeat\n"
-			       "  -r  Resizable window\n", argv[0]);
-			return 0;
-		} else if (!strcmp(argv[i], "-i")) {
-			ignoreKeyRepeat = true;
-		} else if (!strcmp(argv[i], "-r")) {
-			resizable = true;
-		} else {
-			fprintf(stderr, "Unknown option: %s\n", argv[i]);
-		}
+	const PuglTestOptions opts = puglParseTestOptions(&argc, &argv);
+	if (opts.help) {
+		puglPrintTestUsage("pugl_test", "");
+		return 1;
 	}
+
+	app.continuous = opts.continuous;
 
 	app.world  = puglNewWorld();
 	app.parent = puglNewView(app.world);
@@ -322,11 +301,11 @@ main(int argc, char** argv)
 	puglSetAspectRatio(app.parent, 1, 1, 16, 9);
 	puglSetBackend(app.parent, puglGlBackend());
 
-	puglSetViewHint(app.parent, PUGL_RESIZABLE, resizable);
-	puglSetViewHint(app.parent, PUGL_SAMPLES, samples);
-	puglSetViewHint(app.parent, PUGL_DOUBLE_BUFFER, doubleBuffer);
-	puglSetViewHint(app.parent, PUGL_SWAP_INTERVAL, doubleBuffer);
-	puglSetViewHint(app.parent, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
+	puglSetViewHint(app.parent, PUGL_RESIZABLE, opts.resizable);
+	puglSetViewHint(app.parent, PUGL_SAMPLES, opts.samples);
+	puglSetViewHint(app.parent, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
+	puglSetViewHint(app.parent, PUGL_SWAP_INTERVAL, opts.doubleBuffer);
+	puglSetViewHint(app.parent, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
 	puglSetHandle(app.parent, &app);
 	puglSetEventFunc(app.parent, onParentEvent);
 
@@ -340,11 +319,11 @@ main(int argc, char** argv)
 	puglSetFrame(app.child, getChildFrame(parentFrame));
 	puglSetParentWindow(app.child, puglGetNativeWindow(app.parent));
 
-	puglSetViewHint(app.child, PUGL_SAMPLES, samples);
-	puglSetViewHint(app.child, PUGL_DOUBLE_BUFFER, doubleBuffer);
+	puglSetViewHint(app.child, PUGL_SAMPLES, opts.samples);
+	puglSetViewHint(app.child, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
 	puglSetViewHint(app.child, PUGL_SWAP_INTERVAL, 0);
 	puglSetBackend(app.child, puglGlBackend());
-	puglSetViewHint(app.child, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
+	puglSetViewHint(app.child, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
 	puglSetHandle(app.child, &app);
 	puglSetEventFunc(app.child, onEvent);
 

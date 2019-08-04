@@ -19,10 +19,20 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef struct {
 	double lastReportTime;
 } PuglFpsPrinter;
+
+typedef struct {
+	int  samples;
+	int  doubleBuffer;
+	bool continuous;
+	bool help;
+	bool ignoreKeyRepeat;
+	bool resizable;
+} PuglTestOptions;
 
 static const float cubeStripVertices[] = {
 	-1.0f,  1.0f,  1.0f, // Front top left
@@ -140,6 +150,54 @@ printEvent(const PuglEvent* event, const char* prefix)
 	}
 
 	return 0;
+}
+
+static inline void
+puglPrintTestUsage(const char* prog, const char* posHelp)
+{
+	printf("Usage: %s [OPTION]... %s\n\n"
+	       "  -a  Enable anti-aliasing\n"
+	       "  -c  Continuously animate and draw\n"
+	       "  -d  Enable double-buffering\n"
+	       "  -h  Display this help\n"
+	       "  -i  Ignore key repeat\n"
+	       "  -r  Resizable window\n",
+	       prog, posHelp);
+}
+
+static inline PuglTestOptions
+puglParseTestOptions(int* pargc, char*** pargv)
+{
+	PuglTestOptions opts = { 0, 0, false, false, false, false };
+
+	char** const argv = *pargv;
+	int          i    = 1;
+	for (; i < *pargc; ++i) {
+		if (!strcmp(argv[i], "-a")) {
+			opts.samples = 4;
+		} else if (!strcmp(argv[i], "-c")) {
+			opts.continuous = true;
+		} else if (!strcmp(argv[i], "-d")) {
+			opts.doubleBuffer = PUGL_TRUE;
+		} else if (!strcmp(argv[i], "-h")) {
+			opts.help = true;
+			return opts;
+		} else if (!strcmp(argv[i], "-i")) {
+			opts.ignoreKeyRepeat = true;
+		} else if (!strcmp(argv[i], "-r")) {
+			opts.resizable = true;
+		} else if (argv[i][0] != '-') {
+			break;
+		} else {
+			opts.help = true;
+			fprintf(stderr, "error: Unknown option: %s\n", argv[i]);
+		}
+	}
+
+	*pargc -= i;
+	*pargv += i;
+
+	return opts;
 }
 
 static inline void
