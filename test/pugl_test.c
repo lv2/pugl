@@ -320,13 +320,13 @@ main(int argc, char** argv)
 	puglSetFrame(app.parent, parentFrame);
 	puglSetMinSize(app.parent, borderWidth * 3, borderWidth * 3);
 	puglSetAspectRatio(app.parent, 1, 1, 16, 9);
-	puglInitBackend(app.parent, puglGlBackend());
+	puglSetBackend(app.parent, puglGlBackend());
 
-	puglInitWindowHint(app.parent, PUGL_RESIZABLE, resizable);
-	puglInitWindowHint(app.parent, PUGL_SAMPLES, samples);
-	puglInitWindowHint(app.parent, PUGL_DOUBLE_BUFFER, doubleBuffer);
-	puglInitWindowHint(app.parent, PUGL_SWAP_INTERVAL, doubleBuffer);
-	puglInitWindowHint(app.parent, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
+	puglSetViewHint(app.parent, PUGL_RESIZABLE, resizable);
+	puglSetViewHint(app.parent, PUGL_SAMPLES, samples);
+	puglSetViewHint(app.parent, PUGL_DOUBLE_BUFFER, doubleBuffer);
+	puglSetViewHint(app.parent, PUGL_SWAP_INTERVAL, doubleBuffer);
+	puglSetViewHint(app.parent, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
 	puglSetHandle(app.parent, &app);
 	puglSetEventFunc(app.parent, onParentEvent);
 
@@ -338,13 +338,13 @@ main(int argc, char** argv)
 	}
 
 	puglSetFrame(app.child, getChildFrame(parentFrame));
-	puglInitWindowParent(app.child, puglGetNativeWindow(app.parent));
+	puglSetParentWindow(app.child, puglGetNativeWindow(app.parent));
 
-	puglInitWindowHint(app.child, PUGL_SAMPLES, samples);
-	puglInitWindowHint(app.child, PUGL_DOUBLE_BUFFER, doubleBuffer);
-	puglInitWindowHint(app.child, PUGL_SWAP_INTERVAL, 0);
-	puglInitBackend(app.child, puglGlBackend());
-	puglInitWindowHint(app.child, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
+	puglSetViewHint(app.child, PUGL_SAMPLES, samples);
+	puglSetViewHint(app.child, PUGL_DOUBLE_BUFFER, doubleBuffer);
+	puglSetViewHint(app.child, PUGL_SWAP_INTERVAL, 0);
+	puglSetBackend(app.child, puglGlBackend());
+	puglSetViewHint(app.child, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
 	puglSetHandle(app.child, &app);
 	puglSetEventFunc(app.child, onEvent);
 

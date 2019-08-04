@@ -136,25 +136,28 @@ puglGetWorld(PuglView* view)
 	return view->world;
 }
 
-void
-puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value)
+PuglStatus
+puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
 {
 	if (hint < PUGL_NUM_WINDOW_HINTS) {
 		view->hints[hint] = value;
 	}
+
+	return PUGL_SUCCESS;
 }
 
-void
-puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
+PuglStatus
+puglSetParentWindow(PuglView* view, PuglNativeWindow parent)
 {
 	view->parent = parent;
+	return PUGL_SUCCESS;
 }
 
-int
-puglInitBackend(PuglView* view, const PuglBackend* backend)
+PuglStatus
+puglSetBackend(PuglView* view, const PuglBackend* backend)
 {
 	view->backend = backend;
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 void

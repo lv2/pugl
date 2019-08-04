@@ -107,7 +107,7 @@ typedef enum {
 	PUGL_IGNORE_KEY_REPEAT,     /**< True if key repeat events are ignored */
 
 	PUGL_NUM_WINDOW_HINTS
-} PuglWindowHint;
+} PuglViewHint;
 
 /**
    Special window hint value.
@@ -116,7 +116,7 @@ typedef enum {
 	PUGL_DONT_CARE = -1,  /**< Use best available value */
 	PUGL_FALSE     = 0,   /**< Explicitly false */
 	PUGL_TRUE      = 1    /**< Explicitly true */
-} PuglWindowHintValue;
+} PuglViewHintValue;
 
 /**
    A rectangle.
@@ -529,16 +529,21 @@ PUGL_API PuglWorld*
 puglGetWorld(PuglView* view);
 
 /**
-   Set a hint before creating a window.
+   Set a hint to configure window properties.
+
+   This only has an effect when called before puglCreateWindow().
 */
-PUGL_API void
-puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value);
+PUGL_API PuglStatus
+puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
 
 /**
    Set the parent window before creating a window (for embedding).
+
+   This only works when called before creating the window with
+   puglCreateWindow(), reparenting is not supported.
 */
-PUGL_API void
-puglInitWindowParent(PuglView* view, PuglNativeWindow parent);
+PUGL_API PuglStatus
+puglSetParentWindow(PuglView* view, PuglNativeWindow parent);
 
 /**
    Set the graphics backend to use.
@@ -548,8 +553,8 @@ puglInitWindowParent(PuglView* view, PuglNativeWindow parent);
    puglGlBackend() and puglCairoBackend(), declared in pugl_gl_backend.h and
    pugl_cairo_backend.h, respectively.
 */
-PUGL_API int
-puglInitBackend(PuglView* view, const PuglBackend* backend);
+PUGL_API PuglStatus
+puglSetBackend(PuglView* view, const PuglBackend* backend);
 
 /**
    @}
@@ -871,12 +876,12 @@ puglInitTransientFor(PuglView* view, uintptr_t parent)
 /**
    Enable or disable resizing before creating a window.
 
-   @deprecated Use puglInitWindowHint() with @ref PUGL_RESIZABLE.
+   @deprecated Use puglSetViewHint() with @ref PUGL_RESIZABLE.
 */
-static inline PUGL_DEPRECATED_BY("puglInitWindowHint") void
+static inline PUGL_DEPRECATED_BY("puglSetViewHint") void
 puglInitResizable(PuglView* view, bool resizable)
 {
-	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);
+	puglSetViewHint(view, PUGL_RESIZABLE, resizable);
 }
 
 /**
@@ -897,12 +902,45 @@ puglGetSize(PuglView* view, int* width, int* height)
 /**
    Ignore synthetic repeated key events.
 
-   @deprecated Use puglInitWindowHint() with @ref PUGL_IGNORE_KEY_REPEAT.
+   @deprecated Use puglSetViewHint() with @ref PUGL_IGNORE_KEY_REPEAT.
 */
-static inline PUGL_DEPRECATED_BY("puglInitWindowHint") void
+static inline PUGL_DEPRECATED_BY("puglSetViewHint") void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore)
 {
-	puglInitWindowHint(view, PUGL_IGNORE_KEY_REPEAT, ignore);
+	puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, ignore);
+}
+
+/**
+   Set a hint before creating a window.
+
+   @deprecated Use puglSetWindowHint().
+*/
+static inline PUGL_DEPRECATED_BY("puglSetViewHint") void
+puglInitWindowHint(PuglView* view, PuglViewHint hint, int value)
+{
+	puglSetViewHint(view, hint, value);
+}
+
+/**
+   Set the parent window before creating a window (for embedding).
+
+   @deprecated Use puglSetWindowParent().
+*/
+static inline PUGL_DEPRECATED_BY("puglSetParentWindow") void
+puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
+{
+	puglSetParentWindow(view, parent);
+}
+
+/**
+   Set the graphics backend to use.
+
+   @deprecated Use puglSetBackend().
+*/
+static inline PUGL_DEPRECATED_BY("puglSetBackend") int
+puglInitBackend(PuglView* view, const PuglBackend* backend)
+{
+	return puglSetBackend(view, backend);
 }
 
 /**

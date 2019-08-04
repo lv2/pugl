@@ -212,10 +212,10 @@ main(int argc, char** argv)
 	PuglView* view  = puglNewView(world);
 	puglSetFrame(view, frame);
 	puglSetMinSize(view, 256, 256);
-	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);
-	puglInitBackend(view, puglCairoBackend());
+	puglSetViewHint(view, PUGL_RESIZABLE, resizable);
+	puglSetBackend(view, puglCairoBackend());
 
-	puglInitWindowHint(view, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
+	puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
 	if (puglCreateWindow(view, "Pugl Test")) {
