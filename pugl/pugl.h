@@ -561,7 +561,7 @@ puglGetVisible(PuglView* view);
 /**
    Request a redisplay on the next call to puglDispatchEvents().
 */
-PUGL_API void
+PUGL_API PuglStatus
 puglPostRedisplay(PuglView* view);
 
 /**
@@ -636,7 +636,7 @@ puglSetParentWindow(PuglView* view, PuglNativeWindow parent);
    This is used for things like dialogs, to have them associated with the
    window they are a transient child of properly.
 */
-PUGL_API void
+PUGL_API PuglStatus
 puglSetTransientFor(PuglView* view, PuglNativeWindow parent);
 
 /**
@@ -644,19 +644,19 @@ puglSetTransientFor(PuglView* view, PuglNativeWindow parent);
 
    @return 1 (pugl does not currently support multiple windows).
 */
-PUGL_API int
+PUGL_API PuglStatus
 puglCreateWindow(PuglView* view, const char* title);
 
 /**
    Show the current window.
 */
-PUGL_API void
+PUGL_API PuglStatus
 puglShowWindow(PuglView* view);
 
 /**
    Hide the current window.
 */
-PUGL_API void
+PUGL_API PuglStatus
 puglHideWindow(PuglView* view);
 
 /**
@@ -716,7 +716,7 @@ puglGetContext(PuglView* view);
    @param view The view being entered.
    @param drawing If true, prepare for drawing.
 */
-PUGL_API void
+PUGL_API PuglStatus
 puglEnterContext(PuglView* view, bool drawing);
 
 /**
@@ -728,7 +728,7 @@ puglEnterContext(PuglView* view, bool drawing);
    @param view The view being left.
    @param drawing If true, finish drawing, for example by swapping buffers.
 */
-PUGL_API void
+PUGL_API PuglStatus
 puglLeaveContext(PuglView* view, bool drawing);
 
 /**
@@ -745,7 +745,7 @@ typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 /**
    Set the function to call when an event occurs.
 */
-PUGL_API void
+PUGL_API PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
 /**
@@ -757,7 +757,7 @@ puglHasFocus(const PuglView* view);
 /**
    Grab the input focus.
 */
-PUGL_API void
+PUGL_API PuglStatus
 puglGrabFocus(PuglView* view);
 
 /**
@@ -767,7 +767,7 @@ puglGrabFocus(PuglView* view);
    from the user.  The exact effect depends on the platform, but is usually
    something like flashing a task bar entry.
 */
-PUGL_API void
+PUGL_API PuglStatus
 puglRequestAttention(PuglView* view);
 
 /**

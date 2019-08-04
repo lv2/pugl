@@ -713,7 +713,7 @@ puglConstraint(id item, NSLayoutAttribute attribute, float constant)
 		                 constant: constant];
 }
 
-int
+PuglStatus
 puglCreateWindow(PuglView* view, const char* title)
 {
 	PuglInternals* impl = view->impl;
@@ -798,19 +798,21 @@ puglCreateWindow(PuglView* view, const char* title)
 	return 0;
 }
 
-void
+PuglStatus
 puglShowWindow(PuglView* view)
 {
 	[view->impl->window setIsVisible:YES];
 	updateViewRect(view);
 	view->visible = true;
+	return PUGL_SUCCESS;
 }
 
-void
+PuglStatus
 puglHideWindow(PuglView* view)
 {
 	[view->impl->window setIsVisible:NO];
 	view->visible = false;
+	return PUGL_SUCCESS;
 }
 
 void
@@ -829,13 +831,14 @@ puglFreeViewInternals(PuglView* view)
 	free(view->impl);
 }
 
-void
+PuglStatus
 puglGrabFocus(PuglView* view)
 {
 	NSWindow* window = [view->impl->wrapperView window];
 
 	[window makeKeyWindow];
 	[window makeFirstResponder:view->impl->wrapperView];
+	return PUGL_SUCCESS;
 }
 
 bool
@@ -847,7 +850,7 @@ puglHasFocus(const PuglView* view)
 	        [[impl->wrapperView window] firstResponder] == impl->wrapperView);
 }
 
-void
+PuglStatus
 puglRequestAttention(PuglView* view)
 {
 	if (![view->impl->window isKeyWindow]) {
@@ -859,6 +862,8 @@ puglRequestAttention(PuglView* view)
 			                               userInfo:nil
 			                                repeats:YES];
 	}
+
+	return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -931,10 +936,11 @@ puglGetTime(const PuglWorld* world)
 	return (mach_absolute_time() / 1e9) - world->startTime;
 }
 
-void
+PuglStatus
 puglPostRedisplay(PuglView* view)
 {
 	[view->impl->drawView setNeedsDisplay: YES];
+	return PUGL_SUCCESS;
 }
 
 PuglNativeWindow

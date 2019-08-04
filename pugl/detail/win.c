@@ -133,7 +133,7 @@ puglPollEvents(PuglWorld* world, const double timeout)
 	return PUGL_SUCCESS;
 }
 
-int
+PuglStatus
 puglCreateWindow(PuglView* view, const char* title)
 {
 	PuglInternals* impl = view->impl;
@@ -147,18 +147,18 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	// Register window class if necessary
 	if (!puglRegisterWindowClass(view->world->className)) {
-		return 1;
+		return PUGL_ERR_UNKNOWN;
 	}
 
 	if (!view->backend || !view->backend->configure) {
-		return 1;
+		return PUGL_ERR_UNKNOWN;
 	}
 
 	int st = view->backend->configure(view);
 	if (st || !impl->surface) {
-		return 2;
+		return PUGL_ERR_SET_FORMAT;
 	} else if ((st = view->backend->create(view))) {
-		return 3;
+		return PUGL_ERR_CREATE_CONTEXT;
 	}
 
 	if (title) {
@@ -167,10 +167,10 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-void
+PuglStatus
 puglShowWindow(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
@@ -178,15 +178,17 @@ puglShowWindow(PuglView* view)
 	ShowWindow(impl->hwnd, SW_SHOWNORMAL);
 	SetFocus(impl->hwnd);
 	view->visible = true;
+	return PUGL_SUCCESS;
 }
 
-void
+PuglStatus
 puglHideWindow(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
 
 	ShowWindow(impl->hwnd, SW_HIDE);
 	view->visible = false;
+	return PUGL_SUCCESS;
 }
 
 void
@@ -658,10 +660,11 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-void
+PuglStatus
 puglGrabFocus(PuglView* view)
 {
 	SetFocus(view->impl->hwnd);
+	return PUGL_SUCCESS;
 }
 
 bool
@@ -670,7 +673,7 @@ puglHasFocus(const PuglView* view)
 	return GetFocus() == view->impl->hwnd;
 }
 
-void
+PuglStatus
 puglRequestAttention(PuglView* view)
 {
 	if (!view->impl->mouseTracked || !puglHasFocus(view)) {
@@ -678,6 +681,8 @@ puglRequestAttention(PuglView* view)
 		SetTimer(view->impl->hwnd, PUGL_URGENT_TIMER_ID, 500, NULL);
 		view->impl->flashing = true;
 	}
+
+	return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -760,11 +765,12 @@ puglGetTime(const PuglWorld* world)
             world->startTime);
 }
 
-void
+PuglStatus
 puglPostRedisplay(PuglView* view)
 {
 	InvalidateRect(view->impl->hwnd, NULL, false);
 	view->redisplay = true;
+	return PUGL_SUCCESS;
 }
 
 PuglNativeWindow

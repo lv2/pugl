@@ -168,7 +168,7 @@ getSizeHints(const PuglView* view)
 	return sizeHints;
 }
 
-int
+PuglStatus
 puglCreateWindow(PuglView* view, const char* title)
 {
 	PuglInternals* const impl    = view->impl;
@@ -239,19 +239,21 @@ puglCreateWindow(PuglView* view, const char* title)
 	return 0;
 }
 
-void
+PuglStatus
 puglShowWindow(PuglView* view)
 {
 	XMapRaised(view->impl->display, view->impl->win);
 	puglPostRedisplay(view);
 	view->visible = true;
+	return PUGL_SUCCESS;
 }
 
-void
+PuglStatus
 puglHideWindow(PuglView* view)
 {
 	XUnmapWindow(view->impl->display, view->impl->win);
 	view->visible = false;
+	return PUGL_SUCCESS;
 }
 
 void
@@ -514,11 +516,12 @@ translateEvent(PuglView* view, XEvent xevent)
 	return event;
 }
 
-void
+PuglStatus
 puglGrabFocus(PuglView* view)
 {
 	XSetInputFocus(
 		view->impl->display, view->impl->win, RevertToNone, CurrentTime);
+	return PUGL_SUCCESS;
 }
 
 bool
@@ -530,7 +533,7 @@ puglHasFocus(const PuglView* view)
 	return focusedWindow == view->impl->win;
 }
 
-void
+PuglStatus
 puglRequestAttention(PuglView* view)
 {
 	PuglInternals* const      impl  = view->impl;
@@ -553,6 +556,8 @@ puglRequestAttention(PuglView* view)
 	           False,
 	           SubstructureNotifyMask | SubstructureRedirectMask,
 	           &event);
+
+	return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -697,10 +702,11 @@ puglGetTime(const PuglWorld* world)
 	return ((double)ts.tv_sec + ts.tv_nsec / 1000000000.0) - world->startTime;
 }
 
-void
+PuglStatus
 puglPostRedisplay(PuglView* view)
 {
 	view->redisplay = true;
+	return PUGL_SUCCESS;
 }
 
 PuglNativeWindow
@@ -777,7 +783,7 @@ puglSetAspectRatio(PuglView* const view,
 	return PUGL_SUCCESS;
 }
 
-void
+PuglStatus
 puglSetTransientFor(PuglView* view, PuglNativeWindow parent)
 {
 	Display* display = view->world->impl->display;
@@ -788,4 +794,6 @@ puglSetTransientFor(PuglView* view, PuglNativeWindow parent)
 		XSetTransientForHint(display, view->impl->win,
 		                     (Window)view->transientParent);
 	}
+
+	return PUGL_SUCCESS;
 }

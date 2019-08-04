@@ -190,22 +190,25 @@ puglGetContext(PuglView* view)
 	return view->backend->getContext(view);
 }
 
-void
+PuglStatus
 puglEnterContext(PuglView* view, bool drawing)
 {
 	view->backend->enter(view, drawing);
+	return PUGL_SUCCESS;
 }
 
-void
+PuglStatus
 puglLeaveContext(PuglView* view, bool drawing)
 {
 	view->backend->leave(view, drawing);
+	return PUGL_SUCCESS;
 }
 
-void
+PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 {
 	view->eventFunc = eventFunc;
+	return PUGL_SUCCESS;
 }
 
 /** Return the code point for buf, or the replacement character on error. */
