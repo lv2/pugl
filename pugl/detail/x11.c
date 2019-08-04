@@ -723,3 +723,41 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 
 	return PUGL_SUCCESS;
 }
+
+PuglStatus
+puglSetMinSize(PuglView* const view, const int width, const int height)
+{
+	Display* display = view->world->impl->display;
+
+	view->minWidth  = width;
+	view->minHeight = height;
+
+	if (view->impl->win) {
+		XSizeHints sizeHints = getSizeHints(view);
+		XSetNormalHints(display, view->impl->win, &sizeHints);
+	}
+
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetAspectRatio(PuglView* const view,
+                   const int       minX,
+                   const int       minY,
+                   const int       maxX,
+                   const int       maxY)
+{
+	Display* display = view->world->impl->display;
+
+	view->minAspectX = minX;
+	view->minAspectY = minY;
+	view->maxAspectX = maxX;
+	view->maxAspectY = maxY;
+
+	if (view->impl->win) {
+		XSizeHints sizeHints = getSizeHints(view);
+		XSetNormalHints(display, view->impl->win, &sizeHints);
+	}
+
+	return PUGL_SUCCESS;
+}

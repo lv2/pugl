@@ -128,26 +128,6 @@ puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value)
 }
 
 void
-puglInitWindowMinSize(PuglView* view, int width, int height)
-{
-	view->minWidth  = width;
-	view->minHeight = height;
-}
-
-void
-puglInitWindowAspectRatio(PuglView* view,
-                          int       minX,
-                          int       minY,
-                          int       maxX,
-                          int       maxY)
-{
-	view->minAspectX = minX;
-	view->minAspectY = minY;
-	view->maxAspectX = maxX;
-	view->maxAspectY = maxY;
-}
-
-void
 puglInitWindowClass(PuglView* view, const char* name)
 {
 	const size_t len = strlen(name);

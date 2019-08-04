@@ -535,29 +535,6 @@ PUGL_API void
 puglInitWindowParent(PuglView* view, PuglNativeWindow parent);
 
 /**
-   Set the minimum window size before creating a window.
-*/
-PUGL_API void
-puglInitWindowMinSize(PuglView* view, int width, int height);
-
-/**
-   Set the window aspect ratio range before creating a window.
-
-   The x and y values here represent a ratio of width to height.  To set a
-   fixed aspect ratio, set the minimum and maximum values to the same ratio.
-
-   Note that setting different minimum and maximum constraints does not
-   currenty work on MacOS (the minimum is used), so only setting a fixed aspect
-   ratio works properly across all platforms.
-*/
-PUGL_API void
-puglInitWindowAspectRatio(PuglView* view,
-                          int       minX,
-                          int       minY,
-                          int       maxX,
-                          int       maxY);
-
-/**
    Set transient parent before creating a window.
 
    On X11, parent must be a Window.
@@ -646,6 +623,27 @@ puglGetFrame(const PuglView* view);
 */
 PUGL_API PuglStatus
 puglSetFrame(PuglView* view, PuglRect frame);
+
+/**
+   Set the minimum size of the view.
+
+   To avoid stutter, this should be called before creating the window.
+*/
+PUGL_API PuglStatus
+puglSetMinSize(PuglView* view, int width, int height);
+
+/**
+   Set the window aspect ratio range.
+
+   The x and y values here represent a ratio of width to height.  To set a
+   fixed aspect ratio, set the minimum and maximum values to the same ratio.
+
+   Note that setting different minimum and maximum constraints does not
+   currenty work on MacOS (the minimum is used), so only setting a fixed aspect
+   ratio works properly across all platforms.
+*/
+PUGL_API PuglStatus
+puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
 
 /**
    @name Context
@@ -812,6 +810,35 @@ puglInitWindowSize(PuglView* view, int width, int height)
 	frame.height = height;
 
 	puglSetFrame(view, frame);
+}
+
+/**
+   Set the minimum window size before creating a window.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetMinSize") void
+puglInitWindowMinSize(PuglView* view, int width, int height)
+{
+	puglSetMinSize(view, width, height);
+}
+
+/**
+   Set the window aspect ratio range before creating a window.
+
+   The x and y values here represent a ratio of width to height.  To set a
+   fixed aspect ratio, set the minimum and maximum values to the same ratio.
+
+   Note that setting different minimum and maximum constraints does not
+   currenty work on MacOS (the minimum is used), so only setting a fixed aspect
+   ratio works properly across all platforms.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetAspectRatio") void
+puglInitWindowAspectRatio(PuglView* view,
+                          int       minX,
+                          int       minY,
+                          int       maxX,
+                          int       maxY)
+{
+	puglSetAspectRatio(view, minX, minY, maxX, maxY);
 }
 
 /**

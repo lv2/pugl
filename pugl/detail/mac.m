@@ -966,3 +966,37 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 
 	return PUGL_SUCCESS;
 }
+
+PuglStatus
+puglSetMinSize(PuglView* const view, const int width, const int height)
+{
+	view->minWidth  = width;
+	view->minHeight = height;
+
+	if (view->impl->window && (view->minWidth || view->minHeight)) {
+		[view->impl->window
+		    setContentMinSize:NSMakeSize(view->minWidth, view->minHeight)];
+	}
+
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetAspectRatio(PuglView* const view,
+                   const int       minX,
+                   const int       minY,
+                   const int       maxX,
+                   const int       maxY)
+{
+	view->minAspectX = minX;
+	view->minAspectY = minY;
+	view->maxAspectX = maxX;
+	view->maxAspectY = maxY;
+
+	if (view->impl->window && view->minAspectX && view->minAspectY) {
+		[view->impl->window setContentAspectRatio:NSMakeSize(view->minAspectX,
+		                                                     view->minAspectY)];
+	}
+
+	return PUGL_SUCCESS;
+}

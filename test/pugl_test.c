@@ -317,8 +317,8 @@ main(int argc, char** argv)
 	const PuglRect parentFrame = { 0, 0, 512, 512 };
 	puglInitWindowClass(app.parent, "PuglTest");
 	puglSetFrame(app.parent, parentFrame);
-	puglInitWindowMinSize(app.parent, 256, 256);
-	puglInitWindowAspectRatio(app.parent, 1, 1, 16, 9);
+	puglSetMinSize(app.parent, borderWidth * 3, borderWidth * 3);
+	puglSetAspectRatio(app.parent, 1, 1, 16, 9);
 	puglInitBackend(app.parent, puglGlBackend());
 
 	puglInitWindowHint(app.parent, PUGL_RESIZABLE, resizable);

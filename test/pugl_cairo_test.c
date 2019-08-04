@@ -211,7 +211,7 @@ main(int argc, char** argv)
 	PuglView* view  = puglNewView(world);
 	puglInitWindowClass(view, "PuglCairoTest");
 	puglSetFrame(view, frame);
-	puglInitWindowMinSize(view, 256, 256);
+	puglSetMinSize(view, 256, 256);
 	puglInitWindowHint(view, PUGL_RESIZABLE, resizable);
 	puglInitBackend(view, puglCairoBackend());
 

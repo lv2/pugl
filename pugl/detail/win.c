@@ -804,3 +804,25 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 
 	return PUGL_SUCCESS;
 }
+
+PuglStatus
+puglSetMinSize(PuglView* const view, const int width, const int height)
+{
+	view->minWidth  = width;
+	view->minHeight = height;
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetAspectRatio(PuglView* const view,
+                   const int       minX,
+                   const int       minY,
+                   const int       maxX,
+                   const int       maxY)
+{
+	view->minAspectX = minX;
+	view->minAspectY = minY;
+	view->maxAspectX = maxX;
+	view->maxAspectY = maxY;
+	return PUGL_SUCCESS;
+}
