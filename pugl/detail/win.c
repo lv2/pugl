@@ -516,9 +516,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_SIZE:
 		rect = handleConfigure(view, &event);
-		RedrawWindow(view->impl->hwnd, NULL, NULL,
-		             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT|
-		             RDW_UPDATENOW);
+		InvalidateRect(view->impl->hwnd, NULL, false);
 		break;
 	case WM_SIZING:
 		if (view->min_aspect_x) {
