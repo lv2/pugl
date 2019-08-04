@@ -128,6 +128,12 @@ puglFreeView(PuglView* view)
 	free(view);
 }
 
+PuglWorld*
+puglGetWorld(PuglView* view)
+{
+	return view->world;
+}
+
 void
 puglInitWindowHint(PuglView* view, PuglWindowHint hint, int value)
 {

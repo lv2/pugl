@@ -534,6 +534,12 @@ PUGL_API void
 puglFreeView(PuglView* view);
 
 /**
+   Return the world that `view` is a part of.
+*/
+PUGL_API PuglWorld*
+puglGetWorld(PuglView* view);
+
+/**
    Set a hint before creating a window.
 */
 PUGL_API void
