@@ -324,6 +324,7 @@ main(int argc, char** argv)
 	puglInitWindowHint(app.parent, PUGL_RESIZABLE, resizable);
 	puglInitWindowHint(app.parent, PUGL_SAMPLES, samples);
 	puglInitWindowHint(app.parent, PUGL_DOUBLE_BUFFER, doubleBuffer);
+	puglInitWindowHint(app.parent, PUGL_SWAP_INTERVAL, doubleBuffer);
 	puglInitWindowHint(app.parent, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
 	puglSetHandle(app.parent, &app);
 	puglSetEventFunc(app.parent, onParentEvent);
@@ -341,6 +342,7 @@ main(int argc, char** argv)
 
 	puglInitWindowHint(app.child, PUGL_SAMPLES, samples);
 	puglInitWindowHint(app.child, PUGL_DOUBLE_BUFFER, doubleBuffer);
+	puglInitWindowHint(app.child, PUGL_SWAP_INTERVAL, 0);
 	puglInitBackend(app.child, puglGlBackend());
 	puglInitWindowHint(app.child, PUGL_IGNORE_KEY_REPEAT, ignoreKeyRepeat);
 	puglSetHandle(app.child, &app);

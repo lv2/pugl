@@ -110,6 +110,7 @@ typedef enum {
 	PUGL_STENCIL_BITS,          /**< Number of bits for stencil buffer */
 	PUGL_SAMPLES,               /**< Number of samples per pixel (AA) */
 	PUGL_DOUBLE_BUFFER,         /**< True if double buffering should be used */
+	PUGL_SWAP_INTERVAL,         /**< Number of frames between buffer swaps */
 	PUGL_RESIZABLE,             /**< True if window should be resizable */
 	PUGL_IGNORE_KEY_REPEAT,     /**< True if key repeat events are ignored */
 

@@ -220,7 +220,7 @@ puglWinGlCreate(PuglView* view)
 	// Enter context and set swap interval
 	wglMakeCurrent(impl->hdc, surface->hglrc);
 	if (surface->procs.wglSwapInterval) {
-		surface->procs.wglSwapInterval(1);
+		surface->procs.wglSwapInterval(view->hints[PUGL_SWAP_INTERVAL]);
 	}
 
 	return 0;
