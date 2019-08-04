@@ -502,8 +502,9 @@ puglDispatchEvents(PuglWorld* world);
 
 /**
    @}
-   @name Initialization
-   Configuration functions which must be called before creating a window.
+   @name View
+   A view is a drawing region that receives events, which may correspond to a
+   top-level window or be embedded in some other window.
    @{
 */
 
@@ -529,81 +530,6 @@ PUGL_API PuglWorld*
 puglGetWorld(PuglView* view);
 
 /**
-   Set the title of the window.
-
-   This only makes sense for non-embedded views that will have a corresponding
-   top-level window, and sets the title, typically displayed in the title bar
-   or in window switchers.
-*/
-PUGL_API PuglStatus
-puglSetWindowTitle(PuglView* view, const char* title);
-
-/**
-   Set a hint to configure window properties.
-
-   This only has an effect when called before puglCreateWindow().
-*/
-PUGL_API PuglStatus
-puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
-
-/**
-   Set the parent window before creating a window (for embedding).
-
-   This only works when called before creating the window with
-   puglCreateWindow(), reparenting is not supported.
-*/
-PUGL_API PuglStatus
-puglSetParentWindow(PuglView* view, PuglNativeWindow parent);
-
-/**
-   Set the graphics backend to use.
-
-   This needs to be called once before creating the window to set the graphics
-   backend.  There are two backend accessors included with pugl:
-   puglGlBackend() and puglCairoBackend(), declared in pugl_gl_backend.h and
-   pugl_cairo_backend.h, respectively.
-*/
-PUGL_API PuglStatus
-puglSetBackend(PuglView* view, const PuglBackend* backend);
-
-/**
-   @}
-   @name Windows
-   Functions for creating and managing a visible window for a view.
-   @{
-*/
-
-/**
-   Create a window with the settings given by the various puglInit functions.
-
-   @return 1 (pugl does not currently support multiple windows).
-*/
-PUGL_API int
-puglCreateWindow(PuglView* view, const char* title);
-
-/**
-   Show the current window.
-*/
-PUGL_API void
-puglShowWindow(PuglView* view);
-
-/**
-   Hide the current window.
-*/
-PUGL_API void
-puglHideWindow(PuglView* view);
-
-/**
-   Return the native window handle.
-*/
-PUGL_API PuglNativeWindow
-puglGetNativeWindow(PuglView* view);
-
-/**
-   @}
-*/
-
-/**
    Set the handle to be passed to all callbacks.
 
    This is generally a pointer to a struct which contains all necessary state.
@@ -619,10 +545,31 @@ PUGL_API PuglHandle
 puglGetHandle(PuglView* view);
 
 /**
+   Set a hint to configure window properties.
+
+   This only has an effect when called before puglCreateWindow().
+*/
+PUGL_API PuglStatus
+puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
+
+/**
    Return true iff the view is currently visible.
 */
 PUGL_API bool
 puglGetVisible(PuglView* view);
+
+/**
+   Request a redisplay on the next call to puglDispatchEvents().
+*/
+PUGL_API void
+puglPostRedisplay(PuglView* view);
+
+/**
+   @}
+   @name Frame
+   Functions for working with the position and size of a view.
+   @{
+*/
 
 /**
    Get the current position and size of the view.
@@ -658,6 +605,32 @@ PUGL_API PuglStatus
 puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
 
 /**
+   @}
+   @name Windows
+   Functions for working with top-level windows.
+   @{
+*/
+
+/**
+   Set the title of the window.
+
+   This only makes sense for non-embedded views that will have a corresponding
+   top-level window, and sets the title, typically displayed in the title bar
+   or in window switchers.
+*/
+PUGL_API PuglStatus
+puglSetWindowTitle(PuglView* view, const char* title);
+
+/**
+   Set the parent window before creating a window (for embedding).
+
+   This only works when called before creating the window with
+   puglCreateWindow(), reparenting is not supported.
+*/
+PUGL_API PuglStatus
+puglSetParentWindow(PuglView* view, PuglNativeWindow parent);
+
+/**
    Set the transient parent of the window.
 
    This is used for things like dialogs, to have them associated with the
@@ -667,10 +640,59 @@ PUGL_API void
 puglSetTransientFor(PuglView* view, PuglNativeWindow parent);
 
 /**
-   @name Context
-   Functions for accessing the drawing context.
+   Create a window with the settings given by the various puglInit functions.
+
+   @return 1 (pugl does not currently support multiple windows).
+*/
+PUGL_API int
+puglCreateWindow(PuglView* view, const char* title);
+
+/**
+   Show the current window.
+*/
+PUGL_API void
+puglShowWindow(PuglView* view);
+
+/**
+   Hide the current window.
+*/
+PUGL_API void
+puglHideWindow(PuglView* view);
+
+/**
+   Return the native window handle.
+*/
+PUGL_API PuglNativeWindow
+puglGetNativeWindow(PuglView* view);
+
+/**
+   @}
+   @name Graphics Context
+   Functions for working with the drawing context.
    @{
 */
+
+/**
+   OpenGL extension function.
+*/
+typedef void (*PuglGlFunc)(void);
+
+/**
+   Set the graphics backend to use.
+
+   This needs to be called once before creating the window to set the graphics
+   backend.  There are two backend accessors included with pugl:
+   puglGlBackend() and puglCairoBackend(), declared in pugl_gl_backend.h and
+   pugl_cairo_backend.h, respectively.
+*/
+PUGL_API PuglStatus
+puglSetBackend(PuglView* view, const PuglBackend* backend);
+
+/**
+   Return the address of an OpenGL extension function.
+*/
+PUGL_API PuglGlFunc
+puglGetProcAddress(const char* name);
 
 /**
    Get the drawing context.
@@ -750,26 +772,6 @@ puglRequestAttention(PuglView* view);
 
 /**
    @}
-*/
-
-/**
-   OpenGL extension function.
-*/
-typedef void (*PuglGlFunc)(void);
-
-/**
-   Return the address of an OpenGL extension function.
-*/
-PUGL_API PuglGlFunc
-puglGetProcAddress(const char* name);
-
-/**
-   Request a redisplay on the next call to puglProcessEvents().
-*/
-PUGL_API void
-puglPostRedisplay(PuglView* view);
-
-/**
    @name Deprecated API
    @{
 */
