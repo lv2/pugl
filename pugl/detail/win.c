@@ -407,6 +407,11 @@ handleConfigure(PuglView* view, PuglEvent* event)
 {
 	RECT rect;
 	GetClientRect(view->impl->hwnd, &rect);
+	MapWindowPoints(view->impl->hwnd,
+	                view->parent ? (HWND)view->parent : HWND_DESKTOP,
+	                (LPPOINT)&rect,
+	                2);
+
 	view->frame.x      = rect.left;
 	view->frame.y      = rect.top;
 	view->frame.width  = rect.right - rect.left;
