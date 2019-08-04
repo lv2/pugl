@@ -146,7 +146,7 @@ onClose(PuglView* view)
 	quit = 1;
 }
 
-static void
+static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
 {
 	switch (event->type) {
@@ -179,6 +179,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 		break;
 	default: break;
 	}
+
+	return PUGL_SUCCESS;
 }
 
 int

@@ -185,7 +185,7 @@ onKeyPress(PuglView* view, const PuglEventKey* event)
 	}
 }
 
-static void
+static PuglStatus
 onParentEvent(PuglView* view, const PuglEvent* event)
 {
 	PuglTestApp*   app         = (PuglTestApp*)puglGetHandle(view);
@@ -230,9 +230,11 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 	default:
 		break;
 	}
+
+	return PUGL_SUCCESS;
 }
 
-static void
+static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
 {
 	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
@@ -273,6 +275,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 	default:
 		break;
 	}
+
+	return PUGL_SUCCESS;
 }
 
 int

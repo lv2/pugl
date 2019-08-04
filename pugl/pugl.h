@@ -740,7 +740,7 @@ puglLeaveContext(PuglView* view, bool drawing);
 /**
    A function called when an event occurs.
 */
-typedef void (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
+typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 
 /**
    Set the function to call when an event occurs.
