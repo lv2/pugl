@@ -143,12 +143,6 @@ puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
 	view->parent = parent;
 }
 
-void
-puglInitTransientFor(PuglView* view, uintptr_t parent)
-{
-	view->transientParent = parent;
-}
-
 int
 puglInitBackend(PuglView* view, const PuglBackend* backend)
 {

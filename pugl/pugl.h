@@ -535,15 +535,6 @@ PUGL_API void
 puglInitWindowParent(PuglView* view, PuglNativeWindow parent);
 
 /**
-   Set transient parent before creating a window.
-
-   On X11, parent must be a Window.
-   On OSX, parent must be an NSView*.
-*/
-PUGL_API void
-puglInitTransientFor(PuglView* view, uintptr_t parent);
-
-/**
    Set the graphics backend to use.
 
    This needs to be called once before creating the window to set the graphics
@@ -644,6 +635,15 @@ puglSetMinSize(PuglView* view, int width, int height);
 */
 PUGL_API PuglStatus
 puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
+
+/**
+   Set the transient parent of the window.
+
+   This is used for things like dialogs, to have them associated with the
+   window they are a transient child of properly.
+*/
+PUGL_API void
+puglSetTransientFor(PuglView* view, PuglNativeWindow parent);
 
 /**
    @name Context
@@ -839,6 +839,18 @@ puglInitWindowAspectRatio(PuglView* view,
                           int       maxY)
 {
 	puglSetAspectRatio(view, minX, minY, maxX, maxY);
+}
+
+/**
+   Set transient parent before creating a window.
+
+   On X11, parent must be a Window.
+   On OSX, parent must be an NSView*.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetTransientFor") void
+puglInitTransientFor(PuglView* view, uintptr_t parent)
+{
+	puglSetTransientFor(view, (PuglNativeWindow)parent);
 }
 
 /**

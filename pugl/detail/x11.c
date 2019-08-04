@@ -761,3 +761,16 @@ puglSetAspectRatio(PuglView* const view,
 
 	return PUGL_SUCCESS;
 }
+
+void
+puglSetTransientFor(PuglView* view, PuglNativeWindow parent)
+{
+	Display* display = view->world->impl->display;
+
+	view->transientParent = parent;
+
+	if (view->impl->win) {
+		XSetTransientForHint(display, view->impl->win,
+		                     (Window)view->transientParent);
+	}
+}
