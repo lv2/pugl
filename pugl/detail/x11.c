@@ -139,6 +139,35 @@ puglFindView(PuglWorld* world, const Window window)
 	return NULL;
 }
 
+static XSizeHints
+getSizeHints(const PuglView* view)
+{
+	XSizeHints sizeHints = {0};
+
+	if (!view->hints[PUGL_RESIZABLE]) {
+		sizeHints.flags      = PMinSize|PMaxSize;
+		sizeHints.min_width  = (int)view->frame.width;
+		sizeHints.min_height = (int)view->frame.height;
+		sizeHints.max_width  = (int)view->frame.width;
+		sizeHints.max_height = (int)view->frame.height;
+	} else {
+		if (view->minWidth || view->minHeight) {
+			sizeHints.flags      = PMinSize;
+			sizeHints.min_width  = view->minWidth;
+			sizeHints.min_height = view->minHeight;
+		}
+		if (view->minAspectX) {
+			sizeHints.flags        |= PAspect;
+			sizeHints.min_aspect.x  = view->minAspectX;
+			sizeHints.min_aspect.y  = view->minAspectY;
+			sizeHints.max_aspect.x  = view->maxAspectX;
+			sizeHints.max_aspect.y  = view->maxAspectY;
+		}
+	}
+
+	return sizeHints;
+}
+
 int
 puglCreateWindow(PuglView* view, const char* title)
 {
@@ -179,27 +208,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		return 3;
 	}
 
-	XSizeHints sizeHints = {0};
-	if (!view->hints[PUGL_RESIZABLE]) {
-		sizeHints.flags      = PMinSize|PMaxSize;
-		sizeHints.min_width  = width;
-		sizeHints.min_height = height;
-		sizeHints.max_width  = width;
-		sizeHints.max_height = height;
-	} else {
-		if (view->minWidth || view->minHeight) {
-			sizeHints.flags      = PMinSize;
-			sizeHints.min_width  = view->minWidth;
-			sizeHints.min_height = view->minHeight;
-		}
-		if (view->minAspectX) {
-			sizeHints.flags        |= PAspect;
-			sizeHints.min_aspect.x  = view->minAspectX;
-			sizeHints.min_aspect.y  = view->minAspectY;
-			sizeHints.max_aspect.x  = view->maxAspectX;
-			sizeHints.max_aspect.y  = view->maxAspectY;
-		}
-	}
+	XSizeHints sizeHints = getSizeHints(view);
 	XSetNormalHints(display, win, &sizeHints);
 
 	if (title) {
