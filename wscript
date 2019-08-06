@@ -55,7 +55,7 @@ def configure(conf):
         for f in ('CFLAGS', 'CXXFLAGS'):
             conf.env.append_value(f, ['-fvisibility=hidden'])
             if Options.options.strict:
-                conf.env.append_value(f, ['-Wunused-parameter'])
+                conf.env.append_value(f, ['-Wunused-parameter', '-Wno-pedantic'])
 
     autowaf.set_c_lang(conf, 'c99')
 
@@ -65,6 +65,7 @@ def configure(conf):
         conf.define('PUGL_HAVE_GL', 1)
 
     conf.check(features='c cshlib', lib='m', uselib_store='M', mandatory=False)
+    conf.check(features='c cshlib', lib='dl', uselib_store='DL', mandatory=False)
 
     if not Options.options.no_cairo:
         autowaf.check_pkg(conf, 'cairo',
@@ -232,7 +233,7 @@ def build(bld):
                           uselib=['CAIRO'],
                           source=['pugl/detail/x11_cairo.c'])
 
-    def build_test(prog, platform, backend, **kwargs):
+    def build_test(prog, source, platform, backend, **kwargs):
         use = ['pugl_%s_static' % platform,
                'pugl_%s_%s_static' % (platform, backend)]
 
@@ -253,7 +254,7 @@ def build(bld):
                                deps.get(backend_lib, {}).get(k, []))})
 
         bld(features     = 'c cprogram',
-            source       = 'test/%s.c' % prog,
+            source       = source,
             target       = target,
             use          = use,
             install_path = '',
@@ -261,10 +262,15 @@ def build(bld):
 
     if bld.env.BUILD_TESTS:
         if bld.is_defined('HAVE_GL'):
-            build_test('pugl_test', platform, 'gl', uselib=['M'])
+            build_test('pugl_test', ['test/pugl_test.c'],
+                       platform, 'gl', uselib=['M'])
+            build_test('pugl_gl3_test',
+                       ['test/pugl_gl3_test.c', 'test/glad/glad.c'],
+                       platform, 'gl', uselib=['M', 'DL'])
 
         if bld.is_defined('HAVE_CAIRO'):
-            build_test('pugl_cairo_test', platform, 'cairo',
+            build_test('pugl_cairo_test', ['test/pugl_cairo_test.c'],
+                       platform, 'cairo',
                        uselib=['M', 'CAIRO'])
 
     if bld.env.DOCS:
