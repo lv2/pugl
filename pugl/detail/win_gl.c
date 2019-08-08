@@ -286,7 +286,15 @@ puglWinGlGetContext(PuglView* PUGL_UNUSED(view))
 PuglGlFunc
 puglGetProcAddress(const char* name)
 {
-	return (PuglGlFunc)wglGetProcAddress(name);
+	const PuglGlFunc func = (PuglGlFunc)wglGetProcAddress(name);
+
+	/* Windows has the annoying property that wglGetProcAddress returns NULL
+	   for functions from OpenGL 1.1, so we fall back to pulling them directly
+	   from opengl32.dll */
+
+	return func
+		? func
+		: (PuglGlFunc)GetProcAddress(GetModuleHandle("opengl32.dll"), name);
 }
 
 const PuglBackend*
