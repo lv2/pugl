@@ -104,6 +104,8 @@ puglInitWorldInternals(void)
 		if (SetProcessDPIAware) {
 			SetProcessDPIAware();
 		}
+
+		FreeLibrary(user32);
 	}
 
 	LARGE_INTEGER frequency;
