@@ -67,6 +67,20 @@ puglUtf8ToWideChar(const char* const utf8)
 	return NULL;
 }
 
+static char*
+puglWideCharToUtf8(const wchar_t* const wstr, size_t* len)
+{
+	int n = WideCharToMultiByte(CP_UTF8, 0, wstr, -1, NULL, 0, NULL, NULL);
+	if (n > 0) {
+		char* result = (char*)calloc((size_t)n, sizeof(char));
+		WideCharToMultiByte(CP_UTF8, 0, wstr, -1, result, n, NULL, NULL);
+		*len = (size_t)n;
+		return result;
+	}
+
+	return NULL;
+}
+
 static bool
 puglRegisterWindowClass(const char* name)
 {
@@ -840,5 +854,73 @@ puglSetAspectRatio(PuglView* const view,
 	view->minAspectY = minY;
 	view->maxAspectX = maxX;
 	view->maxAspectY = maxY;
+	return PUGL_SUCCESS;
+}
+
+const void*
+puglGetClipboard(PuglView* const    view,
+                 const char** const type,
+                 size_t* const      len)
+{
+	PuglInternals* const impl = view->impl;
+
+	if (!IsClipboardFormatAvailable(CF_UNICODETEXT) ||
+	    !OpenClipboard(impl->hwnd)) {
+		return NULL;
+	}
+
+	HGLOBAL  mem  = GetClipboardData(CF_UNICODETEXT);
+	wchar_t* wstr = mem ? (wchar_t*)GlobalLock(mem) : NULL;
+	if (!wstr) {
+		CloseClipboard();
+		return NULL;
+	}
+
+	free(view->clipboard.data);
+	view->clipboard.data = puglWideCharToUtf8(wstr, &view->clipboard.len);
+	GlobalUnlock(mem);
+	CloseClipboard();
+
+	return puglGetInternalClipboard(view, type, len);
+}
+
+PuglStatus
+puglSetClipboard(PuglView* const   view,
+                 const char* const type,
+                 const void* const data,
+                 const size_t      len)
+{
+	PuglInternals* const impl = view->impl;
+
+	PuglStatus st = puglSetInternalClipboard(view, type, data, len);
+	if (st) {
+		return st;
+	} else if (!OpenClipboard(impl->hwnd)) {
+		return PUGL_ERR_UNKNOWN;
+	}
+
+	// Measure string and allocate global memory for clipboard
+	const char* str  = (const char*)data;
+	const int   wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+	HGLOBAL     mem  = GlobalAlloc(GMEM_MOVEABLE, (wlen + 1) * sizeof(wchar_t));
+	if (!mem) {
+		CloseClipboard();
+		return PUGL_ERR_UNKNOWN;
+	}
+
+	// Lock global memory
+	wchar_t* wstr = (wchar_t*)GlobalLock(mem);
+	if (!wstr) {
+		GlobalFree(mem);
+		CloseClipboard();
+		return PUGL_ERR_UNKNOWN;
+	}
+
+	// Convert string into global memory and set it as clipboard data
+	MultiByteToWideChar(CP_UTF8, 0, str, (int)len, wstr, wlen);
+	wstr[wlen] = 0;
+	GlobalUnlock(mem);
+	SetClipboardData(CF_UNICODETEXT, mem);
+	CloseClipboard();
 	return PUGL_SUCCESS;
 }

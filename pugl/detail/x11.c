@@ -28,6 +28,7 @@
 #include "pugl/pugl.h"
 
 #include <X11/X.h>
+#include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
@@ -35,6 +36,7 @@
 #include <sys/select.h>
 #include <sys/time.h>
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -75,6 +77,7 @@ puglInitWorldInternals(void)
 	impl->display = display;
 
 	// Intern the various atoms we will need
+	impl->atoms.CLIPBOARD        = XInternAtom(display, "CLIPBOARD", 0);
 	impl->atoms.UTF8_STRING      = XInternAtom(display, "UTF8_STRING", 0);
 	impl->atoms.WM_PROTOCOLS     = XInternAtom(display, "WM_PROTOCOLS", 0);
 	impl->atoms.WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", 0);
@@ -600,6 +603,8 @@ sendRedisplayEvent(PuglView* view)
 PUGL_API PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
+	const PuglX11Atoms* const atoms = &world->impl->atoms;
+
 	// Send expose events for any views with pending redisplays
 	for (size_t i = 0; i < world->numViews; ++i) {
 		if (world->views[i]->redisplay) {
@@ -636,6 +641,55 @@ puglDispatchEvents(PuglWorld* world)
 			XSetICFocus(impl->xic);
 		} else if (xevent.type == FocusOut) {
 			XUnsetICFocus(impl->xic);
+		} else if (xevent.type == SelectionClear) {
+			puglSetBlob(&view->clipboard, NULL, 0);
+			continue;
+		} else if (xevent.type == SelectionNotify &&
+		           xevent.xselection.selection == atoms->CLIPBOARD &&
+		           xevent.xselection.target == atoms->UTF8_STRING &&
+		           xevent.xselection.property == XA_PRIMARY) {
+
+			uint8_t*      str  = NULL;
+			Atom          type = 0;
+			int           fmt  = 0;
+			unsigned long len  = 0;
+			unsigned long left = 0;
+			XGetWindowProperty(impl->display, impl->win, XA_PRIMARY,
+			                   0, 8, False, AnyPropertyType,
+			                   &type, &fmt, &len, &left, &str);
+
+			if (str && fmt == 8 && type == atoms->UTF8_STRING && left == 0) {
+				puglSetBlob(&view->clipboard, str, len);
+			}
+
+			XFree(str);
+			continue;
+		} else if (xevent.type == SelectionRequest) {
+			const XSelectionRequestEvent* request = &xevent.xselectionrequest;
+
+			XSelectionEvent note = {0};
+			note.type            = SelectionNotify;
+			note.requestor       = request->requestor;
+			note.selection       = request->selection;
+			note.target          = request->target;
+			note.time            = request->time;
+
+			const char* type = NULL;
+			size_t      len  = 0;
+			const void* data = puglGetInternalClipboard(view, &type, &len);
+			if (data &&
+			    request->selection == atoms->CLIPBOARD &&
+			    request->target == atoms->UTF8_STRING) {
+				note.property = request->property;
+				XChangeProperty(impl->display, note.requestor,
+				                note.property, note.target, 8, PropModeReplace,
+				                (const uint8_t*)data, len);
+			} else {
+				note.property = None;
+			}
+
+			XSendEvent(impl->display, note.requestor, True, 0, (XEvent*)&note);
+			continue;
 		}
 
 		// Translate X11 event to Pugl event
@@ -795,5 +849,54 @@ puglSetTransientFor(PuglView* view, PuglNativeWindow parent)
 		                     (Window)view->transientParent);
 	}
 
+	return PUGL_SUCCESS;
+}
+
+const void*
+puglGetClipboard(PuglView* const    view,
+                 const char** const type,
+                 size_t* const      len)
+{
+	PuglInternals* const      impl  = view->impl;
+	const PuglX11Atoms* const atoms = &view->world->impl->atoms;
+
+	const Window owner = XGetSelectionOwner(impl->display, atoms->CLIPBOARD);
+	if (owner != None && owner != impl->win) {
+		// Clear internal selection
+		puglSetBlob(&view->clipboard, NULL, 0);
+
+		// Request selection from the owner
+		XConvertSelection(impl->display,
+		                  atoms->CLIPBOARD,
+		                  atoms->UTF8_STRING,
+		                  XA_PRIMARY,
+		                  impl->win,
+		                  CurrentTime);
+
+		// Run event loop until data is received
+		while (!view->clipboard.data) {
+			puglPollEvents(view->world, -1);
+			puglDispatchEvents(view->world);
+		}
+	}
+
+	return puglGetInternalClipboard(view, type, len);
+}
+
+PuglStatus
+puglSetClipboard(PuglView* const   view,
+                 const char* const type,
+                 const void* const data,
+                 const size_t      len)
+{
+	PuglInternals* const      impl  = view->impl;
+	const PuglX11Atoms* const atoms = &view->world->impl->atoms;
+
+	PuglStatus st = puglSetInternalClipboard(view, type, data, len);
+	if (st) {
+		return st;
+	}
+
+	XSetSelectionOwner(impl->display, atoms->CLIPBOARD, impl->win, CurrentTime);
 	return PUGL_SUCCESS;
 }

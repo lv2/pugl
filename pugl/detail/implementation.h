@@ -24,11 +24,15 @@
 #include "pugl/detail/types.h"
 #include "pugl/pugl.h"
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** Set `blob` to `data` with length `len`, reallocating if necessary. */
+void puglSetBlob(PuglBlob* blob, const void* data, size_t len);
 
 /** Reallocate and set `*dest` to `string`. */
 void puglSetString(char** dest, const char* string);
@@ -50,6 +54,17 @@ uint32_t puglDecodeUTF8(const uint8_t* buf);
 
 /** Dispatch `event` to `view`, optimising configure/expose if possible. */
 void puglDispatchEvent(PuglView* view, const PuglEvent* event);
+
+/** Set internal (stored in view) clipboard contents. */
+const void*
+puglGetInternalClipboard(const PuglView* view, const char** type, size_t* len);
+
+/** Set internal (stored in view) clipboard contents. */
+PuglStatus
+puglSetInternalClipboard(PuglView*   view,
+                         const char* type,
+                         const void* data,
+                         size_t      len);
 
 #ifdef __cplusplus
 }  /* extern "C" */

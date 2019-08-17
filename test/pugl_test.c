@@ -147,7 +147,7 @@ swapFocus(PuglTestApp* app)
 }
 
 static void
-onKeyPress(PuglView* view, const PuglEventKey* event)
+onKeyPress(PuglView* view, const PuglEventKey* event, const char* prefix)
 {
 	PuglTestApp* app   = (PuglTestApp*)puglGetHandle(view);
 	PuglRect     frame = puglGetFrame(view);
@@ -156,6 +156,14 @@ onKeyPress(PuglView* view, const PuglEventKey* event)
 		swapFocus(app);
 	} else if (event->key == 'q' || event->key == PUGL_KEY_ESCAPE) {
 		app->quit = 1;
+	} else if (event->state & PUGL_MOD_CTRL && event->key == 'c') {
+		puglSetClipboard(view, NULL, "Pugl test", strlen("Pugl test") + 1);
+		fprintf(stderr, "%sCopy \"Pugl test\"\n", prefix);
+	} else if (event->state & PUGL_MOD_CTRL && event->key == 'v') {
+		const char* type = NULL;
+		size_t      len  = 0;
+		const char* text = (const char*)puglGetClipboard(view, &type, &len);
+		fprintf(stderr, "%sPaste \"%s\"\n", prefix, text);
 	} else if (event->state & PUGL_MOD_SHIFT) {
 		if (event->key == PUGL_KEY_UP) {
 			frame.height += 10;
@@ -220,7 +228,7 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 		}
 		break;
 	case PUGL_KEY_PRESS:
-		onKeyPress(view, &event->key);
+		onKeyPress(view, &event->key, "Parent: ");
 		break;
 	case PUGL_MOTION_NOTIFY:
 		break;
@@ -252,7 +260,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 		app->quit = 1;
 		break;
 	case PUGL_KEY_PRESS:
-		onKeyPress(view, &event->key);
+		onKeyPress(view, &event->key, "Child: ");
 		break;
 	case PUGL_MOTION_NOTIFY:
 		app->xAngle = fmodf(app->xAngle - (float)(event->motion.x - app->lastMouseX), 360.0f);

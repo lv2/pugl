@@ -1024,3 +1024,43 @@ puglSetAspectRatio(PuglView* const view,
 
 	return PUGL_SUCCESS;
 }
+
+const void*
+puglGetClipboard(PuglView* const    view,
+                 const char** const type,
+                 size_t* const      len)
+{
+	NSPasteboard* const  pasteboard = [NSPasteboard generalPasteboard];
+
+	if ([[pasteboard types] containsObject:NSStringPboardType]) {
+		const NSString* str  = [pasteboard stringForType:NSStringPboardType];
+		const char*     utf8 = [str UTF8String];
+
+		puglSetBlob(&view->clipboard, utf8, strlen(utf8) + 1);
+	}
+
+	return puglGetInternalClipboard(view, type, len);
+}
+
+PuglStatus
+puglSetClipboard(PuglView* const   view,
+                 const char* const type,
+                 const void* const data,
+                 const size_t      len)
+{
+	NSPasteboard* const  pasteboard = [NSPasteboard generalPasteboard];
+	const char* const    str        = (const char*)data;
+
+	PuglStatus st = puglSetInternalClipboard(view, type, data, len);
+	if (st) {
+		return st;
+	}
+
+	[pasteboard declareTypes:[NSArray arrayWithObjects:NSStringPboardType, nil]
+	                   owner:nil];
+
+	[pasteboard setString:[NSString stringWithUTF8String:str]
+	              forType:NSStringPboardType];
+
+	return PUGL_SUCCESS;
+}

@@ -45,6 +45,12 @@ typedef struct PuglInternalsImpl PuglInternals;
 /** View hints. */
 typedef int PuglHints[PUGL_NUM_WINDOW_HINTS];
 
+/** Blob of arbitrary data. */
+typedef struct {
+	void*  data; //!< Dynamically allocated data
+	size_t len;  //!< Length of data in bytes
+} PuglBlob;
+
 /** Cross-platform view definition. */
 struct PuglViewImpl {
 	PuglWorld*         world;
@@ -53,6 +59,7 @@ struct PuglViewImpl {
 	PuglHandle         handle;
 	PuglEventFunc      eventFunc;
 	char*              title;
+	PuglBlob           clipboard;
 	PuglNativeWindow   parent;
 	uintptr_t          transientParent;
 	PuglHints          hints;

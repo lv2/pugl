@@ -22,6 +22,7 @@
 #define PUGL_H_INCLUDED
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef PUGL_SHARED
@@ -85,6 +86,7 @@ typedef enum {
 	PUGL_ERR_CREATE_WINDOW,
 	PUGL_ERR_SET_FORMAT,
 	PUGL_ERR_CREATE_CONTEXT,
+	PUGL_ERR_UNSUPPORTED_TYPE,
 } PuglStatus;
 
 /**
@@ -759,6 +761,31 @@ puglHasFocus(const PuglView* view);
 */
 PUGL_API PuglStatus
 puglGrabFocus(PuglView* view);
+
+/**
+   Get clipboard contents.
+
+   @param view The view.
+   @param[out] type Set to the MIME type of the data.
+   @param[out] len Set to the length of the data in bytes.
+   @return The clipboard contents.
+*/
+PUGL_API const void*
+puglGetClipboard(PuglView* view, const char** type, size_t* len);
+
+/**
+   Set clipboard contents.
+
+   @param view The view.
+   @param type The MIME type of the data, "text/plain" is assumed if NULL.
+   @param data The data to copy to the clipboard.
+   @param len The length of data in bytes (including terminator if necessary).
+*/
+PUGL_API PuglStatus
+puglSetClipboard(PuglView*   view,
+                 const char* type,
+                 const void* data,
+                 size_t      len);
 
 /**
    Request user attention.

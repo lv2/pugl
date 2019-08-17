@@ -24,6 +24,7 @@
 #include <X11/Xutil.h>
 
 typedef struct {
+	Atom CLIPBOARD;
 	Atom UTF8_STRING;
 	Atom WM_PROTOCOLS;
 	Atom WM_DELETE_WINDOW;

@@ -34,6 +34,20 @@ puglSetString(char** dest, const char* string)
 	strncpy(*dest, string, len + 1);
 }
 
+void
+puglSetBlob(PuglBlob* const dest, const void* const data, const size_t len)
+{
+	if (data) {
+		dest->len  = len;
+		dest->data = realloc(dest->data, len + 1);
+		memcpy(dest->data, data, len);
+		((char*)dest->data)[len] = 0;
+	} else {
+		dest->len  = 0;
+		dest->data = NULL;
+	}
+}
+
 static void
 puglSetDefaultHints(PuglHints hints)
 {
@@ -126,6 +140,7 @@ puglFreeView(PuglView* view)
 		}
 	}
 
+	free(view->clipboard.data);
 	puglFreeViewInternals(view);
 	free(view);
 }
@@ -267,3 +282,34 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 		view->eventFunc(view, event);
 	}
 }
+
+const void*
+puglGetInternalClipboard(const PuglView* const view,
+                         const char** const    type,
+                         size_t* const         len)
+{
+	if (len) {
+		*len = view->clipboard.len;
+	}
+
+	if (type) {
+		*type = "text/plain";
+	}
+
+	return view->clipboard.data;
+}
+
+PuglStatus
+puglSetInternalClipboard(PuglView* const   view,
+                         const char* const type,
+                         const void* const data,
+                         const size_t      len)
+{
+	if (type && strcmp(type, "text/plain")) {
+		return PUGL_ERR_UNSUPPORTED_TYPE;
+	}
+
+	puglSetBlob(&view->clipboard, data, len);
+	return PUGL_SUCCESS;
+}
+
