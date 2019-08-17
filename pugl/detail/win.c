@@ -57,14 +57,14 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 static wchar_t*
 puglUtf8ToWideChar(const char* const utf8)
 {
-    const int len = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0);
-    if (len > 0) {
-	    wchar_t* result = (wchar_t*)calloc((size_t)len, sizeof(wchar_t));
-	    MultiByteToWideChar(CP_UTF8, 0, utf8, -1, result, len);
-	    return result;
-    }
+	const int len = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0);
+	if (len > 0) {
+		wchar_t* result = (wchar_t*)calloc((size_t)len, sizeof(wchar_t));
+		MultiByteToWideChar(CP_UTF8, 0, utf8, -1, result, len);
+		return result;
+	}
 
-    return NULL;
+	return NULL;
 }
 
 static bool
@@ -317,7 +317,7 @@ puglDecodeUTF16(const wchar_t* buf, const int len)
 {
 	const uint32_t c0 = buf[0];
 	const uint32_t c1 = buf[0];
-    if (c0 >= 0xD800 && c0 < 0xDC00) {
+	if (c0 >= 0xD800 && c0 < 0xDC00) {
 		if (len < 2) {
 			return 0xFFFD;  // Surrogate, but length is only 1
 		} else if (c1 >= 0xDC00 && c1 <= 0xDFFF) {
@@ -327,7 +327,7 @@ puglDecodeUTF16(const wchar_t* buf, const int len)
 		return 0xFFFD;  // Unpaired surrogates
 	}
 
-    return c0;
+	return c0;
 }
 
 static void
@@ -761,10 +761,10 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 double
 puglGetTime(const PuglWorld* world)
 {
-    LARGE_INTEGER count;
-    QueryPerformanceCounter(&count);
-    return ((double)count.QuadPart / world->impl->timerFrequency -
-            world->startTime);
+	LARGE_INTEGER count;
+	QueryPerformanceCounter(&count);
+	return ((double)count.QuadPart / world->impl->timerFrequency -
+	        world->startTime);
 }
 
 PuglStatus
