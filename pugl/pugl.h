@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl.h Public Pugl API.
+   @file pugl.h Public C API.
 */
 
 #ifndef PUGL_H_INCLUDED
@@ -48,28 +48,9 @@ extern "C" {
 
 /**
    @defgroup pugl Pugl
-   A minimal portable API for OpenGL.
+   Pugl C API.
    @{
 */
-
-/**
-   A Pugl view.
-*/
-typedef struct PuglViewImpl PuglView;
-
-/**
-   Graphics backend interface.
-*/
-typedef struct PuglBackendImpl PuglBackend;
-
-/**
-   A native window handle.
-
-   On X11, this is a Window.
-   On OSX, this is an NSView*.
-   On Windows, this is a HWND.
-*/
-typedef intptr_t PuglNativeWindow;
 
 /**
    Handle for opaque user data.
@@ -428,6 +409,7 @@ typedef union {
 } PuglEvent;
 
 /**
+   @anchor world
    @name World
    The top level context of a Pugl application.
    @{
@@ -507,11 +489,17 @@ puglDispatchEvents(PuglWorld* world);
 
 /**
    @}
+   @anchor view
    @name View
    A view is a drawing region that receives events, which may correspond to a
    top-level window or be embedded in some other window.
    @{
 */
+
+/**
+   A Pugl view.
+*/
+typedef struct PuglViewImpl PuglView;
 
 /**
    Create a new view.
@@ -571,6 +559,7 @@ puglPostRedisplay(PuglView* view);
 
 /**
    @}
+   @anchor frame
    @name Frame
    Functions for working with the position and size of a view.
    @{
@@ -615,6 +604,15 @@ puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
    Functions for working with top-level windows.
    @{
 */
+
+/**
+   A native window handle.
+
+   On X11, this is a Window.
+   On OSX, this is an NSView*.
+   On Windows, this is a HWND.
+*/
+typedef intptr_t PuglNativeWindow;
 
 /**
    Set the title of the window.
@@ -678,6 +676,11 @@ puglGetNativeWindow(PuglView* view);
 */
 
 /**
+   Graphics backend interface.
+*/
+typedef struct PuglBackendImpl PuglBackend;
+
+/**
    OpenGL extension function.
 */
 typedef void (*PuglGlFunc)(void);
@@ -738,7 +741,9 @@ puglLeaveContext(PuglView* view, bool drawing);
 
 /**
    @}
-   @name Event Handling
+   @anchor interaction
+   @name Interaction
+   Interacting with the system and user with events.
    @{
 */
 

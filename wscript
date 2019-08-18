@@ -275,15 +275,14 @@ def build(bld):
 
     if bld.env.DOCS:
         bld(features     = 'subst',
-            source       = 'Doxyfile.in',
-            target       = 'Doxyfile',
+            source       = 'doc/reference.doxygen.in',
+            target       = 'doc/reference.doxygen',
             install_path = '',
-            name         = 'Doxyfile',
             PUGL_VERSION = PUGL_VERSION,
             PUGL_SRCDIR  = os.path.abspath(bld.path.srcpath()))
 
         bld(features = 'doxygen',
-            doxyfile = 'Doxyfile')
+            doxyfile = 'doc/reference.doxygen')
 
 
 def test(tst):

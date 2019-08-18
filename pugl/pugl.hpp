@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl.hpp Public Pugl C++ API wrapper.
+   @file pugl.hpp Pugl C++ API wrapper.
 */
 
 #ifndef PUGL_HPP_INCLUDED
@@ -25,7 +25,7 @@
 
 /**
    @defgroup puglmm Puglmm
-   C++ API wrapper for Pugl.
+   Pugl C++ API wrapper.
    @{
 */
 
