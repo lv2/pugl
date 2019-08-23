@@ -24,9 +24,7 @@
 #include "pugl/pugl_stub.h"
 
 #ifndef __MAC_10_10
-#define NSOpenGLProfileVersion4_1Core NSOpenGLProfileVersion3_2Core
-typedef NSUInteger NSEventModifierFlags;
-typedef NSUInteger NSWindowStyleMask;
+#    define NSOpenGLProfileVersion4_1Core NSOpenGLProfileVersion3_2Core
 #endif
 
 @interface PuglOpenGLView : NSOpenGLView
