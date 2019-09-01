@@ -91,6 +91,12 @@ typedef NSUInteger NSWindowStyleMask;
 	[wrapper dispatchConfigure:[self bounds]];
 }
 
+- (void) drawRect:(NSRect)rect
+{
+	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
+	[wrapper dispatchExpose:rect];
+}
+
 @end
 
 static int

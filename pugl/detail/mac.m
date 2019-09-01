@@ -77,7 +77,7 @@
 	puglview->backend->resize(puglview, bounds.size.width, bounds.size.height);
 }
 
-- (void) drawRect:(NSRect)rect
+- (void) dispatchExpose:(NSRect)rect
 {
 	const PuglEventExpose ev = {
 		PUGL_EXPOSE,
@@ -850,7 +850,7 @@ puglGetTime(PuglView* view)
 void
 puglPostRedisplay(PuglView* view)
 {
-	[view->impl->wrapperView setNeedsDisplay: YES];
+	[view->impl->drawView setNeedsDisplay: YES];
 }
 
 PuglNativeWindow

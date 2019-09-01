@@ -36,6 +36,7 @@
 }
 
 - (void) dispatchConfigure:(NSRect)bounds;
+- (void) dispatchExpose:(NSRect)rect;
 
 @end
 
