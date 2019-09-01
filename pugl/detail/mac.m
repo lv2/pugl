@@ -77,19 +77,24 @@
 	puglview->backend->resize(puglview, bounds.size.width, bounds.size.height);
 }
 
-- (void) drawRect:(NSRect)rect
+- (void) dispatchExpose:(NSRect)bounds
 {
-	const PuglEventExpose ev =  {
+	const PuglEventExpose ev = {
 		PUGL_EXPOSE,
 		0,
-		rect.origin.x,
-		rect.origin.y,
-		rect.size.width,
-		rect.size.height,
+		bounds.origin.x,
+		bounds.origin.y,
+		bounds.size.width,
+		bounds.size.height,
 		0
 	};
 
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+}
+
+- (void) drawRect:(NSRect)rect
+{
+	[self dispatchExpose:rect];
 }
 
 - (BOOL) isFlipped
