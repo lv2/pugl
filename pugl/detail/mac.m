@@ -79,7 +79,7 @@
 
 - (void) drawRect:(NSRect)rect
 {
-	const PuglEventExpose ev =  {
+	const PuglEventExpose ev = {
 		PUGL_EXPOSE,
 		0,
 		rect.origin.x,
@@ -104,7 +104,7 @@
 
 - (void) dispatchConfigure:(NSRect)bounds
 {
-	const PuglEventConfigure ev =  {
+	const PuglEventConfigure ev = {
 		PUGL_CONFIGURE,
 		0,
 		bounds.origin.x,
@@ -195,7 +195,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	const NSPoint           wloc = [view eventLocation:event];
 	const NSPoint           rloc = [NSEvent mouseLocation];
-	const PuglEventCrossing ev   =  {
+	const PuglEventCrossing ev   = {
 		type,
 		0,
 		[event timestamp],
@@ -223,7 +223,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
-	const PuglEventMotion ev   =  {
+	const PuglEventMotion ev   = {
 		PUGL_MOTION_NOTIFY,
 		0,
 		[event timestamp],
@@ -257,7 +257,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
-	const PuglEventButton ev   =  {
+	const PuglEventButton ev   = {
 		PUGL_BUTTON_PRESS,
 		0,
 		[event timestamp],
@@ -275,7 +275,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
-	const PuglEventButton ev   =  {
+	const PuglEventButton ev   = {
 		PUGL_BUTTON_RELEASE,
 		0,
 		[event timestamp],
@@ -313,7 +313,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
-	const PuglEventScroll ev   =  {
+	const PuglEventScroll ev   = {
 		PUGL_SCROLL,
 		0,
 		[event timestamp],
@@ -342,7 +342,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	const uint32_t     code  = (
 		spec ? spec : puglDecodeUTF8((const uint8_t*)str));
 
-	const PuglEventKey ev =  {
+	const PuglEventKey ev = {
 		PUGL_KEY_PRESS,
 		0,
 		[event timestamp],
