@@ -163,18 +163,18 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	// Register window class if necessary
 	if (!puglRegisterWindowClass(view->world->className)) {
-		return PUGL_ERR_UNKNOWN;
+		return PUGL_REGISTRATION_FAILED;
 	}
 
 	if (!view->backend || !view->backend->configure) {
-		return PUGL_ERR_UNKNOWN;
+		return PUGL_BAD_BACKEND;
 	}
 
-	int st = view->backend->configure(view);
+	PuglStatus st = view->backend->configure(view);
 	if (st || !impl->surface) {
-		return PUGL_ERR_SET_FORMAT;
+		return PUGL_SET_FORMAT_FAILED;
 	} else if ((st = view->backend->create(view))) {
-		return PUGL_ERR_CREATE_CONTEXT;
+		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
 	if (title) {
@@ -828,7 +828,7 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 		                  rect.left, rect.top,
 		                  rect.right - rect.left, rect.bottom - rect.top,
 		                  (SWP_NOACTIVATE|SWP_NOOWNERZORDER|SWP_NOZORDER))) {
-			return PUGL_ERR_UNKNOWN;
+			return PUGL_UNKNOWN_ERROR;
 		}
 	}
 
@@ -896,7 +896,7 @@ puglSetClipboard(PuglView* const   view,
 	if (st) {
 		return st;
 	} else if (!OpenClipboard(impl->hwnd)) {
-		return PUGL_ERR_UNKNOWN;
+		return PUGL_UNKNOWN_ERROR;
 	}
 
 	// Measure string and allocate global memory for clipboard
@@ -905,7 +905,7 @@ puglSetClipboard(PuglView* const   view,
 	HGLOBAL     mem  = GlobalAlloc(GMEM_MOVEABLE, (wlen + 1) * sizeof(wchar_t));
 	if (!mem) {
 		CloseClipboard();
-		return PUGL_ERR_UNKNOWN;
+		return PUGL_UNKNOWN_ERROR;
 	}
 
 	// Lock global memory
@@ -913,7 +913,7 @@ puglSetClipboard(PuglView* const   view,
 	if (!wstr) {
 		GlobalFree(mem);
 		CloseClipboard();
-		return PUGL_ERR_UNKNOWN;
+		return PUGL_UNKNOWN_ERROR;
 	}
 
 	// Convert string into global memory and set it as clipboard data

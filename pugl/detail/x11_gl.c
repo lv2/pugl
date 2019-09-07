@@ -39,13 +39,13 @@ typedef struct {
 	int         double_buffered;
 } PuglX11GlSurface;
 
-static int
+static PuglStatus
 puglX11GlHintValue(const int value)
 {
 	return value == PUGL_DONT_CARE ? (int)GLX_DONT_CARE : value;
 }
 
-static int
+static PuglStatus
 puglX11GlGetAttrib(Display* const    display,
                    const GLXFBConfig fb_config,
                    const int         attrib)
@@ -55,7 +55,7 @@ puglX11GlGetAttrib(Display* const    display,
 	return value;
 }
 
-static int
+static PuglStatus
 puglX11GlConfigure(PuglView* view)
 {
 	PuglInternals* const impl    = view->impl;
@@ -86,7 +86,7 @@ puglX11GlConfigure(PuglView* view)
 	GLXFBConfig* fbc   = glXChooseFBConfig(display, screen, attrs, &n_fbc);
 	if (n_fbc <= 0) {
 		fprintf(stderr, "error: Failed to create GL context\n");
-		return 1;
+		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
 	surface->fb_config = fbc[0];
@@ -105,10 +105,10 @@ puglX11GlConfigure(PuglView* view)
 
 	XFree(fbc);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11GlCreate(PuglView* view)
 {
 	PuglInternals* const    impl      = view->impl;
@@ -131,11 +131,14 @@ puglX11GlCreate(PuglView* view)
 		(CreateContextAttribs)glXGetProcAddress(
 			(const GLubyte*)"glXCreateContextAttribsARB");
 
-	impl->surface = surface;
-	surface->ctx  = create_context(display, fb_config, 0, GL_TRUE, ctx_attrs);
+	surface->ctx = create_context(display, fb_config, 0, GL_TRUE, ctx_attrs);
 	if (!surface->ctx) {
 		surface->ctx =
 			glXCreateNewContext(display, fb_config, GLX_RGBA_TYPE, 0, True);
+	}
+
+	if (!surface->ctx) {
+		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
 	glXGetConfig(impl->display,
@@ -143,10 +146,10 @@ puglX11GlCreate(PuglView* view)
 	             GLX_DOUBLEBUFFER,
 	             &surface->double_buffered);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11GlDestroy(PuglView* view)
 {
 	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
@@ -155,18 +158,18 @@ puglX11GlDestroy(PuglView* view)
 		free(surface);
 		view->impl->surface = NULL;
 	}
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11GlEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 {
 	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
 	glXMakeCurrent(view->impl->display, view->impl->win, surface->ctx);
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11GlLeave(PuglView* view, bool drawing)
 {
 	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
@@ -179,15 +182,15 @@ puglX11GlLeave(PuglView* view, bool drawing)
 
 	glXMakeCurrent(view->impl->display, None, NULL);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11GlResize(PuglView* PUGL_UNUSED(view),
                 int       PUGL_UNUSED(width),
                 int       PUGL_UNUSED(height))
 {
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 static void*

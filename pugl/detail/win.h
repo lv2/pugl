@@ -104,11 +104,11 @@ puglWinCreateWindow(const PuglView* const view,
 	                             CW_USEDEFAULT, CW_USEDEFAULT,
 	                             wr.right-wr.left, wr.bottom-wr.top,
 	                             (HWND)view->parent, NULL, NULL, NULL))) {
-		return PUGL_ERR_CREATE_WINDOW;
+		return PUGL_CREATE_WINDOW_FAILED;
 	} else if (!(*hdc = GetDC(*hwnd))) {
 		DestroyWindow(*hwnd);
 		*hwnd = NULL;
-		return PUGL_ERR_CREATE_WINDOW;
+		return PUGL_CREATE_WINDOW_FAILED;
 	}
 
 	return PUGL_SUCCESS;

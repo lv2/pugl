@@ -306,7 +306,7 @@ puglSetInternalClipboard(PuglView* const   view,
                          const size_t      len)
 {
 	if (type && strcmp(type, "text/plain")) {
-		return PUGL_ERR_UNSUPPORTED_TYPE;
+		return PUGL_UNSUPPORTED_TYPE;
 	}
 
 	puglSetBlob(&view->clipboard, data, len);

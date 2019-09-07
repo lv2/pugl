@@ -38,7 +38,7 @@ typedef struct  {
 	cairo_t*         frontCr;
 } PuglX11CairoSurface;
 
-static int
+static PuglStatus
 puglX11CairoConfigure(PuglView* view)
 {
 	PuglInternals* const impl = view->impl;
@@ -48,10 +48,10 @@ puglX11CairoConfigure(PuglView* view)
 	pat.screen = impl->screen;
 	impl->vi = XGetVisualInfo(impl->display, VisualScreenMask, &pat, &n);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11CairoCreate(PuglView* view)
 {
 	PuglInternals* const impl    = view->impl;
@@ -77,16 +77,16 @@ puglX11CairoCreate(PuglView* view)
 		cairo_destroy(surface.backCr);
 		cairo_surface_destroy(surface.front);
 		cairo_surface_destroy(surface.back);
-		return PUGL_ERR_CREATE_CONTEXT;
+		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
 	impl->surface = calloc(1, sizeof(PuglX11CairoSurface));
 	*(PuglX11CairoSurface*)impl->surface = surface;
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11CairoDestroy(PuglView* view)
 {
 	PuglInternals* const       impl    = view->impl;
@@ -98,10 +98,10 @@ puglX11CairoDestroy(PuglView* view)
 	cairo_surface_destroy(surface->back);
 	free(surface);
 	impl->surface = NULL;
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11CairoEnter(PuglView* view, bool drawing)
 {
 	PuglInternals* const       impl    = view->impl;
@@ -111,10 +111,10 @@ puglX11CairoEnter(PuglView* view, bool drawing)
 		cairo_save(surface->frontCr);
 	}
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11CairoLeave(PuglView* view, bool drawing)
 {
 	PuglInternals* const       impl    = view->impl;
@@ -126,10 +126,10 @@ puglX11CairoLeave(PuglView* view, bool drawing)
 		cairo_restore(surface->frontCr);
 	}
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglX11CairoResize(PuglView* view, int width, int height)
 {
 	PuglInternals* const       impl    = view->impl;
@@ -141,13 +141,13 @@ puglX11CairoResize(PuglView* view, int width, int height)
 	cairo_surface_destroy(surface->front);
 	if (!(surface->front = cairo_surface_create_similar(
 		      surface->back, CAIRO_CONTENT_COLOR, width, height))) {
-		return PUGL_ERR_CREATE_CONTEXT;
+		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
 	surface->frontCr = cairo_create(surface->front);
 	cairo_save(surface->frontCr);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 static void*

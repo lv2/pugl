@@ -77,8 +77,8 @@ typedef struct {
 	HDC  hdc;
 } PuglFakeWindow;
 
-static int
-puglWinError(PuglFakeWindow* fakeWin, const int status)
+static PuglStatus
+puglWinError(PuglFakeWindow* fakeWin, const PuglStatus status)
 {
 	if (fakeWin->hwnd) {
 		ReleaseDC(fakeWin->hwnd, fakeWin->hdc);
@@ -102,7 +102,7 @@ static PuglWinGlProcs puglWinGlGetProcs(void)
 	return procs;
 }
 
-static int
+static PuglStatus
 puglWinGlConfigure(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
@@ -140,15 +140,15 @@ puglWinGlConfigure(PuglView* view)
 	const PuglWinPFD fakePfd  = puglWinGetPixelFormatDescriptor(view->hints);
 	const int        fakePfId = ChoosePixelFormat(fakeWin.hdc, &fakePfd);
 	if (!fakePfId) {
-		return puglWinError(&fakeWin, PUGL_ERR_SET_FORMAT);
+		return puglWinError(&fakeWin, PUGL_SET_FORMAT_FAILED);
 	} else if (!SetPixelFormat(fakeWin.hdc, fakePfId, &fakePfd)) {
-		return puglWinError(&fakeWin, PUGL_ERR_SET_FORMAT);
+		return puglWinError(&fakeWin, PUGL_SET_FORMAT_FAILED);
 	}
 
 	// Create fake GL context to get at the functions we need
 	HGLRC fakeRc = wglCreateContext(fakeWin.hdc);
 	if (!fakeRc) {
-		return puglWinError(&fakeWin, PUGL_ERR_CREATE_CONTEXT);
+		return puglWinError(&fakeWin, PUGL_CREATE_CONTEXT_FAILED);
 	}
 
 	// Enter fake context and get extension functions
@@ -160,7 +160,7 @@ puglWinGlConfigure(PuglView* view)
 		UINT numFormats = 0;
 		if (!surface->procs.wglChoosePixelFormat(
 			    fakeWin.hdc, pixelAttrs, NULL, 1u, &impl->pfId, &numFormats)) {
-			return puglWinError(&fakeWin, PUGL_ERR_SET_FORMAT);
+			return puglWinError(&fakeWin, PUGL_SET_FORMAT_FAILED);
 		}
 
 		DescribePixelFormat(
@@ -177,10 +177,10 @@ puglWinGlConfigure(PuglView* view)
 	ReleaseDC(fakeWin.hwnd, fakeWin.hdc);
 	DestroyWindow(fakeWin.hwnd);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinGlCreate(PuglView* view)
 {
 	PuglInternals* const    impl    = view->impl;
@@ -205,16 +205,16 @@ puglWinGlCreate(PuglView* view)
 		DestroyWindow(impl->hwnd);
 		impl->hwnd = NULL;
 		impl->hdc  = NULL;
-		return PUGL_ERR_SET_FORMAT;
+		return PUGL_SET_FORMAT_FAILED;
 	}
 
 	// Create GL context
 	if (surface->procs.wglCreateContextAttribs &&
 	    !(surface->hglrc = surface->procs.wglCreateContextAttribs(
 		      impl->hdc, 0, contextAttribs))) {
-		return PUGL_ERR_CREATE_CONTEXT;
+		return PUGL_CREATE_CONTEXT_FAILED;
 	} else if (!(surface->hglrc = wglCreateContext(impl->hdc))) {
-		return PUGL_ERR_CREATE_CONTEXT;
+		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
 	// Enter context and set swap interval
@@ -223,10 +223,10 @@ puglWinGlCreate(PuglView* view)
 		surface->procs.wglSwapInterval(view->hints[PUGL_SWAP_INTERVAL]);
 	}
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinGlDestroy(PuglView* view)
 {
 	PuglWinGlSurface* surface = (PuglWinGlSurface*)view->impl->surface;
@@ -237,10 +237,10 @@ puglWinGlDestroy(PuglView* view)
 		view->impl->surface = NULL;
 	}
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinGlEnter(PuglView* view, bool drawing)
 {
 	PuglWinGlSurface* surface = (PuglWinGlSurface*)view->impl->surface;
@@ -252,10 +252,10 @@ puglWinGlEnter(PuglView* view, bool drawing)
 		BeginPaint(view->impl->hwnd, &ps);
 	}
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinGlLeave(PuglView* view, bool drawing)
 {
 	if (drawing) {
@@ -265,16 +265,15 @@ puglWinGlLeave(PuglView* view, bool drawing)
 	}
 
 	wglMakeCurrent(NULL, NULL);
-
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinGlResize(PuglView* PUGL_UNUSED(view),
                 int       PUGL_UNUSED(width),
                 int       PUGL_UNUSED(height))
 {
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 static void*

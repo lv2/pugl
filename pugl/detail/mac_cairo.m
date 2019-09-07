@@ -61,13 +61,13 @@
 
 @end
 
-static int
+static PuglStatus
 puglMacCairoConfigure(PuglView* PUGL_UNUSED(view))
 {
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacCairoCreate(PuglView* view)
 {
 	PuglInternals* impl     = view->impl;
@@ -82,10 +82,10 @@ puglMacCairoCreate(PuglView* view)
 	}
 
 	impl->drawView = drawView;
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacCairoDestroy(PuglView* view)
 {
 	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
@@ -94,15 +94,15 @@ puglMacCairoDestroy(PuglView* view)
 	[drawView release];
 
 	view->impl->drawView = nil;
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacCairoEnter(PuglView* view, bool drawing)
 {
 	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
 	if (!drawing) {
-		return 0;
+		return PUGL_SUCCESS;
 	}
 
 	assert(!drawView->surface);
@@ -115,15 +115,15 @@ puglMacCairoEnter(PuglView* view, bool drawing)
 
 	drawView->cr = cairo_create(drawView->surface);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacCairoLeave(PuglView* view, bool drawing)
 {
 	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
 	if (!drawing) {
-		return 0;
+		return PUGL_SUCCESS;
 	}
 
 	assert(drawView->surface);
@@ -138,16 +138,16 @@ puglMacCairoLeave(PuglView* view, bool drawing)
 
 	CGContextFlush(context);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacCairoResize(PuglView* PUGL_UNUSED(view),
                    int       PUGL_UNUSED(width),
                    int       PUGL_UNUSED(height))
 {
 	// No need to resize, the surface is created for the drawing context
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 static void*

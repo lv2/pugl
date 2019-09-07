@@ -51,7 +51,7 @@ puglWinCairoCreateDrawContext(PuglView* view)
 	    (st = cairo_surface_status(surface->surface)) ||
 	    !(surface->cr = cairo_create(surface->surface)) ||
 	    (st = cairo_status(surface->cr))) {
-		return PUGL_ERR_CREATE_CONTEXT;
+		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
 	cairo_save(surface->cr);
@@ -95,7 +95,7 @@ puglWinCairoConfigure(PuglView* view)
 		DestroyWindow(impl->hwnd);
 		impl->hwnd = NULL;
 		impl->hdc  = NULL;
-		return PUGL_ERR_SET_FORMAT;
+		return PUGL_SET_FORMAT_FAILED;
 	}
 
 	impl->surface = (PuglWinCairoSurface*)calloc(

@@ -93,13 +93,13 @@ typedef NSUInteger NSWindowStyleMask;
 
 @end
 
-static int
+static PuglStatus
 puglMacGlConfigure(PuglView* PUGL_UNUSED(view))
 {
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacGlCreate(PuglView* view)
 {
 	PuglInternals*  impl     = view->impl;
@@ -116,10 +116,10 @@ puglMacGlCreate(PuglView* view)
 	}
 
 	impl->drawView = drawView;
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacGlDestroy(PuglView* view)
 {
 	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
@@ -128,19 +128,19 @@ puglMacGlDestroy(PuglView* view)
 	[drawView release];
 
 	view->impl->drawView = nil;
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacGlEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 {
 	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
 
 	[[drawView openGLContext] makeCurrentContext];
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacGlLeave(PuglView* view, bool drawing)
 {
 	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
@@ -151,17 +151,17 @@ puglMacGlLeave(PuglView* view, bool drawing)
 
 	[NSOpenGLContext clearCurrentContext];
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglMacGlResize(PuglView* view, int PUGL_UNUSED(width), int PUGL_UNUSED(height))
 {
 	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
 
 	[drawView reshape];
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 static void*

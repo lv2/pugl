@@ -127,7 +127,8 @@ puglPollEvents(PuglWorld* world, const double timeout)
 		ret = select(nfds, &fds, NULL, NULL, &tv);
 	}
 
-	return ret < 0 ? PUGL_ERR_UNKNOWN : ret == 0 ? PUGL_FAILURE : PUGL_SUCCESS;
+	return ret < 0 ? PUGL_UNKNOWN_ERROR
+	               : ret == 0 ? PUGL_FAILURE : PUGL_SUCCESS;
 }
 
 static PuglView*
@@ -185,10 +186,13 @@ puglCreateWindow(PuglView* view, const char* title)
 	impl->screen  = DefaultScreen(display);
 
 	if (!view->backend || !view->backend->configure) {
-		return 1;
-	} else if (view->backend->configure(view) || !impl->vi) {
+		return PUGL_BAD_BACKEND;
+	}
+
+	PuglStatus st = view->backend->configure(view);
+	if (st || !impl->vi) {
 		view->backend->destroy(view);
-		return 2;
+		return st ? st : PUGL_BACKEND_FAILED;
 	}
 
 	Window xParent = view->parent ? (Window)view->parent
@@ -207,8 +211,8 @@ puglCreateWindow(PuglView* view, const char* title)
 		0, impl->vi->depth, InputOutput,
 		impl->vi->visual, CWColormap | CWEventMask, &attr);
 
-	if (view->backend->create(view)) {
-		return 3;
+	if ((st = view->backend->create(view))) {
+		return st;
 	}
 
 	XSizeHints sizeHints = getSizeHints(view);
@@ -239,7 +243,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		fprintf(stderr, "warning: XCreateIC failed\n");
 	}
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -793,7 +797,7 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 	    XMoveResizeWindow(view->world->impl->display, view->impl->win,
 	                      (int)frame.x, (int)frame.y,
 	                      (int)frame.width, (int)frame.height)) {
-		return PUGL_ERR_UNKNOWN;
+		return PUGL_UNKNOWN_ERROR;
 	}
 
 	return PUGL_SUCCESS;
