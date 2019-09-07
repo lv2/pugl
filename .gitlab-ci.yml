@@ -1,5 +1,6 @@
 stages:
   - build
+  - deploy
 
 .build_template: &build_definition
   stage: build
@@ -39,7 +40,10 @@ arm64_rel:
 x64_dbg:
   <<: *build_definition
   image: lv2plugin/debian-x64
-  script: python ./waf configure build -dsT --no-coverage
+  script: python ./waf configure build -dsT --no-coverage --docs
+  artifacts:
+    paths:
+      - build/doc
 
 x64_rel:
   <<: *build_definition
@@ -102,3 +106,14 @@ win_rel:
   script: python ./waf configure build -T --no-coverage
   tags:
     - windows
+
+pages:
+  stage: deploy
+  script: mv build/doc/html/ public/
+  dependencies:
+    - x64_dbg
+  artifacts:
+    paths:
+      - public
+  only:
+    - master

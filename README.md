@@ -67,4 +67,9 @@ don't depend on Cairo and its dependencies, or vice-versa.
 Distributions are encouraged to include static libraries if possible so that
 developers can build portable plugin binaries.
 
+Documentation
+-------------
+
+ * [API reference](https://lv2.gitlab.io/pugl/)
+
  -- David Robillard <d@drobilla.net>
