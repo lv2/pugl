@@ -62,7 +62,7 @@ puglX11CairoCreate(PuglView* view)
 	surface.back = cairo_xlib_surface_create(
 		impl->display, impl->win, impl->vi->visual, width, height);
 	surface.front = cairo_surface_create_similar(
-		surface.back, CAIRO_CONTENT_COLOR, width, height);
+		surface.back, CAIRO_CONTENT_COLOR_ALPHA, width, height);
 	surface.backCr  = cairo_create(surface.back);
 	surface.frontCr = cairo_create(surface.front);
 
@@ -140,7 +140,7 @@ puglX11CairoResize(PuglView* view, int width, int height)
 	cairo_destroy(surface->frontCr);
 	cairo_surface_destroy(surface->front);
 	if (!(surface->front = cairo_surface_create_similar(
-		      surface->back, CAIRO_CONTENT_COLOR, width, height))) {
+		      surface->back, CAIRO_CONTENT_COLOR_ALPHA, width, height))) {
 		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
