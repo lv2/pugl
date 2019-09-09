@@ -26,6 +26,7 @@
 #include "pugl/detail/types.h"
 #include "pugl/detail/x11.h"
 #include "pugl/pugl.h"
+#include "pugl/pugl_x11.h"
 
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -903,4 +904,10 @@ puglSetClipboard(PuglView* const   view,
 
 	XSetSelectionOwner(impl->display, atoms->CLIPBOARD, impl->win, CurrentTime);
 	return PUGL_SUCCESS;
+}
+
+Display*
+puglX11GetDisplay(PuglWorld* world)
+{
+	return world->impl->display;
 }
