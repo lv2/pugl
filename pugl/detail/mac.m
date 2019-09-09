@@ -729,6 +729,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		     puglConstraint(impl->wrapperView, NSLayoutAttributeWidth, view->minWidth)];
 	[impl->wrapperView addConstraint:
 		     puglConstraint(impl->wrapperView, NSLayoutAttributeHeight, view->minHeight)];
+	[impl->wrapperView setReshaped];
 
 	// Create draw view to be rendered to
 	int st = 0;
@@ -881,10 +882,12 @@ puglPollEvents(PuglWorld* world, const double timeout)
 	                     untilDate:date
 	                     inMode:NSDefaultRunLoopMode
 	                     dequeue:YES];
-
-	[world->impl->app postEvent:event atStart:true];
-
-	return PUGL_SUCCESS;
+	if (event) {
+		[world->impl->app postEvent:event atStart:true];
+		return PUGL_SUCCESS;
+	} else {
+		return PUGL_FAILURE;
+	}
 }
 
 PuglStatus
