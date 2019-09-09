@@ -579,9 +579,22 @@ sendRedisplayEvent(PuglView* view)
 	XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
 }
 
+static void
+sendAllRedisplayEvents(PuglWorld* world) 
+{
+	// Send expose events for any views with pending redisplays
+	for (size_t i = 0; i < world->numViews; ++i) {
+		if (world->views[i]->redisplay) {
+			sendRedisplayEvent(world->views[i]);
+			world->views[i]->redisplay = false;
+		}
+	}
+}
+
 PuglStatus
 puglPollEvents(PuglWorld* world, const double timeout)
 {
+	sendAllRedisplayEvents(world);
 	XFlush(world->impl->display);
 
 	const int fd   = ConnectionNumber(world->impl->display);
@@ -609,13 +622,7 @@ puglDispatchEvents(PuglWorld* world)
 {
 	const PuglX11Atoms* const atoms = &world->impl->atoms;
 
-	// Send expose events for any views with pending redisplays
-	for (size_t i = 0; i < world->numViews; ++i) {
-		if (world->views[i]->redisplay) {
-			sendRedisplayEvent(world->views[i]);
-			world->views[i]->redisplay = false;
-		}
-	}
+	sendAllRedisplayEvents(world);
 
 	// Flush just once at the start to fill event queue
 	Display* display = world->impl->display;
