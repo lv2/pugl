@@ -552,10 +552,18 @@ PUGL_API bool
 puglGetVisible(PuglView* view);
 
 /**
-   Request a redisplay on the next call to puglDispatchEvents().
+   Request a redisplay for the whole view on the next call 
+   to puglDispatchEvents().
 */
 PUGL_API PuglStatus
 puglPostRedisplay(PuglView* view);
+
+/**
+   Request a redisplay of the view part specified by the 
+   coordinates in the given rectangle.
+*/
+PUGL_API PuglStatus
+puglPostRedisplayRect(PuglView* view, PuglRect rect);
 
 /**
    @}

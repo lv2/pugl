@@ -25,6 +25,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -786,6 +787,20 @@ puglPostRedisplay(PuglView* view)
 {
 	InvalidateRect(view->impl->hwnd, NULL, false);
 	view->redisplay = true;
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglPostRedisplayRect(PuglView* view, PuglRect rect)
+{
+	if (!view->redisplay) {
+		RECT r;
+		r.left   = (long) floor(rect.x);
+		r.top    = (long) floor(rect.y);
+		r.right  = (long) ceil (rect.x + rect.width);
+		r.bottom = (long) ceil (rect.y + rect.height);
+		InvalidateRect(view->impl->hwnd, &r, false);
+	}
 	return PUGL_SUCCESS;
 }
 

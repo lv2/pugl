@@ -37,6 +37,7 @@
 #include <sys/time.h>
 
 #include <limits.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -771,6 +772,22 @@ PuglStatus
 puglPostRedisplay(PuglView* view)
 {
 	view->redisplay = true;
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglPostRedisplayRect(PuglView* view, PuglRect rect)
+{
+	if (!view->redisplay) {
+		int x = (int)floor(rect.x);
+		int y = (int)floor(rect.y);
+		int w = (int) ceil(rect.x + rect.width)  - x;
+		int h = (int) ceil(rect.y + rect.height) - y;
+		XExposeEvent ev = { Expose, 0, True, view->impl->display, view->impl->win,
+		                    x, y, w, h, 0 };
+	
+		XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
+	}
 	return PUGL_SUCCESS;
 }
 
