@@ -59,6 +59,11 @@
 	[wrapper dispatchExpose:rect];
 }
 
+- (BOOL) isFlipped
+{
+	return YES;
+}
+
 @end
 
 static PuglStatus
