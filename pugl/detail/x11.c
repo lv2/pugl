@@ -597,6 +597,9 @@ puglPollEvents(PuglWorld* world, const double timeout)
 	sendAllRedisplayEvents(world);
 	XFlush(world->impl->display);
 
+	if (XEventsQueued(world->impl->display, QueuedAlready)) {
+		return PUGL_SUCCESS;
+	}
 	const int fd   = ConnectionNumber(world->impl->display);
 	const int nfds = fd + 1;
 	int       ret  = 0;
