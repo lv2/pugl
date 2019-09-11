@@ -118,7 +118,9 @@ puglInitViewInternals(void)
 PuglStatus
 puglPollEvents(PuglWorld* world, const double timeout)
 {
-	XFlush(world->impl->display);
+	if (XPending(world->impl->display) > 0) {
+		return PUGL_SUCCESS;
+	}
 
 	const int fd   = ConnectionNumber(world->impl->display);
 	const int nfds = fd + 1;
