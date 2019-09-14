@@ -805,6 +805,8 @@ puglSetClipboard(PuglView*   view,
 PUGL_API PuglStatus
 puglRequestAttention(PuglView* view);
 
+#ifndef PUGL_DISABLE_DEPRECATED
+
 /**
    @}
    @name Deprecated API
@@ -1014,6 +1016,8 @@ puglWaitForEvent(PuglView* view);
 */
 PUGL_API PUGL_DEPRECATED_BY("puglDispatchEvents") PuglStatus
 puglProcessEvents(PuglView* view);
+
+#endif  /* PUGL_DISABLE_DEPRECATED */
 
 /**
    @}
