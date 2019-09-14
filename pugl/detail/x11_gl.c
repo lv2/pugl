@@ -119,6 +119,9 @@ puglX11GlCreate(PuglView* view)
 	const int ctx_attrs[] = {
 		GLX_CONTEXT_MAJOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MAJOR],
 		GLX_CONTEXT_MINOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MINOR],
+		GLX_CONTEXT_FLAGS_ARB, (view->hints[PUGL_USE_DEBUG_CONTEXT]
+		                        ? GLX_CONTEXT_DEBUG_BIT_ARB
+		                        : 0),
 		GLX_CONTEXT_PROFILE_MASK_ARB, (view->hints[PUGL_USE_COMPAT_PROFILE]
 		                               ? GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB
 		                               : GLX_CONTEXT_CORE_PROFILE_BIT_ARB),

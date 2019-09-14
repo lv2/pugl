@@ -54,6 +54,7 @@
 
 #define WGL_CONTEXT_CORE_PROFILE_BIT_ARB          0x00000001
 #define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+#define WGL_CONTEXT_DEBUG_BIT_ARB                 0x00000001
 
 typedef HGLRC (*WglCreateContextAttribs)(HDC, HGLRC, const int*);
 typedef BOOL (*WglSwapInterval)(int);
@@ -190,7 +191,9 @@ puglWinGlCreate(PuglView* view)
 	const int contextAttribs[] = {
 		WGL_CONTEXT_MAJOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MAJOR],
 		WGL_CONTEXT_MINOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MINOR],
-		WGL_CONTEXT_PROFILE_MASK_ARB,
+		WGL_CONTEXT_FLAGS_ARB, (view->hints[PUGL_USE_DEBUG_CONTEXT]
+		                        ? WGL_CONTEXT_DEBUG_BIT_ARB
+		                        : 0),
 		(view->hints[PUGL_USE_COMPAT_PROFILE]
 		 ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB
 		 : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB),

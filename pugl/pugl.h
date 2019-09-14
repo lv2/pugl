@@ -78,6 +78,7 @@ typedef enum {
 */
 typedef enum {
 	PUGL_USE_COMPAT_PROFILE,    /**< Use compatible (not core) OpenGL profile */
+	PUGL_USE_DEBUG_CONTEXT,     /**< True to use a debug OpenGL context */
 	PUGL_CONTEXT_VERSION_MAJOR, /**< OpenGL context major version */
 	PUGL_CONTEXT_VERSION_MINOR, /**< OpenGL context minor version */
 	PUGL_RED_BITS,              /**< Number of bits for red channel */
