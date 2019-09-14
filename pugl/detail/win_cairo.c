@@ -34,7 +34,7 @@ typedef struct  {
 	HBITMAP          drawBitmap;
 } PuglWinCairoSurface;
 
-static int
+static PuglStatus
 puglWinCairoCreateDrawContext(PuglView* view)
 {
 	PuglInternals* const       impl    = view->impl;
@@ -55,10 +55,10 @@ puglWinCairoCreateDrawContext(PuglView* view)
 	}
 
 	cairo_save(surface->cr);
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinCairoDestroyDrawContext(PuglView* view)
 {
 	PuglInternals* const       impl    = view->impl;
@@ -74,10 +74,10 @@ puglWinCairoDestroyDrawContext(PuglView* view)
 	surface->drawDc     = NULL;
 	surface->drawBitmap = NULL;
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinCairoConfigure(PuglView* view)
 {
 	PuglInternals* const impl = view->impl;
@@ -101,16 +101,16 @@ puglWinCairoConfigure(PuglView* view)
 	impl->surface = (PuglWinCairoSurface*)calloc(
 		1, sizeof(PuglWinCairoSurface));
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinCairoCreate(PuglView* view)
 {
 	return puglWinCairoCreateDrawContext(view);
 }
 
-static int
+static PuglStatus
 puglWinCairoDestroy(PuglView* view)
 {
 	PuglInternals* const       impl    = view->impl;
@@ -120,32 +120,32 @@ puglWinCairoDestroy(PuglView* view)
 	free(surface);
 	impl->surface = NULL;
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinCairoEnter(PuglView* view, bool drawing)
 {
 	PuglInternals* const       impl    = view->impl;
 	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 	if (!drawing) {
-		return 0;
+		return PUGL_SUCCESS;
 	}
 
 	PAINTSTRUCT ps;
 	BeginPaint(view->impl->hwnd, &ps);
 	cairo_save(surface->cr);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinCairoLeave(PuglView* view, bool drawing)
 {
 	PuglInternals* const       impl    = view->impl;
 	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 	if (!drawing) {
-		return 0;
+		return PUGL_SUCCESS;
 	}
 
 	cairo_restore(surface->cr);
@@ -158,21 +158,21 @@ puglWinCairoLeave(PuglView* view, bool drawing)
 	EndPaint(view->impl->hwnd, &ps);
 	SwapBuffers(view->impl->hdc);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
-static int
+static PuglStatus
 puglWinCairoResize(PuglView* view,
                    int       PUGL_UNUSED(width),
                    int       PUGL_UNUSED(height))
 {
-	int st = 0;
+	PuglStatus st = PUGL_SUCCESS;
 	if ((st = puglWinCairoDestroyDrawContext(view)) ||
 	    (st = puglWinCairoCreateDrawContext(view))) {
 		return st;
 	}
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 static void*
