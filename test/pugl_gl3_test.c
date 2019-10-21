@@ -302,7 +302,7 @@ main(int argc, char** argv)
 	puglSetMinSize(app.view, defaultWidth / 4, defaultHeight / 4);
 	puglSetAspectRatio(app.view, 1, 1, 16, 9);
 	puglSetBackend(app.view, puglGlBackend());
-	puglSetViewHint(app.view, PUGL_USE_COMPAT_PROFILE, PUGL_TRUE);
+	puglSetViewHint(app.view, PUGL_USE_COMPAT_PROFILE, PUGL_FALSE);
 	puglSetViewHint(app.view, PUGL_CONTEXT_VERSION_MAJOR, 3);
 	puglSetViewHint(app.view, PUGL_CONTEXT_VERSION_MINOR, 3);
 	puglSetViewHint(app.view, PUGL_RESIZABLE, app.opts.resizable);
