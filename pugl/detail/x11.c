@@ -266,12 +266,16 @@ puglHideWindow(PuglView* view)
 void
 puglFreeViewInternals(PuglView* view)
 {
-	if (view) {
+	if (view && view->impl) {
 		if (view->impl->xic) {
 			XDestroyIC(view->impl->xic);
 		}
-		view->backend->destroy(view);
-		XDestroyWindow(view->impl->display, view->impl->win);
+		if (view->backend) {
+			view->backend->destroy(view);
+		}
+		if (view->impl->display) {
+			XDestroyWindow(view->impl->display, view->impl->win);
+		}
 		XFree(view->impl->vi);
 		free(view->impl);
 	}

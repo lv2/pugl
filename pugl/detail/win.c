@@ -211,7 +211,10 @@ void
 puglFreeViewInternals(PuglView* view)
 {
 	if (view) {
-		view->backend->destroy(view);
+		if (view->backend) {
+			view->backend->destroy(view);
+		}
+
 		ReleaseDC(view->impl->hwnd, view->impl->hdc);
 		DestroyWindow(view->impl->hwnd);
 		free(view->impl);

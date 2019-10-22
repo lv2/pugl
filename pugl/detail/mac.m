@@ -818,17 +818,24 @@ puglHideWindow(PuglView* view)
 void
 puglFreeViewInternals(PuglView* view)
 {
-	view->backend->destroy(view);
-	[view->impl->wrapperView removeFromSuperview];
-	view->impl->wrapperView->puglview = NULL;
-	if (view->impl->window) {
-		[view->impl->window close];
+	if (view) {
+		if (view->backend) {
+			view->backend->destroy(view);
+		}
+
+		if (view->impl) {
+			[view->impl->wrapperView removeFromSuperview];
+			view->impl->wrapperView->puglview = NULL;
+			if (view->impl->window) {
+				[view->impl->window close];
+			}
+			[view->impl->wrapperView release];
+			if (view->impl->window) {
+				[view->impl->window release];
+			}
+			free(view->impl);
+		}
 	}
-	[view->impl->wrapperView release];
-	if (view->impl->window) {
-		[view->impl->window release];
-	}
-	free(view->impl);
 }
 
 PuglStatus
