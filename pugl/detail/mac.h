@@ -30,7 +30,7 @@
 @public
 	PuglView*                  puglview;
 	NSTrackingArea*            trackingArea;
-    NSMutableAttributedString* markedText;
+	NSMutableAttributedString* markedText;
 	NSTimer*                   timer;
 	NSTimer*                   urgentTimer;
 	bool                       reshaped;
