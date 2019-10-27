@@ -32,6 +32,7 @@ typedef struct {
 	bool help;
 	bool ignoreKeyRepeat;
 	bool resizable;
+	bool verbose;
 } PuglTestOptions;
 
 typedef float vec4[4];
@@ -164,8 +165,11 @@ printModifiers(const uint32_t mods)
 }
 
 static inline int
-printEvent(const PuglEvent* event, const char* prefix)
+printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 {
+#define FFMT "%6.1f"
+#define PFMT FFMT " " FFMT
+
 	switch (event->type) {
 	case PUGL_KEY_PRESS:
 		return fprintf(stderr, "%sKey press   code %3u key  U+%04X\n",
@@ -179,24 +183,24 @@ printEvent(const PuglEvent* event, const char* prefix)
 		               event->text.character, event->text.string);
 	case PUGL_BUTTON_PRESS:
 	case PUGL_BUTTON_RELEASE:
-		return (fprintf(stderr, "%sMouse %d %s at %f,%f ",
+		return (fprintf(stderr, "%sMouse %d %s at " PFMT " ",
 		                prefix,
 		                event->button.button,
-		                (event->type == PUGL_BUTTON_PRESS) ? "down" : "up",
+		                (event->type == PUGL_BUTTON_PRESS) ? "down" : "up  ",
 		                event->button.x,
 		                event->button.y) +
 		        printModifiers(event->scroll.state));
 	case PUGL_SCROLL:
-		return (fprintf(stderr, "%sScroll %f %f %f %f ",
+		return (fprintf(stderr, "%sScroll %5.1f %5.1f at " PFMT " ",
 		                prefix,
-		                event->scroll.x, event->scroll.y,
-		                event->scroll.dx, event->scroll.dy) +
+		                event->scroll.dx, event->scroll.dy,
+		                event->scroll.x, event->scroll.y) +
 		        printModifiers(event->scroll.state));
 	case PUGL_ENTER_NOTIFY:
-		return fprintf(stderr, "%sMouse enter at %f,%f\n",
+		return fprintf(stderr, "%sMouse enter  at " PFMT "\n",
 		               prefix, event->crossing.x, event->crossing.y);
 	case PUGL_LEAVE_NOTIFY:
-		return fprintf(stderr, "%sMouse leave at %f,%f\n",
+		return fprintf(stderr, "%sMouse leave  at " PFMT "\n",
 		               prefix, event->crossing.x, event->crossing.y);
 	case PUGL_FOCUS_IN:
 		return fprintf(stderr, "%sFocus in%s\n",
@@ -206,6 +210,33 @@ printEvent(const PuglEvent* event, const char* prefix)
 		               prefix, event->focus.grab ? " (ungrab)" : "");
 	default: break;
 	}
+
+	if (verbose) {
+		switch (event->type) {
+		case PUGL_CONFIGURE:
+			return fprintf(stderr, "%sConfigure " PFMT " " PFMT "\n", prefix,
+			               event->expose.x,
+			               event->expose.y,
+			               event->expose.width,
+			               event->expose.height);
+		case PUGL_EXPOSE:
+			return fprintf(stderr,
+			               "%sExpose    " PFMT " " PFMT "\n", prefix,
+			               event->expose.x,
+			               event->expose.y,
+			               event->expose.width,
+			               event->expose.height);
+		case PUGL_CLOSE:
+			return fprintf(stderr, "%sClose\n", prefix);
+		case PUGL_MOTION_NOTIFY:
+			return fprintf(stderr, "%sMouse motion at " PFMT "\n",
+			               prefix, event->motion.x, event->motion.y);
+		default:
+			break;
+		}
+	}
+
+#undef FFMT
 
 	return 0;
 }
@@ -219,6 +250,7 @@ puglPrintTestUsage(const char* prog, const char* posHelp)
 	       "  -d  Enable double-buffering\n"
 	       "  -h  Display this help\n"
 	       "  -i  Ignore key repeat\n"
+	       "  -v  Print verbose output\n"
 	       "  -r  Resizable window\n",
 	       prog, posHelp);
 }
@@ -226,7 +258,7 @@ puglPrintTestUsage(const char* prog, const char* posHelp)
 static inline PuglTestOptions
 puglParseTestOptions(int* pargc, char*** pargv)
 {
-	PuglTestOptions opts = { 0, 0, false, false, false, false };
+	PuglTestOptions opts = { 0, 0, false, false, false, false, false };
 
 	char** const argv = *pargv;
 	int          i    = 1;
@@ -244,6 +276,8 @@ puglParseTestOptions(int* pargc, char*** pargv)
 			opts.ignoreKeyRepeat = true;
 		} else if (!strcmp(argv[i], "-r")) {
 			opts.resizable = true;
+		} else if (!strcmp(argv[i], "-v")) {
+			opts.verbose = true;
 		} else if (argv[i][0] != '-') {
 			break;
 		} else {

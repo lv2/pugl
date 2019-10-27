@@ -220,7 +220,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 {
 	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
-	printEvent(event, "Event: ");
+	printEvent(event, "Event: ", app->opts.verbose);
 
 	switch (event->type) {
 	case PUGL_CONFIGURE:

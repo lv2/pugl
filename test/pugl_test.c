@@ -49,6 +49,7 @@ typedef struct
 	double     lastDrawTime;
 	unsigned   framesDrawn;
 	bool       mouseEntered;
+	bool       verbose;
 } PuglTestApp;
 
 static PuglRect
@@ -199,7 +200,7 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 	PuglTestApp*   app         = (PuglTestApp*)puglGetHandle(view);
 	const PuglRect parentFrame = puglGetFrame(view);
 
-	printEvent(event, "Parent: ");
+	printEvent(event, "Parent: ", app->verbose);
 
 	switch (event->type) {
 	case PUGL_CONFIGURE:
@@ -247,7 +248,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 {
 	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
-	printEvent(event, "Child: ");
+	printEvent(event, "Child:  ", app->verbose);
 
 	switch (event->type) {
 	case PUGL_CONFIGURE:
@@ -260,7 +261,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 		app->quit = 1;
 		break;
 	case PUGL_KEY_PRESS:
-		onKeyPress(view, &event->key, "Child: ");
+		onKeyPress(view, &event->key, "Child:  ");
 		break;
 	case PUGL_MOTION_NOTIFY:
 		app->xAngle = fmodf(app->xAngle - (float)(event->motion.x - app->lastMouseX), 360.0f);
@@ -300,6 +301,7 @@ main(int argc, char** argv)
 	}
 
 	app.continuous = opts.continuous;
+	app.verbose    = opts.verbose;
 
 	app.world  = puglNewWorld();
 	app.parent = puglNewView(app.world);
