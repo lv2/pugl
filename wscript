@@ -264,6 +264,8 @@ def build(bld):
         if bld.is_defined('HAVE_GL'):
             build_test('pugl_test', ['test/pugl_test.c'],
                        platform, 'gl', uselib=['M'])
+            build_test('pugl_print_events', ['test/pugl_print_events.c'],
+                       platform, 'stub')
             build_test('pugl_gl3_test',
                        ['test/pugl_gl3_test.c', 'test/glad/glad.c'],
                        platform, 'gl', uselib=['M', 'DL'])
