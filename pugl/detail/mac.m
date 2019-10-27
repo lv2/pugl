@@ -24,6 +24,7 @@
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/mac.h"
 #include "pugl/pugl.h"
+#include "pugl/pugl_stub_backend.h"
 
 #import <Cocoa/Cocoa.h>
 
@@ -1070,4 +1071,18 @@ puglSetClipboard(PuglView* const   view,
 	              forType:NSStringPboardType];
 
 	return PUGL_SUCCESS;
+}
+
+const PuglBackend*
+puglStubBackend(void)
+{
+	static const PuglBackend backend = {puglStubConfigure,
+	                                    puglStubCreate,
+	                                    puglStubDestroy,
+	                                    puglStubEnter,
+	                                    puglStubLeave,
+	                                    puglStubResize,
+	                                    puglStubGetContext};
+
+	return &backend;
 }

@@ -26,6 +26,7 @@
 #include "pugl/detail/types.h"
 #include "pugl/detail/x11.h"
 #include "pugl/pugl.h"
+#include "pugl/pugl_stub_backend.h"
 
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -907,4 +908,18 @@ puglSetClipboard(PuglView* const   view,
 
 	XSetSelectionOwner(impl->display, atoms->CLIPBOARD, impl->win, CurrentTime);
 	return PUGL_SUCCESS;
+}
+
+const PuglBackend*
+puglStubBackend(void)
+{
+	static const PuglBackend backend = {puglX11StubConfigure,
+	                                    puglStubCreate,
+	                                    puglStubDestroy,
+	                                    puglStubEnter,
+	                                    puglStubLeave,
+	                                    puglStubResize,
+	                                    puglStubGetContext};
+
+	return &backend;
 }

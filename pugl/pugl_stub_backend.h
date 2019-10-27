@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl_stub_backend.h Stub backend functions.
+   @file pugl_stub_backend.h Stub backend functions and accessor declaration.
 */
 
 #ifndef PUGL_STUB_BACKEND_H
@@ -26,6 +26,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+   Stub graphics backend.
+
+   This backend just creates a simple native window without setting up any
+   portable graphics API.
+*/
+PUGL_API
+const PuglBackend*
+puglStubBackend(void);
 
 /**
    @name Stub backend functions
