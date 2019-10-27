@@ -21,6 +21,7 @@
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/mac.h"
 #include "pugl/pugl_cairo_backend.h"
+#include "pugl/pugl_stub_backend.h"
 
 #include <cairo-quartz.h>
 
@@ -60,12 +61,6 @@
 }
 
 @end
-
-static PuglStatus
-puglMacCairoConfigure(PuglView* PUGL_UNUSED(view))
-{
-	return PUGL_SUCCESS;
-}
 
 static PuglStatus
 puglMacCairoCreate(PuglView* view)
@@ -141,15 +136,6 @@ puglMacCairoLeave(PuglView* view, bool drawing)
 	return PUGL_SUCCESS;
 }
 
-static PuglStatus
-puglMacCairoResize(PuglView* PUGL_UNUSED(view),
-                   int       PUGL_UNUSED(width),
-                   int       PUGL_UNUSED(height))
-{
-	// No need to resize, the surface is created for the drawing context
-	return PUGL_SUCCESS;
-}
-
 static void*
 puglMacCairoGetContext(PuglView* view)
 {
@@ -159,12 +145,12 @@ puglMacCairoGetContext(PuglView* view)
 const PuglBackend* puglCairoBackend(void)
 {
 	static const PuglBackend backend = {
-		puglMacCairoConfigure,
+		puglStubConfigure,
 		puglMacCairoCreate,
 		puglMacCairoDestroy,
 		puglMacCairoEnter,
 		puglMacCairoLeave,
-		puglMacCairoResize,
+		puglStubResize,
 		puglMacCairoGetContext
 	};
 

@@ -21,6 +21,7 @@
 #include "pugl/detail/types.h"
 #include "pugl/detail/win.h"
 #include "pugl/pugl_gl_backend.h"
+#include "pugl/pugl_stub_backend.h"
 
 #include <windows.h>
 
@@ -272,20 +273,6 @@ puglWinGlLeave(PuglView* view, bool drawing)
 	return PUGL_SUCCESS;
 }
 
-static PuglStatus
-puglWinGlResize(PuglView* PUGL_UNUSED(view),
-                int       PUGL_UNUSED(width),
-                int       PUGL_UNUSED(height))
-{
-	return PUGL_SUCCESS;
-}
-
-static void*
-puglWinGlGetContext(PuglView* PUGL_UNUSED(view))
-{
-	return NULL;
-}
-
 PuglGlFunc
 puglGetProcAddress(const char* name)
 {
@@ -309,8 +296,8 @@ puglGlBackend()
 		puglWinGlDestroy,
 		puglWinGlEnter,
 		puglWinGlLeave,
-		puglWinGlResize,
-		puglWinGlGetContext
+		puglStubResize,
+		puglStubGetContext
 	};
 
 	return &backend;

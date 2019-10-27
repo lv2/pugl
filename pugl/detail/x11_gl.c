@@ -22,6 +22,7 @@
 #include "pugl/detail/x11.h"
 #include "pugl/pugl.h"
 #include "pugl/pugl_gl_backend.h"
+#include "pugl/pugl_stub_backend.h"
 
 #include <GL/gl.h>
 #include <GL/glx.h>
@@ -188,20 +189,6 @@ puglX11GlLeave(PuglView* view, bool drawing)
 	return PUGL_SUCCESS;
 }
 
-static PuglStatus
-puglX11GlResize(PuglView* PUGL_UNUSED(view),
-                int       PUGL_UNUSED(width),
-                int       PUGL_UNUSED(height))
-{
-	return PUGL_SUCCESS;
-}
-
-static void*
-puglX11GlGetContext(PuglView* PUGL_UNUSED(view))
-{
-	return NULL;
-}
-
 PuglGlFunc
 puglGetProcAddress(const char* name)
 {
@@ -216,8 +203,8 @@ const PuglBackend* puglGlBackend(void)
 		puglX11GlDestroy,
 		puglX11GlEnter,
 		puglX11GlLeave,
-		puglX11GlResize,
-		puglX11GlGetContext
+		puglStubResize,
+		puglStubGetContext
 	};
 
 	return &backend;
