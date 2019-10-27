@@ -172,7 +172,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	}
 
 	PuglStatus st = view->backend->configure(view);
-	if (st || !impl->surface) {
+	if (st) {
 		return PUGL_SET_FORMAT_FAILED;
 	} else if ((st = view->backend->create(view))) {
 		return PUGL_CREATE_CONTEXT_FAILED;
