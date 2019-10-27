@@ -39,19 +39,6 @@ typedef struct  {
 } PuglX11CairoSurface;
 
 static PuglStatus
-puglX11CairoConfigure(PuglView* view)
-{
-	PuglInternals* const impl = view->impl;
-
-	XVisualInfo pat;
-	int         n;
-	pat.screen = impl->screen;
-	impl->vi = XGetVisualInfo(impl->display, VisualScreenMask, &pat, &n);
-
-	return PUGL_SUCCESS;
-}
-
-static PuglStatus
 puglX11CairoCreate(PuglView* view)
 {
 	PuglInternals* const impl    = view->impl;
@@ -163,7 +150,7 @@ const PuglBackend*
 puglCairoBackend(void)
 {
 	static const PuglBackend backend = {
-		puglX11CairoConfigure,
+		puglX11StubConfigure,
 		puglX11CairoCreate,
 		puglX11CairoDestroy,
 		puglX11CairoEnter,

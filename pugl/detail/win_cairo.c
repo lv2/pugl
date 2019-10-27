@@ -80,28 +80,14 @@ puglWinCairoDestroyDrawContext(PuglView* view)
 static PuglStatus
 puglWinCairoConfigure(PuglView* view)
 {
-	PuglInternals* const impl = view->impl;
-	PuglStatus           st   = PUGL_SUCCESS;
+	const PuglStatus st = puglWinStubConfigure(view);
 
-	if ((st = puglWinCreateWindow(view, "Pugl", &impl->hwnd, &impl->hdc))) {
-		return st;
+	if (!st) {
+		view->impl->surface = (PuglWinCairoSurface*)calloc(
+			1, sizeof(PuglWinCairoSurface));
 	}
 
-	impl->pfd  = puglWinGetPixelFormatDescriptor(view->hints);
-	impl->pfId = ChoosePixelFormat(impl->hdc, &impl->pfd);
-
-	if (!SetPixelFormat(impl->hdc, impl->pfId, &impl->pfd)) {
-		ReleaseDC(impl->hwnd, impl->hdc);
-		DestroyWindow(impl->hwnd);
-		impl->hwnd = NULL;
-		impl->hdc  = NULL;
-		return PUGL_SET_FORMAT_FAILED;
-	}
-
-	impl->surface = (PuglWinCairoSurface*)calloc(
-		1, sizeof(PuglWinCairoSurface));
-
-	return PUGL_SUCCESS;
+	return st;
 }
 
 static PuglStatus

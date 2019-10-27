@@ -113,3 +113,27 @@ puglWinCreateWindow(const PuglView* const view,
 
 	return PUGL_SUCCESS;
 }
+
+static inline PuglStatus
+puglWinStubConfigure(PuglView* view)
+{
+	PuglInternals* const impl = view->impl;
+	PuglStatus           st   = PUGL_SUCCESS;
+
+	if ((st = puglWinCreateWindow(view, "Pugl", &impl->hwnd, &impl->hdc))) {
+		return st;
+	}
+
+	impl->pfd  = puglWinGetPixelFormatDescriptor(view->hints);
+	impl->pfId = ChoosePixelFormat(impl->hdc, &impl->pfd);
+
+	if (!SetPixelFormat(impl->hdc, impl->pfId, &impl->pfd)) {
+		ReleaseDC(impl->hwnd, impl->hdc);
+		DestroyWindow(impl->hwnd);
+		impl->hwnd = NULL;
+		impl->hdc  = NULL;
+		return PUGL_SET_FORMAT_FAILED;
+	}
+
+	return PUGL_SUCCESS;
+}
