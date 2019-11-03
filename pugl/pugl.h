@@ -410,6 +410,13 @@ typedef union {
 } PuglEvent;
 
 /**
+   Return a string describing a status code.
+*/
+PUGL_API
+const char*
+puglStrerror(PuglStatus status);
+
+/**
    @anchor world
    @name World
    The top level context of a Pugl application.

@@ -228,7 +228,10 @@ main(int argc, char** argv)
 	puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
-	if (puglCreateWindow(view, "Pugl Test")) {
+	PuglStatus st = puglCreateWindow(view, "Pugl Test");
+	if (st) {
+		fprintf(stderr, "error: Failed to create window (%s)\n",
+		        puglStrerror(st));
 		return 1;
 	}
 

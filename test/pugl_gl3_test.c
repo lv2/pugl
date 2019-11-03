@@ -313,8 +313,10 @@ main(int argc, char** argv)
 	puglSetHandle(app.view, &app);
 	puglSetEventFunc(app.view, onEvent);
 
-	if (puglCreateWindow(app.view, "Pugl OpenGL 3")) {
-		fprintf(stderr, "error: Failed to create window\n");
+	const PuglStatus st = puglCreateWindow(app.view, "Pugl OpenGL 3");
+	if (st) {
+		fprintf(stderr, "error: Failed to create window (%s)\n",
+		        puglStrerror(st));
 		return 1;
 	}
 
