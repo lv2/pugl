@@ -194,6 +194,7 @@ puglWinGlCreate(PuglView* view)
 		WGL_CONTEXT_FLAGS_ARB, (view->hints[PUGL_USE_DEBUG_CONTEXT]
 		                        ? WGL_CONTEXT_DEBUG_BIT_ARB
 		                        : 0),
+		WGL_CONTEXT_PROFILE_MASK_ARB,
 		(view->hints[PUGL_USE_COMPAT_PROFILE]
 		 ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB
 		 : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB),
