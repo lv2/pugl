@@ -110,9 +110,32 @@ buttonDraw(cairo_t* cr, const Button* but, const double time)
 }
 
 static void
-onDisplay(PuglView* view)
+postButtonRedisplay(PuglView* view)
+{
+	const PuglRect frame  = puglGetFrame(view);
+	const double   width  = frame.width;
+	const double   height = frame.height;
+	const double   scaleX = (width - (512 / width)) / 512.0;
+	const double   scaleY = (height - (512 / height)) / 512.0;
+
+	for (Button* b = buttons; b->label; ++b) {
+		const double   span = sqrt(b->w * b->w + b->h * b->h);
+		const PuglRect rect = {(b->x - span) * scaleX,
+		                       (b->y - span) * scaleY,
+		                       span * 2.0 * scaleX,
+		                       span * 2.0 * scaleY};
+
+		puglPostRedisplayRect(view, rect);
+	}
+}
+
+static void
+onDisplay(PuglView* view, const PuglEventExpose* event)
 {
 	cairo_t* cr = (cairo_t*)puglGetContext(view);
+
+	cairo_rectangle(cr, event->x, event->y, event->width, event->height);
+	cairo_clip(cr);
 
 	// Draw background
 	const PuglRect frame  = puglGetFrame(view);
@@ -157,11 +180,11 @@ onEvent(PuglView* view, const PuglEvent* event)
 		break;
 	case PUGL_BUTTON_PRESS:
 		mouseDown = true;
-		puglPostRedisplay(view);
+		postButtonRedisplay(view);
 		break;
 	case PUGL_BUTTON_RELEASE:
 		mouseDown = false;
-		puglPostRedisplay(view);
+		postButtonRedisplay(view);
 		break;
 	case PUGL_ENTER_NOTIFY:
 		entered = true;
@@ -172,7 +195,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 		puglPostRedisplay(view);
 		break;
 	case PUGL_EXPOSE:
-		onDisplay(view);
+		onDisplay(view, &event->expose);
 		break;
 	case PUGL_CLOSE:
 		onClose(view);
@@ -214,7 +237,7 @@ main(int argc, char** argv)
 	PuglFpsPrinter fpsPrinter = { puglGetTime(world) };
 	while (!quit) {
 		if (opts.continuous) {
-			puglPostRedisplay(view);
+			postButtonRedisplay(view);
 		} else {
 			puglPollEvents(world, -1);
 		}

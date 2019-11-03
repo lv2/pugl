@@ -957,6 +957,15 @@ puglPostRedisplay(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
+PuglStatus
+puglPostRedisplayRect(PuglView* view, const PuglRect rect)
+{
+	[view->impl->drawView setNeedsDisplayInRect:
+		CGRectMake(rect.x, rect.y, rect.width, rect.height)];
+
+	return PUGL_SUCCESS;
+}
+
 PuglNativeWindow
 puglGetNativeWindow(PuglView* view)
 {

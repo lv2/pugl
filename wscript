@@ -220,6 +220,7 @@ def build(bld):
         platform = 'x11'
         build_platform('x11',
                        lib=['X11'],
+                       uselib=['M'],
                        source=lib_source + ['pugl/detail/x11.c'])
 
         if bld.is_defined('HAVE_GL'):

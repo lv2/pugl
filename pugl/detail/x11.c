@@ -38,6 +38,7 @@
 #include <sys/time.h>
 
 #include <limits.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -615,16 +616,6 @@ mergeExposeEvents(PuglEvent* dst, const PuglEvent* src)
 }
 
 static void
-sendRedisplayEvent(PuglView* view)
-{
-	XExposeEvent ev = { Expose, 0, True, view->impl->display, view->impl->win,
-	                    0, 0, (int)view->frame.width, (int)view->frame.height,
-	                    0 };
-
-	XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
-}
-
-static void
 flushPendingConfigure(PuglView* view)
 {
 	PuglEvent* const configure = &view->impl->pendingConfigure;
@@ -648,14 +639,6 @@ PUGL_API PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
 	const PuglX11Atoms* const atoms = &world->impl->atoms;
-
-	// Send expose events for any views with pending redisplays
-	for (size_t i = 0; i < world->numViews; ++i) {
-		if (world->views[i]->redisplay) {
-			sendRedisplayEvent(world->views[i]);
-			world->views[i]->redisplay = false;
-		}
-	}
 
 	// Flush just once at the start to fill event queue
 	Display* display = world->impl->display;
@@ -806,7 +789,27 @@ puglGetTime(const PuglWorld* world)
 PuglStatus
 puglPostRedisplay(PuglView* view)
 {
-	view->redisplay = true;
+	const PuglRect rect = { 0, 0, view->frame.width, view->frame.height };
+
+	return puglPostRedisplayRect(view, rect);
+}
+
+PuglStatus
+puglPostRedisplayRect(PuglView* view, PuglRect rect)
+{
+	const int x = (int)floor(rect.x);
+	const int y = (int)floor(rect.y);
+	const int w = (int)ceil(rect.x + rect.width) - x;
+	const int h = (int)ceil(rect.y + rect.height) - y;
+
+	XExposeEvent ev = {Expose, 0, True,
+	                   view->impl->display, view->impl->win,
+	                   x, y,
+	                   w, h,
+	                   0};
+
+	XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
+
 	return PUGL_SUCCESS;
 }
 

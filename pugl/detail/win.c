@@ -26,6 +26,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -719,15 +720,8 @@ puglWaitForEvent(PuglView* PUGL_UNUSED(view))
 }
 
 PUGL_API PuglStatus
-puglDispatchEvents(PuglWorld* world)
+puglDispatchEvents(PuglWorld* PUGL_UNUSED(world))
 {
-	for (size_t i = 0; i < world->numViews; ++i) {
-		if (world->views[i]->redisplay) {
-			UpdateWindow(world->views[i]->impl->hwnd);
-			world->views[i]->redisplay = false;
-		}
-	}
-
 	/* Windows has no facility to process only currently queued messages, which
 	   causes the event loop to run forever in cases like mouse movement where
 	   the queue is constantly being filled with new messages.  To work around
@@ -795,7 +789,19 @@ PuglStatus
 puglPostRedisplay(PuglView* view)
 {
 	InvalidateRect(view->impl->hwnd, NULL, false);
-	view->redisplay = true;
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglPostRedisplayRect(PuglView* view, const PuglRect rect)
+{
+	const RECT r = {(long)floor(rect.x),
+	                (long)floor(rect.y),
+	                (long)ceil(rect.x + rect.width),
+	                (long)ceil(rect.y + rect.height)};
+
+	InvalidateRect(view->impl->hwnd, &r, false);
+
 	return PUGL_SUCCESS;
 }
 
