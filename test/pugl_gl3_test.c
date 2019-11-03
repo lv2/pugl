@@ -314,7 +314,7 @@ main(int argc, char** argv)
 	puglSetEventFunc(app.view, onEvent);
 
 	if (puglCreateWindow(app.view, "Pugl OpenGL 3")) {
-		fprintf(stderr, "error: Failed to create window window\n");
+		fprintf(stderr, "error: Failed to create window\n");
 		return 1;
 	}
 
