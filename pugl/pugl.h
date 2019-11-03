@@ -442,6 +442,16 @@ PUGL_API void
 puglFreeWorld(PuglWorld* world);
 
 /**
+   Return a pointer to the native handle of the world.
+
+   On X11, this returns a pointer to the Display.
+   On OSX, this returns NULL.
+   On Windows, this returns a handle to the calling process module.
+*/
+PUGL_API void*
+puglGetNativeWorld(PuglWorld* world);
+
+/**
    Set the class name of the application.
 
    This is a stable identifier for the application, used as the window

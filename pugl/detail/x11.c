@@ -101,6 +101,12 @@ puglInitWorldInternals(void)
 	return impl;
 }
 
+void*
+puglGetNativeWorld(PuglWorld* world)
+{
+	return world->impl->display;
+}
+
 PuglInternals*
 puglInitViewInternals(void)
 {

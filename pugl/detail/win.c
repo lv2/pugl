@@ -130,6 +130,12 @@ puglInitWorldInternals(void)
 	return impl;
 }
 
+void*
+puglGetNativeWorld(PuglWorld* PUGL_UNUSED(world))
+{
+	return GetModuleHandle(NULL);
+}
+
 PuglInternals*
 puglInitViewInternals(void)
 {

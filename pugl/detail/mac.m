@@ -695,6 +695,12 @@ puglFreeWorldInternals(PuglWorld* world)
 	free(world->impl);
 }
 
+void*
+puglGetNativeWorld(PuglWorld* world)
+{
+	return NULL;
+}
+
 PuglInternals*
 puglInitViewInternals(void)
 {
