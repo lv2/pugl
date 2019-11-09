@@ -32,7 +32,7 @@ extern "C" {
 #endif
 
 /** Set `blob` to `data` with length `len`, reallocating if necessary. */
-void puglSetBlob(PuglBlob* blob, const void* data, size_t len);
+void puglSetBlob(PuglBlob* dest, const void* data, size_t len);
 
 /** Reallocate and set `*dest` to `string`. */
 void puglSetString(char** dest, const char* string);

@@ -70,6 +70,8 @@ onReshape(PuglView* view, int width, int height)
 {
 	(void)view;
 
+	const float aspect = (float)width / (float)height;
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -79,7 +81,7 @@ onReshape(PuglView* view, int width, int height)
 	glViewport(0, 0, width, height);
 
 	float projection[16];
-	perspective(projection, 1.8f, width / (float)height, 1.0, 100.0f);
+	perspective(projection, 1.8f, aspect, 1.0f, 100.0f);
 	glLoadMatrixf(projection);
 }
 

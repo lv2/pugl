@@ -47,9 +47,9 @@ puglX11GlHintValue(const int value)
 }
 
 static PuglStatus
-puglX11GlGetAttrib(Display* const    display,
-                   const GLXFBConfig fb_config,
-                   const int         attrib)
+puglX11GlGetAttrib(Display* const display,
+                   GLXFBConfig    fb_config,
+                   const int      attrib)
 {
 	int value = 0;
 	glXGetFBConfigAttrib(display, fb_config, attrib, &value);
@@ -115,7 +115,7 @@ puglX11GlCreate(PuglView* view)
 	PuglInternals* const    impl      = view->impl;
 	PuglX11GlSurface* const surface   = (PuglX11GlSurface*)impl->surface;
 	Display* const          display   = impl->display;
-	const GLXFBConfig       fb_config = surface->fb_config;
+	GLXFBConfig             fb_config = surface->fb_config;
 
 	const int ctx_attrs[] = {
 		GLX_CONTEXT_MAJOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MAJOR],

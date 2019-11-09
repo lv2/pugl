@@ -123,7 +123,7 @@ puglPollEvents(PuglWorld* world, const double timeout)
 	const int nfds = fd + 1;
 	int       ret  = 0;
 	fd_set    fds;
-	FD_ZERO(&fds);
+	FD_ZERO(&fds); // NOLINT
 	FD_SET(fd, &fds);
 
 	if (timeout < 0.0) {
