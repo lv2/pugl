@@ -203,10 +203,10 @@ onExpose(PuglView* view)
 
 		// Move rect around in an arbitrary way that looks cool
 		rect->pos[0] = (float)(frame.width - rect->size[0]) *
-		               (sinf((float)time * rect->size[0] / 100.0f) + 1.0f) /
+		               (sinf((float)time * rect->size[0] / 64.0f) + 1.0f) /
 		               2.0f;
 		rect->pos[1] = (float)(frame.height - rect->size[1]) *
-		               (cosf((float)time * rect->size[1] / 100.0f) + 1.0f) /
+		               (cosf((float)time * rect->size[1] / 64.0f) + 1.0f) /
 		               2.0f;
 
 		drawRect(app, rect, proj);
@@ -240,23 +240,22 @@ onEvent(PuglView* view, const PuglEvent* event)
 }
 
 static Rect*
-makeRects(const size_t numRects, const int width, const int height)
+makeRects(const size_t numRects)
 {
-	const int   minSize  = width / 32;
-	const int   maxSize  = width / 4;
-	const float boxAlpha = 0.6f;
+	const float minSize  = (float)defaultWidth / 64.0f;
+	const float maxSize  = (float)defaultWidth / 6.0f;
+	const float boxAlpha = 0.25f;
 
 	Rect* rects = (Rect*)calloc(numRects, sizeof(Rect));
 	for (size_t i = 0; i < numRects; ++i) {
-		rects[i].pos[0]  = (float)(rand() % width);
-		rects[i].pos[1]  = (float)(rand() % height);
-		rects[i].size[0] = (float)minSize + rand() % (maxSize - minSize);
-		rects[i].size[1] = (float)minSize + rand() % (maxSize - minSize);
+		const float s = (sinf(i) / 2.0f + 0.5f);
+		const float c = (cosf(i) / 2.0f + 0.5f);
 
-		rects[i].fillColor[1] = (rand() % numRects) / ((float)numRects - 0.4f);
-		rects[i].fillColor[2] = (rand() % numRects) / ((float)numRects - 0.4f);
-		rects[i].fillColor[3] = boxAlpha;
-
+		rects[i].size[0]        = minSize + s * maxSize;
+		rects[i].size[1]        = minSize + c * maxSize;
+		rects[i].fillColor[1]   = s / 2.0f + 0.25f;
+		rects[i].fillColor[2]   = c / 2.0f + 0.25f;
+		rects[i].fillColor[3]   = boxAlpha;
 		rects[i].borderColor[1] = rects[i].fillColor[1] + 0.4f;
 		rects[i].borderColor[2] = rects[i].fillColor[1] + 0.4f;
 		rects[i].borderColor[3] = boxAlpha;
@@ -294,7 +293,7 @@ main(int argc, char** argv)
 	// Create world, view, and rect data
 	app.world = puglNewWorld();
 	app.view  = puglNewView(app.world);
-	app.rects = makeRects(app.numRects, defaultWidth, defaultHeight);
+	app.rects = makeRects(app.numRects);
 
 	// Set up world and view
 	puglSetClassName(app.world, "PuglGL3Test");
