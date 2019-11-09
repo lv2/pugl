@@ -55,7 +55,8 @@ def configure(conf):
         for f in ('CFLAGS', 'CXXFLAGS'):
             conf.env.append_value(f, ['-fvisibility=hidden'])
             if Options.options.strict:
-                conf.env.append_value(f, ['-Wunused-parameter', '-Wno-pedantic'])
+                conf.env.append_value(f, ['-Wunused-parameter',
+                                          '-Wno-pedantic'])
 
     autowaf.set_c_lang(conf, 'c99')
 
@@ -64,8 +65,11 @@ def configure(conf):
         conf.define('HAVE_GL', 1)
         conf.define('PUGL_HAVE_GL', 1)
 
-    conf.check(features='c cshlib', lib='m', uselib_store='M', mandatory=False)
-    conf.check(features='c cshlib', lib='dl', uselib_store='DL', mandatory=False)
+    conf.check(features='c cshlib', lib='m',
+               uselib_store='M', mandatory=False)
+
+    conf.check(features='c cshlib', lib='dl',
+               uselib_store='DL', mandatory=False)
 
     if not Options.options.no_cairo:
         autowaf.check_pkg(conf, 'cairo',
@@ -294,28 +298,18 @@ def test(tst):
 
 def lint(ctx):
     "checks code for style issues"
+    import json
     import subprocess
 
     subprocess.call("flake8 wscript --ignore E221,W504,E251,E241",
                     shell=True)
 
-    cmd = ("clang-tidy -p=. -header-filter=.* -checks=\"*," +
-           "-bugprone-suspicious-string-compare," +
-           "-clang-analyzer-alpha.*," +
-           "-cppcoreguidelines-avoid-magic-numbers," +
-           "-google-readability-todo," +
-           "-hicpp-multiway-paths-covered," +
-           "-hicpp-signed-bitwise," +
-           "-hicpp-uppercase-literal-suffix," +
-           "-llvm-header-guard," +
-           "-misc-misplaced-const," +
-           "-misc-unused-parameters," +
-           "-readability-else-after-return," +
-           "-readability-magic-numbers," +
-           "-readability-uppercase-literal-suffix\" " +
-           "../pugl/detail/*.c")
+    with open('build/compile_commands.json', 'r') as db:
+        commands = json.load(db)
+        files = [c['file'] for c in commands
+                 if os.path.basename(c['file']) != 'glad.c']
 
-    subprocess.call(cmd, cwd='build', shell=True)
+    subprocess.call(['clang-tidy'] + files, cwd='build')
 
     try:
         subprocess.call(['iwyu_tool.py', '-o', 'clang', '-p', 'build'])
