@@ -61,7 +61,8 @@ enum WmClientStateMessageAction {
 };
 
 static const long eventMask =
-	(ExposureMask | StructureNotifyMask | FocusChangeMask |
+	(ExposureMask | StructureNotifyMask |
+	 VisibilityChangeMask | FocusChangeMask |
 	 EnterWindowMask | LeaveWindowMask | PointerMotionMask |
 	 ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask);
 
@@ -259,7 +260,6 @@ puglShowWindow(PuglView* view)
 {
 	XMapRaised(view->impl->display, view->impl->win);
 	puglPostRedisplay(view);
-	view->visible = true;
 	return PUGL_SUCCESS;
 }
 
@@ -267,7 +267,6 @@ PuglStatus
 puglHideWindow(PuglView* view)
 {
 	XUnmapWindow(view->impl->display, view->impl->win);
-	view->visible = false;
 	return PUGL_SUCCESS;
 }
 
@@ -421,6 +420,9 @@ translateEvent(PuglView* view, XEvent xevent)
 			}
 		}
 		break;
+	case VisibilityNotify:
+		view->visible = xevent.xvisibility.state != VisibilityFullyObscured;
+		break;
 	case MapNotify: {
 		XWindowAttributes attrs = {0};
 		XGetWindowAttributes(view->impl->display, view->impl->win, &attrs);
@@ -431,6 +433,9 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.configure.height = attrs.height;
 		break;
 	}
+	case UnmapNotify:
+		view->visible = false;
+		break;
 	case ConfigureNotify:
 		event.type             = PUGL_CONFIGURE;
 		event.configure.x      = xevent.xconfigure.x;
