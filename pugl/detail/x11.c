@@ -687,7 +687,7 @@ puglDispatchEvents(PuglWorld* world)
 			unsigned long len  = 0;
 			unsigned long left = 0;
 			XGetWindowProperty(impl->display, impl->win, XA_PRIMARY,
-			                   0, 8, False, AnyPropertyType,
+			                   0, 0x1FFFFFFF, False, AnyPropertyType,
 			                   &type, &fmt, &len, &left, &str);
 
 			if (str && fmt == 8 && type == atoms->UTF8_STRING && left == 0) {
