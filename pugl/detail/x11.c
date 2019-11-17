@@ -813,7 +813,9 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect)
 	                   w, h,
 	                   0};
 
-	XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
+	if (view->visible) {
+		XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
+	}
 
 	return PUGL_SUCCESS;
 }
