@@ -28,6 +28,17 @@ extern "C" {
 #endif
 
 /**
+   OpenGL extension function.
+*/
+typedef void (*PuglGlFunc)(void);
+
+/**
+   Return the address of an OpenGL extension function.
+*/
+PUGL_API PuglGlFunc
+puglGetProcAddress(const char* name);
+
+/**
    OpenGL graphics backend.
 
    Pass the return value to puglInitBackend() to draw to a view with OpenGL.

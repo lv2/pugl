@@ -715,11 +715,6 @@ puglGetNativeWindow(PuglView* view);
 typedef struct PuglBackendImpl PuglBackend;
 
 /**
-   OpenGL extension function.
-*/
-typedef void (*PuglGlFunc)(void);
-
-/**
    Set the graphics backend to use.
 
    This needs to be called once before creating the window to set the graphics
@@ -729,12 +724,6 @@ typedef void (*PuglGlFunc)(void);
 */
 PUGL_API PuglStatus
 puglSetBackend(PuglView* view, const PuglBackend* backend);
-
-/**
-   Return the address of an OpenGL extension function.
-*/
-PUGL_API PuglGlFunc
-puglGetProcAddress(const char* name);
 
 /**
    Get the drawing context.
