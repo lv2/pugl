@@ -330,9 +330,8 @@ main(int argc, char** argv)
 	const uint8_t title[] = { 'P', 'u', 'g', 'l', ' ',
 	                          'P', 'r', 0xC3, 0xBC, 'f', 'u', 'n', 'g', 0 };
 	if ((st = puglCreateWindow(app.parent, (const char*)title))) {
-		fprintf(stderr, "error: Failed to create parent window (%s)\n",
-		        puglStrerror(st));
-		return 1;
+		return logError("Failed to create parent window (%s)\n",
+		                puglStrerror(st));
 	}
 
 	puglSetFrame(app.child, getChildFrame(parentFrame));
@@ -348,9 +347,8 @@ main(int argc, char** argv)
 	puglSetEventFunc(app.child, onEvent);
 
 	if ((st = puglCreateWindow(app.child, NULL))) {
-		fprintf(stderr, "error: Failed to create child window (%s)\n",
-		        puglStrerror(st));
-		return 1;
+		return logError("Failed to create child window (%s)\n",
+		                puglStrerror(st));
 	}
 
 	puglShowWindow(app.parent);

@@ -315,9 +315,7 @@ main(int argc, char** argv)
 
 	const PuglStatus st = puglCreateWindow(app.view, "Pugl OpenGL 3");
 	if (st) {
-		fprintf(stderr, "error: Failed to create window (%s)\n",
-		        puglStrerror(st));
-		return 1;
+		return logError("Failed to create window (%s)\n", puglStrerror(st));
 	}
 
 	// Enter context to set up GL stuff
@@ -325,7 +323,7 @@ main(int argc, char** argv)
 
 	// Load GL functions via GLAD
 	if (!gladLoadGLLoader((GLADloadproc)&puglGetProcAddress)) {
-		fprintf(stderr, "error: Failed to load GL\n");
+		logError("Failed to load GL\n");
 		puglFreeView(app.view);
 		puglFreeWorld(app.world);
 		return 1;

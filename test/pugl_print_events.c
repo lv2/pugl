@@ -65,8 +65,7 @@ main(void)
 	puglSetEventFunc(app.view, onEvent);
 
 	if (puglCreateWindow(app.view, "Pugl Event Printer")) {
-		fprintf(stderr, "error: Failed to create window\n");
-		return 1;
+		return logError("Failed to create window\n");
 	}
 
 	puglShowWindow(app.view);

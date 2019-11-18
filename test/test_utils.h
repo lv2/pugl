@@ -17,6 +17,7 @@
 #include "pugl/pugl.h"
 
 #include <math.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -156,6 +157,19 @@ perspective(float* m, float fov, float aspect, float zNear, float zFar)
 }
 
 static inline int
+logError(const char* fmt, ...)
+{
+	fprintf(stderr, "error: ");
+
+	va_list args;
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+
+	return 1;
+}
+
+static inline int
 printModifiers(const uint32_t mods)
 {
 	return fprintf(stderr, "Modifiers:%s%s%s%s\n",
@@ -286,7 +300,7 @@ puglParseTestOptions(int* pargc, char*** pargv)
 			break;
 		} else {
 			opts.help = true;
-			fprintf(stderr, "error: Unknown option: %s\n", argv[i]);
+			logError("Unknown option: %s\n", argv[i]);
 		}
 	}
 

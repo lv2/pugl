@@ -230,9 +230,7 @@ main(int argc, char** argv)
 
 	PuglStatus st = puglCreateWindow(view, "Pugl Test");
 	if (st) {
-		fprintf(stderr, "error: Failed to create window (%s)\n",
-		        puglStrerror(st));
-		return 1;
+		return logError("Failed to create window (%s)\n", puglStrerror(st));
 	}
 
 	puglShowWindow(view);
