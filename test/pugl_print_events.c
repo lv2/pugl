@@ -23,11 +23,8 @@
 #include "pugl/pugl.h"
 #include "pugl/pugl_stub_backend.h"
 
-#include <math.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 
 typedef struct
 {

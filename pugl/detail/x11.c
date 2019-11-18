@@ -37,7 +37,6 @@
 #include <sys/select.h>
 #include <sys/time.h>
 
-#include <limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>

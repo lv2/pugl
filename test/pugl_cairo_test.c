@@ -28,7 +28,6 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <string.h>
 
 static PuglWorld* world = NULL;
 PuglTestOptions   opts  = {0};
