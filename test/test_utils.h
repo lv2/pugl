@@ -33,6 +33,7 @@ typedef struct {
 	bool ignoreKeyRepeat;
 	bool resizable;
 	bool verbose;
+	bool errorChecking;
 } PuglTestOptions;
 
 typedef float vec4[4];
@@ -248,6 +249,7 @@ puglPrintTestUsage(const char* prog, const char* posHelp)
 	       "  -a  Enable anti-aliasing\n"
 	       "  -c  Continuously animate and draw\n"
 	       "  -d  Enable double-buffering\n"
+	       "  -e  Enable platform error-checking\n"
 	       "  -h  Display this help\n"
 	       "  -i  Ignore key repeat\n"
 	       "  -v  Print verbose output\n"
@@ -258,7 +260,7 @@ puglPrintTestUsage(const char* prog, const char* posHelp)
 static inline PuglTestOptions
 puglParseTestOptions(int* pargc, char*** pargv)
 {
-	PuglTestOptions opts = { 0, 0, false, false, false, false, false };
+	PuglTestOptions opts = { 0, 0, false, false, false, false, false, false };
 
 	char** const argv = *pargv;
 	int          i    = 1;
@@ -269,6 +271,8 @@ puglParseTestOptions(int* pargc, char*** pargv)
 			opts.continuous = true;
 		} else if (!strcmp(argv[i], "-d")) {
 			opts.doubleBuffer = PUGL_TRUE;
+		} else if (!strcmp(argv[i], "-e")) {
+			opts.errorChecking = PUGL_TRUE;
 		} else if (!strcmp(argv[i], "-h")) {
 			opts.help = true;
 			return opts;
