@@ -9,5 +9,5 @@ Checks: >
   -llvm-header-guard,
   -readability-else-after-return
 WarningsAsErrors: ''
-HeaderFilterRegex: '.*'
+HeaderFilterRegex: 'pugl/.*|test/.*'
 FormatStyle: file
