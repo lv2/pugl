@@ -18,8 +18,8 @@
    @file pugl_gl_backend.h Declaration of OpenGL backend accessor.
 */
 
-#ifndef PUGL_GL_BACKEND_H
-#define PUGL_GL_BACKEND_H
+#ifndef PUGL_PUGL_GL_BACKEND_H
+#define PUGL_PUGL_GL_BACKEND_H
 
 #include "pugl/pugl.h"
 
@@ -50,4 +50,4 @@ puglGlBackend(void);
 }  /* extern "C" */
 #endif
 
-#endif // PUGL_GL_BACKEND_H
+#endif // PUGL_PUGL_GL_BACKEND_H

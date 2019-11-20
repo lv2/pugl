@@ -18,8 +18,8 @@
    @file pugl.h Public C API.
 */
 
-#ifndef PUGL_H_INCLUDED
-#define PUGL_H_INCLUDED
+#ifndef PUGL_PUGL_H
+#define PUGL_PUGL_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -1051,4 +1051,4 @@ puglProcessEvents(PuglView* view);
 }  /* extern "C" */
 #endif
 
-#endif  /* PUGL_H_INCLUDED */
+#endif  /* PUGL_PUGL_H */

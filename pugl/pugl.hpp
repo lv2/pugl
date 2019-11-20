@@ -18,8 +18,8 @@
    @file pugl.hpp Pugl C++ API wrapper.
 */
 
-#ifndef PUGL_HPP_INCLUDED
-#define PUGL_HPP_INCLUDED
+#ifndef PUGL_PUGL_HPP
+#define PUGL_PUGL_HPP
 
 #include "pugl/pugl.h"
 
@@ -104,4 +104,4 @@ private:
    @}
 */
 
-#endif  /* PUGL_HPP_INCLUDED */
+#endif  /* PUGL_PUGL_HPP */

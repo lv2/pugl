@@ -18,8 +18,8 @@
    @file pugl_stub_backend.h Stub backend functions and accessor declaration.
 */
 
-#ifndef PUGL_STUB_BACKEND_H
-#define PUGL_STUB_BACKEND_H
+#ifndef PUGL_PUGL_STUB_BACKEND_H
+#define PUGL_PUGL_STUB_BACKEND_H
 
 #include "pugl/pugl.h"
 
@@ -110,4 +110,4 @@ puglStubGetContext(PuglView* view)
 } /* extern "C" */
 #endif
 
-#endif // PUGL_STUB_BACKEND_H
+#endif // PUGL_PUGL_STUB_BACKEND_H

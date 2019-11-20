@@ -18,8 +18,8 @@
    @file pugl_cairo_backend.h Declaration of Cairo backend accessor.
 */
 
-#ifndef PUGL_CAIRO_BACKEND_H
-#define PUGL_CAIRO_BACKEND_H
+#ifndef PUGL_PUGL_CAIRO_BACKEND_H
+#define PUGL_PUGL_CAIRO_BACKEND_H
 
 #include "pugl/pugl.h"
 
@@ -39,4 +39,4 @@ puglCairoBackend(void);
 }  /* extern "C" */
 #endif
 
-#endif // PUGL_CAIRO_BACKEND_H
+#endif // PUGL_PUGL_CAIRO_BACKEND_H
