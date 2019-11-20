@@ -927,23 +927,6 @@ puglProcessEvents(PuglView* view)
 	return puglDispatchEvents(view->world);
 }
 
-PuglGlFunc
-puglGetProcAddress(const char *name)
-{
-	CFBundleRef framework =
-		CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
-
-	CFStringRef symbol = CFStringCreateWithCString(
-		kCFAllocatorDefault, name, kCFStringEncodingASCII);
-
-	PuglGlFunc func = (PuglGlFunc)CFBundleGetFunctionPointerForName(
-		framework, symbol);
-
-	CFRelease(symbol);
-
-	return func;
-}
-
 double
 puglGetTime(const PuglWorld* world)
 {
