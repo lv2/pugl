@@ -21,7 +21,7 @@
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/win.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_stub_backend.h"
+#include "pugl/pugl_stub.h"
 
 #include <windows.h>
 #include <windowsx.h>

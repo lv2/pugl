@@ -21,7 +21,7 @@
 #include "pugl/detail/types.h"
 #include "pugl/detail/x11.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_cairo_backend.h"
+#include "pugl/pugl_cairo.h"
 
 #include <X11/Xutil.h>
 #include <cairo-xlib.h>

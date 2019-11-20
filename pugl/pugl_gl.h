@@ -14,10 +14,40 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#ifndef PUGL_PUGL_CAIRO_BACKEND_H
-#define PUGL_PUGL_CAIRO_BACKEND_H
+/**
+   @file pugl_gl.h OpenGL-specific API.
+*/
 
-#warning "This header is deprecated, use pugl/pugl_cairo.h instead."
-#include "pugl/pugl_cairo.h"
+#ifndef PUGL_PUGL_GL_H
+#define PUGL_PUGL_GL_H
 
-#endif // PUGL_PUGL_CAIRO_BACKEND_H
+#include "pugl/pugl.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+   OpenGL extension function.
+*/
+typedef void (*PuglGlFunc)(void);
+
+/**
+   Return the address of an OpenGL extension function.
+*/
+PUGL_API PuglGlFunc
+puglGetProcAddress(const char* name);
+
+/**
+   OpenGL graphics backend.
+
+   Pass the return value to puglInitBackend() to draw to a view with OpenGL.
+*/
+PUGL_API const PuglBackend*
+puglGlBackend(void);
+
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif
+
+#endif // PUGL_PUGL_GL_H

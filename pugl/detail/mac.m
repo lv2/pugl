@@ -24,7 +24,7 @@
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/mac.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_stub_backend.h"
+#include "pugl/pugl_stub.h"
 
 #import <Cocoa/Cocoa.h>
 

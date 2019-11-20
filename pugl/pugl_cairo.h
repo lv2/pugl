@@ -14,10 +14,29 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#ifndef PUGL_PUGL_CAIRO_BACKEND_H
-#define PUGL_PUGL_CAIRO_BACKEND_H
+/**
+   @file pugl_cairo.h Declaration of Cairo backend accessor.
+*/
 
-#warning "This header is deprecated, use pugl/pugl_cairo.h instead."
-#include "pugl/pugl_cairo.h"
+#ifndef PUGL_PUGL_CAIRO_H
+#define PUGL_PUGL_CAIRO_H
 
-#endif // PUGL_PUGL_CAIRO_BACKEND_H
+#include "pugl/pugl.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+   Cairo graphics backend accessor.
+
+   Pass the return value to puglInitBackend() to draw to a view with Cairo.
+*/
+PUGL_API const PuglBackend*
+puglCairoBackend(void);
+
+#ifdef __cplusplus
+}  /* extern "C" */
+#endif
+
+#endif // PUGL_PUGL_CAIRO_H

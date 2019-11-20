@@ -20,8 +20,8 @@
 
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/mac.h"
-#include "pugl/pugl_cairo_backend.h"
-#include "pugl/pugl_stub_backend.h"
+#include "pugl/pugl_cairo.h"
+#include "pugl/pugl_stub.h"
 
 #include <cairo-quartz.h>
 

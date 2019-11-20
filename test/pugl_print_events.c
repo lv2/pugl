@@ -21,7 +21,7 @@
 #include "test_utils.h"
 
 #include "pugl/pugl.h"
-#include "pugl/pugl_stub_backend.h"
+#include "pugl/pugl_stub.h"
 
 #include <stdbool.h>
 #include <stdio.h>

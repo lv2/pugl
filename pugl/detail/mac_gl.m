@@ -20,8 +20,8 @@
 
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/mac.h"
-#include "pugl/pugl_gl_backend.h"
-#include "pugl/pugl_stub_backend.h"
+#include "pugl/pugl_gl.h"
+#include "pugl/pugl_stub.h"
 
 #ifndef __MAC_10_10
 #define NSOpenGLProfileVersion4_1Core NSOpenGLProfileVersion3_2Core

@@ -20,8 +20,8 @@
 
 #include "pugl/detail/types.h"
 #include "pugl/detail/win.h"
-#include "pugl/pugl_gl_backend.h"
-#include "pugl/pugl_stub_backend.h"
+#include "pugl/pugl_gl.h"
+#include "pugl/pugl_stub.h"
 
 #include <windows.h>
 

@@ -719,8 +719,8 @@ typedef struct PuglBackendImpl PuglBackend;
 
    This needs to be called once before creating the window to set the graphics
    backend.  There are two backend accessors included with pugl:
-   puglGlBackend() and puglCairoBackend(), declared in pugl_gl_backend.h and
-   pugl_cairo_backend.h, respectively.
+   puglGlBackend() and puglCairoBackend(), declared in pugl_gl.h and
+   pugl_cairo.h, respectively.
 */
 PUGL_API PuglStatus
 puglSetBackend(PuglView* view, const PuglBackend* backend);

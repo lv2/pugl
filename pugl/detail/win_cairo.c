@@ -20,7 +20,7 @@
 
 #include "pugl/detail/types.h"
 #include "pugl/detail/win.h"
-#include "pugl/pugl_cairo_backend.h"
+#include "pugl/pugl_cairo.h"
 
 #include <cairo-win32.h>
 #include <cairo.h>

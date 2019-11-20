@@ -21,8 +21,8 @@
 #include "pugl/detail/types.h"
 #include "pugl/detail/x11.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_gl_backend.h"
-#include "pugl/pugl_stub_backend.h"
+#include "pugl/pugl_gl.h"
+#include "pugl/pugl_stub.h"
 
 #include <GL/glx.h>
 #include <X11/X.h>
