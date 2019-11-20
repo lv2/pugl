@@ -696,7 +696,7 @@ puglFreeWorldInternals(PuglWorld* world)
 }
 
 void*
-puglGetNativeWorld(PuglWorld* world)
+puglGetNativeWorld(PuglWorld* PUGL_UNUSED(world))
 {
 	return NULL;
 }
