@@ -39,50 +39,63 @@ def options(ctx):
 
 
 def configure(conf):
-    conf.env.ALL_HEADERS     = Options.options.all_headers
-    conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
     conf.load('compiler_c', cache=True)
     conf.load('autowaf', cache=True)
-
-    if conf.env.TARGET_PLATFORM == 'win32':
-        if conf.env.MSVC_COMPILER:
-            conf.env.append_unique('CFLAGS', ['/wd4191'])
-    elif conf.env.TARGET_PLATFORM == 'darwin':
-        conf.env.append_unique('CFLAGS', ['-Wno-deprecated-declarations'])
-
-    if not conf.env.MSVC_COMPILER:
-        conf.env.append_value('LINKFLAGS', ['-fvisibility=hidden'])
-        for f in ('CFLAGS', 'CXXFLAGS'):
-            conf.env.append_value(f, ['-fvisibility=hidden'])
-            if Options.options.strict:
-                conf.env.append_value(f, ['-Wunused-parameter',
-                                          '-Wno-pedantic'])
-
     autowaf.set_c_lang(conf, 'c99')
 
-    if not Options.options.no_gl:
-        # TODO: Portable check for OpenGL
-        conf.define('HAVE_GL', 1)
-        conf.define('PUGL_HAVE_GL', 1)
+    conf.env.ALL_HEADERS     = Options.options.all_headers
+    conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
+    platform                 = conf.env.TARGET_PLATFORM
 
-    conf.check(features='c cshlib', lib='m',
-               uselib_store='M', mandatory=False)
+    if platform == 'darwin':
+        conf.env.append_unique('CFLAGS', ['-Wno-deprecated-declarations'])
 
-    conf.check(features='c cshlib', lib='dl',
-               uselib_store='DL', mandatory=False)
+    if conf.env.MSVC_COMPILER:
+        conf.env.append_unique('CFLAGS', ['/wd4191'])
+    else:
+        conf.env.append_value('LINKFLAGS', ['-fvisibility=hidden'])
+        conf.env.append_value('CFLAGS', ['-fvisibility=hidden'])
+        if Options.options.strict:
+            conf.env.append_value('CFLAGS', ['-Wunused-parameter',
+                                             '-Wno-pedantic'])
 
+    conf.check_cc(lib='m', uselib_store='M', mandatory=False)
+    conf.check_cc(lib='dl', uselib_store='DL', mandatory=False)
+
+    # Check for "native" platform dependencies
+    conf.env.HAVE_GL = False
+    if platform == 'darwin':
+        conf.check_cc(framework_name='Cocoa', framework='Cocoa',
+                      uselib_store='COCOA')
+        if not Options.options.no_gl:
+            conf.check_cc(framework_name='OpenGL', uselib_store='GL',
+                          mandatory=False)
+            conf.env.HAVE_GL = conf.env.FRAMEWORK_GL
+
+    elif platform == 'win32':
+        conf.check_cc(lib='gdi32', uselib_store='GDI32')
+        conf.check_cc(lib='user32', uselib_store='USER32')
+        if not Options.options.no_gl:
+            conf.check_cc(lib='opengl32', uselib_store='GL', mandatory=False)
+            conf.env.HAVE_GL = conf.env.LIB_GL
+
+    else:
+        conf.check_cc(lib='X11', uselib_store='X11')
+        if not Options.options.no_gl:
+            conf.check_cc(lib='GLX', uselib_store='GLX', mandatory=False)
+            conf.check_cc(lib='GL', uselib_store='GL', mandatory=False)
+            conf.env.HAVE_GL = conf.env.LIB_GLX and conf.env.LIB_GL
+
+    # Check for Cairo via pkg-config
     if not Options.options.no_cairo:
         autowaf.check_pkg(conf, 'cairo',
                           uselib_store    = 'CAIRO',
                           atleast_version = '1.0.0',
                           mandatory       = False)
-        if conf.is_defined('HAVE_CAIRO'):
-            conf.define('PUGL_HAVE_CAIRO', 1)
 
     if Options.options.log:
         conf.define('PUGL_VERBOSE', 1)
 
-    # Shared library building is broken on win32 for some reason
     conf.env.update({
         'BUILD_SHARED': not Options.options.no_shared,
         'BUILD_STATIC': conf.env.BUILD_TESTS or not Options.options.no_static})
@@ -94,8 +107,8 @@ def configure(conf):
         conf,
         {"Build static library":   bool(conf.env.BUILD_STATIC),
          "Build shared library":   bool(conf.env.BUILD_SHARED),
-         "OpenGL support":         conf.is_defined('HAVE_GL'),
-         "Cairo support":          conf.is_defined('HAVE_CAIRO'),
+         "OpenGL support":         bool(conf.env.HAVE_GL),
+         "Cairo support":          bool(conf.env.HAVE_CAIRO),
          "Verbose console output": conf.is_defined('PUGL_VERBOSE')})
 
 
@@ -190,18 +203,17 @@ def build(bld):
     if bld.env.TARGET_PLATFORM == 'win32':
         platform = 'win'
         build_platform('win',
-                       lib=['gdi32', 'user32'],
+                       uselib=['GDI32', 'USER32'],
                        source=lib_source + ['pugl/detail/win.c'])
 
-        if bld.is_defined('HAVE_GL'):
+        if bld.env.HAVE_GL:
             build_backend('win', 'gl',
-                          lib=['gdi32', 'user32', 'opengl32'],
+                          uselib=['GDI32', 'USER32', 'GL'],
                           source=['pugl/detail/win_gl.c'])
 
-        if bld.is_defined('HAVE_CAIRO'):
+        if bld.env.HAVE_CAIRO:
             build_backend('win', 'cairo',
-                          uselib=['CAIRO'],
-                          lib=['gdi32', 'user32'],
+                          uselib=['CAIRO', 'GDI32', 'USER32'],
                           source=['pugl/detail/win_cairo.c'])
 
     elif bld.env.TARGET_PLATFORM == 'darwin':
@@ -210,12 +222,12 @@ def build(bld):
                        framework=['Cocoa'],
                        source=lib_source + ['pugl/detail/mac.m'])
 
-        if bld.is_defined('HAVE_GL'):
+        if bld.env.HAVE_GL:
             build_backend('mac', 'gl',
                           framework=['Cocoa', 'OpenGL'],
                           source=['pugl/detail/mac_gl.m'])
 
-        if bld.is_defined('HAVE_CAIRO'):
+        if bld.env.HAVE_CAIRO:
             build_backend('mac', 'cairo',
                           framework=['Cocoa'],
                           uselib=['CAIRO'],
@@ -223,19 +235,17 @@ def build(bld):
     else:
         platform = 'x11'
         build_platform('x11',
-                       lib=['X11'],
-                       uselib=['M'],
+                       uselib=['M', 'X11'],
                        source=lib_source + ['pugl/detail/x11.c'])
 
-        if bld.is_defined('HAVE_GL'):
+        if bld.env.HAVE_GL:
             build_backend('x11', 'gl',
-                          lib=['X11', 'GL'],
+                          uselib=['GL', 'GLX', 'X11'],
                           source=['pugl/detail/x11_gl.c'])
 
-        if bld.is_defined('HAVE_CAIRO'):
+        if bld.env.HAVE_CAIRO:
             build_backend('x11', 'cairo',
-                          lib=['X11'],
-                          uselib=['CAIRO'],
+                          uselib=['CAIRO', 'X11'],
                           source=['pugl/detail/x11_cairo.c'])
 
     def build_test(prog, source, platform, backend, **kwargs):
@@ -266,16 +276,16 @@ def build(bld):
             **kwargs)
 
     if bld.env.BUILD_TESTS:
-        if bld.is_defined('HAVE_GL'):
+        if bld.env.HAVE_GL:
             build_test('pugl_test', ['test/pugl_test.c'],
-                       platform, 'gl', uselib=['M'])
+                       platform, 'gl', uselib=['GL', 'M'])
             build_test('pugl_print_events', ['test/pugl_print_events.c'],
                        platform, 'stub')
             build_test('pugl_gl3_test',
                        ['test/pugl_gl3_test.c', 'test/glad/glad.c'],
-                       platform, 'gl', uselib=['M', 'DL'])
+                       platform, 'gl', uselib=['DL', 'GL', 'M'])
 
-        if bld.is_defined('HAVE_CAIRO'):
+        if bld.env.HAVE_CAIRO:
             build_test('pugl_cairo_test', ['test/pugl_cairo_test.c'],
                        platform, 'cairo',
                        uselib=['M', 'CAIRO'])
