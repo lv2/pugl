@@ -240,7 +240,7 @@ def build(bld):
 
         if bld.env.HAVE_GL:
             build_backend('x11', 'gl',
-                          uselib=['GL', 'GLX', 'X11'],
+                          uselib=['GLX', 'X11'],
                           source=['pugl/detail/x11_gl.c'])
 
         if bld.env.HAVE_CAIRO:

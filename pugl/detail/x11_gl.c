@@ -24,7 +24,6 @@
 #include "pugl/pugl_gl_backend.h"
 #include "pugl/pugl_stub_backend.h"
 
-#include <GL/gl.h>
 #include <GL/glx.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
@@ -180,8 +179,6 @@ puglX11GlLeave(PuglView* view, bool drawing)
 
 	if (drawing && surface->double_buffered) {
 		glXSwapBuffers(view->impl->display, view->impl->win);
-	} else if (drawing) {
-		glFlush();
 	}
 
 	glXMakeCurrent(view->impl->display, None, NULL);
