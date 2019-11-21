@@ -84,7 +84,14 @@ def configure(conf):
         if not Options.options.no_gl:
             conf.check_cc(lib='GLX', uselib_store='GLX', mandatory=False)
             conf.check_cc(lib='GL', uselib_store='GL', mandatory=False)
-            conf.env.HAVE_GL = conf.env.LIB_GLX and conf.env.LIB_GL
+            conf.check_cc(
+                fragment="""#include <GL/glx.h>
+                            int main(void) { glXSwapBuffers(0, 0); return 0; }""",
+                lib='GLX' if conf.env.LIB_GLX else 'GL',
+                mandatory=False,
+                msg='Checking for GLX')
+            conf.env.HAVE_GL = conf.env.LIB_GL or conf.env.LIB_GLX
+
 
     # Check for Cairo via pkg-config
     if not Options.options.no_cairo:
@@ -239,8 +246,9 @@ def build(bld):
                        source=lib_source + ['pugl/detail/x11.c'])
 
         if bld.env.HAVE_GL:
+            glx_lib = 'GLX' if bld.env.LIB_GLX else 'GL'
             build_backend('x11', 'gl',
-                          uselib=['GLX', 'X11'],
+                          uselib=[glx_lib, 'X11'],
                           source=['pugl/detail/x11_gl.c'])
 
         if bld.env.HAVE_CAIRO:
