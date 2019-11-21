@@ -82,16 +82,16 @@ def configure(conf):
     else:
         conf.check_cc(lib='X11', uselib_store='X11')
         if not Options.options.no_gl:
+            glx_fragment = """#include <GL/glx.h>
+                int main(void) { glXSwapBuffers(0, 0); return 0; }"""
+
             conf.check_cc(lib='GLX', uselib_store='GLX', mandatory=False)
             conf.check_cc(lib='GL', uselib_store='GL', mandatory=False)
-            conf.check_cc(
-                fragment="""#include <GL/glx.h>
-                            int main(void) { glXSwapBuffers(0, 0); return 0; }""",
-                lib='GLX' if conf.env.LIB_GLX else 'GL',
-                mandatory=False,
-                msg='Checking for GLX')
+            conf.check_cc(fragment=glx_fragment,
+                          lib='GLX' if conf.env.LIB_GLX else 'GL',
+                          mandatory=False,
+                          msg='Checking for GLX')
             conf.env.HAVE_GL = conf.env.LIB_GL or conf.env.LIB_GLX
-
 
     # Check for Cairo via pkg-config
     if not Options.options.no_cairo:
