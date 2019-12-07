@@ -284,6 +284,13 @@ def build(bld):
             **kwargs)
 
     if bld.env.BUILD_TESTS:
+        for s in ('rect.vert', 'rect.frag'):
+            # Copy shaders to build directory for test programs
+            bld(features = 'subst',
+                is_copy  = True,
+                source   = 'shaders/%s' % s,
+                target   = 'shaders/%s' % s)
+
         if bld.env.HAVE_GL:
             build_test('pugl_test', ['test/pugl_test.c'],
                        platform, 'gl', uselib=['GL', 'M'])
