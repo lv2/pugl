@@ -1,4 +1,4 @@
-#version 330
+#version 330 core
 
 /* The vertex shader is trivial, but forwards scaled UV coordinates (in pixels)
    to the fragment shader for drawing the border. */
