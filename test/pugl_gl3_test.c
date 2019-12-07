@@ -59,7 +59,6 @@ typedef struct
 	float pos[2];
 	float size[2];
 	float fillColor[4];
-	float borderColor[4];
 } Rect;
 
 // clang-format off
@@ -87,7 +86,6 @@ typedef struct
 	GLint           u_MVP;
 	GLint           u_size;
 	GLint           u_fillColor;
-	GLint           u_borderColor;
 	unsigned        framesDrawn;
 	int             quit;
 } PuglTestApp;
@@ -125,7 +123,6 @@ drawRect(const PuglTestApp* app, const Rect* rect, mat4 projection)
 	// Set uniforms for the various rectangle attributes
 	glUniform2fv(app->u_size, 1, rect->size);
 	glUniform4fv(app->u_fillColor, 1, rect->fillColor);
-	glUniform4fv(app->u_borderColor, 1, rect->borderColor);
 
 	// Draw
 	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, 0);
@@ -207,14 +204,11 @@ makeRects(const size_t numRects)
 		const float s = (sinf(i) / 2.0f + 0.5f);
 		const float c = (cosf(i) / 2.0f + 0.5f);
 
-		rects[i].size[0]        = minSize + s * maxSize;
-		rects[i].size[1]        = minSize + c * maxSize;
-		rects[i].fillColor[1]   = s / 2.0f + 0.25f;
-		rects[i].fillColor[2]   = c / 2.0f + 0.25f;
-		rects[i].fillColor[3]   = boxAlpha;
-		rects[i].borderColor[1] = rects[i].fillColor[1] + 0.4f;
-		rects[i].borderColor[2] = rects[i].fillColor[1] + 0.4f;
-		rects[i].borderColor[3] = boxAlpha;
+		rects[i].size[0]      = minSize + s * maxSize;
+		rects[i].size[1]      = minSize + c * maxSize;
+		rects[i].fillColor[1] = s / 2.0f + 0.25f;
+		rects[i].fillColor[2] = c / 2.0f + 0.25f;
+		rects[i].fillColor[3] = boxAlpha;
 	}
 
 	return rects;
@@ -330,8 +324,6 @@ main(int argc, char** argv)
 	app.u_MVP       = glGetUniformLocation(app.drawRect.program, "MVP");
 	app.u_size      = glGetUniformLocation(app.drawRect.program, "u_size");
 	app.u_fillColor = glGetUniformLocation(app.drawRect.program, "u_fillColor");
-	app.u_borderColor =
-	        glGetUniformLocation(app.drawRect.program, "u_borderColor");
 
 	// Generate/bind a VAO to track state
 	glGenVertexArrays(1, &app.vao);

@@ -11,7 +11,6 @@
    hardcoded, but could be made a uniform or vertex attribute easily enough. */
 
 uniform vec2 u_size;
-uniform vec4 u_borderColor;
 uniform vec4 u_fillColor;
 
 noperspective in vec2 f_uv;
@@ -23,14 +22,15 @@ main()
 {
 	const float border_width = 2.0;
 
-	float t          = step(border_width, f_uv[1]);
-	float r          = step(border_width, u_size.x - f_uv[0]);
-	float b          = step(border_width, u_size.y - f_uv[1]);
-	float l          = step(border_width, f_uv[0]);
-	float fill_mix   = t * r * b * l;
-	float border_mix = 1.0 - fill_mix;
-	vec4  fill       = fill_mix * u_fillColor;
-	vec4  border     = border_mix * u_borderColor;
+	vec4  border_color = u_fillColor + vec4(0.0, 0.4, 0.4, 0.0);
+	float t            = step(border_width, f_uv[1]);
+	float r            = step(border_width, u_size.x - f_uv[0]);
+	float b            = step(border_width, u_size.y - f_uv[1]);
+	float l            = step(border_width, f_uv[0]);
+	float fill_mix     = t * r * b * l;
+	float border_mix   = 1.0 - fill_mix;
+	vec4  fill         = fill_mix * u_fillColor;
+	vec4  border       = border_mix * border_color;
 
 	FragColor = fill + border;
 }
