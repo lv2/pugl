@@ -10,10 +10,9 @@
    specified precisely in pixels to draw sharp lines.  The border width is just
    hardcoded, but could be made a uniform or vertex attribute easily enough. */
 
-uniform vec2 u_size;
-uniform vec4 u_fillColor;
-
 noperspective in vec2 f_uv;
+noperspective in vec2 f_size;
+noperspective in vec4 f_fillColor;
 
 layout(location = 0) out vec4 FragColor;
 
@@ -22,14 +21,14 @@ main()
 {
 	const float borderWidth = 2.0;
 
-	vec4  borderColor = u_fillColor + vec4(0.0, 0.4, 0.4, 0.0);
+	vec4  borderColor = f_fillColor + vec4(0.0, 0.4, 0.4, 0.0);
 	float t           = step(borderWidth, f_uv[1]);
-	float r           = step(borderWidth, u_size.x - f_uv[0]);
-	float b           = step(borderWidth, u_size.y - f_uv[1]);
+	float r           = step(borderWidth, f_size.x - f_uv[0]);
+	float b           = step(borderWidth, f_size.y - f_uv[1]);
 	float l           = step(borderWidth, f_uv[0]);
 	float fillMix     = t * r * b * l;
 	float borderMix   = 1.0 - fillMix;
-	vec4  fill        = fillMix * u_fillColor;
+	vec4  fill        = fillMix * f_fillColor;
 	vec4  border      = borderMix * borderColor;
 
 	FragColor = fill + border;

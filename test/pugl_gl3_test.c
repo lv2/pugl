@@ -21,17 +21,17 @@
    pixel coordinates for positions and sizes so that things work roughly like a
    typical 2D graphics API.
 
-   The program draws a bunch of rectangles with borders, with one draw call per
-   rectangle (the shader draws the borders).  Rectangle attributes are
-   controlled via uniform variables.  This is certainly not the fastest way to
-   do this: it is probably CPU and/or I/O bound, but serves as a decent very
-   rough benchmark for how many draw calls you can get away with.
+   The program draws a bunch of rectangles with borders, using instancing.
+   Each rectangle has origin, size, and fill color attributes, which are shared
+   for all four vertices.  On each frame, a single buffer with all the
+   rectangle data is sent to the GPU, and everything is drawn with a single
+   draw call.
 
-   A better (if slightly more GPU memory intensive) way to do this would be to
-   put everything in vertex attributes, jam all the rectangle data into a
-   single buffer, and draw the whole thing with a single draw call.  That way
-   would probably be GPU bound instead, and show a difference between alpha
-   blending and depth testing for many overlapped rectangles.
+   This is not particularly realistic or optimal, but serves as a decent rough
+   benchmark for how much simple geometry you can draw.  The number of
+   rectangles can be given on the command line.  For reference, it begins to
+   struggle to maintain 60 FPS on my machine (1950x + Vega64) with more than
+   about 100000 rectangles.
 */
 
 #define GL_SILENCE_DEPRECATION 1
@@ -82,10 +82,9 @@ typedef struct
 	Program         drawRect;
 	GLuint          vao;
 	GLuint          vbo;
+	GLuint          instanceVbo;
 	GLuint          ibo;
-	GLint           u_MVP;
-	GLint           u_size;
-	GLint           u_fillColor;
+	GLint           u_projection;
 	unsigned        framesDrawn;
 	int             quit;
 } PuglTestApp;
@@ -99,33 +98,6 @@ onConfigure(PuglView* view, double width, double height)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glViewport(0, 0, (int)width, (int)height);
-}
-
-static void
-drawRect(const PuglTestApp* app, const Rect* rect, mat4 projection)
-{
-	/* The vertex data is always the same: a normalized rectangle from (0, 0)
-	   to (1, 1).  We use the MVP matrix to scale and translate this to the
-	   desired screen coordinates. */
-
-	// Construct model matrix to scale/translate to screen coordinates
-	mat4 m;
-	mat4Identity(m);
-	mat4Translate(m, rect->pos[0], rect->pos[1], 0);
-	m[0][0] = rect->size[0];
-	m[1][1] = rect->size[1];
-
-	// Combine them into the final MVP matrix and set uniform
-	mat4 mvp;
-	mat4Mul(mvp, projection, m);
-	glUniformMatrix4fv(app->u_MVP, 1, GL_FALSE, (const GLfloat*)&mvp);
-
-	// Set uniforms for the various rectangle attributes
-	glUniform2fv(app->u_size, 1, rect->size);
-	glUniform4fv(app->u_fillColor, 1, rect->fillColor);
-
-	// Draw
-	glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, 0);
 }
 
 static void
@@ -149,7 +121,9 @@ onExpose(PuglView* view)
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(app->drawRect.program);
 	glBindVertexArray(app->vao);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, app->ibo);
+
+	// Set projection matrix uniform
+	glUniformMatrix4fv(app->u_projection, 1, GL_FALSE, (const GLfloat*)&proj);
 
 	for (size_t i = 0; i < app->numRects; ++i) {
 		Rect*       rect      = &app->rects[i];
@@ -165,9 +139,15 @@ onExpose(PuglView* view)
 		        (float)(frame.height - rect->size[1] + offset[1]) *
 		        (cosf((float)time * rect->size[1] / 64.0f + normal) + 1.0f) /
 		        2.0f;
-
-		drawRect(app, rect, proj);
 	}
+
+	glBufferSubData(GL_ARRAY_BUFFER,
+	                0,
+	                app->numRects * sizeof(Rect),
+	                app->rects);
+
+	glDrawElementsInstanced(
+	        GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, NULL, app->numRects * 4);
 
 	++app->framesDrawn;
 }
@@ -201,7 +181,7 @@ makeRects(const size_t numRects)
 {
 	const float minSize  = (float)defaultWidth / 64.0f;
 	const float maxSize  = (float)defaultWidth / 6.0f;
-	const float boxAlpha = 0.25f;
+	const float boxAlpha = 0.2f;
 
 	Rect* rects = (Rect*)calloc(numRects, sizeof(Rect));
 	for (size_t i = 0; i < numRects; ++i) {
@@ -325,9 +305,8 @@ main(int argc, char** argv)
 	}
 
 	// Get location of rectangle shader uniforms
-	app.u_MVP       = glGetUniformLocation(app.drawRect.program, "MVP");
-	app.u_size      = glGetUniformLocation(app.drawRect.program, "u_size");
-	app.u_fillColor = glGetUniformLocation(app.drawRect.program, "u_fillColor");
+	app.u_projection =
+	        glGetUniformLocation(app.drawRect.program, "u_projection");
 
 	// Generate/bind a VAO to track state
 	glGenVertexArrays(1, &app.vao);
@@ -341,9 +320,42 @@ main(int argc, char** argv)
 	             rectVertices,
 	             GL_STATIC_DRAW);
 
-	// Set up the first/only attribute, position, as 2 floats from the VBO
+	// Attribute 0 is position, 2 floats from the VBO
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
+
+	// Generate/bind a VBO to store instance attribute data
+	glGenBuffers(1, &app.instanceVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, app.instanceVbo);
+	glBufferData(GL_ARRAY_BUFFER,
+	             app.numRects * sizeof(Rect),
+	             app.rects,
+	             GL_STREAM_DRAW);
+
+	// Attribute 1 is Rect::position
+	glEnableVertexAttribArray(1);
+	glVertexAttribDivisor(1, 4);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Rect), NULL);
+
+	// Attribute 2 is Rect::size
+	glEnableVertexAttribArray(2);
+	glVertexAttribDivisor(2, 4);
+	glVertexAttribPointer(2,
+	                      2,
+	                      GL_FLOAT,
+	                      GL_FALSE,
+	                      sizeof(Rect),
+	                      (const void*)offsetof(Rect, size));
+
+	// Attribute 3 is Rect::fillColor
+	glEnableVertexAttribArray(3);
+	glVertexAttribDivisor(3, 4);
+	glVertexAttribPointer(3,
+	                      4,
+	                      GL_FLOAT,
+	                      GL_FALSE,
+	                      sizeof(Rect),
+	                      (const void*)offsetof(Rect, fillColor));
 
 	// Set up the IBO to index into the VBO
 	glGenBuffers(1, &app.ibo);
@@ -369,6 +381,7 @@ main(int argc, char** argv)
 	puglEnterContext(app.view, false);
 	glDeleteBuffers(1, &app.ibo);
 	glDeleteBuffers(1, &app.vbo);
+	glDeleteBuffers(1, &app.instanceVbo);
 	glDeleteVertexArrays(1, &app.vao);
 	deleteProgram(app.drawRect);
 	puglLeaveContext(app.view, false);
