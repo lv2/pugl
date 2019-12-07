@@ -152,15 +152,19 @@ onExpose(PuglView* view)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, app->ibo);
 
 	for (size_t i = 0; i < app->numRects; ++i) {
-		Rect* rect = &app->rects[i];
+		Rect*       rect      = &app->rects[i];
+		const float normal    = i / (float)app->numRects;
+		const float offset[2] = {normal * 128.0f, normal * 128.0f};
 
 		// Move rect around in an arbitrary way that looks cool
-		rect->pos[0] = (float)(frame.width - rect->size[0]) *
-		               (sinf((float)time * rect->size[0] / 64.0f) + 1.0f) /
-		               2.0f;
-		rect->pos[1] = (float)(frame.height - rect->size[1]) *
-		               (cosf((float)time * rect->size[1] / 64.0f) + 1.0f) /
-		               2.0f;
+		rect->pos[0] =
+		        (float)(frame.width - rect->size[0] + offset[0]) *
+		        (sinf((float)time * rect->size[0] / 64.0f + normal) + 1.0f) /
+		        2.0f;
+		rect->pos[1] =
+		        (float)(frame.height - rect->size[1] + offset[1]) *
+		        (cosf((float)time * rect->size[1] / 64.0f + normal) + 1.0f) /
+		        2.0f;
 
 		drawRect(app, rect, proj);
 	}
