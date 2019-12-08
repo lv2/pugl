@@ -374,7 +374,7 @@ typedef struct {
    1.0 scrolls 1 line up.  Some systems and devices support finer resolution
    and/or higher values for fast scrolls, so programs should handle any value
    gracefully.
- */
+*/
 typedef struct {
 	PuglEventType  type;  ///< PUGL_SCROLL
 	PuglEventFlags flags; ///< Bitwise OR of PuglEventFlag values
