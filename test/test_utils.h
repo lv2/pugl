@@ -230,10 +230,10 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 		switch (event->type) {
 		case PUGL_CONFIGURE:
 			return fprintf(stderr, "%sConfigure " PFMT " " PFMT "\n", prefix,
-			               event->expose.x,
-			               event->expose.y,
-			               event->expose.width,
-			               event->expose.height);
+			               event->configure.x,
+			               event->configure.y,
+			               event->configure.width,
+			               event->configure.height);
 		case PUGL_EXPOSE:
 			return fprintf(stderr,
 			               "%sExpose    " PFMT " " PFMT "\n", prefix,
