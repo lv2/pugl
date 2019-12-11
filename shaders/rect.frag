@@ -20,17 +20,17 @@ layout(location = 0) out vec4 FragColor;
 void
 main()
 {
-	const float border_width = 2.0;
+	const float borderWidth = 2.0;
 
-	vec4  border_color = u_fillColor + vec4(0.0, 0.4, 0.4, 0.0);
-	float t            = step(border_width, f_uv[1]);
-	float r            = step(border_width, u_size.x - f_uv[0]);
-	float b            = step(border_width, u_size.y - f_uv[1]);
-	float l            = step(border_width, f_uv[0]);
-	float fill_mix     = t * r * b * l;
-	float border_mix   = 1.0 - fill_mix;
-	vec4  fill         = fill_mix * u_fillColor;
-	vec4  border       = border_mix * border_color;
+	vec4  borderColor = u_fillColor + vec4(0.0, 0.4, 0.4, 0.0);
+	float t           = step(borderWidth, f_uv[1]);
+	float r           = step(borderWidth, u_size.x - f_uv[0]);
+	float b           = step(borderWidth, u_size.y - f_uv[1]);
+	float l           = step(borderWidth, f_uv[0]);
+	float fillMix     = t * r * b * l;
+	float borderMix   = 1.0 - fillMix;
+	vec4  fill        = fillMix * u_fillColor;
+	vec4  border      = borderMix * borderColor;
 
 	FragColor = fill + border;
 }
