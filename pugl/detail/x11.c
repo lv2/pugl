@@ -811,18 +811,18 @@ puglPostRedisplay(PuglView* view)
 PuglStatus
 puglPostRedisplayRect(PuglView* view, PuglRect rect)
 {
-	const int x = (int)floor(rect.x);
-	const int y = (int)floor(rect.y);
-	const int w = (int)ceil(rect.x + rect.width) - x;
-	const int h = (int)ceil(rect.y + rect.height) - y;
-
-	XExposeEvent ev = {Expose, 0, True,
-	                   view->impl->display, view->impl->win,
-	                   x, y,
-	                   w, h,
-	                   0};
-
 	if (view->visible) {
+		const int x = (int)floor(rect.x);
+		const int y = (int)floor(rect.y);
+		const int w = (int)ceil(rect.x + rect.width) - x;
+		const int h = (int)ceil(rect.y + rect.height) - y;
+
+		XExposeEvent ev = {Expose, 0, True,
+		                   view->impl->display, view->impl->win,
+		                   x, y,
+		                   w, h,
+		                   0};
+
 		XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
 	}
 
