@@ -671,6 +671,8 @@ puglDispatchEvents(PuglWorld* world)
 	Display* display = world->impl->display;
 	XFlush(display);
 
+	world->impl->dispatchingEvents = true;
+
 	// Process all queued events (locally, without flushing or reading)
 	while (XEventsQueued(display, QueuedAlready) > 0) {
 		XEvent xevent;
@@ -783,6 +785,8 @@ puglDispatchEvents(PuglWorld* world)
 		}
 	}
 
+	world->impl->dispatchingEvents = false;
+
 	return PUGL_SUCCESS;
 }
 
@@ -811,7 +815,15 @@ puglPostRedisplay(PuglView* view)
 PuglStatus
 puglPostRedisplayRect(PuglView* view, PuglRect rect)
 {
-	if (view->visible) {
+	if (view->world->impl->dispatchingEvents) {
+		// Currently dispatching events, add/expand expose for the loop end
+		const PuglEventExpose event = {
+			PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height, 0
+		};
+
+		addPendingExpose(view, (const PuglEvent*)&event);
+	} else if (view->visible) {
+		// Not dispatching events, send an X expose so we wake up next time
 		const int x = (int)floor(rect.x);
 		const int y = (int)floor(rect.y);
 		const int w = (int)ceil(rect.x + rect.width) - x;

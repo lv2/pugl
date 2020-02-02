@@ -23,6 +23,8 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+#include <stdbool.h>
+
 typedef struct {
 	Atom CLIPBOARD;
 	Atom UTF8_STRING;
@@ -37,6 +39,7 @@ struct PuglWorldInternalsImpl {
 	Display*     display;
 	PuglX11Atoms atoms;
 	XIM          xim;
+	bool         dispatchingEvents;
 };
 
 struct PuglInternalsImpl {
