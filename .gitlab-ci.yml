@@ -85,27 +85,23 @@ mingw64_rel:
 mac_dbg:
   <<: *build_definition
   script: python ./waf configure build -dsT --no-coverage
-  tags:
-    - macos
+  tags: [macos]
 
 mac_rel:
   <<: *build_definition
   script: python ./waf configure build -sT --no-coverage
-  tags:
-    - macos
+  tags: [macos]
 
 win_dbg:
   <<: *build_definition
   script:
     - python ./waf configure build -dT --no-coverage
-  tags:
-    - windows
+  tags: [windows,msvc,python]
 
 win_rel:
   <<: *build_definition
   script: python ./waf configure build -T --no-coverage
-  tags:
-    - windows
+  tags: [windows,msvc,python]
 
 pages:
   stage: deploy
