@@ -648,14 +648,18 @@ flushPendingConfigure(PuglView* view)
 	PuglEvent* const configure = &view->impl->pendingConfigure;
 
 	if (configure->type) {
-		view->frame.x      = configure->configure.x;
-		view->frame.y      = configure->configure.y;
-		view->frame.width  = configure->configure.width;
-		view->frame.height = configure->configure.height;
+		view->frame.x = configure->configure.x;
+		view->frame.y = configure->configure.y;
 
-		view->backend->resize(view,
-		                      (int)view->frame.width,
-		                      (int)view->frame.height);
+		if (configure->configure.width != view->frame.width ||
+		    configure->configure.height != view->frame.height) {
+			view->frame.width  = configure->configure.width;
+			view->frame.height = configure->configure.height;
+
+			view->backend->resize(view,
+			                      (int)view->frame.width,
+			                      (int)view->frame.height);
+		}
 
 		view->eventFunc(view, configure);
 		configure->type = 0;
