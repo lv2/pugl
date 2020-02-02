@@ -622,6 +622,27 @@ mergeExposeEvents(PuglEvent* dst, const PuglEvent* src)
 }
 
 static void
+addPendingExpose(PuglView* view, const PuglEvent* expose)
+{
+	if (view->impl->pendingConfigure.type ||
+	    (view->impl->pendingExpose.type &&
+	     exposeEventsIntersect(&view->impl->pendingExpose, expose))) {
+		// Pending configure or an intersecting expose, expand it
+		mergeExposeEvents(&view->impl->pendingExpose, expose);
+	} else {
+		if (view->impl->pendingExpose.type) {
+			// Pending non-intersecting expose, dispatch it now
+			// This isn't ideal, but avoids needing to maintain an expose list
+			puglEnterContext(view, true);
+			puglDispatchEvent(view, &view->impl->pendingExpose);
+			puglLeaveContext(view, true);
+		}
+
+		view->impl->pendingExpose = *expose;
+	}
+}
+
+static void
 flushPendingConfigure(PuglView* view)
 {
 	PuglEvent* const configure = &view->impl->pendingConfigure;
@@ -730,20 +751,7 @@ puglDispatchEvents(PuglWorld* world)
 
 		if (event.type == PUGL_EXPOSE) {
 			// Expand expose event to be dispatched after loop
-			if (view->impl->pendingConfigure.type ||
-			    (view->impl->pendingExpose.type &&
-			     exposeEventsIntersect(&view->impl->pendingExpose, &event))) {
-				mergeExposeEvents(&view->impl->pendingExpose, &event);
-			} else {
-				if (view->impl->pendingExpose.type) {
-					puglEnterContext(view, true);
-					flushPendingConfigure(view);
-					puglDispatchEvent(view, &view->impl->pendingExpose);
-					puglLeaveContext(view, true);
-				}
-
-				view->impl->pendingExpose = event;
-			}
+			addPendingExpose(view, &event);
 		} else if (event.type == PUGL_CONFIGURE) {
 			// Expand configure event to be dispatched after loop
 			view->impl->pendingConfigure = event;
