@@ -872,7 +872,7 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 	view->frame = frame;
 
 	if (view->impl->win &&
-	    XMoveResizeWindow(view->world->impl->display, view->impl->win,
+	    !XMoveResizeWindow(view->world->impl->display, view->impl->win,
 	                      (int)frame.x, (int)frame.y,
 	                      (int)frame.width, (int)frame.height)) {
 		return PUGL_UNKNOWN_ERROR;
