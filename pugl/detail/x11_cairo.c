@@ -33,9 +33,8 @@
 
 typedef struct  {
 	cairo_surface_t* back;
-	cairo_t*         backCr;
 	cairo_surface_t* front;
-	cairo_t*         frontCr;
+	cairo_t*         cr;
 } PuglX11CairoSurface;
 
 static PuglStatus
@@ -50,18 +49,11 @@ puglX11CairoCreate(PuglView* view)
 		impl->display, impl->win, impl->vi->visual, width, height);
 	surface.front = cairo_surface_create_similar(
 		surface.back, CAIRO_CONTENT_COLOR, width, height);
-	surface.backCr  = cairo_create(surface.back);
-	surface.frontCr = cairo_create(surface.front);
 
 	cairo_status_t st = CAIRO_STATUS_SUCCESS;
-	if (!surface.back || !surface.backCr ||
-	    !surface.front || !surface.frontCr ||
+	if (!surface.back || !surface.front ||
 	    (st = cairo_surface_status(surface.back)) ||
-	    (st = cairo_surface_status(surface.front)) ||
-	    (st = cairo_status(surface.backCr)) ||
-	    (st = cairo_status(surface.frontCr))) {
-		cairo_destroy(surface.frontCr);
-		cairo_destroy(surface.backCr);
+	    (st = cairo_surface_status(surface.front))) {
 		cairo_surface_destroy(surface.front);
 		cairo_surface_destroy(surface.back);
 		return PUGL_CREATE_CONTEXT_FAILED;
@@ -79,8 +71,6 @@ puglX11CairoDestroy(PuglView* view)
 	PuglInternals* const       impl    = view->impl;
 	PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
-	cairo_destroy(surface->frontCr);
-	cairo_destroy(surface->backCr);
 	cairo_surface_destroy(surface->front);
 	cairo_surface_destroy(surface->back);
 	free(surface);
@@ -95,7 +85,10 @@ puglX11CairoEnter(PuglView* view, bool drawing)
 	PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
 	if (drawing) {
-		cairo_save(surface->frontCr);
+		surface->cr = cairo_create(surface->front);
+		if (!surface->cr || cairo_status(surface->cr)) {
+			return PUGL_CREATE_CONTEXT_FAILED;
+		}
 	}
 
 	return PUGL_SUCCESS;
@@ -108,9 +101,18 @@ puglX11CairoLeave(PuglView* view, bool drawing)
 	PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
 	if (drawing) {
-		cairo_set_source_surface(surface->backCr, surface->front, 0, 0);
-		cairo_paint(surface->backCr);
-		cairo_restore(surface->frontCr);
+		// Destroy front context that was used by the user for drawing
+		cairo_destroy(surface->cr);
+
+		// Create a new context for the back and paint the front onto it
+		surface->cr = cairo_create(surface->back);
+		cairo_set_source_surface(surface->cr, surface->front, 0, 0);
+		cairo_paint(surface->cr);
+		cairo_destroy(surface->cr);
+		surface->cr = NULL;
+
+		// Flush back to X
+		cairo_surface_flush(surface->back);
 	}
 
 	return PUGL_SUCCESS;
@@ -124,15 +126,11 @@ puglX11CairoResize(PuglView* view, int width, int height)
 
 	cairo_xlib_surface_set_size(surface->back, width, height);
 
-	cairo_destroy(surface->frontCr);
 	cairo_surface_destroy(surface->front);
 	if (!(surface->front = cairo_surface_create_similar(
 		      surface->back, CAIRO_CONTENT_COLOR, width, height))) {
 		return PUGL_CREATE_CONTEXT_FAILED;
 	}
-
-	surface->frontCr = cairo_create(surface->front);
-	cairo_save(surface->frontCr);
 
 	return PUGL_SUCCESS;
 }
@@ -143,7 +141,7 @@ puglX11CairoGetContext(PuglView* view)
 	PuglInternals* const       impl    = view->impl;
 	PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
-	return surface->frontCr;
+	return surface->cr;
 }
 
 const PuglBackend*
