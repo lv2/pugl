@@ -633,9 +633,7 @@ addPendingExpose(PuglView* view, const PuglEvent* expose)
 		if (view->impl->pendingExpose.type) {
 			// Pending non-intersecting expose, dispatch it now
 			// This isn't ideal, but avoids needing to maintain an expose list
-			puglEnterContext(view, true);
 			puglDispatchEvent(view, &view->impl->pendingExpose);
-			puglLeaveContext(view, true);
 		}
 
 		view->impl->pendingExpose = *expose;
