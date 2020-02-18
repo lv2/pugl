@@ -96,11 +96,11 @@ struct PuglBackendImpl {
 	/** Destroy surface and drawing context. */
 	PuglStatus (*destroy)(PuglView*);
 
-	/** Enter drawing context, for drawing if parameter is true. */
-	PuglStatus (*enter)(PuglView*, bool);
+	/** Enter drawing context, for drawing if expose is non-null. */
+	PuglStatus (*enter)(PuglView*, const PuglEventExpose*);
 
-	/** Leave drawing context, after drawing if parameter is true. */
-	PuglStatus (*leave)(PuglView*, bool);
+	/** Leave drawing context, after drawing if expose is non-null. */
+	PuglStatus (*leave)(PuglView*, const PuglEventExpose*);
 
 	/** Resize drawing context to the given width and height. */
 	PuglStatus (*resize)(PuglView*, int, int);

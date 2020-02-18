@@ -125,7 +125,7 @@ puglMacGlDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglMacGlEnter(PuglView* view, bool PUGL_UNUSED(drawing))
+puglMacGlEnter(PuglView* view, const PuglEventExpose* PUGL_UNUSED(expose))
 {
 	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
 
@@ -134,11 +134,11 @@ puglMacGlEnter(PuglView* view, bool PUGL_UNUSED(drawing))
 }
 
 static PuglStatus
-puglMacGlLeave(PuglView* view, bool drawing)
+puglMacGlLeave(PuglView* view, const PuglEventExpose* expose)
 {
 	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
 
-	if (drawing) {
+	if (expose) {
 		[[drawView openGLContext] flushBuffer];
 	}
 

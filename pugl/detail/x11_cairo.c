@@ -79,12 +79,12 @@ puglX11CairoDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglX11CairoEnter(PuglView* view, bool drawing)
+puglX11CairoEnter(PuglView* view, const PuglEventExpose* expose)
 {
 	PuglInternals* const       impl    = view->impl;
 	PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
-	if (drawing) {
+	if (expose) {
 		surface->cr = cairo_create(surface->front);
 		if (!surface->cr || cairo_status(surface->cr)) {
 			return PUGL_CREATE_CONTEXT_FAILED;
@@ -95,12 +95,12 @@ puglX11CairoEnter(PuglView* view, bool drawing)
 }
 
 static PuglStatus
-puglX11CairoLeave(PuglView* view, bool drawing)
+puglX11CairoLeave(PuglView* view, const PuglEventExpose* expose)
 {
 	PuglInternals* const       impl    = view->impl;
 	PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
-	if (drawing) {
+	if (expose) {
 		// Destroy front context that was used by the user for drawing
 		cairo_destroy(surface->cr);
 

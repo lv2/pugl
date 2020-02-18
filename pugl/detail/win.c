@@ -947,9 +947,9 @@ puglSetClipboard(PuglView* const   view,
 }
 
 static PuglStatus
-puglWinStubEnter(PuglView* view, bool drawing)
+puglWinStubEnter(PuglView* view, const PuglEventExpose* expose)
 {
-	if (drawing) {
+	if (expose) {
 		PAINTSTRUCT ps;
 		BeginPaint(view->impl->hwnd, &ps);
 	}
@@ -958,9 +958,9 @@ puglWinStubEnter(PuglView* view, bool drawing)
 }
 
 static PuglStatus
-puglWinStubLeave(PuglView* view, bool drawing)
+puglWinStubLeave(PuglView* view, const PuglEventExpose* expose)
 {
-	if (drawing) {
+	if (expose) {
 		PAINTSTRUCT ps;
 		EndPaint(view->impl->hwnd, &ps);
 		SwapBuffers(view->impl->hdc);

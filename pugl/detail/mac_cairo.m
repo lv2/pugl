@@ -93,10 +93,10 @@ puglMacCairoDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglMacCairoEnter(PuglView* view, bool drawing)
+puglMacCairoEnter(PuglView* view, const PuglEventExpose* expose)
 {
 	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
-	if (!drawing) {
+	if (!expose) {
 		return PUGL_SUCCESS;
 	}
 
@@ -114,10 +114,10 @@ puglMacCairoEnter(PuglView* view, bool drawing)
 }
 
 static PuglStatus
-puglMacCairoLeave(PuglView* view, bool drawing)
+puglMacCairoLeave(PuglView* view, const PuglEventExpose* expose)
 {
 	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
-	if (!drawing) {
+	if (!expose) {
 		return PUGL_SUCCESS;
 	}
 

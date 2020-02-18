@@ -246,13 +246,13 @@ puglWinGlDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglWinGlEnter(PuglView* view, bool drawing)
+puglWinGlEnter(PuglView* view, const PuglEventExpose* expose)
 {
 	PuglWinGlSurface* surface = (PuglWinGlSurface*)view->impl->surface;
 
 	wglMakeCurrent(view->impl->hdc, surface->hglrc);
 
-	if (drawing) {
+	if (expose) {
 		PAINTSTRUCT ps;
 		BeginPaint(view->impl->hwnd, &ps);
 	}
@@ -261,9 +261,9 @@ puglWinGlEnter(PuglView* view, bool drawing)
 }
 
 static PuglStatus
-puglWinGlLeave(PuglView* view, bool drawing)
+puglWinGlLeave(PuglView* view, const PuglEventExpose* expose)
 {
-	if (drawing) {
+	if (expose) {
 		PAINTSTRUCT ps;
 		EndPaint(view->impl->hwnd, &ps);
 		SwapBuffers(view->impl->hdc);

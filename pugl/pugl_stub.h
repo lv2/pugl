@@ -71,18 +71,18 @@ puglStubDestroy(PuglView* view)
 }
 
 static inline PuglStatus
-puglStubEnter(PuglView* view, bool drawing)
+puglStubEnter(PuglView* view, const PuglEventExpose* expose)
 {
 	(void)view;
-	(void)drawing;
+	(void)expose;
 	return PUGL_SUCCESS;
 }
 
 static inline PuglStatus
-puglStubLeave(PuglView* view, bool drawing)
+puglStubLeave(PuglView* view, const PuglEventExpose* expose)
 {
 	(void)view;
-	(void)drawing;
+	(void)expose;
 	return PUGL_SUCCESS;
 }
 

@@ -110,39 +110,37 @@ puglWinCairoDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglWinCairoEnter(PuglView* view, bool drawing)
+puglWinCairoEnter(PuglView* view, const PuglEventExpose* expose)
 {
 	PuglInternals* const       impl    = view->impl;
 	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
-	if (!drawing) {
-		return PUGL_SUCCESS;
-	}
 
-	PAINTSTRUCT ps;
-	BeginPaint(view->impl->hwnd, &ps);
-	cairo_save(surface->cr);
+	if (expose) {
+		PAINTSTRUCT ps;
+		BeginPaint(view->impl->hwnd, &ps);
+		cairo_save(surface->cr);
+	}
 
 	return PUGL_SUCCESS;
 }
 
 static PuglStatus
-puglWinCairoLeave(PuglView* view, bool drawing)
+puglWinCairoLeave(PuglView* view, const PuglEventExpose* expose)
 {
 	PuglInternals* const       impl    = view->impl;
 	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
-	if (!drawing) {
-		return PUGL_SUCCESS;
+
+	if (expose) {
+		cairo_restore(surface->cr);
+		cairo_surface_flush(surface->surface);
+		BitBlt(impl->hdc,
+		       0, 0, (int)view->frame.width, (int)view->frame.height,
+		       surface->drawDc, 0, 0, SRCCOPY);
+
+		PAINTSTRUCT ps;
+		EndPaint(view->impl->hwnd, &ps);
+		SwapBuffers(view->impl->hdc);
 	}
-
-	cairo_restore(surface->cr);
-	cairo_surface_flush(surface->surface);
-	BitBlt(impl->hdc,
-	       0, 0, (int)view->frame.width, (int)view->frame.height,
-	       surface->drawDc, 0, 0, SRCCOPY);
-
-	PAINTSTRUCT ps;
-	EndPaint(view->impl->hwnd, &ps);
-	SwapBuffers(view->impl->hdc);
 
 	return PUGL_SUCCESS;
 }
