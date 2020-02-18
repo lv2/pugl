@@ -134,7 +134,7 @@ onDisplay(PuglView* view, const PuglEventExpose* event)
 	cairo_t* cr = (cairo_t*)puglGetContext(view);
 
 	cairo_rectangle(cr, event->x, event->y, event->width, event->height);
-	cairo_clip(cr);
+	cairo_clip_preserve(cr);
 
 	// Draw background
 	const PuglRect frame  = puglGetFrame(view);
@@ -145,7 +145,6 @@ onDisplay(PuglView* view, const PuglEventExpose* event)
 	} else {
 		cairo_set_source_rgb(cr, 0, 0, 0);
 	}
-	cairo_rectangle(cr, 0, 0, width, height);
 	cairo_fill(cr);
 
 	// Scale to view size
