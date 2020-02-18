@@ -593,15 +593,6 @@ puglWaitForEvent(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
-static bool
-exposeEventsIntersect(const PuglEvent* a, const PuglEvent* b)
-{
-	return !(a->expose.x + a->expose.width < b->expose.x ||
-	         b->expose.x + b->expose.width < a->expose.x ||
-	         a->expose.y + a->expose.height < b->expose.y ||
-	         b->expose.y + b->expose.height < a->expose.y);
-}
-
 static void
 mergeExposeEvents(PuglEvent* dst, const PuglEvent* src)
 {
@@ -618,25 +609,6 @@ mergeExposeEvents(PuglEvent* dst, const PuglEvent* src)
 		dst->expose.width  = max_x - dst->expose.x;
 		dst->expose.height = max_y - dst->expose.y;
 		dst->expose.count  = MIN(dst->expose.count, src->expose.count);
-	}
-}
-
-static void
-addPendingExpose(PuglView* view, const PuglEvent* expose)
-{
-	if (view->impl->pendingConfigure.type ||
-	    (view->impl->pendingExpose.type &&
-	     exposeEventsIntersect(&view->impl->pendingExpose, expose))) {
-		// Pending configure or an intersecting expose, expand it
-		mergeExposeEvents(&view->impl->pendingExpose, expose);
-	} else {
-		if (view->impl->pendingExpose.type) {
-			// Pending non-intersecting expose, dispatch it now
-			// This isn't ideal, but avoids needing to maintain an expose list
-			puglDispatchEvent(view, &view->impl->pendingExpose);
-		}
-
-		view->impl->pendingExpose = *expose;
 	}
 }
 
@@ -755,7 +727,7 @@ puglDispatchEvents(PuglWorld* world)
 
 		if (event.type == PUGL_EXPOSE) {
 			// Expand expose event to be dispatched after loop
-			addPendingExpose(view, &event);
+			mergeExposeEvents(&view->impl->pendingExpose, &event);
 		} else if (event.type == PUGL_CONFIGURE) {
 			// Expand configure event to be dispatched after loop
 			view->impl->pendingConfigure = event;
@@ -823,7 +795,7 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect)
 			PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height, 0
 		};
 
-		addPendingExpose(view, (const PuglEvent*)&event);
+		mergeExposeEvents(&view->impl->pendingExpose, (const PuglEvent*)&event);
 	} else if (view->visible) {
 		// Not dispatching events, send an X expose so we wake up next time
 		const int x = (int)floor(rect.x);
