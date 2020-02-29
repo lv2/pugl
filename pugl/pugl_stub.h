@@ -28,6 +28,21 @@ extern "C" {
 #endif
 
 /**
+   @defgroup stub Stub
+
+   Stub graphics backend.
+
+   The stub backend functions do nothing and always
+   return success.  These do not make for a usable backend on their own since
+   the platform implementation would fail to create a window, but are useful
+   for other backends to reuse since not all need non-trivial implementations
+   of every backend function.
+
+   @ingroup pugl
+   @{
+*/
+
+/**
    Stub graphics backend.
 
    This backend just creates a simple native window without setting up any
@@ -36,18 +51,6 @@ extern "C" {
 PUGL_API
 const PuglBackend*
 puglStubBackend(void);
-
-/**
-   @name Stub backend functions
-
-   Implementations of stub backend functions which do nothing and always return
-   success.  These do not make for a usable backend on their own since the
-   platform implementation would fail to create a window, but are useful for
-   other backends to reuse since not all need non-trivial implementations of
-   every backend function.
-
-   @{
-*/
 
 static inline PuglStatus
 puglStubConfigure(PuglView* view)

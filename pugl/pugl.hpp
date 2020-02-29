@@ -24,8 +24,9 @@
 #include "pugl/pugl.h"
 
 /**
-   @defgroup puglmm Puglmm
+   @defgroup puglxx C++
    Pugl C++ API wrapper.
+   @ingroup pugl
    @{
 */
 

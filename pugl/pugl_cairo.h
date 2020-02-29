@@ -28,12 +28,23 @@ extern "C" {
 #endif
 
 /**
+   @defgroup cairo Cairo
+   Cairo graphics support.
+   @ingroup pugl
+   @{
+*/
+
+/**
    Cairo graphics backend accessor.
 
    Pass the return value to puglInitBackend() to draw to a view with Cairo.
 */
 PUGL_API const PuglBackend*
 puglCairoBackend(void);
+
+/**
+   @}
+*/
 
 #ifdef __cplusplus
 }  /* extern "C" */

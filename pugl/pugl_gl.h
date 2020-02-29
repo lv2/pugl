@@ -28,6 +28,13 @@ extern "C" {
 #endif
 
 /**
+   @defgroup gl OpenGL
+   OpenGL graphics support.
+   @ingroup pugl
+   @{
+*/
+
+/**
    OpenGL extension function.
 */
 typedef void (*PuglGlFunc)(void);
@@ -49,5 +56,9 @@ puglGlBackend(void);
 #ifdef __cplusplus
 }  /* extern "C" */
 #endif
+
+/**
+   @}
+*/
 
 #endif // PUGL_PUGL_GL_H
