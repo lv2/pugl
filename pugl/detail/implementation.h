@@ -27,9 +27,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+PUGL_BEGIN_DECLS
 
 /** Set `blob` to `data` with length `len`, reallocating if necessary. */
 void puglSetBlob(PuglBlob* dest, const void* data, size_t len);
@@ -66,8 +64,6 @@ puglSetInternalClipboard(PuglView*   view,
                          const void* data,
                          size_t      len);
 
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
+PUGL_END_DECLS
 
 #endif // PUGL_DETAIL_IMPLEMENTATION_H

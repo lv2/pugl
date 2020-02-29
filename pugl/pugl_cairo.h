@@ -23,9 +23,7 @@
 
 #include "pugl/pugl.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+PUGL_BEGIN_DECLS
 
 /**
    @defgroup cairo Cairo
@@ -46,8 +44,6 @@ puglCairoBackend(void);
    @}
 */
 
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
+PUGL_END_DECLS
 
 #endif // PUGL_PUGL_CAIRO_H

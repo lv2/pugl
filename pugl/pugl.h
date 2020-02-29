@@ -43,8 +43,14 @@
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+#	define PUGL_BEGIN_DECLS extern "C" {
+#	define PUGL_END_DECLS }
+#else
+#	define PUGL_BEGIN_DECLS
+#	define PUGL_END_DECLS
 #endif
+
+PUGL_BEGIN_DECLS
 
 /**
    @defgroup pugl Pugl
@@ -1047,8 +1053,6 @@ puglProcessEvents(PuglView* view);
    @}
 */
 
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
+PUGL_END_DECLS
 
 #endif  /* PUGL_PUGL_H */

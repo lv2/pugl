@@ -23,9 +23,7 @@
 
 #include "pugl/pugl.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+PUGL_BEGIN_DECLS
 
 /**
    @defgroup gl OpenGL
@@ -53,9 +51,7 @@ puglGetProcAddress(const char* name);
 PUGL_API const PuglBackend*
 puglGlBackend(void);
 
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
+PUGL_END_DECLS
 
 /**
    @}

@@ -23,9 +23,7 @@
 
 #include "pugl/pugl.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+PUGL_BEGIN_DECLS
 
 /**
    @defgroup stub Stub
@@ -109,8 +107,6 @@ puglStubGetContext(PuglView* view)
    @}
 */
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+PUGL_END_DECLS
 
 #endif // PUGL_PUGL_STUB_H
