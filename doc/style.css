@@ -511,8 +511,14 @@ td.entry {
     padding-right: 1em;
 }
 
-td.entry .arrow {
-    display: none;
+.arrow {
+    color: #CCC;
+    user-select: none;
+    font-size: 80%;
+    display: inline-block;
+    width: 16px;
+    height: 22px;
+    vertical-align: top;
 }
 
 td.entry b {
