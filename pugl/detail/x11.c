@@ -409,7 +409,7 @@ translateEvent(PuglView* view, XEvent xevent)
 {
 	const PuglX11Atoms* atoms = &view->world->impl->atoms;
 
-	PuglEvent event = {0};
+	PuglEvent event = {{PUGL_NOTHING, 0}};
 	event.any.flags = xevent.xany.send_event ? PUGL_IS_SEND_EVENT : 0;
 
 	switch (xevent.type) {

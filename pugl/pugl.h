@@ -411,8 +411,8 @@ typedef struct {
    either be cast to the appropriate type, or the union members used.
 */
 typedef union {
-	PuglEventType      type;      ///< Event type
 	PuglEventAny       any;       ///< Valid for all event types
+	PuglEventType      type;      ///< Event type
 	PuglEventButton    button;    ///< PUGL_BUTTON_PRESS, PUGL_BUTTON_RELEASE
 	PuglEventConfigure configure; ///< PUGL_CONFIGURE
 	PuglEventExpose    expose;    ///< PUGL_EXPOSE

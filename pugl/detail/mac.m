@@ -643,8 +643,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	(void)sender;
 
-	PuglEvent ev = { 0 };
-	ev.type = PUGL_CLOSE;
+	const PuglEvent ev = {{PUGL_CLOSE, 0}};
 	puglDispatchEvent(window->puglview, &ev);
 	return YES;
 }
@@ -666,8 +665,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		wrapperView->urgentTimer = NULL;
 	}
 
-	PuglEvent ev = { 0 };
-	ev.type       = PUGL_FOCUS_IN;
+	PuglEvent ev = {{PUGL_FOCUS_IN, 0}};
 	ev.focus.grab = false;
 	puglDispatchEvent(window->puglview, &ev);
 }
@@ -676,8 +674,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	(void)notification;
 
-	PuglEvent ev = { 0 };
-	ev.type       = PUGL_FOCUS_OUT;
+	PuglEvent ev = {{PUGL_FOCUS_OUT, 0}};
 	ev.focus.grab = false;
 	puglDispatchEvent(window->puglview, &ev);
 }
