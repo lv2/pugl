@@ -40,6 +40,8 @@ typedef struct {
 typedef float vec4[4];
 typedef vec4  mat4[4];
 
+// clang-format off
+
 static const float cubeStripVertices[] = {
 	-1.0f,  1.0f,  1.0f, // Front top left
 	 1.0f,  1.0f,  1.0f, // Front top right
@@ -84,6 +86,8 @@ static const float cubeSideLines[] = {
 	 1.0f, -1.0f,  1.0f, // Front bottom right
 	 1.0f, -1.0f, -1.0f, // Back bottom right
 };
+
+// clang-format on
 
 static inline void
 mat4Identity(mat4 m)
@@ -150,10 +154,12 @@ perspective(float* m, float fov, float aspect, float zNear, float zFar)
 	const float q     = (zFar + zNear) / depth;
 	const float qn    = 2 * zFar * zNear / depth;
 
+	// clang-format off
 	m[0]  = w;  m[1]  = 0;  m[2]  = 0;   m[3]  = 0;
 	m[4]  = 0;  m[5]  = h;  m[6]  = 0;   m[7]  = 0;
 	m[8]  = 0;  m[9]  = 0;  m[10] = q;   m[11] = -1;
 	m[12] = 0;  m[13] = 0;  m[14] = qn;  m[15] = 0;
+	// clang-format on
 }
 
 static inline int

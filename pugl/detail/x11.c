@@ -952,13 +952,15 @@ puglSetClipboard(PuglView* const   view,
 const PuglBackend*
 puglStubBackend(void)
 {
-	static const PuglBackend backend = {puglX11StubConfigure,
-	                                    puglStubCreate,
-	                                    puglStubDestroy,
-	                                    puglStubEnter,
-	                                    puglStubLeave,
-	                                    puglStubResize,
-	                                    puglStubGetContext};
+	static const PuglBackend backend = {
+	    puglX11StubConfigure,
+	    puglStubCreate,
+	    puglStubDestroy,
+	    puglStubEnter,
+	    puglStubLeave,
+	    puglStubResize,
+	    puglStubGetContext,
+	};
 
 	return &backend;
 }

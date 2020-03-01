@@ -245,8 +245,9 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(event),
-		PUGL_CROSSING_NORMAL
+		PUGL_CROSSING_NORMAL,
 	};
+
 	puglDispatchEvent(view->puglview, (const PuglEvent*)&ev);
 }
 
@@ -274,8 +275,9 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(event),
 		0,
-		1
+		1,
 	};
+
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
@@ -307,8 +309,9 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(event),
-		(uint32_t)[event buttonNumber] + 1
+		(uint32_t)[event buttonNumber] + 1,
 	};
+
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
@@ -325,8 +328,9 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(event),
-		(uint32_t)[event buttonNumber] + 1
+		(uint32_t)[event buttonNumber] + 1,
 	};
+
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
@@ -364,8 +368,9 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(event),
 		[event scrollingDeltaX],
-		[event scrollingDeltaY]
+		[event scrollingDeltaY],
 	};
+
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
@@ -375,13 +380,12 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		return;
 	}
 
-	const NSPoint      wloc  = [self eventLocation:event];
-	const NSPoint      rloc  = [NSEvent mouseLocation];
-	const PuglKey      spec  = keySymToSpecial(event);
-	const NSString*    chars = [event charactersIgnoringModifiers];
-	const char*        str   = [[chars lowercaseString] UTF8String];
-	const uint32_t     code  = (
-		spec ? spec : puglDecodeUTF8((const uint8_t*)str));
+	const NSPoint   wloc  = [self eventLocation:event];
+	const NSPoint   rloc  = [NSEvent mouseLocation];
+	const PuglKey   spec  = keySymToSpecial(event);
+	const NSString* chars = [event charactersIgnoringModifiers];
+	const char*     str   = [[chars lowercaseString] UTF8String];
+	const uint32_t  code  = (spec ? spec : puglDecodeUTF8((const uint8_t*)str));
 
 	const PuglEventKey ev = {
 		PUGL_KEY_PRESS,
@@ -393,7 +397,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(event),
 		[event keyCode],
-		(code != 0xFFFD) ? code : 0
+		(code != 0xFFFD) ? code : 0,
 	};
 
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
@@ -403,15 +407,14 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	}
 }
 
-- (void) keyUp:(NSEvent*)event
+- (void)keyUp:(NSEvent*)event
 {
-	const NSPoint      wloc  = [self eventLocation:event];
-	const NSPoint      rloc  = [NSEvent mouseLocation];
-	const PuglKey      spec  = keySymToSpecial(event);
-	const NSString*    chars = [event charactersIgnoringModifiers];
-	const char*        str   = [[chars lowercaseString] UTF8String];
-	const uint32_t     code  =
-		(spec ? spec : puglDecodeUTF8((const uint8_t*)str));
+	const NSPoint   wloc  = [self eventLocation:event];
+	const NSPoint   rloc  = [NSEvent mouseLocation];
+	const PuglKey   spec  = keySymToSpecial(event);
+	const NSString* chars = [event charactersIgnoringModifiers];
+	const char*     str   = [[chars lowercaseString] UTF8String];
+	const uint32_t  code  = (spec ? spec : puglDecodeUTF8((const uint8_t*)str));
 
 	const PuglEventKey ev = {
 		PUGL_KEY_RELEASE,
@@ -423,8 +426,9 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(event),
 		[event keyCode],
-		(code != 0xFFFD) ? code : 0
+		(code != 0xFFFD) ? code : 0,
 	};
+
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
@@ -524,17 +528,19 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		               range:NSMakeRange(i, i + 1)
 		      remainingRange:nil];
 
-		PuglEventText ev = { PUGL_TEXT,
-		                     0,
-		                     [event timestamp],
-		                     wloc.x,
-		                     wloc.y,
-		                     rloc.x,
-		                     [[NSScreen mainScreen] frame].size.height - rloc.y,
-		                     getModifiers(event),
-		                     [event keyCode],
-		                     code,
-		                     { 0, 0, 0, 0, 0, 0, 0, 0 } };
+		PuglEventText ev = {
+			PUGL_TEXT,
+			0,
+			[event timestamp],
+			wloc.x,
+			wloc.y,
+			rloc.x,
+			[[NSScreen mainScreen] frame].size.height - rloc.y,
+			getModifiers(event),
+			[event keyCode],
+			code,
+			{ 0, 0, 0, 0, 0, 0, 0, 0 },
+		};
 
 		memcpy(ev.string, utf8, len);
 		puglDispatchEvent(puglview, (const PuglEvent*)&ev);
@@ -1079,13 +1085,15 @@ puglSetClipboard(PuglView* const   view,
 const PuglBackend*
 puglStubBackend(void)
 {
-	static const PuglBackend backend = {puglStubConfigure,
-	                                    puglStubCreate,
-	                                    puglStubDestroy,
-	                                    puglStubEnter,
-	                                    puglStubLeave,
-	                                    puglStubResize,
-	                                    puglStubGetContext};
+	static const PuglBackend backend = {
+	    puglStubConfigure,
+	    puglStubCreate,
+	    puglStubDestroy,
+	    puglStubEnter,
+	    puglStubLeave,
+	    puglStubResize,
+	    puglStubGetContext,
+	};
 
 	return &backend;
 }

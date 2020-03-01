@@ -45,16 +45,17 @@ struct PuglInternalsImpl {
 static inline PuglWinPFD
 puglWinGetPixelFormatDescriptor(const PuglHints hints)
 {
-	const int rgbBits = (hints[PUGL_RED_BITS] +
-	                     hints[PUGL_GREEN_BITS] +
+	const int rgbBits = (hints[PUGL_RED_BITS] +   //
+	                     hints[PUGL_GREEN_BITS] + //
 	                     hints[PUGL_BLUE_BITS]);
+
+	const DWORD dwFlags = hints[PUGL_DOUBLE_BUFFER] ? PFD_DOUBLEBUFFER : 0;
 
 	PuglWinPFD pfd;
 	ZeroMemory(&pfd, sizeof(pfd));
 	pfd.nSize        = sizeof(pfd);
 	pfd.nVersion     = 1;
-	pfd.dwFlags      = PFD_DRAW_TO_WINDOW|PFD_SUPPORT_OPENGL;
-	pfd.dwFlags     |= hints[PUGL_DOUBLE_BUFFER] ? PFD_DOUBLEBUFFER : 0;
+	pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | dwFlags;
 	pfd.iPixelType   = PFD_TYPE_RGBA;
 	pfd.cColorBits   = (BYTE)rgbBits;
 	pfd.cRedBits     = (BYTE)hints[PUGL_RED_BITS];
@@ -70,12 +71,13 @@ puglWinGetPixelFormatDescriptor(const PuglHints hints)
 static inline unsigned
 puglWinGetWindowFlags(const PuglView* const view)
 {
-	const bool resizable = view->hints[PUGL_RESIZABLE];
+	const bool     resizable = view->hints[PUGL_RESIZABLE];
+	const unsigned sizeFlags = resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0;
+
 	return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 	        (view->parent
-	         ? WS_CHILD
-	         : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX |
-	            (resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0))));
+	             ? WS_CHILD
+	             : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX | sizeFlags)));
 }
 
 static inline unsigned

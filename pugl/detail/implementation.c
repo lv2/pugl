@@ -28,6 +28,7 @@
 const char*
 puglStrerror(const PuglStatus status)
 {
+	// clang-format off
 	switch (status) {
 	case PUGL_SUCCESS:               return "Success";
 	case PUGL_FAILURE:               return "Non-fatal failure";
@@ -40,6 +41,7 @@ puglStrerror(const PuglStatus status)
 	case PUGL_CREATE_CONTEXT_FAILED: return "Failed to create drawing context";
 	case PUGL_UNSUPPORTED_TYPE:      return "Unsupported data type";
 	}
+	// clang-format on
 
 	return "Unknown error";
 }
@@ -136,6 +138,7 @@ puglNewView(PuglWorld* const world)
 	++world->numViews;
 	world->views = (PuglView**)realloc(world->views,
 	                                   world->numViews * sizeof(PuglView*));
+
 	world->views[world->numViews - 1] = view;
 
 	return view;
@@ -280,10 +283,10 @@ puglDecodeUTF8(const uint8_t* buf)
 		FAIL_IF(buf[0] == 0xF4 && buf[1] >= 0x90);
 		FAIL_IF((buf[2] & 0xC0u) != 0x80u);
 		FAIL_IF((buf[3] & 0xC0u) != 0x80u);
-		return ((buf[0] << 18u) +
-		        (buf[1] << 12u) +
-		        (buf[2] << 6u) +
-		        buf[3] - 0x3C82080u);
+		return ((buf[0] << 18u) + //
+		        (buf[1] << 12u) + //
+		        (buf[2] << 6u) +  //
+		        (buf[3] - 0x3C82080u));
 	}
 	return 0xFFFD;
 }

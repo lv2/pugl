@@ -109,6 +109,7 @@ puglWinGlConfigure(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
 
+	// clang-format off
 	const int pixelAttrs[] = {
 		WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
 		WGL_ACCELERATION_ARB,   WGL_FULL_ACCELERATION_ARB,
@@ -125,16 +126,17 @@ puglWinGlConfigure(PuglView* view)
 		WGL_STENCIL_BITS_ARB,   view->hints[PUGL_STENCIL_BITS],
 		0,
 	};
+	// clang-format on
 
 	PuglWinGlSurface* const surface =
 		(PuglWinGlSurface*)calloc(1, sizeof(PuglWinGlSurface));
 	impl->surface = surface;
 
 	// Create fake window for getting at GL context
-	PuglStatus     st      = PUGL_SUCCESS;
-	PuglFakeWindow fakeWin = { 0, 0 };
-	if ((st = puglWinCreateWindow(view, "Pugl Configuration",
-	                              &fakeWin.hwnd, &fakeWin.hdc))) {
+	PuglStatus         st      = PUGL_SUCCESS;
+	PuglFakeWindow     fakeWin = {0, 0};
+	static const char* title   = "Pugl Configuration";
+	if ((st = puglWinCreateWindow(view, title, &fakeWin.hwnd, &fakeWin.hdc))) {
 		return puglWinError(&fakeWin, st);
 	}
 
@@ -190,17 +192,21 @@ puglWinGlCreate(PuglView* view)
 	PuglStatus              st      = PUGL_SUCCESS;
 
 	const int contextAttribs[] = {
-		WGL_CONTEXT_MAJOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MAJOR],
-		WGL_CONTEXT_MINOR_VERSION_ARB, view->hints[PUGL_CONTEXT_VERSION_MINOR],
-		WGL_CONTEXT_FLAGS_ARB, (view->hints[PUGL_USE_DEBUG_CONTEXT]
-		                        ? WGL_CONTEXT_DEBUG_BIT_ARB
-		                        : 0),
-		WGL_CONTEXT_PROFILE_MASK_ARB,
-		(view->hints[PUGL_USE_COMPAT_PROFILE]
-		 ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB
-		 : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB),
-		0
-	};
+	    WGL_CONTEXT_MAJOR_VERSION_ARB,
+	    view->hints[PUGL_CONTEXT_VERSION_MAJOR],
+
+	    WGL_CONTEXT_MINOR_VERSION_ARB,
+	    view->hints[PUGL_CONTEXT_VERSION_MINOR],
+
+	    WGL_CONTEXT_FLAGS_ARB,
+	    (view->hints[PUGL_USE_DEBUG_CONTEXT] ? WGL_CONTEXT_DEBUG_BIT_ARB : 0),
+
+	    WGL_CONTEXT_PROFILE_MASK_ARB,
+	    (view->hints[PUGL_USE_COMPAT_PROFILE]
+	         ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB
+	         : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB),
+
+	    0};
 
 	// Create real window with desired pixel format
 	if ((st = puglWinCreateWindow(view, "Pugl", &impl->hwnd, &impl->hdc))) {

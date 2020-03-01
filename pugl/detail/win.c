@@ -240,6 +240,7 @@ puglFreeWorldInternals(PuglWorld* world)
 static PuglKey
 keySymToSpecial(WPARAM sym)
 {
+	// clang-format off
 	switch (sym) {
 	case VK_F1:       return PUGL_KEY_F1;
 	case VK_F2:       return PUGL_KEY_F2;
@@ -281,17 +282,21 @@ keySymToSpecial(WPARAM sym)
 	case VK_SNAPSHOT: return PUGL_KEY_PRINT_SCREEN;
 	case VK_PAUSE:    return PUGL_KEY_PAUSE;
 	}
+	// clang-format on
+
 	return (PuglKey)0;
 }
 
 static uint32_t
 getModifiers(void)
 {
+	// clang-format off
 	return (((GetKeyState(VK_SHIFT)   < 0) ? PUGL_MOD_SHIFT  : 0u) |
 	        ((GetKeyState(VK_CONTROL) < 0) ? PUGL_MOD_CTRL   : 0u) |
 	        ((GetKeyState(VK_MENU)    < 0) ? PUGL_MOD_ALT    : 0u) |
 	        ((GetKeyState(VK_LWIN)    < 0) ? PUGL_MOD_SUPER  : 0u) |
 	        ((GetKeyState(VK_RWIN)    < 0) ? PUGL_MOD_SUPER  : 0u));
+	// clang-format on
 }
 
 static void
@@ -400,8 +405,9 @@ initKeyEvent(PuglEventKey* event,
 		// Translate unshifted key
 		BYTE    keyboardState[256] = {0};
 		wchar_t buf[5]             = {0};
-		const int ulen = ToUnicode(vkey, vcode, keyboardState, buf, 4, 1<<2);
-		event->key = puglDecodeUTF16(buf, ulen);
+
+		event->key = puglDecodeUTF16(
+		    buf, ToUnicode(vkey, vcode, keyboardState, buf, 4, 1 << 2));
 	}
 }
 
@@ -473,8 +479,9 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
 		(double)root_pos.x,
 		(double)root_pos.y,
 		getModifiers(),
-		PUGL_CROSSING_NORMAL
+		PUGL_CROSSING_NORMAL,
 	};
+
 	puglDispatchEvent(view, (const PuglEvent*)&ev);
 }
 
@@ -602,6 +609,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 
 		if (!view->impl->mouseTracked) {
 			TRACKMOUSEEVENT tme = {0};
+
 			tme.cbSize    = sizeof(tme);
 			tme.dwFlags   = TME_LEAVE;
 			tme.hwndTrack = view->impl->hwnd;
@@ -846,10 +854,13 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 		                   FALSE,
 		                   puglWinGetWindowExFlags(view));
 
-		if (!SetWindowPos(view->impl->hwnd, HWND_TOP,
-		                  rect.left, rect.top,
-		                  rect.right - rect.left, rect.bottom - rect.top,
-		                  (SWP_NOACTIVATE|SWP_NOOWNERZORDER|SWP_NOZORDER))) {
+		if (!SetWindowPos(view->impl->hwnd,
+		                  HWND_TOP,
+		                  rect.left,
+		                  rect.top,
+		                  rect.right - rect.left,
+		                  rect.bottom - rect.top,
+		                  SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER)) {
 			return PUGL_UNKNOWN_ERROR;
 		}
 	}
@@ -973,13 +984,15 @@ puglWinStubLeave(PuglView* view, const PuglEventExpose* expose)
 const PuglBackend*
 puglStubBackend(void)
 {
-	static const PuglBackend backend = {puglWinStubConfigure,
-	                                    puglStubCreate,
-	                                    puglStubDestroy,
-	                                    puglWinStubEnter,
-	                                    puglWinStubLeave,
-	                                    puglStubResize,
-	                                    puglStubGetContext};
+	static const PuglBackend backend = {
+	    puglWinStubConfigure,
+	    puglStubCreate,
+	    puglStubDestroy,
+	    puglWinStubEnter,
+	    puglWinStubLeave,
+	    puglStubResize,
+	    puglStubGetContext,
+	};
 
 	return &backend;
 }
