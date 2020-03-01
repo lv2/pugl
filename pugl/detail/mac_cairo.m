@@ -144,15 +144,13 @@ puglMacCairoGetContext(PuglView* view)
 
 const PuglBackend* puglCairoBackend(void)
 {
-	static const PuglBackend backend = {
-		puglStubConfigure,
-		puglMacCairoCreate,
-		puglMacCairoDestroy,
-		puglMacCairoEnter,
-		puglMacCairoLeave,
-		puglStubResize,
-		puglMacCairoGetContext
-	};
+	static const PuglBackend backend = {puglStubConfigure,
+	                                    puglMacCairoCreate,
+	                                    puglMacCairoDestroy,
+	                                    puglMacCairoEnter,
+	                                    puglMacCairoLeave,
+	                                    puglStubResize,
+	                                    puglMacCairoGetContext};
 
 	return &backend;
 }

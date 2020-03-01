@@ -296,15 +296,13 @@ puglGetProcAddress(const char* name)
 const PuglBackend*
 puglGlBackend()
 {
-	static const PuglBackend backend = {
-		puglWinGlConfigure,
-		puglWinGlCreate,
-		puglWinGlDestroy,
-		puglWinGlEnter,
-		puglWinGlLeave,
-		puglStubResize,
-		puglStubGetContext
-	};
+	static const PuglBackend backend = {puglWinGlConfigure,
+	                                    puglWinGlCreate,
+	                                    puglWinGlDestroy,
+	                                    puglWinGlEnter,
+	                                    puglWinGlLeave,
+	                                    puglStubResize,
+	                                    puglStubGetContext};
 
 	return &backend;
 }

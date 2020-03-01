@@ -161,15 +161,13 @@ puglX11CairoGetContext(PuglView* view)
 const PuglBackend*
 puglCairoBackend(void)
 {
-	static const PuglBackend backend = {
-		puglX11StubConfigure,
-		puglX11CairoCreate,
-		puglX11CairoDestroy,
-		puglX11CairoEnter,
-		puglX11CairoLeave,
-		puglStubResize,
-		puglX11CairoGetContext
-	};
+	static const PuglBackend backend = {puglX11StubConfigure,
+	                                    puglX11CairoCreate,
+	                                    puglX11CairoDestroy,
+	                                    puglX11CairoEnter,
+	                                    puglX11CairoLeave,
+	                                    puglStubResize,
+	                                    puglX11CairoGetContext};
 
 	return &backend;
 }
