@@ -182,75 +182,96 @@ printModifiers(const uint32_t mods)
 static inline int
 printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 {
-#define FFMT "%6.1f"
-#define PFMT FFMT " " FFMT
+#define FFMT            "%6.1f"
+#define PFMT            FFMT " " FFMT
+#define PRINT(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
 
 	switch (event->type) {
 	case PUGL_KEY_PRESS:
-		return fprintf(stderr, "%sKey press   code %3u key  U+%04X\n",
-		               prefix, event->key.keycode, event->key.key);
+		return PRINT("%sKey press   code %3u key  U+%04X\n",
+		             prefix,
+		             event->key.keycode,
+		             event->key.key);
 	case PUGL_KEY_RELEASE:
-		return fprintf(stderr, "%sKey release code %3u key  U+%04X\n",
-		               prefix, event->key.keycode, event->key.key);
+		return PRINT("%sKey release code %3u key  U+%04X\n",
+		             prefix,
+		             event->key.keycode,
+		             event->key.key);
 	case PUGL_TEXT:
-		return fprintf(stderr, "%sText entry  code %3u char U+%04X (%s)\n",
-		               prefix, event->text.keycode,
-		               event->text.character, event->text.string);
+		return PRINT("%sText entry  code %3u char U+%04X (%s)\n",
+		             prefix,
+		             event->text.keycode,
+		             event->text.character,
+		             event->text.string);
 	case PUGL_BUTTON_PRESS:
 	case PUGL_BUTTON_RELEASE:
-		return (fprintf(stderr, "%sMouse %d %s at " PFMT " ",
-		                prefix,
-		                event->button.button,
-		                (event->type == PUGL_BUTTON_PRESS) ? "down" : "up  ",
-		                event->button.x,
-		                event->button.y) +
+		return (PRINT("%sMouse %d %s at " PFMT " ",
+		              prefix,
+		              event->button.button,
+		              (event->type == PUGL_BUTTON_PRESS) ? "down" : "up  ",
+		              event->button.x,
+		              event->button.y) +
 		        printModifiers(event->scroll.state));
 	case PUGL_SCROLL:
-		return (fprintf(stderr, "%sScroll %5.1f %5.1f at " PFMT " ",
-		                prefix,
-		                event->scroll.dx, event->scroll.dy,
-		                event->scroll.x, event->scroll.y) +
+		return (PRINT("%sScroll %5.1f %5.1f at " PFMT " ",
+		              prefix,
+		              event->scroll.dx,
+		              event->scroll.dy,
+		              event->scroll.x,
+		              event->scroll.y) +
 		        printModifiers(event->scroll.state));
 	case PUGL_ENTER_NOTIFY:
-		return fprintf(stderr, "%sMouse enter  at " PFMT "\n",
-		               prefix, event->crossing.x, event->crossing.y);
+		return PRINT("%sMouse enter  at " PFMT "\n",
+		             prefix,
+		             event->crossing.x,
+		             event->crossing.y);
 	case PUGL_LEAVE_NOTIFY:
-		return fprintf(stderr, "%sMouse leave  at " PFMT "\n",
-		               prefix, event->crossing.x, event->crossing.y);
+		return PRINT("%sMouse leave  at " PFMT "\n",
+		             prefix,
+		             event->crossing.x,
+		             event->crossing.y);
 	case PUGL_FOCUS_IN:
-		return fprintf(stderr, "%sFocus in%s\n",
-		               prefix, event->focus.grab ? " (grab)" : "");
+		return PRINT("%sFocus in%s\n",
+		             prefix,
+		             event->focus.grab ? " (grab)" : "");
 	case PUGL_FOCUS_OUT:
-		return fprintf(stderr, "%sFocus out%s\n",
-		               prefix, event->focus.grab ? " (ungrab)" : "");
-	default: break;
+		return PRINT("%sFocus out%s\n",
+		             prefix,
+		             event->focus.grab ? " (ungrab)" : "");
+	default:
+		break;
 	}
 
 	if (verbose) {
 		switch (event->type) {
 		case PUGL_CONFIGURE:
-			return fprintf(stderr, "%sConfigure " PFMT " " PFMT "\n", prefix,
-			               event->configure.x,
-			               event->configure.y,
-			               event->configure.width,
-			               event->configure.height);
+			return PRINT("%sConfigure " PFMT " " PFMT "\n",
+			             prefix,
+			             event->configure.x,
+			             event->configure.y,
+			             event->configure.width,
+			             event->configure.height);
 		case PUGL_EXPOSE:
-			return fprintf(stderr,
-			               "%sExpose    " PFMT " " PFMT "\n", prefix,
-			               event->expose.x,
-			               event->expose.y,
-			               event->expose.width,
-			               event->expose.height);
+			return PRINT("%sExpose    " PFMT " " PFMT "\n",
+			             prefix,
+			             event->expose.x,
+			             event->expose.y,
+			             event->expose.width,
+			             event->expose.height);
 		case PUGL_CLOSE:
-			return fprintf(stderr, "%sClose\n", prefix);
+			return PRINT("%sClose\n", prefix);
 		case PUGL_MOTION_NOTIFY:
-			return fprintf(stderr, "%sMouse motion at " PFMT "\n",
-			               prefix, event->motion.x, event->motion.y);
+			return PRINT("%sMouse motion at " PFMT "\n",
+			             prefix,
+			             event->motion.x,
+			             event->motion.y);
 		default:
 			break;
 		}
 	}
 
+#undef PRINT
+#undef PFMT
 #undef FFMT
 
 	return 0;
