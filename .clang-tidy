@@ -2,6 +2,7 @@ Checks: >
   *,
   -*magic-numbers,
   -*uppercase-literal-suffix,
+  -android-cloexec-fopen,
   -bugprone-suspicious-string-compare,
   -clang-analyzer-alpha.*,
   -hicpp-multiway-paths-covered,
