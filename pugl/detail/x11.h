@@ -18,8 +18,10 @@
    @file x11.h Shared definitions for X11 implementation.
 */
 
-#include "pugl/detail/implementation.h"
+#include "pugl/detail/types.h"
+#include "pugl/pugl.h"
 
+#include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 

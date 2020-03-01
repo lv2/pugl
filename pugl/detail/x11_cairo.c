@@ -28,7 +28,6 @@
 #include <cairo-xlib.h>
 #include <cairo.h>
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 

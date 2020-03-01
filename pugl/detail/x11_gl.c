@@ -29,7 +29,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 

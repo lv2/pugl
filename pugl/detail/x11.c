@@ -22,9 +22,10 @@
 
 #define _POSIX_C_SOURCE 199309L
 
+#include "pugl/detail/x11.h"
+
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/types.h"
-#include "pugl/detail/x11.h"
 #include "pugl/pugl.h"
 #include "pugl/pugl_stub.h"
 

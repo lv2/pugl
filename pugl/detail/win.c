@@ -18,8 +18,9 @@
    @file win.c Windows implementation.
 */
 
-#include "pugl/detail/implementation.h"
 #include "pugl/detail/win.h"
+
+#include "pugl/detail/implementation.h"
 #include "pugl/pugl.h"
 #include "pugl/pugl_stub.h"
 
