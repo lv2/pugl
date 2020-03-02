@@ -44,7 +44,7 @@ puglX11GlHintValue(const int value)
 	return value == PUGL_DONT_CARE ? (int)GLX_DONT_CARE : value;
 }
 
-static PuglStatus
+static int
 puglX11GlGetAttrib(Display* const display,
                    GLXFBConfig    fb_config,
                    const int      attrib)
