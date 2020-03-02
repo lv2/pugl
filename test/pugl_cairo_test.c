@@ -29,8 +29,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-static PuglWorld* world = NULL;
-PuglTestOptions   opts  = {0};
+static PuglWorld*      world = NULL;
+static PuglTestOptions opts  = {0};
 
 static int      quit        = 0;
 static bool     entered     = false;

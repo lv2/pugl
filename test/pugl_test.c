@@ -41,8 +41,8 @@ typedef struct
 	PuglView*  child;
 	bool       continuous;
 	int        quit;
-	float      xAngle;
-	float      yAngle;
+	double     xAngle;
+	double     yAngle;
 	float      dist;
 	double     lastMouseX;
 	double     lastMouseY;
@@ -93,15 +93,15 @@ onDisplay(PuglView* view)
 	const double thisTime = puglGetTime(app->world);
 	if (app->continuous) {
 		const double dTime = thisTime - app->lastDrawTime;
-		app->xAngle = fmodf((float)(app->xAngle + dTime * 100.0f), 360.0f);
-		app->yAngle = fmodf((float)(app->yAngle + dTime * 100.0f), 360.0f);
+		app->xAngle = fmod(app->xAngle + dTime * 100.0, 360.0);
+		app->yAngle = fmod(app->yAngle + dTime * 100.0, 360.0);
 	}
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef(0.0f, 0.0f, app->dist * -1);
-	glRotatef(app->xAngle, 0.0f, 1.0f, 0.0f);
-	glRotatef(app->yAngle, 1.0f, 0.0f, 0.0f);
+	glRotatef((float)app->xAngle, 0.0f, 1.0f, 0.0f);
+	glRotatef((float)app->yAngle, 1.0f, 0.0f, 0.0f);
 
 	const float bg = app->mouseEntered ? 0.2f : 0.1f;
 	glClearColor(bg, bg, bg, 1.0f);
@@ -266,8 +266,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 		onKeyPress(view, &event->key, "Child:  ");
 		break;
 	case PUGL_MOTION_NOTIFY:
-		app->xAngle = fmodf(app->xAngle - (float)(event->motion.x - app->lastMouseX), 360.0f);
-		app->yAngle = fmodf(app->yAngle + (float)(event->motion.y - app->lastMouseY), 360.0f);
+		app->xAngle = fmod(app->xAngle - event->motion.x - app->lastMouseX, 360.0);
+		app->yAngle = fmod(app->yAngle + event->motion.y - app->lastMouseY, 360.0);
 		app->lastMouseX = event->motion.x;
 		app->lastMouseY = event->motion.y;
 		puglPostRedisplay(view);

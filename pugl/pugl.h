@@ -652,7 +652,7 @@ puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
    On OSX, this is an NSView*.
    On Windows, this is a HWND.
 */
-typedef intptr_t PuglNativeWindow;
+typedef uintptr_t PuglNativeWindow;
 
 /**
    Set the title of the window.
@@ -1018,7 +1018,7 @@ puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
 static inline PUGL_DEPRECATED_BY("puglSetBackend") int
 puglInitBackend(PuglView* view, const PuglBackend* backend)
 {
-	return puglSetBackend(view, backend);
+	return (int)puglSetBackend(view, backend);
 }
 
 /**

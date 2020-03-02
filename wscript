@@ -59,6 +59,27 @@ def configure(conf):
             conf.env.append_value('CFLAGS', ['-Wunused-parameter',
                                              '-Wno-pedantic'])
 
+    if Options.options.ultra_strict and 'clang' in conf.env.CC:
+        for var in ['CFLAGS', 'CXXFLAGS']:
+            conf.env[var] = [f for f in conf.env[var] if not f.startswith('-W')]
+            conf.env.append_value(var, [
+                '-Weverything',
+                '-Wno-bad-function-cast',
+                '-Wno-documentation', # Cairo
+                '-Wno-documentation-unknown-command', # Cairo
+                '-Wno-double-promotion',
+                '-Wno-float-equal',
+                '-Wno-format-nonliteral',
+                '-Wno-padded',
+                '-Wno-reserved-id-macro',
+                '-Wno-sign-conversion',
+                '-Wno-switch-enum',
+                '-Wno-unused-macros', # GL_SILENCE_DEPRECATION
+            ])
+
+        conf.env.append_value('CXXFLAGS', ['-Wno-c++98-compat',
+                                           '-Wno-c++98-compat-pedantic'])
+
     conf.check_cc(lib='m', uselib_store='M', mandatory=False)
     conf.check_cc(lib='dl', uselib_store='DL', mandatory=False)
 

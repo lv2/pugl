@@ -190,8 +190,8 @@ puglCreateWindow(PuglView* view, const char* title)
 	PuglWorld* const     world   = view->world;
 	PuglX11Atoms* const  atoms   = &view->world->impl->atoms;
 	Display* const       display = world->impl->display;
-	const int            width   = (int)view->frame.width;
-	const int            height  = (int)view->frame.height;
+	const unsigned       width   = (unsigned)view->frame.width;
+	const unsigned       height  = (unsigned)view->frame.height;
 
 	impl->display = display;
 	impl->screen  = DefaultScreen(display);
@@ -571,7 +571,7 @@ puglRequestAttention(PuglView* view)
 	event.xclient.format       = 32;
 	event.xclient.message_type = atoms->NET_WM_STATE;
 	event.xclient.data.l[0]    = WM_STATE_ADD;
-	event.xclient.data.l[1]    = atoms->NET_WM_STATE_DEMANDS_ATTENTION;
+	event.xclient.data.l[1]    = (long)atoms->NET_WM_STATE_DEMANDS_ATTENTION;
 	event.xclient.data.l[2]    = 0;
 	event.xclient.data.l[3]    = 1;
 	event.xclient.data.l[4]    = 0;
@@ -716,7 +716,7 @@ puglDispatchEvents(PuglWorld* world)
 				note.property = request->property;
 				XChangeProperty(impl->display, note.requestor,
 				                note.property, note.target, 8, PropModeReplace,
-				                (const uint8_t*)data, len);
+				                (const uint8_t*)data, (int)len);
 			} else {
 				note.property = None;
 			}
@@ -844,7 +844,7 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 	if (view->impl->win &&
 	    !XMoveResizeWindow(view->world->impl->display, view->impl->win,
 	                       (int)frame.x, (int)frame.y,
-	                       (int)frame.width, (int)frame.height)) {
+	                       (unsigned)frame.width, (unsigned)frame.height)) {
 		return PUGL_UNKNOWN_ERROR;
 	}
 

@@ -147,8 +147,11 @@ onExpose(PuglView* view)
 	                app->numRects * sizeof(Rect),
 	                app->rects);
 
-	glDrawElementsInstanced(
-	        GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, NULL, app->numRects * 4);
+	glDrawElementsInstanced(GL_TRIANGLE_STRIP,
+	                        4,
+	                        GL_UNSIGNED_INT,
+	                        NULL,
+	                        (GLsizei)app->numRects * 4);
 
 	++app->framesDrawn;
 }
