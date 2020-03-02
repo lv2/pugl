@@ -726,12 +726,14 @@ puglRequestAttention(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
+#ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
 puglWaitForEvent(PuglView* PUGL_UNUSED(view))
 {
 	WaitMessage();
 	return PUGL_SUCCESS;
 }
+#endif
 
 PUGL_API PuglStatus
 puglDispatchEvents(PuglWorld* PUGL_UNUSED(world))
@@ -761,11 +763,13 @@ puglDispatchEvents(PuglWorld* PUGL_UNUSED(world))
 	return PUGL_SUCCESS;
 }
 
+#ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
 	return puglDispatchEvents(view->world);
 }
+#endif
 
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)

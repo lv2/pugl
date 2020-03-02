@@ -586,6 +586,7 @@ puglRequestAttention(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
+#ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
 puglWaitForEvent(PuglView* view)
 {
@@ -593,6 +594,7 @@ puglWaitForEvent(PuglView* view)
 	XPeekEvent(view->impl->display, &xevent);
 	return PUGL_SUCCESS;
 }
+#endif
 
 static void
 mergeExposeEvents(PuglEvent* dst, const PuglEvent* src)
@@ -760,11 +762,13 @@ puglDispatchEvents(PuglWorld* world)
 	return PUGL_SUCCESS;
 }
 
+#ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
 	return puglDispatchEvents(view->world);
 }
+#endif
 
 double
 puglGetTime(const PuglWorld* world)

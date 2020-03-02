@@ -180,14 +180,14 @@ def build(bld):
             bld(features = 'c cshlib',
                 name     = name,
                 target   = 'pugl_' + name,
-                cflags   = ['-DPUGL_INTERNAL', '-DPUGL_SHARED'],
+                defines  = ['PUGL_INTERNAL', 'PUGL_SHARED'],
                 **args)
 
         if bld.env.BUILD_STATIC:
             bld(features = 'c cstlib',
                 name     = 'pugl_%s_static' % name,
                 target   = 'pugl_' + name,
-                cflags   = ['-DPUGL_INTERNAL'],
+                defines  = ['PUGL_INTERNAL', 'PUGL_DISABLE_DEPRECATED'],
                 **args)
 
     def build_platform(platform, **kwargs):
