@@ -38,7 +38,7 @@ typedef struct {
 	int         double_buffered;
 } PuglX11GlSurface;
 
-static PuglStatus
+static int
 puglX11GlHintValue(const int value)
 {
 	return value == PUGL_DONT_CARE ? (int)GLX_DONT_CARE : value;
