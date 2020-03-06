@@ -801,17 +801,6 @@ PUGL_API bool
 puglHasFocus(const PuglView* view);
 
 /**
-   Get clipboard contents.
-
-   @param view The view.
-   @param[out] type Set to the MIME type of the data.
-   @param[out] len Set to the length of the data in bytes.
-   @return The clipboard contents.
-*/
-PUGL_API const void*
-puglGetClipboard(PuglView* view, const char** type, size_t* len);
-
-/**
    Set clipboard contents.
 
    @param view The view.
@@ -824,6 +813,17 @@ puglSetClipboard(PuglView*   view,
                  const char* type,
                  const void* data,
                  size_t      len);
+
+/**
+   Get clipboard contents.
+
+   @param view The view.
+   @param[out] type Set to the MIME type of the data.
+   @param[out] len Set to the length of the data in bytes.
+   @return The clipboard contents.
+*/
+PUGL_API const void*
+puglGetClipboard(PuglView* view, const char** type, size_t* len);
 
 /**
    Request user attention.
