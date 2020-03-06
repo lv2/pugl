@@ -59,59 +59,6 @@ PUGL_BEGIN_DECLS
 */
 
 /**
-   Handle for opaque user data.
-*/
-typedef void* PuglHandle;
-
-/**
-   Return status code.
-*/
-typedef enum {
-	PUGL_SUCCESS,               ///< Success
-	PUGL_FAILURE,               ///< Non-fatal failure
-	PUGL_UNKNOWN_ERROR,         ///< Unknown system error
-	PUGL_BAD_BACKEND,           ///< Invalid or missing backend
-	PUGL_BACKEND_FAILED,        ///< Backend initialisation failed
-	PUGL_REGISTRATION_FAILED,   ///< Window class registration failed
-	PUGL_CREATE_WINDOW_FAILED,  ///< Window creation failed
-	PUGL_SET_FORMAT_FAILED,     ///< Failed to set pixel format
-	PUGL_CREATE_CONTEXT_FAILED, ///< Failed to create drawing context
-	PUGL_UNSUPPORTED_TYPE,      ///< Unsupported data type
-} PuglStatus;
-
-/**
-   Window hint.
-*/
-typedef enum {
-	PUGL_USE_COMPAT_PROFILE,    ///< Use compatible (not core) OpenGL profile
-	PUGL_USE_DEBUG_CONTEXT,     ///< True to use a debug OpenGL context
-	PUGL_CONTEXT_VERSION_MAJOR, ///< OpenGL context major version
-	PUGL_CONTEXT_VERSION_MINOR, ///< OpenGL context minor version
-	PUGL_RED_BITS,              ///< Number of bits for red channel
-	PUGL_GREEN_BITS,            ///< Number of bits for green channel
-	PUGL_BLUE_BITS,             ///< Number of bits for blue channel
-	PUGL_ALPHA_BITS,            ///< Number of bits for alpha channel
-	PUGL_DEPTH_BITS,            ///< Number of bits for depth buffer
-	PUGL_STENCIL_BITS,          ///< Number of bits for stencil buffer
-	PUGL_SAMPLES,               ///< Number of samples per pixel (AA)
-	PUGL_DOUBLE_BUFFER,         ///< True if double buffering should be used
-	PUGL_SWAP_INTERVAL,         ///< Number of frames between buffer swaps
-	PUGL_RESIZABLE,             ///< True if window should be resizable
-	PUGL_IGNORE_KEY_REPEAT,     ///< True if key repeat events are ignored
-
-	PUGL_NUM_WINDOW_HINTS
-} PuglViewHint;
-
-/**
-   Special window hint value.
-*/
-typedef enum {
-	PUGL_DONT_CARE = -1, ///< Use best available value
-	PUGL_FALSE     = 0,  ///< Explicitly false
-	PUGL_TRUE      = 1   ///< Explicitly true
-} PuglViewHintValue;
-
-/**
    A rectangle.
 
    This is used to describe things like view position and size.  Pugl generally
@@ -427,6 +374,22 @@ typedef union {
 } PuglEvent;
 
 /**
+   Return status code.
+*/
+typedef enum {
+	PUGL_SUCCESS,               ///< Success
+	PUGL_FAILURE,               ///< Non-fatal failure
+	PUGL_UNKNOWN_ERROR,         ///< Unknown system error
+	PUGL_BAD_BACKEND,           ///< Invalid or missing backend
+	PUGL_BACKEND_FAILED,        ///< Backend initialisation failed
+	PUGL_REGISTRATION_FAILED,   ///< Window class registration failed
+	PUGL_CREATE_WINDOW_FAILED,  ///< Window creation failed
+	PUGL_SET_FORMAT_FAILED,     ///< Failed to set pixel format
+	PUGL_CREATE_CONTEXT_FAILED, ///< Failed to create drawing context
+	PUGL_UNSUPPORTED_TYPE,      ///< Unsupported data type
+} PuglStatus;
+
+/**
    Return a string describing a status code.
 */
 PUGL_API
@@ -535,6 +498,62 @@ puglDispatchEvents(PuglWorld* world);
    A Pugl view.
 */
 typedef struct PuglViewImpl PuglView;
+
+/**
+   Graphics backend interface.
+*/
+typedef struct PuglBackendImpl PuglBackend;
+
+/**
+   A native window handle.
+
+   On X11, this is a Window.
+   On OSX, this is an NSView*.
+   On Windows, this is a HWND.
+*/
+typedef uintptr_t PuglNativeWindow;
+
+/**
+   Handle for opaque user data.
+*/
+typedef void* PuglHandle;
+
+/**
+   Window hint.
+*/
+typedef enum {
+	PUGL_USE_COMPAT_PROFILE,    ///< Use compatible (not core) OpenGL profile
+	PUGL_USE_DEBUG_CONTEXT,     ///< True to use a debug OpenGL context
+	PUGL_CONTEXT_VERSION_MAJOR, ///< OpenGL context major version
+	PUGL_CONTEXT_VERSION_MINOR, ///< OpenGL context minor version
+	PUGL_RED_BITS,              ///< Number of bits for red channel
+	PUGL_GREEN_BITS,            ///< Number of bits for green channel
+	PUGL_BLUE_BITS,             ///< Number of bits for blue channel
+	PUGL_ALPHA_BITS,            ///< Number of bits for alpha channel
+	PUGL_DEPTH_BITS,            ///< Number of bits for depth buffer
+	PUGL_STENCIL_BITS,          ///< Number of bits for stencil buffer
+	PUGL_SAMPLES,               ///< Number of samples per pixel (AA)
+	PUGL_DOUBLE_BUFFER,         ///< True if double buffering should be used
+	PUGL_SWAP_INTERVAL,         ///< Number of frames between buffer swaps
+	PUGL_RESIZABLE,             ///< True if window should be resizable
+	PUGL_IGNORE_KEY_REPEAT,     ///< True if key repeat events are ignored
+
+	PUGL_NUM_WINDOW_HINTS
+} PuglViewHint;
+
+/**
+   Special window hint value.
+*/
+typedef enum {
+	PUGL_DONT_CARE = -1, ///< Use best available value
+	PUGL_FALSE     = 0,  ///< Explicitly false
+	PUGL_TRUE      = 1   ///< Explicitly true
+} PuglViewHintValue;
+
+/**
+   A function called when an event occurs.
+*/
+typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 
 /**
    Create a new view.
@@ -647,15 +666,6 @@ puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
 */
 
 /**
-   A native window handle.
-
-   On X11, this is a Window.
-   On OSX, this is an NSView*.
-   On Windows, this is a HWND.
-*/
-typedef uintptr_t PuglNativeWindow;
-
-/**
    Set the title of the window.
 
    This only makes sense for non-embedded views that will have a corresponding
@@ -717,11 +727,6 @@ puglGetNativeWindow(PuglView* view);
 */
 
 /**
-   Graphics backend interface.
-*/
-typedef struct PuglBackendImpl PuglBackend;
-
-/**
    Set the graphics backend to use.
 
    This needs to be called once before creating the window to set the graphics
@@ -776,11 +781,6 @@ puglLeaveContext(PuglView* view, bool drawing);
    Interacting with the system and user with events.
    @{
 */
-
-/**
-   A function called when an event occurs.
-*/
-typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 
 /**
    Set the function to call when an event occurs.
