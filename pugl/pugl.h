@@ -135,7 +135,7 @@ typedef enum {
 } PuglMod;
 
 /**
-   Bitwise OR of PuglMod values.
+   Bitwise OR of #PuglMod values.
 */
 typedef uint32_t PuglMods;
 
@@ -204,28 +204,31 @@ typedef enum {
 */
 typedef enum {
 	PUGL_NOTHING,        ///< No event
-	PUGL_BUTTON_PRESS,   ///< Mouse button press
-	PUGL_BUTTON_RELEASE, ///< Mouse button release
+	PUGL_BUTTON_PRESS,   ///< Mouse button pressed
+	PUGL_BUTTON_RELEASE, ///< Mouse button released
 	PUGL_CONFIGURE,      ///< View moved and/or resized
-	PUGL_EXPOSE,         ///< View exposed, redraw required
-	PUGL_CLOSE,          ///< Close view
-	PUGL_KEY_PRESS,      ///< Key press
-	PUGL_KEY_RELEASE,    ///< Key release
-	PUGL_TEXT,           ///< Character entry
+	PUGL_EXPOSE,         ///< View exposed and must be redrawn
+	PUGL_CLOSE,          ///< View will be closed
+	PUGL_KEY_PRESS,      ///< Key pressed
+	PUGL_KEY_RELEASE,    ///< Key released
+	PUGL_TEXT,           ///< Character entered
 	PUGL_ENTER_NOTIFY,   ///< Pointer entered view
 	PUGL_LEAVE_NOTIFY,   ///< Pointer left view
-	PUGL_MOTION_NOTIFY,  ///< Pointer motion
-	PUGL_SCROLL,         ///< Scroll
+	PUGL_MOTION_NOTIFY,  ///< Pointer moved
+	PUGL_SCROLL,         ///< Scrolled
 	PUGL_FOCUS_IN,       ///< Keyboard focus entered view
 	PUGL_FOCUS_OUT       ///< Keyboard focus left view
 } PuglEventType;
 
+/**
+   Common flags for all event types.
+*/
 typedef enum {
-	PUGL_IS_SEND_EVENT = 1
+	PUGL_IS_SEND_EVENT = 1 ///< Event is synthetic
 } PuglEventFlag;
 
 /**
-   Bitwise OR of PuglEventFlag values.
+   Bitwise OR of #PuglEventFlag values.
 */
 typedef uint32_t PuglEventFlags;
 
@@ -243,32 +246,30 @@ typedef enum {
 */
 typedef struct {
 	PuglEventType  type;  ///< Event type
-	PuglEventFlags flags; ///< Bitwise OR of PuglEventFlag values
+	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
 } PuglEventAny;
 
 /**
    Button press or release event.
-
-   For event types PUGL_BUTTON_PRESS and PUGL_BUTTON_RELEASE.
 */
 typedef struct {
-	PuglEventType  type;   ///< PUGL_BUTTON_PRESS or PUGL_BUTTON_RELEASE
-	PuglEventFlags flags;  ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;   ///< #PUGL_BUTTON_PRESS or #PUGL_BUTTON_RELEASE
+	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
 	double         time;   ///< Time in seconds
 	double         x;      ///< View-relative X coordinate
 	double         y;      ///< View-relative Y coordinate
 	double         xRoot;  ///< Root-relative X coordinate
 	double         yRoot;  ///< Root-relative Y coordinate
-	PuglMods       state;  ///< Bitwise OR of PuglMod flags
-	uint32_t       button; ///< 1-relative button number
+	PuglMods       state;  ///< Bitwise OR of #PuglMod flags
+	uint32_t       button; ///< Button number starting from 1
 } PuglEventButton;
 
 /**
    Configure event for when window size or position has changed.
 */
 typedef struct {
-	PuglEventType  type;   ///< PUGL_CONFIGURE
-	PuglEventFlags flags;  ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;   ///< #PUGL_CONFIGURE
+	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
 	double         x;      ///< New parent-relative X coordinate
 	double         y;      ///< New parent-relative Y coordinate
 	double         width;  ///< New width
@@ -279,8 +280,8 @@ typedef struct {
    Expose event for when a region must be redrawn.
 */
 typedef struct {
-	PuglEventType  type;   ///< PUGL_EXPOSE
-	PuglEventFlags flags;  ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;   ///< #PUGL_EXPOSE
+	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
 	double         x;      ///< View-relative X coordinate
 	double         y;      ///< View-relative Y coordinate
 	double         width;  ///< Width of exposed region
@@ -292,8 +293,8 @@ typedef struct {
    Window close event.
 */
 typedef struct {
-	PuglEventType  type;  ///< PUGL_CLOSE
-	PuglEventFlags flags; ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;  ///< #PUGL_CLOSE
+	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
 } PuglEventClose;
 
 /**
@@ -309,14 +310,14 @@ typedef struct {
    applied (by the shift or control keys).
 */
 typedef struct {
-	PuglEventType  type;    ///< PUGL_KEY_PRESS or PUGL_KEY_RELEASE
-	PuglEventFlags flags;   ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;    ///< #PUGL_KEY_PRESS or #PUGL_KEY_RELEASE
+	PuglEventFlags flags;   ///< Bitwise OR of #PuglEventFlag values
 	double         time;    ///< Time in seconds
 	double         x;       ///< View-relative X coordinate
 	double         y;       ///< View-relative Y coordinate
 	double         xRoot;   ///< Root-relative X coordinate
 	double         yRoot;   ///< Root-relative Y coordinate
-	PuglMods       state;   ///< Bitwise OR of PuglMod flags
+	PuglMods       state;   ///< Bitwise OR of #PuglMod flags
 	uint32_t       keycode; ///< Raw key code
 	uint32_t       key;     ///< Unshifted Unicode character code, or 0
 } PuglEventKey;
@@ -328,16 +329,16 @@ typedef struct {
    is given both as a Unicode character code and a UTF-8 string.
 */
 typedef struct {
-	PuglEventType  type;      ///< PUGL_CHAR
-	PuglEventFlags flags;     ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;      ///< #PUGL_TEXT
+	PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
 	double         time;      ///< Time in seconds
 	double         x;         ///< View-relative X coordinate
 	double         y;         ///< View-relative Y coordinate
 	double         xRoot;     ///< Root-relative X coordinate
 	double         yRoot;     ///< Root-relative Y coordinate
-	PuglMods       state;     ///< Bitwise OR of PuglMod flags
+	PuglMods       state;     ///< Bitwise OR of #PuglMod flags
 	uint32_t       keycode;   ///< Raw key code
-	uint32_t       character; ///< Unicode character code */
+	uint32_t       character; ///< Unicode character code
 	char           string[8]; ///< UTF-8 string
 } PuglEventText;
 
@@ -345,14 +346,14 @@ typedef struct {
    Pointer crossing event (enter and leave).
 */
 typedef struct {
-	PuglEventType    type;  ///< PUGL_ENTER_NOTIFY or PUGL_LEAVE_NOTIFY
-	PuglEventFlags   flags; ///< Bitwise OR of PuglEventFlag values
+	PuglEventType    type;  ///< #PUGL_ENTER_NOTIFY or #PUGL_LEAVE_NOTIFY
+	PuglEventFlags   flags; ///< Bitwise OR of #PuglEventFlag values
 	double           time;  ///< Time in seconds
 	double           x;     ///< View-relative X coordinate
 	double           y;     ///< View-relative Y coordinate
 	double           xRoot; ///< Root-relative X coordinate
 	double           yRoot; ///< Root-relative Y coordinate
-	PuglMods         state; ///< Bitwise OR of PuglMod flags
+	PuglMods         state; ///< Bitwise OR of #PuglMod flags
 	PuglCrossingMode mode;  ///< Reason for crossing
 } PuglEventCrossing;
 
@@ -360,14 +361,14 @@ typedef struct {
    Pointer motion event.
 */
 typedef struct {
-	PuglEventType  type;   ///< PUGL_MOTION_NOTIFY
-	PuglEventFlags flags;  ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;   ///< #PUGL_MOTION_NOTIFY
+	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
 	double         time;   ///< Time in seconds
 	double         x;      ///< View-relative X coordinate
 	double         y;      ///< View-relative Y coordinate
 	double         xRoot;  ///< Root-relative X coordinate
 	double         yRoot;  ///< Root-relative Y coordinate
-	PuglMods       state;  ///< Bitwise OR of PuglMod flags
+	PuglMods       state;  ///< Bitwise OR of #PuglMod flags
 	bool           isHint; ///< True iff this event is a motion hint
 	bool           focus;  ///< True iff this is the focused window
 } PuglEventMotion;
@@ -382,14 +383,14 @@ typedef struct {
    gracefully.
 */
 typedef struct {
-	PuglEventType  type;  ///< PUGL_SCROLL
-	PuglEventFlags flags; ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;  ///< #PUGL_SCROLL
+	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
 	double         time;  ///< Time in seconds
 	double         x;     ///< View-relative X coordinate
 	double         y;     ///< View-relative Y coordinate
 	double         xRoot; ///< Root-relative X coordinate
 	double         yRoot; ///< Root-relative Y coordinate
-	PuglMods       state; ///< Bitwise OR of PuglMod flags
+	PuglMods       state; ///< Bitwise OR of #PuglMod flags
 	double         dx;    ///< Scroll X distance in lines
 	double         dy;    ///< Scroll Y distance in lines
 } PuglEventScroll;
@@ -398,8 +399,8 @@ typedef struct {
    Keyboard focus event.
 */
 typedef struct {
-	PuglEventType  type;  ///< PUGL_FOCUS_IN or PUGL_FOCUS_OUT
-	PuglEventFlags flags; ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;  ///< #PUGL_FOCUS_IN or #PUGL_FOCUS_OUT
+	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
 	bool           grab;  ///< True iff this is a grab/ungrab event
 } PuglEventFocus;
 
@@ -413,16 +414,16 @@ typedef struct {
 typedef union {
 	PuglEventAny       any;       ///< Valid for all event types
 	PuglEventType      type;      ///< Event type
-	PuglEventButton    button;    ///< PUGL_BUTTON_PRESS, PUGL_BUTTON_RELEASE
-	PuglEventConfigure configure; ///< PUGL_CONFIGURE
-	PuglEventExpose    expose;    ///< PUGL_EXPOSE
-	PuglEventClose     close;     ///< PUGL_CLOSE
-	PuglEventKey       key;       ///< PUGL_KEY_PRESS, PUGL_KEY_RELEASE
-	PuglEventText      text;      ///< PUGL_TEXT
-	PuglEventCrossing  crossing;  ///< PUGL_ENTER_NOTIFY, PUGL_LEAVE_NOTIFY
-	PuglEventMotion    motion;    ///< PUGL_MOTION_NOTIFY
-	PuglEventScroll    scroll;    ///< PUGL_SCROLL
-	PuglEventFocus     focus;     ///< PUGL_FOCUS_IN, PUGL_FOCUS_OUT
+	PuglEventButton    button;    ///< #PUGL_BUTTON_PRESS, #PUGL_BUTTON_RELEASE
+	PuglEventConfigure configure; ///< #PUGL_CONFIGURE
+	PuglEventExpose    expose;    ///< #PUGL_EXPOSE
+	PuglEventClose     close;     ///< #PUGL_CLOSE
+	PuglEventKey       key;       ///< #PUGL_KEY_PRESS, #PUGL_KEY_RELEASE
+	PuglEventText      text;      ///< #PUGL_TEXT
+	PuglEventCrossing  crossing;  ///< #PUGL_ENTER_NOTIFY, #PUGL_LEAVE_NOTIFY
+	PuglEventMotion    motion;    ///< #PUGL_MOTION_NOTIFY
+	PuglEventScroll    scroll;    ///< #PUGL_SCROLL
+	PuglEventFocus     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
 } PuglEvent;
 
 /**
