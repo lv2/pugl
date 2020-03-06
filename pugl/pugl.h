@@ -592,6 +592,12 @@ PUGL_API PuglHandle
 puglGetHandle(PuglView* view);
 
 /**
+   Set the function to call when an event occurs.
+*/
+PUGL_API PuglStatus
+puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
+
+/**
    Set a hint to configure window properties.
 
    This only has an effect when called before puglCreateWindow().
@@ -781,12 +787,6 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect);
    Interacting with the system and user with events.
    @{
 */
-
-/**
-   Set the function to call when an event occurs.
-*/
-PUGL_API PuglStatus
-puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
 /**
    Grab the input focus.
