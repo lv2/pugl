@@ -252,7 +252,7 @@ typedef struct {
    must not be interpreted as text input.
 
    Keys are represented as Unicode code points, using the "natural" code point
-   for the key wherever possible (see @ref PuglKey for details).  The `key`
+   for the key wherever possible (see #PuglKey for details).  The `key`
    field will be set to the code for the pressed key, without any modifiers
    applied (by the shift or control keys).
 */
@@ -955,7 +955,7 @@ puglInitTransientFor(PuglView* view, uintptr_t parent)
 /**
    Enable or disable resizing before creating a window.
 
-   @deprecated Use puglSetViewHint() with @ref PUGL_RESIZABLE.
+   @deprecated Use puglSetViewHint() with #PUGL_RESIZABLE.
 */
 static inline PUGL_DEPRECATED_BY("puglSetViewHint") void
 puglInitResizable(PuglView* view, bool resizable)
@@ -981,7 +981,7 @@ puglGetSize(PuglView* view, int* width, int* height)
 /**
    Ignore synthetic repeated key events.
 
-   @deprecated Use puglSetViewHint() with @ref PUGL_IGNORE_KEY_REPEAT.
+   @deprecated Use puglSetViewHint() with #PUGL_IGNORE_KEY_REPEAT.
 */
 static inline PUGL_DEPRECATED_BY("puglSetViewHint") void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore)
