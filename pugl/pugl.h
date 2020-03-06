@@ -600,12 +600,6 @@ PUGL_API PuglStatus
 puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
 
 /**
-   Return true iff the view is currently visible.
-*/
-PUGL_API bool
-puglGetVisible(PuglView* view);
-
-/**
    Request a redisplay for the entire view.
 */
 PUGL_API PuglStatus
@@ -712,6 +706,12 @@ puglShowWindow(PuglView* view);
 */
 PUGL_API PuglStatus
 puglHideWindow(PuglView* view);
+
+/**
+   Return true iff the view is currently visible.
+*/
+PUGL_API bool
+puglGetVisible(PuglView* view);
 
 /**
    Return the native window handle.
