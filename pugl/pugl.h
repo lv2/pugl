@@ -600,18 +600,6 @@ PUGL_API PuglStatus
 puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
 
 /**
-   Request a redisplay for the entire view.
-*/
-PUGL_API PuglStatus
-puglPostRedisplay(PuglView* view);
-
-/**
-   Request a redisplay of the given rectangle within the view.
-*/
-PUGL_API PuglStatus
-puglPostRedisplayRect(PuglView* view, PuglRect rect);
-
-/**
    @}
    @anchor frame
    @name Frame
@@ -773,6 +761,18 @@ puglEnterContext(PuglView* view, bool drawing);
 */
 PUGL_API PuglStatus
 puglLeaveContext(PuglView* view, bool drawing);
+
+/**
+   Request a redisplay for the entire view.
+*/
+PUGL_API PuglStatus
+puglPostRedisplay(PuglView* view);
+
+/**
+   Request a redisplay of the given rectangle within the view.
+*/
+PUGL_API PuglStatus
+puglPostRedisplayRect(PuglView* view, PuglRect rect);
 
 /**
    @}
