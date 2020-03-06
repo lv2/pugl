@@ -789,16 +789,16 @@ PUGL_API PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
 /**
-   Return true iff `view` has the input focus.
-*/
-PUGL_API bool
-puglHasFocus(const PuglView* view);
-
-/**
    Grab the input focus.
 */
 PUGL_API PuglStatus
 puglGrabFocus(PuglView* view);
+
+/**
+   Return true iff `view` has the input focus.
+*/
+PUGL_API bool
+puglHasFocus(const PuglView* view);
 
 /**
    Get clipboard contents.
