@@ -52,6 +52,13 @@ typedef struct
 	bool       verbose;
 } PuglTestApp;
 
+static const float backgroundVertices[] = {
+	-1.0f,  1.0f,  -1.0f, // Top left
+	 1.0f,  1.0f,  -1.0f, // Top right
+	-1.0f, -1.0f,  -1.0f, // Bottom left
+	 1.0f, -1.0f,  -1.0f, // Bottom right
+};
+
 static PuglRect
 getChildFrame(const PuglRect parentFrame)
 {
@@ -220,9 +227,9 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
-			glVertexPointer(3, GL_FLOAT, 0, cubeStripVertices);
-			glColorPointer(3, GL_FLOAT, 0, cubeStripVertices);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
+			glVertexPointer(3, GL_FLOAT, 0, backgroundVertices);
+			glColorPointer(3, GL_FLOAT, 0, backgroundVertices);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			glDisableClientState(GL_COLOR_ARRAY);
 			glDisableClientState(GL_VERTEX_ARRAY);
 		} else {
