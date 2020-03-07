@@ -36,7 +36,7 @@ PUGL_BEGIN_DECLS
    for other backends to reuse since not all need non-trivial implementations
    of every backend function.
 
-   @ingroup pugl
+   @ingroup pugl_api
    @{
 */
 

@@ -25,13 +25,25 @@
 
 /**
    @defgroup puglxx C++
-   Pugl C++ API wrapper.
-   @ingroup pugl
+
+   C++ API wrapper.
+
+   @ingroup pugl_api
    @{
 */
 
+/**
+   Pugl C++ API namespace.
+*/
 namespace pugl {
 
+/**
+   A drawable region that receives events.
+
+   This is a thin wrapper for a PuglView that contains only a pointer.
+
+   @ingroup puglxx
+*/
 class View {
 public:
 	View(int* pargc, char** argv)

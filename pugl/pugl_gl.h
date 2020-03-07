@@ -28,7 +28,7 @@ PUGL_BEGIN_DECLS
 /**
    @defgroup gl OpenGL
    OpenGL graphics support.
-   @ingroup pugl
+   @ingroup pugl_api
    @{
 */
 

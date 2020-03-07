@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl.h Public C API.
+   @file pugl.h Pugl API.
 */
 
 #ifndef PUGL_PUGL_H
@@ -53,8 +53,8 @@
 PUGL_BEGIN_DECLS
 
 /**
-   @defgroup pugl Pugl
-   Pugl C API.
+   @defgroup pugl_api Pugl
+   A minimal portable API for embeddable GUIs.
    @{
 */
 
@@ -70,6 +70,19 @@ typedef struct {
 	double width;
 	double height;
 } PuglRect;
+
+/**
+   @defgroup events Events
+
+   Event definitions.
+
+   All updates to the view happen via events, which are dispatched to the
+   view's #PuglEventFunc by Pugl.  Most events map directly to one from the
+   underlying window system, but some are constructed by Pugl itself so there
+   is not necessarily a direct correspondence.
+
+   @{
+*/
 
 /**
    Keyboard modifier flags.
@@ -405,6 +418,15 @@ typedef union {
 } PuglEvent;
 
 /**
+   @}
+   @defgroup status Status
+
+   Status codes and error handling.
+
+   @{
+*/
+
+/**
    Return status code.
 */
 typedef enum {
@@ -428,8 +450,8 @@ const char*
 puglStrerror(PuglStatus status);
 
 /**
-   @anchor world
-   @name World
+   @}
+   @defgroup world World
 
    The top-level context of a Pugl application or plugin.
 
@@ -527,8 +549,8 @@ puglDispatchEvents(PuglWorld* world);
 
 /**
    @}
-   @anchor view
-   @name View
+
+   @defgroup view View
 
    A drawable region that receives events.
 
@@ -610,6 +632,12 @@ typedef enum {
    A function called when an event occurs.
 */
 typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
+
+/**
+   @name Setup
+   Functions for creating and destroying a view.
+   @{
+*/
 
 /**
    Create a new view.
@@ -807,8 +835,8 @@ puglGetNativeWindow(PuglView* view);
 
 /**
    @}
-   @name Graphics Context
-   Functions for working with the drawing context.
+   @name Graphics
+   Functions for working with the graphics context and scheduling redisplays.
    @{
 */
 
@@ -936,6 +964,10 @@ puglGetClipboard(PuglView* view, const char** type, size_t* len);
 */
 PUGL_API PuglStatus
 puglRequestAttention(PuglView* view);
+
+/**
+   @}
+*/
 
 #ifndef PUGL_DISABLE_DEPRECATED
 
