@@ -862,8 +862,8 @@ puglGetContext(PuglView* view);
    normally do this.  Drawing in Pugl is only allowed during the processing of
    an expose event.
 
-   However, this can be used to enter the graphics context elsewhere, for example
-   to call any GL functions during setup.
+   However, this can be used to enter the graphics context elsewhere, for
+   example to call any GL functions during setup.
 
    @param view The view being entered.
    @param drawing If true, prepare for drawing.
