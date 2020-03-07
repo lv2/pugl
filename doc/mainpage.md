@@ -1,36 +1,52 @@
 This is the API documentation for Pugl.
-The complete C API is documented in the [Pugl](@ref pugl) group,
-and the C++ wrapper in the [Puglxx](@ref puglxx) group.
+This documentation is based around the [C API](@ref pugl_api),
+there is also a [C++ API](@ref pugl) in the `pugl` namespace.
 
 The Pugl API revolves around two main objects:
 the [World](@ref world) and the [View](@ref view).
-An application creates a single world to manage system-level state,
+An application creates a single world to manage top-level state,
 then creates one or more views to display.
 
-## View creation
+## World
+
+The [World](@ref world) contains all top-level state,
+and manages views and the event loop.
+
+A world must be [created](@ref puglNewWorld) before any views,
+and it must outlive all views.
+
+## View
+
+A [View](@ref view) is a drawable region that receives events.
 
 Creating a visible view is a multi-step process.
-A new view allocated with #puglNewView does not yet represent a "real" system window.
-To display, it must first have a [backend set](@ref puglSetBackend),
+When a new view is [created](@ref puglNewView),
+it does not yet represent a real system view or window.
+To display, it must first have a [backend](@ref puglSetBackend)
+and [event handler](@ref puglSetEventFunc) set,
 and be configured by [setting hints](@ref puglSetViewHint)
-and [configuring the frame](@ref frame).
+and optionally [adjusting the frame](@ref frame).
+
+The [Backend](@ref PuglBackend) controls drawing for a view.
+Pugl includes [Cairo](@ref cairo) and [OpenGL](@ref gl) backends,
+as well as a [stub](@ref stub) backend that creates a native window with no drawing context.
+
 
 Once the view is configured,
-the corresponding window can be [created](@ref puglCreateWindow)
-and [shown](@ref puglShowWindow).
-
-Note that a view does not necessary correspond to a top-level system window.
+it can be [created](@ref puglCreateWindow) and [shown](@ref puglShowWindow).
+By default a view will correspond to a top-level system window.
 To create a view within another window,
-call #puglSetParentWindow before #puglCreateWindow.
+it must have a [parent window set](@ref puglSetParentWindow) before being created.
 
-## Interaction
 
-Interaction with the user and system happens via [events](@ref interaction).
-Before creating a window,
-a view must have an [event handler](@ref PuglEventFunc) set with #puglSetEventFunc.
-This handler is called whenever something happens that the view must respond to.
+## Events
+
+[Events](@ref events) are sent to a view when it has received user input or must be drawn.
+
+Events are handled by the [event handler](@ref PuglEventFunc) set during initialisation.
+This function is called whenever something happens that the view must respond to.
 This includes user interaction like mouse and keyboard input,
-and system events like window resizing and exposure (drawing).
+and system events like window resizing and exposure.
 
 ## Event Loop
 
@@ -39,5 +55,9 @@ Two functions are used to drive the event loop:
  * #puglPollEvents waits for events to become available.
  * #puglDispatchEvents processes all pending events.
 
-Redrawing is accomplished by calling #puglPostRedisplay,
-which posts an expose event to the queue.
+Redrawing is accomplished by calling #puglPostRedisplay or #puglPostRedisplayRect,
+which post expose events to the queue.
+
+## Error Handling
+
+Most functions return a [Status](@ref status) which should be checked to detect failure.

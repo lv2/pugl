@@ -7,94 +7,67 @@ body {
   margin-right: auto;
   padding: 1em;
   max-width: 60em;
-  font-family: "DejaVu Serif",Palatino,serif;
+  font-family: "DejaVu Sans", Verdana, Helvetica, Arial, sans-serif;
   text-rendering: optimizeLegibility;
 }
 
-h1, .title, #projectname, h2, h3, h4, h5, h6 {
-  line-height: 1.0125em;
-  color: #444;
-  font-family: "DejaVu Sans",Helvetica,Arial,sans-serif;
-  margin: 1em 0 0.5em 0;
-}
-
-h1, .titlearea .header .titlebox, #projectname {
-  font-size: 300%;
-  font-weight: 400;
-  margin-bottom: 0.25em;
-  margin-top: 0;
-}
-
-.header .headertitle .title {
-  font-size: 180%;
-  font-weight: 400;
-  margin: 0.75em 0.25em 0.5em 0;
-}
-
-.ingroups {
-  display: inline;
-}
-.title .ingroups a {
-  font-size: small;
-  margin-left: 1em;
-}
-
-#titlebox, #metabox {
-  display: inline-block;
-}
-#titlebox{
-  display: inline-block;
-  width: 75%;
-  left: 0;
-  top: 0;
-}
-
-#title {
-  margin-bottom: 0.25em;
-}
-
-#shortdesc {
-  margin: 0;
-  color: #666;
-  display: inline-block;
-  font-style: italic;
-  padding: 0;
-}
-
-#titlearea {
-  margin: 0.25em auto 0.25em auto;
-  padding: 0;
-  position: relative;
-  clear: both;
-  line-height: 1.0em;
+h1 {
+  font-size: 1.68em;
+  font-weight: 500;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+  line-height: 2em;
+  margin: 0 0 0.25em 0;
 }
 
 h2 {
-  font-size: 160%;
-  font-weight: 400;
+  line-height: 1.68em;
+  font-size: 1.41em;
+  font-weight: 600;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+  margin: 1.25em 0 0.5em 0;
 }
 
 h3 {
-  font-size: 140%;
-  font-weight: 400;
+  line-height: 1.41em;
+  font-size: 1.18em;
+  font-weight: 600;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+  margin: 1.25em 0 0.5em 0;
 }
 
 h4 {
-  font-size: 120%;
-  font-weight: 500;
+  line-height: 1.18em;
+  font-size: 1em;
+  font-weight: 600;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+  margin: 1.25em 0 0.5em 0;
 }
 
 h5, h6 {
-  font-size: 110%;
+  font-size: 0.7em;
   font-weight: 600;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+  margin: 1.25em 0 0.5em 0;
 }
 
-h1 a, h1 a:link, h1 a:visited ,
-h2 a, h2 a:link, h2 a:visited ,
-h3 a, h3 a:link, h3 a:visited ,
-h4 a, h4 a:link, h4 a:visited ,
-h5 a, h5 a:link, h5 a:visited ,
-h6 a, h6 a:link, h6 a:visited {
+a {
+  color: #546E00;
+  text-decoration: none;
+}
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+  color: #444;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+h1 a:link, h2 a:link, h3 a:link, h4 a:link, h5 a:link, h6 a:link {
+  color: #444;
+}
+
+h1 a:visited, h2 a:visited, h3 a:visited, h4 a:visited, h5 a:visited, h6 a:visited {
   color: #444;
 }
 
@@ -103,7 +76,7 @@ p {
 }
 
 dt {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 dd {
@@ -114,12 +87,89 @@ caption {
   font-weight: 700;
 }
 
-span.legend {
+.title, #projectname {
+  line-height: 1.0125em;
+  margin: 0.75em 0 0 0;
+}
+
+.titlearea .header .titlebox, #projectname {
+  font-size: 1.68em;
+  font-weight: 400;
+  margin-bottom: 0.25em;
+  margin-top: 0;
+}
+
+#header {
+  padding: 0 0 0.5em 0;
+  border-bottom: 1px solid #EEE;
+}
+
+.header .headertitle .title {
+  line-height: 1.68em;
+  font-size: 1.68em;
+  font-weight: 600;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+}
+
+.ingroups {
+  display: none;
+}
+
+.title .ingroups a {
+  font-size: small;
+  margin-left: 1em;
+}
+
+#titlebox, #metabox {
+  display: inline-block;
+}
+
+#titlebox {
+  display: inline-block;
+  width: 75%;
+  left: 0;
+  top: 0;
+}
+
+#title {
+  margin-bottom: 0.25em;
+  line-height: 1.25em;
+  font-size: 2.5em;
+  color: #333;
+  font-weight: 600;
+}
+
+.PageDoc {
+  margin-top: 1.5em;
+}
+
+.PageDoc .header .headertitle .title {
+  display: none;
+}
+
+#shortdesc {
+  margin: 0;
+  color: #666;
+  display: inline-block;
+  font-style: italic;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+  padding: 0;
+}
+
+#titlearea {
+  margin: 0.25em auto 0 auto;
+  padding: 0;
+  position: relative;
+  clear: both;
+  line-height: 1em;
+}
+
+.legend {
   font-size: small;
   text-align: center;
 }
 
-h3.version {
+.version {
   font-size: small;
   text-align: center;
 }
@@ -136,18 +186,8 @@ div.navtab {
   margin-right: 15px;
 }
 
-/* @group Link Styling */
-a {
-  color: #546E00;
-  text-decoration: none;
-}
-
 .contents a:visited {
   color: #344E00;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 a.qindexHL {
@@ -158,15 +198,19 @@ a.qindexHL {
 
 code {
   color: #444;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
 }
 
-/* @end */
 dl.el {
   margin-left: -1cm;
 }
 
+a.el {
+  font-family: "DejaVu Sans Mono", monospace, fixed;
+}
+
 .fragment {
-  font-family: "DejaVu Sans Mono",monospace,fixed;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
 }
 
 pre.fragment {
@@ -182,7 +226,7 @@ div.ah {
   color: #FFF;
   margin-bottom: 3px;
   margin-top: 3px;
-  padding: .2em;
+  padding: 0.2em;
   border: thin solid #333;
 }
 
@@ -203,10 +247,15 @@ div.groupText {
 }
 
 div.contents, #content {
-  padding: 0 0.25em 0 0.25em;
   max-width: 60em;
   margin-left: auto;
   margin-right: auto;
+}
+
+.groupheader + p {
+  font-style: italic;
+  color: #666;
+  margin: 0 0 1em 0;
 }
 
 td.indexkey {
@@ -225,7 +274,20 @@ td.indexvalue {
 }
 
 table.memname {
-  font-family: "DejaVu Sans Mono",monospace,fixed;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
+  border-spacing: 0;
+}
+
+table.memname tbody tr:last-child {
+  display: none;
+}
+
+table.memname tbody tr:only-child {
+  display: table-cell;
+}
+
+table.memname tbody tr:nth-last-child(2)::after {
+  content: ")";
 }
 
 tr.memlist {
@@ -260,7 +322,6 @@ img.footer {
   vertical-align: middle;
 }
 
-/* @group Code Colorization */
 span.keyword {
   color: #586E75;
 }
@@ -289,7 +350,6 @@ span.charliteral {
   color: #CB4B16;
 }
 
-/* @end */
 td.tiny {
   font-size: x-small;
 }
@@ -309,7 +369,7 @@ hr {
   height: 0;
   border: none;
   border-top: 1px solid #DDD;
-  margin: 2em 0 1em;
+  margin: 2em 0;
 }
 
 #footer {
@@ -322,7 +382,10 @@ hr {
   color: #888;
 }
 
-/* @group Member Descriptions */
+td.ititle {
+  padding-bottom: 0.75em;
+}
+
 table.memberdecls {
   border-spacing: 0.125em;
   line-height: 1.3em;
@@ -339,13 +402,12 @@ table.memberdecls {
 
 .memItemLeft,.memItemRight,.memTemplParams {
   border: 0;
-  font-family: "DejaVu Sans Mono",monospace,fixed;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
 }
 
 .memItemLeft,.memTemplItemLeft {
   white-space: nowrap;
   padding-left: 2em;
-  padding-right: 1em;
 }
 
 .memItemLeft a.el {
@@ -371,13 +433,10 @@ td.mlabels-right {
   display: none;
 }
 
-/* @end */
-/* @group Member Details */
-/* Styles for detailed member documentation */
 .memtemplate {
   color: #888;
   font-style: italic;
-  font-family: "DejaVu Sans Mono",monospace,fixed;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
   font-size: small;
 }
 
@@ -391,25 +450,33 @@ td.mlabels-right {
 }
 
 .memitem {
-  padding: 0.25em 0.5em 0.25em 0.5em;
-  margin: 0 0 1em 0;
-  border-radius: 6px;
-  border: 1px solid #DDD;
+  padding: 0.5em 0.5em 0.25em 0.5em;
+  margin: 1em 0 2em 0;
 }
 
 .memproto {
-  font-size: 110%;
-  font-weight: 400;
-  line-height: 1em;
-  color: #000;
+  border-bottom: 1px solid #EEE;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-size: 1.09em;
+  font-weight: 600;
+  line-height: 1.41em;
+  margin-bottom: 0.25em;
+  padding-bottom: 0.125em;
 }
 
 .memproto .paramname {
   font-style: normal;
+  padding-right: 0.25em;
 }
 
 .memdoc {
-  padding: 0 0.25em 0 0.25em;
+  padding: 0;
+}
+
+.memdoc > p:first-child {
+  font-style: italic;
+  color: #444;
+  margin-bottom: 0.75em;
 }
 
 .paramkey {
@@ -418,16 +485,17 @@ td.mlabels-right {
 
 .paramtype {
   color: #666;
-  padding-right: 0.5em;
+  padding: 0 0.25em 0 0.25em;
   white-space: nowrap;
 }
 
-.paramname {
+.params .paramname {
   color: #111;
   white-space: nowrap;
-  font-family: "DejaVu Sans Mono",monospace,fixed;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
   font-style: italic;
   padding-right: 0.5em;
+  vertical-align: top;
 }
 
 .fieldname {
@@ -435,8 +503,8 @@ td.mlabels-right {
 }
 
 .fieldtable {
-  padding-top: 0.25em;
-  border-top: 1px dashed #DDD;
+  margin-top: 0.5em;
+  border-collapse: collapse;
 }
 
 .fieldtable tbody tr:first-child {
@@ -444,21 +512,29 @@ td.mlabels-right {
 }
 
 td.fieldname {
-  padding: 0 0.5em 0 0.25em;
   vertical-align: top;
-  font-family: "DejaVu Sans Mono",monospace,fixed;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
+}
+
+td.fielddoc {
+  padding: 0.125em 0.5em 0 0.25em;
+  vertical-align: top;
+}
+
+.fieldtable tbody tr td {
+  border-top: 1px dashed #DDD;
+  border-bottom: 1px dashed #DDD;
 }
 
 td.fieldtype {
   color: #666;
   padding: 0 0.5em 0 0;
   vertical-align: top;
-  font-family: "DejaVu Sans Mono",monospace,fixed;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
 }
 
 td.fielddoc p {
   margin: 0;
-  vertical-align: top;
   padding: 0 0.5em 0 0;
 }
 
@@ -467,17 +543,12 @@ p.reference {
   font-style: italic;
 }
 
-/* @end */
-/* @group Directory (tree) */
-/* for the tree view */
 .ftvtree {
-  font-family: sans-serif;
+  font-family: "DejaVu Sans", Verdana, Helvetica, Arial, sans-serif;
   margin: 0;
 }
 
-/* these are for tree view when used as main index */
 .directory {
-  font-size: small;
   margin: 0.5em;
 }
 
@@ -506,7 +577,7 @@ p.reference {
 }
 
 td.entry {
-  font-family: "DejaVu Sans",Helvetica,Arial,sans-serif;
+  font-family: "DejaVu Sans", Verdana, Helvetica, Arial, sans-serif;
   font-weight: 400;
   padding-right: 1em;
 }
@@ -522,12 +593,11 @@ td.entry {
 }
 
 td.entry b {
-  font-family: "DejaVu Sans",Helvetica,Arial,sans-serif;
+  font-family: "DejaVu Sans", Verdana, Helvetica, Arial, sans-serif;
   font-weight: 400;
   font-size: 130%;
 }
 
-/* these are for tree view when not used as main index */
 .directory-alt {
   font-size: 100%;
   font-weight: bold;
@@ -557,7 +627,6 @@ td.entry b {
   vertical-align: -30%;
 }
 
-/* @end */
 div.dynheader {
   margin-top: 8px;
 }
@@ -620,29 +689,25 @@ div.navpath {
 
 div.summary {
   font-size: small;
-  font-family: "DejaVu Sans",Helvetica,Arial,sans-serif;
+  font-family: "DejaVu Sans", Verdana, Helvetica, Arial, sans-serif;
   margin: 0;
-  color: #FFF; /* Hide separator bars */
-  border-bottom: 1px solid #DDD;
   padding: 0.25em 0;
+  display: none;
 }
 
 div.summary a {
   white-space: nowrap;
 }
 
-/* Metadata box (right aligned next to title) */
-
 #metabox {
   display: inline-block;
   font-size: x-small;
-  margin: 0 0 0.25em 0;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
   position: absolute;
   right: 0;
-  top: 0;
+  bottom: 0.25em;
   color: #666;
   font-style: italic;
-  padding: 0 1em;
 }
 
 #meta {
@@ -661,12 +726,12 @@ div.summary a {
   text-align: right;
 }
 
-#meta th:after {
+#meta th::after {
   content: ":";
 }
 
 div.line {
-  font-family: "DejaVu Sans Mono",monospace,fixed;
+  font-family: "DejaVu Sans Mono", monospace, fixed;
   line-height: 1.4em;
   white-space: pre-wrap;
 }
@@ -683,6 +748,7 @@ span.lineno {
   background-color: #E8E8E8;
   white-space: pre;
 }
+
 span.lineno a {
   background-color: #D8D8D8;
 }
@@ -693,9 +759,8 @@ span.lineno a:hover {
 
 .tabs, .tabs2, .navpath {
   padding: 0.25em 0;
-  border-bottom: 1px solid #DDD;
   font-size: small;
-  font-family: "DejaVu Sans",Helvetica,Arial,sans-serif;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
   margin: 0;
 }
 
@@ -709,12 +774,10 @@ th {
   padding: 0.125em;
 }
 
-#navrow1 {
+#navrow1, #navrow2 {
   /* Disable menu from Doxygen 1.8.15, it is faked in the template */
   display: none;
 }
-
-/* tabs*/
 
 .tablist {
   margin: 0;
@@ -732,7 +795,6 @@ th {
 .tablist a {
   display: block;
   padding: 0 1em 0 0;
-  font-family: "DejaVu Sans",Helvetica,Arial,sans-serif;
   text-decoration: none;
   outline: none;
 }
