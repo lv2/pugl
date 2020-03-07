@@ -19,7 +19,7 @@ AllowShortLambdasOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: TopLevel
-AlwaysBreakAfterReturnType: TopLevelDefinitions
+AlwaysBreakAfterReturnType: TopLevel
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
@@ -119,8 +119,9 @@ SpacesInParentheses: false
 SpacesInSquareBrackets: false
 Standard:        Cpp11
 StatementMacros:
-  - Q_UNUSED
-  - QT_REQUIRE_VERSION
+  - PUGL_API
+  - PUGL_DEPRECATED_BY
+  - PUGL_UNUSED
 TabWidth:        4
 UseTab:          ForIndentation
 ...
