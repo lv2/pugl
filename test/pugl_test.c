@@ -266,8 +266,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 		onKeyPress(view, &event->key, "Child:  ");
 		break;
 	case PUGL_MOTION_NOTIFY:
-		app->xAngle = fmod(app->xAngle - event->motion.x - app->lastMouseX, 360.0);
-		app->yAngle = fmod(app->yAngle + event->motion.y - app->lastMouseY, 360.0);
+		app->xAngle -= event->motion.x - app->lastMouseX;
+		app->yAngle += event->motion.y - app->lastMouseY;
 		app->lastMouseX = event->motion.x;
 		app->lastMouseY = event->motion.y;
 		puglPostRedisplay(view);
