@@ -320,6 +320,8 @@ def build(bld):
         if bld.env.HAVE_GL:
             build_example('pugl_embed_demo', ['examples/pugl_embed_demo.c'],
                           platform, 'gl', uselib=['GL', 'M'])
+            build_example('pugl_window_demo', ['examples/pugl_window_demo.c'],
+                          platform, 'gl', uselib=['GL', 'M'])
             build_example('pugl_print_events',
                           ['examples/pugl_print_events.c'],
                           platform, 'stub')
