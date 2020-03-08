@@ -193,6 +193,8 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 #define PRINT(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
 
 	switch (event->type) {
+	case PUGL_NOTHING:
+		return 0;
 	case PUGL_KEY_PRESS:
 		return PRINT("%sKey press   code %3u key  U+%04X\n",
 		             prefix,
@@ -272,6 +274,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 			             event->motion.x,
 			             event->motion.y);
 		default:
+			fprintf(stderr, "%sUnknown event type %d\n", prefix, event->type);
 			break;
 		}
 	}
