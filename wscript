@@ -251,6 +251,10 @@ def build(bld):
                        framework=['Cocoa'],
                        source=lib_source + ['pugl/detail/mac.m'])
 
+        build_backend('mac', 'stub',
+                      framework=['Cocoa'],
+                      source=['pugl/detail/mac_stub.m'])
+
         if bld.env.HAVE_GL:
             build_backend('mac', 'gl',
                           framework=['Cocoa', 'OpenGL'],
