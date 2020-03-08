@@ -49,7 +49,6 @@ typedef struct
 	double     lastMouseX;
 	double     lastMouseY;
 	double     lastDrawTime;
-	unsigned   framesDrawn;
 	bool       mouseEntered;
 	bool       verbose;
 } PuglTestApp;
@@ -90,7 +89,6 @@ onDisplay(PuglView* view)
 	displayCube(view, app->dist, app->xAngle, app->yAngle, app->mouseEntered);
 
 	app->lastDrawTime = thisTime;
-	++app->framesDrawn;
 }
 
 static void
@@ -316,6 +314,7 @@ main(int argc, char** argv)
 	puglShowWindow(app.child);
 
 	PuglFpsPrinter fpsPrinter         = { puglGetTime(app.world) };
+	unsigned       framesDrawn        = 0;
 	bool           requestedAttention = false;
 	while (!app.quit) {
 		const double thisTime = puglGetTime(app.world);
@@ -328,6 +327,7 @@ main(int argc, char** argv)
 		}
 
 		puglDispatchEvents(app.world);
+		++framesDrawn;
 
 		if (!requestedAttention && thisTime > 5.0) {
 			puglRequestAttention(app.parent);
@@ -335,7 +335,7 @@ main(int argc, char** argv)
 		}
 
 		if (app.continuous) {
-			puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
+			puglPrintFps(app.world, &fpsPrinter, &framesDrawn);
 		}
 	}
 
