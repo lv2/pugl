@@ -735,8 +735,8 @@ puglWaitForEvent(PuglView* PUGL_UNUSED(view))
 }
 #endif
 
-PUGL_API PuglStatus
-puglDispatchEvents(PuglWorld* PUGL_UNUSED(world))
+static PuglStatus
+puglDispatchViewEvents(PuglView* view)
 {
 	/* Windows has no facility to process only currently queued messages, which
 	   causes the event loop to run forever in cases like mouse movement where
@@ -744,11 +744,10 @@ puglDispatchEvents(PuglWorld* PUGL_UNUSED(world))
 	   this, we post a message to ourselves before starting, record its time
 	   when it is received, then break the loop on the first message that was
 	   created afterwards. */
-	PostMessage(NULL, PUGL_LOCAL_MARK_MSG, 0, 0);
 
 	long markTime = 0;
 	MSG  msg;
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+	while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
 		if (msg.message == PUGL_LOCAL_MARK_MSG) {
 			markTime = GetMessageTime();
 		} else {
@@ -758,6 +757,24 @@ puglDispatchEvents(PuglWorld* PUGL_UNUSED(world))
 				break;
 			}
 		}
+	}
+
+	return PUGL_SUCCESS;
+}
+
+PUGL_API PuglStatus
+puglDispatchEvents(PuglWorld* world)
+{
+	for (size_t i = 0; i < world->numViews; ++i) {
+		PostMessage(world->views[i]->impl->hwnd, PUGL_LOCAL_MARK_MSG, 0, 0);
+	}
+
+	for (size_t i = 0; i < world->numViews; ++i) {
+		puglDispatchViewEvents(world->views[i]);
+	}
+
+	for (size_t i = 0; i < world->numViews; ++i) {
+		UpdateWindow(world->views[i]->impl->hwnd);
 	}
 
 	return PUGL_SUCCESS;
