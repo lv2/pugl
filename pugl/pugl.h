@@ -166,20 +166,20 @@ typedef enum {
 */
 typedef enum {
 	PUGL_NOTHING,        ///< No event
-	PUGL_BUTTON_PRESS,   ///< Mouse button pressed
-	PUGL_BUTTON_RELEASE, ///< Mouse button released
-	PUGL_CONFIGURE,      ///< View moved and/or resized
-	PUGL_EXPOSE,         ///< View exposed and must be redrawn
-	PUGL_CLOSE,          ///< View will be closed
-	PUGL_KEY_PRESS,      ///< Key pressed
-	PUGL_KEY_RELEASE,    ///< Key released
-	PUGL_TEXT,           ///< Character entered
-	PUGL_ENTER_NOTIFY,   ///< Pointer entered view
-	PUGL_LEAVE_NOTIFY,   ///< Pointer left view
-	PUGL_MOTION_NOTIFY,  ///< Pointer moved
-	PUGL_SCROLL,         ///< Scrolled
-	PUGL_FOCUS_IN,       ///< Keyboard focus entered view
-	PUGL_FOCUS_OUT       ///< Keyboard focus left view
+	PUGL_BUTTON_PRESS,   ///< Mouse button pressed, a #PuglEventButton
+	PUGL_BUTTON_RELEASE, ///< Mouse button released, a #PuglEventButton
+	PUGL_CONFIGURE,      ///< View moved and/or resized, a #PuglEventConfigure
+	PUGL_EXPOSE,         ///< View must be drawn, a #PuglEventExpose
+	PUGL_CLOSE,          ///< View will be closed, a #PuglEventAny
+	PUGL_KEY_PRESS,      ///< Key pressed, a #PuglEventKey
+	PUGL_KEY_RELEASE,    ///< Key released, a #PuglEventKey
+	PUGL_TEXT,           ///< Character entered, a #PuglEventText
+	PUGL_ENTER_NOTIFY,   ///< Pointer entered view, a #PuglEventCrossing
+	PUGL_LEAVE_NOTIFY,   ///< Pointer left view, a #PuglEventCrossing
+	PUGL_MOTION_NOTIFY,  ///< Pointer moved, a #PuglEventMotion
+	PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
+	PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
+	PUGL_FOCUS_OUT       ///< Keyboard focus left view, a #PuglEventFocus
 } PuglEventType;
 
 /**
