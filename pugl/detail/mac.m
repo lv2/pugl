@@ -808,6 +808,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		[view->world->impl->app activateIgnoringOtherApps:YES];
 		[window makeFirstResponder:impl->wrapperView];
 		[window makeKeyAndOrderFront:window];
+		[impl->window setIsVisible:NO];
 	}
 
 	[impl->wrapperView updateTrackingAreas];
