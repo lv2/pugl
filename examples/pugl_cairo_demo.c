@@ -15,11 +15,11 @@
 */
 
 /**
-   @file pugl_cairo_test.c A simple Pugl test that creates a top-level window.
+   @file pugl_cairo_demo.c An example of drawing with Cairo.
 */
 
 #include "demo_utils.h"
-#include "test_utils.h"
+#include "test/test_utils.h"
 
 #include "pugl/pugl.h"
 #include "pugl/pugl_cairo.h"

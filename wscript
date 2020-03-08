@@ -184,7 +184,7 @@ def build(bld):
         bld.install_files(detaildir, bld.path.ant_glob('pugl/detail/*.h'))
         bld.install_files(detaildir, bld.path.ant_glob('pugl/detail/*.c'))
 
-    # Library dependencies of pugl libraries (for buiding tests)
+    # Library dependencies of pugl libraries (for building examples)
     deps = {}
 
     def build_pugl_lib(name, **kwargs):
@@ -282,7 +282,7 @@ def build(bld):
                           uselib=['CAIRO', 'X11'],
                           source=['pugl/detail/x11_cairo.c'])
 
-    def build_test(prog, source, platform, backend, **kwargs):
+    def build_example(prog, source, platform, backend, **kwargs):
         use = ['pugl_%s_static' % platform,
                'pugl_%s_%s_static' % (platform, backend)]
 
@@ -311,25 +311,26 @@ def build(bld):
 
     if bld.env.BUILD_TESTS:
         for s in ('rect.vert', 'rect.frag'):
-            # Copy shaders to build directory for test programs
+            # Copy shaders to build directory for example programs
             bld(features = 'subst',
                 is_copy  = True,
                 source   = 'shaders/%s' % s,
                 target   = 'shaders/%s' % s)
 
         if bld.env.HAVE_GL:
-            build_test('pugl_test', ['test/pugl_test.c'],
-                       platform, 'gl', uselib=['GL', 'M'])
-            build_test('pugl_print_events', ['test/pugl_print_events.c'],
-                       platform, 'stub')
-            build_test('pugl_gl3_test',
-                       ['test/pugl_gl3_test.c', 'test/glad/glad.c'],
-                       platform, 'gl', uselib=['DL', 'GL', 'M'])
+            build_example('pugl_embed_demo', ['examples/pugl_embed_demo.c'],
+                          platform, 'gl', uselib=['GL', 'M'])
+            build_example('pugl_print_events',
+                          ['examples/pugl_print_events.c'],
+                          platform, 'stub')
+            build_example('pugl_gl3_demo',
+                          ['examples/pugl_gl3_demo.c', 'examples/glad/glad.c'],
+                          platform, 'gl', uselib=['DL', 'GL', 'M'])
 
         if bld.env.HAVE_CAIRO:
-            build_test('pugl_cairo_test', ['test/pugl_cairo_test.c'],
-                       platform, 'cairo',
-                       uselib=['M', 'CAIRO'])
+            build_example('pugl_cairo_demo', ['examples/pugl_cairo_demo.c'],
+                          platform, 'cairo',
+                          uselib=['M', 'CAIRO'])
 
     if bld.env.DOCS:
         bld(features     = 'subst',

@@ -15,10 +15,10 @@
 */
 
 /**
-   @file pugl_print_events.c A simple Pugl test that prints events.
+   @file pugl_print_events.c A utility program that prints view events.
 */
 
-#include "test_utils.h"
+#include "test/test_utils.h"
 
 #include "pugl/pugl.h"
 #include "pugl/pugl_stub.h"

@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl_gl3_test.c A simple test of OpenGL 3 with Pugl.
+   @file pugl_gl3_demo.c An example of drawing with OpenGL 3.
 
    This is an example of using OpenGL for pixel-perfect 2D drawing.  It uses
    pixel coordinates for positions and sizes so that things work roughly like a
@@ -38,7 +38,7 @@
 
 #include "demo_utils.h"
 #include "shader_utils.h"
-#include "test_utils.h"
+#include "test/test_utils.h"
 
 #include "glad/glad.h"
 

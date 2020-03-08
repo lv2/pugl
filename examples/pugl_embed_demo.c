@@ -15,13 +15,13 @@
 */
 
 /**
-   @file pugl_test.c A simple Pugl test that creates a top-level window.
+   @file pugl_embed_demo.c An example of embedding a view in another.
 */
 
 #define GL_SILENCE_DEPRECATION 1
 
 #include "demo_utils.h"
-#include "test_utils.h"
+#include "test/test_utils.h"
 
 #include "pugl/gl.h"
 #include "pugl/pugl.h"
