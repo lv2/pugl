@@ -18,6 +18,7 @@
    @file pugl_cairo_test.c A simple Pugl test that creates a top-level window.
 */
 
+#include "demo_utils.h"
 #include "test_utils.h"
 
 #include "pugl/pugl.h"
