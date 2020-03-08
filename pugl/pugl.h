@@ -261,17 +261,6 @@ typedef struct {
 } PuglEventExpose;
 
 /**
-   Window close event.
-
-   This event is sent when the window is to be closed, for example when the
-   user clicks the close button.
-*/
-typedef struct {
-	PuglEventType  type;  ///< #PUGL_CLOSE
-	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
-} PuglEventClose;
-
-/**
    Key press or release event.
 
    This event represents low-level key presses and releases.  This can be used
@@ -408,7 +397,6 @@ typedef union {
 	PuglEventButton    button;    ///< #PUGL_BUTTON_PRESS, #PUGL_BUTTON_RELEASE
 	PuglEventConfigure configure; ///< #PUGL_CONFIGURE
 	PuglEventExpose    expose;    ///< #PUGL_EXPOSE
-	PuglEventClose     close;     ///< #PUGL_CLOSE
 	PuglEventKey       key;       ///< #PUGL_KEY_PRESS, #PUGL_KEY_RELEASE
 	PuglEventText      text;      ///< #PUGL_TEXT
 	PuglEventCrossing  crossing;  ///< #PUGL_ENTER_NOTIFY, #PUGL_LEAVE_NOTIFY

@@ -690,7 +690,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		return TRUE;
 	case WM_QUIT:
 	case PUGL_LOCAL_CLOSE_MSG:
-		event.close.type = PUGL_CLOSE;
+		event.any.type = PUGL_CLOSE;
 		break;
 	default:
 		return DefWindowProc(view->impl->hwnd, message, wParam, lParam);
