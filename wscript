@@ -335,15 +335,7 @@ def build(bld):
                           uselib=['M', 'CAIRO'])
 
     if bld.env.DOCS:
-        bld(features     = 'subst',
-            source       = 'doc/reference.doxygen.in',
-            target       = 'doc/reference.doxygen',
-            install_path = '',
-            PUGL_VERSION = PUGL_VERSION,
-            PUGL_SRCDIR  = os.path.abspath(bld.path.srcpath()))
-
-        bld(features = 'doxygen',
-            doxyfile = 'doc/reference.doxygen')
+        autowaf.build_dox(bld, 'PUGL', PUGL_VERSION, top, out)
 
 
 def test(tst):
