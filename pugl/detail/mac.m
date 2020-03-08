@@ -755,7 +755,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		return st;
 	}
 
-	// Add draw view to wraper view
+	// Add draw view to wrapper view
 	[impl->wrapperView addSubview:impl->drawView];
 	[impl->wrapperView setHidden:NO];
 	[impl->drawView setHidden:NO];
