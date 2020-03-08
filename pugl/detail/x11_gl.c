@@ -29,6 +29,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -131,9 +132,9 @@ puglX11GlCreate(PuglView* view)
 
 	CreateContextAttribs create_context =
 		(CreateContextAttribs)glXGetProcAddress(
-			(const GLubyte*)"glXCreateContextAttribsARB");
+			(const uint8_t*)"glXCreateContextAttribsARB");
 
-	surface->ctx = create_context(display, fb_config, 0, GL_TRUE, ctx_attrs);
+	surface->ctx = create_context(display, fb_config, 0, True, ctx_attrs);
 	if (!surface->ctx) {
 		surface->ctx =
 			glXCreateNewContext(display, fb_config, GLX_RGBA_TYPE, 0, True);
@@ -188,7 +189,7 @@ puglX11GlLeave(PuglView* view, const PuglEventExpose* expose)
 PuglGlFunc
 puglGetProcAddress(const char* name)
 {
-	return glXGetProcAddress((const GLubyte*)name);
+	return glXGetProcAddress((const uint8_t*)name);
 }
 
 const PuglBackend* puglGlBackend(void)
