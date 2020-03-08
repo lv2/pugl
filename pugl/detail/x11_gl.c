@@ -132,6 +132,10 @@ puglX11GlCreate(PuglView* view)
 	    (PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddress(
 	        (const uint8_t*)"glXCreateContextAttribsARB");
 
+	PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT =
+		(PFNGLXSWAPINTERVALEXTPROC) glXGetProcAddress(
+			(const uint8_t*)"glXSwapIntervalEXT");
+
 	surface->ctx = create_context(display, fb_config, 0, True, ctx_attrs);
 	if (!surface->ctx) {
 		surface->ctx =
@@ -140,6 +144,11 @@ puglX11GlCreate(PuglView* view)
 
 	if (!surface->ctx) {
 		return PUGL_CREATE_CONTEXT_FAILED;
+	}
+
+	const int swapInterval = view->hints[PUGL_SWAP_INTERVAL];
+	if (glXSwapIntervalEXT && swapInterval != PUGL_DONT_CARE) {
+		glXSwapIntervalEXT(display, impl->win, swapInterval);
 	}
 
 	glXGetConfig(impl->display,
