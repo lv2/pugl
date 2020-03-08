@@ -462,6 +462,11 @@ puglStrerror(PuglStatus status);
 typedef struct PuglWorldImpl PuglWorld;
 
 /**
+   Handle for the world's opaque user data.
+*/
+typedef void* PuglWorldHandle;
+
+/**
    Create a new world.
 
    @return A new world, which must be later freed with puglFreeWorld().
@@ -474,6 +479,23 @@ puglNewWorld(void);
 */
 PUGL_API void
 puglFreeWorld(PuglWorld* world);
+
+/**
+   Set the user data for the world.
+
+   This is usually a pointer to a struct that contains all the state which must
+   be accessed by several views.
+
+   The handle is opaque to Pugl and is not interpreted in any way.
+*/
+PUGL_API void
+puglSetWorldHandle(PuglWorld* world, PuglWorldHandle handle);
+
+/**
+   Get the user data for the world.
+*/
+PUGL_API PuglWorldHandle
+puglGetWorldHandle(PuglWorld* world);
 
 /**
    Return a pointer to the native handle of the world.
@@ -580,7 +602,7 @@ typedef struct PuglBackendImpl PuglBackend;
 typedef uintptr_t PuglNativeWindow;
 
 /**
-   Handle for opaque user data.
+   Handle for a view's opaque user data.
 */
 typedef void* PuglHandle;
 

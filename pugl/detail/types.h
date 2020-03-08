@@ -76,6 +76,7 @@ struct PuglViewImpl {
 /** Cross-platform world definition. */
 struct PuglWorldImpl {
 	PuglWorldInternals* impl;
+	PuglWorldHandle     handle;
 	char*               className;
 	double              startTime;
 	size_t              numViews;

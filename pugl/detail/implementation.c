@@ -112,6 +112,18 @@ puglFreeWorld(PuglWorld* const world)
 	free(world);
 }
 
+void
+puglSetWorldHandle(PuglWorld* world, PuglWorldHandle handle)
+{
+	world->handle = handle;
+}
+
+PuglWorldHandle
+puglGetWorldHandle(PuglWorld* world)
+{
+	return world->handle;
+}
+
 PuglStatus
 puglSetClassName(PuglWorld* const world, const char* const name)
 {
