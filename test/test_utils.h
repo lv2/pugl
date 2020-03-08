@@ -164,7 +164,7 @@ puglPrintTestUsage(const char* prog, const char* posHelp)
 	printf("Usage: %s [OPTION]... %s\n\n"
 	       "  -a  Enable anti-aliasing\n"
 	       "  -c  Continuously animate and draw\n"
-	       "  -d  Enable double-buffering\n"
+	       "  -d  Directly draw to window (no double-buffering)\n"
 	       "  -e  Enable platform error-checking\n"
 	       "  -f  Fast drawing, explicitly disable vertical sync\n"
 	       "  -h  Display this help\n"
@@ -180,7 +180,7 @@ puglParseTestOptions(int* pargc, char*** pargv)
 {
 	PuglTestOptions opts = {
 	    0,
-	    0,
+	    PUGL_TRUE,
 	    PUGL_DONT_CARE,
 	    false,
 	    false,
@@ -198,7 +198,7 @@ puglParseTestOptions(int* pargc, char*** pargv)
 		} else if (!strcmp(argv[i], "-c")) {
 			opts.continuous = true;
 		} else if (!strcmp(argv[i], "-d")) {
-			opts.doubleBuffer = PUGL_TRUE;
+			opts.doubleBuffer = PUGL_FALSE;
 		} else if (!strcmp(argv[i], "-e")) {
 			opts.errorChecking = PUGL_TRUE;
 		} else if (!strcmp(argv[i], "-f")) {

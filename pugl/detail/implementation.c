@@ -82,7 +82,7 @@ puglSetDefaultHints(PuglHints hints)
 	hints[PUGL_DEPTH_BITS]            = 24;
 	hints[PUGL_STENCIL_BITS]          = 8;
 	hints[PUGL_SAMPLES]               = 0;
-	hints[PUGL_DOUBLE_BUFFER]         = PUGL_FALSE;
+	hints[PUGL_DOUBLE_BUFFER]         = PUGL_TRUE;
 	hints[PUGL_SWAP_INTERVAL]         = PUGL_DONT_CARE;
 	hints[PUGL_RESIZABLE]             = PUGL_FALSE;
 	hints[PUGL_IGNORE_KEY_REPEAT]     = PUGL_FALSE;
