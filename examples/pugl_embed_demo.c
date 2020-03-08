@@ -20,6 +20,7 @@
 
 #define GL_SILENCE_DEPRECATION 1
 
+#include "cube_view.h"
 #include "demo_utils.h"
 #include "test/test_utils.h"
 
@@ -74,26 +75,6 @@ getChildFrame(const PuglRect parentFrame)
 }
 
 static void
-onReshape(PuglView* view, int width, int height)
-{
-	(void)view;
-
-	const float aspect = (float)width / (float)height;
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glViewport(0, 0, width, height);
-
-	float projection[16];
-	perspective(projection, 1.8f, aspect, 1.0f, 100.0f);
-	glLoadMatrixf(projection);
-}
-
-static void
 onDisplay(PuglView* view)
 {
 	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
@@ -101,44 +82,12 @@ onDisplay(PuglView* view)
 	const double thisTime = puglGetTime(app->world);
 	if (app->continuous) {
 		const double dTime = thisTime - app->lastDrawTime;
+
 		app->xAngle = fmod(app->xAngle + dTime * 100.0, 360.0);
 		app->yAngle = fmod(app->yAngle + dTime * 100.0, 360.0);
 	}
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, app->dist * -1);
-	glRotatef((float)app->xAngle, 0.0f, 1.0f, 0.0f);
-	glRotatef((float)app->yAngle, 1.0f, 0.0f, 0.0f);
-
-	const float bg = app->mouseEntered ? 0.2f : 0.1f;
-	glClearColor(bg, bg, bg, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	if (puglHasFocus(app->child)) {
-		// Draw cube surfaces
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, cubeStripVertices);
-		glColorPointer(3, GL_FLOAT, 0, cubeStripVertices);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
-
-		glColor3f(0.0f, 0.0f, 0.0f);
-	} else {
-		glColor3f(1.0f, 1.0f, 1.0f);
-	}
-
-	// Draw cube wireframe
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, cubeFrontLineLoop);
-	glDrawArrays(GL_LINE_LOOP, 0, 4);
-	glVertexPointer(3, GL_FLOAT, 0, cubeBackLineLoop);
-	glDrawArrays(GL_LINE_LOOP, 0, 4);
-	glVertexPointer(3, GL_FLOAT, 0, cubeSideLines);
-	glDrawArrays(GL_LINES, 0, 8);
-	glDisableClientState(GL_VERTEX_ARRAY);
+	displayCube(view, app->dist, app->xAngle, app->yAngle, app->mouseEntered);
 
 	app->lastDrawTime = thisTime;
 	++app->framesDrawn;
@@ -214,10 +163,7 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 
 	switch (event->type) {
 	case PUGL_CONFIGURE:
-		onReshape(view,
-		          (int)event->configure.width,
-		          (int)event->configure.height);
-
+		reshapeCube((int)event->configure.width, (int)event->configure.height);
 		puglSetFrame(app->child, getChildFrame(parentFrame));
 		break;
 	case PUGL_EXPOSE:
@@ -262,7 +208,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 
 	switch (event->type) {
 	case PUGL_CONFIGURE:
-		onReshape(view, (int)event->configure.width, (int)event->configure.height);
+		reshapeCube((int)event->configure.width, (int)event->configure.height);
 		break;
 	case PUGL_EXPOSE:
 		onDisplay(view);
@@ -302,6 +248,7 @@ int
 main(int argc, char** argv)
 {
 	PuglTestApp app = {0};
+
 	app.dist = 10;
 
 	const PuglTestOptions opts = puglParseTestOptions(&argc, &argv);

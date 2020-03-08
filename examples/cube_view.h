@@ -1,0 +1,82 @@
+/*
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
+
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted, provided that the above
+  copyright notice and this permission notice appear in all copies.
+
+  THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+*/
+
+#define GL_SILENCE_DEPRECATION 1
+
+#include "demo_utils.h"
+
+#include "pugl/gl.h"
+
+static inline void
+reshapeCube(const int width, const int height)
+{
+	const float aspect = (float)width / (float)height;
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glViewport(0, 0, width, height);
+
+	float projection[16];
+	perspective(projection, 1.8f, aspect, 1.0f, 100.0f);
+	glLoadMatrixf(projection);
+}
+
+static inline void
+displayCube(PuglView* const view,
+            const double    distance,
+            const double    xAngle,
+            const double    yAngle,
+            const bool      entered)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(0.0f, 0.0f, (float)distance * -1.0f);
+	glRotatef((float)xAngle, 0.0f, 1.0f, 0.0f);
+	glRotatef((float)yAngle, 1.0f, 0.0f, 0.0f);
+
+	const float bg = entered ? 0.2f : 0.1f;
+	glClearColor(bg, bg, bg, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	if (puglHasFocus(view)) {
+		// Draw cube surfaces
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, cubeStripVertices);
+		glColorPointer(3, GL_FLOAT, 0, cubeStripVertices);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+		glColor3f(0.0f, 0.0f, 0.0f);
+	} else {
+		glColor3f(1.0f, 1.0f, 1.0f);
+	}
+
+	// Draw cube wireframe
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, cubeFrontLineLoop);
+	glDrawArrays(GL_LINE_LOOP, 0, 4);
+	glVertexPointer(3, GL_FLOAT, 0, cubeBackLineLoop);
+	glDrawArrays(GL_LINE_LOOP, 0, 4);
+	glVertexPointer(3, GL_FLOAT, 0, cubeSideLines);
+	glDrawArrays(GL_LINES, 0, 8);
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
