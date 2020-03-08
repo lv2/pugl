@@ -102,8 +102,10 @@ swapFocus(PuglTestApp* app)
 		puglGrabFocus(app->parent);
 	}
 
-	puglPostRedisplay(app->parent);
-	puglPostRedisplay(app->child);
+	if (!app->continuous) {
+		puglPostRedisplay(app->parent);
+		puglPostRedisplay(app->child);
+	}
 }
 
 static void
@@ -224,12 +226,16 @@ onEvent(PuglView* view, const PuglEvent* event)
 		app->yAngle += event->motion.y - app->lastMouseY;
 		app->lastMouseX = event->motion.x;
 		app->lastMouseY = event->motion.y;
-		puglPostRedisplay(view);
-		puglPostRedisplay(app->parent);
+		if (!app->continuous) {
+			puglPostRedisplay(view);
+			puglPostRedisplay(app->parent);
+		}
 		break;
 	case PUGL_SCROLL:
 		app->dist = fmaxf(10.0f, app->dist + (float)event->scroll.dy);
-		puglPostRedisplay(view);
+		if (!app->continuous) {
+			puglPostRedisplay(view);
+		}
 		break;
 	case PUGL_ENTER_NOTIFY:
 		app->mouseEntered = true;
