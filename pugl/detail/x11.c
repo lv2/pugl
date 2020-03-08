@@ -798,15 +798,15 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect)
 		mergeExposeEvents(&view->impl->pendingExpose, (const PuglEvent*)&event);
 	} else if (view->visible) {
 		// Not dispatching events, send an X expose so we wake up next time
-		const int x = (int)floor(rect.x);
-		const int y = (int)floor(rect.y);
-		const int w = (int)ceil(rect.x + rect.width) - x;
-		const int h = (int)ceil(rect.y + rect.height) - y;
+		const double x = floor(rect.x);
+		const double y = floor(rect.y);
+		const double w = ceil(rect.x + rect.width) - x;
+		const double h = ceil(rect.y + rect.height) - y;
 
 		XExposeEvent ev = {Expose, 0, True,
 		                   view->impl->display, view->impl->win,
-		                   x, y,
-		                   w, h,
+		                   (int)x, (int)y,
+		                   (int)w, (int)h,
 		                   0};
 
 		XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);

@@ -144,14 +144,14 @@ onExpose(PuglView* view)
 
 	glBufferSubData(GL_ARRAY_BUFFER,
 	                0,
-	                app->numRects * sizeof(Rect),
+	                (GLsizeiptr)(app->numRects * sizeof(Rect)),
 	                app->rects);
 
 	glDrawElementsInstanced(GL_TRIANGLE_STRIP,
 	                        4,
 	                        GL_UNSIGNED_INT,
 	                        NULL,
-	                        (GLsizei)app->numRects * 4);
+	                        (GLsizei)(app->numRects * 4));
 
 	++app->framesDrawn;
 }
@@ -189,8 +189,8 @@ makeRects(const size_t numRects)
 
 	Rect* rects = (Rect*)calloc(numRects, sizeof(Rect));
 	for (size_t i = 0; i < numRects; ++i) {
-		const float s = (sinf(i) / 2.0f + 0.5f);
-		const float c = (cosf(i) / 2.0f + 0.5f);
+		const float s = (sinf((float)i) / 2.0f + 0.5f);
+		const float c = (cosf((float)i) / 2.0f + 0.5f);
 
 		rects[i].size[0]      = minSize + s * maxSize;
 		rects[i].size[1]      = minSize + c * maxSize;
@@ -212,10 +212,10 @@ loadShader(const char* const path)
 	}
 
 	fseek(file, 0, SEEK_END);
-	const long fileSize = ftell(file);
+	const size_t fileSize = (size_t)ftell(file);
 
 	fseek(file, 0, SEEK_SET);
-	char* source = (char*)calloc(1, fileSize + 1);
+	char* source = (char*)calloc(1, fileSize + 1u);
 
 	fread(source, 1, fileSize, file);
 	fclose(file);
@@ -332,7 +332,7 @@ main(int argc, char** argv)
 	glGenBuffers(1, &app.instanceVbo);
 	glBindBuffer(GL_ARRAY_BUFFER, app.instanceVbo);
 	glBufferData(GL_ARRAY_BUFFER,
-	             app.numRects * sizeof(Rect),
+	             (GLsizeiptr)(app.numRects * sizeof(Rect)),
 	             app.rects,
 	             GL_STREAM_DRAW);
 

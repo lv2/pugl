@@ -49,7 +49,7 @@ puglWinGetPixelFormatDescriptor(const PuglHints hints)
 	                     hints[PUGL_GREEN_BITS] + //
 	                     hints[PUGL_BLUE_BITS]);
 
-	const DWORD dwFlags = hints[PUGL_DOUBLE_BUFFER] ? PFD_DOUBLEBUFFER : 0;
+	const DWORD dwFlags = hints[PUGL_DOUBLE_BUFFER] ? PFD_DOUBLEBUFFER : 0u;
 
 	PuglWinPFD pfd;
 	ZeroMemory(&pfd, sizeof(pfd));
@@ -72,7 +72,7 @@ static inline unsigned
 puglWinGetWindowFlags(const PuglView* const view)
 {
 	const bool     resizable = view->hints[PUGL_RESIZABLE];
-	const unsigned sizeFlags = resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0;
+	const unsigned sizeFlags = resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0u;
 
 	return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
 	        (view->parent
