@@ -25,6 +25,7 @@
 #include "pugl/pugl_stub.h"
 
 #include <GL/glx.h>
+#include <GL/glxext.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -127,12 +128,9 @@ puglX11GlCreate(PuglView* view)
 		                               : GLX_CONTEXT_CORE_PROFILE_BIT_ARB),
 		0};
 
-	typedef GLXContext (*CreateContextAttribs)(
-		Display*, GLXFBConfig, GLXContext, Bool, const int*);
-
-	CreateContextAttribs create_context =
-		(CreateContextAttribs)glXGetProcAddress(
-			(const uint8_t*)"glXCreateContextAttribsARB");
+	PFNGLXCREATECONTEXTATTRIBSARBPROC create_context =
+	    (PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddress(
+	        (const uint8_t*)"glXCreateContextAttribsARB");
 
 	surface->ctx = create_context(display, fb_config, 0, True, ctx_attrs);
 	if (!surface->ctx) {
