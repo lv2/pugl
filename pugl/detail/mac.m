@@ -927,11 +927,20 @@ puglWaitForEvent(PuglView* view)
 PUGL_API PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
+	const NSTimeInterval startTime = [[NSProcessInfo processInfo] systemUptime];
+
 	for (NSEvent* ev = NULL;
 	     (ev = [world->impl->app nextEventMatchingMask:NSAnyEventMask
 	                                         untilDate:nil
 	                                            inMode:NSDefaultRunLoopMode
 	                                           dequeue:YES]);) {
+
+		if ([ev timestamp] > startTime) {
+			// Event is later, put it back for the next iteration and return
+			[world->impl->app postEvent:ev atStart:true];
+			break;
+		}
+
 		[world->impl->app sendEvent: ev];
 	}
 
