@@ -268,7 +268,7 @@ main(int argc, char** argv)
 	puglSetViewHint(app.view, PUGL_RESIZABLE, app.opts.resizable);
 	puglSetViewHint(app.view, PUGL_SAMPLES, app.opts.samples);
 	puglSetViewHint(app.view, PUGL_DOUBLE_BUFFER, app.opts.doubleBuffer);
-	puglSetViewHint(app.view, PUGL_SWAP_INTERVAL, app.opts.doubleBuffer);
+	puglSetViewHint(app.view, PUGL_SWAP_INTERVAL, app.opts.sync);
 	puglSetViewHint(app.view, PUGL_IGNORE_KEY_REPEAT, PUGL_TRUE);
 	puglSetHandle(app.view, &app);
 	puglSetEventFunc(app.view, onEvent);

@@ -25,6 +25,7 @@
 typedef struct {
 	int  samples;
 	int  doubleBuffer;
+	int  sync;
 	bool continuous;
 	bool help;
 	bool ignoreKeyRepeat;
@@ -165,17 +166,29 @@ puglPrintTestUsage(const char* prog, const char* posHelp)
 	       "  -c  Continuously animate and draw\n"
 	       "  -d  Enable double-buffering\n"
 	       "  -e  Enable platform error-checking\n"
+	       "  -f  Fast drawing, explicitly disable vertical sync\n"
 	       "  -h  Display this help\n"
 	       "  -i  Ignore key repeat\n"
 	       "  -v  Print verbose output\n"
-	       "  -r  Resizable window\n",
+	       "  -r  Resizable window\n"
+	       "  -s  Explicitly enable vertical sync\n",
 	       prog, posHelp);
 }
 
 static inline PuglTestOptions
 puglParseTestOptions(int* pargc, char*** pargv)
 {
-	PuglTestOptions opts = { 0, 0, false, false, false, false, false, false };
+	PuglTestOptions opts = {
+	    0,
+	    0,
+	    PUGL_DONT_CARE,
+	    false,
+	    false,
+	    false,
+	    false,
+	    false,
+	    false,
+	};
 
 	char** const argv = *pargv;
 	int          i    = 1;
@@ -188,6 +201,8 @@ puglParseTestOptions(int* pargc, char*** pargv)
 			opts.doubleBuffer = PUGL_TRUE;
 		} else if (!strcmp(argv[i], "-e")) {
 			opts.errorChecking = PUGL_TRUE;
+		} else if (!strcmp(argv[i], "-f")) {
+			opts.sync = PUGL_FALSE;
 		} else if (!strcmp(argv[i], "-h")) {
 			opts.help = true;
 			return opts;
@@ -195,6 +210,8 @@ puglParseTestOptions(int* pargc, char*** pargv)
 			opts.ignoreKeyRepeat = true;
 		} else if (!strcmp(argv[i], "-r")) {
 			opts.resizable = true;
+		} else if (!strcmp(argv[i], "-s")) {
+			opts.sync = PUGL_TRUE;
 		} else if (!strcmp(argv[i], "-v")) {
 			opts.verbose = true;
 		} else if (argv[i][0] != '-') {
