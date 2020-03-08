@@ -190,6 +190,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		puglSetWindowTitle(view, title);
 	}
 
+	puglSetFrame(view, view->frame);
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
 	return PUGL_SUCCESS;
