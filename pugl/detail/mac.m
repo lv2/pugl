@@ -128,6 +128,10 @@ updateViewRect(PuglView* view)
 		reshaped = false;
 	}
 
+	if (![[puglview->impl->drawView window] isVisible]) {
+		return;
+	}
+
 	const PuglEventExpose ev = {
 		PUGL_EXPOSE,
 		0,
