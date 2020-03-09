@@ -552,12 +552,12 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message) {
 	case WM_SHOWWINDOW:
-		rect = handleConfigure(view, &event);
+		handleConfigure(view, &event);
 		RedrawWindow(view->impl->hwnd, NULL, NULL,
 		             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT);
 		break;
 	case WM_SIZE:
-		rect = handleConfigure(view, &event);
+		handleConfigure(view, &event);
 		InvalidateRect(view->impl->hwnd, NULL, false);
 		break;
 	case WM_SIZING:
