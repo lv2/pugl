@@ -108,6 +108,14 @@ onKeyPress(PuglView* view, const PuglEventKey* event)
 	}
 }
 
+static void
+redisplayView(PuglTestApp* app, PuglView* view)
+{
+	if (!app->continuous) {
+		puglPostRedisplay(view);
+	}
+}
+
 static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
 {
@@ -136,21 +144,23 @@ onEvent(PuglView* view, const PuglEvent* event)
 		cube->yAngle += event->motion.y - cube->lastMouseY;
 		cube->lastMouseX = event->motion.x;
 		cube->lastMouseY = event->motion.y;
-		if (!app->continuous) {
-			puglPostRedisplay(view);
-		}
+		redisplayView(app, view);
 		break;
 	case PUGL_SCROLL:
 		cube->dist = fmaxf(10.0f, cube->dist + (float)event->scroll.dy);
-		if (!app->continuous) {
-			puglPostRedisplay(view);
-		}
+		redisplayView(app, view);
 		break;
 	case PUGL_ENTER_NOTIFY:
 		cube->entered = true;
+		redisplayView(app, view);
 		break;
 	case PUGL_LEAVE_NOTIFY:
 		cube->entered = false;
+		redisplayView(app, view);
+		break;
+	case PUGL_FOCUS_IN:
+	case PUGL_FOCUS_OUT:
+		redisplayView(app, view);
 		break;
 	default:
 		break;
