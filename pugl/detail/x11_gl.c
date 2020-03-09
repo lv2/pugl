@@ -25,7 +25,6 @@
 #include "pugl/pugl_stub.h"
 
 #include <GL/glx.h>
-#include <GL/glxext.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
