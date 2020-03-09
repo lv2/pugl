@@ -7,7 +7,7 @@ body {
   margin-right: auto;
   padding: 1em;
   max-width: 60em;
-  font-family: "DejaVu Sans", Verdana, Helvetica, Arial, sans-serif;
+  font-family: "SF Pro Text", Verdana, "DejaVu Sans", sans-serif;
   text-rendering: optimizeLegibility;
 }
 
@@ -198,19 +198,15 @@ a.qindexHL {
 
 code {
   color: #444;
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
 }
 
 dl.el {
   margin-left: -1cm;
 }
 
-a.el {
-  font-family: "DejaVu Sans Mono", monospace, fixed;
-}
-
 .fragment {
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
 }
 
 pre.fragment {
@@ -274,7 +270,7 @@ td.indexvalue {
 }
 
 table.memname {
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
   border-spacing: 0;
 }
 
@@ -402,7 +398,7 @@ table.memberdecls {
 
 .memItemLeft,.memItemRight,.memTemplParams {
   border: 0;
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
 }
 
 .memItemLeft,.memTemplItemLeft {
@@ -436,7 +432,7 @@ td.mlabels-right {
 .memtemplate {
   color: #888;
   font-style: italic;
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
   font-size: small;
 }
 
@@ -456,7 +452,7 @@ td.mlabels-right {
 
 .memproto {
   border-bottom: 1px solid #EEE;
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
   font-size: 1.09em;
   font-weight: 600;
   line-height: 1.41em;
@@ -492,7 +488,7 @@ td.mlabels-right {
 .params .paramname {
   color: #111;
   white-space: nowrap;
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
   font-style: italic;
   padding-right: 0.5em;
   vertical-align: top;
@@ -513,7 +509,7 @@ td.mlabels-right {
 
 td.fieldname {
   vertical-align: top;
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
 }
 
 td.fielddoc {
@@ -530,7 +526,7 @@ td.fieldtype {
   color: #666;
   padding: 0 0.5em 0 0;
   vertical-align: top;
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
 }
 
 td.fielddoc p {
@@ -731,7 +727,7 @@ div.summary a {
 }
 
 div.line {
-  font-family: "DejaVu Sans Mono", monospace, fixed;
+  font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
   line-height: 1.4em;
   white-space: pre-wrap;
 }
