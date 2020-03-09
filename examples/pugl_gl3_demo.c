@@ -47,7 +47,6 @@
 #include "pugl/pugl_gl.h"
 
 #include <math.h>
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -224,69 +223,63 @@ loadShader(const char* const path)
 	return source;
 }
 
-int
-main(int argc, char** argv)
+static int
+parseOptions(PuglTestApp* app, int argc, char** argv)
 {
-	PuglTestApp app;
-	memset(&app, 0, sizeof(app));
-
-	const PuglRect frame = {0, 0, defaultWidth, defaultHeight};
-
 	// Parse command line options
-	app.numRects = 1024;
-	app.opts     = puglParseTestOptions(&argc, &argv);
-	if (app.opts.help) {
-		puglPrintTestUsage("pugl_gl3_test", "[NUM_RECTS]");
+	app->numRects = 1024;
+	app->opts     = puglParseTestOptions(&argc, &argv);
+	if (app->opts.help) {
 		return 1;
 	}
 
 	// Parse number of rectangles argument, if given
 	if (argc == 1) {
 		char* endptr = NULL;
-		app.numRects = (size_t)strtol(argv[0], &endptr, 10);
+
+		app->numRects = (size_t)strtol(argv[0], &endptr, 10);
 		if (endptr != argv[0] + strlen(argv[0])) {
-			puglPrintTestUsage("pugl_gl3_test", "[NUM_RECTS]");
 			return 1;
 		}
 	}
 
+	return 0;
+}
+
+static void
+setupPugl(PuglTestApp* app, const PuglRect frame)
+{
 	// Create world, view, and rect data
-	app.world = puglNewWorld();
-	app.view  = puglNewView(app.world);
-	app.rects = makeRects(app.numRects);
+	app->world = puglNewWorld();
+	app->view  = puglNewView(app->world);
+	app->rects = makeRects(app->numRects);
 
 	// Set up world and view
-	puglSetClassName(app.world, "PuglGL3Test");
-	puglSetFrame(app.view, frame);
-	puglSetMinSize(app.view, defaultWidth / 4, defaultHeight / 4);
-	puglSetAspectRatio(app.view, 1, 1, 16, 9);
-	puglSetBackend(app.view, puglGlBackend());
-	puglSetViewHint(app.view, PUGL_USE_COMPAT_PROFILE, PUGL_FALSE);
-	puglSetViewHint(app.view, PUGL_USE_DEBUG_CONTEXT, app.opts.errorChecking);
-	puglSetViewHint(app.view, PUGL_CONTEXT_VERSION_MAJOR, 3);
-	puglSetViewHint(app.view, PUGL_CONTEXT_VERSION_MINOR, 3);
-	puglSetViewHint(app.view, PUGL_RESIZABLE, app.opts.resizable);
-	puglSetViewHint(app.view, PUGL_SAMPLES, app.opts.samples);
-	puglSetViewHint(app.view, PUGL_DOUBLE_BUFFER, app.opts.doubleBuffer);
-	puglSetViewHint(app.view, PUGL_SWAP_INTERVAL, app.opts.sync);
-	puglSetViewHint(app.view, PUGL_IGNORE_KEY_REPEAT, PUGL_TRUE);
-	puglSetHandle(app.view, &app);
-	puglSetEventFunc(app.view, onEvent);
+	puglSetClassName(app->world, "PuglGL3Demo");
+	puglSetFrame(app->view, frame);
+	puglSetMinSize(app->view, defaultWidth / 4, defaultHeight / 4);
+	puglSetAspectRatio(app->view, 1, 1, 16, 9);
+	puglSetBackend(app->view, puglGlBackend());
+	puglSetViewHint(app->view, PUGL_USE_COMPAT_PROFILE, PUGL_FALSE);
+	puglSetViewHint(app->view, PUGL_USE_DEBUG_CONTEXT, app->opts.errorChecking);
+	puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MAJOR, 3);
+	puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MINOR, 3);
+	puglSetViewHint(app->view, PUGL_RESIZABLE, app->opts.resizable);
+	puglSetViewHint(app->view, PUGL_SAMPLES, app->opts.samples);
+	puglSetViewHint(app->view, PUGL_DOUBLE_BUFFER, app->opts.doubleBuffer);
+	puglSetViewHint(app->view, PUGL_SWAP_INTERVAL, app->opts.sync);
+	puglSetViewHint(app->view, PUGL_IGNORE_KEY_REPEAT, PUGL_TRUE);
+	puglSetHandle(app->view, app);
+	puglSetEventFunc(app->view, onEvent);
+}
 
-	const PuglStatus st = puglCreateWindow(app.view, "Pugl OpenGL 3");
-	if (st) {
-		return logError("Failed to create window (%s)\n", puglStrerror(st));
-	}
-
-	// Enter context to set up GL stuff
-	puglEnterContext(app.view, false);
-
+static PuglStatus
+setupGl(PuglTestApp* app)
+{
 	// Load GL functions via GLAD
 	if (!gladLoadGLLoader((GLADloadproc)&puglGetProcAddress)) {
 		logError("Failed to load GL\n");
-		puglFreeView(app.view);
-		puglFreeWorld(app.world);
-		return 1;
+		return PUGL_FAILURE;
 	}
 
 	// Load shader sources
@@ -294,32 +287,28 @@ main(int argc, char** argv)
 	char* const fragmentSource = loadShader("shaders/rect.frag");
 	if (!vertexSource || !fragmentSource) {
 		logError("Failed to load shader sources\n");
-		puglFreeView(app.view);
-		puglFreeWorld(app.world);
-		return 1;
+		return PUGL_FAILURE;
 	}
 
 	// Compile rectangle shaders and program
-	app.drawRect = compileProgram(vertexSource, fragmentSource);
+	app->drawRect = compileProgram(vertexSource, fragmentSource);
 	free(fragmentSource);
 	free(vertexSource);
-	if (!app.drawRect.program) {
-		puglFreeView(app.view);
-		puglFreeWorld(app.world);
-		return 1;
+	if (!app->drawRect.program) {
+		return PUGL_FAILURE;
 	}
 
 	// Get location of rectangle shader uniforms
-	app.u_projection =
-	        glGetUniformLocation(app.drawRect.program, "u_projection");
+	app->u_projection =
+	        glGetUniformLocation(app->drawRect.program, "u_projection");
 
 	// Generate/bind a VAO to track state
-	glGenVertexArrays(1, &app.vao);
-	glBindVertexArray(app.vao);
+	glGenVertexArrays(1, &app->vao);
+	glBindVertexArray(app->vao);
 
 	// Generate/bind a VBO to store vertex position data
-	glGenBuffers(1, &app.vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, app.vbo);
+	glGenBuffers(1, &app->vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, app->vbo);
 	glBufferData(GL_ARRAY_BUFFER,
 	             sizeof(rectVertices),
 	             rectVertices,
@@ -330,11 +319,11 @@ main(int argc, char** argv)
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), NULL);
 
 	// Generate/bind a VBO to store instance attribute data
-	glGenBuffers(1, &app.instanceVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, app.instanceVbo);
+	glGenBuffers(1, &app->instanceVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, app->instanceVbo);
 	glBufferData(GL_ARRAY_BUFFER,
-	             (GLsizeiptr)(app.numRects * sizeof(Rect)),
-	             app.rects,
+	             (GLsizeiptr)(app->numRects * sizeof(Rect)),
+	             app->rects,
 	             GL_STREAM_DRAW);
 
 	// Attribute 1 is Rect::position
@@ -363,12 +352,58 @@ main(int argc, char** argv)
 	                      (const void*)offsetof(Rect, fillColor));
 
 	// Set up the IBO to index into the VBO
-	glGenBuffers(1, &app.ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, app.ibo);
+	glGenBuffers(1, &app->ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, app->ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
 	             sizeof(rectIndices),
 	             rectIndices,
 	             GL_STATIC_DRAW);
+
+	return PUGL_SUCCESS;
+}
+
+static void
+teardownGl(PuglTestApp* app)
+{
+	glDeleteBuffers(1, &app->ibo);
+	glDeleteBuffers(1, &app->vbo);
+	glDeleteBuffers(1, &app->instanceVbo);
+	glDeleteVertexArrays(1, &app->vao);
+	deleteProgram(app->drawRect);
+}
+
+int
+main(int argc, char** argv)
+{
+	PuglTestApp app;
+	memset(&app, 0, sizeof(app));
+
+	const PuglRect frame = {0, 0, defaultWidth, defaultHeight};
+
+	// Parse command line options
+	if (parseOptions(&app, argc, argv)) {
+		puglPrintTestUsage("pugl_gl3_demo", "[NUM_RECTS]");
+		return 1;
+	}
+
+	// Create and configure world and view
+	setupPugl(&app, frame);
+
+	// Create window
+	const PuglStatus st = puglCreateWindow(app.view, "Pugl OpenGL 3");
+	if (st) {
+		return logError("Failed to create window (%s)\n", puglStrerror(st));
+	}
+
+	// Enter context to set up GL stuff
+	puglEnterContext(app.view, false);
+
+	// Set up OpenGL
+	if (setupGl(&app)) {
+		puglFreeView(app.view);
+		puglFreeWorld(app.world);
+		return 1;
+	}
 
 	// Finally ready to go, leave GL context and show the window
 	puglLeaveContext(app.view, false);
@@ -384,15 +419,13 @@ main(int argc, char** argv)
 
 	// Delete GL stuff
 	puglEnterContext(app.view, false);
-	glDeleteBuffers(1, &app.ibo);
-	glDeleteBuffers(1, &app.vbo);
-	glDeleteBuffers(1, &app.instanceVbo);
-	glDeleteVertexArrays(1, &app.vao);
-	deleteProgram(app.drawRect);
+	teardownGl(&app);
 	puglLeaveContext(app.view, false);
 
 	// Tear down view and world
 	puglFreeView(app.view);
 	puglFreeWorld(app.world);
+	free(app.rects);
+
 	return 0;
 }
