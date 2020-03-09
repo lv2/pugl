@@ -70,6 +70,7 @@ struct PuglViewImpl {
 	int                minAspectY;
 	int                maxAspectX;
 	int                maxAspectY;
+	bool               configured;
 	bool               visible;
 };
 

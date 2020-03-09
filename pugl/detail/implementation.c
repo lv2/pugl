@@ -314,10 +314,15 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 		break;
 	case PUGL_CREATE:
 	case PUGL_DESTROY:
+		view->backend->enter(view, NULL);
+		view->eventFunc(view, event);
+		view->backend->leave(view, NULL);
+		break;
 	case PUGL_CONFIGURE:
 		view->backend->enter(view, NULL);
 		view->eventFunc(view, event);
 		view->backend->leave(view, NULL);
+		view->configured = true;
 		break;
 	case PUGL_EXPOSE:
 		view->backend->enter(view, &event->expose);
