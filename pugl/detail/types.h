@@ -28,12 +28,12 @@
 #include <stdint.h>
 
 // Unused parameter macro to suppresses warnings and make it impossible to use
-#if defined(__cplusplus) || defined(_MSC_VER)
+#if defined(__cplusplus)
 #   define PUGL_UNUSED(name)
 #elif defined(__GNUC__)
 #   define PUGL_UNUSED(name) name##_unused __attribute__((__unused__))
 #else
-#   define PUGL_UNUSED(name)
+#   define PUGL_UNUSED(name) name
 #endif
 
 /** Platform-specific world internals. */
