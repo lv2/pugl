@@ -98,6 +98,21 @@ updateViewRect(PuglView* view)
 	return YES;
 }
 
+- (void) setIsVisible:(BOOL)flag
+{
+	if (flag && !puglview->visible) {
+		const PuglEvent map = {{PUGL_MAP, 0}};
+		puglview->eventFunc(puglview, &map);
+	} else if (!flag && puglview->visible) {
+		const PuglEvent unmap = {{PUGL_UNMAP, 0}};
+		puglview->eventFunc(puglview, &unmap);
+	}
+
+	puglview->visible = flag;
+
+	[super setIsVisible:flag];
+}
+
 @end
 
 @implementation PuglWrapperView
@@ -817,15 +832,32 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	[impl->wrapperView updateTrackingAreas];
 
+	const PuglEvent createEvent = {{PUGL_CREATE, 0}};
+	puglDispatchEvent(view, &createEvent);
+
+	const PuglEventConfigure ev =  {
+		PUGL_CONFIGURE,
+		0,
+		view->frame.x,
+		view->frame.y,
+		view->frame.width,
+		view->frame.height,
+	};
+
+	puglDispatchEvent(view, (const PuglEvent*)&ev);
+
 	return 0;
 }
 
 PuglStatus
 puglShowWindow(PuglView* view)
 {
-	[view->impl->window setIsVisible:YES];
-	updateViewRect(view);
-	view->visible = true;
+	if (![view->impl->window isVisible]) {
+		[view->impl->window setIsVisible:YES];
+		[view->impl->drawView setNeedsDisplay: YES];
+		updateViewRect(view);
+	}
+
 	return PUGL_SUCCESS;
 }
 
@@ -833,7 +865,6 @@ PuglStatus
 puglHideWindow(PuglView* view)
 {
 	[view->impl->window setIsVisible:NO];
-	view->visible = false;
 	return PUGL_SUCCESS;
 }
 

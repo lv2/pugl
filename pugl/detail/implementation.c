@@ -159,6 +159,9 @@ puglNewView(PuglWorld* const world)
 void
 puglFreeView(PuglView* view)
 {
+	const PuglEvent destroyEvent = {{PUGL_DESTROY, 0}};
+	puglDispatchEvent(view, &destroyEvent);
+
 	// Remove from world view list
 	PuglWorld* world = view->world;
 	for (size_t i = 0; i < world->numViews; ++i) {
@@ -309,6 +312,8 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 	switch (event->type) {
 	case PUGL_NOTHING:
 		break;
+	case PUGL_CREATE:
+	case PUGL_DESTROY:
 	case PUGL_CONFIGURE:
 		view->backend->enter(view, NULL);
 		view->eventFunc(view, event);

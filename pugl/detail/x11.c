@@ -254,6 +254,9 @@ puglCreateWindow(PuglView* view, const char* title)
 		fprintf(stderr, "warning: XCreateIC failed\n");
 	}
 
+	const PuglEvent createEvent = {{PUGL_CREATE, 0}};
+	puglDispatchEvent(view, &createEvent);
+
 	return PUGL_SUCCESS;
 }
 
@@ -425,17 +428,11 @@ translateEvent(PuglView* view, XEvent xevent)
 	case VisibilityNotify:
 		view->visible = xevent.xvisibility.state != VisibilityFullyObscured;
 		break;
-	case MapNotify: {
-		XWindowAttributes attrs = {0};
-		XGetWindowAttributes(view->impl->display, view->impl->win, &attrs);
-		event.type             = PUGL_CONFIGURE;
-		event.configure.x      = attrs.x;
-		event.configure.y      = attrs.y;
-		event.configure.width  = attrs.width;
-		event.configure.height = attrs.height;
+	case MapNotify:
+		event.type = PUGL_MAP;
 		break;
-	}
 	case UnmapNotify:
+		event.type = PUGL_UNMAP;
 		view->visible = false;
 		break;
 	case ConfigureNotify:

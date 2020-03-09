@@ -168,7 +168,11 @@ typedef enum {
 	PUGL_NOTHING,        ///< No event
 	PUGL_BUTTON_PRESS,   ///< Mouse button pressed, a #PuglEventButton
 	PUGL_BUTTON_RELEASE, ///< Mouse button released, a #PuglEventButton
-	PUGL_CONFIGURE,      ///< View moved and/or resized, a #PuglEventConfigure
+	PUGL_CREATE,         ///< View created, a #PuglEventAny
+	PUGL_DESTROY,        ///< View destroyed, a #PuglEventAny
+	PUGL_MAP,            ///< View made visible, a #PuglEventAny
+	PUGL_UNMAP,          ///< View made invisible, a #PuglEventAny
+	PUGL_CONFIGURE,      ///< View moved/resized, a #PuglEventConfigure
 	PUGL_EXPOSE,         ///< View must be drawn, a #PuglEventExpose
 	PUGL_CLOSE,          ///< View will be closed, a #PuglEventAny
 	PUGL_KEY_PRESS,      ///< Key pressed, a #PuglEventKey
@@ -390,6 +394,10 @@ typedef struct {
    This is a union of all event types.  The #type must be checked to determine
    which fields are safe to access.  A pointer to PuglEvent can either be cast
    to the appropriate type, or the union members used.
+
+   The graphics system may only be accessed when handling certain events.  The
+   graphics context is active for #PUGL_CREATE, #PUGL_DESTROY, #PUGL_CONFIGURE,
+   and #PUGL_EXPOSE, but only enabled for drawing for #PUGL_EXPOSE.
 */
 typedef union {
 	PuglEventAny       any;       ///< Valid for all event types

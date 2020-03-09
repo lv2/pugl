@@ -193,6 +193,9 @@ puglCreateWindow(PuglView* view, const char* title)
 	puglSetFrame(view, view->frame);
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
+	const PuglEvent createEvent = {{PUGL_CREATE, 0}};
+	view->eventFunc(view, &createEvent);
+
 	return PUGL_SUCCESS;
 }
 
@@ -203,7 +206,6 @@ puglShowWindow(PuglView* view)
 
 	ShowWindow(impl->hwnd, SW_SHOWNORMAL);
 	SetFocus(impl->hwnd);
-	view->visible = true;
 	return PUGL_SUCCESS;
 }
 
@@ -213,7 +215,6 @@ puglHideWindow(PuglView* view)
 	PuglInternals* impl = view->impl;
 
 	ShowWindow(impl->hwnd, SW_HIDE);
-	view->visible = false;
 	return PUGL_SUCCESS;
 }
 
@@ -554,8 +555,16 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SHOWWINDOW:
 		if (wParam) {
 			handleConfigure(view, &event);
+			puglDispatchEvent(view, &event);
+			event.type = PUGL_NOTHING;
+
 			RedrawWindow(view->impl->hwnd, NULL, NULL,
 			             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT);
+		}
+
+		if ((bool)wParam != view->visible) {
+			view->visible = wParam;
+			event.any.type = wParam ? PUGL_MAP : PUGL_UNMAP;
 		}
 		break;
 	case WM_SIZE:
