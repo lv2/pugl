@@ -37,6 +37,9 @@ def options(ctx):
          'log':         'print GL information to console',
          'grab-focus':  'work around keyboard issues by grabbing focus'})
 
+    ctx.get_option_group('Test options').add_option(
+        '--gui-tests', action='store_true', help='Run GUI tests')
+
 
 def configure(conf):
     conf.load('compiler_c', cache=True)
@@ -172,6 +175,9 @@ def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
         PUGL_MAJOR_VERSION=PUGL_MAJOR_VERSION,
         REQUIRES=' '.join(requires + [p.lower() for p in pkg_deps]),
         LIBS=' '.join(link_flags))
+
+
+tests = ['show_hide']
 
 
 def build(bld):
@@ -334,12 +340,24 @@ def build(bld):
                           platform, 'cairo',
                           uselib=['M', 'CAIRO'])
 
+        for test in tests:
+            bld(features     = 'c cprogram',
+                source       = 'test/test_%s.c' % test,
+                target       = 'test/test_%s' % test,
+                install_path = '',
+                use          = ['pugl_%s_static' % platform,
+                                'pugl_%s_stub_static' % platform],
+                uselib       = deps[platform]['uselib'] + ['CAIRO'])
+
     if bld.env.DOCS:
         autowaf.build_dox(bld, 'PUGL', PUGL_VERSION, top, out)
 
 
 def test(tst):
-    pass
+    if tst.options.gui_tests:
+        with tst.group('gui') as check:
+            for test in tests:
+                check(['test/test_%s' % test])
 
 
 def lint(ctx):
