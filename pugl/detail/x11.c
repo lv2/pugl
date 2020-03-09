@@ -589,6 +589,51 @@ puglRequestAttention(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
+static XEvent
+puglEventToX(PuglView* view, const PuglEvent* event)
+{
+	XEvent xev          = {0};
+	xev.xany.send_event = True;
+
+	switch (event->type) {
+	case PUGL_EXPOSE: {
+		const double x = floor(event->expose.x);
+		const double y = floor(event->expose.y);
+		const double w = ceil(event->expose.x + event->expose.width) - x;
+		const double h = ceil(event->expose.y + event->expose.height) - y;
+
+		xev.xexpose.type    = Expose;
+		xev.xexpose.serial  = 0;
+		xev.xexpose.display = view->impl->display;
+		xev.xexpose.window  = view->impl->win;
+		xev.xexpose.x       = (int)x;
+		xev.xexpose.y       = (int)y;
+		xev.xexpose.width   = (int)w;
+		xev.xexpose.height  = (int)h;
+		break;
+	}
+
+	default:
+		break;
+	}
+
+	return xev;
+}
+
+static PuglStatus
+puglSendEvent(PuglView* view, const PuglEvent* event)
+{
+	XEvent xev = puglEventToX(view, event);
+
+	if (xev.type) {
+		if (XSendEvent(view->impl->display, view->impl->win, False, 0, &xev)) {
+			return PUGL_SUCCESS;
+		}
+	}
+
+	return PUGL_UNSUPPORTED_TYPE;
+}
+
 #ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
 puglWaitForEvent(PuglView* view)
@@ -794,27 +839,16 @@ puglPostRedisplay(PuglView* view)
 PuglStatus
 puglPostRedisplayRect(PuglView* view, PuglRect rect)
 {
+	const PuglEventExpose event = {
+		PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height, 0
+	};
+
 	if (view->world->impl->dispatchingEvents) {
 		// Currently dispatching events, add/expand expose for the loop end
-		const PuglEventExpose event = {
-			PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height, 0
-		};
-
 		mergeExposeEvents(&view->impl->pendingExpose, (const PuglEvent*)&event);
 	} else if (view->visible) {
 		// Not dispatching events, send an X expose so we wake up next time
-		const double x = floor(rect.x);
-		const double y = floor(rect.y);
-		const double w = ceil(rect.x + rect.width) - x;
-		const double h = ceil(rect.y + rect.height) - y;
-
-		XExposeEvent ev = {Expose, 0, True,
-		                   view->impl->display, view->impl->win,
-		                   (int)x, (int)y,
-		                   (int)w, (int)h,
-		                   0};
-
-		XSendEvent(view->impl->display, view->impl->win, False, 0, (XEvent*)&ev);
+		return puglSendEvent(view, (const PuglEvent*)&event);
 	}
 
 	return PUGL_SUCCESS;
