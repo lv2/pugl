@@ -243,6 +243,8 @@ puglGetContext(PuglView* view)
 	return view->backend->getContext(view);
 }
 
+#ifndef PUGL_DISABLE_DEPRECATED
+
 PuglStatus
 puglEnterContext(PuglView* view, bool drawing)
 {
@@ -264,6 +266,8 @@ puglLeaveContext(PuglView* view, bool drawing)
 
 	return PUGL_SUCCESS;
 }
+
+#endif
 
 PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)

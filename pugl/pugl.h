@@ -889,35 +889,6 @@ PUGL_API void*
 puglGetContext(PuglView* view);
 
 /**
-   Enter the graphics context.
-
-   Note that, unlike some similar libraries, Pugl automatically enters and
-   leaves the graphics context when required and application should not
-   normally do this.  Drawing in Pugl is only allowed during the processing of
-   an expose event.
-
-   However, this can be used to enter the graphics context elsewhere, for
-   example to call any GL functions during setup.
-
-   @param view The view being entered.
-   @param drawing If true, prepare for drawing.
-*/
-PUGL_API PuglStatus
-puglEnterContext(PuglView* view, bool drawing);
-
-/**
-   Leave the graphics context.
-
-   This must be called after puglEnterContext() with a matching `drawing`
-   parameter.
-
-   @param view The view being left.
-   @param drawing If true, finish drawing, for example by swapping buffers.
-*/
-PUGL_API PuglStatus
-puglLeaveContext(PuglView* view, bool drawing);
-
-/**
    Request a redisplay for the entire view.
 
    This will cause an expose event to be dispatched later.  If called from
@@ -1225,6 +1196,39 @@ puglWaitForEvent(PuglView* view);
 */
 PUGL_API PUGL_DEPRECATED_BY("puglDispatchEvents") PuglStatus
 puglProcessEvents(PuglView* view);
+
+/**
+   Enter the graphics context.
+
+   Note that, unlike some similar libraries, Pugl automatically enters and
+   leaves the graphics context when required and application should not
+   normally do this.  Drawing in Pugl is only allowed during the processing of
+   an expose event.
+
+   However, this can be used to enter the graphics context elsewhere, for
+   example to call any GL functions during setup.
+
+   @param view The view being entered.
+   @param drawing If true, prepare for drawing.
+
+   @deprecated Set up graphics when a #PUGL_CREATE event is received.
+*/
+PUGL_API PUGL_DEPRECATED_BY("PUGL_CREATE") PuglStatus
+puglEnterContext(PuglView* view, bool drawing);
+
+/**
+   Leave the graphics context.
+
+   This must be called after puglEnterContext() with a matching `drawing`
+   parameter.
+
+   @param view The view being left.
+   @param drawing If true, finish drawing, for example by swapping buffers.
+
+   @deprecated Shut down graphics when a #PUGL_DESTROY event is received.
+*/
+PUGL_API PUGL_DEPRECATED_BY("PUGL_DESTROY") PuglStatus
+puglLeaveContext(PuglView* view, bool drawing);
 
 #endif  /* PUGL_DISABLE_DEPRECATED */
 
