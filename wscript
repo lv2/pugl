@@ -177,7 +177,7 @@ def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
         LIBS=' '.join(link_flags))
 
 
-tests = ['show_hide']
+tests = ['redisplay', 'show_hide']
 
 
 def build(bld):
