@@ -90,6 +90,12 @@ typedef struct
 	int             quit;
 } PuglTestApp;
 
+static PuglStatus
+setupGl(PuglTestApp* app);
+
+static void
+teardownGl(PuglTestApp* app);
+
 static void
 onConfigure(PuglView* view, double width, double height)
 {
@@ -164,6 +170,12 @@ onEvent(PuglView* view, const PuglEvent* event)
 	printEvent(event, "Event: ", app->opts.verbose);
 
 	switch (event->type) {
+	case PUGL_CREATE:
+		setupGl(app);
+		break;
+	case PUGL_DESTROY:
+		teardownGl(app);
+		break;
 	case PUGL_CONFIGURE:
 		onConfigure(view, event->configure.width, event->configure.height);
 		break;
@@ -389,24 +401,13 @@ main(int argc, char** argv)
 	// Create and configure world and view
 	setupPugl(&app, frame);
 
-	// Create window
+	// Create window (which will send a PUGL_CREATE event)
 	const PuglStatus st = puglCreateWindow(app.view, "Pugl OpenGL 3");
 	if (st) {
 		return logError("Failed to create window (%s)\n", puglStrerror(st));
 	}
 
-	// Enter context to set up GL stuff
-	puglEnterContext(app.view, false);
-
-	// Set up OpenGL
-	if (setupGl(&app)) {
-		puglFreeView(app.view);
-		puglFreeWorld(app.world);
-		return 1;
-	}
-
-	// Finally ready to go, leave GL context and show the window
-	puglLeaveContext(app.view, false);
+	// Show window
 	puglShowWindow(app.view);
 
 	// Grind away, drawing continuously
@@ -417,13 +418,10 @@ main(int argc, char** argv)
 		puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
 	}
 
-	// Delete GL stuff
-	puglEnterContext(app.view, false);
-	teardownGl(&app);
-	puglLeaveContext(app.view, false);
-
-	// Tear down view and world
+	// Destroy window (which will send a PUGL_DESTROY event)
 	puglFreeView(app.view);
+
+	// Free everything else
 	puglFreeWorld(app.world);
 	free(app.rects);
 
