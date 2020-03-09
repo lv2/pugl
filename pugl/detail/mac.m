@@ -947,6 +947,32 @@ puglPollEvents(PuglWorld* world, const double timeout)
 	return PUGL_SUCCESS;
 }
 
+PuglStatus puglSendEvent(PuglView* view, const PuglEvent* event)
+{
+    if (event->type == PUGL_CLIENT) {
+		PuglWrapperView* wrapper = view->impl->wrapperView;
+		const NSWindow*  window  = [wrapper window];
+		const NSRect     rect    = [wrapper frame];
+		const NSPoint    center  = {NSMidX(rect), NSMidY(rect)};
+
+		NSEvent* nsevent = [NSEvent
+		    otherEventWithType:NSApplicationDefined
+		              location:center
+		         modifierFlags:0
+		             timestamp:[[NSProcessInfo processInfo] systemUptime]
+		          windowNumber:window.windowNumber
+		               context:nil
+		               subtype:PUGL_CLIENT
+		                 data1:event->client.data1
+		                 data2:event->client.data2];
+
+		[view->world->impl->app postEvent:nsevent atStart:false];
+        return PUGL_SUCCESS;
+    }
+
+    return PUGL_UNSUPPORTED_TYPE;
+}
+
 #ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
 puglWaitForEvent(PuglView* view)
@@ -954,6 +980,25 @@ puglWaitForEvent(PuglView* view)
 	return puglPollEvents(view->world, -1.0);
 }
 #endif
+
+static void
+dispatchClientEvent(PuglWorld* world, NSEvent* ev)
+{
+	NSWindow* win = [ev window];
+	NSPoint   loc = [ev locationInWindow];
+	for (size_t i = 0; i < world->numViews; ++i) {
+		PuglView*        view    = world->views[i];
+		PuglWrapperView* wrapper = view->impl->wrapperView;
+		if ([wrapper window] == win && NSPointInRect(loc, [wrapper frame])) {
+			const PuglEventClient event = {PUGL_CLIENT,
+			                               0,
+			                               [ev data1],
+			                               [ev data2]};
+
+			view->eventFunc(view, (const PuglEvent*)&event);
+		}
+	}
+}
 
 PUGL_API PuglStatus
 puglDispatchEvents(PuglWorld* world)
@@ -970,6 +1015,9 @@ puglDispatchEvents(PuglWorld* world)
 			// Event is later, put it back for the next iteration and return
 			[world->impl->app postEvent:ev atStart:true];
 			break;
+		} else if ([ev type] == NSApplicationDefined &&
+		           [ev subtype] == PUGL_CLIENT) {
+			dispatchClientEvent(world, ev);
 		}
 
 		[world->impl->app sendEvent: ev];

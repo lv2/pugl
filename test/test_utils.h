@@ -14,8 +14,11 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+#define __STDC_FORMAT_MACROS 1
+
 #include "pugl/pugl.h"
 
+#include <inttypes.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -118,6 +121,11 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 		return PRINT("%sFocus out%s\n",
 		             prefix,
 		             event->focus.grab ? " (ungrab)" : "");
+	case PUGL_CLIENT:
+		return PRINT("%sClient %" PRIXPTR " %" PRIXPTR "\n",
+		             prefix,
+		             event->client.data1,
+		             event->client.data2);
 	default:
 		break;
 	}

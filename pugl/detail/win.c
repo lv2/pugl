@@ -47,10 +47,11 @@
 #    define GWLP_USERDATA (-21)
 #endif
 
-#define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
-#define PUGL_LOCAL_MARK_MSG  (WM_USER + 51)
-#define PUGL_RESIZE_TIMER_ID 9461
-#define PUGL_URGENT_TIMER_ID 9462
+#define PUGL_LOCAL_CLOSE_MSG  (WM_USER + 50)
+#define PUGL_LOCAL_MARK_MSG   (WM_USER + 51)
+#define PUGL_LOCAL_CLIENT_MSG (WM_USER + 52)
+#define PUGL_RESIZE_TIMER_ID  9461
+#define PUGL_URGENT_TIMER_ID  9462
 
 typedef BOOL (WINAPI *PFN_SetProcessDPIAware)(void);
 
@@ -700,6 +701,11 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_SYSCHAR:
 		return TRUE;
+	case PUGL_LOCAL_CLIENT_MSG:
+		event.client.type  = PUGL_CLIENT;
+		event.client.data1 = (uintptr_t)wParam;
+		event.client.data2 = (uintptr_t)lParam;
+		break;
 	case WM_QUIT:
 	case PUGL_LOCAL_CLOSE_MSG:
 		event.any.type = PUGL_CLOSE;
@@ -736,6 +742,21 @@ puglRequestAttention(PuglView* view)
 	}
 
 	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSendEvent(PuglView* view, const PuglEvent* event)
+{
+	if (event->type == PUGL_CLIENT) {
+		PostMessage(view->impl->hwnd,
+		            PUGL_LOCAL_CLIENT_MSG,
+		            (WPARAM)event->client.data1,
+		            (LPARAM)event->client.data2);
+
+		return PUGL_SUCCESS;
+	}
+
+	return PUGL_UNSUPPORTED_TYPE;
 }
 
 #ifndef PUGL_DISABLE_DEPRECATED

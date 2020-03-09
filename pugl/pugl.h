@@ -183,7 +183,8 @@ typedef enum {
 	PUGL_MOTION_NOTIFY,  ///< Pointer moved, a #PuglEventMotion
 	PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
 	PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
-	PUGL_FOCUS_OUT       ///< Keyboard focus left view, a #PuglEventFocus
+	PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
+	PUGL_CLIENT          ///< Custom client message, a #PuglEventClient
 } PuglEventType;
 
 /**
@@ -389,6 +390,20 @@ typedef struct {
 } PuglEventFocus;
 
 /**
+   Custom client message event.
+
+   This can be used to send a custom message to a view, which is delivered via
+   the window system and processed in the event loop as usual.  Among other
+   things, this makes it possible to wake up the event loop for any reason.
+*/
+typedef struct {
+	PuglEventType  type;  ///< PUGL_CLIENT
+	PuglEventFlags flags; ///< Bitwise OR of PuglEventFlag values
+	uintptr_t      data1; ///< Client-specific data
+	uintptr_t      data2; ///< Client-specific data
+} PuglEventClient;
+
+/**
    View event.
 
    This is a union of all event types.  The #type must be checked to determine
@@ -411,6 +426,7 @@ typedef union {
 	PuglEventMotion    motion;    ///< #PUGL_MOTION_NOTIFY
 	PuglEventScroll    scroll;    ///< #PUGL_SCROLL
 	PuglEventFocus     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
+	PuglEventClient    client;    ///< #PUGL_CLIENT
 } PuglEvent;
 
 /**
@@ -982,6 +998,17 @@ puglGetClipboard(PuglView* view, const char** type, size_t* len);
 */
 PUGL_API PuglStatus
 puglRequestAttention(PuglView* view);
+
+/**
+   Send an event to a view via the window system.
+
+   If supported, the event will be delivered to the view via the event loop
+   like other events.  Note that this function only works for certain event
+   types, and will return PUGL_UNSUPPORTED_TYPE for events that are not
+   supported.
+*/
+PUGL_API PuglStatus
+puglSendEvent(PuglView* view, const PuglEvent* event);
 
 /**
    @}
