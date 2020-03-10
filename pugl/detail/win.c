@@ -47,10 +47,11 @@
 #    define GWLP_USERDATA (-21)
 #endif
 
-#define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
-#define PUGL_LOCAL_MARK_MSG  (WM_USER + 51)
-#define PUGL_RESIZE_TIMER_ID 9461
-#define PUGL_URGENT_TIMER_ID 9462
+#define PUGL_LOCAL_CLOSE_MSG   (WM_USER + 50)
+#define PUGL_LOCAL_MARK_MSG    (WM_USER + 51)
+#define PUGL_RESIZE_TIMER_ID   9461
+#define PUGL_URGENT_TIMER_ID   9462
+#define PUGL_USER_TIMER_ID_MIN 9463 //If the timer ID is greater than or equal to this number, it was started by the user
 
 typedef BOOL (WINAPI *PFN_SetProcessDPIAware)(void);
 
@@ -581,6 +582,10 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		} else if (wParam == PUGL_URGENT_TIMER_ID) {
 			FlashWindow(view->impl->hwnd, TRUE);
 		}
+		else if (wParam >= PUGL_USER_TIMER_ID_MIN){ //User Timer Event
+			event.timer.type = PUGL_TIMER;
+			event.timer.id = wParam-PUGL_USER_TIMER_ID_MIN;
+		}
 		break;
 	case WM_EXITSIZEMOVE:
 	case WM_EXITMENULOOP:
@@ -1017,4 +1022,21 @@ puglStubBackend(void)
 	};
 
 	return &backend;
+}
+
+
+PuglStatus
+puglRegisterTimer(PuglView* view, uint64_t id, double rate){
+	UINT event_delay_ms = ((UINT) floor( 1000./rate )) - 1; //-1 because windows doesn't trigger 60 times per second unless the delay is 15 ms, 16 won't work ??
+	
+	if( event_delay_ms < 1 ) return PUGL_FAILURE; //Rate too small
+	
+	SetTimer( puglGetNativeWindow(view), PUGL_USER_TIMER_ID_MIN+id, event_delay_ms, NULL );
+
+	return PUGL_SUCCESS;
+}
+
+void
+puglDeregisterTimer(PuglView* view, uint64_t id){
+	KillTimer( puglGetNativeWindow(view), PUGL_USER_TIMER_ID_MIN+id );
 }

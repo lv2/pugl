@@ -179,7 +179,8 @@ typedef enum {
 	PUGL_MOTION_NOTIFY,  ///< Pointer moved, a #PuglEventMotion
 	PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
 	PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
-	PUGL_FOCUS_OUT       ///< Keyboard focus left view, a #PuglEventFocus
+	PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
+	PUGL_TIMER           ///< One of the timers a user set triggered, a #PuglEventTimer
 } PuglEventType;
 
 /**
@@ -385,6 +386,16 @@ typedef struct {
 } PuglEventFocus;
 
 /**
+	Timer event.
+	
+	This event is triggered when a timer set by the user triggers.
+*/
+typedef struct {
+	PuglEventType type; ///< #PUGL_TIMER
+	uint64_t id;        ///< The ID the user gave to the timer event
+} PuglEventTimer;
+
+/**
    View event.
 
    This is a union of all event types.  The #type must be checked to determine
@@ -403,6 +414,7 @@ typedef union {
 	PuglEventMotion    motion;    ///< #PUGL_MOTION_NOTIFY
 	PuglEventScroll    scroll;    ///< #PUGL_SCROLL
 	PuglEventFocus     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
+	PuglEventTimer     timer;     ///< #PUGL_TIMER
 } PuglEvent;
 
 /**
@@ -974,6 +986,19 @@ puglGetClipboard(PuglView* view, const char** type, size_t* len);
 */
 PUGL_API PuglStatus
 puglRequestAttention(PuglView* view);
+
+/**
+  Register a new timer, which will send timer events to the given view at rate times per second.
+  Two timers should not be registered on the same view with the same ID, or PUGL_FAILURE will be returned. Two timers on different views with the same ID are fine, and two timers with different IDs on the same view are fine.
+*/
+PUGL_API PuglStatus
+puglRegisterTimer(PuglView* view, uint64_t id, double rate);
+
+/**
+  Deactivate a currently registered timer, or do nothing if it doesn't exist.
+*/
+PUGL_API void
+puglDeregisterTimer(PuglView* view, uint64_t id);
 
 /**
    @}

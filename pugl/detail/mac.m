@@ -916,6 +916,19 @@ puglPollEvents(PuglWorld* world, const double timeout)
 	return PUGL_SUCCESS;
 }
 
+// TODO: see pugl.h for specification
+PuglStatus
+puglRegisterTimer(PuglView* view, uint64_t id, double rate){
+	return PUGL_FAILURE;
+}
+
+// TODO: see pugl.h for specification
+void
+puglDeregisterTimer(PuglView* view, uint64_t id){
+	
+}
+
+
 #ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
 puglWaitForEvent(PuglView* view)
