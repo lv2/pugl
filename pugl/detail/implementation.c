@@ -290,22 +290,24 @@ puglDecodeUTF8(const uint8_t* buf)
 		return 0xFFFD;
 	} else if (buf[0] < 0xE0) {
 		FAIL_IF((buf[1] & 0xC0u) != 0x80);
-		return (buf[0] << 6u) + buf[1] - 0x3080u;
+		return ((uint32_t)buf[0] << 6u) + buf[1] - 0x3080u;
 	} else if (buf[0] < 0xF0) {
 		FAIL_IF((buf[1] & 0xC0u) != 0x80);
 		FAIL_IF(buf[0] == 0xE0 && buf[1] < 0xA0);
 		FAIL_IF((buf[2] & 0xC0u) != 0x80);
-		return (buf[0] << 12u) + (buf[1] << 6u) + buf[2] - 0xE2080u;
+		return ((uint32_t)buf[0] << 12u) + //
+		       ((uint32_t)buf[1] << 6u) +  //
+		       ((uint32_t)buf[2] - 0xE2080u);
 	} else if (buf[0] < 0xF5) {
 		FAIL_IF((buf[1] & 0xC0u) != 0x80);
 		FAIL_IF(buf[0] == 0xF0 && buf[1] < 0x90);
 		FAIL_IF(buf[0] == 0xF4 && buf[1] >= 0x90);
 		FAIL_IF((buf[2] & 0xC0u) != 0x80u);
 		FAIL_IF((buf[3] & 0xC0u) != 0x80u);
-		return ((buf[0] << 18u) + //
-		        (buf[1] << 12u) + //
-		        (buf[2] << 6u) +  //
-		        (buf[3] - 0x3C82080u));
+		return (((uint32_t)buf[0] << 18u) + //
+		        ((uint32_t)buf[1] << 12u) + //
+		        ((uint32_t)buf[2] << 6u) +  //
+		        ((uint32_t)buf[3] - 0x3C82080u));
 	}
 	return 0xFFFD;
 }

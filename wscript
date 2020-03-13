@@ -62,6 +62,10 @@ def configure(conf):
             conf.env.append_value('CFLAGS', ['-Wunused-parameter',
                                              '-Wno-pedantic'])
 
+    if conf.env.TARGET_PLATFORM == 'darwin':
+        conf.env.append_unique('CFLAGS', ['-DGL_SILENCE_DEPRECATION'])
+        conf.env.append_unique('CXXFLAGS', ['-DGL_SILENCE_DEPRECATION'])
+
     if Options.options.ultra_strict and 'clang' in conf.env.CC:
         for var in ['CFLAGS', 'CXXFLAGS']:
             flags = conf.env[var]
@@ -69,16 +73,12 @@ def configure(conf):
             conf.env.append_value(var, [
                 '-Weverything',
                 '-Wno-bad-function-cast',
-                '-Wno-documentation',  # Cairo
-                '-Wno-documentation-unknown-command',  # Cairo
                 '-Wno-double-promotion',
                 '-Wno-float-equal',
                 '-Wno-format-nonliteral',
                 '-Wno-padded',
                 '-Wno-reserved-id-macro',
-                '-Wno-sign-conversion',
                 '-Wno-switch-enum',
-                '-Wno-unused-macros',  # GL_SILENCE_DEPRECATION
             ])
 
         conf.env.append_value('CXXFLAGS', ['-Wno-c++98-compat',
@@ -123,6 +123,7 @@ def configure(conf):
         autowaf.check_pkg(conf, 'cairo',
                           uselib_store    = 'CAIRO',
                           atleast_version = '1.0.0',
+                          system          = True,
                           mandatory       = False)
 
     if Options.options.log:

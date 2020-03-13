@@ -432,8 +432,8 @@ translateEvent(PuglView* view, XEvent xevent)
 			}
 		} else if (xevent.xclient.message_type == atoms->PUGL_CLIENT_MSG) {
 			event.type         = PUGL_CLIENT;
-			event.client.data1 = xevent.xclient.data.l[0];
-			event.client.data2 = xevent.xclient.data.l[1];
+			event.client.data1 = (uintptr_t)xevent.xclient.data.l[0];
+			event.client.data2 = (uintptr_t)xevent.xclient.data.l[1];
 		}
 		break;
 	case VisibilityNotify:
@@ -626,8 +626,8 @@ puglEventToX(PuglView* view, const PuglEvent* event)
 		xev.xclient.window       = view->impl->win;
 		xev.xclient.message_type = view->world->impl->atoms.PUGL_CLIENT_MSG;
 		xev.xclient.format       = 32;
-		xev.xclient.data.l[0]    = event->client.data1;
-		xev.xclient.data.l[1]    = event->client.data2;
+		xev.xclient.data.l[0]    = (long)event->client.data1;
+		xev.xclient.data.l[1]    = (long)event->client.data2;
 		break;
 
 	default:

@@ -34,8 +34,6 @@
    about 100000 rectangles.
 */
 
-#define GL_SILENCE_DEPRECATION 1
-
 #include "demo_utils.h"
 #include "shader_utils.h"
 #include "test/test_utils.h"

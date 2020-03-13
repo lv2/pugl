@@ -18,8 +18,6 @@
    @file pugl_windows_demo.c A demonstration of multiple Pugl windows.
 */
 
-#define GL_SILENCE_DEPRECATION 1
-
 #include "cube_view.h"
 #include "demo_utils.h"
 #include "test/test_utils.h"
