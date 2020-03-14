@@ -130,7 +130,6 @@ def configure(conf):
         'BUILD_STATIC': conf.env.BUILD_TESTS or not Options.options.no_static})
 
     autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION)
-    conf.write_config_header('pugl_config.h', remove=False)
 
     autowaf.display_summary(
         conf,
