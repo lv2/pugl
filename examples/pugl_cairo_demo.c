@@ -179,6 +179,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 {
 	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
+	printEvent(event, "Event: ", app->opts.verbose);
+
 	switch (event->type) {
 	case PUGL_KEY_PRESS:
 		if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
