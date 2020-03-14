@@ -1,5 +1,5 @@
 /*
-  Copyright 2019 David Robillard <http://drobilla.net>
+  Copyright 2019-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -147,16 +147,6 @@ puglMacGlLeave(PuglView* view, const PuglEventExpose* expose)
 	return PUGL_SUCCESS;
 }
 
-static PuglStatus
-puglMacGlResize(PuglView* view, int PUGL_UNUSED(width), int PUGL_UNUSED(height))
-{
-	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
-
-	[drawView reshape];
-
-	return PUGL_SUCCESS;
-}
-
 PuglGlFunc
 puglGetProcAddress(const char *name)
 {
@@ -181,7 +171,7 @@ const PuglBackend* puglGlBackend(void)
 	                                    puglMacGlDestroy,
 	                                    puglMacGlEnter,
 	                                    puglMacGlLeave,
-	                                    puglMacGlResize,
+	                                    puglStubResize,
 	                                    puglStubGetContext};
 
 	return &backend;
