@@ -696,10 +696,6 @@ flushPendingConfigure(PuglView* view)
 		view->frame.width  = configure->configure.width;
 		view->frame.height = configure->configure.height;
 
-		view->backend->resize(view,
-		                      (int)view->frame.width,
-		                      (int)view->frame.height);
-
 		view->eventFunc(view, configure);
 		configure->type = 0;
 	}
@@ -1017,7 +1013,6 @@ puglStubBackend(void)
 	    puglStubDestroy,
 	    puglStubEnter,
 	    puglStubLeave,
-	    puglStubResize,
 	    puglStubGetContext,
 	};
 

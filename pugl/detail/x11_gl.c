@@ -210,7 +210,6 @@ const PuglBackend* puglGlBackend(void)
 	                                    puglX11GlDestroy,
 	                                    puglX11GlEnter,
 	                                    puglX11GlLeave,
-	                                    puglStubResize,
 	                                    puglStubGetContext};
 
 	return &backend;

@@ -459,8 +459,6 @@ handleConfigure(PuglView* view, PuglEvent* event)
 	if (view->frame.width != width || view->frame.height != height) {
 		view->frame.width  = width;
 		view->frame.height = height;
-
-		view->backend->resize(view, width, height);
 	}
 
 	return rect;
@@ -1037,15 +1035,12 @@ puglWinStubLeave(PuglView* view, const PuglEventExpose* expose)
 const PuglBackend*
 puglStubBackend(void)
 {
-	static const PuglBackend backend = {
-	    puglWinStubConfigure,
-	    puglStubCreate,
-	    puglStubDestroy,
-	    puglWinStubEnter,
-	    puglWinStubLeave,
-	    puglStubResize,
-	    puglStubGetContext,
-	};
+	static const PuglBackend backend = {puglWinStubConfigure,
+	                                    puglStubCreate,
+	                                    puglStubDestroy,
+	                                    puglWinStubEnter,
+	                                    puglWinStubLeave,
+	                                    puglStubGetContext};
 
 	return &backend;
 }

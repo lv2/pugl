@@ -172,7 +172,6 @@ puglCairoBackend()
 	                                    puglWinCairoDestroy,
 	                                    puglWinCairoEnter,
 	                                    puglWinCairoLeave,
-	                                    puglStubResize,
 	                                    puglWinCairoGetContext};
 
 	return &backend;

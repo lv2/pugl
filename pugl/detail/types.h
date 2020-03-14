@@ -106,9 +106,6 @@ struct PuglBackendImpl {
 	/** Leave drawing context, after drawing if expose is non-null. */
 	PuglStatus (*leave)(PuglView*, const PuglEventExpose*);
 
-	/** Resize drawing context to the given width and height. */
-	PuglStatus (*resize)(PuglView*, int, int);
-
 	/** Return the puglGetContext() handle for the application, if any. */
 	void* (*getContext)(PuglView*);
 };

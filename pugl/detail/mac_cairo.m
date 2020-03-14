@@ -149,7 +149,6 @@ const PuglBackend* puglCairoBackend(void)
 	                                    puglMacCairoDestroy,
 	                                    puglMacCairoEnter,
 	                                    puglMacCairoLeave,
-	                                    puglStubResize,
 	                                    puglMacCairoGetContext};
 
 	return &backend;

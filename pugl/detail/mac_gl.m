@@ -171,7 +171,6 @@ const PuglBackend* puglGlBackend(void)
 	                                    puglMacGlDestroy,
 	                                    puglMacGlEnter,
 	                                    puglMacGlLeave,
-	                                    puglStubResize,
 	                                    puglStubGetContext};
 
 	return &backend;

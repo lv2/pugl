@@ -302,7 +302,6 @@ puglGlBackend()
 	                                    puglWinGlDestroy,
 	                                    puglWinGlEnter,
 	                                    puglWinGlLeave,
-	                                    puglStubResize,
 	                                    puglStubGetContext};
 
 	return &backend;

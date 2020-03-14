@@ -87,15 +87,6 @@ puglStubLeave(PuglView* view, const PuglEventExpose* expose)
 	return PUGL_SUCCESS;
 }
 
-static inline PuglStatus
-puglStubResize(PuglView* view, int width, int height)
-{
-	(void)view;
-	(void)width;
-	(void)height;
-	return PUGL_SUCCESS;
-}
-
 static inline void*
 puglStubGetContext(PuglView* view)
 {

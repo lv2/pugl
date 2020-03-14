@@ -117,14 +117,6 @@ updateViewRect(PuglView* view)
 
 @implementation PuglWrapperView
 
-- (void) resizeWithOldSuperviewSize:(NSSize)oldSize
-{
-	[super resizeWithOldSuperviewSize:oldSize];
-
-	const NSRect bounds = [self bounds];
-	puglview->backend->resize(puglview, bounds.size.width, bounds.size.height);
-}
-
 - (void) dispatchExpose:(NSRect)rect
 {
 	if (reshaped) {

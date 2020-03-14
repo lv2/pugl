@@ -165,7 +165,6 @@ puglCairoBackend(void)
 	                                    puglX11CairoDestroy,
 	                                    puglX11CairoEnter,
 	                                    puglX11CairoLeave,
-	                                    puglStubResize,
 	                                    puglX11CairoGetContext};
 
 	return &backend;
