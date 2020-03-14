@@ -67,6 +67,37 @@ don't depend on Cairo and its dependencies, or vice-versa.
 Distributions are encouraged to include static libraries if possible so that
 developers can build portable plugin binaries.
 
+Testing
+-------
+
+There are a few unit tests included which can be run with `python waf test
+--gui-tests`, but unfortunately manual testing is still required.
+
+Several example programs are included that serve as both manual tests and
+demonstrations:
+
+ * `pugl_embed_demo` shows a view embedded in another, and also tests
+   requesting attention (which happens after 5 seconds), keyboard focus
+   (switched by pressing tab), view moving (with the arrow keys), and view
+   resizing (with the arrow keys while shift is held).  This program uses only
+   very old OpenGL and should work on any system.
+
+ * `pugl_window_demo` demonstrates multiple top-level windows.
+
+ * `pugl_gl3_demo` demonstrates using more modern OpenGL where dynamic loading
+   and shaders are required.  It can also be used to test performance by
+   passing the number of rectangles to draw on the command line.
+
+ * `pugl_cairo_demo` demonstrates using Cairo on top of the native windowing
+   system (without OpenGL), and partial redrawing.
+
+ * `pugl_print_events` is a utility that prints all received events to the
+   console in a human readable format.
+
+All example programs support several command line options to control various
+behaviours, see the output of `--help` for details.  Please file an issue if
+any of these programs do not work as expected on your system.
+
 Documentation
 -------------
 
