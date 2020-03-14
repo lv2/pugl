@@ -28,7 +28,6 @@
 #include <cairo-xlib.h>
 #include <cairo.h>
 
-#include <stdio.h>
 #include <stdlib.h>
 
 typedef struct {

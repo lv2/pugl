@@ -41,7 +41,6 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -94,9 +93,7 @@ puglInitWorldInternals(void)
 	XSetLocaleModifiers("");
 	if (!(impl->xim = XOpenIM(display, NULL, NULL, NULL))) {
 		XSetLocaleModifiers("@im=");
-		if (!(impl->xim = XOpenIM(display, NULL, NULL, NULL))) {
-			fprintf(stderr, "warning: XOpenIM failed\n");
-		}
+		impl->xim = XOpenIM(display, NULL, NULL, NULL);
 	}
 
 	XFlush(display);
@@ -252,7 +249,9 @@ puglCreateWindow(PuglView* view, const char* title)
 	                            XNClientWindow, win,
 	                            XNFocusWindow,  win,
 	                            NULL))) {
-		fprintf(stderr, "warning: XCreateIC failed\n");
+		view->world->logFunc(view->world,
+		                     PUGL_LOG_LEVEL_WARNING,
+		                     "XCreateID failed\n");
 	}
 
 	const PuglEvent createEvent = {{PUGL_CREATE, 0}};

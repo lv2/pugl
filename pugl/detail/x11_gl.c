@@ -85,23 +85,28 @@ puglX11GlConfigure(PuglView* view)
 	int          n_fbc = 0;
 	GLXFBConfig* fbc   = glXChooseFBConfig(display, screen, attrs, &n_fbc);
 	if (n_fbc <= 0) {
-		fprintf(stderr, "error: Failed to create GL context\n");
 		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
 	surface->fb_config = fbc[0];
 	impl->vi           = glXGetVisualFromFBConfig(impl->display, fbc[0]);
 
-	printf("Using visual 0x%lX: R=%d G=%d B=%d A=%d D=%d"
-	       " DOUBLE=%d SAMPLES=%d\n",
-	       impl->vi->visualid,
-	       puglX11GlGetAttrib(display, fbc[0], GLX_RED_SIZE),
-	       puglX11GlGetAttrib(display, fbc[0], GLX_GREEN_SIZE),
-	       puglX11GlGetAttrib(display, fbc[0], GLX_BLUE_SIZE),
-	       puglX11GlGetAttrib(display, fbc[0], GLX_ALPHA_SIZE),
-	       puglX11GlGetAttrib(display, fbc[0], GLX_DEPTH_SIZE),
-	       puglX11GlGetAttrib(display, fbc[0], GLX_DOUBLEBUFFER),
-	       puglX11GlGetAttrib(display, fbc[0], GLX_SAMPLES));
+	char msg[128];
+
+	snprintf(
+	    msg,
+	    sizeof(msg),
+	    "Using visual 0x%lX: R=%d G=%d B=%d A=%d D=%d DOUBLE=%d SAMPLES=%d\n",
+	    impl->vi->visualid,
+	    puglX11GlGetAttrib(display, fbc[0], GLX_RED_SIZE),
+	    puglX11GlGetAttrib(display, fbc[0], GLX_GREEN_SIZE),
+	    puglX11GlGetAttrib(display, fbc[0], GLX_BLUE_SIZE),
+	    puglX11GlGetAttrib(display, fbc[0], GLX_ALPHA_SIZE),
+	    puglX11GlGetAttrib(display, fbc[0], GLX_DEPTH_SIZE),
+	    puglX11GlGetAttrib(display, fbc[0], GLX_DOUBLEBUFFER),
+	    puglX11GlGetAttrib(display, fbc[0], GLX_SAMPLES));
+
+	view->world->logFunc(view->world, PUGL_LOG_LEVEL_INFO, msg);
 
 	XFree(fbc);
 

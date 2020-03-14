@@ -34,7 +34,6 @@ def options(ctx):
          'no-cairo':    'do not build Cairo support',
          'no-static':   'do not build static library',
          'no-shared':   'do not build shared library',
-         'log':         'print GL information to console',
          'grab-focus':  'work around keyboard issues by grabbing focus'})
 
     ctx.get_option_group('Test options').add_option(
@@ -126,9 +125,6 @@ def configure(conf):
                           system          = True,
                           mandatory       = False)
 
-    if Options.options.log:
-        conf.define('PUGL_VERBOSE', 1)
-
     conf.env.update({
         'BUILD_SHARED': not Options.options.no_shared,
         'BUILD_STATIC': conf.env.BUILD_TESTS or not Options.options.no_static})
@@ -141,8 +137,7 @@ def configure(conf):
         {"Build static library":   bool(conf.env.BUILD_STATIC),
          "Build shared library":   bool(conf.env.BUILD_SHARED),
          "OpenGL support":         bool(conf.env.HAVE_GL),
-         "Cairo support":          bool(conf.env.HAVE_CAIRO),
-         "Verbose console output": conf.is_defined('PUGL_VERBOSE')})
+         "Cairo support":          bool(conf.env.HAVE_CAIRO)})
 
 
 def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
