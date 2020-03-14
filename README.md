@@ -101,6 +101,8 @@ any of these programs do not work as expected on your system.
 Documentation
 -------------
 
- * [API reference](https://lv2.gitlab.io/pugl/)
+The [API reference](https://lv2.gitlab.io/pugl/) for the latest master is
+available online, and can also be built from the source code by configuring
+with `--docs`.
 
  -- David Robillard <d@drobilla.net>
