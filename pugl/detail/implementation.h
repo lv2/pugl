@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -50,7 +50,7 @@ void puglFreeViewInternals(PuglView* view);
 /** Return the Unicode code point for `buf` or the replacement character. */
 uint32_t puglDecodeUTF8(const uint8_t* buf);
 
-/** Dispatch `event` to `view`, optimising configure/expose if possible. */
+/** Dispatch `event` to `view`, entering graphics context if necessary. */
 void puglDispatchEvent(PuglView* view, const PuglEvent* event);
 
 /** Set internal (stored in view) clipboard contents. */

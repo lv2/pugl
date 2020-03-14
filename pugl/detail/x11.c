@@ -257,12 +257,6 @@ puglCreateWindow(PuglView* view, const char* title)
 	const PuglEvent createEvent = {{PUGL_CREATE, 0}};
 	puglDispatchEvent(view, &createEvent);
 
-	view->impl->pendingConfigure.configure.type   = PUGL_CONFIGURE;
-	view->impl->pendingConfigure.configure.x      = view->frame.x;
-	view->impl->pendingConfigure.configure.y      = view->frame.y;
-	view->impl->pendingConfigure.configure.width  = view->frame.width;
-	view->impl->pendingConfigure.configure.height = view->frame.height;
-
 	return PUGL_SUCCESS;
 }
 
@@ -679,28 +673,6 @@ mergeExposeEvents(PuglEvent* dst, const PuglEvent* src)
 	}
 }
 
-static void
-flushPendingConfigure(PuglView* view)
-{
-	PuglEvent* const configure = &view->impl->pendingConfigure;
-
-	if (!view->configured ||
-	    (configure->type &&
-	     (configure->configure.x != view->frame.x ||
-	      configure->configure.y != view->frame.y ||
-	      configure->configure.width != view->frame.width ||
-	      configure->configure.height != view->frame.height))) {
-
-		view->frame.x      = configure->configure.x;
-		view->frame.y      = configure->configure.y;
-		view->frame.width  = configure->configure.width;
-		view->frame.height = configure->configure.height;
-
-		view->eventFunc(view, configure);
-		configure->type = 0;
-	}
-}
-
 PUGL_API PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
@@ -810,7 +782,7 @@ puglDispatchEvents(PuglWorld* world)
 
 		if (configure->type || expose->type) {
 			view->backend->enter(view, &expose->expose);
-			flushPendingConfigure(view);
+			view->eventFunc(view, configure);
 			view->eventFunc(view, expose);
 			view->backend->leave(view, &expose->expose);
 

@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -356,6 +356,15 @@ puglDecodeUTF8(const uint8_t* buf)
 	return 0xFFFD;
 }
 
+static inline bool
+puglMustConfigure(PuglView* view, const PuglEventConfigure* configure)
+{
+	return !view->configured || configure->x != view->frame.x ||
+	       configure->y != view->frame.y ||
+	       configure->width != view->frame.width ||
+	       configure->height != view->frame.height;
+}
+
 void
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
@@ -369,10 +378,16 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 		view->backend->leave(view, NULL);
 		break;
 	case PUGL_CONFIGURE:
-		view->backend->enter(view, NULL);
-		view->eventFunc(view, event);
-		view->backend->leave(view, NULL);
-		view->configured = true;
+		if (puglMustConfigure(view, &event->configure)) {
+			view->frame.x      = event->configure.x;
+			view->frame.y      = event->configure.y;
+			view->frame.width  = event->configure.width;
+			view->frame.height = event->configure.height;
+
+			view->backend->enter(view, NULL);
+			view->eventFunc(view, event);
+			view->backend->leave(view, NULL);
+		}
 		break;
 	case PUGL_EXPOSE:
 		view->backend->enter(view, &event->expose);
