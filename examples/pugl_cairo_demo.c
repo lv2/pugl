@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -29,14 +29,16 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
-static PuglWorld*      world = NULL;
-static PuglTestOptions opts  = {0};
-
-static int      quit        = 0;
-static bool     entered     = false;
-static bool     mouseDown   = false;
-static unsigned framesDrawn = 0;
+typedef struct {
+	PuglTestOptions opts;
+	PuglWorld*      world;
+	unsigned        framesDrawn;
+	int             quit;
+	bool            entered;
+	bool            mouseDown;
+} PuglTestApp;
 
 typedef struct {
 	int         x;
@@ -46,11 +48,11 @@ typedef struct {
 	const char* label;
 } Button;
 
-static Button buttons[] = { { 128, 128, 64, 64, "1"   },
-                            { 384, 128, 64, 64, "2"   },
-                            { 128, 384, 64, 64, "3"   },
-                            { 384, 384, 64, 64, "4"   },
-                            { 0,   0,   0,   0,  NULL } };
+static const Button buttons[] = {{128, 128, 64, 64, "1"},
+                                 {384, 128, 64, 64, "2"},
+                                 {128, 384, 64, 64, "3"},
+                                 {384, 384, 64, 64, "4"},
+                                 {0, 0, 0, 0, NULL}};
 
 static void
 roundedBox(cairo_t* cr, double x, double y, double w, double h)
@@ -76,14 +78,14 @@ roundedBox(cairo_t* cr, double x, double y, double w, double h)
 }
 
 static void
-buttonDraw(cairo_t* cr, const Button* but, const double time)
+buttonDraw(PuglTestApp* app, cairo_t* cr, const Button* but, const double time)
 {
 	cairo_save(cr);
 	cairo_translate(cr, but->x, but->y);
 	cairo_rotate(cr, sin(time) * 3.141592);
 
 	// Draw base
-	if (mouseDown) {
+	if (app->mouseDown) {
 		cairo_set_source_rgba(cr, 0.4, 0.9, 0.1, 1);
 	} else {
 		cairo_set_source_rgba(cr, 0.3, 0.5, 0.1, 1);
@@ -118,7 +120,7 @@ postButtonRedisplay(PuglView* view)
 	const double   scaleX = (width - (512 / width)) / 512.0;
 	const double   scaleY = (height - (512 / height)) / 512.0;
 
-	for (Button* b = buttons; b->label; ++b) {
+	for (const Button* b = buttons; b->label; ++b) {
 		const double   span = sqrt(b->w * b->w + b->h * b->h);
 		const PuglRect rect = {(b->x - span) * scaleX,
 		                       (b->y - span) * scaleY,
@@ -130,7 +132,7 @@ postButtonRedisplay(PuglView* view)
 }
 
 static void
-onDisplay(PuglView* view, const PuglEventExpose* event)
+onDisplay(PuglTestApp* app, PuglView* view, const PuglEventExpose* event)
 {
 	cairo_t* cr = (cairo_t*)puglGetContext(view);
 
@@ -141,7 +143,7 @@ onDisplay(PuglView* view, const PuglEventExpose* event)
 	const PuglRect frame  = puglGetFrame(view);
 	const double   width  = frame.width;
 	const double   height = frame.height;
-	if (entered) {
+	if (app->entered) {
 		cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
 	} else {
 		cairo_set_source_rgb(cr, 0, 0, 0);
@@ -154,47 +156,53 @@ onDisplay(PuglView* view, const PuglEventExpose* event)
 	cairo_scale(cr, scaleX, scaleY);
 
 	// Draw button
-	for (Button* b = buttons; b->label; ++b) {
-		buttonDraw(cr, b, opts.continuous ? puglGetTime(world) : 0.0);
+	for (const Button* b = buttons; b->label; ++b) {
+		buttonDraw(app,
+		           cr,
+		           b,
+		           app->opts.continuous ? puglGetTime(app->world) : 0.0);
 	}
 
-	++framesDrawn;
+	++app->framesDrawn;
 }
 
 static void
 onClose(PuglView* view)
 {
-	(void)view;
-	quit = 1;
+	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
+
+	app->quit = 1;
 }
 
 static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
 {
+	PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
+
 	switch (event->type) {
 	case PUGL_KEY_PRESS:
 		if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
-			quit = 1;
+			app->quit = 1;
 		}
 		break;
 	case PUGL_BUTTON_PRESS:
-		mouseDown = true;
+		app->mouseDown = true;
 		postButtonRedisplay(view);
 		break;
 	case PUGL_BUTTON_RELEASE:
-		mouseDown = false;
+		app->mouseDown = false;
 		postButtonRedisplay(view);
 		break;
 	case PUGL_ENTER_NOTIFY:
-		entered = true;
+		app->entered = true;
 		puglPostRedisplay(view);
 		break;
 	case PUGL_LEAVE_NOTIFY:
-		entered = false;
+		app->entered = false;
 		puglPostRedisplay(view);
 		break;
 	case PUGL_EXPOSE:
-		onDisplay(view, &event->expose);
+		onDisplay(app, view, &event->expose);
 		break;
 	case PUGL_CLOSE:
 		onClose(view);
@@ -208,23 +216,27 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(int argc, char** argv)
 {
-	opts = puglParseTestOptions(&argc, &argv);
-	if (opts.help) {
+	PuglTestApp app;
+	memset(&app, 0, sizeof(app));
+
+	app.opts = puglParseTestOptions(&argc, &argv);
+	if (app.opts.help) {
 		puglPrintTestUsage("pugl_test", "");
 		return 1;
 	}
 
-	world = puglNewWorld();
-	puglSetClassName(world, "PuglCairoTest");
+	app.world = puglNewWorld();
+	puglSetClassName(app.world, "PuglCairoTest");
 
 	PuglRect  frame = { 0, 0, 512, 512 };
-	PuglView* view  = puglNewView(world);
+	PuglView* view  = puglNewView(app.world);
 	puglSetFrame(view, frame);
 	puglSetMinSize(view, 256, 256);
-	puglSetViewHint(view, PUGL_RESIZABLE, opts.resizable);
+	puglSetViewHint(view, PUGL_RESIZABLE, app.opts.resizable);
+	puglSetHandle(view, &app);
 	puglSetBackend(view, puglCairoBackend());
 
-	puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
+	puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, app.opts.ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
 	PuglStatus st = puglCreateWindow(view, "Pugl Test");
@@ -234,22 +246,22 @@ main(int argc, char** argv)
 
 	puglShowWindow(view);
 
-	PuglFpsPrinter fpsPrinter = { puglGetTime(world) };
-	while (!quit) {
-		if (opts.continuous) {
+	PuglFpsPrinter fpsPrinter = { puglGetTime(app.world) };
+	while (!app.quit) {
+		if (app.opts.continuous) {
 			postButtonRedisplay(view);
 		} else {
-			puglPollEvents(world, -1);
+			puglPollEvents(app.world, -1);
 		}
 
-		puglDispatchEvents(world);
+		puglDispatchEvents(app.world);
 
-		if (opts.continuous) {
-			puglPrintFps(world, &fpsPrinter, &framesDrawn);
+		if (app.opts.continuous) {
+			puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
 		}
 	}
 
 	puglFreeView(view);
-	puglFreeWorld(world);
+	puglFreeWorld(app.world);
 	return 0;
 }
