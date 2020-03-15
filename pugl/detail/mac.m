@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
   Copyright 2017 Hanspeter Portner <dev@open-music-kontrollers.ch>
 
   Permission to use, copy, modify, and/or distribute this software for any
@@ -614,6 +614,12 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	[super viewWillStartLiveResize];
 }
 
+- (void) viewWillDraw
+{
+	puglDispatchSimpleEvent(puglview, PUGL_UPDATE);
+	[super viewWillDraw];
+}
+
 - (void) resizeTick
 {
 	puglPostRedisplay(puglview);
@@ -915,27 +921,6 @@ puglRequestAttention(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
-PuglStatus
-puglPollEvents(PuglWorld* world, const double timeout)
-{
-	NSDate* date = ((timeout < 0) ? [NSDate distantFuture] :
-	                (timeout == 0) ? nil :
-	                [NSDate dateWithTimeIntervalSinceNow:timeout]);
-
-	/* Note that dequeue:NO is broken (it blocks forever even when events are
-	   pending), so we work around this by dequeueing the event then posting it
-	   back to the front of the queue. */
-	NSEvent* event = [world->impl->app
-	                     nextEventMatchingMask:NSAnyEventMask
-	                     untilDate:date
-	                     inMode:NSDefaultRunLoopMode
-	                     dequeue:YES];
-
-	[world->impl->app postEvent:event atStart:true];
-
-	return PUGL_SUCCESS;
-}
-
 PuglStatus puglSendEvent(PuglView* view, const PuglEvent* event)
 {
     if (event->type == PUGL_CLIENT) {
@@ -990,26 +975,30 @@ dispatchClientEvent(PuglWorld* world, NSEvent* ev)
 }
 
 PuglStatus
-puglDispatchEvents(PuglWorld* world)
+puglUpdate(PuglWorld* world, const double timeout)
 {
-	const NSTimeInterval startTime = [[NSProcessInfo processInfo] systemUptime];
+	NSDate* date = ((timeout < 0)
+	                ? [NSDate distantFuture]
+	                : [NSDate dateWithTimeIntervalSinceNow:timeout]);
 
 	for (NSEvent* ev = NULL;
 	     (ev = [world->impl->app nextEventMatchingMask:NSAnyEventMask
-	                                         untilDate:nil
+	                                         untilDate:date
 	                                            inMode:NSDefaultRunLoopMode
 	                                           dequeue:YES]);) {
 
-		if ([ev timestamp] > startTime) {
-			// Event is later, put it back for the next iteration and return
-			[world->impl->app postEvent:ev atStart:true];
-			break;
-		} else if ([ev type] == NSApplicationDefined &&
-		           [ev subtype] == PUGL_CLIENT) {
+		if ([ev type] == NSApplicationDefined && [ev subtype] == PUGL_CLIENT) {
 			dispatchClientEvent(world, ev);
 		}
 
 		[world->impl->app sendEvent: ev];
+	}
+
+	for (size_t i = 0; i < world->numViews; ++i) {
+		PuglView* const view = world->views[i];
+
+		puglDispatchSimpleEvent(view, PUGL_UPDATE);
+		[view->impl->drawView displayIfNeeded];
 	}
 
 	return PUGL_SUCCESS;

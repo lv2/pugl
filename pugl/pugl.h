@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -172,6 +172,7 @@ typedef enum {
 	PUGL_DESTROY,        ///< View destroyed, a #PuglEventAny
 	PUGL_MAP,            ///< View made visible, a #PuglEventAny
 	PUGL_UNMAP,          ///< View made invisible, a #PuglEventAny
+	PUGL_UPDATE,         ///< View ready to draw, a #PuglEventAny
 	PUGL_CONFIGURE,      ///< View moved/resized, a #PuglEventConfigure
 	PUGL_EXPOSE,         ///< View must be drawn, a #PuglEventExpose
 	PUGL_CLOSE,          ///< View will be closed, a #PuglEventAny
@@ -620,12 +621,21 @@ PUGL_API double
 puglGetTime(const PuglWorld* world);
 
 /**
-   Poll for events that are ready to be processed.
+   Update by processing events from the window system.
 
-   This polls for events that are ready for any view in the world, potentially
-   blocking depending on `timeout`.
+   This function is a single iteration of the main loop, and should be called
+   repeatedly to update all views.
 
-   @param world The world to poll for events.
+   If a positive timeout is given, then events will be processed for that
+   amount of time, starting from when this function was called.  For purely
+   event-driven programs, a timeout of -1.0 can be used to block indefinitely
+   until something happens.  For continuously animating programs, a timeout
+   that is a reasonable fraction of the ideal frame period should be used, to
+   minimise input latency by ensuring that as many input events are consumed as
+   possible before drawing.  Plugins should always use a timeout of 0.0 to
+   avoid blocking the host.
+
+   @param world The world to update.
 
    @param timeout Maximum time to wait, in seconds.  If zero, the call returns
    immediately, if negative, the call blocks indefinitely.
@@ -633,18 +643,7 @@ puglGetTime(const PuglWorld* world);
    @return #PUGL_SUCCESS if events are read, #PUGL_FAILURE if not, or an error.
 */
 PUGL_API PuglStatus
-puglPollEvents(PuglWorld* world, double timeout);
-
-/**
-   Dispatch any pending events to views.
-
-   This processes all pending events, dispatching them to the appropriate
-   views.  View event handlers will be called in the scope of this call.  This
-   function does not block, if no events are pending then it will return
-   immediately.
-*/
-PUGL_API PuglStatus
-puglDispatchEvents(PuglWorld* world);
+puglUpdate(PuglWorld* world, double timeout);
 
 /**
    @}
@@ -1261,6 +1260,37 @@ puglWaitForEvent(PuglView* view);
 */
 PUGL_API PUGL_DEPRECATED_BY("puglDispatchEvents") PuglStatus
 puglProcessEvents(PuglView* view);
+
+/**
+   Poll for events that are ready to be processed.
+
+   This polls for events that are ready for any view in the world, potentially
+   blocking depending on `timeout`.
+
+   @param world The world to poll for events.
+
+   @param timeout Maximum time to wait, in seconds.  If zero, the call returns
+   immediately, if negative, the call blocks indefinitely.
+
+   @return #PUGL_SUCCESS if events are read, #PUGL_FAILURE if not, or an error.
+
+   @deprecated Use puglUpdate().
+*/
+PUGL_API PUGL_DEPRECATED_BY("puglUpdate") PuglStatus
+puglPollEvents(PuglWorld* world, double timeout);
+
+/**
+   Dispatch any pending events to views.
+
+   This processes all pending events, dispatching them to the appropriate
+   views.  View event handlers will be called in the scope of this call.  This
+   function does not block, if no events are pending then it will return
+   immediately.
+
+   @deprecated Use puglUpdate().
+*/
+PUGL_API PUGL_DEPRECATED_BY("puglUpdate") PuglStatus
+puglDispatchEvents(PuglWorld* world);
 
 /**
    Enter the graphics context.

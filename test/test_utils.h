@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -140,6 +140,8 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 			return fprintf(stderr, "%sMap\n", prefix);
 		case PUGL_UNMAP:
 			return fprintf(stderr, "%sUnmap\n", prefix);
+		case PUGL_UPDATE:
+			return fprintf(stderr, "%sUpdate\n", prefix);
 		case PUGL_CONFIGURE:
 			return PRINT("%sConfigure " PFMT " " PFMT "\n",
 			             prefix,

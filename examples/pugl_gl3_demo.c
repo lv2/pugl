@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -176,6 +176,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 		break;
 	case PUGL_CONFIGURE:
 		onConfigure(view, event->configure.width, event->configure.height);
+		break;
+	case PUGL_UPDATE:
+		puglPostRedisplay(view);
 		break;
 	case PUGL_EXPOSE: onExpose(view); break;
 	case PUGL_CLOSE: app->quit = 1; break;
@@ -411,8 +414,7 @@ main(int argc, char** argv)
 	// Grind away, drawing continuously
 	PuglFpsPrinter fpsPrinter = {puglGetTime(app.world)};
 	while (!app.quit) {
-		puglPostRedisplay(app.view);
-		puglDispatchEvents(app.world);
+		puglUpdate(app.world, 0.0);
 		puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
 	}
 

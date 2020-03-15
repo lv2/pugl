@@ -203,6 +203,11 @@ onEvent(PuglView* view, const PuglEvent* event)
 		app->entered = false;
 		puglPostRedisplay(view);
 		break;
+	case PUGL_UPDATE:
+		if (app->opts.continuous) {
+			puglPostRedisplay(view);
+		}
+		break;
 	case PUGL_EXPOSE:
 		onDisplay(app, view, &event->expose);
 		break;
@@ -249,14 +254,9 @@ main(int argc, char** argv)
 	puglShowWindow(view);
 
 	PuglFpsPrinter fpsPrinter = { puglGetTime(app.world) };
+	const double   timeout    = app.opts.continuous ? (1 / 60.0) : -1.0;
 	while (!app.quit) {
-		if (app.opts.continuous) {
-			postButtonRedisplay(view);
-		} else {
-			puglPollEvents(app.world, -1);
-		}
-
-		puglDispatchEvents(app.world);
+		puglUpdate(app.world, timeout);
 
 		if (app.opts.continuous) {
 			puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);

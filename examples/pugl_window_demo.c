@@ -128,6 +128,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_CONFIGURE:
 		reshapeCube((int)event->configure.width, (int)event->configure.height);
 		break;
+	case PUGL_UPDATE:
+		puglPostRedisplay(view);
+		break;
 	case PUGL_EXPOSE:
 		onDisplay(view);
 		break;
@@ -224,15 +227,7 @@ main(int argc, char** argv)
 	PuglFpsPrinter fpsPrinter  = {puglGetTime(app.world)};
 	unsigned       framesDrawn = 0;
 	while (!app.quit) {
-		if (app.continuous) {
-			for (size_t i = 0; i < 2; ++i) {
-				puglPostRedisplay(app.cubes[i].view);
-			}
-		} else {
-			puglPollEvents(app.world, -1);
-		}
-
-		puglDispatchEvents(app.world);
+		puglUpdate(app.world, app.continuous ? 0.0 : -1.0);
 		++framesDrawn;
 
 		if (app.continuous) {

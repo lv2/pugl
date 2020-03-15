@@ -290,6 +290,18 @@ puglGetContext(PuglView* view)
 #ifndef PUGL_DISABLE_DEPRECATED
 
 PuglStatus
+puglPollEvents(PuglWorld* world, double timeout)
+{
+	return puglUpdate(world, timeout);
+}
+
+PuglStatus
+puglDispatchEvents(PuglWorld* world)
+{
+	return puglUpdate(world, 0.0);
+}
+
+PuglStatus
 puglEnterContext(PuglView* view, bool drawing)
 {
 	const PuglEventExpose expose = {
@@ -369,7 +381,7 @@ void
 puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 {
 	assert(type == PUGL_CREATE || type == PUGL_DESTROY || type == PUGL_MAP ||
-	       type == PUGL_UNMAP || type == PUGL_CLOSE);
+	       type == PUGL_UNMAP || type == PUGL_UPDATE || type == PUGL_CLOSE);
 
 	const PuglEvent event = {{type, 0}};
 	puglDispatchEvent(view, &event);

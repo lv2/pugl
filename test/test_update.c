@@ -29,7 +29,6 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
 
 #ifdef __APPLE__
 static const double timeout = 1 / 60.0;
@@ -39,22 +38,17 @@ static const double timeout = -1.0;
 
 typedef enum {
 	START,
-	EXPOSED,
-	SHOULD_REDISPLAY,
-	POSTED_REDISPLAY,
-	REDISPLAYED,
+	EXPOSED1,
+	UPDATED,
+	EXPOSED2,
 } State;
 
-typedef struct
-{
+typedef struct {
 	PuglTestOptions opts;
 	PuglWorld*      world;
 	PuglView*       view;
 	State           state;
 } PuglTest;
-
-static const PuglRect  redisplayRect   = {1, 2, 3, 4};
-static const uintptr_t postRedisplayId = 42;
 
 static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
@@ -67,25 +61,27 @@ onEvent(PuglView* view, const PuglEvent* event)
 
 	switch (event->type) {
 	case PUGL_EXPOSE:
-		if (test->state == START) {
-			test->state = EXPOSED;
-		} else if (test->state == POSTED_REDISPLAY &&
-		           event->expose.x == redisplayRect.x &&
-		           event->expose.y == redisplayRect.y &&
-		           event->expose.width == redisplayRect.width &&
-		           event->expose.height == redisplayRect.height) {
-			test->state = REDISPLAYED;
+		switch (test->state) {
+		case START:
+			test->state = EXPOSED1;
+			break;
+		case UPDATED:
+			test->state = EXPOSED2;
+			break;
+		default:
+			break;
 		}
 		break;
 
-	case PUGL_CLIENT:
-		if (event->client.data1 == postRedisplayId) {
-			puglPostRedisplayRect(view, redisplayRect);
-			test->state = POSTED_REDISPLAY;
+	case PUGL_UPDATE:
+		if (test->state == EXPOSED1) {
+			puglPostRedisplay(view);
+			test->state = UPDATED;
 		}
 		break;
 
-	default: break;
+	default:
+		break;
 	}
 
 	return PUGL_SUCCESS;
@@ -109,20 +105,16 @@ main(int argc, char** argv)
 	// Create and show window
 	assert(!puglCreateWindow(app.view, "Pugl Test"));
 	assert(!puglShowWindow(app.view));
-	while (app.state != EXPOSED) {
+
+	// Tick until an expose happens
+	while (app.state <= EXPOSED1) {
 		assert(!puglUpdate(app.world, timeout));
+		assert(app.state != UPDATED);
 	}
 
-	// Send a custom event to trigger a redisplay in the event loop
-	const PuglEventClient client = { PUGL_CLIENT, 0, postRedisplayId, 0 };
-	assert(!puglSendEvent(app.view, (const PuglEvent*)&client));
-
-	// Loop until an expose happens in the same iteration as the redisplay
-	app.state = SHOULD_REDISPLAY;
-	while (app.state != REDISPLAYED) {
-		assert(!puglUpdate(app.world, timeout));
-		assert(app.state != POSTED_REDISPLAY);
-	}
+	// Tick once and ensure the update and the expose it posted both happened
+	assert(!puglUpdate(app.world, 0.0));
+	assert(app.state == EXPOSED2);
 
 	// Tear down
 	puglFreeView(app.view);

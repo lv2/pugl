@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -145,8 +145,8 @@ puglInitViewInternals(void)
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
 
-PuglStatus
-puglPollEvents(PuglWorld* world, const double timeout)
+static PuglStatus
+puglPollWinEvents(PuglWorld* world, const double timeout)
 {
 	(void)world;
 
@@ -792,8 +792,8 @@ puglDispatchViewEvents(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
-PuglStatus
-puglDispatchEvents(PuglWorld* world)
+static PuglStatus
+puglDispatchWinEvents(PuglWorld* world)
 {
 	for (size_t i = 0; i < world->numViews; ++i) {
 		PostMessage(world->views[i]->impl->hwnd, PUGL_LOCAL_MARK_MSG, 0, 0);
@@ -803,18 +803,43 @@ puglDispatchEvents(PuglWorld* world)
 		puglDispatchViewEvents(world->views[i]);
 	}
 
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglUpdate(PuglWorld* world, double timeout)
+{
+	const double startTime = puglGetTime(world);
+	PuglStatus   st        = PUGL_SUCCESS;
+
+	if (timeout < 0.0) {
+		st = puglPollWinEvents(world, timeout);
+		st = st ? st : puglDispatchWinEvents(world);
+	} else if (timeout == 0.0) {
+		st = puglDispatchWinEvents(world);
+	} else {
+		const double endTime = startTime + timeout - 0.001;
+		for (double t = startTime; t < endTime; t = puglGetTime(world)) {
+			if ((st = puglPollWinEvents(world, endTime - t)) ||
+			    (st = puglDispatchWinEvents(world))) {
+				break;
+			}
+		}
+	}
+
 	for (size_t i = 0; i < world->numViews; ++i) {
+		puglDispatchSimpleEvent(world->views[i], PUGL_UPDATE);
 		UpdateWindow(world->views[i]->impl->hwnd);
 	}
 
-	return PUGL_SUCCESS;
+	return st;
 }
 
 #ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	return puglDispatchEvents(view->world);
+	return puglUpdate(view->world, 0.0);
 }
 #endif
 

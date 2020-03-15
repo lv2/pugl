@@ -5,6 +5,7 @@ Checks: >
   -android-cloexec-fopen,
   -bugprone-suspicious-string-compare,
   -clang-analyzer-alpha.*,
+  -clang-analyzer-security.FloatLoopCounter,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,

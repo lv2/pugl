@@ -117,8 +117,8 @@ puglInitViewInternals(void)
 	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
 
-PuglStatus
-puglPollEvents(PuglWorld* world, const double timeout)
+static PuglStatus
+puglPollX11Socket(PuglWorld* world, const double timeout)
 {
 	if (XPending(world->impl->display) > 0) {
 		return PUGL_SUCCESS;
@@ -140,8 +140,7 @@ puglPollEvents(PuglWorld* world, const double timeout)
 		ret = select(nfds, &fds, NULL, NULL, &tv);
 	}
 
-	return ret < 0 ? PUGL_UNKNOWN_ERROR
-	               : ret == 0 ? PUGL_FAILURE : PUGL_SUCCESS;
+	return ret < 0 ? PUGL_UNKNOWN_ERROR : PUGL_SUCCESS;
 }
 
 static PuglView*
@@ -750,6 +749,8 @@ flushExposures(PuglWorld* world)
 		PuglEvent* const configure = &view->impl->pendingConfigure;
 		PuglEvent* const expose    = &view->impl->pendingExpose;
 
+		puglDispatchSimpleEvent(view, PUGL_UPDATE);
+
 		if (configure->type || expose->type) {
 			view->backend->enter(view, expose->type ? &expose->expose : NULL);
 			view->eventFunc(view, configure);
@@ -762,16 +763,14 @@ flushExposures(PuglWorld* world)
 	}
 }
 
-PuglStatus
-puglDispatchEvents(PuglWorld* world)
+static PuglStatus
+puglDispatchX11Events(PuglWorld* world)
 {
 	const PuglX11Atoms* const atoms = &world->impl->atoms;
 
 	// Flush output to the server once at the start
 	Display* display = world->impl->display;
 	XFlush(display);
-
-	world->impl->dispatchingEvents = true;
 
 	// Process all queued events (without further flushing)
 	while (XEventsQueued(display, QueuedAfterReading) > 0) {
@@ -827,10 +826,6 @@ puglDispatchEvents(PuglWorld* world)
 		}
 	}
 
-	flushExposures(world);
-
-	world->impl->dispatchingEvents = false;
-
 	return PUGL_SUCCESS;
 }
 
@@ -838,9 +833,39 @@ puglDispatchEvents(PuglWorld* world)
 PuglStatus
 puglProcessEvents(PuglView* view)
 {
-	return puglDispatchEvents(view->world);
+	return puglUpdate(view->world, 0.0);
 }
 #endif
+
+PuglStatus
+puglUpdate(PuglWorld* world, double timeout)
+{
+	const double startTime = puglGetTime(world);
+	PuglStatus   st        = PUGL_SUCCESS;
+
+	world->impl->dispatchingEvents = true;
+
+	if (timeout < 0.0) {
+		st = puglPollX11Socket(world, timeout);
+		st = st ? st : puglDispatchX11Events(world);
+	} else if (timeout == 0.0) {
+		st = puglDispatchX11Events(world);
+	} else {
+		const double endTime = startTime + timeout - 0.001;
+		for (double t = startTime; t < endTime; t = puglGetTime(world)) {
+			if ((st = puglPollX11Socket(world, endTime - t)) ||
+			    (st = puglDispatchX11Events(world))) {
+				break;
+			}
+		}
+	}
+
+	flushExposures(world);
+
+	world->impl->dispatchingEvents = false;
+
+	return st;
+}
 
 double
 puglGetTime(const PuglWorld* world)
@@ -988,8 +1013,7 @@ puglGetClipboard(PuglView* const    view,
 
 		// Run event loop until data is received
 		while (!view->clipboard.data) {
-			puglPollEvents(view->world, -1);
-			puglDispatchEvents(view->world);
+			puglUpdate(view->world, -1.0);
 		}
 	}
 

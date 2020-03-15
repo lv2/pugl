@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -164,6 +164,11 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 		reshapeCube((int)event->configure.width, (int)event->configure.height);
 		puglSetFrame(app->child, getChildFrame(parentFrame));
 		break;
+	case PUGL_UPDATE:
+		if (app->continuous) {
+			puglPostRedisplay(view);
+		}
+		break;
 	case PUGL_EXPOSE:
 		if (puglHasFocus(app->parent)) {
 			glMatrixMode(GL_MODELVIEW);
@@ -207,6 +212,11 @@ onEvent(PuglView* view, const PuglEvent* event)
 	switch (event->type) {
 	case PUGL_CONFIGURE:
 		reshapeCube((int)event->configure.width, (int)event->configure.height);
+		break;
+	case PUGL_UPDATE:
+		if (app->continuous) {
+			puglPostRedisplay(view);
+		}
 		break;
 	case PUGL_EXPOSE:
 		onDisplay(view);
@@ -317,14 +327,7 @@ main(int argc, char** argv)
 	while (!app.quit) {
 		const double thisTime = puglGetTime(app.world);
 
-		if (app.continuous) {
-			puglPostRedisplay(app.parent);
-			puglPostRedisplay(app.child);
-		} else {
-			puglPollEvents(app.world, -1);
-		}
-
-		puglDispatchEvents(app.world);
+		puglUpdate(app.world, app.continuous ? 0.0 : -1.0);
 		++framesDrawn;
 
 		if (!requestedAttention && thisTime > 5.0) {
