@@ -797,6 +797,10 @@ puglDispatchEvents(PuglWorld* world)
 		} else if (event.type == PUGL_CONFIGURE) {
 			// Expand configure event to be dispatched after loop
 			view->impl->pendingConfigure = event;
+			view->frame.x                = event.configure.x;
+			view->frame.y                = event.configure.y;
+			view->frame.width            = event.configure.width;
+			view->frame.height           = event.configure.height;
 		} else {
 			// Dispatch event to application immediately
 			puglDispatchEvent(view, &event);
