@@ -253,8 +253,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		                     "XCreateID failed\n");
 	}
 
-	const PuglEvent createEvent = {{PUGL_CREATE, 0}};
-	puglDispatchEvent(view, &createEvent);
+	puglDispatchSimpleEvent(view, PUGL_CREATE);
 
 	return PUGL_SUCCESS;
 }

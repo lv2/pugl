@@ -21,6 +21,7 @@
 #include "pugl/detail/implementation.h"
 #include "pugl/pugl.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -203,8 +204,7 @@ puglNewView(PuglWorld* const world)
 void
 puglFreeView(PuglView* view)
 {
-	const PuglEvent destroyEvent = {{PUGL_DESTROY, 0}};
-	puglDispatchEvent(view, &destroyEvent);
+	puglDispatchSimpleEvent(view, PUGL_DESTROY);
 
 	// Remove from world view list
 	PuglWorld* world = view->world;
@@ -363,6 +363,16 @@ puglMustConfigure(PuglView* view, const PuglEventConfigure* configure)
 	       configure->y != view->frame.y ||
 	       configure->width != view->frame.width ||
 	       configure->height != view->frame.height;
+}
+
+void
+puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
+{
+	assert(type == PUGL_CREATE || type == PUGL_DESTROY || type == PUGL_MAP ||
+	       type == PUGL_UNMAP || type == PUGL_CLOSE);
+
+	const PuglEvent event = {{type, 0}};
+	puglDispatchEvent(view, &event);
 }
 
 void

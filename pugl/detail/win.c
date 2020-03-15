@@ -193,8 +193,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	puglSetFrame(view, view->frame);
 	SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
-	const PuglEvent createEvent = {{PUGL_CREATE, 0}};
-	view->eventFunc(view, &createEvent);
+	puglDispatchSimpleEvent(view, PUGL_CREATE);
 
 	return PUGL_SUCCESS;
 }

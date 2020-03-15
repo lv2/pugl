@@ -101,11 +101,9 @@ updateViewRect(PuglView* view)
 - (void) setIsVisible:(BOOL)flag
 {
 	if (flag && !puglview->visible) {
-		const PuglEvent map = {{PUGL_MAP, 0}};
-		puglview->eventFunc(puglview, &map);
+		puglDispatchSimpleEvent(puglview, PUGL_MAP);
 	} else if (!flag && puglview->visible) {
-		const PuglEvent unmap = {{PUGL_UNMAP, 0}};
-		puglview->eventFunc(puglview, &unmap);
+		puglDispatchSimpleEvent(puglview, PUGL_UNMAP);
 	}
 
 	puglview->visible = flag;
@@ -659,8 +657,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	(void)sender;
 
-	const PuglEvent ev = {{PUGL_CLOSE, 0}};
-	puglDispatchEvent(window->puglview, &ev);
+	puglDispatchSimpleEvent(window->puglview, PUGL_CLOSE);
 	return YES;
 }
 
@@ -824,8 +821,7 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	[impl->wrapperView updateTrackingAreas];
 
-	const PuglEvent createEvent = {{PUGL_CREATE, 0}};
-	puglDispatchEvent(view, &createEvent);
+	puglDispatchSimpleEvent(view, PUGL_CREATE);
 
 	const PuglEventConfigure ev =  {
 		PUGL_CONFIGURE,
