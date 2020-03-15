@@ -741,6 +741,27 @@ handleSelectionRequest(const PuglWorld*              world,
 	XSendEvent(world->impl->display, note.requestor, True, 0, (XEvent*)&note);
 }
 
+/// Flush pending configure and expose events for all views
+static void
+flushExposures(PuglWorld* world)
+{
+	for (size_t i = 0; i < world->numViews; ++i) {
+		PuglView* const  view      = world->views[i];
+		PuglEvent* const configure = &view->impl->pendingConfigure;
+		PuglEvent* const expose    = &view->impl->pendingExpose;
+
+		if (configure->type || expose->type) {
+			view->backend->enter(view, expose->type ? &expose->expose : NULL);
+			view->eventFunc(view, configure);
+			view->eventFunc(view, expose);
+			view->backend->leave(view, expose->type ? &expose->expose : NULL);
+
+			configure->type = 0;
+			expose->type    = 0;
+		}
+	}
+}
+
 PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
@@ -806,22 +827,7 @@ puglDispatchEvents(PuglWorld* world)
 		}
 	}
 
-	// Flush pending configure and expose events for all views
-	for (size_t i = 0; i < world->numViews; ++i) {
-		PuglView* const  view      = world->views[i];
-		PuglEvent* const configure = &view->impl->pendingConfigure;
-		PuglEvent* const expose    = &view->impl->pendingExpose;
-
-		if (configure->type || expose->type) {
-			view->backend->enter(view, expose->type ? &expose->expose : NULL);
-			view->eventFunc(view, configure);
-			view->eventFunc(view, expose);
-			view->backend->leave(view, expose->type ? &expose->expose : NULL);
-
-			configure->type = 0;
-			expose->type    = 0;
-		}
-	}
+	flushExposures(world);
 
 	world->impl->dispatchingEvents = false;
 
