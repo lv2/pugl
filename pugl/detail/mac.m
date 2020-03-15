@@ -992,7 +992,7 @@ dispatchClientEvent(PuglWorld* world, NSEvent* ev)
 	}
 }
 
-PUGL_API PuglStatus
+PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
 	const NSTimeInterval startTime = [[NSProcessInfo processInfo] systemUptime];

@@ -792,7 +792,7 @@ puglDispatchViewEvents(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
-PUGL_API PuglStatus
+PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
 	for (size_t i = 0; i < world->numViews; ++i) {

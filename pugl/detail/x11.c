@@ -738,7 +738,7 @@ handleSelectionRequest(const PuglWorld*              world,
 	XSendEvent(world->impl->display, note.requestor, True, 0, (XEvent*)&note);
 }
 
-PUGL_API PuglStatus
+PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
 	const PuglX11Atoms* const atoms = &world->impl->atoms;
