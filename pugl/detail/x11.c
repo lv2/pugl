@@ -814,10 +814,10 @@ puglDispatchEvents(PuglWorld* world)
 		PuglEvent* const expose    = &view->impl->pendingExpose;
 
 		if (configure->type || expose->type) {
-			view->backend->enter(view, &expose->expose);
+			view->backend->enter(view, expose->type ? &expose->expose : NULL);
 			view->eventFunc(view, configure);
 			view->eventFunc(view, expose);
-			view->backend->leave(view, &expose->expose);
+			view->backend->leave(view, expose->type ? &expose->expose : NULL);
 
 			configure->type = 0;
 			expose->type    = 0;
