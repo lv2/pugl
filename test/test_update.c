@@ -15,8 +15,8 @@
 */
 
 /*
-  Tests that redisplays posted in the event handler are dispatched at the end
-  of the same event loop iteration.
+  Tests that update events are received and that the redisplays they trigger
+  happen immediately in the same event loop iteration.
 */
 
 #undef NDEBUG
