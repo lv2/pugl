@@ -227,7 +227,7 @@ main(int argc, char** argv)
 		return 1;
 	}
 
-	app.world = puglNewWorld();
+	app.world = puglNewWorld(PUGL_PROGRAM, 0);
 	puglSetClassName(app.world, "PuglCairoTest");
 
 	PuglRect  frame = { 0, 0, 512, 512 };

@@ -115,10 +115,10 @@ puglSetDefaultHints(PuglHints hints)
 }
 
 PuglWorld*
-puglNewWorld(void)
+puglNewWorld(PuglWorldType type, PuglWorldFlags flags)
 {
 	PuglWorld* world = (PuglWorld*)calloc(1, sizeof(PuglWorld));
-	if (!world || !(world->impl = puglInitWorldInternals())) {
+	if (!world || !(world->impl = puglInitWorldInternals(type, flags))) {
 		free(world);
 		return NULL;
 	}

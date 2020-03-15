@@ -36,7 +36,8 @@ void puglSetBlob(PuglBlob* dest, const void* data, size_t len);
 void puglSetString(char** dest, const char* string);
 
 /** Allocate and initialise world internals (implemented once per platform) */
-PuglWorldInternals* puglInitWorldInternals(void);
+PuglWorldInternals*
+puglInitWorldInternals(PuglWorldType type, PuglWorldFlags flags);
 
 /** Destroy and free world internals (implemented once per platform) */
 void puglFreeWorldInternals(PuglWorld* world);

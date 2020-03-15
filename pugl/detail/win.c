@@ -105,7 +105,8 @@ puglRegisterWindowClass(const char* name)
 }
 
 PuglWorldInternals*
-puglInitWorldInternals(void)
+puglInitWorldInternals(PuglWorldType PUGL_UNUSED(type),
+                       PuglWorldFlags PUGL_UNUSED(flags))
 {
 	PuglWorldInternals* impl = (PuglWorldInternals*)calloc(
 		1, sizeof(PuglWorldInternals));

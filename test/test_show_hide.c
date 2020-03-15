@@ -107,7 +107,7 @@ int
 main(int argc, char** argv)
 {
 	PuglTest test = {puglParseTestOptions(&argc, &argv),
-	                 puglNewWorld(),
+	                 puglNewWorld(PUGL_PROGRAM, 0),
 	                 NULL,
 	                 START};
 

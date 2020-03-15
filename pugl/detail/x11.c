@@ -66,8 +66,12 @@ static const long eventMask =
 	 ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask);
 
 PuglWorldInternals*
-puglInitWorldInternals(void)
+puglInitWorldInternals(PuglWorldType type, PuglWorldFlags flags)
 {
+	if (type == PUGL_PROGRAM && (flags & PUGL_WORLD_THREADS)) {
+		XInitThreads();
+	}
+
 	Display* display = XOpenDisplay(NULL);
 	if (!display) {
 		return NULL;

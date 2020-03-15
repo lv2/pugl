@@ -53,7 +53,7 @@ main(void)
 {
 	PuglPrintEventsApp app = {NULL, NULL, 0};
 
-	app.world = puglNewWorld();
+	app.world = puglNewWorld(PUGL_PROGRAM, 0);
 	app.view  = puglNewView(app.world);
 
 	puglSetClassName(app.world, "Pugl Print Events");

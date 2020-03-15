@@ -262,7 +262,7 @@ main(int argc, char** argv)
 	app.continuous = opts.continuous;
 	app.verbose    = opts.verbose;
 
-	app.world  = puglNewWorld();
+	app.world  = puglNewWorld(PUGL_PROGRAM, 0);
 	app.parent = puglNewView(app.world);
 	app.child  = puglNewView(app.world);
 

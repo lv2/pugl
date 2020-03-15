@@ -260,7 +260,7 @@ static void
 setupPugl(PuglTestApp* app, const PuglRect frame)
 {
 	// Create world, view, and rect data
-	app->world = puglNewWorld();
+	app->world = puglNewWorld(PUGL_PROGRAM, 0);
 	app->view  = puglNewView(app->world);
 	app->rects = makeRects(app->numRects);
 

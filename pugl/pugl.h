@@ -491,6 +491,31 @@ typedef struct PuglWorldImpl PuglWorld;
 typedef void* PuglWorldHandle;
 
 /**
+   The type of a PuglWorld.
+*/
+typedef enum {
+	PUGL_PROGRAM, ///< Top-level application
+	PUGL_MODULE   ///< Plugin or module within a larger application
+} PuglWorldType;
+
+/**
+   World flags.
+*/
+typedef enum {
+	/**
+	   Set up support for threads if necessary.
+
+	   - X11: Calls XInitThreads() which is required for some drivers.
+	*/
+	PUGL_WORLD_THREADS = 1 << 0
+} PuglWorldFlag;
+
+/**
+   Bitwise OR of #PuglWorldFlag values.
+*/
+typedef uint32_t PuglWorldFlags;
+
+/**
    A log message level, compatible with syslog.
 */
 typedef enum {
@@ -514,10 +539,12 @@ typedef void (*PuglLogFunc)(PuglWorld*   world,
 /**
    Create a new world.
 
+   @param type The type, which dictates what this world is responsible for.
+   @param flags Flags to control world features.
    @return A new world, which must be later freed with puglFreeWorld().
 */
 PUGL_API PuglWorld*
-puglNewWorld(void);
+puglNewWorld(PuglWorldType type, PuglWorldFlags flags);
 
 /**
    Free a world allocated with puglNewWorld().
@@ -1057,7 +1084,7 @@ puglInit(const int* pargc, char** argv)
 	(void)pargc;
 	(void)argv;
 
-	return puglNewView(puglNewWorld());
+	return puglNewView(puglNewWorld(PUGL_MODULE, 0));
 }
 
 /**
