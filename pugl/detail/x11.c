@@ -188,8 +188,6 @@ puglCreateWindow(PuglView* view, const char* title)
 	PuglWorld* const     world   = view->world;
 	PuglX11Atoms* const  atoms   = &view->world->impl->atoms;
 	Display* const       display = world->impl->display;
-	const unsigned       width   = (unsigned)view->frame.width;
-	const unsigned       height  = (unsigned)view->frame.height;
 
 	impl->display = display;
 	impl->screen  = DefaultScreen(display);
@@ -216,7 +214,8 @@ puglCreateWindow(PuglView* view, const char* title)
 
 	const Window win = impl->win = XCreateWindow(
 		display, xParent,
-		(int)view->frame.x, (int)view->frame.y, width, height,
+		(int)view->frame.x, (int)view->frame.y,
+		(unsigned)view->frame.width, (unsigned)view->frame.height,
 		0, impl->vi->depth, InputOutput,
 		impl->vi->visual, CWColormap | CWEventMask, &attr);
 
@@ -776,16 +775,13 @@ puglDispatchEvents(PuglWorld* world)
 			XUnsetICFocus(impl->xic);
 		} else if (xevent.type == SelectionClear) {
 			puglSetBlob(&view->clipboard, NULL, 0);
-			continue;
 		} else if (xevent.type == SelectionNotify &&
 		           xevent.xselection.selection == atoms->CLIPBOARD &&
 		           xevent.xselection.target == atoms->UTF8_STRING &&
 		           xevent.xselection.property == XA_PRIMARY) {
 			handleSelectionNotify(world, view);
-			continue;
 		} else if (xevent.type == SelectionRequest) {
 			handleSelectionRequest(world, view, &xevent.xselectionrequest);
-			continue;
 		}
 
 		// Translate X11 event to Pugl event
