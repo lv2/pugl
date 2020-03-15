@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
   Copyright 2013 Robin Gareus <robin@gareus.org>
   Copyright 2011-2012 Ben Loftis, Harrison Consoles
 
@@ -673,6 +673,72 @@ mergeExposeEvents(PuglEvent* dst, const PuglEvent* src)
 	}
 }
 
+static void
+handleSelectionNotify(const PuglWorld* world, PuglView* view)
+{
+	uint8_t*      str  = NULL;
+	Atom          type = 0;
+	int           fmt  = 0;
+	unsigned long len  = 0;
+	unsigned long left = 0;
+
+	XGetWindowProperty(world->impl->display,
+	                   view->impl->win,
+	                   XA_PRIMARY,
+	                   0,
+	                   0x1FFFFFFF,
+	                   False,
+	                   AnyPropertyType,
+	                   &type,
+	                   &fmt,
+	                   &len,
+	                   &left,
+	                   &str);
+
+	if (str && fmt == 8 && type == world->impl->atoms.UTF8_STRING &&
+	    left == 0) {
+		puglSetBlob(&view->clipboard, str, len);
+	}
+
+	XFree(str);
+}
+
+static void
+handleSelectionRequest(const PuglWorld*              world,
+                       PuglView*                     view,
+                       const XSelectionRequestEvent* request)
+{
+	XSelectionEvent note = {SelectionNotify,
+	                        request->serial,
+	                        False,
+	                        world->impl->display,
+	                        request->requestor,
+	                        request->selection,
+	                        request->target,
+	                        None,
+	                        request->time};
+
+	const char* type = NULL;
+	size_t      len  = 0;
+	const void* data = puglGetInternalClipboard(view, &type, &len);
+	if (data && request->selection == world->impl->atoms.CLIPBOARD &&
+	    request->target == world->impl->atoms.UTF8_STRING) {
+		note.property = request->property;
+		XChangeProperty(world->impl->display,
+		                note.requestor,
+		                note.property,
+		                note.target,
+		                8,
+		                PropModeReplace,
+		                (const uint8_t*)data,
+		                (int)len);
+	} else {
+		note.property = None;
+	}
+
+	XSendEvent(world->impl->display, note.requestor, True, 0, (XEvent*)&note);
+}
+
 PUGL_API PuglStatus
 puglDispatchEvents(PuglWorld* world)
 {
@@ -715,47 +781,10 @@ puglDispatchEvents(PuglWorld* world)
 		           xevent.xselection.selection == atoms->CLIPBOARD &&
 		           xevent.xselection.target == atoms->UTF8_STRING &&
 		           xevent.xselection.property == XA_PRIMARY) {
-
-			uint8_t*      str  = NULL;
-			Atom          type = 0;
-			int           fmt  = 0;
-			unsigned long len  = 0;
-			unsigned long left = 0;
-			XGetWindowProperty(impl->display, impl->win, XA_PRIMARY,
-			                   0, 0x1FFFFFFF, False, AnyPropertyType,
-			                   &type, &fmt, &len, &left, &str);
-
-			if (str && fmt == 8 && type == atoms->UTF8_STRING && left == 0) {
-				puglSetBlob(&view->clipboard, str, len);
-			}
-
-			XFree(str);
+			handleSelectionNotify(world, view);
 			continue;
 		} else if (xevent.type == SelectionRequest) {
-			const XSelectionRequestEvent* request = &xevent.xselectionrequest;
-
-			XSelectionEvent note = {0};
-			note.type            = SelectionNotify;
-			note.requestor       = request->requestor;
-			note.selection       = request->selection;
-			note.target          = request->target;
-			note.time            = request->time;
-
-			const char* type = NULL;
-			size_t      len  = 0;
-			const void* data = puglGetInternalClipboard(view, &type, &len);
-			if (data &&
-			    request->selection == atoms->CLIPBOARD &&
-			    request->target == atoms->UTF8_STRING) {
-				note.property = request->property;
-				XChangeProperty(impl->display, note.requestor,
-				                note.property, note.target, 8, PropModeReplace,
-				                (const uint8_t*)data, (int)len);
-			} else {
-				note.property = None;
-			}
-
-			XSendEvent(impl->display, note.requestor, True, 0, (XEvent*)&note);
+			handleSelectionRequest(world, view, &xevent.xselectionrequest);
 			continue;
 		}
 
