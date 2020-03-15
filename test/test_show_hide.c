@@ -107,9 +107,9 @@ int
 main(int argc, char** argv)
 {
 	PuglTest test = {puglParseTestOptions(&argc, &argv),
-	                puglNewWorld(),
-	                NULL,
-	                START};
+	                 puglNewWorld(),
+	                 NULL,
+	                 START};
 
 	// Set up view
 	test.view = puglNewView(test.world);
