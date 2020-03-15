@@ -50,13 +50,23 @@ and system events like window resizing and exposure.
 
 ## Event Loop
 
-Two functions are used to drive the event loop:
+The event loop is driven by repeatedly calling #puglUpdate which processes events from the window system,
+and dispatches them to views when necessary.
 
- * #puglPollEvents waits for events to become available.
- * #puglDispatchEvents processes all pending events.
+Typically, a plugin calls #puglUpdate with timeout 0 in some callback driven by the host.
+A program can use whatever timeout is appropriate:
+event-driven applications may wait forever,
+or for continuous animation,
+use a timeout that is a significant fraction of the frame period
+(with enough time left over to render).
 
-Redrawing is accomplished by calling #puglPostRedisplay or #puglPostRedisplayRect,
+Redrawing can be requested by calling #puglPostRedisplay or #puglPostRedisplayRect,
 which post expose events to the queue.
+Note, however, that this will not wake up a blocked #puglUpdate call on MacOS
+(which does not handle drawing via events).
+For continuous redrawing, call #puglPostRedisplay when a #PUGL_UPDATE event is received.
+This event is sent before views are redrawn,
+so can be used as a hook to expand the update region right before the view is exposed.
 
 ## Error Handling
 
