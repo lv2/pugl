@@ -135,7 +135,6 @@ puglX11CairoLeave(PuglView* view, const PuglEventExpose* expose)
 
 		// Paint front onto back
 		cairo_set_source_surface(surface->cr, surface->front, 0, 0);
-		cairo_set_operator(surface->cr, CAIRO_OPERATOR_SOURCE);
 		cairo_paint(surface->cr);
 
 		// Flush to X and close everything
