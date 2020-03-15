@@ -131,8 +131,8 @@ puglPollEvents(PuglWorld* world, const double timeout)
 		ret = select(nfds, &fds, NULL, NULL, NULL);
 	} else {
 		const long     sec  = (long)timeout;
-		const long     msec = (long)((timeout - (double)sec) * 1e6);
-		struct timeval tv   = {sec, msec};
+		const long     usec = (long)((timeout - (double)sec) * 1e6);
+		struct timeval tv   = {sec, usec};
 		ret = select(nfds, &fds, NULL, NULL, &tv);
 	}
 
