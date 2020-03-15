@@ -744,14 +744,14 @@ puglDispatchEvents(PuglWorld* world)
 {
 	const PuglX11Atoms* const atoms = &world->impl->atoms;
 
-	// Flush just once at the start to fill event queue
+	// Flush output to the server once at the start
 	Display* display = world->impl->display;
 	XFlush(display);
 
 	world->impl->dispatchingEvents = true;
 
-	// Process all queued events (locally, without flushing or reading)
-	while (XEventsQueued(display, QueuedAlready) > 0) {
+	// Process all queued events (without further flushing)
+	while (XEventsQueued(display, QueuedAfterReading) > 0) {
 		XEvent xevent;
 		XNextEvent(display, &xevent);
 
