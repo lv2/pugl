@@ -398,8 +398,8 @@ typedef struct {
    things, this makes it possible to wake up the event loop for any reason.
 */
 typedef struct {
-	PuglEventType  type;  ///< PUGL_CLIENT
-	PuglEventFlags flags; ///< Bitwise OR of PuglEventFlag values
+	PuglEventType  type;  ///< #PUGL_CLIENT
+	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
 	uintptr_t      data1; ///< Client-specific data
 	uintptr_t      data2; ///< Client-specific data
 } PuglEventClient;
