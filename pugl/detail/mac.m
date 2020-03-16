@@ -991,6 +991,12 @@ puglUpdate(PuglWorld* world, const double timeout)
 		}
 
 		[world->impl->app sendEvent: ev];
+
+		if (timeout < 0) {
+			// Now that we've waited and got an event, set the date to now to
+			// avoid looping forever
+			date = [NSDate date];
+		}
 	}
 
 	for (size_t i = 0; i < world->numViews; ++i) {
