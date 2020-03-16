@@ -749,7 +749,9 @@ flushExposures(PuglWorld* world)
 		PuglEvent* const configure = &view->impl->pendingConfigure;
 		PuglEvent* const expose    = &view->impl->pendingExpose;
 
-		puglDispatchSimpleEvent(view, PUGL_UPDATE);
+		if (view->visible) {
+			puglDispatchSimpleEvent(view, PUGL_UPDATE);
+		}
 
 		if (configure->type || expose->type) {
 			view->backend->enter(view, expose->type ? &expose->expose : NULL);

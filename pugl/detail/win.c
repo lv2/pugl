@@ -828,7 +828,10 @@ puglUpdate(PuglWorld* world, double timeout)
 	}
 
 	for (size_t i = 0; i < world->numViews; ++i) {
-		puglDispatchSimpleEvent(world->views[i], PUGL_UPDATE);
+		if (world->views[i]->visible) {
+			puglDispatchSimpleEvent(world->views[i], PUGL_UPDATE);
+		}
+
 		UpdateWindow(world->views[i]->impl->hwnd);
 	}
 
