@@ -107,7 +107,7 @@ main(int argc, char** argv)
 	assert(!puglShowWindow(app.view));
 
 	// Tick until an expose happens
-	while (app.state <= EXPOSED1) {
+	while (app.state < EXPOSED1) {
 		assert(!puglUpdate(app.world, timeout));
 		assert(app.state != UPDATED);
 	}
