@@ -101,6 +101,16 @@ updateViewRect(PuglView* view)
 - (void) setIsVisible:(BOOL)flag
 {
 	if (flag && !puglview->visible) {
+		const PuglEventConfigure ev =  {
+			PUGL_CONFIGURE,
+			0,
+			puglview->frame.x,
+			puglview->frame.y,
+			puglview->frame.width,
+			puglview->frame.height,
+		};
+
+		puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 		puglDispatchSimpleEvent(puglview, PUGL_MAP);
 	} else if (!flag && puglview->visible) {
 		puglDispatchSimpleEvent(puglview, PUGL_UNMAP);
@@ -829,17 +839,6 @@ puglCreateWindow(PuglView* view, const char* title)
 	[impl->wrapperView updateTrackingAreas];
 
 	puglDispatchSimpleEvent(view, PUGL_CREATE);
-
-	const PuglEventConfigure ev =  {
-		PUGL_CONFIGURE,
-		0,
-		view->frame.x,
-		view->frame.y,
-		view->frame.width,
-		view->frame.height,
-	};
-
-	puglDispatchEvent(view, (const PuglEvent*)&ev);
 
 	return 0;
 }
