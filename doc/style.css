@@ -469,7 +469,7 @@ td.mlabels-right {
   padding: 0;
 }
 
-.memdoc > p:first-child {
+.memdoc > p:first-child, .memdoc .textblock > p:first-child {
   font-style: italic;
   color: #444;
   margin-bottom: 0.75em;
