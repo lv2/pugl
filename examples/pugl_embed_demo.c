@@ -32,7 +32,8 @@
 #include <stdio.h>
 #include <string.h>
 
-static const int borderWidth = 64;
+static const int       borderWidth    = 64;
+static const uintptr_t reverseTimerId = 1u;
 
 typedef struct
 {
@@ -49,6 +50,7 @@ typedef struct
 	double     lastDrawTime;
 	bool       mouseEntered;
 	bool       verbose;
+	bool       reversing;
 } PuglTestApp;
 
 static const float backgroundVertices[] = {
@@ -78,7 +80,8 @@ onDisplay(PuglView* view)
 
 	const double thisTime = puglGetTime(app->world);
 	if (app->continuous) {
-		const double dTime = thisTime - app->lastDrawTime;
+		const double dTime = (thisTime - app->lastDrawTime) *
+		                     (app->reversing ? -1.0 : 1.0);
 
 		app->xAngle = fmod(app->xAngle + dTime * 100.0, 360.0);
 		app->yAngle = fmod(app->yAngle + dTime * 100.0, 360.0);
@@ -249,6 +252,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_LEAVE_NOTIFY:
 		app->mouseEntered = false;
 		break;
+	case PUGL_TIMER:
+		app->reversing = !app->reversing;
+		break;
 	default:
 		break;
 	}
@@ -320,6 +326,8 @@ main(int argc, char** argv)
 
 	puglShowWindow(app.parent);
 	puglShowWindow(app.child);
+
+	puglStartTimer(app.child, reverseTimerId, 3.6);
 
 	PuglFpsPrinter fpsPrinter         = { puglGetTime(app.world) };
 	unsigned       framesDrawn        = 0;
