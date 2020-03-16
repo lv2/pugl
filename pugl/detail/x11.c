@@ -35,6 +35,10 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
+#ifdef HAVE_XSYNC
+#	include <X11/extensions/sync.h>
+#endif
+
 #include <sys/select.h>
 #include <sys/time.h>
 
@@ -64,6 +68,37 @@ static const long eventMask =
 	 VisibilityChangeMask | FocusChangeMask |
 	 EnterWindowMask | LeaveWindowMask | PointerMotionMask |
 	 ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask);
+
+static bool
+puglInitXSync(PuglWorldInternals* impl)
+{
+#ifdef HAVE_XSYNC
+	int                 syncMajor;
+	int                 syncMinor;
+	int                 errorBase;
+	XSyncSystemCounter* counters;
+	int                 numCounters;
+
+	if (XSyncQueryExtension(impl->display, &impl->syncEventBase, &errorBase) &&
+	    XSyncInitialize(impl->display, &syncMajor, &syncMinor) &&
+	    (counters = XSyncListSystemCounters(impl->display, &numCounters))) {
+
+		for (int n = 0; n < numCounters; ++n) {
+			if (!strcmp(counters[n].name, "SERVERTIME")) {
+				impl->serverTimeCounter = counters[n].counter;
+				impl->syncSupported     = true;
+				break;
+			}
+		}
+
+		XSyncFreeSystemCounterList(counters);
+	}
+#else
+	(void)impl;
+#endif
+
+	return false;
+}
 
 PuglWorldInternals*
 puglInitWorldInternals(PuglWorldType type, PuglWorldFlags flags)
@@ -100,6 +135,7 @@ puglInitWorldInternals(PuglWorldType type, PuglWorldFlags flags)
 		impl->xim = XOpenIM(display, NULL, NULL, NULL);
 	}
 
+	puglInitXSync(impl);
 	XFlush(display);
 
 	return impl;
@@ -301,6 +337,7 @@ puglFreeWorldInternals(PuglWorld* world)
 		XCloseIM(world->impl->xim);
 	}
 	XCloseDisplay(world->impl->display);
+	free(world->impl->timers);
 	free(world->impl);
 }
 
@@ -588,6 +625,80 @@ puglRequestAttention(PuglView* view)
 	return PUGL_SUCCESS;
 }
 
+PuglStatus
+puglStartTimer(PuglView* view, uintptr_t id, double timeout)
+{
+#ifdef HAVE_XSYNC
+	if (view->world->impl->syncSupported) {
+		XSyncValue value;
+		XSyncIntToValue(&value, (int)floor(timeout * 1000.0));
+
+		PuglWorldInternals*  w       = view->world->impl;
+		Display* const       display = w->display;
+		const XSyncCounter   counter = w->serverTimeCounter;
+		const XSyncTrigger   trigger = {counter, XSyncRelative, value, 0};
+		XSyncAlarmAttributes attr    = {trigger, value, True, XSyncAlarmActive};
+		const XSyncAlarm     alarm   = XSyncCreateAlarm(display, 0x17, &attr);
+		const PuglTimer      timer   = {alarm, view, id};
+
+		if (alarm != None) {
+			for (size_t i = 0; i < w->numTimers; ++i) {
+				if (w->timers[i].view == view && w->timers[i].id == id) {
+					// Replace existing timer
+					XSyncDestroyAlarm(w->display, w->timers[i].alarm);
+					w->timers[i] = timer;
+					return PUGL_SUCCESS;
+				}
+			}
+
+			// Add new timer
+			const size_t size           = ++w->numTimers * sizeof(timer);
+			w->timers                   = (PuglTimer*)realloc(w->timers, size);
+			w->timers[w->numTimers - 1] = timer;
+			return PUGL_SUCCESS;
+		}
+	}
+#else
+	(void)view;
+	(void)id;
+	(void)timeout;
+#endif
+
+	return PUGL_FAILURE;
+}
+
+PuglStatus
+puglStopTimer(PuglView* view, uintptr_t id)
+{
+#ifdef HAVE_XSYNC
+	PuglWorldInternals* w = view->world->impl;
+
+	for (size_t i = 0; i < w->numTimers; ++i) {
+		if (w->timers[i].view == view && w->timers[i].id == id) {
+			XSyncDestroyAlarm(w->display, w->timers[i].alarm);
+
+			if (i == w->numTimers - 1) {
+				memset(&w->timers[i], 0, sizeof(PuglTimer));
+			} else {
+				memmove(w->timers + i,
+				        w->timers + i + 1,
+				        sizeof(PuglTimer) * (w->numTimers - i - 1));
+
+				memset(&w->timers[i], 0, sizeof(PuglTimer));
+			}
+
+			--w->numTimers;
+			return PUGL_SUCCESS;
+		}
+	}
+#else
+	(void)view;
+	(void)id;
+#endif
+
+	return PUGL_FAILURE;
+}
+
 static XEvent
 puglEventToX(PuglView* view, const PuglEvent* event)
 {
@@ -765,6 +876,30 @@ flushExposures(PuglWorld* world)
 	}
 }
 
+static bool
+handleTimerEvent(PuglWorld* world, XEvent xevent)
+{
+#ifdef HAVE_XSYNC
+	if (xevent.type == world->impl->syncEventBase + XSyncAlarmNotify) {
+		XSyncAlarmNotifyEvent* notify = ((XSyncAlarmNotifyEvent*)&xevent);
+
+		for (size_t i = 0; i < world->impl->numTimers; ++i) {
+			if (world->impl->timers[i].alarm == notify->alarm) {
+				const PuglEventTimer ev = {PUGL_TIMER, 0, world->impl->timers[i].id};
+				puglDispatchEvent(world->impl->timers[i].view, (const PuglEvent*)&ev);
+			}
+		}
+
+		return true;
+	}
+#else
+	(void)world;
+	(void)xevent;
+#endif
+
+	return false;
+}
+
 static PuglStatus
 puglDispatchX11Events(PuglWorld* world)
 {
@@ -778,6 +913,10 @@ puglDispatchX11Events(PuglWorld* world)
 	while (XEventsQueued(display, QueuedAfterReading) > 0) {
 		XEvent xevent;
 		XNextEvent(display, &xevent);
+
+		if (handleTimerEvent(world, xevent)) {
+			continue;
+		}
 
 		PuglView* view = puglFindView(world, xevent.xany.window);
 		if (!view) {

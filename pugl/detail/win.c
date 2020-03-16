@@ -51,6 +51,7 @@
 #define PUGL_LOCAL_CLIENT_MSG (WM_USER + 52)
 #define PUGL_RESIZE_TIMER_ID  9461
 #define PUGL_URGENT_TIMER_ID  9462
+#define PUGL_USER_TIMER_MIN   9470
 
 typedef BOOL (WINAPI *PFN_SetProcessDPIAware)(void);
 
@@ -589,6 +590,9 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 			             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT);
 		} else if (wParam == PUGL_URGENT_TIMER_ID) {
 			FlashWindow(view->impl->hwnd, TRUE);
+		} else if (wParam >= PUGL_USER_TIMER_MIN) {
+			const PuglEventTimer ev = {PUGL_TIMER, 0, wParam - PUGL_USER_TIMER_MIN};
+			puglDispatchEvent(view, (const PuglEvent*)&ev);
 		}
 		break;
 	case WM_EXITSIZEMOVE:
@@ -739,6 +743,24 @@ puglRequestAttention(PuglView* view)
 	}
 
 	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglStartTimer(PuglView* view, uintptr_t id, double timeout)
+{
+	const UINT msec = (UINT)floor(timeout * 1000.0);
+
+	return (SetTimer(view->impl->hwnd, PUGL_USER_TIMER_MIN + id, msec, NULL)
+	            ? PUGL_SUCCESS
+	            : PUGL_UNKNOWN_ERROR);
+}
+
+PuglStatus
+puglStopTimer(PuglView* view, uintptr_t id)
+{
+	return (KillTimer(view->impl->hwnd, PUGL_USER_TIMER_MIN + id)
+	            ? PUGL_SUCCESS
+	            : PUGL_UNKNOWN_ERROR);
 }
 
 PuglStatus

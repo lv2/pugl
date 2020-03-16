@@ -105,6 +105,17 @@ def configure(conf):
 
     else:
         conf.check_cc(lib='X11', uselib_store='X11')
+
+        xsync_fragment = """#include <X11/Xlib.h>
+            #include <X11/extensions/sync.h>
+            int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }"""
+        if conf.check_cc(fragment=xsync_fragment,
+                         uselib_store='XSYNC',
+                         lib='Xext',
+                         mandatory=False,
+                         msg='Checking for function XSyncQueryExtension'):
+            conf.define('HAVE_XSYNC', 1)
+
         if not Options.options.no_gl:
             glx_fragment = """#include <GL/glx.h>
                 int main(void) { glXSwapBuffers(0, 0); return 0; }"""
@@ -172,7 +183,7 @@ def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
         LIBS=' '.join(link_flags))
 
 
-tests = ['redisplay', 'show_hide', 'update']
+tests = ['redisplay', 'show_hide', 'update', 'timer']
 
 
 def build(bld):
@@ -269,7 +280,7 @@ def build(bld):
     else:
         platform = 'x11'
         build_platform('x11',
-                       uselib=['M', 'X11'],
+                       uselib=['M', 'X11', 'XSYNC'],
                        source=lib_source + ['pugl/detail/x11.c'])
 
         if bld.env.HAVE_GL:

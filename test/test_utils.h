@@ -126,6 +126,8 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 		             prefix,
 		             event->client.data1,
 		             event->client.data2);
+	case PUGL_TIMER:
+		return PRINT("%sTimer %" PRIuPTR "\n", prefix, event->timer.id);
 	default:
 		break;
 	}

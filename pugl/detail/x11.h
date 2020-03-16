@@ -38,10 +38,21 @@ typedef struct {
 	Atom NET_WM_STATE_DEMANDS_ATTENTION;
 } PuglX11Atoms;
 
+typedef struct {
+	XID       alarm;
+	PuglView* view;
+	uint64_t  id;
+} PuglTimer;
+
 struct PuglWorldInternalsImpl {
 	Display*     display;
 	PuglX11Atoms atoms;
 	XIM          xim;
+	PuglTimer*   timers;
+	size_t       numTimers;
+	XID          serverTimeCounter;
+	int          syncEventBase;
+	bool         syncSupported;
 	bool         dispatchingEvents;
 };
 

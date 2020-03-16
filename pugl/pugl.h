@@ -185,7 +185,8 @@ typedef enum {
 	PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
 	PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
 	PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
-	PUGL_CLIENT          ///< Custom client message, a #PuglEventClient
+	PUGL_CLIENT,         ///< Custom client message, a #PuglEventClient
+	PUGL_TIMER           ///< Timer triggered, a #PuglEventTimer
 } PuglEventType;
 
 /**
@@ -405,6 +406,22 @@ typedef struct {
 } PuglEventClient;
 
 /**
+   Timer event.
+
+   This event is sent at the regular interval specified in the call to
+   puglStartTimer() that activated it.
+
+   The #id is the application-specific ID given to puglStartTimer() which
+   distinguishes this timer from others.  It should always be checked in the
+   event handler, even in applications that register only one timer.
+*/
+typedef struct {
+	PuglEventType  type;  ///< #PUGL_TIMER
+	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
+	uintptr_t      id;    ///< Timer ID
+} PuglEventTimer;
+
+/**
    View event.
 
    This is a union of all event types.  The #type must be checked to determine
@@ -428,6 +445,7 @@ typedef union {
 	PuglEventScroll    scroll;    ///< #PUGL_SCROLL
 	PuglEventFocus     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
 	PuglEventClient    client;    ///< #PUGL_CLIENT
+	PuglEventTimer     timer;     ///< #PUGL_TIMER
 } PuglEvent;
 
 /**
@@ -977,7 +995,7 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect);
    @}
    @anchor interaction
    @name Interaction
-   Functions for interacting with the user.
+   Functions for interacting with the user and window system.
    @{
 */
 
@@ -1033,6 +1051,45 @@ puglGetClipboard(PuglView* view, const char** type, size_t* len);
 */
 PUGL_API PuglStatus
 puglRequestAttention(PuglView* view);
+
+/**
+   Activate a repeating timer event.
+
+   This starts a timer which will send a #PuglEventTimer to `view` every
+   `timeout` seconds.  This can be used to perform some action in a view at a
+   regular interval with relatively low frequency.  Note that the frequency of
+   timer events may be limited by how often puglUpdate() is called.
+
+   If the given timer already exists, it is replaced.
+
+   @param view The view to begin seding #PUGL_TIMER events to.
+
+   @param id The identifier for this timer.  This is an application-specific ID
+   that should be a low number, typically the value of a constant or `enum`
+   that starts from 0.  There is a platform-specific limit to the number of
+   supported timers, and overhead associated with each, so applications should
+   create only a few timers and perform several tasks in one if necessary.
+
+   @param timeout The period, in seconds, of this timer.  This is not
+   guaranteed to have a resolution better than 10ms (the maximum timer
+   resolution on Windows) and may be rounded up if it is too short.  On X11 and
+   MacOS, a resolution of about 1ms can usually be relied on.
+
+   @return #PUGL_SUCCESS, #PUGL_FAILURE if timers are not supported on this
+   system, or an error code.
+*/
+PUGL_API PuglStatus
+puglStartTimer(PuglView* view, uintptr_t id, double timeout);
+
+/**
+   Stop an active timer.
+
+   @param view The view that the timer is set for.
+   @param id The ID previously passed to puglStartTimer().
+   @return #PUGL_SUCCESS, or #PUGL_FAILURE if no such timer was found.
+*/
+PUGL_API PuglStatus
+puglStopTimer(PuglView* view, uintptr_t id);
 
 /**
    Send an event to a view via the window system.

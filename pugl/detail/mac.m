@@ -640,6 +640,14 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     [puglview->world->impl->app requestUserAttention:NSInformationalRequest];
 }
 
+- (void) timerTick:(NSTimer*)userTimer
+{
+	const NSNumber*      userInfo = userTimer.userInfo;
+	const PuglEventTimer ev       = {PUGL_TIMER, 0, userInfo.unsignedLongValue};
+
+	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
+}
+
 - (void) viewDidEndLiveResize
 {
 	[super viewDidEndLiveResize];
@@ -763,6 +771,7 @@ puglCreateWindow(PuglView* view, const char* title)
 	// Create wrapper view to handle input
 	impl->wrapperView             = [PuglWrapperView alloc];
 	impl->wrapperView->puglview   = view;
+	impl->wrapperView->userTimers = [[NSMutableDictionary alloc] init];
 	impl->wrapperView->markedText = [[NSMutableAttributedString alloc] init];
 	[impl->wrapperView setAutoresizesSubviews:YES];
 	[impl->wrapperView initWithFrame:
@@ -918,6 +927,41 @@ puglRequestAttention(PuglView* view)
 	}
 
 	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglStartTimer(PuglView* view, uintptr_t id, double timeout)
+{
+	puglStopTimer(view, id);
+
+	NSNumber* idNumber = [NSNumber numberWithUnsignedLong:id];
+
+	NSTimer* timer = [NSTimer timerWithTimeInterval:timeout
+	                                         target:view->impl->wrapperView
+	                                       selector:@selector(timerTick:)
+	                                       userInfo:idNumber
+	                                        repeats:YES];
+
+	[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+
+	view->impl->wrapperView->userTimers[idNumber] = timer;
+
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglStopTimer(PuglView* view, uintptr_t id)
+{
+	NSNumber* idNumber = [NSNumber numberWithUnsignedLong:id];
+	NSTimer*  timer    = view->impl->wrapperView->userTimers[idNumber];
+
+	if (timer) {
+		[view->impl->wrapperView->userTimers removeObjectForKey:timer];
+		[timer invalidate];
+		return PUGL_SUCCESS;
+	}
+
+	return PUGL_UNKNOWN_ERROR;
 }
 
 PuglStatus puglSendEvent(PuglView* view, const PuglEvent* event)
