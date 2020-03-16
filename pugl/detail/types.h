@@ -64,13 +64,13 @@ struct PuglViewImpl {
 	uintptr_t          transientParent;
 	PuglHints          hints;
 	PuglRect           frame;
+	PuglEventConfigure lastConfigure;
 	int                minWidth;
 	int                minHeight;
 	int                minAspectX;
 	int                minAspectY;
 	int                maxAspectX;
 	int                maxAspectY;
-	bool               configured;
 	bool               visible;
 };
 

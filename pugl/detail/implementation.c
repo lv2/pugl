@@ -371,10 +371,7 @@ puglDecodeUTF8(const uint8_t* buf)
 static inline bool
 puglMustConfigure(PuglView* view, const PuglEventConfigure* configure)
 {
-	return !view->configured || configure->x != view->frame.x ||
-	       configure->y != view->frame.y ||
-	       configure->width != view->frame.width ||
-	       configure->height != view->frame.height;
+	return memcmp(configure, &view->lastConfigure, sizeof(PuglEventConfigure));
 }
 
 void
@@ -398,7 +395,7 @@ puglDispatchEventInContext(PuglView* view, const PuglEvent* event)
 
 		if (puglMustConfigure(view, &event->configure)) {
 			view->eventFunc(view, event);
-			view->configured = true;
+			view->lastConfigure = event->configure;
 		}
 	} else {
 		view->eventFunc(view, event);
