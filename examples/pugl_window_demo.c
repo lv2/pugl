@@ -129,7 +129,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 		reshapeCube((int)event->configure.width, (int)event->configure.height);
 		break;
 	case PUGL_UPDATE:
-		puglPostRedisplay(view);
+		if (app->continuous) {
+			puglPostRedisplay(view);
+		}
 		break;
 	case PUGL_EXPOSE:
 		onDisplay(view);
