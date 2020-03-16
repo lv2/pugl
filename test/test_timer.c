@@ -30,6 +30,8 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #ifdef __APPLE__
 static const double timeout = 1 / 60.0;

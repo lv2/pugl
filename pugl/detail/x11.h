@@ -26,6 +26,8 @@
 #include <X11/Xutil.h>
 
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 
 typedef struct {
 	Atom CLIPBOARD;
