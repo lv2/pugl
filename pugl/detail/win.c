@@ -50,7 +50,6 @@
 #define PUGL_LOCAL_MARK_MSG   (WM_USER + 51)
 #define PUGL_LOCAL_CLIENT_MSG (WM_USER + 52)
 #define PUGL_RESIZE_TIMER_ID  9461
-#define PUGL_URGENT_TIMER_ID  9462
 #define PUGL_USER_TIMER_MIN   9470
 
 typedef BOOL (WINAPI *PFN_SetProcessDPIAware)(void);
@@ -487,15 +486,6 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
 }
 
 static void
-stopFlashing(PuglView* view)
-{
-	if (view->impl->flashing) {
-		KillTimer(view->impl->hwnd, PUGL_URGENT_TIMER_ID);
-		FlashWindow(view->impl->hwnd, FALSE);
-	}
-}
-
-static void
 constrainAspect(const PuglView* const view,
                 RECT* const           size,
                 const WPARAM          wParam)
@@ -588,8 +578,6 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		if (wParam == PUGL_RESIZE_TIMER_ID) {
 			RedrawWindow(view->impl->hwnd, NULL, NULL,
 			             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT);
-		} else if (wParam == PUGL_URGENT_TIMER_ID) {
-			FlashWindow(view->impl->hwnd, TRUE);
 		} else if (wParam >= PUGL_USER_TIMER_MIN) {
 			const PuglEventTimer ev = {PUGL_TIMER, 0, wParam - PUGL_USER_TIMER_MIN};
 			puglDispatchEvent(view, (const PuglEvent*)&ev);
@@ -629,7 +617,6 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 			tme.hwndTrack = view->impl->hwnd;
 			TrackMouseEvent(&tme);
 
-			stopFlashing(view);
 			handleCrossing(view, PUGL_ENTER_NOTIFY, pt);
 			view->impl->mouseTracked = true;
 		}
@@ -688,7 +675,6 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		initCharEvent(&event, view, wParam, lParam);
 		break;
 	case WM_SETFOCUS:
-		stopFlashing(view);
 		event.type = PUGL_FOCUS_IN;
 		break;
 	case WM_KILLFOCUS:
@@ -736,11 +722,13 @@ puglHasFocus(const PuglView* view)
 PuglStatus
 puglRequestAttention(PuglView* view)
 {
-	if (!view->impl->mouseTracked || !puglHasFocus(view)) {
-		FlashWindow(view->impl->hwnd, TRUE);
-		SetTimer(view->impl->hwnd, PUGL_URGENT_TIMER_ID, 500, NULL);
-		view->impl->flashing = true;
-	}
+	FLASHWINFO info = {sizeof(FLASHWINFO),
+	                   view->impl->hwnd,
+	                   FLASHW_ALL|FLASHW_TIMERNOFG,
+	                   1,
+	                   0};
+
+	FlashWindowEx(&info);
 
 	return PUGL_SUCCESS;
 }

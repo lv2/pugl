@@ -32,7 +32,6 @@
 	NSTrackingArea*            trackingArea;
 	NSMutableAttributedString* markedText;
 	NSTimer*                   timer;
-	NSTimer*                   urgentTimer;
 	NSMutableDictionary*       userTimers;
 	bool                       reshaped;
 }

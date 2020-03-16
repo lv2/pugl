@@ -635,11 +635,6 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglPostRedisplay(puglview);
 }
 
-- (void) urgentTick
-{
-    [puglview->world->impl->app requestUserAttention:NSInformationalRequest];
-}
-
 - (void) timerTick:(NSTimer*)userTimer
 {
 	const NSNumber*      userInfo = userTimer.userInfo;
@@ -695,12 +690,6 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 - (void) windowDidBecomeKey:(NSNotification*)notification
 {
 	(void)notification;
-
-	PuglWrapperView* wrapperView = window->puglview->impl->wrapperView;
-	if (wrapperView->urgentTimer) {
-		[wrapperView->urgentTimer invalidate];
-		wrapperView->urgentTimer = NULL;
-	}
 
 	PuglEvent ev = {{PUGL_FOCUS_IN, 0}};
 	ev.focus.grab = false;
@@ -918,12 +907,6 @@ puglRequestAttention(PuglView* view)
 {
 	if (![view->impl->window isKeyWindow]) {
 		[view->world->impl->app requestUserAttention:NSInformationalRequest];
-		view->impl->wrapperView->urgentTimer =
-			[NSTimer scheduledTimerWithTimeInterval:2.0
-			                                 target:view->impl->wrapperView
-			                               selector:@selector(urgentTick)
-			                               userInfo:nil
-			                                repeats:YES];
 	}
 
 	return PUGL_SUCCESS;
