@@ -822,6 +822,15 @@ puglDispatchX11Events(PuglWorld* world)
 			view->frame.y                = event.configure.y;
 			view->frame.width            = event.configure.width;
 			view->frame.height           = event.configure.height;
+		} else if (event.type == PUGL_MAP && view->parent) {
+			XWindowAttributes attrs;
+			XGetWindowAttributes(view->impl->display, view->impl->win, &attrs);
+
+			const PuglEventConfigure configure = {
+			    PUGL_CONFIGURE, 0, attrs.x, attrs.y, attrs.width, attrs.height};
+
+			puglDispatchEvent(view, (const PuglEvent*)&configure);
+			puglDispatchEvent(view, &event);
 		} else {
 			// Dispatch event to application immediately
 			puglDispatchEvent(view, &event);
