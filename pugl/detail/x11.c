@@ -755,8 +755,8 @@ flushExposures(PuglWorld* world)
 
 		if (configure->type || expose->type) {
 			view->backend->enter(view, expose->type ? &expose->expose : NULL);
-			view->eventFunc(view, configure);
-			view->eventFunc(view, expose);
+			puglDispatchEventInContext(view, configure);
+			puglDispatchEventInContext(view, expose);
 			view->backend->leave(view, expose->type ? &expose->expose : NULL);
 
 			configure->type = 0;

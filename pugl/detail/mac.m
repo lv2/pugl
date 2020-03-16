@@ -969,7 +969,7 @@ dispatchClientEvent(PuglWorld* world, NSEvent* ev)
 			                               [ev data1],
 			                               [ev data2]};
 
-			view->eventFunc(view, (const PuglEvent*)&event);
+			puglDispatchEvent(view, (const PuglEvent*)&event);
 		}
 	}
 }

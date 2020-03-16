@@ -388,6 +388,24 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 }
 
 void
+puglDispatchEventInContext(PuglView* view, const PuglEvent* event)
+{
+	if (event->type == PUGL_CONFIGURE) {
+		view->frame.x      = event->configure.x;
+		view->frame.y      = event->configure.y;
+		view->frame.width  = event->configure.width;
+		view->frame.height = event->configure.height;
+
+		if (puglMustConfigure(view, &event->configure)) {
+			view->eventFunc(view, event);
+			view->configured = true;
+		}
+	} else {
+		view->eventFunc(view, event);
+	}
+}
+
+void
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
 	switch (event->type) {
@@ -401,13 +419,8 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 		break;
 	case PUGL_CONFIGURE:
 		if (puglMustConfigure(view, &event->configure)) {
-			view->frame.x      = event->configure.x;
-			view->frame.y      = event->configure.y;
-			view->frame.width  = event->configure.width;
-			view->frame.height = event->configure.height;
-
 			view->backend->enter(view, NULL);
-			view->eventFunc(view, event);
+			puglDispatchEventInContext(view, event);
 			view->backend->leave(view, NULL);
 		}
 		break;
