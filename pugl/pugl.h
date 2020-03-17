@@ -176,25 +176,25 @@ typedef enum {
 */
 typedef enum {
 	PUGL_NOTHING,        ///< No event
-	PUGL_BUTTON_PRESS,   ///< Mouse button pressed, a #PuglEventButton
-	PUGL_BUTTON_RELEASE, ///< Mouse button released, a #PuglEventButton
 	PUGL_CREATE,         ///< View created, a #PuglEventAny
 	PUGL_DESTROY,        ///< View destroyed, a #PuglEventAny
+	PUGL_CONFIGURE,      ///< View moved/resized, a #PuglEventConfigure
 	PUGL_MAP,            ///< View made visible, a #PuglEventAny
 	PUGL_UNMAP,          ///< View made invisible, a #PuglEventAny
 	PUGL_UPDATE,         ///< View ready to draw, a #PuglEventAny
-	PUGL_CONFIGURE,      ///< View moved/resized, a #PuglEventConfigure
 	PUGL_EXPOSE,         ///< View must be drawn, a #PuglEventExpose
 	PUGL_CLOSE,          ///< View will be closed, a #PuglEventAny
+	PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
+	PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
 	PUGL_KEY_PRESS,      ///< Key pressed, a #PuglEventKey
 	PUGL_KEY_RELEASE,    ///< Key released, a #PuglEventKey
 	PUGL_TEXT,           ///< Character entered, a #PuglEventText
 	PUGL_POINTER_IN,     ///< Pointer entered view, a #PuglEventCrossing
 	PUGL_POINTER_OUT,    ///< Pointer left view, a #PuglEventCrossing
+	PUGL_BUTTON_PRESS,   ///< Mouse button pressed, a #PuglEventButton
+	PUGL_BUTTON_RELEASE, ///< Mouse button released, a #PuglEventButton
 	PUGL_MOTION,         ///< Pointer moved, a #PuglEventMotion
 	PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
-	PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
-	PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
 	PUGL_CLIENT,         ///< Custom client message, a #PuglEventClient
 	PUGL_TIMER,          ///< Timer triggered, a #PuglEventTimer
 
