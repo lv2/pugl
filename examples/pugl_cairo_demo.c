@@ -195,11 +195,11 @@ onEvent(PuglView* view, const PuglEvent* event)
 		app->mouseDown = false;
 		postButtonRedisplay(view);
 		break;
-	case PUGL_ENTER_NOTIFY:
+	case PUGL_POINTER_IN:
 		app->entered = true;
 		puglPostRedisplay(view);
 		break;
-	case PUGL_LEAVE_NOTIFY:
+	case PUGL_POINTER_OUT:
 		app->entered = false;
 		puglPostRedisplay(view);
 		break;

@@ -193,7 +193,7 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_KEY_PRESS:
 		onKeyPress(view, &event->key, "Parent: ");
 		break;
-	case PUGL_MOTION_NOTIFY:
+	case PUGL_MOTION:
 		break;
 	case PUGL_CLOSE:
 		app->quit = 1;
@@ -230,7 +230,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_KEY_PRESS:
 		onKeyPress(view, &event->key, "Child:  ");
 		break;
-	case PUGL_MOTION_NOTIFY:
+	case PUGL_MOTION:
 		app->xAngle -= event->motion.x - app->lastMouseX;
 		app->yAngle += event->motion.y - app->lastMouseY;
 		app->lastMouseX = event->motion.x;
@@ -246,10 +246,10 @@ onEvent(PuglView* view, const PuglEvent* event)
 			puglPostRedisplay(view);
 		}
 		break;
-	case PUGL_ENTER_NOTIFY:
+	case PUGL_POINTER_IN:
 		app->mouseEntered = true;
 		break;
-	case PUGL_LEAVE_NOTIFY:
+	case PUGL_POINTER_OUT:
 		app->mouseEntered = false;
 		break;
 	case PUGL_TIMER:

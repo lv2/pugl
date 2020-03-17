@@ -142,7 +142,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_KEY_PRESS:
 		onKeyPress(view, &event->key);
 		break;
-	case PUGL_MOTION_NOTIFY:
+	case PUGL_MOTION:
 		cube->xAngle -= event->motion.x - cube->lastMouseX;
 		cube->yAngle += event->motion.y - cube->lastMouseY;
 		cube->lastMouseX = event->motion.x;
@@ -153,11 +153,11 @@ onEvent(PuglView* view, const PuglEvent* event)
 		cube->dist = fmaxf(10.0f, cube->dist + (float)event->scroll.dy);
 		redisplayView(app, view);
 		break;
-	case PUGL_ENTER_NOTIFY:
+	case PUGL_POINTER_IN:
 		cube->entered = true;
 		redisplayView(app, view);
 		break;
-	case PUGL_LEAVE_NOTIFY:
+	case PUGL_POINTER_OUT:
 		cube->entered = false;
 		redisplayView(app, view);
 		break;

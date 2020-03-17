@@ -617,12 +617,12 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 			tme.hwndTrack = view->impl->hwnd;
 			TrackMouseEvent(&tme);
 
-			handleCrossing(view, PUGL_ENTER_NOTIFY, pt);
+			handleCrossing(view, PUGL_POINTER_IN, pt);
 			view->impl->mouseTracked = true;
 		}
 
 		ClientToScreen(view->impl->hwnd, &pt);
-		event.motion.type    = PUGL_MOTION_NOTIFY;
+		event.motion.type    = PUGL_MOTION;
 		event.motion.time    = GetMessageTime() / 1e3;
 		event.motion.x       = GET_X_LPARAM(lParam);
 		event.motion.y       = GET_Y_LPARAM(lParam);
@@ -634,7 +634,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSELEAVE:
 		GetCursorPos(&pt);
 		ScreenToClient(view->impl->hwnd, &pt);
-		handleCrossing(view, PUGL_LEAVE_NOTIFY, pt);
+		handleCrossing(view, PUGL_POINTER_OUT, pt);
 		view->impl->mouseTracked = false;
 		break;
 	case WM_LBUTTONDOWN:

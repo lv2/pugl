@@ -493,7 +493,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.expose.count  = xevent.xexpose.count;
 		break;
 	case MotionNotify:
-		event.type           = PUGL_MOTION_NOTIFY;
+		event.type           = PUGL_MOTION;
 		event.motion.time    = xevent.xmotion.time / 1e3;
 		event.motion.x       = xevent.xmotion.x;
 		event.motion.y       = xevent.xmotion.y;
@@ -552,8 +552,8 @@ translateEvent(PuglView* view, XEvent xevent)
 	case EnterNotify:
 	case LeaveNotify:
 		event.type            = ((xevent.type == EnterNotify)
-		                         ? PUGL_ENTER_NOTIFY
-		                         : PUGL_LEAVE_NOTIFY);
+		                         ? PUGL_POINTER_IN
+		                         : PUGL_POINTER_OUT);
 		event.crossing.time   = xevent.xcrossing.time / 1e3;
 		event.crossing.x      = xevent.xcrossing.x;
 		event.crossing.y      = xevent.xcrossing.y;

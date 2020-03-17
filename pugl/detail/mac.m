@@ -271,12 +271,12 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 - (void) mouseEntered:(NSEvent*)event
 {
-	handleCrossing(self, event, PUGL_ENTER_NOTIFY);
+	handleCrossing(self, event, PUGL_POINTER_IN);
 }
 
 - (void) mouseExited:(NSEvent*)event
 {
-	handleCrossing(self, event, PUGL_LEAVE_NOTIFY);
+	handleCrossing(self, event, PUGL_POINTER_OUT);
 }
 
 - (void) mouseMoved:(NSEvent*)event
@@ -284,7 +284,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
 	const PuglEventMotion ev   = {
-		PUGL_MOTION_NOTIFY,
+		PUGL_MOTION,
 		0,
 		[event timestamp],
 		wloc.x,

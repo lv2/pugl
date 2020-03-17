@@ -103,12 +103,12 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 		              event->scroll.x,
 		              event->scroll.y) +
 		        printModifiers(event->scroll.state));
-	case PUGL_ENTER_NOTIFY:
+	case PUGL_POINTER_IN:
 		return PRINT("%sMouse enter  at " PFMT "\n",
 		             prefix,
 		             event->crossing.x,
 		             event->crossing.y);
-	case PUGL_LEAVE_NOTIFY:
+	case PUGL_POINTER_OUT:
 		return PRINT("%sMouse leave  at " PFMT "\n",
 		             prefix,
 		             event->crossing.x,
@@ -160,7 +160,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 			             event->expose.height);
 		case PUGL_CLOSE:
 			return PRINT("%sClose\n", prefix);
-		case PUGL_MOTION_NOTIFY:
+		case PUGL_MOTION:
 			return PRINT("%sMouse motion at " PFMT "\n",
 			             prefix,
 			             event->motion.x,

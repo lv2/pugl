@@ -42,6 +42,16 @@
 #    define PUGL_API
 #endif
 
+#ifndef PUGL_DISABLE_DEPRECATED
+#    if defined(__clang__)
+#        define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("", rep)))
+#    elif defined(__GNUC__)
+#        define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("Use " rep)))
+#    else
+#        define PUGL_DEPRECATED_BY(rep)
+#    endif
+#endif
+
 #ifdef __cplusplus
 #	define PUGL_BEGIN_DECLS extern "C" {
 #	define PUGL_END_DECLS }
@@ -179,14 +189,21 @@ typedef enum {
 	PUGL_KEY_PRESS,      ///< Key pressed, a #PuglEventKey
 	PUGL_KEY_RELEASE,    ///< Key released, a #PuglEventKey
 	PUGL_TEXT,           ///< Character entered, a #PuglEventText
-	PUGL_ENTER_NOTIFY,   ///< Pointer entered view, a #PuglEventCrossing
-	PUGL_LEAVE_NOTIFY,   ///< Pointer left view, a #PuglEventCrossing
-	PUGL_MOTION_NOTIFY,  ///< Pointer moved, a #PuglEventMotion
+	PUGL_POINTER_IN,     ///< Pointer entered view, a #PuglEventCrossing
+	PUGL_POINTER_OUT,    ///< Pointer left view, a #PuglEventCrossing
+	PUGL_MOTION,         ///< Pointer moved, a #PuglEventMotion
 	PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
 	PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
 	PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
 	PUGL_CLIENT,         ///< Custom client message, a #PuglEventClient
-	PUGL_TIMER           ///< Timer triggered, a #PuglEventTimer
+	PUGL_TIMER,          ///< Timer triggered, a #PuglEventTimer
+
+#ifndef PUGL_DISABLE_DEPRECATED
+	PUGL_ENTER_NOTIFY PUGL_DEPRECATED_BY("PUGL_POINTER_IN") = PUGL_POINTER_IN,
+	PUGL_LEAVE_NOTIFY PUGL_DEPRECATED_BY("PUGL_POINTER_OUT") = PUGL_POINTER_OUT,
+	PUGL_MOTION_NOTIFY PUGL_DEPRECATED_BY("PUGL_MOTION") = PUGL_MOTION,
+#endif
+
 } PuglEventType;
 
 /**
@@ -330,7 +347,7 @@ typedef struct {
    window edge), as described by the #mode field.
 */
 typedef struct {
-	PuglEventType    type;  ///< #PUGL_ENTER_NOTIFY or #PUGL_LEAVE_NOTIFY
+	PuglEventType    type;  ///< #PUGL_POINTER_IN or #PUGL_POINTER_OUT
 	PuglEventFlags   flags; ///< Bitwise OR of #PuglEventFlag values
 	double           time;  ///< Time in seconds
 	double           x;     ///< View-relative X coordinate
@@ -345,7 +362,7 @@ typedef struct {
    Pointer motion event.
 */
 typedef struct {
-	PuglEventType  type;   ///< #PUGL_MOTION_NOTIFY
+	PuglEventType  type;   ///< #PUGL_MOTION
 	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
 	double         time;   ///< Time in seconds
 	double         x;      ///< View-relative X coordinate
@@ -440,8 +457,8 @@ typedef union {
 	PuglEventExpose    expose;    ///< #PUGL_EXPOSE
 	PuglEventKey       key;       ///< #PUGL_KEY_PRESS, #PUGL_KEY_RELEASE
 	PuglEventText      text;      ///< #PUGL_TEXT
-	PuglEventCrossing  crossing;  ///< #PUGL_ENTER_NOTIFY, #PUGL_LEAVE_NOTIFY
-	PuglEventMotion    motion;    ///< #PUGL_MOTION_NOTIFY
+	PuglEventCrossing  crossing;  ///< #PUGL_POINTER_IN, #PUGL_POINTER_OUT
+	PuglEventMotion    motion;    ///< #PUGL_MOTION
 	PuglEventScroll    scroll;    ///< #PUGL_SCROLL
 	PuglEventFocus     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
 	PuglEventClient    client;    ///< #PUGL_CLIENT
@@ -1113,14 +1130,6 @@ puglSendEvent(PuglView* view, const PuglEvent* event);
    @name Deprecated API
    @{
 */
-
-#if defined(__clang__)
-#    define PUGL_DEPRECATED_BY(name) __attribute__((deprecated("", name)))
-#elif defined(__GNUC__)
-#    define PUGL_DEPRECATED_BY(name) __attribute__((deprecated("Use " name)))
-#else
-#    define PUGL_DEPRECATED_BY(name)
-#endif
 
 /**
    Create a Pugl application and view.
