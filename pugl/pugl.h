@@ -236,21 +236,6 @@ typedef struct {
 } PuglEventAny;
 
 /**
-   Button press or release event.
-*/
-typedef struct {
-	PuglEventType  type;   ///< #PUGL_BUTTON_PRESS or #PUGL_BUTTON_RELEASE
-	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
-	double         time;   ///< Time in seconds
-	double         x;      ///< View-relative X coordinate
-	double         y;      ///< View-relative Y coordinate
-	double         xRoot;  ///< Root-relative X coordinate
-	double         yRoot;  ///< Root-relative Y coordinate
-	PuglMods       state;  ///< Bitwise OR of #PuglMod flags
-	uint32_t       button; ///< Button number starting from 1
-} PuglEventButton;
-
-/**
    Window resize or move event.
 
    A configure event is sent whenever the window is resized or moved.  When a
@@ -283,6 +268,18 @@ typedef struct {
 	double         height; ///< Height of exposed region
 	int            count;  ///< Number of expose events to follow
 } PuglEventExpose;
+
+/**
+   Keyboard focus event.
+
+   This event is sent whenever the view gains or loses the keyboard focus.  The
+   view with the keyboard focus will receive any key press or release events.
+*/
+typedef struct {
+	PuglEventType  type;  ///< #PUGL_FOCUS_IN or #PUGL_FOCUS_OUT
+	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
+	bool           grab;  ///< True iff this is a grab/ungrab event
+} PuglEventFocus;
 
 /**
    Key press or release event.
@@ -359,6 +356,21 @@ typedef struct {
 } PuglEventCrossing;
 
 /**
+   Button press or release event.
+*/
+typedef struct {
+	PuglEventType  type;   ///< #PUGL_BUTTON_PRESS or #PUGL_BUTTON_RELEASE
+	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
+	double         time;   ///< Time in seconds
+	double         x;      ///< View-relative X coordinate
+	double         y;      ///< View-relative Y coordinate
+	double         xRoot;  ///< Root-relative X coordinate
+	double         yRoot;  ///< Root-relative Y coordinate
+	PuglMods       state;  ///< Bitwise OR of #PuglMod flags
+	uint32_t       button; ///< Button number starting from 1
+} PuglEventButton;
+
+/**
    Pointer motion event.
 */
 typedef struct {
@@ -395,18 +407,6 @@ typedef struct {
 	double         dx;    ///< Scroll X distance in lines
 	double         dy;    ///< Scroll Y distance in lines
 } PuglEventScroll;
-
-/**
-   Keyboard focus event.
-
-   This event is sent whenever the view gains or loses the keyboard focus.  The
-   view with the keyboard focus will receive any key press or release events.
-*/
-typedef struct {
-	PuglEventType  type;  ///< #PUGL_FOCUS_IN or #PUGL_FOCUS_OUT
-	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
-	bool           grab;  ///< True iff this is a grab/ungrab event
-} PuglEventFocus;
 
 /**
    Custom client message event.
