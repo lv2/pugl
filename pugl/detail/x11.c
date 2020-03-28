@@ -856,22 +856,23 @@ static void
 flushExposures(PuglWorld* world)
 {
 	for (size_t i = 0; i < world->numViews; ++i) {
-		PuglView* const  view      = world->views[i];
-		PuglEvent* const configure = &view->impl->pendingConfigure;
-		PuglEvent* const expose    = &view->impl->pendingExpose;
+		PuglView* const view = world->views[i];
 
 		if (view->visible) {
 			puglDispatchSimpleEvent(view, PUGL_UPDATE);
 		}
 
-		if (configure->type || expose->type) {
-			view->backend->enter(view, expose->type ? &expose->expose : NULL);
-			puglDispatchEventInContext(view, configure);
-			puglDispatchEventInContext(view, expose);
-			view->backend->leave(view, expose->type ? &expose->expose : NULL);
+		const PuglEvent configure = view->impl->pendingConfigure;
+		const PuglEvent expose    = view->impl->pendingExpose;
 
-			configure->type = 0;
-			expose->type    = 0;
+		view->impl->pendingConfigure.type = PUGL_NOTHING;
+		view->impl->pendingExpose.type    = PUGL_NOTHING;
+
+		if (configure.type || expose.type) {
+			view->backend->enter(view, expose.type ? &expose.expose : NULL);
+			puglDispatchEventInContext(view, &configure);
+			puglDispatchEventInContext(view, &expose);
+			view->backend->leave(view, expose.type ? &expose.expose : NULL);
 		}
 	}
 }
