@@ -25,6 +25,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef __GNUC__
+#    define PUGL_LOG_FUNC(fmt, arg1) __attribute__((format(printf, fmt, arg1)))
+#else
+#    define PUGL_LOG_FUNC(fmt, arg1)
+#endif
+
 typedef struct {
 	int  samples;
 	int  doubleBuffer;
@@ -37,7 +43,8 @@ typedef struct {
 	bool errorChecking;
 } PuglTestOptions;
 
-static inline int
+PUGL_LOG_FUNC(1, 2)
+static int
 logError(const char* fmt, ...)
 {
 	fprintf(stderr, "error: ");
