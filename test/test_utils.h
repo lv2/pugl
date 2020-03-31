@@ -88,7 +88,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 		             event->text.string);
 	case PUGL_BUTTON_PRESS:
 	case PUGL_BUTTON_RELEASE:
-		return (PRINT("%sMouse %d %s at " PFMT " ",
+		return (PRINT("%sMouse %u %s at " PFMT " ",
 		              prefix,
 		              event->button.button,
 		              (event->type == PUGL_BUTTON_PRESS) ? "down" : "up  ",
@@ -166,7 +166,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 			             event->motion.x,
 			             event->motion.y);
 		default:
-			fprintf(stderr, "%sUnknown event type %d\n", prefix, event->type);
+			fprintf(stderr, "%sUnknown event type %u\n", prefix, event->type);
 			break;
 		}
 	}
