@@ -999,7 +999,7 @@ puglUpdate(PuglWorld* world, double timeout)
 	if (timeout < 0.0) {
 		st = puglPollX11Socket(world, timeout);
 		st = st ? st : puglDispatchX11Events(world);
-	} else if (timeout == 0.0) {
+	} else if (timeout <= 0.001) {
 		st = puglDispatchX11Events(world);
 	} else {
 		const double endTime = startTime + timeout - 0.001;
