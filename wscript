@@ -33,8 +33,7 @@ def options(ctx):
          'no-gl':       'do not build OpenGL support',
          'no-cairo':    'do not build Cairo support',
          'no-static':   'do not build static library',
-         'no-shared':   'do not build shared library',
-         'grab-focus':  'work around keyboard issues by grabbing focus'})
+         'no-shared':   'do not build shared library'})
 
     ctx.get_option_group('Test options').add_option(
         '--gui-tests', action='store_true', help='Run GUI tests')
