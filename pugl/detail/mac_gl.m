@@ -39,14 +39,14 @@
 
 - (id) initWithFrame:(NSRect)frame
 {
-	const bool compat  = puglview->hints[PUGL_USE_COMPAT_PROFILE];
-	const int  samples = puglview->hints[PUGL_SAMPLES];
-	const int  major   = puglview->hints[PUGL_CONTEXT_VERSION_MAJOR];
-	const int  profile = ((compat || major < 3)
-	                      ? NSOpenGLProfileVersionLegacy
-	                      : (major >= 4
-	                         ? NSOpenGLProfileVersion4_1Core
-	                         : NSOpenGLProfileVersion3_2Core));
+	const bool     compat  = puglview->hints[PUGL_USE_COMPAT_PROFILE];
+	const unsigned samples = (unsigned)puglview->hints[PUGL_SAMPLES];
+	const int      major   = puglview->hints[PUGL_CONTEXT_VERSION_MAJOR];
+	const unsigned profile = ((compat || major < 3)
+	                              ? NSOpenGLProfileVersionLegacy
+	                              : (major >= 4
+	                                     ? NSOpenGLProfileVersion4_1Core
+	                                     : NSOpenGLProfileVersion3_2Core));
 
 	NSOpenGLPixelFormatAttribute pixelAttribs[16] = {
 		NSOpenGLPFADoubleBuffer,

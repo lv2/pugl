@@ -60,6 +60,6 @@ struct PuglInternalsImpl {
 	NSApplication*   app;
 	PuglWrapperView* wrapperView;
 	NSView*          drawView;
-	id               window;
+	PuglWindow*      window;
 	uint32_t         mods;
 };

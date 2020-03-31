@@ -475,7 +475,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	(void)replacement;
 	[markedText release];
 	markedText = (
-		[string isKindOfClass:[NSAttributedString class]]
+		[(NSObject*)string isKindOfClass:[NSAttributedString class]]
 		? [[NSMutableAttributedString alloc] initWithAttributedString:string]
 		: [[NSMutableAttributedString alloc] initWithString:string]);
 }
@@ -511,7 +511,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	(void)range;
 	(void)actual;
 
-	const NSRect frame = [(id)puglview bounds];
+	const NSRect frame = [self bounds];
 	return NSMakeRect(frame.origin.x, frame.origin.y, 0.0, 0.0);
 }
 
@@ -527,8 +527,8 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 	NSEvent* const  event      = [NSApp currentEvent];
 	NSString* const characters =
-		([string isKindOfClass:[NSAttributedString class]]
-		 ? [string string]
+		([(NSObject*)string isKindOfClass:[NSAttributedString class]]
+		 ? [(NSAttributedString*)string string]
 		 : (NSString*)string);
 
 	const NSPoint wloc = [self eventLocation:event];
@@ -569,7 +569,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	const uint32_t mods    = getModifiers(event);
 	PuglEventType  type    = PUGL_NOTHING;
-	PuglKey        special = 0;
+	PuglKey        special = (PuglKey)0;
 
 	if ((mods & PUGL_MOD_SHIFT) != (puglview->impl->mods & PUGL_MOD_SHIFT)) {
 		type = mods & PUGL_MOD_SHIFT ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
@@ -771,7 +771,7 @@ puglCreateWindow(PuglView* view, const char* title)
 		     puglConstraint(impl->wrapperView, NSLayoutAttributeHeight, view->minHeight)];
 
 	// Create draw view to be rendered to
-	int st = 0;
+	PuglStatus st = PUGL_SUCCESS;
 	if ((st = view->backend->configure(view)) ||
 	    (st = view->backend->create(view))) {
 		return st;
@@ -804,7 +804,7 @@ puglCreateWindow(PuglView* view, const char* title)
 			style |= NSResizableWindowMask;
 		}
 
-		id window = [[[PuglWindow alloc]
+		PuglWindow* window = [[[PuglWindow alloc]
 			initWithContentRect:frame
 			          styleMask:style
 			            backing:NSBackingStoreBuffered
@@ -963,8 +963,8 @@ PuglStatus puglSendEvent(PuglView* view, const PuglEvent* event)
 		          windowNumber:window.windowNumber
 		               context:nil
 		               subtype:PUGL_CLIENT
-		                 data1:event->client.data1
-		                 data2:event->client.data2];
+		                 data1:(NSInteger)event->client.data1
+		                 data2:(NSInteger)event->client.data2];
 
 		[view->world->impl->app postEvent:nsevent atStart:false];
         return PUGL_SUCCESS;
@@ -992,8 +992,8 @@ dispatchClientEvent(PuglWorld* world, NSEvent* ev)
 		if ([wrapper window] == win && NSPointInRect(loc, [wrapper frame])) {
 			const PuglEventClient event = {PUGL_CLIENT,
 			                               0,
-			                               [ev data1],
-			                               [ev data2]};
+			                               (uintptr_t)[ev data1],
+			                               (uintptr_t)[ev data2]};
 
 			puglDispatchEvent(view, (const PuglEvent*)&event);
 		}
@@ -1182,11 +1182,16 @@ puglSetClipboard(PuglView* const   view,
 		return st;
 	}
 
-	[pasteboard declareTypes:[NSArray arrayWithObjects:NSStringPboardType, nil]
-	                   owner:nil];
+	NSString* nsString = [NSString stringWithUTF8String:str];
+	if (nsString) {
+		[pasteboard
+		    declareTypes:[NSArray arrayWithObjects:NSStringPboardType, nil]
+		           owner:nil];
 
-	[pasteboard setString:[NSString stringWithUTF8String:str]
-	              forType:NSStringPboardType];
+		[pasteboard setString:nsString forType:NSStringPboardType];
 
-	return PUGL_SUCCESS;
+		return PUGL_SUCCESS;
+	}
+
+	return PUGL_UNKNOWN_ERROR;
 }
