@@ -108,9 +108,11 @@ onConfigure(PuglView* view, double width, double height)
 static void
 onExpose(PuglView* view)
 {
-	PuglTestApp*   app   = (PuglTestApp*)puglGetHandle(view);
-	const PuglRect frame = puglGetFrame(view);
-	const double   time  = puglGetTime(puglGetWorld(view));
+	PuglTestApp*   app    = (PuglTestApp*)puglGetHandle(view);
+	const PuglRect frame  = puglGetFrame(view);
+	const float    width  = (float)frame.width;
+	const float    height = (float)frame.height;
+	const double   time   = puglGetTime(puglGetWorld(view));
 
 	// Construct projection matrix for 2D window surface (in pixels)
 	mat4 proj;
@@ -137,11 +139,11 @@ onExpose(PuglView* view)
 
 		// Move rect around in an arbitrary way that looks cool
 		rect->pos[0] =
-		        (float)(frame.width - rect->size[0] + offset[0]) *
+		        (float)(width - rect->size[0] + offset[0]) *
 		        (sinf((float)time * rect->size[0] / 64.0f + normal) + 1.0f) /
 		        2.0f;
 		rect->pos[1] =
-		        (float)(frame.height - rect->size[1] + offset[1]) *
+		        (float)(height - rect->size[1] + offset[1]) *
 		        (cosf((float)time * rect->size[1] / 64.0f + normal) + 1.0f) /
 		        2.0f;
 	}
