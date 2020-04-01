@@ -1061,10 +1061,10 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect)
 	return PUGL_SUCCESS;
 }
 
-PuglNativeWindow
+PuglNativeView
 puglGetNativeWindow(PuglView* view)
 {
-	return (PuglNativeWindow)view->impl->win;
+	return (PuglNativeView)view->impl->win;
 }
 
 PuglStatus
@@ -1139,7 +1139,7 @@ puglSetAspectRatio(PuglView* const view,
 }
 
 PuglStatus
-puglSetTransientFor(PuglView* view, PuglNativeWindow parent)
+puglSetTransientFor(PuglView* view, PuglNativeView parent)
 {
 	Display* display = view->world->impl->display;
 

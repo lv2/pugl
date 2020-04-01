@@ -43,7 +43,7 @@ typedef struct PuglWorldInternalsImpl PuglWorldInternals;
 typedef struct PuglInternalsImpl PuglInternals;
 
 /** View hints. */
-typedef int PuglHints[PUGL_NUM_WINDOW_HINTS];
+typedef int PuglHints[PUGL_NUM_VIEW_HINTS];
 
 /** Blob of arbitrary data. */
 typedef struct {
@@ -60,7 +60,7 @@ struct PuglViewImpl {
 	PuglEventFunc      eventFunc;
 	char*              title;
 	PuglBlob           clipboard;
-	PuglNativeWindow   parent;
+	PuglNativeView     parent;
 	uintptr_t          transientParent;
 	PuglHints          hints;
 	PuglRect           frame;

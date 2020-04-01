@@ -1072,10 +1072,10 @@ puglPostRedisplayRect(PuglView* view, const PuglRect rect)
 	return PUGL_SUCCESS;
 }
 
-PuglNativeWindow
+PuglNativeView
 puglGetNativeWindow(PuglView* view)
 {
-	return (PuglNativeWindow)view->impl->wrapperView;
+	return (PuglNativeView)view->impl->wrapperView;
 }
 
 PuglStatus

@@ -236,9 +236,9 @@ typedef struct {
 } PuglEventAny;
 
 /**
-   Window resize or move event.
+   View resize or move event.
 
-   A configure event is sent whenever the window is resized or moved.  When a
+   A configure event is sent whenever the view is resized or moved.  When a
    configure event is received, the graphics context is active but not set up
    for drawing.  For example, it is valid to adjust the OpenGL viewport or
    otherwise configure the context, but not to draw anything.
@@ -383,7 +383,7 @@ typedef struct {
 	double         yRoot;  ///< Root-relative Y coordinate
 	PuglMods       state;  ///< Bitwise OR of #PuglMod flags
 	bool           isHint; ///< True iff this event is a motion hint
-	bool           focus;  ///< True iff this is the focused window
+	bool           focus;  ///< True iff this is the focused view
 } PuglEventMotion;
 
 /**
@@ -484,8 +484,8 @@ typedef enum {
 	PUGL_BAD_BACKEND,           ///< Invalid or missing backend
 	PUGL_BAD_PARAMETER,         ///< Invalid parameter
 	PUGL_BACKEND_FAILED,        ///< Backend initialisation failed
-	PUGL_REGISTRATION_FAILED,   ///< Window class registration failed
-	PUGL_CREATE_WINDOW_FAILED,  ///< Window creation failed
+	PUGL_REGISTRATION_FAILED,   ///< Class registration failed
+	PUGL_REALIZE_FAILED,        ///< System view realization failed
 	PUGL_SET_FORMAT_FAILED,     ///< Failed to set pixel format
 	PUGL_CREATE_CONTEXT_FAILED, ///< Failed to create drawing context
 	PUGL_UNSUPPORTED_TYPE,      ///< Unsupported data type
@@ -715,7 +715,7 @@ typedef struct PuglViewImpl PuglView;
 typedef struct PuglBackendImpl PuglBackend;
 
 /**
-   A native window handle.
+   A native view handle.
 
    X11: This is a `Window`.
 
@@ -723,7 +723,7 @@ typedef struct PuglBackendImpl PuglBackend;
 
    Windows: This is a `HWND`.
 */
-typedef uintptr_t PuglNativeWindow;
+typedef uintptr_t PuglNativeView;
 
 /**
    Handle for a view's opaque user data.
@@ -747,10 +747,10 @@ typedef enum {
 	PUGL_SAMPLES,               ///< Number of samples per pixel (AA)
 	PUGL_DOUBLE_BUFFER,         ///< True if double buffering should be used
 	PUGL_SWAP_INTERVAL,         ///< Number of frames between buffer swaps
-	PUGL_RESIZABLE,             ///< True if window should be resizable
+	PUGL_RESIZABLE,             ///< True if view should be resizable
 	PUGL_IGNORE_KEY_REPEAT,     ///< True if key repeat events are ignored
 
-	PUGL_NUM_WINDOW_HINTS
+	PUGL_NUM_VIEW_HINTS
 } PuglViewHint;
 
 /**
@@ -839,7 +839,7 @@ PUGL_API PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
 /**
-   Set a hint to configure window properties.
+   Set a hint to configure view properties.
 
    This only has an effect when called before puglRealize().
 */
@@ -880,7 +880,7 @@ PUGL_API PuglStatus
 puglSetMinSize(PuglView* view, int width, int height);
 
 /**
-   Set the window aspect ratio range.
+   Set the view aspect ratio range.
 
    The x and y values here represent a ratio of width to height.  To set a
    fixed aspect ratio, set the minimum and maximum values to the same ratio.
@@ -898,7 +898,7 @@ puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
 /**
    @}
    @name Windows
-   Functions for working with top-level windows.
+   Functions for working with system views and the window hierarchy.
    @{
 */
 
@@ -918,7 +918,7 @@ puglSetWindowTitle(PuglView* view, const char* title);
    This must be called before puglRealize(), reparenting is not supported.
 */
 PUGL_API PuglStatus
-puglSetParentWindow(PuglView* view, PuglNativeWindow parent);
+puglSetParentWindow(PuglView* view, PuglNativeView parent);
 
 /**
    Set the transient parent of the window.
@@ -928,7 +928,7 @@ puglSetParentWindow(PuglView* view, PuglNativeWindow parent);
    puglRealize().
 */
 PUGL_API PuglStatus
-puglSetTransientFor(PuglView* view, PuglNativeWindow parent);
+puglSetTransientFor(PuglView* view, PuglNativeView parent);
 
 /**
    Realise a view by creating a corresponding system view or window.
@@ -971,7 +971,7 @@ puglGetVisible(PuglView* view);
 /**
    Return the native window handle.
 */
-PUGL_API PuglNativeWindow
+PUGL_API PuglNativeView
 puglGetNativeWindow(PuglView* view);
 
 /**
@@ -1138,6 +1138,17 @@ puglSendEvent(PuglView* view, const PuglEvent* event);
    @name Deprecated API
    @{
 */
+
+/**
+   A native window handle.
+
+   X11: This is a `Window`.
+
+   MacOS: This is a pointer to an `NSView*`.
+
+   Windows: This is a `HWND`.
+*/
+typedef uintptr_t PuglNativeWindow;
 
 /**
    Create a Pugl application and view.
