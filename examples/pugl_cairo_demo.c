@@ -237,16 +237,17 @@ main(int argc, char** argv)
 
 	PuglRect  frame = { 0, 0, 512, 512 };
 	PuglView* view  = puglNewView(app.world);
+
+	puglSetWindowTitle(view, "Pugl Cairo Demo");
 	puglSetFrame(view, frame);
 	puglSetMinSize(view, 256, 256);
 	puglSetViewHint(view, PUGL_RESIZABLE, app.opts.resizable);
 	puglSetHandle(view, &app);
 	puglSetBackend(view, puglCairoBackend());
-
 	puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, app.opts.ignoreKeyRepeat);
 	puglSetEventFunc(view, onEvent);
 
-	PuglStatus st = puglCreateWindow(view, "Pugl Test");
+	PuglStatus st = puglRealize(view);
 	if (st) {
 		return logError("Failed to create window (%s)\n", puglStrerror(st));
 	}

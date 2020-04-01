@@ -57,11 +57,12 @@ main(void)
 	app.view  = puglNewView(app.world);
 
 	puglSetClassName(app.world, "Pugl Print Events");
+	puglSetWindowTitle(app.view, "Pugl Event Printer");
 	puglSetBackend(app.view, puglStubBackend());
 	puglSetHandle(app.view, &app);
 	puglSetEventFunc(app.view, onEvent);
 
-	if (puglCreateWindow(app.view, "Pugl Event Printer")) {
+	if (puglRealize(app.view)) {
 		return logError("Failed to create window\n");
 	}
 

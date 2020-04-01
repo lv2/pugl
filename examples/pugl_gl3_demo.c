@@ -271,6 +271,7 @@ setupPugl(PuglTestApp* app, const PuglRect frame)
 
 	// Set up world and view
 	puglSetClassName(app->world, "PuglGL3Demo");
+	puglSetWindowTitle(app->view, "Pugl OpenGL 3");
 	puglSetFrame(app->view, frame);
 	puglSetMinSize(app->view, defaultWidth / 4, defaultHeight / 4);
 	puglSetAspectRatio(app->view, 1, 1, 16, 9);
@@ -405,7 +406,7 @@ main(int argc, char** argv)
 	setupPugl(&app, frame);
 
 	// Create window (which will send a PUGL_CREATE event)
-	const PuglStatus st = puglCreateWindow(app.view, "Pugl OpenGL 3");
+	const PuglStatus st = puglRealize(app.view);
 	if (st) {
 		return logError("Failed to create window (%s)\n", puglStrerror(st));
 	}

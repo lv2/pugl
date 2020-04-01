@@ -117,7 +117,7 @@ main(int argc, char** argv)
 	puglSetEventFunc(test.view, onEvent);
 
 	// Create initially invisible window
-	assert(!puglCreateWindow(test.view, "Pugl Test"));
+	assert(!puglRealize(test.view));
 	assert(!puglGetVisible(test.view));
 	while (test.state < CREATED) {
 		tick(test.world);

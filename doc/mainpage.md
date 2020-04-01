@@ -33,7 +33,7 @@ as well as a [stub](@ref stub) backend that creates a native window with no draw
 
 
 Once the view is configured,
-it can be [created](@ref puglCreateWindow) and [shown](@ref puglShowWindow).
+it can be [realized](@ref puglRealize) and [shown](@ref puglShowWindow).
 By default a view will correspond to a top-level system window.
 To create a view within another window,
 it must have a [parent window set](@ref puglSetParentWindow) before being created.

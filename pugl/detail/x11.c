@@ -221,7 +221,7 @@ getSizeHints(const PuglView* view)
 }
 
 PuglStatus
-puglCreateWindow(PuglView* view, const char* title)
+puglRealize(PuglView* view)
 {
 	PuglInternals* const impl    = view->impl;
 	PuglWorld* const     world   = view->world;
@@ -268,8 +268,8 @@ puglCreateWindow(PuglView* view, const char* title)
 	XClassHint classHint = { world->className, world->className };
 	XSetClassHint(display, win, &classHint);
 
-	if (title) {
-		puglSetWindowTitle(view, title);
+	if (view->title) {
+		puglSetWindowTitle(view, view->title);
 	}
 
 	if (!view->parent) {
@@ -300,9 +300,18 @@ puglCreateWindow(PuglView* view, const char* title)
 PuglStatus
 puglShowWindow(PuglView* view)
 {
+	PuglStatus st = PUGL_SUCCESS;
+
+	if (!view->impl->win) {
+		if ((st = puglRealize(view))) {
+			return st;
+		}
+	}
+
 	XMapRaised(view->impl->display, view->impl->win);
 	puglPostRedisplay(view);
-	return PUGL_SUCCESS;
+
+	return st;
 }
 
 PuglStatus
@@ -1065,10 +1074,13 @@ puglSetWindowTitle(PuglView* view, const char* title)
 	const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
 
 	puglSetString(&view->title, title);
-	XStoreName(display, view->impl->win, title);
-	XChangeProperty(display, view->impl->win, atoms->NET_WM_NAME,
-	                atoms->UTF8_STRING, 8, PropModeReplace,
-	                (const uint8_t*)title, (int)strlen(title));
+
+	if (view->impl->win) {
+		XStoreName(display, view->impl->win, title);
+		XChangeProperty(display, view->impl->win, atoms->NET_WM_NAME,
+		                atoms->UTF8_STRING, 8, PropModeReplace,
+		                (const uint8_t*)title, (int)strlen(title));
+	}
 
 	return PUGL_SUCCESS;
 }

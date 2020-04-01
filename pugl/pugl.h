@@ -776,7 +776,8 @@ typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
    Create a new view.
 
    A newly created view does not correspond to a real system view or window.
-   It must first be configured, then be realised by calling puglCreateWindow().
+   It must first be configured, then the system view can be created with
+   puglRealize().
 */
 PUGL_API PuglView*
 puglNewView(PuglWorld* world);
@@ -815,7 +816,7 @@ puglGetHandle(PuglView* view);
    Set the graphics backend to use for a view.
 
    This must be called once to set the graphics backend before calling
-   puglCreateWindow().
+   puglRealize().
 
    Pugl includes the following backends:
 
@@ -839,7 +840,7 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 /**
    Set a hint to configure window properties.
 
-   This only has an effect when called before puglCreateWindow().
+   This only has an effect when called before puglRealize().
 */
 PUGL_API PuglStatus
 puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
@@ -872,8 +873,7 @@ puglSetFrame(PuglView* view, PuglRect frame);
    Set the minimum size of the view.
 
    If an initial minimum size is known, this should be called before
-   puglCreateWindow() to avoid stutter, though it can be called afterwards as
-   well.
+   puglRealize() to avoid stutter, though it can be called afterwards as well.
 */
 PUGL_API PuglStatus
 puglSetMinSize(PuglView* view, int width, int height);
@@ -889,8 +889,7 @@ puglSetMinSize(PuglView* view, int width, int height);
    ratio works properly across all platforms.
 
    If an initial aspect ratio is known, this should be called before
-   puglCreateWindow() to avoid stutter, though it can be called afterwards as
-   well.
+   puglRealize() to avoid stutter, though it can be called afterwards as well.
 */
 PUGL_API PuglStatus
 puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
@@ -915,7 +914,7 @@ puglSetWindowTitle(PuglView* view, const char* title);
 /**
    Set the parent window for embedding a view in an existing window.
 
-   This must be called before puglCreateWindow(), reparenting is not supported.
+   This must be called before puglRealize(), reparenting is not supported.
 */
 PUGL_API PuglStatus
 puglSetParentWindow(PuglView* view, PuglNativeWindow parent);
@@ -925,7 +924,7 @@ puglSetParentWindow(PuglView* view, PuglNativeWindow parent);
 
    Set this for transient children like dialogs, to have them properly
    associated with their parent window.  This should be called before
-   puglCreateWindow().
+   puglRealize().
 */
 PUGL_API PuglStatus
 puglSetTransientFor(PuglView* view, PuglNativeWindow parent);
@@ -933,17 +932,25 @@ puglSetTransientFor(PuglView* view, PuglNativeWindow parent);
 /**
    Realise a view by creating a corresponding system view or window.
 
+   After this call, the (initially invisible) underlying system view exists and
+   can be accessed with puglGetNativeWindow().  There is currently no
+   corresponding unrealize function, the system view will be destroyed along
+   with the view when puglFreeView() is called.
+
    The view should be fully configured using the above functions before this is
    called.  This function may only be called once per view.
 */
 PUGL_API PuglStatus
-puglCreateWindow(PuglView* view, const char* title);
+puglRealize(PuglView* view);
 
 /**
-   Show the current window.
+   Show the view.
 
-   If the window is currently hidden, it will be shown and possibly raised to
-   the top depending on the platform.
+   If the view has not yet been realized, the first call to this function will
+   do so automatically.
+
+   If the view is currently hidden, it will be shown and possibly raised to the
+   top depending on the platform.
 */
 PUGL_API PuglStatus
 puglShowWindow(PuglView* view);
@@ -1135,7 +1142,7 @@ puglSendEvent(PuglView* view, const PuglEvent* event);
    Create a Pugl application and view.
 
    To create a window, call the various puglInit* functions as necessary, then
-   call puglCreateWindow().
+   call puglRealize().
 
    @deprecated Use puglNewApp() and puglNewView().
 
@@ -1300,6 +1307,21 @@ static inline PUGL_DEPRECATED_BY("puglSetBackend") int
 puglInitBackend(PuglView* view, const PuglBackend* backend)
 {
 	return (int)puglSetBackend(view, backend);
+}
+
+/**
+   Realise a view by creating a corresponding system view or window.
+
+   The view should be fully configured using the above functions before this is
+   called.  This function may only be called once per view.
+
+   @deprecated Use puglRealize(), or just show the view.
+*/
+static inline PUGL_DEPRECATED_BY("puglRealize") PuglStatus
+puglCreateWindow(PuglView* view, const char* title)
+{
+	puglSetWindowTitle(view, title);
+	return puglRealize(view);
 }
 
 /**

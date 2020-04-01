@@ -753,7 +753,7 @@ puglConstraint(id item, NSLayoutAttribute attribute, float constant)
 }
 
 PuglStatus
-puglCreateWindow(PuglView* view, const char* title)
+puglRealize(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
 
@@ -788,11 +788,6 @@ puglCreateWindow(PuglView* view, const char* title)
 		[impl->drawView setHidden:NO];
 		[[impl->drawView window] makeFirstResponder:impl->wrapperView];
 	} else {
-		NSString* titleString = [[NSString alloc]
-			                        initWithBytes:title
-			                               length:strlen(title)
-			                             encoding:NSUTF8StringEncoding];
-
 		const NSRect frame = rectToScreen(
 			NSMakeRect(view->frame.x, view->frame.y,
 			           view->minWidth, view->minHeight));
@@ -811,13 +806,21 @@ puglCreateWindow(PuglView* view, const char* title)
 			              defer:NO
 		              ] retain];
 		[window setPuglview:view];
-		[window setTitle:titleString];
+
+		if (view->title) {
+			NSString* titleString = [[NSString alloc]
+				                        initWithBytes:view->title
+				                               length:strlen(view->title)
+				                             encoding:NSUTF8StringEncoding];
+
+			[window setTitle:titleString];
+		}
+
 		if (view->minWidth || view->minHeight) {
 			[window setContentMinSize:NSMakeSize(view->minWidth,
 			                                     view->minHeight)];
 		}
 		impl->window = window;
-		puglSetWindowTitle(view, title);
 
 		((NSWindow*)window).delegate = [[PuglWindowDelegate alloc]
 			                  initWithPuglWindow:window];
@@ -1080,12 +1083,12 @@ puglSetWindowTitle(PuglView* view, const char* title)
 {
 	puglSetString(&view->title, title);
 
-	NSString* titleString = [[NSString alloc]
-		                        initWithBytes:title
-		                               length:strlen(title)
-		                             encoding:NSUTF8StringEncoding];
-
 	if (view->impl->window) {
+		NSString* titleString = [[NSString alloc]
+		    initWithBytes:title
+		           length:strlen(title)
+		         encoding:NSUTF8StringEncoding];
+
 		[view->impl->window setTitle:titleString];
 	}
 

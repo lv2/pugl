@@ -160,11 +160,9 @@ puglPollWinEvents(PuglWorld* world, const double timeout)
 }
 
 PuglStatus
-puglCreateWindow(PuglView* view, const char* title)
+puglRealize(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
-
-	title = title ? title : view->world->className;
 
 	// Get refresh rate for resize draw timer
 	DEVMODEA devMode = {0};
@@ -187,8 +185,8 @@ puglCreateWindow(PuglView* view, const char* title)
 		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 
-	if (title) {
-		puglSetWindowTitle(view, title);
+	if (view->title) {
+		puglSetWindowTitle(view, view->title);
 	}
 
 	puglSetFrame(view, view->frame);
@@ -919,10 +917,12 @@ puglSetWindowTitle(PuglView* view, const char* title)
 {
 	puglSetString(&view->title, title);
 
-	wchar_t* wtitle = puglUtf8ToWideChar(title);
-	if (wtitle) {
-		SetWindowTextW(view->impl->hwnd, wtitle);
-		free(wtitle);
+	if (view->impl->hwnd) {
+		wchar_t* wtitle = puglUtf8ToWideChar(title);
+		if (wtitle) {
+			SetWindowTextW(view->impl->hwnd, wtitle);
+			free(wtitle);
+		}
 	}
 
 	return PUGL_SUCCESS;

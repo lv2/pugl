@@ -111,7 +111,7 @@ main(int argc, char** argv)
 	puglSetEventFunc(app.view, onEvent);
 
 	// Create and show window
-	assert(!puglCreateWindow(app.view, "Pugl Test"));
+	assert(!puglRealize(app.view));
 	assert(!puglShowWindow(app.view));
 	while (app.state != EXPOSED) {
 		assert(!puglUpdate(app.world, timeout));

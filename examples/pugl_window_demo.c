@@ -205,6 +205,7 @@ main(int argc, char** argv)
 
 		cube->dist = 10;
 
+		puglSetWindowTitle(view, "Pugl Window Demo");
 		puglSetFrame(view, frame);
 		puglSetMinSize(view, 128, 128);
 		puglSetBackend(view, puglGlBackend());
@@ -218,9 +219,8 @@ main(int argc, char** argv)
 		puglSetHandle(view, cube);
 		puglSetEventFunc(view, onEvent);
 
-		if ((st = puglCreateWindow(view, "Pugl"))) {
-			return logError("Failed to create window window (%s)\n",
-			                puglStrerror(st));
+		if ((st = puglRealize(view))) {
+			return logError("Failed to create window (%s)\n", puglStrerror(st));
 		}
 
 		puglShowWindow(view);
