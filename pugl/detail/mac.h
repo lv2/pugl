@@ -16,7 +16,7 @@
 */
 
 /**
-   @file win.h Shared definitions for MacOS implementation.
+   @file mac.h Shared definitions for MacOS implementation.
 */
 
 #include "pugl/pugl.h"
