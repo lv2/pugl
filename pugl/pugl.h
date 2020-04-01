@@ -176,14 +176,14 @@ typedef enum {
 */
 typedef enum {
 	PUGL_NOTHING,        ///< No event
-	PUGL_CREATE,         ///< View created, a #PuglEventAny
-	PUGL_DESTROY,        ///< View destroyed, a #PuglEventAny
+	PUGL_CREATE,         ///< View created, a #PuglEventCreate
+	PUGL_DESTROY,        ///< View destroyed, a #PuglEventDestroy
 	PUGL_CONFIGURE,      ///< View moved/resized, a #PuglEventConfigure
-	PUGL_MAP,            ///< View made visible, a #PuglEventAny
-	PUGL_UNMAP,          ///< View made invisible, a #PuglEventAny
-	PUGL_UPDATE,         ///< View ready to draw, a #PuglEventAny
+	PUGL_MAP,            ///< View made visible, a #PuglEventMap
+	PUGL_UNMAP,          ///< View made invisible, a #PuglEventUnmap
+	PUGL_UPDATE,         ///< View ready to draw, a #PuglEventUpdate
 	PUGL_EXPOSE,         ///< View must be drawn, a #PuglEventExpose
-	PUGL_CLOSE,          ///< View will be closed, a #PuglEventAny
+	PUGL_CLOSE,          ///< View will be closed, a #PuglEventClose
 	PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
 	PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
 	PUGL_KEY_PRESS,      ///< Key pressed, a #PuglEventKey
@@ -236,6 +236,32 @@ typedef struct {
 } PuglEventAny;
 
 /**
+   View create event.
+
+   This event is sent when a view is realized before it is first displayed,
+   with the graphics context entered.  This is typically used for setting up
+   the graphics system, for example by loading OpenGL extensions.
+
+   This event type has no extra fields.
+*/
+typedef PuglEventAny PuglEventCreate;
+
+/**
+   View destroy event.
+
+   This event is the counterpart to #PuglEventCreate, and it is sent when the
+   view is being destroyed.  This is typically used for tearing down the
+   graphics system, or otherwise freeing any resources allocated when the
+   create event was handled.
+
+   This is the last event sent to any view, and immediately after it is
+   processed, the view is destroyed and may no longer be used.
+
+   This event type has no extra fields.
+*/
+typedef PuglEventAny PuglEventDestroy;
+
+/**
    View resize or move event.
 
    A configure event is sent whenever the view is resized or moved.  When a
@@ -253,6 +279,36 @@ typedef struct {
 } PuglEventConfigure;
 
 /**
+   View show event.
+
+   This event is sent when a view is mapped to the screen and made visible.
+
+   This event type has no extra fields.
+*/
+typedef PuglEventAny PuglEventMap;
+
+/**
+   View hide event.
+
+   This event is sent when a view is unmapped from the screen and made
+   invisible.
+
+   This event type has no extra fields.
+*/
+typedef PuglEventAny PuglEventUnmap;
+
+/**
+   View update event.
+
+   This event is sent to every view near the end of a main loop iteration when
+   any pending exposures are about to be redrawn.  It is typically used to mark
+   regions to expose with puglPostRedisplay() or puglPostRedisplayRect().  For
+   example, to continuously animate, a view calls puglPostRedisplay() when an
+   update event is received, and it will then shortly receive an expose event.
+*/
+typedef PuglEventAny PuglEventUpdate;
+
+/**
    Expose event for when a region must be redrawn.
 
    When an expose event is received, the graphics context is active, and the
@@ -268,6 +324,16 @@ typedef struct {
 	double         height; ///< Height of exposed region
 	int            count;  ///< Number of expose events to follow
 } PuglEventExpose;
+
+/**
+   View close event.
+
+   This event is sent when the view is to be closed, for example when the user
+   clicks the close button.
+
+   This event type has no extra fields.
+*/
+typedef PuglEventAny PuglEventClose;
 
 /**
    Keyboard focus event.
