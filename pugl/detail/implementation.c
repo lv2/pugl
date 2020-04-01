@@ -60,6 +60,7 @@ puglStrerror(const PuglStatus status)
 	case PUGL_FAILURE:               return "Non-fatal failure";
 	case PUGL_UNKNOWN_ERROR:         return "Unknown system error";
 	case PUGL_BAD_BACKEND:           return "Invalid or missing backend";
+	case PUGL_BAD_PARAMETER:         return "Invalid parameter";
 	case PUGL_BACKEND_FAILED:        return "Backend initialisation failed";
 	case PUGL_REGISTRATION_FAILED:   return "Window class registration failed";
 	case PUGL_CREATE_WINDOW_FAILED:  return "Window creation failed";
@@ -238,9 +239,10 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
 {
 	if (hint < PUGL_NUM_WINDOW_HINTS) {
 		view->hints[hint] = value;
+		return PUGL_SUCCESS;
 	}
 
-	return PUGL_SUCCESS;
+	return PUGL_BAD_PARAMETER;
 }
 
 PuglStatus

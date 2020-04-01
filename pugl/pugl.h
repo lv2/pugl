@@ -482,6 +482,7 @@ typedef enum {
 	PUGL_FAILURE,               ///< Non-fatal failure
 	PUGL_UNKNOWN_ERROR,         ///< Unknown system error
 	PUGL_BAD_BACKEND,           ///< Invalid or missing backend
+	PUGL_BAD_PARAMETER,         ///< Invalid parameter
 	PUGL_BACKEND_FAILED,        ///< Backend initialisation failed
 	PUGL_REGISTRATION_FAILED,   ///< Window class registration failed
 	PUGL_CREATE_WINDOW_FAILED,  ///< Window creation failed
