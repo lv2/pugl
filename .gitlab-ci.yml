@@ -2,6 +2,9 @@ stages:
   - build
   - deploy
 
+variables:
+  GIT_SUBMODULE_STRATEGY: normal
+
 .build_template: &build_definition
   stage: build
 
