@@ -21,9 +21,9 @@
 #include "pugl/gl.h"
 
 static inline void
-reshapeCube(const int width, const int height)
+reshapeCube(const float width, const float height)
 {
-	const float aspect = (float)width / (float)height;
+	const float aspect = width / height;
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
@@ -31,7 +31,7 @@ reshapeCube(const int width, const int height)
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, (int)width, (int)height);
 
 	float projection[16];
 	perspective(projection, 1.8f, aspect, 1.0f, 100.0f);
@@ -40,16 +40,16 @@ reshapeCube(const int width, const int height)
 
 static inline void
 displayCube(PuglView* const view,
-            const double    distance,
-            const double    xAngle,
-            const double    yAngle,
+            const float     distance,
+            const float     xAngle,
+            const float     yAngle,
             const bool      entered)
 {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, (float)distance * -1.0f);
-	glRotatef((float)xAngle, 0.0f, 1.0f, 0.0f);
-	glRotatef((float)yAngle, 1.0f, 0.0f, 0.0f);
+	glTranslatef(0.0f, 0.0f, distance * -1.0f);
+	glRotatef(xAngle, 0.0f, 1.0f, 0.0f);
+	glRotatef(yAngle, 1.0f, 0.0f, 0.0f);
 
 	const float bg = entered ? 0.2f : 0.0f;
 	glClearColor(bg, bg, bg, 1.0f);

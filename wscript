@@ -71,7 +71,6 @@ def configure(conf):
             conf.env.append_value(var, [
                 '-Weverything',
                 '-Wno-bad-function-cast',
-                '-Wno-double-promotion',
                 '-Wno-float-equal',
                 '-Wno-format-nonliteral',
                 '-Wno-padded',

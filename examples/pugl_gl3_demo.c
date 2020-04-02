@@ -138,14 +138,14 @@ onExpose(PuglView* view)
 		const float offset[2] = {normal * 128.0f, normal * 128.0f};
 
 		// Move rect around in an arbitrary way that looks cool
-		rect->pos[0] =
-		        (float)(width - rect->size[0] + offset[0]) *
-		        (sinf((float)time * rect->size[0] / 64.0f + normal) + 1.0f) /
-		        2.0f;
-		rect->pos[1] =
-		        (float)(height - rect->size[1] + offset[1]) *
-		        (cosf((float)time * rect->size[1] / 64.0f + normal) + 1.0f) /
-		        2.0f;
+		rect->pos[0] = (width - rect->size[0] + offset[0]) *
+		               (sinf((float)time * rect->size[0] / 64.0f + normal) +
+		                1.0f) /
+		               2.0f;
+		rect->pos[1] = (height - rect->size[1] + offset[1]) *
+		               (cosf((float)time * rect->size[1] / 64.0f + normal) +
+		                1.0f) /
+		               2.0f;
 	}
 
 	glBufferSubData(GL_ARRAY_BUFFER,

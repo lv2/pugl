@@ -63,7 +63,11 @@ onDisplay(PuglView* view)
 		cube->yAngle = fmod(cube->yAngle + dTime * 100.0, 360.0);
 	}
 
-	displayCube(view, cube->dist, cube->xAngle, cube->yAngle, cube->entered);
+	displayCube(view,
+	            cube->dist,
+	            (float)cube->xAngle,
+	            (float)cube->yAngle,
+	            cube->entered);
 
 	cube->lastDrawTime = thisTime;
 }
@@ -126,7 +130,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 
 	switch (event->type) {
 	case PUGL_CONFIGURE:
-		reshapeCube((int)event->configure.width, (int)event->configure.height);
+		reshapeCube((float)event->configure.width,
+		            (float)event->configure.height);
 		break;
 	case PUGL_UPDATE:
 		if (app->continuous) {

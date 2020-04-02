@@ -87,7 +87,11 @@ onDisplay(PuglView* view)
 		app->yAngle = fmod(app->yAngle + dTime * 100.0, 360.0);
 	}
 
-	displayCube(view, app->dist, app->xAngle, app->yAngle, app->mouseEntered);
+	displayCube(view,
+	            app->dist,
+	            (float)app->xAngle,
+	            (float)app->yAngle,
+	            app->mouseEntered);
 
 	app->lastDrawTime = thisTime;
 }
@@ -164,7 +168,9 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 
 	switch (event->type) {
 	case PUGL_CONFIGURE:
-		reshapeCube((int)event->configure.width, (int)event->configure.height);
+		reshapeCube((float)event->configure.width,
+		            (float)event->configure.height);
+
 		puglSetFrame(app->child, getChildFrame(parentFrame));
 		break;
 	case PUGL_UPDATE:
@@ -214,7 +220,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 
 	switch (event->type) {
 	case PUGL_CONFIGURE:
-		reshapeCube((int)event->configure.width, (int)event->configure.height);
+		reshapeCube((float)event->configure.width,
+		            (float)event->configure.height);
 		break;
 	case PUGL_UPDATE:
 		if (app->continuous) {
