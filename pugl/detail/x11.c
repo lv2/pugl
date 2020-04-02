@@ -37,6 +37,7 @@
 
 #ifdef HAVE_XSYNC
 #	include <X11/extensions/sync.h>
+#	include <X11/extensions/syncconst.h>
 #endif
 
 #include <sys/select.h>
