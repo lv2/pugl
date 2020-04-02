@@ -76,10 +76,12 @@ puglStrerror(const PuglStatus status)
 void
 puglSetString(char** dest, const char* string)
 {
-	const size_t len = strlen(string);
+	if (*dest != string) {
+		const size_t len = strlen(string);
 
-	*dest = (char*)realloc(*dest, len + 1);
-	strncpy(*dest, string, len + 1);
+		*dest = (char*)realloc(*dest, len + 1);
+		strncpy(*dest, string, len + 1);
+	}
 }
 
 void
