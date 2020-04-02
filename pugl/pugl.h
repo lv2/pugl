@@ -1032,7 +1032,7 @@ puglHideWindow(PuglView* view);
    Return true iff the view is currently visible.
 */
 PUGL_API bool
-puglGetVisible(PuglView* view);
+puglGetVisible(const PuglView* view);
 
 /**
    Return the native window handle.

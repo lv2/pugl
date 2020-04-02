@@ -274,7 +274,7 @@ puglGetHandle(PuglView* view)
 }
 
 bool
-puglGetVisible(PuglView* view)
+puglGetVisible(const PuglView* view)
 {
 	return view->visible;
 }
