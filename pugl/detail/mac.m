@@ -1067,7 +1067,7 @@ PuglStatus
 puglPostRedisplayRect(PuglView* view, const PuglRect rect)
 {
 	[view->impl->drawView setNeedsDisplayInRect:
-		CGRectMake(rect.x, rect.y, rect.width, rect.height)];
+		NSMakeRect(rect.x, rect.y, rect.width, rect.height)];
 
 	return PUGL_SUCCESS;
 }
