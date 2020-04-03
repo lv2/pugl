@@ -1,5 +1,6 @@
 Checks: >
   *,
+  -*avoid-c-arrays,
   -*magic-numbers,
   -*uppercase-literal-suffix,
   -android-cloexec-fopen,
@@ -7,10 +8,16 @@ Checks: >
   -cert-flp30-c,
   -clang-analyzer-alpha.*,
   -clang-analyzer-security.FloatLoopCounter,
+  -fuchsia-default-arguments-calls,
+  -fuchsia-default-arguments-declarations,
+  -google-runtime-references,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
-  -readability-else-after-return
+  -modernize-use-trailing-return-type,
+  -readability-else-after-return,
+  -readability-implicit-bool-conversion,
+  -readability-named-parameter,
 WarningsAsErrors: ''
-HeaderFilterRegex: 'pugl/.*|test/.*'
+HeaderFilterRegex: 'pugl/.*|test/.*|examples/.*'
 FormatStyle: file

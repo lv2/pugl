@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -15,35 +15,45 @@
 */
 
 /**
-   @file pugl_cairo.h Declaration of Cairo backend accessor.
+   @file pugl_gl.hpp OpenGL-specific C++ API.
 */
 
-#ifndef PUGL_PUGL_CAIRO_H
-#define PUGL_PUGL_CAIRO_H
+#ifndef PUGL_PUGL_GL_HPP
+#define PUGL_PUGL_GL_HPP
 
 #include "pugl/pugl.h"
+#include "pugl/pugl_gl.h"
 
-PUGL_BEGIN_DECLS
+namespace pugl {
 
 /**
-   @defgroup cairo Cairo
-   Cairo graphics support.
-   @ingroup pugl_c
+   @defgroup glxx OpenGL
+   OpenGL graphics support.
+   @ingroup pugl_cxx
    @{
 */
 
-/**
-   Cairo graphics backend accessor.
+/// @copydoc PuglGlFunc
+using GlFunc = PuglGlFunc;
 
-   Pass the return value to puglInitBackend() to draw to a view with Cairo.
-*/
-PUGL_API const PuglBackend*
-puglCairoBackend(void);
+/// @copydoc puglGetProcAddress
+static inline GlFunc
+getProcAddress(const char* name)
+{
+	return puglGetProcAddress(name);
+}
+
+/// @copydoc puglGlBackend
+static inline const PuglBackend*
+glBackend()
+{
+	return puglGlBackend();
+}
 
 /**
    @}
 */
 
-PUGL_END_DECLS
+} // namespace pugl
 
-#endif // PUGL_PUGL_CAIRO_H
+#endif // PUGL_PUGL_GL_HPP

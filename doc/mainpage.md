@@ -1,6 +1,6 @@
 This is the API documentation for Pugl.
-This documentation is based around the [C API](@ref pugl_api),
-there is also a [C++ API](@ref pugl) in the `pugl` namespace.
+This page refers to the [C API](@ref pugl_c),
+there is also a [C++ API](@ref pugl_cxx) in the `pugl` namespace.
 
 The Pugl API revolves around two main objects:
 the [World](@ref world) and the [View](@ref view).

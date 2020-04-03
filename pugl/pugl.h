@@ -52,6 +52,12 @@
 #    endif
 #endif
 
+#if defined(__GNUC__)
+#    define PUGL_CONST_FUNC __attribute__((const))
+#else
+#    define PUGL_CONST_FUNC
+#endif
+
 #ifdef __cplusplus
 #	define PUGL_BEGIN_DECLS extern "C" {
 #	define PUGL_END_DECLS }
@@ -63,8 +69,12 @@
 PUGL_BEGIN_DECLS
 
 /**
-   @defgroup pugl_api Pugl
+   @defgroup pugl Pugl
    A minimal portable API for embeddable GUIs.
+   @{
+
+   @defgroup pugl_c C API
+   Public C API.
    @{
 */
 
@@ -87,7 +97,7 @@ typedef struct {
    Event definitions.
 
    All updates to the view happen via events, which are dispatched to the
-   view's #PuglEventFunc by Pugl.  Most events map directly to one from the
+   view's event function by Pugl.  Most events map directly to one from the
    underlying window system, but some are constructed by Pugl itself so there
    is not necessarily a direct correspondence.
 
@@ -355,12 +365,12 @@ typedef struct {
    as text input.
 
    Keys are represented portably as Unicode code points, using the "natural"
-   code point for the key where possible (see #PuglKey for details).  The #key
+   code point for the key where possible (see #PuglKey for details).  The `key`
    field is the code for the pressed key, without any modifiers applied.  For
-   example, a press or release of the 'A' key will have #key 97 ('a')
+   example, a press or release of the 'A' key will have `key` 97 ('a')
    regardless of whether shift or control are being held.
 
-   Alternatively, the raw #keycode can be used to work directly with physical
+   Alternatively, the raw `keycode` can be used to work directly with physical
    keys, but note that this value is not portable and differs between platforms
    and hardware.
 */
@@ -407,7 +417,7 @@ typedef struct {
 
    This event is sent when the pointer enters or leaves the view.  This can
    happen for several reasons (not just the user dragging the pointer over the
-   window edge), as described by the #mode field.
+   window edge), as described by the `mode` field.
 */
 typedef struct {
 	PuglEventType    type;  ///< #PUGL_POINTER_IN or #PUGL_POINTER_OUT
@@ -456,7 +466,7 @@ typedef struct {
    Scroll event.
 
    The scroll distance is expressed in "lines", an arbitrary unit that
-   corresponds to a single tick of a detented mouse wheel.  For example, #dy =
+   corresponds to a single tick of a detented mouse wheel.  For example, `dy` =
    1.0 scrolls 1 line up.  Some systems and devices support finer resolution
    and/or higher values for fast scrolls, so programs should handle any value
    gracefully.
@@ -494,7 +504,7 @@ typedef struct {
    This event is sent at the regular interval specified in the call to
    puglStartTimer() that activated it.
 
-   The #id is the application-specific ID given to puglStartTimer() which
+   The `id` is the application-specific ID given to puglStartTimer() which
    distinguishes this timer from others.  It should always be checked in the
    event handler, even in applications that register only one timer.
 */
@@ -507,7 +517,7 @@ typedef struct {
 /**
    View event.
 
-   This is a union of all event types.  The #type must be checked to determine
+   This is a union of all event types.  The type must be checked to determine
    which fields are safe to access.  A pointer to PuglEvent can either be cast
    to the appropriate type, or the union members used.
 
@@ -594,7 +604,7 @@ typedef struct PuglWorldImpl PuglWorld;
 typedef void* PuglWorldHandle;
 
 /**
-   The type of a PuglWorld.
+   The type of a World.
 */
 typedef enum {
 	PUGL_PROGRAM, ///< Top-level application
@@ -728,19 +738,18 @@ puglGetTime(const PuglWorld* world);
    This function is a single iteration of the main loop, and should be called
    repeatedly to update all views.
 
-   If a positive timeout is given, then events will be processed for that
-   amount of time, starting from when this function was called.  For purely
-   event-driven programs, a timeout of -1.0 can be used to block indefinitely
-   until something happens.  For continuously animating programs, a timeout
-   that is a reasonable fraction of the ideal frame period should be used, to
-   minimise input latency by ensuring that as many input events are consumed as
-   possible before drawing.  Plugins should always use a timeout of 0.0 to
-   avoid blocking the host.
+   If `timeout` is zero, then this function will not block.  Plugins should
+   always use a timeout of zero to avoid blocking the host.
 
-   @param world The world to update.
+   If a positive `timeout` is given, then events will be processed for that
+   amount of time, starting from when this function was called.
 
-   @param timeout Maximum time to wait, in seconds.  If zero, the call returns
-   immediately, if negative, the call blocks indefinitely.
+   If a negative `timeout` is given, this function will block indefinitely
+   until an event occurs.
+
+   For continuously animating programs, a timeout that is a reasonable fraction
+   of the ideal frame period should be used, to minimise input latency by
+   ensuring that as many input events are consumed as possible before drawing.
 
    @return #PUGL_SUCCESS if events are read, #PUGL_FAILURE if not, or an error.
 */
@@ -1494,6 +1503,7 @@ puglLeaveContext(PuglView* view, bool drawing);
 #endif  /* PUGL_DISABLE_DEPRECATED */
 
 /**
+   @}
    @}
    @}
 */

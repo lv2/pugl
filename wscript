@@ -22,6 +22,7 @@ out     = 'build'       # Build directory
 
 def options(ctx):
     ctx.load('compiler_c')
+    ctx.load('compiler_cxx')
 
     opts = ctx.configuration_options()
     opts.add_option('--target', default=None, dest='target',
@@ -41,24 +42,34 @@ def options(ctx):
 
 def configure(conf):
     conf.load('compiler_c', cache=True)
+    try:
+        conf.load('compiler_cxx', cache=True)
+    except Exception:
+        pass
+
     conf.load('autowaf', cache=True)
     autowaf.set_c_lang(conf, 'c99')
+    if 'COMPILER_CXX' in conf.env:
+        autowaf.set_cxx_lang(conf, 'c++11')
 
     conf.env.ALL_HEADERS     = Options.options.all_headers
     conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
     platform                 = conf.env.TARGET_PLATFORM
 
+    def append_cflags(flags):
+        conf.env.append_value('CFLAGS', flags)
+        conf.env.append_value('CXXFLAGS', flags)
+
     if platform == 'darwin':
-        conf.env.append_unique('CFLAGS', ['-Wno-deprecated-declarations'])
+        append_cflags(['-Wno-deprecated-declarations'])
 
     if conf.env.MSVC_COMPILER:
-        conf.env.append_unique('CFLAGS', ['/wd4191'])
+        append_cflags(['/wd4191', '/wd4355'])
     else:
-        conf.env.append_value('LINKFLAGS', ['-fvisibility=hidden'])
-        conf.env.append_value('CFLAGS', ['-fvisibility=hidden'])
+        conf.env.append_unique('LINKFLAGS', ['-fvisibility=hidden'])
+        append_cflags(['-fvisibility=hidden'])
         if Options.options.strict:
-            conf.env.append_value('CFLAGS', ['-Wunused-parameter',
-                                             '-Wno-pedantic'])
+            append_cflags(['-Wunused-parameter', '-Wno-pedantic'])
 
     if conf.env.TARGET_PLATFORM == 'darwin':
         conf.env.append_unique('CFLAGS', ['-DGL_SILENCE_DEPRECATION'])
@@ -78,8 +89,12 @@ def configure(conf):
                 '-Wno-switch-enum',
             ])
 
-        conf.env.append_value('CXXFLAGS', ['-Wno-c++98-compat',
-                                           '-Wno-c++98-compat-pedantic'])
+        conf.env.append_value('CXXFLAGS', [
+            '-Wno-c++98-compat',
+            '-Wno-c++98-compat-pedantic',
+            '-Wno-documentation-unknown-command',
+            '-Wno-old-style-cast',
+        ])
 
     conf.check_cc(lib='m', uselib_store='M', mandatory=False)
     conf.check_cc(lib='dl', uselib_store='DL', mandatory=False)
@@ -189,6 +204,7 @@ def build(bld):
     includedir = '${INCLUDEDIR}/pugl-%s/pugl' % PUGL_MAJOR_VERSION
     bld.install_files(includedir, bld.path.ant_glob('pugl/*.h'))
     bld.install_files(includedir, bld.path.ant_glob('pugl/*.hpp'))
+    bld.install_files(includedir, bld.path.ant_glob('pugl/*.ipp'))
     if bld.env.ALL_HEADERS:
         detaildir = os.path.join(includedir, 'detail')
         bld.install_files(detaildir, bld.path.ant_glob('pugl/detail/*.h'))
@@ -293,6 +309,8 @@ def build(bld):
                           source=['pugl/detail/x11_cairo.c'])
 
     def build_example(prog, source, platform, backend, **kwargs):
+        lang = 'cxx' if source[0].endswith('.cpp') else 'c'
+
         use = ['pugl_%s_static' % platform,
                'pugl_%s_%s_static' % (platform, backend)]
 
@@ -312,7 +330,7 @@ def build(bld):
                                deps.get(platform, {}).get(k, []) +
                                deps.get(backend_lib, {}).get(k, []))})
 
-        bld(features     = 'c cprogram',
+        bld(features     = '%s %sprogram' % (lang, lang),
             source       = source,
             target       = target,
             use          = use,
@@ -353,6 +371,12 @@ def build(bld):
                                 'pugl_%s_stub_static' % platform],
                 uselib       = deps[platform]['uselib'] + ['CAIRO'])
 
+        if bld.env.CXX and bld.env.HAVE_GL:
+            build_example('pugl_cxx_demo', ['examples/pugl_cxx_demo.cpp'],
+                          platform, 'gl',
+                          defines=['PUGL_DISABLE_DEPRECATED'],
+                          uselib=['GL', 'M'])
+
     if bld.env.DOCS:
         autowaf.build_dox(bld, 'PUGL', PUGL_VERSION, top, out)
 
@@ -377,7 +401,13 @@ def lint(ctx):
         files = [c['file'] for c in commands
                  if os.path.basename(c['file']) != 'glad.c']
 
-    subprocess.call(['clang-tidy'] + files, cwd='build')
+    c_files = [f for f in files if f.endswith('.c')]
+    cpp_files = [f for f in files if f.endswith('.cpp')]
+
+    subprocess.call(['clang-tidy'] + c_files, cwd='build')
+
+    subprocess.call(['clang-tidy', '--header-filter=".*\\.hpp'] + cpp_files,
+                    cwd='build')
 
     try:
         subprocess.call(['iwyu_tool.py', '-o', 'clang', '-p', 'build'])

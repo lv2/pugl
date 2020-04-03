@@ -233,6 +233,14 @@ div.groupHeader {
   font-weight: 700;
 }
 
+h2.groupheader {
+  line-height: 1.18em;
+  font-size: 1em;
+  font-weight: 600;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+  margin: 1.25em 0 0.5em 0;
+}
+
 a + h2.groupheader {
   display: none;
 }
@@ -387,6 +395,18 @@ table.memberdecls {
   line-height: 1.3em;
 }
 
+table.memberdecls h3 {
+  line-height: 1.18em;
+  font-size: 1em;
+  font-weight: 600;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+  margin: 1.25em 0 0.5em 0;
+}
+
+tr.inherit_header td {
+  padding: 1em 0 0.5em 0;
+}
+
 .mdescLeft,.mdescRight,.memItemLeft,.memItemRight,.memTemplItemLeft,.memTemplItemRight,.memTemplParams {
   margin: 0;
   padding: 0;
@@ -419,13 +439,28 @@ td.memSeparator {
   display: none;
 }
 
+td.mlabels-left {
+  margin-left: 0;
+  padding-left: 0;
+}
+
 td.mlabels-right {
-  vertical-align: top;
-  padding-top: 4px;
   color: #B4C342;
+  font-weight: normal;
+  margin-left: 1em;
+  vertical-align: bottom;
 }
 
 .memtitle {
+  border-bottom: 1px solid #EEE;
+  font-family: Helvetica, Arial, "DejaVu Sans Condensed", Verdana, sans-serif;
+  font-size: 1.18em;
+  font-weight: 600;
+  line-height: 1.41em;
+  margin: 1.5em 0 0 0;
+}
+
+.permalink {
   display: none;
 }
 
@@ -446,23 +481,30 @@ td.mlabels-right {
 }
 
 .memitem {
-  padding: 0.5em 0.5em 0.25em 0.5em;
-  margin: 1em 0 2em 0;
+  padding: 0;
+  margin: 0 0 3em 0;
 }
 
 .memproto {
   border-bottom: 1px solid #EEE;
+  border-left: 1px solid #EEE;
+  color: #444;
+  float: right;
   font-family: "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace, fixed;
-  font-size: 1.09em;
-  font-weight: 600;
-  line-height: 1.41em;
-  margin-bottom: 0.25em;
-  padding-bottom: 0.125em;
+  font-size: small;
+  margin-bottom: 1em;
+  margin-left: 1em;
+  padding: 0.25em 0 0.25em 0.25em;
 }
 
 .memproto .paramname {
   font-style: normal;
   padding-right: 0.25em;
+}
+
+.mlabels {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .memdoc {
@@ -473,6 +515,19 @@ td.mlabels-right {
   font-style: italic;
   color: #444;
   margin-bottom: 0.75em;
+  margin-top: 0;
+  padding-top: 0.25em;
+  font-weight: normal;
+}
+
+.memdoc > p:first-child, .memdoc .textblock > h3:first-child {
+  color: #444;
+  margin-bottom: 0.75em;
+  margin-top: 0;
+  padding-top: 0.25em;
+  font-weight: normal;
+  color: #444;
+  font-size: 0.9em;
 }
 
 .paramkey {
