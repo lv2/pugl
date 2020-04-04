@@ -70,8 +70,16 @@ developers can build portable plugin binaries.
 Testing
 -------
 
-There are a few unit tests included which can be run with `python waf test
---gui-tests`, but unfortunately manual testing is still required.
+There are a few unit tests included, but unfortunately manual testing is still
+required.  The tests and example programs will be built if you pass the
+`--test` option when configuring:
+
+    ./waf configure --test
+
+Then, after building, the unit tests can be run:
+
+    ./waf
+    ./waf test --gui-tests
 
 Several example programs are included that serve as both manual tests and
 demonstrations:
@@ -93,6 +101,8 @@ demonstrations:
 
  * `pugl_print_events` is a utility that prints all received events to the
    console in a human readable format.
+
+ * `pugl_cxx_demo` is a simple cube demo that uses the C++ API.
 
 All example programs support several command line options to control various
 behaviours, see the output of `--help` for details.  Please file an issue if
