@@ -100,7 +100,8 @@ onConfigure(PuglView* view, double width, double height)
 	(void)view;
 
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
+	glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glViewport(0, 0, (int)width, (int)height);
 }
