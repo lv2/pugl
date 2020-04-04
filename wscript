@@ -353,8 +353,9 @@ def build(bld):
             build_example('pugl_print_events',
                           ['examples/pugl_print_events.c'],
                           platform, 'stub')
-            build_example('pugl_gl3_demo',
-                          ['examples/pugl_gl3_demo.c', 'examples/glad/glad.c'],
+            build_example('pugl_shader_demo',
+                          ['examples/pugl_shader_demo.c',
+                           'examples/glad/glad.c'],
                           platform, 'gl', uselib=['DL', 'GL', 'M'])
 
         if bld.env.HAVE_CAIRO:

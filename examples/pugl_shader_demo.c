@@ -15,7 +15,7 @@
 */
 
 /**
-   @file pugl_gl3_demo.c An example of drawing with OpenGL 3.
+   @file pugl_shader_demo.c An example of drawing with OpenGL 3/4.
 
    This is an example of using OpenGL for pixel-perfect 2D drawing.  It uses
    pixel coordinates for positions and sizes so that things work roughly like a
@@ -71,6 +71,8 @@ typedef struct
 	GLuint          instanceVbo;
 	GLuint          ibo;
 	unsigned        framesDrawn;
+	int             glMajorVersion;
+	int             glMinorVersion;
 	int             quit;
 } PuglTestApp;
 
@@ -204,6 +206,8 @@ loadShader(const char* const path)
 static int
 parseOptions(PuglTestApp* app, int argc, char** argv)
 {
+	char* endptr = NULL;
+
 	// Parse command line options
 	app->numRects = 1024;
 	app->opts     = puglParseTestOptions(&argc, &argv);
@@ -212,11 +216,24 @@ parseOptions(PuglTestApp* app, int argc, char** argv)
 	}
 
 	// Parse number of rectangles argument, if given
-	if (argc == 1) {
-		char* endptr = NULL;
-
+	if (argc >= 1) {
 		app->numRects = (size_t)strtol(argv[0], &endptr, 10);
 		if (endptr != argv[0] + strlen(argv[0])) {
+			logError("Invalid number of rectangles: %s\n", argv[0]);
+			return 1;
+		}
+	}
+
+	// Parse OpenGL major version argument, if given
+	if (argc >= 2) {
+		app->glMajorVersion = (int)strtol(argv[1], &endptr, 10);
+		if (endptr != argv[1] + strlen(argv[1])) {
+			logError("Invalid GL major version: %s\n", argv[1]);
+			return 1;
+		} else if (app->glMajorVersion == 4) {
+			app->glMinorVersion = 2;
+		} else if (app->glMajorVersion != 3) {
+			logError("Unsupported GL major version %d\n", app->glMajorVersion);
 			return 1;
 		}
 	}
@@ -241,8 +258,8 @@ setupPugl(PuglTestApp* app, const PuglRect frame)
 	puglSetBackend(app->view, puglGlBackend());
 	puglSetViewHint(app->view, PUGL_USE_COMPAT_PROFILE, PUGL_FALSE);
 	puglSetViewHint(app->view, PUGL_USE_DEBUG_CONTEXT, app->opts.errorChecking);
-	puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MAJOR, 3);
-	puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MINOR, 3);
+	puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MAJOR, app->glMajorVersion);
+	puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MINOR, app->glMinorVersion);
 	puglSetViewHint(app->view, PUGL_RESIZABLE, app->opts.resizable);
 	puglSetViewHint(app->view, PUGL_SAMPLES, app->opts.samples);
 	puglSetViewHint(app->view, PUGL_DOUBLE_BUFFER, app->opts.doubleBuffer);
@@ -261,8 +278,12 @@ setupGl(PuglTestApp* app)
 		return PUGL_FAILURE;
 	}
 
+	const char* const headerFile = (app->glMajorVersion == 3
+	                                ? "shaders/header_330.glsl"
+	                                : "shaders/header_420.glsl");
+
 	// Load shader sources
-	char* const headerSource   = loadShader("shaders/header_330.glsl");
+	char* const headerSource   = loadShader(headerFile);
 	char* const vertexSource   = loadShader("shaders/rect.vert");
 	char* const fragmentSource = loadShader("shaders/rect.frag");
 	if (!vertexSource || !fragmentSource) {
@@ -362,14 +383,16 @@ teardownGl(PuglTestApp* app)
 int
 main(int argc, char** argv)
 {
-	PuglTestApp app;
-	memset(&app, 0, sizeof(app));
+	PuglTestApp app = {0};
+
+	app.glMajorVersion = 3;
+	app.glMinorVersion = 3;
 
 	const PuglRect frame = {0, 0, defaultWidth, defaultHeight};
 
 	// Parse command line options
 	if (parseOptions(&app, argc, argv)) {
-		puglPrintTestUsage("pugl_gl3_demo", "[NUM_RECTS]");
+		puglPrintTestUsage("pugl_shader_demo", "[NUM_RECTS] [GL_MAJOR]");
 		return 1;
 	}
 

@@ -11,9 +11,9 @@ layout(location = 1) in vec2 v_origin;
 layout(location = 2) in vec2 v_size;
 layout(location = 3) in vec4 v_fillColor;
 
-noperspective out vec2 f_uv;
-noperspective out vec2 f_size;
-noperspective out vec4 f_fillColor;
+INTER(location = 0) noperspective out vec2 f_uv;
+INTER(location = 1) noperspective out vec2 f_size;
+INTER(location = 2) noperspective out vec4 f_fillColor;
 
 void
 main()

@@ -92,9 +92,9 @@ demonstrations:
 
  * `pugl_window_demo` demonstrates multiple top-level windows.
 
- * `pugl_gl3_demo` demonstrates using more modern OpenGL where dynamic loading
-   and shaders are required.  It can also be used to test performance by
-   passing the number of rectangles to draw on the command line.
+ * `pugl_shader_demo` demonstrates using more modern OpenGL (version 3 or 4)
+   where dynamic loading and shaders are required.  It can also be used to test
+   performance by passing the number of rectangles to draw on the command line.
 
  * `pugl_cairo_demo` demonstrates using Cairo on top of the native windowing
    system (without OpenGL), and partial redrawing.
