@@ -35,6 +35,7 @@
 */
 
 #include "demo_utils.h"
+#include "rects.h"
 #include "shader_utils.h"
 #include "test/test_utils.h"
 
@@ -44,7 +45,6 @@
 #include "pugl/pugl.h"
 #include "pugl/pugl_gl.h"
 
-#include <math.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,24 +52,6 @@
 
 static const int defaultWidth  = 512;
 static const int defaultHeight = 512;
-
-typedef struct
-{
-	float pos[2];
-	float size[2];
-	float fillColor[4];
-} Rect;
-
-// clang-format off
-static const GLfloat rectVertices[] = {
-	0.0f, 0.0f, // TL
-	1.0f, 0.0f, // TR
-	0.0f, 1.0f, // BL
-	1.0f, 1.0f, // BR
-};
-// clang-format on
-
-static const GLuint rectIndices[4] = {0, 1, 2, 3};
 
 typedef struct
 {
@@ -134,19 +116,7 @@ onExpose(PuglView* view)
 	glUniformMatrix4fv(app->u_projection, 1, GL_FALSE, (const GLfloat*)&proj);
 
 	for (size_t i = 0; i < app->numRects; ++i) {
-		Rect*       rect      = &app->rects[i];
-		const float normal    = i / (float)app->numRects;
-		const float offset[2] = {normal * 128.0f, normal * 128.0f};
-
-		// Move rect around in an arbitrary way that looks cool
-		rect->pos[0] = (width - rect->size[0] + offset[0]) *
-		               (sinf((float)time * rect->size[0] / 64.0f + normal) +
-		                1.0f) /
-		               2.0f;
-		rect->pos[1] = (height - rect->size[1] + offset[1]) *
-		               (cosf((float)time * rect->size[1] / 64.0f + normal) +
-		                1.0f) /
-		               2.0f;
+		moveRect(&app->rects[i], i, app->numRects, width, height, time);
 	}
 
 	glBufferSubData(GL_ARRAY_BUFFER,
@@ -199,20 +169,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 static Rect*
 makeRects(const size_t numRects)
 {
-	const float minSize  = (float)defaultWidth / 64.0f;
-	const float maxSize  = (float)defaultWidth / 6.0f;
-	const float boxAlpha = 0.2f;
-
 	Rect* rects = (Rect*)calloc(numRects, sizeof(Rect));
 	for (size_t i = 0; i < numRects; ++i) {
-		const float s = (sinf((float)i) / 2.0f + 0.5f);
-		const float c = (cosf((float)i) / 2.0f + 0.5f);
-
-		rects[i].size[0]      = minSize + s * maxSize;
-		rects[i].size[1]      = minSize + c * maxSize;
-		rects[i].fillColor[1] = s / 2.0f + 0.25f;
-		rects[i].fillColor[2] = c / 2.0f + 0.25f;
-		rects[i].fillColor[3] = boxAlpha;
+		rects[i] = makeRect(i, (float)defaultWidth);
 	}
 
 	return rects;
