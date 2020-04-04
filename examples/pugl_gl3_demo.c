@@ -259,6 +259,7 @@ setupGl(PuglTestApp* app)
 	}
 
 	// Load shader sources
+	char* const headerSource   = loadShader("shaders/header_330.glsl");
 	char* const vertexSource   = loadShader("shaders/rect.vert");
 	char* const fragmentSource = loadShader("shaders/rect.frag");
 	if (!vertexSource || !fragmentSource) {
@@ -267,9 +268,10 @@ setupGl(PuglTestApp* app)
 	}
 
 	// Compile rectangle shaders and program
-	app->drawRect = compileProgram(vertexSource, fragmentSource);
+	app->drawRect = compileProgram(headerSource, vertexSource, fragmentSource);
 	free(fragmentSource);
 	free(vertexSource);
+	free(headerSource);
 	if (!app->drawRect.program) {
 		return PUGL_FAILURE;
 	}

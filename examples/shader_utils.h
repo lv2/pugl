@@ -28,11 +28,12 @@ typedef struct
 } Program;
 
 static GLuint
-compileShader(const char* source, const GLenum type)
+compileShader(const char* header, const char* source, const GLenum type)
 {
-	GLuint    shader       = glCreateShader(type);
-	const int sourceLength = (int)strlen(source);
-	glShaderSource(shader, 1, &source, &sourceLength);
+	const GLchar* sources[] = {header, source};
+	const GLint   lengths[] = {(GLint)strlen(header), (GLint)strlen(source)};
+	GLuint        shader    = glCreateShader(type);
+	glShaderSource(shader, 2, sources, lengths);
 	glCompileShader(shader);
 
 	int status;
@@ -61,13 +62,17 @@ deleteProgram(Program program)
 }
 
 static Program
-compileProgram(const char* vertexSource, const char* fragmentSource)
+compileProgram(const char* headerSource,
+               const char* vertexSource,
+               const char* fragmentSource)
 {
 	static const Program nullProgram = {0, 0, 0};
 
-	Program program = {compileShader(vertexSource, GL_VERTEX_SHADER),
-	                   compileShader(fragmentSource, GL_FRAGMENT_SHADER),
-	                   glCreateProgram()};
+	Program program = {
+	    compileShader(headerSource, vertexSource, GL_VERTEX_SHADER),
+	    compileShader(headerSource, fragmentSource, GL_FRAGMENT_SHADER),
+	    glCreateProgram(),
+	};
 
 	if (!program.vertexShader || !program.fragmentShader || !program.program) {
 		deleteProgram(program);
