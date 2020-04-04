@@ -55,6 +55,11 @@ static const int defaultHeight = 512;
 
 typedef struct
 {
+	mat4 projection;
+} RectUniforms;
+
+typedef struct
+{
 	PuglTestOptions opts;
 	PuglWorld*      world;
 	PuglView*       view;
@@ -65,7 +70,6 @@ typedef struct
 	GLuint          vbo;
 	GLuint          instanceVbo;
 	GLuint          ibo;
-	GLint           u_projection;
 	unsigned        framesDrawn;
 	int             quit;
 } PuglTestApp;
@@ -112,12 +116,11 @@ onExpose(PuglView* view)
 	glUseProgram(app->drawRect.program);
 	glBindVertexArray(app->vao);
 
-	// Set projection matrix uniform
-	glUniformMatrix4fv(app->u_projection, 1, GL_FALSE, (const GLfloat*)&proj);
-
 	for (size_t i = 0; i < app->numRects; ++i) {
 		moveRect(&app->rects[i], i, app->numRects, width, height, time);
 	}
+
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(proj), &proj, GL_STREAM_DRAW);
 
 	glBufferSubData(GL_ARRAY_BUFFER,
 	                0,
@@ -276,9 +279,15 @@ setupGl(PuglTestApp* app)
 		return PUGL_FAILURE;
 	}
 
-	// Get location of rectangle shader uniforms
-	app->u_projection =
-	        glGetUniformLocation(app->drawRect.program, "u_projection");
+	// Get location of rectangle shader uniform block
+	const GLuint globalsIndex = glGetUniformBlockIndex(app->drawRect.program,
+	                                                   "UniformBufferObject");
+
+	// Generate/bind a uniform buffer for setting rectangle properties
+	GLuint uboHandle;
+	glGenBuffers(1, &uboHandle);
+	glBindBuffer(GL_UNIFORM_BUFFER, uboHandle);
+	glBindBufferBase(GL_UNIFORM_BUFFER, globalsIndex, uboHandle);
 
 	// Generate/bind a VAO to track state
 	glGenVertexArrays(1, &app->vao);
