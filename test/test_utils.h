@@ -173,8 +173,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 			             event->motion.x,
 			             event->motion.y);
 		default:
-			fprintf(stderr, "%sUnknown event type %u\n", prefix, event->type);
-			break;
+			return PRINT("%sUnknown event type %d\n", prefix, (int)event->type);
 		}
 	}
 
