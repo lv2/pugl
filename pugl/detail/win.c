@@ -979,6 +979,23 @@ puglSetAspectRatio(PuglView* const view,
 	return PUGL_SUCCESS;
 }
 
+PuglStatus
+puglSetTransientFor(PuglView* view, PuglNativeView parent)
+{
+	if (view->parent) {
+		return PUGL_FAILURE;
+	}
+
+	view->transientParent = parent;
+
+	if (view->impl->hwnd) {
+		SetWindowLongPtr(view->impl->hwnd, GWLP_HWNDPARENT, (LONG_PTR)parent);
+		return GetLastError() == NO_ERROR ? PUGL_SUCCESS : PUGL_FAILURE;
+	}
+
+	return PUGL_SUCCESS;
+}
+
 const void*
 puglGetClipboard(PuglView* const    view,
                  const char** const type,

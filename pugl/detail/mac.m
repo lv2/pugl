@@ -1154,6 +1154,23 @@ puglSetAspectRatio(PuglView* const view,
 	return PUGL_SUCCESS;
 }
 
+PuglStatus
+puglSetTransientFor(PuglView* view, PuglNativeView parent)
+{
+	view->transientParent = parent;
+
+	if (view->impl->window) {
+		NSWindow* parentWindow = [(NSView*)parent window];
+		if (parentWindow) {
+			[parentWindow addChildWindow:view->impl->window
+			                     ordered:NSWindowAbove];
+			return PUGL_SUCCESS;
+		}
+	}
+
+	return PUGL_FAILURE;
+}
+
 const void*
 puglGetClipboard(PuglView* const    view,
                  const char** const type,

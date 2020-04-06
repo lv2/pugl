@@ -203,10 +203,10 @@ main(int argc, char** argv)
 		CubeView*      cube  = &app.cubes[i];
 		PuglView*      view  = cube->view;
 		static const double pad = 64.0;
-		const PuglRect frame = {pad + (256.0 + pad) * i,
-		                        pad + (256.0 + pad) * i,
-		                        256.0,
-		                        256.0};
+		const PuglRect frame = {pad + (128.0 + pad) * i,
+		                        pad + (128.0 + pad) * i,
+		                        512.0,
+		                        512.0};
 
 		cube->dist = 10;
 
@@ -223,6 +223,11 @@ main(int argc, char** argv)
 		puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
 		puglSetHandle(view, cube);
 		puglSetEventFunc(view, onEvent);
+
+		if (i == 1) {
+			puglSetTransientFor(app.cubes[1].view,
+			                    puglGetNativeWindow(app.cubes[0].view));
+		}
 
 		if ((st = puglRealize(view))) {
 			return logError("Failed to create window (%s)\n", puglStrerror(st));

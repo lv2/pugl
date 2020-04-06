@@ -96,6 +96,9 @@ puglWinCreateWindow(const PuglView* const view,
 	const unsigned winFlags   = puglWinGetWindowFlags(view);
 	const unsigned winExFlags = puglWinGetWindowExFlags(view);
 
+	// The meaning of "parent" depends on the window type (WS_CHILD)
+	PuglNativeView parent = view->parent ? view->parent : view->transientParent;
+
 	// Calculate total window size to accommodate requested view size
 	RECT wr = { (long)view->frame.x, (long)view->frame.y,
 	            (long)view->frame.width, (long)view->frame.height };
@@ -105,7 +108,7 @@ puglWinCreateWindow(const PuglView* const view,
 	if (!(*hwnd = CreateWindowEx(winExFlags, className, title, winFlags,
 	                             CW_USEDEFAULT, CW_USEDEFAULT,
 	                             wr.right-wr.left, wr.bottom-wr.top,
-	                             (HWND)view->parent, NULL, NULL, NULL))) {
+	                             (HWND)parent, NULL, NULL, NULL))) {
 		return PUGL_REALIZE_FAILED;
 	} else if (!(*hdc = GetDC(*hwnd))) {
 		DestroyWindow(*hwnd);

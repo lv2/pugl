@@ -1001,6 +1001,9 @@ puglSetParentWindow(PuglView* view, PuglNativeView parent);
    Set this for transient children like dialogs, to have them properly
    associated with their parent window.  This should be called before
    puglRealize().
+
+   A view can either have a parent (for embedding) or a transient parent (for
+   top-level windows like dialogs), but not both.
 */
 PUGL_API PuglStatus
 puglSetTransientFor(PuglView* view, PuglNativeView parent);
