@@ -43,7 +43,9 @@
 
 - (id) initWithFrame:(NSRect)frame
 {
-	return (self = [super initWithFrame:frame]);
+	self = [super initWithFrame:frame];
+
+	return self;
 }
 
 - (void) resizeWithOldSuperviewSize:(NSSize)oldSize
@@ -69,7 +71,7 @@ puglMacCairoCreate(PuglView* view)
 	PuglCairoView* drawView = [PuglCairoView alloc];
 
 	drawView->puglview = view;
-	[drawView initWithFrame:NSMakeRect(0, 0, view->frame.width, view->frame.height)];
+	[drawView initWithFrame:[impl->wrapperView bounds]];
 	if (view->hints[PUGL_RESIZABLE]) {
 		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 	} else {
@@ -103,10 +105,17 @@ puglMacCairoEnter(PuglView* view, const PuglEventExpose* expose)
 	assert(!drawView->surface);
 	assert(!drawView->cr);
 
+	const double scale   = 1.0 / [[NSScreen mainScreen] backingScaleFactor];
 	CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
+	const CGSize sizePx  = {view->frame.width, view->frame.height};
+	const CGSize sizePt  = CGContextConvertSizeToUserSpace(context, sizePx);
+
+	// Convert coordinates to standard Cairo space
+	CGContextTranslateCTM(context, 0.0, -sizePt.height);
+	CGContextScaleCTM(context, scale, -scale);
 
 	drawView->surface = cairo_quartz_surface_create_for_cg_context(
-		context, view->frame.width, view->frame.height);
+	    context, sizePx.width, sizePx.height);
 
 	drawView->cr = cairo_create(drawView->surface);
 

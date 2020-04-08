@@ -40,12 +40,54 @@ typedef NSUInteger NSWindowStyleMask;
 #endif
 
 static NSRect
-rectToScreen(NSRect rect)
+rectToScreen(NSScreen* screen, NSRect rect)
 {
-	const double screenHeight = [[NSScreen mainScreen] frame].size.height;
+	const double screenHeight = [screen frame].size.height;
 
 	rect.origin.y = screenHeight - rect.origin.y - rect.size.height;
 	return rect;
+}
+
+static NSScreen*
+viewScreen(PuglView* view)
+{
+	return view->impl->window ? [view->impl->window screen] : [NSScreen mainScreen];
+}
+
+static NSRect
+nsRectToPoints(PuglView* view, const NSRect rect)
+{
+	const double scaleFactor = [viewScreen(view) backingScaleFactor];
+
+	return NSMakeRect(rect.origin.x / scaleFactor,
+	                  rect.origin.y / scaleFactor,
+	                  rect.size.width / scaleFactor,
+	                  rect.size.height / scaleFactor);
+}
+
+static NSRect
+nsRectFromPoints(PuglView* view, const NSRect rect)
+{
+	const double scaleFactor = [viewScreen(view) backingScaleFactor];
+
+	return NSMakeRect(rect.origin.x * scaleFactor,
+	                  rect.origin.y * scaleFactor,
+	                  rect.size.width * scaleFactor,
+	                  rect.size.height * scaleFactor);
+}
+
+static NSRect
+rectToNsRect(const PuglRect rect)
+{
+	return NSMakeRect(rect.x, rect.y, rect.width, rect.height);
+}
+
+static NSSize
+sizePoints(PuglView* view, const double width, const double height)
+{
+	const double scaleFactor = [viewScreen(view) backingScaleFactor];
+
+	return NSMakeSize(width / scaleFactor, height / scaleFactor);
 }
 
 static void
@@ -53,14 +95,17 @@ updateViewRect(PuglView* view)
 {
 	NSWindow* const window = view->impl->window;
 	if (window) {
-		const double screenHeight = [[NSScreen mainScreen] frame].size.height;
-		const NSRect frame        = [window frame];
-		const NSRect content      = [window contentRectForFrameRect:frame];
+		const NSRect screenFramePt = [[NSScreen mainScreen] frame];
+		const NSRect screenFramePx = nsRectFromPoints(view, screenFramePt);
+		const NSRect framePt       = [window frame];
+		const NSRect contentPt     = [window contentRectForFrameRect:framePt];
+		const NSRect contentPx     = nsRectFromPoints(view, contentPt);
+		const double screenHeight  = screenFramePx.size.height;
 
-		view->frame.x      = content.origin.x;
-		view->frame.y      = screenHeight - content.origin.y - content.size.height;
-		view->frame.width  = content.size.width;
-		view->frame.height = content.size.height;
+		view->frame.x      = contentPx.origin.x;
+		view->frame.y      = screenHeight - contentPx.origin.y - contentPx.size.height;
+		view->frame.width  = contentPx.size.width;
+		view->frame.height = contentPx.size.height;
 	}
 }
 
@@ -85,7 +130,9 @@ updateViewRect(PuglView* view)
 - (void)setPuglview:(PuglView*)view
 {
 	puglview = view;
-	[self setContentSize:NSMakeSize(view->frame.width, view->frame.height)];
+
+	[self
+	    setContentSize:sizePoints(view, view->frame.width, view->frame.height)];
 }
 
 - (BOOL) canBecomeKeyWindow
@@ -127,10 +174,12 @@ updateViewRect(PuglView* view)
 
 - (void) dispatchExpose:(NSRect)rect
 {
+	const double scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
+
 	if (reshaped) {
 		updateViewRect(puglview);
 
-		const PuglEventConfigure ev =  {
+		const PuglEventConfigure ev = {
 			PUGL_CONFIGURE,
 			0,
 			puglview->frame.x,
@@ -150,10 +199,10 @@ updateViewRect(PuglView* view)
 	const PuglEventExpose ev = {
 		PUGL_EXPOSE,
 		0,
-		rect.origin.x,
-		rect.origin.y,
-		rect.size.width,
-		rect.size.height,
+		rect.origin.x * scaleFactor,
+		rect.origin.y * scaleFactor,
+		rect.size.width * scaleFactor,
+		rect.size.height * scaleFactor,
 		0
 	};
 
@@ -757,14 +806,20 @@ puglRealize(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
 
+	const double scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
+	const NSRect framePx     = rectToNsRect(view->frame);
+	const NSRect framePt     = NSMakeRect(framePx.origin.x / scaleFactor,
+	                                      framePx.origin.y / scaleFactor,
+	                                      framePx.size.width / scaleFactor,
+	                                      framePx.size.height / scaleFactor);
+
 	// Create wrapper view to handle input
 	impl->wrapperView             = [PuglWrapperView alloc];
 	impl->wrapperView->puglview   = view;
 	impl->wrapperView->userTimers = [[NSMutableDictionary alloc] init];
 	impl->wrapperView->markedText = [[NSMutableAttributedString alloc] init];
 	[impl->wrapperView setAutoresizesSubviews:YES];
-	[impl->wrapperView initWithFrame:
-		     NSMakeRect(0, 0, view->frame.width, view->frame.height)];
+	[impl->wrapperView initWithFrame:framePt];
 	[impl->wrapperView addConstraint:
 		     puglConstraint(impl->wrapperView, NSLayoutAttributeWidth, view->minWidth)];
 	[impl->wrapperView addConstraint:
@@ -788,10 +843,6 @@ puglRealize(PuglView* view)
 		[impl->drawView setHidden:NO];
 		[[impl->drawView window] makeFirstResponder:impl->wrapperView];
 	} else {
-		const NSRect frame = rectToScreen(
-			NSMakeRect(view->frame.x, view->frame.y,
-			           view->minWidth, view->minHeight));
-
 		unsigned style = (NSClosableWindowMask |
 		                  NSTitledWindowMask |
 		                  NSMiniaturizableWindowMask );
@@ -800,7 +851,7 @@ puglRealize(PuglView* view)
 		}
 
 		PuglWindow* window = [[[PuglWindow alloc]
-			initWithContentRect:frame
+			initWithContentRect:rectToScreen([NSScreen mainScreen], framePt)
 			          styleMask:style
 			            backing:NSBackingStoreBuffered
 			              defer:NO
@@ -817,7 +868,8 @@ puglRealize(PuglView* view)
 		}
 
 		if (view->minWidth || view->minHeight) {
-			[window setContentMinSize:NSMakeSize(view->minWidth,
+			[window setContentMinSize:sizePoints(view,
+			                                     view->minWidth,
 			                                     view->minHeight)];
 		}
 		impl->window = window;
@@ -826,7 +878,8 @@ puglRealize(PuglView* view)
 			                  initWithPuglWindow:window];
 
 		if (view->minAspectX && view->minAspectY) {
-			[window setContentAspectRatio:NSMakeSize(view->minAspectX,
+			[window setContentAspectRatio:sizePoints(view,
+			                                         view->minAspectX,
 			                                         view->minAspectY)];
 		}
 
@@ -1066,8 +1119,9 @@ puglPostRedisplay(PuglView* view)
 PuglStatus
 puglPostRedisplayRect(PuglView* view, const PuglRect rect)
 {
-	[view->impl->drawView setNeedsDisplayInRect:
-		NSMakeRect(rect.x, rect.y, rect.width, rect.height)];
+	const NSRect rectPx = rectToNsRect(rect);
+
+	[view->impl->drawView setNeedsDisplayInRect:nsRectToPoints(view, rectPx)];
 
 	return PUGL_SUCCESS;
 }
@@ -1103,19 +1157,22 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 	// Update view frame to exactly the requested frame in Pugl coordinates
 	view->frame = frame;
 
-	const NSRect rect = NSMakeRect(frame.x, frame.y, frame.width, frame.height);
+	const NSRect framePx = rectToNsRect(frame);
+	const NSRect framePt = nsRectToPoints(view, framePx);
 	if (impl->window) {
 		// Resize window to fit new content rect
-		const NSRect windowFrame = [
-			impl->window frameRectForContentRect:rectToScreen(rect)];
+		const NSRect screenPt = rectToScreen(viewScreen(view), framePt);
+		const NSRect winFrame = [impl->window frameRectForContentRect:screenPt];
 
-		[impl->window setFrame:windowFrame display:NO];
+		[impl->window setFrame:winFrame display:NO];
 	}
 
 	// Resize views
-	const NSRect drawRect = NSMakeRect(0, 0, frame.width, frame.height);
-	[impl->wrapperView setFrame:(impl->window ? drawRect : rect)];
-	[impl->drawView setFrame:drawRect];
+	const NSRect sizePx = NSMakeRect(0, 0, frame.width, frame.height);
+	const NSRect sizePt = [impl->drawView convertRectFromBacking:sizePx];
+
+	[impl->wrapperView setFrame:(impl->window ? sizePt : framePt)];
+	[impl->drawView setFrame:sizePt];
 
 	return PUGL_SUCCESS;
 }
@@ -1127,8 +1184,9 @@ puglSetMinSize(PuglView* const view, const int width, const int height)
 	view->minHeight = height;
 
 	if (view->impl->window && (view->minWidth || view->minHeight)) {
-		[view->impl->window
-		    setContentMinSize:NSMakeSize(view->minWidth, view->minHeight)];
+		[view->impl->window setContentMinSize:sizePoints(view,
+		                                                 view->minWidth,
+		                                                 view->minHeight)];
 	}
 
 	return PUGL_SUCCESS;
@@ -1147,7 +1205,8 @@ puglSetAspectRatio(PuglView* const view,
 	view->maxAspectY = maxY;
 
 	if (view->impl->window && view->minAspectX && view->minAspectY) {
-		[view->impl->window setContentAspectRatio:NSMakeSize(view->minAspectX,
+		[view->impl->window setContentAspectRatio:sizePoints(view,
+		                                                     view->minAspectX,
 		                                                     view->minAspectY)];
 	}
 
