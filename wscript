@@ -347,6 +347,7 @@ def build(bld):
                 target   = 'shaders/%s' % s)
 
         if bld.env.HAVE_GL:
+            glad_cflags = ['-Wno-pedantic'] if not bld.env.MSVC_COMPILER else []
             build_example('pugl_embed_demo', ['examples/pugl_embed_demo.c'],
                           platform, 'gl', uselib=['GL', 'M'])
             build_example('pugl_window_demo', ['examples/pugl_window_demo.c'],
@@ -357,7 +358,9 @@ def build(bld):
             build_example('pugl_shader_demo',
                           ['examples/pugl_shader_demo.c',
                            'examples/glad/glad.c'],
-                          platform, 'gl', uselib=['DL', 'GL', 'M'])
+                          platform, 'gl',
+                          cflags=glad_cflags,
+                          uselib=['DL', 'GL', 'M'])
 
         if bld.env.HAVE_CAIRO:
             build_example('pugl_cairo_demo', ['examples/pugl_cairo_demo.c'],
