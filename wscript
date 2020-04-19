@@ -227,14 +227,14 @@ def build(bld):
         if bld.env.BUILD_SHARED:
             bld(features = 'c cshlib',
                 name     = name,
-                target   = 'pugl_' + name,
+                target   = 'pugl_%s-%s' % (name, PUGL_MAJOR_VERSION),
                 defines  = ['PUGL_INTERNAL', 'PUGL_SHARED'],
                 **args)
 
         if bld.env.BUILD_STATIC:
             bld(features = 'c cstlib',
                 name     = 'pugl_%s_static' % name,
-                target   = 'pugl_' + name,
+                target   = 'pugl_%s-%s' % (name, PUGL_MAJOR_VERSION),
                 defines  = ['PUGL_INTERNAL', 'PUGL_DISABLE_DEPRECATED'],
                 **args)
 
