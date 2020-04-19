@@ -60,9 +60,6 @@ def configure(conf):
         conf.env.append_value('CFLAGS', flags)
         conf.env.append_value('CXXFLAGS', flags)
 
-    if platform == 'darwin':
-        append_cflags(['-Wno-deprecated-declarations'])
-
     if conf.env.MSVC_COMPILER:
         append_cflags(['/wd4191', '/wd4355'])
     else:
@@ -72,8 +69,8 @@ def configure(conf):
             append_cflags(['-Wunused-parameter', '-Wno-pedantic'])
 
     if conf.env.TARGET_PLATFORM == 'darwin':
-        conf.env.append_unique('CFLAGS', ['-DGL_SILENCE_DEPRECATION'])
-        conf.env.append_unique('CXXFLAGS', ['-DGL_SILENCE_DEPRECATION'])
+        append_cflags(['-DGL_SILENCE_DEPRECATION',
+                       '-Wno-deprecated-declarations'])
 
     if Options.options.ultra_strict and 'clang' in conf.env.CC:
         for var in ['CFLAGS', 'CXXFLAGS']:
