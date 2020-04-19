@@ -63,8 +63,6 @@ def configure(conf):
     if conf.env.MSVC_COMPILER:
         append_cflags(['/wd4191', '/wd4355'])
     else:
-        conf.env.append_unique('LINKFLAGS', ['-fvisibility=hidden'])
-        append_cflags(['-fvisibility=hidden'])
         if Options.options.ultra_strict:
             append_cflags(['-Wunused-parameter', '-Wno-pedantic'])
 
@@ -221,18 +219,24 @@ def build(bld):
                      'install_path':    '${LIBDIR}',
                      'vnum':            PUGL_VERSION})
 
+        flags = [] if bld.env.MSVC_COMPILER else ['-fPIC', '-fvisibility=hidden']
+
         if bld.env.BUILD_SHARED:
-            bld(features = 'c cshlib',
-                name     = name,
-                target   = 'pugl_%s-%s' % (name, PUGL_MAJOR_VERSION),
-                defines  = ['PUGL_INTERNAL', 'PUGL_SHARED'],
+            bld(features  = 'c cshlib',
+                name      = name,
+                target    = 'pugl_%s-%s' % (name, PUGL_MAJOR_VERSION),
+                defines   = ['PUGL_INTERNAL', 'PUGL_SHARED'],
+                cflags    = flags,
+                linkflags = flags,
                 **args)
 
         if bld.env.BUILD_STATIC:
-            bld(features = 'c cstlib',
-                name     = 'pugl_%s_static' % name,
-                target   = 'pugl_%s-%s' % (name, PUGL_MAJOR_VERSION),
-                defines  = ['PUGL_INTERNAL', 'PUGL_DISABLE_DEPRECATED'],
+            bld(features  = 'c cstlib',
+                name      = 'pugl_%s_static' % name,
+                target    = 'pugl_%s-%s' % (name, PUGL_MAJOR_VERSION),
+                defines   = ['PUGL_INTERNAL', 'PUGL_DISABLE_DEPRECATED'],
+                cflags    = flags,
+                linkflags = flags,
                 **args)
 
     def build_platform(platform, **kwargs):
