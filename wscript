@@ -148,7 +148,18 @@ def configure(conf):
         'BUILD_SHARED': not Options.options.no_shared,
         'BUILD_STATIC': conf.env.BUILD_TESTS or not Options.options.no_static})
 
-    autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION)
+    if conf.env.TARGET_PLATFORM == 'win32':
+        conf.env.PUGL_PLATFORM = 'win'
+    elif conf.env.TARGET_PLATFORM == 'darwin':
+        conf.env.PUGL_PLATFORM = 'mac'
+    else:
+        conf.env.PUGL_PLATFORM = 'x11'
+
+    autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION,
+                        lib='pugl_' + conf.env.PUGL_PLATFORM)
+
+    autowaf.set_lib_env(conf, 'pugl_gl', PUGL_VERSION,
+                        lib='pugl_%s_gl' % conf.env.PUGL_PLATFORM)
 
     autowaf.display_summary(
         conf,
