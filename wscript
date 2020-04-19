@@ -68,7 +68,7 @@ def configure(conf):
     else:
         conf.env.append_unique('LINKFLAGS', ['-fvisibility=hidden'])
         append_cflags(['-fvisibility=hidden'])
-        if Options.options.strict:
+        if Options.options.ultra_strict:
             append_cflags(['-Wunused-parameter', '-Wno-pedantic'])
 
     if conf.env.TARGET_PLATFORM == 'darwin':
