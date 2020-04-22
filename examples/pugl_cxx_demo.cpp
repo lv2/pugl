@@ -109,6 +109,10 @@ int
 main(int argc, char** argv)
 {
 	const PuglTestOptions opts = puglParseTestOptions(&argc, &argv);
+	if (opts.help) {
+		puglPrintTestUsage("pugl_cxx_demo", "");
+		return 1;
+	}
 
 	pugl::World    world{pugl::WorldType::program};
 	CubeView       view{world};
