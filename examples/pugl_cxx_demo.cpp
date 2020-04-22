@@ -128,7 +128,7 @@ main(int argc, char** argv)
 	view.setHint(pugl::ViewHint::resizable, opts.resizable);
 	view.setHint(pugl::ViewHint::samples, opts.samples);
 	view.setHint(pugl::ViewHint::doubleBuffer, opts.doubleBuffer);
-	view.setHint(pugl::ViewHint::swapInterval, opts.doubleBuffer);
+	view.setHint(pugl::ViewHint::swapInterval, opts.sync);
 	view.setHint(pugl::ViewHint::ignoreKeyRepeat, opts.ignoreKeyRepeat);
 	view.realize();
 	view.showWindow();
