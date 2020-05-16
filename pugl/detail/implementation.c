@@ -337,7 +337,7 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 	return PUGL_SUCCESS;
 }
 
-/** Return the code point for buf, or the replacement character on error. */
+/// Return the code point for buf, or the replacement character on error
 uint32_t
 puglDecodeUTF8(const uint8_t* buf)
 {

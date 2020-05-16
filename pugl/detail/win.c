@@ -343,7 +343,7 @@ initScrollEvent(PuglEvent* event, PuglView* view, LPARAM lParam)
 	event->scroll.dy     = 0;
 }
 
-/** Return the code point for buf, or the replacement character on error. */
+/// Return the code point for buf, or the replacement character on error
 static uint32_t
 puglDecodeUTF16(const wchar_t* buf, const int len)
 {

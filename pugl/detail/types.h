@@ -37,22 +37,22 @@
 #   define PUGL_UNUSED(name) name
 #endif
 
-/** Platform-specific world internals. */
+/// Platform-specific world internals
 typedef struct PuglWorldInternalsImpl PuglWorldInternals;
 
-/** Platform-specific view internals. */
+/// Platform-specific view internals
 typedef struct PuglInternalsImpl PuglInternals;
 
-/** View hints. */
+/// View hints
 typedef int PuglHints[PUGL_NUM_VIEW_HINTS];
 
-/** Blob of arbitrary data. */
+/// Blob of arbitrary data
 typedef struct {
-	void*  data; //!< Dynamically allocated data
-	size_t len;  //!< Length of data in bytes
+	void*  data; ///< Dynamically allocated data
+	size_t len;  ///< Length of data in bytes
 } PuglBlob;
 
-/** Cross-platform view definition. */
+/// Cross-platform view definition
 struct PuglViewImpl {
 	PuglWorld*         world;
 	const PuglBackend* backend;
@@ -75,7 +75,7 @@ struct PuglViewImpl {
 	bool               visible;
 };
 
-/** Cross-platform world definition. */
+/// Cross-platform world definition
 struct PuglWorldImpl {
 	PuglWorldInternals* impl;
 	PuglWorldHandle     handle;
@@ -87,27 +87,27 @@ struct PuglWorldImpl {
 	PuglLogLevel        logLevel;
 };
 
-/** Opaque surface used by graphics backend. */
+/// Opaque surface used by graphics backend
 typedef void PuglSurface;
 
-/** Graphics backend interface. */
+/// Graphics backend interface
 struct PuglBackendImpl {
-	/** Get visual information from display and setup view as necessary. */
+	/// Get visual information from display and setup view as necessary
 	PuglStatus (*configure)(PuglView*);
 
-	/** Create surface and drawing context. */
+	/// Create surface and drawing context
 	PuglStatus (*create)(PuglView*);
 
-	/** Destroy surface and drawing context. */
+	/// Destroy surface and drawing context
 	PuglStatus (*destroy)(PuglView*);
 
-	/** Enter drawing context, for drawing if expose is non-null. */
+	/// Enter drawing context, for drawing if expose is non-null
 	PuglStatus (*enter)(PuglView*, const PuglEventExpose*);
 
-	/** Leave drawing context, after drawing if expose is non-null. */
+	/// Leave drawing context, after drawing if expose is non-null
 	PuglStatus (*leave)(PuglView*, const PuglEventExpose*);
 
-	/** Return the puglGetContext() handle for the application, if any. */
+	/// Return the puglGetContext() handle for the application, if any
 	void* (*getContext)(PuglView*);
 };
 

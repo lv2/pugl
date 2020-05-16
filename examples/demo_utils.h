@@ -135,7 +135,7 @@ mat4Ortho(mat4        m,
 	m[3][3] = 1.0f;
 }
 
-/** Calculate a projection matrix for a given perspective. */
+/// Calculate a projection matrix for a given perspective
 static inline void
 perspective(float* m, float fov, float aspect, float zNear, float zFar)
 {
