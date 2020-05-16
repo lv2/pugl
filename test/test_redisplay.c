@@ -1,5 +1,5 @@
 /*
-  Copyright 2020 David Robillard <http://drobilla.net>
+  Copyright 2020 David Robillard <d@drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
