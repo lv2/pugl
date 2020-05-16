@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_embed_demo.c An example of embedding a view in another.
+   @file pugl_embed_demo.c
+   @brief An example of embedding a view in another.
 */
 
 #include "cube_view.h"

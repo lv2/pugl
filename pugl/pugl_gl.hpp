@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_gl.hpp OpenGL-specific C++ API.
+   @file pugl_gl.hpp
+   @brief OpenGL-specific C++ API.
 */
 
 #ifndef PUGL_PUGL_GL_HPP

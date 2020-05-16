@@ -1,5 +1,5 @@
 /*
-  Copyright 2019 David Robillard <http://drobilla.net>
+  Copyright 2019-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -15,7 +15,8 @@
 */
 
 /**
-   @file mac_cairo.m Cairo graphics backend for MacOS.
+   @file mac_cairo.m
+   @brief Cairo graphics backend for MacOS.
 */
 
 #include "pugl/detail/implementation.h"

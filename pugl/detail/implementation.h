@@ -15,7 +15,8 @@
 */
 
 /**
-   @file implementation.h Shared declarations for implementation.
+   @file implementation.h
+   @brief Shared declarations for implementation.
 */
 
 #ifndef PUGL_DETAIL_IMPLEMENTATION_H

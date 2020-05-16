@@ -15,7 +15,8 @@
 */
 
 /**
-   @file mac_gl.m OpenGL graphics backend for MacOS.
+   @file mac_gl.m
+   @brief OpenGL graphics backend for MacOS.
 */
 
 #include "pugl/detail/implementation.h"

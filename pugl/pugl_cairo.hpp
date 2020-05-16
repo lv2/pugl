@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_cairo.hpp Declaration of Cairo backend accessor for C++.
+   @file pugl_cairo.hpp
+   @brief Declaration of Cairo backend accessor for C++.
 */
 
 #ifndef PUGL_PUGL_CAIRO_HPP

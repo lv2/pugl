@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_shader_demo.c An example of drawing with OpenGL 3/4.
+   @file pugl_shader_demo.c
+   @brief An example of drawing with OpenGL 3/4.
 
    This is an example of using OpenGL for pixel-perfect 2D drawing.  It uses
    pixel coordinates for positions and sizes so that things work roughly like a

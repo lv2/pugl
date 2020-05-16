@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl.hpp Pugl C++ API wrapper.
+   @file pugl.hpp
+   @brief Pugl C++ API wrapper.
 */
 
 #ifndef PUGL_PUGL_HPP

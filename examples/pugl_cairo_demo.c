@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_cairo_demo.c An example of drawing with Cairo.
+   @file pugl_cairo_demo.c
+   @brief An example of drawing with Cairo.
 */
 
 #include "demo_utils.h"

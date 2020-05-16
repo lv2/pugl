@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl.ipp Pugl C++ API wrapper implementation.
+   @file pugl.ipp
+   @brief Pugl C++ API wrapper implementation.
 
    This file must be included exactly once in the application.
 */

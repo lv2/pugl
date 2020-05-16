@@ -16,7 +16,8 @@
 */
 
 /**
-   @file mac.m MacOS implementation.
+   @file mac.m
+   @brief MacOS implementation.
 */
 
 #define GL_SILENCE_DEPRECATION 1

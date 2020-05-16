@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -15,7 +15,8 @@
 */
 
 /**
-   @file win_gl.c OpenGL graphics backend for Windows.
+   @file win_gl.c
+   @brief OpenGL graphics backend for Windows.
 */
 
 #include "pugl/detail/types.h"

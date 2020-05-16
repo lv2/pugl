@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_print_events.c A utility program that prints view events.
+   @file pugl_print_events.c
+   @brief A utility program that prints view events.
 */
 
 #include "test/test_utils.h"

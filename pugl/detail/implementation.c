@@ -15,7 +15,8 @@
 */
 
 /**
-   @file implementation.c Platform-independent implementation.
+   @file implementation.c
+   @brief Platform-independent implementation.
 */
 
 #include "pugl/detail/implementation.h"

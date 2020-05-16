@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl.h Pugl API.
+   @file pugl.h
+   @brief Pugl API.
 */
 
 #ifndef PUGL_PUGL_H

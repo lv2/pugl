@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_cairo.h Declaration of Cairo backend accessor.
+   @file pugl_cairo.h
+   @brief Declaration of Cairo backend accessor.
 */
 
 #ifndef PUGL_PUGL_CAIRO_H

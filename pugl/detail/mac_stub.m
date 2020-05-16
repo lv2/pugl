@@ -15,7 +15,8 @@
 */
 
 /**
-   @file mac_stub.m Stub graphics backend for MacOS.
+   @file mac_stub.m
+   @brief Stub graphics backend for MacOS.
 */
 
 #include "pugl/detail/implementation.h"

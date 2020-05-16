@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_window_demo.c A demonstration of multiple Pugl windows.
+   @file pugl_window_demo.c
+   @brief A demonstration of multiple Pugl windows.
 */
 
 #include "cube_view.h"

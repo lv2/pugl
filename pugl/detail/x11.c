@@ -17,7 +17,8 @@
 */
 
 /**
-   @file x11.c X11 implementation.
+   @file x11.c
+   @brief X11 implementation.
 */
 
 #define _POSIX_C_SOURCE 199309L

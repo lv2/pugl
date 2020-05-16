@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_stub.hpp Declaration of Stub backend accessor for C++.
+   @file pugl_stub.hpp
+   @brief Declaration of Stub backend accessor for C++.
 */
 
 #ifndef PUGL_PUGL_STUB_HPP

@@ -15,7 +15,8 @@
 */
 
 /**
-   @file win.c Windows implementation.
+   @file win.c
+   @brief Windows implementation.
 */
 
 #include "pugl/detail/win.h"

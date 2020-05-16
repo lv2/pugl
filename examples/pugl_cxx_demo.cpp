@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_cxx_demo.cpp A simple demo of the Pugl C++ API.
+   @file pugl_cxx_demo.cpp
+   @brief A simple demo of the Pugl C++ API.
 */
 
 #include "cube_view.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright 2019 David Robillard <http://drobilla.net>
+  Copyright 2019-2020 David Robillard <http://drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -15,7 +15,8 @@
 */
 
 /**
-   @file pugl_stub.h Stub backend functions and accessor declaration.
+   @file pugl_stub.h
+   @brief Stub backend functions and accessor declaration.
 */
 
 #ifndef PUGL_PUGL_STUB_H

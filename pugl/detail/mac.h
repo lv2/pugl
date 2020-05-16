@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2019 David Robillard <http://drobilla.net>
+  Copyright 2012-2020 David Robillard <http://drobilla.net>
   Copyright 2017 Hanspeter Portner <dev@open-music-kontrollers.ch>
 
   Permission to use, copy, modify, and/or distribute this software for any
@@ -16,7 +16,8 @@
 */
 
 /**
-   @file mac.h Shared definitions for MacOS implementation.
+   @file mac.h
+   @brief Shared definitions for MacOS implementation.
 */
 
 #include "pugl/pugl.h"
