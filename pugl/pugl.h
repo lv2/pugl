@@ -559,6 +559,7 @@ typedef enum {
 	PUGL_FAILURE,               ///< Non-fatal failure
 	PUGL_UNKNOWN_ERROR,         ///< Unknown system error
 	PUGL_BAD_BACKEND,           ///< Invalid or missing backend
+	PUGL_BAD_CONFIGURATION,     ///< Invalid view configuration
 	PUGL_BAD_PARAMETER,         ///< Invalid parameter
 	PUGL_BACKEND_FAILED,        ///< Backend initialisation failed
 	PUGL_REGISTRATION_FAILED,   ///< Class registration failed
@@ -947,6 +948,16 @@ PUGL_API PuglStatus
 puglSetFrame(PuglView* view, PuglRect frame);
 
 /**
+   Set the default size of the view.
+
+   This should be called before puglResize() to set the default size of the
+   view, which will be the initial size of the window if this is a top level
+   view.
+*/
+PUGL_API PuglStatus
+puglSetDefaultSize(PuglView* view, int width, int height);
+
+/**
    Set the minimum size of the view.
 
    If an initial minimum size is known, this should be called before
@@ -954,6 +965,15 @@ puglSetFrame(PuglView* view, PuglRect frame);
 */
 PUGL_API PuglStatus
 puglSetMinSize(PuglView* view, int width, int height);
+
+/**
+   Set the maximum size of the view.
+
+   If an initial maximum size is known, this should be called before
+   puglRealize() to avoid stutter, though it can be called afterwards as well.
+*/
+PUGL_API PuglStatus
+puglSetMaxSize(PuglView* view, int width, int height);
 
 /**
    Set the view aspect ratio range.

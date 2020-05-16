@@ -66,8 +66,12 @@ struct PuglViewImpl {
 	PuglHints          hints;
 	PuglRect           frame;
 	PuglEventConfigure lastConfigure;
+	int                defaultWidth;
+	int                defaultHeight;
 	int                minWidth;
 	int                minHeight;
+	int                maxWidth;
+	int                maxHeight;
 	int                minAspectX;
 	int                minAspectY;
 	int                maxAspectX;

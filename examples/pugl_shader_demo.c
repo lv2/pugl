@@ -243,7 +243,7 @@ parseOptions(PuglTestApp* app, int argc, char** argv)
 }
 
 static void
-setupPugl(PuglTestApp* app, const PuglRect frame)
+setupPugl(PuglTestApp* app)
 {
 	// Create world, view, and rect data
 	app->world = puglNewWorld(PUGL_PROGRAM, 0);
@@ -253,7 +253,7 @@ setupPugl(PuglTestApp* app, const PuglRect frame)
 	// Set up world and view
 	puglSetClassName(app->world, "PuglGL3Demo");
 	puglSetWindowTitle(app->view, "Pugl OpenGL 3");
-	puglSetFrame(app->view, frame);
+	puglSetDefaultSize(app->view, defaultWidth, defaultHeight);
 	puglSetMinSize(app->view, defaultWidth / 4, defaultHeight / 4);
 	puglSetAspectRatio(app->view, 1, 1, 16, 9);
 	puglSetBackend(app->view, puglGlBackend());
@@ -389,8 +389,6 @@ main(int argc, char** argv)
 	app.glMajorVersion = 3;
 	app.glMinorVersion = 3;
 
-	const PuglRect frame = {0, 0, defaultWidth, defaultHeight};
-
 	// Parse command line options
 	if (parseOptions(&app, argc, argv)) {
 		puglPrintTestUsage("pugl_shader_demo", "[NUM_RECTS] [GL_MAJOR]");
@@ -398,7 +396,7 @@ main(int argc, char** argv)
 	}
 
 	// Create and configure world and view
-	setupPugl(&app, frame);
+	setupPugl(&app);
 
 	// Create window (which will send a PUGL_CREATE event)
 	const PuglStatus st = puglRealize(app.view);

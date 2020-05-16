@@ -88,14 +88,31 @@ puglWinGetWindowExFlags(const PuglView* const view)
 }
 
 static inline PuglStatus
-puglWinCreateWindow(const PuglView* const view,
-                    const char* const     title,
-                    HWND* const           hwnd,
-                    HDC* const            hdc)
+puglWinCreateWindow(PuglView* const   view,
+                    const char* const title,
+                    HWND* const       hwnd,
+                    HDC* const        hdc)
 {
 	const char*    className  = (const char*)view->world->className;
 	const unsigned winFlags   = puglWinGetWindowFlags(view);
 	const unsigned winExFlags = puglWinGetWindowExFlags(view);
+
+	if (view->frame.width == 0.0 && view->frame.height == 0.0) {
+		if (view->defaultWidth == 0.0 && view->defaultHeight == 0.0) {
+			return PUGL_BAD_CONFIGURATION;
+		}
+
+		RECT desktopRect;
+		GetClientRect(GetDesktopWindow(), &desktopRect);
+
+		const int screenWidth  = desktopRect.right - desktopRect.left;
+		const int screenHeight = desktopRect.bottom - desktopRect.top;
+
+		view->frame.width  = view->defaultWidth;
+		view->frame.height = view->defaultHeight;
+		view->frame.x      = screenWidth / 2.0 - view->frame.width / 2.0;
+		view->frame.y      = screenHeight / 2.0 - view->frame.height / 2.0;
+	}
 
 	// The meaning of "parent" depends on the window type (WS_CHILD)
 	PuglNativeView parent = view->parent ? view->parent : view->transientParent;

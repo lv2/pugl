@@ -293,7 +293,7 @@ main(int argc, char** argv)
 	puglSetClassName(app.world, "Pugl Test");
 
 	const PuglRect parentFrame = { 0, 0, 512, 512 };
-	puglSetFrame(app.parent, parentFrame);
+	puglSetDefaultSize(app.parent, 512, 512);
 	puglSetMinSize(app.parent, borderWidth * 3, borderWidth * 3);
 	puglSetAspectRatio(app.parent, 1, 1, 16, 9);
 	puglSetBackend(app.parent, puglGlBackend());

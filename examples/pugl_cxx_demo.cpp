@@ -122,7 +122,7 @@ main(int argc, char** argv)
 	world.setClassName("PuglCppTest");
 
 	view.setWindowTitle("Pugl C++ Test");
-	view.setFrame({0, 0, 512, 512});
+	view.setDefaultSize(512, 512);
 	view.setMinSize(64, 64);
 	view.setAspectRatio(1, 1, 16, 9);
 	view.setBackend(pugl::glBackend());

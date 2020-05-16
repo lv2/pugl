@@ -61,6 +61,7 @@ puglStrerror(const PuglStatus status)
 	case PUGL_FAILURE:               return "Non-fatal failure";
 	case PUGL_UNKNOWN_ERROR:         return "Unknown system error";
 	case PUGL_BAD_BACKEND:           return "Invalid or missing backend";
+	case PUGL_BAD_CONFIGURATION:     return "Invalid view configuration";
 	case PUGL_BAD_PARAMETER:         return "Invalid parameter";
 	case PUGL_BACKEND_FAILED:        return "Backend initialisation failed";
 	case PUGL_REGISTRATION_FAILED:   return "Class registration failed";
@@ -189,9 +190,9 @@ puglNewView(PuglWorld* const world)
 		return NULL;
 	}
 
-	view->world        = world;
-	view->frame.width  = 640;
-	view->frame.height = 480;
+	view->world     = world;
+	view->minWidth  = 1;
+	view->minHeight = 1;
 
 	puglSetDefaultHints(view->hints);
 

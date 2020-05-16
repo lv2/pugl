@@ -592,6 +592,8 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		mmi                   = (MINMAXINFO*)lParam;
 		mmi->ptMinTrackSize.x = view->minWidth;
 		mmi->ptMinTrackSize.y = view->minHeight;
+		mmi->ptMaxTrackSize.x = view->maxWidth;
+		mmi->ptMaxTrackSize.y = view->maxHeight;
 		break;
 	case WM_PAINT:
 		GetUpdateRect(view->impl->hwnd, &rect, false);
@@ -959,10 +961,26 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 }
 
 PuglStatus
+puglSetDefaultSize(PuglView* const view, const int width, const int height)
+{
+	view->defaultWidth  = width;
+	view->defaultHeight = height;
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglSetMinSize(PuglView* const view, const int width, const int height)
 {
 	view->minWidth  = width;
 	view->minHeight = height;
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetMaxSize(PuglView* const view, const int width, const int height)
+{
+	view->maxWidth  = width;
+	view->maxHeight = height;
 	return PUGL_SUCCESS;
 }
 

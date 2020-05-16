@@ -193,22 +193,39 @@ puglFindView(PuglWorld* world, const Window window)
 	return NULL;
 }
 
-static XSizeHints
-getSizeHints(const PuglView* view)
+static PuglStatus
+updateSizeHints(const PuglView* view)
 {
+	if (!view->impl->win) {
+		return PUGL_SUCCESS;
+	}
+
+	Display*   display   = view->world->impl->display;
 	XSizeHints sizeHints = {0};
 
 	if (!view->hints[PUGL_RESIZABLE]) {
-		sizeHints.flags      = PMinSize|PMaxSize;
-		sizeHints.min_width  = (int)view->frame.width;
-		sizeHints.min_height = (int)view->frame.height;
-		sizeHints.max_width  = (int)view->frame.width;
-		sizeHints.max_height = (int)view->frame.height;
+		sizeHints.flags       = PBaseSize | PMinSize | PMaxSize;
+		sizeHints.base_width  = (int)view->frame.width;
+		sizeHints.base_height = (int)view->frame.height;
+		sizeHints.min_width   = (int)view->frame.width;
+		sizeHints.min_height  = (int)view->frame.height;
+		sizeHints.max_width   = (int)view->frame.width;
+		sizeHints.max_height  = (int)view->frame.height;
 	} else {
+		if (view->defaultWidth || view->defaultHeight) {
+			sizeHints.flags       = PBaseSize;
+			sizeHints.base_width  = view->defaultWidth;
+			sizeHints.base_height = view->defaultHeight;
+		}
 		if (view->minWidth || view->minHeight) {
 			sizeHints.flags      = PMinSize;
 			sizeHints.min_width  = view->minWidth;
 			sizeHints.min_height = view->minHeight;
+		}
+		if (view->maxWidth || view->maxHeight) {
+			sizeHints.flags      = PMaxSize;
+			sizeHints.max_width  = view->maxWidth;
+			sizeHints.max_height = view->maxHeight;
 		}
 		if (view->minAspectX) {
 			sizeHints.flags        |= PAspect;
@@ -219,7 +236,8 @@ getSizeHints(const PuglView* view)
 		}
 	}
 
-	return sizeHints;
+	XSetNormalHints(display, view->impl->win, &sizeHints);
+	return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -235,6 +253,18 @@ puglRealize(PuglView* view)
 
 	if (!view->backend || !view->backend->configure) {
 		return PUGL_BAD_BACKEND;
+	} else if (view->frame.width == 0.0 && view->frame.height == 0.0) {
+		if (view->defaultWidth == 0.0 && view->defaultHeight == 0.0) {
+			return PUGL_BAD_CONFIGURATION;
+		}
+
+		const int screenWidth  = DisplayWidth(display, impl->screen);
+		const int screenHeight = DisplayHeight(display, impl->screen);
+
+		view->frame.width  = view->defaultWidth;
+		view->frame.height = view->defaultHeight;
+		view->frame.x      = screenWidth / 2.0 - view->frame.width / 2.0;
+		view->frame.y      = screenHeight / 2.0 - view->frame.height / 2.0;
 	}
 
 	PuglStatus st = view->backend->configure(view);
@@ -264,8 +294,7 @@ puglRealize(PuglView* view)
 		return st;
 	}
 
-	XSizeHints sizeHints = getSizeHints(view);
-	XSetNormalHints(display, win, &sizeHints);
+	updateSizeHints(view);
 
 	XClassHint classHint = { world->className, world->className };
 	XSetClassHint(display, win, &classHint);
@@ -1103,19 +1132,27 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 }
 
 PuglStatus
+puglSetDefaultSize(PuglView* const view, const int width, const int height)
+{
+	view->defaultWidth  = width;
+	view->defaultHeight = height;
+	return updateSizeHints(view);
+}
+
+PuglStatus
 puglSetMinSize(PuglView* const view, const int width, const int height)
 {
-	Display* display = view->world->impl->display;
-
 	view->minWidth  = width;
 	view->minHeight = height;
+	return updateSizeHints(view);
+}
 
-	if (view->impl->win) {
-		XSizeHints sizeHints = getSizeHints(view);
-		XSetNormalHints(display, view->impl->win, &sizeHints);
-	}
-
-	return PUGL_SUCCESS;
+PuglStatus
+puglSetMaxSize(PuglView* const view, const int width, const int height)
+{
+	view->minWidth  = width;
+	view->minHeight = height;
+	return updateSizeHints(view);
 }
 
 PuglStatus
@@ -1125,19 +1162,12 @@ puglSetAspectRatio(PuglView* const view,
                    const int       maxX,
                    const int       maxY)
 {
-	Display* display = view->world->impl->display;
-
 	view->minAspectX = minX;
 	view->minAspectY = minY;
 	view->maxAspectX = maxX;
 	view->maxAspectY = maxY;
 
-	if (view->impl->win) {
-		XSizeHints sizeHints = getSizeHints(view);
-		XSetNormalHints(display, view->impl->win, &sizeHints);
-	}
-
-	return PUGL_SUCCESS;
+	return updateSizeHints(view);
 }
 
 PuglStatus

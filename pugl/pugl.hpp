@@ -186,6 +186,7 @@ enum class Status {
 	failure,             ///< @copydoc PUGL_FAILURE
 	unknownError,        ///< @copydoc PUGL_UNKNOWN_ERROR
 	badBackend,          ///< @copydoc PUGL_BAD_BACKEND
+	badConfiguration,    ///< @copydoc PUGL_BAD_CONFIGURATION
 	badParameter,        ///< @copydoc PUGL_BAD_PARAMETER
 	backendFailed,       ///< @copydoc PUGL_BACKEND_FAILED
 	registrationFailed,  ///< @copydoc PUGL_REGISTRATION_FAILED
@@ -406,10 +407,22 @@ public:
 		return static_cast<Status>(puglSetFrame(cobj(), frame));
 	}
 
+	/// @copydoc puglSetDefaultSize
+	Status setDefaultSize(int width, int height)
+	{
+		return static_cast<Status>(puglSetDefaultSize(cobj(), width, height));
+	}
+
 	/// @copydoc puglSetMinSize
 	Status setMinSize(int width, int height)
 	{
 		return static_cast<Status>(puglSetMinSize(cobj(), width, height));
+	}
+
+	/// @copydoc puglSetMaxSize
+	Status setMaxSize(int width, int height)
+	{
+		return static_cast<Status>(puglSetMaxSize(cobj(), width, height));
 	}
 
 	/// @copydoc puglSetAspectRatio

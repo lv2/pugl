@@ -210,6 +210,17 @@ updateViewRect(PuglView* view)
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
+- (NSSize) intrinsicContentSize
+{
+	if (puglview->defaultWidth || puglview->defaultHeight) {
+		return sizePoints(puglview,
+		                  puglview->defaultWidth,
+		                  puglview->defaultHeight);
+	}
+
+	return NSMakeSize(NSViewNoInstrinsicMetric, NSViewNoInstrinsicMetric);
+}
+
 - (BOOL) isFlipped
 {
 	return YES;
@@ -805,14 +816,29 @@ puglConstraint(id item, NSLayoutAttribute attribute, float constant)
 PuglStatus
 puglRealize(PuglView* view)
 {
-	PuglInternals* impl = view->impl;
+	PuglInternals*        impl        = view->impl;
+	const NSScreen* const screen      = [NSScreen mainScreen];
+	const double          scaleFactor = [screen backingScaleFactor];
 
-	const double scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
-	const NSRect framePx     = rectToNsRect(view->frame);
-	const NSRect framePt     = NSMakeRect(framePx.origin.x / scaleFactor,
-	                                      framePx.origin.y / scaleFactor,
-	                                      framePx.size.width / scaleFactor,
-	                                      framePx.size.height / scaleFactor);
+	if (view->frame.width == 0.0 && view->frame.height == 0.0) {
+		if (view->defaultWidth == 0.0 && view->defaultHeight == 0.0) {
+			return PUGL_BAD_CONFIGURATION;
+		}
+
+		const int screenWidthPx  = [screen frame].size.width * scaleFactor;
+		const int screenHeightPx = [screen frame].size.height * scaleFactor;
+
+		view->frame.width  = view->defaultWidth;
+		view->frame.height = view->defaultHeight;
+		view->frame.x      = screenWidthPx / 2.0 - view->frame.width / 2.0;
+		view->frame.y      = screenHeightPx / 2.0 - view->frame.height / 2.0;
+	}
+
+	const NSRect framePx = rectToNsRect(view->frame);
+	const NSRect framePt = NSMakeRect(framePx.origin.x / scaleFactor,
+	                                  framePx.origin.y / scaleFactor,
+	                                  framePx.size.width / scaleFactor,
+	                                  framePx.size.height / scaleFactor);
 
 	// Create wrapper view to handle input
 	impl->wrapperView             = [PuglWrapperView alloc];
@@ -883,6 +909,8 @@ puglRealize(PuglView* view)
 			                                         view->minAspectX,
 			                                         view->minAspectY)];
 		}
+
+		puglSetFrame(view, view->frame);
 
 		[window setContentView:impl->wrapperView];
 		[view->world->impl->app activateIgnoringOtherApps:YES];
@@ -1179,6 +1207,14 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 }
 
 PuglStatus
+puglSetDefaultSize(PuglView* const view, const int width, const int height)
+{
+	view->defaultWidth  = width;
+	view->defaultHeight = height;
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglSetMinSize(PuglView* const view, const int width, const int height)
 {
 	view->minWidth  = width;
@@ -1188,6 +1224,21 @@ puglSetMinSize(PuglView* const view, const int width, const int height)
 		[view->impl->window setContentMinSize:sizePoints(view,
 		                                                 view->minWidth,
 		                                                 view->minHeight)];
+	}
+
+	return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetMaxSize(PuglView* const view, const int width, const int height)
+{
+	view->maxWidth  = width;
+	view->maxHeight = height;
+
+	if (view->impl->window && (view->maxWidth || view->maxHeight)) {
+		[view->impl->window setContentMaxSize:sizePoints(view,
+		                                                 view->maxWidth,
+		                                                 view->maxHeight)];
 	}
 
 	return PUGL_SUCCESS;

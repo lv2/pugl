@@ -213,6 +213,7 @@ main(int argc, char** argv)
 
 		puglSetWindowTitle(view, "Pugl Window Demo");
 		puglSetFrame(view, frame);
+		puglSetDefaultSize(view, 512, 512);
 		puglSetMinSize(view, 128, 128);
 		puglSetBackend(view, puglGlBackend());
 
