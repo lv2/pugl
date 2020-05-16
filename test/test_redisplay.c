@@ -53,7 +53,7 @@ typedef struct
 	State           state;
 } PuglTest;
 
-static const PuglRect  redisplayRect   = {1, 2, 3, 4};
+static const PuglRect  redisplayRect   = {2, 4, 8, 16};
 static const uintptr_t postRedisplayId = 42;
 
 static PuglStatus
@@ -66,6 +66,13 @@ onEvent(PuglView* view, const PuglEvent* event)
 	}
 
 	switch (event->type) {
+	case PUGL_UPDATE:
+		if (test->state == SHOULD_REDISPLAY) {
+			puglPostRedisplayRect(view, redisplayRect);
+			test->state = POSTED_REDISPLAY;
+		}
+		break;
+
 	case PUGL_EXPOSE:
 		if (test->state == START) {
 			test->state = EXPOSED;
@@ -80,8 +87,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 
 	case PUGL_CLIENT:
 		if (event->client.data1 == postRedisplayId) {
-			puglPostRedisplayRect(view, redisplayRect);
-			test->state = POSTED_REDISPLAY;
+			test->state = SHOULD_REDISPLAY;
 		}
 		break;
 
