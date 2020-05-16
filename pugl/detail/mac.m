@@ -120,9 +120,9 @@ updateViewRect(PuglView* view)
 	(void)flag;
 
 	NSWindow* result = [super initWithContentRect:contentRect
-					    styleMask:aStyle
-					      backing:bufferingType
-						defer:NO];
+	                                    styleMask:aStyle
+	                                      backing:bufferingType
+	                                        defer:NO];
 
 	[result setAcceptsMouseMovedEvents:YES];
 	return (PuglWindow*)result;
