@@ -776,7 +776,6 @@ puglInitWorldInternals(PuglWorldType PUGL_UNUSED(type),
 		1, sizeof(PuglWorldInternals));
 
 	impl->app             = [NSApplication sharedApplication];
-	impl->autoreleasePool = [NSAutoreleasePool new];
 
 	return impl;
 }
@@ -784,7 +783,6 @@ puglInitWorldInternals(PuglWorldType PUGL_UNUSED(type),
 void
 puglFreeWorldInternals(PuglWorld* world)
 {
-	[world->impl->autoreleasePool drain];
 	free(world->impl);
 }
 

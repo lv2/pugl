@@ -54,7 +54,6 @@
 
 struct PuglWorldInternalsImpl {
 	NSApplication*     app;
-	NSAutoreleasePool* autoreleasePool;
 };
 
 struct PuglInternalsImpl {
