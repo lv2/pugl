@@ -1100,7 +1100,6 @@ puglWinStubLeave(PuglView* view, const PuglEventExpose* expose)
 	if (expose) {
 		PAINTSTRUCT ps;
 		EndPaint(view->impl->hwnd, &ps);
-		SwapBuffers(view->impl->hdc);
 	}
 
 	return PUGL_SUCCESS;
