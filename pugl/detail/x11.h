@@ -64,6 +64,9 @@ struct PuglInternalsImpl {
 	int          screen;
 	XVisualInfo* vi;
 	Window       win;
+#ifdef HAVE_XCURSOR
+	int          cursorShape;
+#endif
 	XIC          xic;
 	PuglSurface* surface;
 	PuglEvent    pendingConfigure;

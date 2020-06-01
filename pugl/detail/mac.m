@@ -333,10 +333,12 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 - (void) mouseEntered:(NSEvent*)event
 {
 	handleCrossing(self, event, PUGL_POINTER_IN);
+	[puglview->impl->cursor set];
 }
 
 - (void) mouseExited:(NSEvent*)event
 {
+	[[NSCursor arrowCursor] set];
 	handleCrossing(self, event, PUGL_POINTER_OUT);
 }
 
@@ -797,7 +799,11 @@ puglGetNativeWorld(PuglWorld* PUGL_UNUSED(world))
 PuglInternals*
 puglInitViewInternals(void)
 {
-	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
+	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+
+	impl->cursor = [NSCursor arrowCursor];
+
+	return impl;
 }
 
 static NSLayoutConstraint*
@@ -1297,6 +1303,90 @@ puglGetClipboard(PuglView* const    view,
 	}
 
 	return puglGetInternalClipboard(view, type, len);
+}
+
+PuglStatus
+puglSetCursor(PuglView* view, PuglCursor cursor)
+{
+	PuglInternals* impl = view->impl;
+	NSCursor*      cur  = nil;
+
+	switch (cursor) {
+	case PUGL_CURSOR_ARROW:
+		cur = [NSCursor arrowCursor];
+		break;
+	case PUGL_CURSOR_IBEAM:
+		cur = [NSCursor IBeamCursor];
+		break;
+	case PUGL_CURSOR_WAIT:
+		if ([NSCursor respondsToSelector:@selector(_waitCursor)]) {
+			cur = [NSCursor performSelector:@selector(_waitCursor)];
+		} else {
+			cur = [NSCursor arrowCursor];
+		}
+		break;
+	case PUGL_CURSOR_CROSS:
+		cur = [NSCursor crosshairCursor];
+		break;
+	case PUGL_CURSOR_SIZENWSE:
+		if ([NSCursor respondsToSelector:@selector(_windowResizeNorthWestSouthEastCursor)]) {
+			cur = [NSCursor performSelector:@selector(_windowResizeNorthWestSouthEastCursor)];
+		} else {
+			cur = [NSCursor resizeUpDownCursor];
+		}
+		break;
+	case PUGL_CURSOR_SIZENESW:
+		if ([NSCursor respondsToSelector:@selector(_windowResizeNorthEastSouthWestCursor)]) {
+			cur = [NSCursor performSelector:@selector(_windowResizeNorthEastSouthWestCursor)];
+		} else {
+			cur = [NSCursor resizeUpDownCursor];
+		}
+		break;
+	case PUGL_CURSOR_SIZEWE:
+		cur = [NSCursor resizeLeftRightCursor];
+		break;
+	case PUGL_CURSOR_SIZENS:
+		cur = [NSCursor resizeUpDownCursor];
+		break;
+	case PUGL_CURSOR_SIZEALL:
+		cur = [NSCursor resizeUpDownCursor];
+		break;
+	case PUGL_CURSOR_NO:
+		cur = [NSCursor operationNotAllowedCursor];
+		break;
+	case PUGL_CURSOR_HAND:
+		cur = [NSCursor pointingHandCursor];
+		break;
+	case PUGL_CURSOR_APPSTARTING:
+		cur = [NSCursor arrowCursor];
+		break;
+	case PUGL_CURSOR_HELP:
+		if ([NSCursor respondsToSelector:@selector(_helpCursor)]) {
+			cur = [NSCursor performSelector:@selector(_helpCursor)];
+		} else {
+			cur = [NSCursor arrowCursor];
+		}
+		break;
+	default:
+		return PUGL_BAD_PARAMETER;
+	}
+
+	if (!cur)
+		return PUGL_FAILURE;
+
+	impl->cursor = cur;
+
+	if (impl->wrapperView) {
+		NSPoint screenPos = [NSEvent mouseLocation];
+		NSPoint winPos = [impl->window convertPointFromScreen:screenPos];
+		NSPoint viewPos = [impl->wrapperView convertPoint:winPos fromView:nil];
+		NSRect bounds = [impl->wrapperView bounds];
+		if ([impl->wrapperView mouse:viewPos inRect:bounds]) {
+			[cur set];
+		}
+	}
+
+	return PUGL_SUCCESS;
 }
 
 PuglStatus

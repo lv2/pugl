@@ -41,6 +41,11 @@
 #	include <X11/extensions/syncconst.h>
 #endif
 
+#ifdef HAVE_XCURSOR
+#	include <X11/Xcursor/Xcursor.h>
+#	include <X11/cursorfont.h>
+#endif
+
 #include <sys/select.h>
 #include <sys/time.h>
 
@@ -152,7 +157,13 @@ puglGetNativeWorld(PuglWorld* world)
 PuglInternals*
 puglInitViewInternals(void)
 {
-	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
+	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+
+#ifdef HAVE_XCURSOR
+	impl->cursorShape = XC_arrow;
+#endif
+
+	return impl;
 }
 
 static PuglStatus
@@ -240,6 +251,25 @@ updateSizeHints(const PuglView* view)
 	return PUGL_SUCCESS;
 }
 
+#ifdef HAVE_XCURSOR
+static PuglStatus
+puglDefineCursorShape(PuglView* view, int shape)
+{
+	PuglInternals* const impl    = view->impl;
+	PuglWorld* const     world   = view->world;
+	Display* const       display = world->impl->display;
+	Window               win     = impl->win;
+	Cursor               cur;
+
+	cur = XcursorShapeLoadCursor(display, impl->cursorShape);
+	if (cur == 0)
+		return PUGL_FAILURE;
+
+	XDefineCursor(display, win, cur);
+	XFreeCursor(display, cur);
+}
+#endif
+
 PuglStatus
 puglRealize(PuglView* view)
 {
@@ -322,6 +352,10 @@ puglRealize(PuglView* view)
 		                     PUGL_LOG_LEVEL_WARNING,
 		                     "XCreateID failed\n");
 	}
+
+#ifdef HAVE_XCURSOR
+	puglDefineCursorShape(view, impl->cursorShape);
+#endif
 
 	puglDispatchSimpleEvent(view, PUGL_CREATE);
 
@@ -1231,6 +1265,50 @@ puglSetClipboard(PuglView* const   view,
 
 	XSetSelectionOwner(impl->display, atoms->CLIPBOARD, impl->win, CurrentTime);
 	return PUGL_SUCCESS;
+}
+
+#ifdef HAVE_XCURSOR
+static int cursor_nums[] = {
+	XC_arrow,             // ARROW
+	XC_xterm,             // IBEAM
+	XC_watch,             // WAIT
+	XC_crosshair,         // CROSS
+	XC_X_cursor,          // SIZENWSE
+	XC_X_cursor,          // SIZENESW
+	XC_sb_h_double_arrow, // SIZEWE
+	XC_sb_v_double_arrow, // SIZENS
+	XC_target,            // SIZEALL
+	XC_pirate,            // NO
+	XC_hand2,             // HAND
+	XC_watch,             // APPSTARTING
+	XC_question_arrow,    // HELP
+};
+#endif
+
+PuglStatus
+puglSetCursor(PuglView* view, PuglCursor cursor)
+{
+#ifdef HAVE_XCURSOR
+	PuglInternals* const impl    = view->impl;
+	const unsigned       index   = (unsigned)cursor;
+	const unsigned       count   = sizeof(cursor_nums) / sizeof(cursor_nums[0]);
+	int                  shape;
+
+	if (index >= count) {
+		return PUGL_BAD_PARAMETER;
+	}
+
+	shape = impl->cursorShape = cursor_nums[index];
+
+	if (!impl->win)
+		return PUGL_SUCCESS;
+
+	return puglDefineCursorShape(view, shape);
+#else
+	(void)view;
+	(void)cursor;
+	return PUGL_FAILURE;
+#endif
 }
 
 const PuglBackend*

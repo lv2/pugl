@@ -183,6 +183,25 @@ typedef enum {
 } PuglKey;
 
 /**
+   Standard mouse cursor identifiers.
+*/
+typedef enum {
+	PUGL_CURSOR_ARROW,
+	PUGL_CURSOR_IBEAM,
+	PUGL_CURSOR_WAIT,
+	PUGL_CURSOR_CROSS,
+	PUGL_CURSOR_SIZENWSE,
+	PUGL_CURSOR_SIZENESW,
+	PUGL_CURSOR_SIZEWE,
+	PUGL_CURSOR_SIZENS,
+	PUGL_CURSOR_SIZEALL,
+	PUGL_CURSOR_NO,
+	PUGL_CURSOR_HAND,
+	PUGL_CURSOR_APPSTARTING,
+	PUGL_CURSOR_HELP,
+} PuglCursor;
+
+/**
    The type of a PuglEvent.
 */
 typedef enum {
@@ -1165,6 +1184,19 @@ puglSetClipboard(PuglView*   view,
 */
 PUGL_API const void*
 puglGetClipboard(PuglView* view, const char** type, size_t* len);
+
+/**
+   Set the mouse cursor.
+
+   This defines the type of system cursor which is displayed, when the pointer
+   is positioned inside the frame of the view.
+
+   @param view The view.
+   @param[in] cursor The type of standard mouse cursor.
+   @return #PUGL_SUCCESS if the cursor was changed, #PUGL_FAILURE if not, or an error.
+ */
+PUGL_API PuglStatus
+puglSetCursor(PuglView* view, PuglCursor cursor);
 
 /**
    Request user attention.
