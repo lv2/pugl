@@ -64,4 +64,5 @@ struct PuglInternalsImpl {
 	NSCursor*        cursor;
 	PuglWindow*      window;
 	uint32_t         mods;
+	bool             mouseTracked;
 };

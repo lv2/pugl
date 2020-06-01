@@ -334,12 +334,14 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
 	handleCrossing(self, event, PUGL_POINTER_IN);
 	[puglview->impl->cursor set];
+	puglview->impl->mouseTracked = true;
 }
 
 - (void) mouseExited:(NSEvent*)event
 {
 	[[NSCursor arrowCursor] set];
 	handleCrossing(self, event, PUGL_POINTER_OUT);
+	puglview->impl->mouseTracked = false;
 }
 
 - (void) mouseMoved:(NSEvent*)event
@@ -1376,14 +1378,8 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
 
 	impl->cursor = cur;
 
-	if (impl->wrapperView) {
-		NSPoint screenPos = [NSEvent mouseLocation];
-		NSPoint winPos = [impl->window convertPointFromScreen:screenPos];
-		NSPoint viewPos = [impl->wrapperView convertPoint:winPos fromView:nil];
-		NSRect bounds = [impl->wrapperView bounds];
-		if ([impl->wrapperView mouse:viewPos inRect:bounds]) {
-			[cur set];
-		}
+	if (impl->mouseTracked) {
+		[cur set];
 	}
 
 	return PUGL_SUCCESS;
