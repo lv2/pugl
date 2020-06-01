@@ -125,6 +125,11 @@ def configure(conf):
                          msg='Checking for function XSyncQueryExtension'):
             conf.define('HAVE_XSYNC', 1)
 
+        if conf.check_cc(lib='Xcursor',
+                         uselib_store='XCURSOR',
+                         mandatory=False):
+            conf.define('HAVE_XCURSOR', 1)
+
         if not Options.options.no_gl:
             glx_fragment = """#include <GL/glx.h>
                 int main(void) { glXSwapBuffers(0, 0); return 0; }"""
@@ -309,7 +314,7 @@ def build(bld):
     else:
         platform = 'x11'
         build_platform('x11',
-                       uselib=['M', 'X11', 'XSYNC'],
+                       uselib=['M', 'X11', 'XSYNC', 'XCURSOR'],
                        source=lib_source + ['pugl/detail/x11.c'])
 
         if bld.env.HAVE_GL:
@@ -365,6 +370,8 @@ def build(bld):
             build_example('pugl_embed_demo', ['examples/pugl_embed_demo.c'],
                           platform, 'gl', uselib=['GL', 'M'])
             build_example('pugl_window_demo', ['examples/pugl_window_demo.c'],
+                          platform, 'gl', uselib=['GL', 'M'])
+            build_example('pugl_cursor_demo', ['examples/pugl_cursor_demo.c'],
                           platform, 'gl', uselib=['GL', 'M'])
             build_example('pugl_print_events',
                           ['examples/pugl_print_events.c'],

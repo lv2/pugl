@@ -61,6 +61,8 @@ struct PuglInternalsImpl {
 	NSApplication*   app;
 	PuglWrapperView* wrapperView;
 	NSView*          drawView;
+	NSCursor*        cursor;
 	PuglWindow*      window;
 	uint32_t         mods;
+	bool             mouseTracked;
 };

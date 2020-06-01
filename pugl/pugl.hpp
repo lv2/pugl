@@ -357,6 +357,19 @@ static_assert(ViewHint(PUGL_IGNORE_KEY_REPEAT) == ViewHint::ignoreKeyRepeat,
 
 using ViewHintValue = PuglViewHintValue; ///< @copydoc PuglViewHintValue
 
+/// @copydoc PuglCursor
+enum class Cursor {
+	arrow,     ///< @copydoc PUGL_CURSOR_ARROW
+	caret,     ///< @copydoc PUGL_CURSOR_CARET
+	crosshair, ///< @copydoc PUGL_CURSOR_CROSSHAIR
+	hand,      ///< @copydoc PUGL_CURSOR_HAND
+	no,        ///< @copydoc PUGL_CURSOR_NO
+	leftRight, ///< @copydoc PUGL_CURSOR_LEFT_RIGHT
+	upDown,    ///< @copydoc PUGL_CURSOR_UP_DOWN
+};
+
+static_assert(Cursor(PUGL_CURSOR_UP_DOWN) == Cursor::upDown, "");
+
 /// @copydoc PuglView
 class View : public detail::Wrapper<PuglView, puglFreeView>
 {
@@ -512,6 +525,13 @@ public:
 	Status setBackend(const PuglBackend* backend)
 	{
 		return static_cast<Status>(puglSetBackend(cobj(), backend));
+	}
+
+	/// @copydoc puglSetCursor
+	Status setCursor(const Cursor cursor)
+	{
+		return static_cast<Status>(
+		    puglSetCursor(cobj(), static_cast<PuglCursor>(cursor)));
 	}
 
 	/// @copydoc puglRequestAttention

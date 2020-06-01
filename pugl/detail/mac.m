@@ -343,11 +343,15 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 - (void) mouseEntered:(NSEvent*)event
 {
 	handleCrossing(self, event, PUGL_POINTER_IN);
+	[puglview->impl->cursor set];
+	puglview->impl->mouseTracked = true;
 }
 
 - (void) mouseExited:(NSEvent*)event
 {
+	[[NSCursor arrowCursor] set];
 	handleCrossing(self, event, PUGL_POINTER_OUT);
+	puglview->impl->mouseTracked = false;
 }
 
 - (void) mouseMoved:(NSEvent*)event
@@ -807,7 +811,11 @@ puglGetNativeWorld(PuglWorld* PUGL_UNUSED(world))
 PuglInternals*
 puglInitViewInternals(void)
 {
-	return (PuglInternals*)calloc(1, sizeof(PuglInternals));
+	PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
+
+	impl->cursor = [NSCursor arrowCursor];
+
+	return impl;
 }
 
 static NSLayoutConstraint*
@@ -1307,6 +1315,47 @@ puglGetClipboard(PuglView* const    view,
 	}
 
 	return puglGetInternalClipboard(view, type, len);
+}
+
+static NSCursor*
+puglGetNsCursor(const PuglCursor cursor)
+{
+	switch (cursor) {
+	case PUGL_CURSOR_ARROW:
+		return [NSCursor arrowCursor];
+	case PUGL_CURSOR_CARET:
+		return [NSCursor IBeamCursor];
+	case PUGL_CURSOR_CROSSHAIR:
+		return [NSCursor crosshairCursor];
+	case PUGL_CURSOR_HAND:
+		return [NSCursor pointingHandCursor];
+	case PUGL_CURSOR_NO:
+		return [NSCursor operationNotAllowedCursor];
+	case PUGL_CURSOR_LEFT_RIGHT:
+		return [NSCursor resizeLeftRightCursor];
+	case PUGL_CURSOR_UP_DOWN:
+		return [NSCursor resizeUpDownCursor];
+	}
+
+	return NULL;
+}
+
+PuglStatus
+puglSetCursor(PuglView* view, PuglCursor cursor)
+{
+	PuglInternals* const impl = view->impl;
+	NSCursor* const      cur  = puglGetNsCursor(cursor);
+	if (!cur) {
+		return PUGL_FAILURE;
+	}
+
+	impl->cursor = cur;
+
+	if (impl->mouseTracked) {
+		[cur set];
+	}
+
+	return PUGL_SUCCESS;
 }
 
 PuglStatus

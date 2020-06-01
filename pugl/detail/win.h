@@ -35,6 +35,7 @@ struct PuglInternalsImpl {
 	PuglWinPFD   pfd;
 	int          pfId;
 	HWND         hwnd;
+	HCURSOR      cursor;
 	HDC          hdc;
 	PuglSurface* surface;
 	DWORD        refreshRate;
