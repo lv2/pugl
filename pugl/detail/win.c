@@ -540,6 +540,14 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	switch (message) {
+	case WM_SETCURSOR:
+		if (LOWORD(lParam) == HTCLIENT) {
+			HCURSOR cur = view->impl->cursor;
+			if (!cur)
+				cur = view->impl->cursor = LoadCursorA(NULL, IDC_ARROW);
+			SetCursor(cur);
+		}
+		break;
 	case WM_SHOWWINDOW:
 		if (wParam) {
 			handleConfigure(view, &event);
@@ -1101,6 +1109,48 @@ puglWinStubLeave(PuglView* view, const PuglEventExpose* expose)
 		PAINTSTRUCT ps;
 		EndPaint(view->impl->hwnd, &ps);
 		SwapBuffers(view->impl->hdc);
+	}
+
+	return PUGL_SUCCESS;
+}
+
+static const char* cursor_ids[] = {
+	IDC_ARROW,       // ARROW
+	IDC_IBEAM,       // IBEAM
+	IDC_WAIT,        // WAIT
+	IDC_CROSS,       // CROSS
+	IDC_SIZENWSE,    // SIZENWSE
+	IDC_SIZENESW,    // SIZENESW
+	IDC_SIZEWE,      // SIZEWE
+	IDC_SIZENS,      // SIZENS
+	IDC_SIZEALL,     // SIZEALL
+	IDC_NO,          // NO
+	IDC_HAND,        // HAND
+	IDC_APPSTARTING, // APPSTARTING
+	IDC_HELP,        // HELP
+};
+
+PuglStatus
+puglSetCursor(PuglView* view, PuglCursor cursor)
+{
+	PuglInternals* const impl  = view->impl;
+	const unsigned       index = (unsigned)cursor;
+	const unsigned       count = sizeof(cursor_ids) / sizeof(cursor_ids[0]);
+	HCURSOR              cur;
+
+	if (index >= count) {
+		return PUGL_BAD_PARAMETER;
+	}
+
+	cur = LoadCursorA(NULL, cursor_ids[index]);
+	if (!cur) {
+		return PUGL_FAILURE;
+	}
+
+	impl->cursor = cur;
+
+	if (impl->mouseTracked) {
+		SetCursor(cur);
 	}
 
 	return PUGL_SUCCESS;
