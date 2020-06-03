@@ -366,6 +366,8 @@ def build(bld):
                           platform, 'gl', uselib=['GL', 'M'])
             build_example('pugl_window_demo', ['examples/pugl_window_demo.c'],
                           platform, 'gl', uselib=['GL', 'M'])
+            build_example('pugl_cursors_demo', ['examples/pugl_cursors_demo.c'],
+                          platform, 'gl', uselib=['GL', 'M'])
             build_example('pugl_print_events',
                           ['examples/pugl_print_events.c'],
                           platform, 'stub')
