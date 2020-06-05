@@ -262,8 +262,9 @@ puglDefineCursorShape(PuglView* view, int shape)
 	Cursor               cur;
 
 	cur = XcursorShapeLoadCursor(display, impl->cursorShape);
-	if (cur == 0)
+	if (cur == 0) {
 		return PUGL_FAILURE;
+	}
 
 	XDefineCursor(display, win, cur);
 	XFreeCursor(display, cur);
@@ -1300,8 +1301,9 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
 
 	shape = impl->cursorShape = cursor_nums[index];
 
-	if (!impl->win)
+	if (!impl->win) {
 		return PUGL_SUCCESS;
+	}
 
 	return puglDefineCursorShape(view, shape);
 #else
