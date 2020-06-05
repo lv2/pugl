@@ -253,21 +253,21 @@ updateSizeHints(const PuglView* view)
 
 #ifdef HAVE_XCURSOR
 static PuglStatus
-puglDefineCursorShape(PuglView* view, int shape)
+puglDefineCursorShape(PuglView* view, unsigned shape)
 {
 	PuglInternals* const impl    = view->impl;
 	PuglWorld* const     world   = view->world;
 	Display* const       display = world->impl->display;
-	Window               win     = impl->win;
-	Cursor               cur;
 
-	cur = XcursorShapeLoadCursor(display, impl->cursorShape);
+	const Cursor cur = XcursorShapeLoadCursor(display, shape);
 	if (cur == 0) {
 		return PUGL_FAILURE;
 	}
 
-	XDefineCursor(display, win, cur);
+	XDefineCursor(display, impl->win, cur);
 	XFreeCursor(display, cur);
+
+	return PUGL_SUCCESS;
 }
 #endif
 
@@ -1269,7 +1269,7 @@ puglSetClipboard(PuglView* const   view,
 }
 
 #ifdef HAVE_XCURSOR
-static int cursor_nums[] = {
+static unsigned cursor_nums[] = {
 	XC_arrow,             // ARROW
 	XC_xterm,             // IBEAM
 	XC_watch,             // WAIT
@@ -1293,19 +1293,18 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
 	PuglInternals* const impl    = view->impl;
 	const unsigned       index   = (unsigned)cursor;
 	const unsigned       count   = sizeof(cursor_nums) / sizeof(cursor_nums[0]);
-	int                  shape;
 
 	if (index >= count) {
 		return PUGL_BAD_PARAMETER;
 	}
 
-	shape = impl->cursorShape = cursor_nums[index];
+	impl->cursorShape = cursor_nums[index];
 
 	if (!impl->win) {
 		return PUGL_SUCCESS;
 	}
 
-	return puglDefineCursorShape(view, shape);
+	return puglDefineCursorShape(view, impl->cursorShape);
 #else
 	(void)view;
 	(void)cursor;

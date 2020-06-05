@@ -65,7 +65,7 @@ struct PuglInternalsImpl {
 	XVisualInfo* vi;
 	Window       win;
 #ifdef HAVE_XCURSOR
-	int          cursorShape;
+	unsigned     cursorShape;
 #endif
 	XIC          xic;
 	PuglSurface* surface;
