@@ -32,10 +32,10 @@
 
 typedef struct {
 	PuglTestOptions opts;
-	PuglWorld* world;
-	bool       continuous;
-	int        quit;
-	bool       verbose;
+	PuglWorld*      world;
+	bool            continuous;
+	int             quit;
+	bool            verbose;
 } PuglTestApp;
 
 enum {
@@ -47,8 +47,6 @@ enum {
 static inline void
 reshape(const float width, const float height)
 {
-	const float aspect = width / height;
-
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -61,26 +59,24 @@ reshape(const float width, const float height)
 static void
 onDisplay(PuglView* view)
 {
-	PuglWorld*   world = puglGetWorld(view);
-	PuglTestApp* app   = (PuglTestApp*)puglGetWorldHandle(world);
-	int row;
-	int column;
+	(void)view;
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	glColor3f(0.6f, 0.6f, 0.6f);
-	for (row = 1; row < ROWS; ++row) {
-		float y = row * (2.0f / ROWS) - 1.0f;
+
+	for (int row = 1; row < ROWS; ++row) {
+		const float y = row * (2.0f / ROWS) - 1.0f;
 		glBegin(GL_LINES);
 		glVertex2f(-1.0f, y);
 		glVertex2f(1.0f, y);
 		glEnd();
 	}
-	for (column = 1; column < COLUMNS; ++column) {
-		float x = column * (2.0f / COLUMNS) - 1.0f;
+
+	for (int column = 1; column < COLUMNS; ++column) {
+		const float x = column * (2.0f / COLUMNS) - 1.0f;
 		glBegin(GL_LINES);
 		glVertex2f(x, -1.0f);
 		glVertex2f(x, 1.0f);
@@ -91,12 +87,12 @@ onDisplay(PuglView* view)
 static void
 onMotion(PuglView* view, double x, double y)
 {
-	const PuglRect frame = puglGetFrame(view);
-	int row              = (int)(y * ROWS / frame.height);
-	int column           = (int)(x * COLUMNS / frame.width);
-	PuglCursor cursor;
+	const PuglRect frame  = puglGetFrame(view);
+	int            row    = (int)(y * ROWS / frame.height);
+	int            column = (int)(x * COLUMNS / frame.width);
+	PuglCursor     cursor;
 
-	row = (row < 0) ? 0 : (row >= ROWS) ? (ROWS - 1) : row;
+	row    = (row < 0) ? 0 : (row >= ROWS) ? (ROWS - 1) : row;
 	column = (column < 0) ? 0 : (column >= COLUMNS) ? (COLUMNS - 1) : column;
 
 	cursor = (PuglCursor)((row * COLUMNS + column) % NUM_CURSORS);
@@ -120,8 +116,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 
 	switch (event->type) {
 	case PUGL_CONFIGURE:
-		reshape((float)event->configure.width,
-		        (float)event->configure.height);
+		reshape((float)event->configure.width, (float)event->configure.height);
 		break;
 	case PUGL_KEY_PRESS:
 		if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
@@ -142,7 +137,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_CLOSE:
 		onClose(view);
 		break;
-	default: break;
+	default:
+		break;
 	}
 
 	return PUGL_SUCCESS;
@@ -159,7 +155,7 @@ main(int argc, char** argv)
 		return 1;
 	}
 
-	app.world         = puglNewWorld(PUGL_PROGRAM, 0);
+	app.world = puglNewWorld(PUGL_PROGRAM, 0);
 
 	puglSetWorldHandle(app.world, &app);
 	puglSetClassName(app.world, "Pugl Test");
