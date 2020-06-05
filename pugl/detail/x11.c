@@ -1293,16 +1293,16 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
 	PuglInternals* const impl    = view->impl;
 	const unsigned       index   = (unsigned)cursor;
 	const unsigned       count   = sizeof(cursor_nums) / sizeof(cursor_nums[0]);
-
 	if (index >= count) {
 		return PUGL_BAD_PARAMETER;
 	}
 
-	impl->cursorShape = cursor_nums[index];
-
-	if (!impl->win) {
+	const unsigned shape = cursor_nums[index];
+	if (!impl->win || impl->cursorShape == shape) {
 		return PUGL_SUCCESS;
 	}
+
+	impl->cursorShape = cursor_nums[index];
 
 	return puglDefineCursorShape(view, impl->cursorShape);
 #else
