@@ -77,6 +77,14 @@ nsRectFromPoints(PuglView* view, const NSRect rect)
 	                  rect.size.height * scaleFactor);
 }
 
+static NSPoint
+nsPointFromPoints(PuglView* view, const NSPoint point)
+{
+	const double scaleFactor = [viewScreen(view) backingScaleFactor];
+
+	return NSMakePoint(point.x * scaleFactor, point.y * scaleFactor);
+}
+
 static NSRect
 rectToNsRect(const PuglRect rect)
 {
@@ -307,7 +315,9 @@ keySymToSpecial(const NSEvent* const ev)
 
 - (NSPoint) eventLocation:(NSEvent*)event
 {
-	return [self convertPoint:[event locationInWindow] fromView:nil];
+	return nsPointFromPoints(puglview,
+	                         [self convertPoint:[event locationInWindow]
+	                                   fromView:nil]);
 }
 
 static void
