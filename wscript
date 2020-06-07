@@ -230,7 +230,9 @@ def build(bld):
                      'install_path':    '${LIBDIR}',
                      'vnum':            PUGL_VERSION})
 
-        flags = [] if bld.env.MSVC_COMPILER else ['-fPIC', '-fvisibility=hidden']
+        flags = []
+        if not bld.env.MSVC_COMPILER:
+            flags = ['-fPIC', '-fvisibility=hidden']
 
         if bld.env.BUILD_SHARED:
             bld(features  = 'c cshlib',
@@ -358,7 +360,7 @@ def build(bld):
                 target   = 'shaders/%s' % s)
 
         if bld.env.HAVE_GL:
-            glad_cflags = ['-Wno-pedantic'] if not bld.env.MSVC_COMPILER else []
+            glad_cflags = [] if bld.env.MSVC_COMPILER else ['-Wno-pedantic']
             build_example('pugl_embed_demo', ['examples/pugl_embed_demo.c'],
                           platform, 'gl', uselib=['GL', 'M'])
             build_example('pugl_window_demo', ['examples/pugl_window_demo.c'],
@@ -409,7 +411,7 @@ def lint(ctx):
     import json
     import subprocess
 
-    subprocess.call("flake8 wscript --ignore E221,W504,E251,E241",
+    subprocess.call("flake8 wscript --ignore E221,W504,E251,E241,E741",
                     shell=True)
 
     with open('build/compile_commands.json', 'r') as db:
@@ -429,6 +431,7 @@ def lint(ctx):
         subprocess.call(['iwyu_tool.py', '-o', 'clang', '-p', 'build'])
     except Exception:
         Logs.warn('Failed to call iwyu_tool.py')
+
 
 # Alias .m files to be compiled like .c files, gcc will do the right thing.
 @TaskGen.extension('.m')
