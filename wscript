@@ -79,6 +79,7 @@ def configure(conf):
                 '-Wno-bad-function-cast',
                 '-Wno-float-equal',
                 '-Wno-format-nonliteral',
+                '-Wno-implicit-fallthrough',
                 '-Wno-padded',
                 '-Wno-reserved-id-macro',
                 '-Wno-switch-enum',
