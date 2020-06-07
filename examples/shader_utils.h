@@ -36,10 +36,10 @@ compileShader(const char* header, const char* source, const GLenum type)
 	glShaderSource(shader, 2, sources, lengths);
 	glCompileShader(shader);
 
-	int status;
+	int status = 0;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 	if (status == GL_FALSE) {
-		GLint length;
+		GLint length = 0;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
 
 		char* log = (char*)calloc(1, (size_t)length);
@@ -83,10 +83,10 @@ compileProgram(const char* headerSource,
 	glAttachShader(program.program, program.fragmentShader);
 	glLinkProgram(program.program);
 
-	GLint status;
+	GLint status = 0;
 	glGetProgramiv(program.program, GL_LINK_STATUS, &status);
 	if (status == GL_FALSE) {
-		GLint length;
+		GLint length = 0;
 		glGetProgramiv(program.program, GL_INFO_LOG_LENGTH, &length);
 
 		char* log = (char*)calloc(1, (size_t)length);

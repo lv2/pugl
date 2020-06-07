@@ -75,11 +75,11 @@ static bool
 puglInitXSync(PuglWorldInternals* impl)
 {
 #ifdef HAVE_XSYNC
-	int                 syncMajor;
-	int                 syncMinor;
-	int                 errorBase;
-	XSyncSystemCounter* counters;
-	int                 numCounters;
+	int                 syncMajor   = 0;
+	int                 syncMinor   = 0;
+	int                 errorBase   = 0;
+	XSyncSystemCounter* counters    = NULL;
+	int                 numCounters = 0;
 
 	if (XSyncQueryExtension(impl->display, &impl->syncEventBase, &errorBase) &&
 	    XSyncInitialize(impl->display, &syncMajor, &syncMinor) &&

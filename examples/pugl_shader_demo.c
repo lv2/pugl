@@ -306,7 +306,7 @@ setupGl(PuglTestApp* app)
 	                                                   "UniformBufferObject");
 
 	// Generate/bind a uniform buffer for setting rectangle properties
-	GLuint uboHandle;
+	GLuint uboHandle = 0;
 	glGenBuffers(1, &uboHandle);
 	glBindBuffer(GL_UNIFORM_BUFFER, uboHandle);
 	glBindBufferBase(GL_UNIFORM_BUFFER, globalsIndex, uboHandle);
