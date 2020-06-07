@@ -534,7 +534,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		break;
 	case MotionNotify:
 		event.type           = PUGL_MOTION;
-		event.motion.time    = xevent.xmotion.time / 1e3;
+		event.motion.time    = (double)xevent.xmotion.time / 1e3;
 		event.motion.x       = xevent.xmotion.x;
 		event.motion.y       = xevent.xmotion.y;
 		event.motion.xRoot   = xevent.xmotion.x_root;
@@ -545,7 +545,7 @@ translateEvent(PuglView* view, XEvent xevent)
 	case ButtonPress:
 		if (xevent.xbutton.button >= 4 && xevent.xbutton.button <= 7) {
 			event.type           = PUGL_SCROLL;
-			event.scroll.time    = xevent.xbutton.time / 1e3;
+			event.scroll.time    = (double)xevent.xbutton.time / 1e3;
 			event.scroll.x       = xevent.xbutton.x;
 			event.scroll.y       = xevent.xbutton.y;
 			event.scroll.xRoot   = xevent.xbutton.x_root;
@@ -567,7 +567,7 @@ translateEvent(PuglView* view, XEvent xevent)
 			event.button.type   = ((xevent.type == ButtonPress)
 			                       ? PUGL_BUTTON_PRESS
 			                       : PUGL_BUTTON_RELEASE);
-			event.button.time   = xevent.xbutton.time / 1e3;
+			event.button.time   = (double)xevent.xbutton.time / 1e3;
 			event.button.x      = xevent.xbutton.x;
 			event.button.y      = xevent.xbutton.y;
 			event.button.xRoot  = xevent.xbutton.x_root;
@@ -581,7 +581,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.type       = ((xevent.type == KeyPress)
 		                    ? PUGL_KEY_PRESS
 		                    : PUGL_KEY_RELEASE);
-		event.key.time   = xevent.xkey.time / 1e3;
+		event.key.time   = (double)xevent.xkey.time / 1e3;
 		event.key.x      = xevent.xkey.x;
 		event.key.y      = xevent.xkey.y;
 		event.key.xRoot  = xevent.xkey.x_root;
@@ -594,7 +594,7 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.type            = ((xevent.type == EnterNotify)
 		                         ? PUGL_POINTER_IN
 		                         : PUGL_POINTER_OUT);
-		event.crossing.time   = xevent.xcrossing.time / 1e3;
+		event.crossing.time   = (double)xevent.xcrossing.time / 1e3;
 		event.crossing.x      = xevent.xcrossing.x;
 		event.crossing.y      = xevent.xcrossing.y;
 		event.crossing.xRoot  = xevent.xcrossing.x_root;
@@ -1063,7 +1063,8 @@ puglGetTime(const PuglWorld* world)
 {
 	struct timespec ts;
 	clock_gettime(CLOCK_MONOTONIC, &ts);
-	return ((double)ts.tv_sec + ts.tv_nsec / 1000000000.0) - world->startTime;
+	return ((double)ts.tv_sec + (double)ts.tv_nsec / 1000000000.0) -
+	       world->startTime;
 }
 
 PuglStatus

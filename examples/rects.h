@@ -70,7 +70,7 @@ moveRect(Rect* const  rect,
          const float  frameHeight,
          const double time)
 {
-	const float normal    = index / (float)numRects;
+	const float normal    = (float)index / (float)numRects;
 	const float offset[2] = {normal * 128.0f, normal * 128.0f};
 
 	rect->pos[0] = (frameWidth - rect->size[0] + offset[0]) *

@@ -49,6 +49,8 @@ typedef struct {
 	bool       verbose;
 } PuglTestApp;
 
+static const double pad = 64.0;
+
 static void
 onDisplay(PuglView* view)
 {
@@ -200,10 +202,9 @@ main(int argc, char** argv)
 	puglSetClassName(app.world, "Pugl Test");
 
 	PuglStatus st = PUGL_SUCCESS;
-	for (size_t i = 0; i < 2; ++i) {
+	for (unsigned i = 0; i < 2; ++i) {
 		CubeView*      cube  = &app.cubes[i];
 		PuglView*      view  = cube->view;
-		static const double pad = 64.0;
 		const PuglRect frame = {pad + (128.0 + pad) * i,
 		                        pad + (128.0 + pad) * i,
 		                        512.0,
