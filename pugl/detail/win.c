@@ -592,8 +592,10 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		mmi                   = (MINMAXINFO*)lParam;
 		mmi->ptMinTrackSize.x = view->minWidth;
 		mmi->ptMinTrackSize.y = view->minHeight;
-		mmi->ptMaxTrackSize.x = view->maxWidth;
-		mmi->ptMaxTrackSize.y = view->maxHeight;
+		if (view->maxWidth > 0 && view->maxHeight > 0) {
+			mmi->ptMaxTrackSize.x = view->maxWidth;
+			mmi->ptMaxTrackSize.y = view->maxHeight;
+		}
 		break;
 	case WM_PAINT:
 		GetUpdateRect(view->impl->hwnd, &rect, false);
