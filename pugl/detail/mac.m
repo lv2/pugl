@@ -783,14 +783,16 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 @end
 
 PuglWorldInternals*
-puglInitWorldInternals(PuglWorldType PUGL_UNUSED(type),
-                       PuglWorldFlags PUGL_UNUSED(flags))
+puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
 {
 	PuglWorldInternals* impl = (PuglWorldInternals*)calloc(
 		1, sizeof(PuglWorldInternals));
 
-	impl->app             = [NSApplication sharedApplication];
-	impl->autoreleasePool = [NSAutoreleasePool new];
+	impl->app = [NSApplication sharedApplication];
+
+	if (type == PUGL_PROGRAM) {
+		impl->autoreleasePool = [NSAutoreleasePool new];
+	}
 
 	return impl;
 }
@@ -798,7 +800,10 @@ puglInitWorldInternals(PuglWorldType PUGL_UNUSED(type),
 void
 puglFreeWorldInternals(PuglWorld* world)
 {
-	[world->impl->autoreleasePool drain];
+	if (world->impl->autoreleasePool) {
+		[world->impl->autoreleasePool drain];
+	}
+
 	free(world->impl);
 }
 
