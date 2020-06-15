@@ -354,6 +354,11 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglview->impl->mouseTracked = false;
 }
 
+- (void) cursorUpdate:(NSEvent*)event
+{
+	[puglview->impl->cursor set];
+}
+
 - (void) mouseMoved:(NSEvent*)event
 {
 	const NSPoint         wloc = [self eventLocation:event];
