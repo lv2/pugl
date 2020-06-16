@@ -560,6 +560,8 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SETCURSOR:
 		if (LOWORD(lParam) == HTCLIENT) {
 			SetCursor(view->impl->cursor);
+		} else {
+			return DefWindowProc(view->impl->hwnd, message, wParam, lParam);
 		}
 		break;
 	case WM_SHOWWINDOW:
