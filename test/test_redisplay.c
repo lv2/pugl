@@ -121,8 +121,10 @@ main(int argc, char** argv)
 	}
 
 	// Send a custom event to trigger a redisplay in the event loop
-	const PuglEventClient client = { PUGL_CLIENT, 0, postRedisplayId, 0 };
-	assert(!puglSendEvent(app.view, (const PuglEvent*)&client));
+	PuglEvent client_event    = {{PUGL_CLIENT, 0}};
+	client_event.client.data1 = postRedisplayId;
+	client_event.client.data2 = 0;
+	assert(!puglSendEvent(app.view, &client_event));
 
 	// Loop until an expose happens in the same iteration as the redisplay
 	app.state = SHOULD_REDISPLAY;

@@ -960,8 +960,10 @@ handleTimerEvent(PuglWorld* world, XEvent xevent)
 
 		for (size_t i = 0; i < world->impl->numTimers; ++i) {
 			if (world->impl->timers[i].alarm == notify->alarm) {
-				const PuglEventTimer ev = {PUGL_TIMER, 0, world->impl->timers[i].id};
-				puglDispatchEvent(world->impl->timers[i].view, (const PuglEvent*)&ev);
+				PuglEvent event = {{PUGL_TIMER, 0}};
+				event.timer.id  = world->impl->timers[i].id;
+				puglDispatchEvent(world->impl->timers[i].view,
+				                  (const PuglEvent*)&event);
 			}
 		}
 
