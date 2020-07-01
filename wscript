@@ -70,7 +70,7 @@ def configure(conf):
         append_cflags(['-DGL_SILENCE_DEPRECATION',
                        '-Wno-deprecated-declarations'])
 
-    if Options.options.ultra_strict and 'clang' in conf.env.CC:
+    if Options.options.ultra_strict and 'clang' in conf.env.CC[0]:
         for var in ['CFLAGS', 'CXXFLAGS']:
             flags = conf.env[var]
             conf.env[var] = [f for f in flags if not f.startswith('-W')]
