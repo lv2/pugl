@@ -846,7 +846,7 @@ puglConstraint(id item, NSLayoutAttribute attribute, float constant)
 		                   toItem: nil
 		                attribute: NSLayoutAttributeNotAnAttribute
 		               multiplier: 1.0
-		                 constant: constant];
+		                 constant: (CGFloat)constant];
 }
 
 PuglStatus
@@ -861,8 +861,8 @@ puglRealize(PuglView* view)
 			return PUGL_BAD_CONFIGURATION;
 		}
 
-		const int screenWidthPx  = [screen frame].size.width * scaleFactor;
-		const int screenHeightPx = [screen frame].size.height * scaleFactor;
+		const double screenWidthPx  = [screen frame].size.width * scaleFactor;
+		const double screenHeightPx = [screen frame].size.height * scaleFactor;
 
 		view->frame.width  = view->defaultWidth;
 		view->frame.height = view->defaultHeight;

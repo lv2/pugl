@@ -115,7 +115,7 @@ puglMacCairoEnter(PuglView* view, const PuglEventExpose* expose)
 	CGContextScaleCTM(context, scale, -scale);
 
 	drawView->surface = cairo_quartz_surface_create_for_cg_context(
-	    context, sizePx.width, sizePx.height);
+		context, (unsigned)sizePx.width, (unsigned)sizePx.height);
 
 	drawView->cr = cairo_create(drawView->surface);
 
