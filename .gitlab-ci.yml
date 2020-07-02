@@ -11,7 +11,7 @@ variables:
 arm32_dbg:
   <<: *build_definition
   image: lv2plugin/debian-arm32
-  script: python ./waf configure build -dsT --no-coverage
+  script: python ./waf configure build -dST --no-coverage
   variables:
     CC: "arm-linux-gnueabihf-gcc"
     CXX: "arm-linux-gnueabihf-g++"
@@ -19,7 +19,7 @@ arm32_dbg:
 arm32_rel:
   <<: *build_definition
   image: lv2plugin/debian-arm32
-  script: python ./waf configure build -sT --no-coverage
+  script: python ./waf configure build -ST --no-coverage
   variables:
     CC: "arm-linux-gnueabihf-gcc"
     CXX: "arm-linux-gnueabihf-g++"
@@ -27,7 +27,7 @@ arm32_rel:
 arm64_dbg:
   <<: *build_definition
   image: lv2plugin/debian-arm64
-  script: python ./waf configure build -dsT --no-coverage
+  script: python ./waf configure build -dST --no-coverage
   variables:
     CC: "aarch64-linux-gnu-gcc"
     CXX: "aarch64-linux-gnu-g++"
@@ -35,7 +35,7 @@ arm64_dbg:
 arm64_rel:
   <<: *build_definition
   image: lv2plugin/debian-arm64
-  script: python ./waf configure build -sT --no-coverage
+  script: python ./waf configure build -ST --no-coverage
   variables:
     CC: "aarch64-linux-gnu-gcc"
     CXX: "aarch64-linux-gnu-g++"
@@ -43,7 +43,7 @@ arm64_rel:
 x64_dbg:
   <<: *build_definition
   image: lv2plugin/debian-x64
-  script: python ./waf configure build -dsT --no-coverage --docs
+  script: python ./waf configure build -dST --no-coverage --docs
   artifacts:
     paths:
       - build/doc
@@ -51,12 +51,12 @@ x64_dbg:
 x64_rel:
   <<: *build_definition
   image: lv2plugin/debian-x64
-  script: python ./waf configure build -sT --no-coverage
+  script: python ./waf configure build -ST --no-coverage
 
 mingw32_dbg:
   <<: *build_definition
   image: lv2plugin/debian-mingw32
-  script: python ./waf configure build -dsT --no-coverage --target=win32
+  script: python ./waf configure build -dST --no-coverage --target=win32
   variables:
     CC: "i686-w64-mingw32-gcc"
     CXX: "i686-w64-mingw32-g++"
@@ -64,7 +64,7 @@ mingw32_dbg:
 mingw32_rel:
   <<: *build_definition
   image: lv2plugin/debian-mingw32
-  script: python ./waf configure build -sT --no-coverage --target=win32
+  script: python ./waf configure build -ST --no-coverage --target=win32
   variables:
     CC: "i686-w64-mingw32-gcc"
     CXX: "i686-w64-mingw32-g++"
@@ -72,7 +72,7 @@ mingw32_rel:
 mingw64_dbg:
   <<: *build_definition
   image: lv2plugin/debian-mingw64
-  script: python ./waf configure build -dsT --no-coverage --target=win32
+  script: python ./waf configure build -dST --no-coverage --target=win32
   variables:
     CC: "x86_64-w64-mingw32-gcc"
     CXX: "x86_64-w64-mingw32-g++"
@@ -80,30 +80,30 @@ mingw64_dbg:
 mingw64_rel:
   <<: *build_definition
   image: lv2plugin/debian-mingw64
-  script: python ./waf configure build -sT --no-coverage --target=win32
+  script: python ./waf configure build -ST --no-coverage --target=win32
   variables:
     CC: "x86_64-w64-mingw32-gcc"
     CXX: "x86_64-w64-mingw32-g++"
 
 mac_dbg:
   <<: *build_definition
-  script: python ./waf configure build -dsT --no-coverage
+  script: python ./waf configure build -dST --no-coverage
   tags: [macos]
 
 mac_rel:
   <<: *build_definition
-  script: python ./waf configure build -sT --no-coverage
+  script: python ./waf configure build -ST --no-coverage
   tags: [macos]
 
 win_dbg:
   <<: *build_definition
   script:
-    - python ./waf configure build -dT --no-coverage
+    - python ./waf configure build -dST --no-coverage
   tags: [windows,msvc,python]
 
 win_rel:
   <<: *build_definition
-  script: python ./waf configure build -T --no-coverage
+  script: python ./waf configure build -ST --no-coverage
   tags: [windows,msvc,python]
 
 pages:
