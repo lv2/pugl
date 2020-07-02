@@ -71,6 +71,8 @@ def configure(conf):
     else:
         if Options.options.ultra_strict:
             append_cflags(['-Wunused-parameter', '-Wno-pedantic'])
+            if conf.env.TARGET_PLATFORM == "win32":
+                append_cflags(['-Wno-cast-function-type'])
 
     if conf.env.TARGET_PLATFORM == 'darwin':
         append_cflags(['-DGL_SILENCE_DEPRECATION',
