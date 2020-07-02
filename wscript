@@ -100,7 +100,8 @@ def configure(conf):
 
     if conf.env.TARGET_PLATFORM == 'darwin':
         append_cflags(['-DGL_SILENCE_DEPRECATION',
-                       '-Wno-deprecated-declarations'])
+                       '-Wno-deprecated-declarations',
+                       '-Wno-direct-ivar-access'])
 
     conf.check_cc(lib='m', uselib_store='M', mandatory=False)
     conf.check_cc(lib='dl', uselib_store='DL', mandatory=False)
