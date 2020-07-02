@@ -74,14 +74,12 @@ def configure(conf):
             if conf.env.TARGET_PLATFORM == "win32":
                 append_cflags(['-Wno-cast-function-type'])
 
-    if conf.env.TARGET_PLATFORM == 'darwin':
-        append_cflags(['-DGL_SILENCE_DEPRECATION',
-                       '-Wno-deprecated-declarations'])
-
     if Options.options.ultra_strict and 'clang' in conf.env.CC[0]:
         for var in ['CFLAGS', 'CXXFLAGS']:
             flags = conf.env[var]
-            conf.env[var] = [f for f in flags if not f.startswith('-W')]
+            conf.env[var] = [f for f in flags
+                             if not (f.startswith('-W') and f != '-Werror')]
+
             conf.env.append_value(var, [
                 '-Weverything',
                 '-Wno-bad-function-cast',
@@ -99,6 +97,10 @@ def configure(conf):
             '-Wno-documentation-unknown-command',
             '-Wno-old-style-cast',
         ])
+
+    if conf.env.TARGET_PLATFORM == 'darwin':
+        append_cflags(['-DGL_SILENCE_DEPRECATION',
+                       '-Wno-deprecated-declarations'])
 
     conf.check_cc(lib='m', uselib_store='M', mandatory=False)
     conf.check_cc(lib='dl', uselib_store='DL', mandatory=False)
