@@ -29,14 +29,13 @@
 #endif
 
 @interface PuglOpenGLView : NSOpenGLView
+@end
+
+@implementation PuglOpenGLView
 {
 @public
 	PuglView* puglview;
 }
-
-@end
-
-@implementation PuglOpenGLView
 
 - (id) initWithFrame:(NSRect)frame
 {

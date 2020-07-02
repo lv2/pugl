@@ -27,15 +27,6 @@
 #include <stdint.h>
 
 @interface PuglWrapperView : NSView<NSTextInputClient>
-{
-@public
-	PuglView*                  puglview;
-	NSTrackingArea*            trackingArea;
-	NSMutableAttributedString* markedText;
-	NSTimer*                   timer;
-	NSMutableDictionary*       userTimers;
-	bool                       reshaped;
-}
 
 - (void) dispatchExpose:(NSRect)rect;
 - (void) setReshaped;
@@ -43,10 +34,6 @@
 @end
 
 @interface PuglWindow : NSWindow
-{
-@public
-	PuglView* puglview;
-}
 
 - (void) setPuglview:(PuglView*)view;
 

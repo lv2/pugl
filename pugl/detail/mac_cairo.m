@@ -31,16 +31,15 @@
 #include <assert.h>
 
 @interface PuglCairoView : NSView
+@end
+
+@implementation PuglCairoView
 {
 @public
 	PuglView*        puglview;
 	cairo_surface_t* surface;
 	cairo_t*         cr;
 }
-
-@end
-
-@implementation PuglCairoView
 
 - (id) initWithFrame:(NSRect)frame
 {

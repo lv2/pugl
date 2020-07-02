@@ -26,14 +26,13 @@
 #import <Cocoa/Cocoa.h>
 
 @interface PuglStubView : NSView
+@end
+
+@implementation PuglStubView
 {
 @public
 	PuglView* puglview;
 }
-
-@end
-
-@implementation PuglStubView
 
 - (void) resizeWithOldSuperviewSize:(NSSize)oldSize
 {

@@ -119,6 +119,10 @@ updateViewRect(PuglView* view)
 }
 
 @implementation PuglWindow
+{
+@public
+	PuglView* puglview;
+}
 
 - (id) initWithContentRect:(NSRect)contentRect
                  styleMask:(NSWindowStyleMask)aStyle
@@ -180,6 +184,15 @@ updateViewRect(PuglView* view)
 @end
 
 @implementation PuglWrapperView
+{
+@public
+	PuglView*                  puglview;
+	NSTrackingArea*            trackingArea;
+	NSMutableAttributedString* markedText;
+	NSTimer*                   timer;
+	NSMutableDictionary*       userTimers;
+	bool                       reshaped;
+}
 
 - (void) dispatchExpose:(NSRect)rect
 {
@@ -728,15 +741,15 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 @end
 
 @interface PuglWindowDelegate : NSObject<NSWindowDelegate>
-{
-	PuglWindow* window;
-}
 
 - (instancetype) initWithPuglWindow:(PuglWindow*)window;
 
 @end
 
 @implementation PuglWindowDelegate
+{
+	PuglWindow* window;
+}
 
 - (instancetype) initWithPuglWindow:(PuglWindow*)puglWindow
 {
