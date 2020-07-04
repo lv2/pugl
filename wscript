@@ -62,47 +62,75 @@ def configure(conf):
         conf.find_program("clang-tidy", var="CLANG_TIDY", mandatory=False)
         conf.find_program("iwyu_tool", var="IWYU_TOOL", mandatory=False)
 
-    def append_cflags(flags):
-        conf.env.append_value('CFLAGS', flags)
-        conf.env.append_value('CXXFLAGS', flags)
-
-    if conf.env.MSVC_COMPILER:
-        append_cflags(['/wd4191', '/wd4355'])
-    else:
-        if Options.options.ultra_strict:
-            append_cflags(['-Wunused-parameter', '-Wno-pedantic'])
-            if conf.env.TARGET_PLATFORM == "win32":
-                append_cflags(['-Wno-cast-function-type'])
-
-    if Options.options.ultra_strict and 'clang' in conf.env.CC[0]:
-        for var in ['CFLAGS', 'CXXFLAGS']:
-            flags = conf.env[var]
-            conf.env[var] = [f for f in flags
-                             if not (f.startswith('-W') and f != '-Werror')]
-
-            conf.env.append_value(var, [
-                '-Weverything',
+    if Options.options.ultra_strict:
+        # All warnings enabled by autowaf, disable some we trigger
+        conf.add_compiler_flags('*', {
+            'clang': [
                 '-Wno-bad-function-cast',
                 '-Wno-float-equal',
-                '-Wno-format-nonliteral',
                 '-Wno-implicit-fallthrough',
                 '-Wno-padded',
                 '-Wno-reserved-id-macro',
                 '-Wno-switch-enum',
-            ])
+            ],
+            'gcc': [
+                '-Wno-float-equal',
+                '-Wno-padded',
+                '-Wno-switch-default',
+                '-Wno-switch-enum',
+            ],
+            'msvc': [
+                '/wd4061',  # enumerator in switch is not explicitly handled
+                '/wd4191',  # unsafe conversion from type to type
+                '/wd4355',  # 'this' used in base member initializer list
+                '/wd4514',  # unreferenced inline function has been removed
+                '/wd4571',  # structured exceptions (SEH) are no longer caught
+                '/wd4625',  # copy constructor implicitly deleted
+                '/wd4626',  # assignment operator implicitly deleted
+                '/wd4706',  # assignment within conditional expression
+                '/wd4710',  # function not inlined
+                '/wd4820',  # padding added after construct
+                '/wd5026',  # move constructor implicitly defined as deleted
+                '/wd5027',  # move assignment operator implicitly deleted
+                '/wd5045',  # will insert Spectre mitigation for memory load
+            ],
+        })
 
-        conf.env.append_value('CXXFLAGS', [
-            '-Wno-c++98-compat',
-            '-Wno-c++98-compat-pedantic',
-            '-Wno-documentation-unknown-command',
-            '-Wno-old-style-cast',
-        ])
+        conf.add_compiler_flags('c', {
+            'gcc': ['-Wno-bad-function-cast'],
+        })
 
-    if conf.env.TARGET_PLATFORM == 'darwin':
-        append_cflags(['-DGL_SILENCE_DEPRECATION',
-                       '-Wno-deprecated-declarations',
-                       '-Wno-direct-ivar-access'])
+        conf.add_compiler_flags('cxx', {
+            'clang': [
+                '-Wno-c++98-compat',
+                '-Wno-c++98-compat-pedantic',
+                '-Wno-documentation-unknown-command',
+                '-Wno-old-style-cast',
+            ],
+            'gcc': [
+                '-Wno-old-style-cast',
+            ],
+        })
 
+        # Add some platform-specific warning suppressions
+        if conf.env.TARGET_PLATFORM == "win32":
+            conf.add_compiler_flags('*', {
+                'gcc': ['-Wno-cast-function-type',
+                        '-Wno-conversion',
+                        '-Wno-format',
+                        '-Wno-suggest-attribute=format'],
+            })
+        elif conf.env.TARGET_PLATFORM == 'darwin':
+            conf.add_compiler_flags('*', {
+                'clang': ['-DGL_SILENCE_DEPRECATION',
+                          '-Wno-deprecated-declarations',
+                          '-Wno-direct-ivar-access'],
+                'gcc': ['-DGL_SILENCE_DEPRECATION',
+                        '-Wno-deprecated-declarations',
+                        '-Wno-direct-ivar-access'],
+            })
+
+    # Check for base system libraries needed on some systems
     conf.check_cc(lib='m', uselib_store='M', mandatory=False)
     conf.check_cc(lib='dl', uselib_store='DL', mandatory=False)
 
