@@ -585,8 +585,9 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 			RedrawWindow(view->impl->hwnd, NULL, NULL,
 			             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT);
 		} else if (wParam >= PUGL_USER_TIMER_MIN) {
-			const PuglEventTimer ev = {PUGL_TIMER, 0, wParam - PUGL_USER_TIMER_MIN};
-			puglDispatchEvent(view, (const PuglEvent*)&ev);
+			PuglEvent ev = {{PUGL_TIMER, 0}};
+			ev.timer.id  = wParam - PUGL_USER_TIMER_MIN;
+			puglDispatchEvent(view, &ev);
 		}
 		break;
 	case WM_EXITSIZEMOVE:

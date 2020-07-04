@@ -294,7 +294,7 @@ puglGetProcAddress(const char* name)
 }
 
 const PuglBackend*
-puglGlBackend()
+puglGlBackend(void)
 {
 	static const PuglBackend backend = {puglWinGlConfigure,
 	                                    puglWinGlCreate,
