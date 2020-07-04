@@ -44,7 +44,7 @@ typedef struct {
 typedef struct {
 	XID       alarm;
 	PuglView* view;
-	uint64_t  id;
+	uintptr_t id;
 } PuglTimer;
 
 struct PuglWorldInternalsImpl {
