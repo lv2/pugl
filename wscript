@@ -82,16 +82,10 @@ def configure(conf):
             'msvc': [
                 '/wd4061',  # enumerator in switch is not explicitly handled
                 '/wd4191',  # unsafe conversion from type to type
-                '/wd4355',  # 'this' used in base member initializer list
                 '/wd4514',  # unreferenced inline function has been removed
-                '/wd4571',  # structured exceptions (SEH) are no longer caught
-                '/wd4625',  # copy constructor implicitly deleted
-                '/wd4626',  # assignment operator implicitly deleted
                 '/wd4706',  # assignment within conditional expression
                 '/wd4710',  # function not inlined
                 '/wd4820',  # padding added after construct
-                '/wd5026',  # move constructor implicitly defined as deleted
-                '/wd5027',  # move assignment operator implicitly deleted
                 '/wd5045',  # will insert Spectre mitigation for memory load
             ],
         })
@@ -109,6 +103,14 @@ def configure(conf):
             ],
             'gcc': [
                 '-Wno-old-style-cast',
+            ],
+            'msvc': [
+                '/wd4355',  # 'this' used in base member initializer list
+                '/wd4571',  # structured exceptions (SEH) are no longer caught
+                '/wd4625',  # copy constructor implicitly deleted
+                '/wd4626',  # assignment operator implicitly deleted
+                '/wd5026',  # move constructor implicitly deleted
+                '/wd5027',  # move assignment operator implicitly deleted
             ],
         })
 
