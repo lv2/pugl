@@ -710,7 +710,8 @@ puglStartTimer(PuglView* view, uintptr_t id, double timeout)
 		PuglWorldInternals*  w       = view->world->impl;
 		Display* const       display = w->display;
 		const XSyncCounter   counter = w->serverTimeCounter;
-		const XSyncTrigger   trigger = {counter, XSyncRelative, value, 0};
+		const XSyncTestType  type    = XSyncPositiveTransition;
+		const XSyncTrigger   trigger = {counter, XSyncRelative, value, type};
 		XSyncAlarmAttributes attr    = {trigger, value, True, XSyncAlarmActive};
 		const XSyncAlarm     alarm   = XSyncCreateAlarm(display, 0x17, &attr);
 		const PuglTimer      timer   = {alarm, view, id};
