@@ -371,7 +371,7 @@ enum class Cursor {
 static_assert(Cursor(PUGL_CURSOR_UP_DOWN) == Cursor::upDown, "");
 
 /// @copydoc PuglView
-class View : public detail::Wrapper<PuglView, puglFreeView>
+class View : protected detail::Wrapper<PuglView, puglFreeView>
 {
 public:
 	/**
@@ -572,6 +572,9 @@ public:
 	/**
 	   @}
 	*/
+
+	PuglView*       cobj() { return Wrapper::cobj(); }
+	const PuglView* cobj() const { return Wrapper::cobj(); }
 
 private:
 	template<class Typed, class Base>
