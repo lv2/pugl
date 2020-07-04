@@ -64,34 +64,42 @@ def configure(conf):
 
     if Options.options.ultra_strict:
         # All warnings enabled by autowaf, disable some we trigger
+
         conf.add_compiler_flags('*', {
             'clang': [
-                '-Wno-bad-function-cast',
-                '-Wno-float-equal',
-                '-Wno-implicit-fallthrough',
                 '-Wno-padded',
                 '-Wno-reserved-id-macro',
                 '-Wno-switch-enum',
             ],
             'gcc': [
-                '-Wno-float-equal',
                 '-Wno-padded',
                 '-Wno-switch-default',
                 '-Wno-switch-enum',
             ],
             'msvc': [
                 '/wd4061',  # enumerator in switch is not explicitly handled
-                '/wd4191',  # unsafe conversion from type to type
                 '/wd4514',  # unreferenced inline function has been removed
-                '/wd4706',  # assignment within conditional expression
-                '/wd4710',  # function not inlined
                 '/wd4820',  # padding added after construct
                 '/wd5045',  # will insert Spectre mitigation for memory load
             ],
         })
 
         conf.add_compiler_flags('c', {
-            'gcc': ['-Wno-bad-function-cast'],
+            'clang': [
+                '-Wno-bad-function-cast',
+                '-Wno-float-equal',
+                '-Wno-implicit-fallthrough',
+            ],
+            'gcc': [
+                '-Wno-bad-function-cast',
+                '-Wno-float-equal',
+            ],
+            'msvc': [
+                '/wd4191',  # unsafe conversion from type to type
+                '/wd4706',  # assignment within conditional expression
+                '/wd4710',  # function not inlined
+                '/wd5045',  # will insert Spectre mitigation for memory load
+            ],
         })
 
         conf.add_compiler_flags('cxx', {
