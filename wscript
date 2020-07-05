@@ -443,6 +443,37 @@ def build(bld):
                                 'pugl_%s_stub_static' % platform],
                 uselib       = deps[platform]['uselib'] + ['CAIRO'])
 
+        # Make a hyper strict warning environment for checking API headers
+        strict_env = bld.env.derive()
+        autowaf.remove_all_warning_flags(strict_env)
+        autowaf.enable_all_warnings(strict_env)
+        autowaf.set_warnings_as_errors(strict_env)
+        autowaf.add_compiler_flags(strict_env, '*', {
+            'clang': ['-Wno-padded'],
+            'gcc': ['-Wno-padded'],
+        })
+        autowaf.add_compiler_flags(strict_env, 'cxx', {
+            'clang': ['-Wno-documentation-unknown-command'],
+        })
+
+        # Check that C headers build with (almost) no warnings
+        bld(features     = 'c cprogram',
+            source       = 'test/test_build.c',
+            target       = 'test/test_build_c',
+            install_path = '',
+            env          = strict_env,
+            use          = ['pugl_%s_static' % platform],
+            uselib       = deps[platform]['uselib'] + ['CAIRO'])
+
+        # Check that C++ headers build with (almost) no warnings
+        bld(features     = 'cxx cxxprogram',
+            source       = 'test/test_build.cpp',
+            target       = 'test/test_build_cpp',
+            install_path = '',
+            env          = strict_env,
+            use          = ['pugl_%s_static' % platform],
+            uselib       = deps[platform]['uselib'] + ['CAIRO'])
+
         if bld.env.CXX and bld.env.HAVE_GL:
             build_example('pugl_cxx_demo', ['examples/pugl_cxx_demo.cpp'],
                           platform, 'gl',
