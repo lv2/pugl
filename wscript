@@ -65,7 +65,7 @@ def configure(conf):
     if Options.options.ultra_strict:
         # All warnings enabled by autowaf, disable some we trigger
 
-        conf.add_compiler_flags('*', {
+        autowaf.add_compiler_flags(conf.env, '*', {
             'clang': [
                 '-Wno-padded',
                 '-Wno-reserved-id-macro',
@@ -73,7 +73,6 @@ def configure(conf):
             ],
             'gcc': [
                 '-Wno-padded',
-                '-Wno-switch-default',
                 '-Wno-switch-enum',
             ],
             'msvc': [
@@ -84,7 +83,7 @@ def configure(conf):
             ],
         })
 
-        conf.add_compiler_flags('c', {
+        autowaf.add_compiler_flags(conf.env, 'c', {
             'clang': [
                 '-Wno-bad-function-cast',
                 '-Wno-float-equal',
@@ -102,10 +101,8 @@ def configure(conf):
             ],
         })
 
-        conf.add_compiler_flags('cxx', {
+        autowaf.add_compiler_flags(conf.env, 'cxx', {
             'clang': [
-                '-Wno-c++98-compat',
-                '-Wno-c++98-compat-pedantic',
                 '-Wno-documentation-unknown-command',
                 '-Wno-old-style-cast',
             ],
@@ -124,14 +121,14 @@ def configure(conf):
 
         # Add some platform-specific warning suppressions
         if conf.env.TARGET_PLATFORM == "win32":
-            conf.add_compiler_flags('*', {
+            autowaf.add_compiler_flags(conf.env, '*', {
                 'gcc': ['-Wno-cast-function-type',
                         '-Wno-conversion',
                         '-Wno-format',
                         '-Wno-suggest-attribute=format'],
             })
         elif conf.env.TARGET_PLATFORM == 'darwin':
-            conf.add_compiler_flags('*', {
+            autowaf.add_compiler_flags(conf.env, '*', {
                 'clang': ['-DGL_SILENCE_DEPRECATION',
                           '-Wno-deprecated-declarations',
                           '-Wno-direct-ivar-access'],
