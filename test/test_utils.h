@@ -126,15 +126,17 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 		              event->scroll.y) +
 		        printModifiers(event->scroll.state));
 	case PUGL_POINTER_IN:
-		return PRINT("%sMouse enter  at " PFMT "\n",
+		return PRINT("%sMouse enter  at " PFMT " (%s)\n",
 		             prefix,
 		             event->crossing.x,
-		             event->crossing.y);
+		             event->crossing.y,
+		             crossingModeString(event->crossing.mode));
 	case PUGL_POINTER_OUT:
-		return PRINT("%sMouse leave  at " PFMT "\n",
+		return PRINT("%sMouse leave  at " PFMT " (%s)\n",
 		             prefix,
 		             event->crossing.x,
-		             event->crossing.y);
+		             event->crossing.y,
+		             crossingModeString(event->crossing.mode));
 	case PUGL_FOCUS_IN:
 		return PRINT("%sFocus in (%s)\n",
 		             prefix,
