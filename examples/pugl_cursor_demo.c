@@ -32,8 +32,8 @@ static const int N_ROWS    = 2;
 static const int N_COLS    = 4;
 
 typedef struct {
-	PuglTestOptions opts;
 	PuglWorld*      world;
+	PuglTestOptions opts;
 	bool            quit;
 } PuglTestApp;
 

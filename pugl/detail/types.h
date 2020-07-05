@@ -63,9 +63,9 @@ struct PuglViewImpl {
 	PuglBlob           clipboard;
 	PuglNativeView     parent;
 	uintptr_t          transientParent;
-	PuglHints          hints;
 	PuglRect           frame;
 	PuglEventConfigure lastConfigure;
+	PuglHints          hints;
 	int                defaultWidth;
 	int                defaultHeight;
 	int                minWidth;

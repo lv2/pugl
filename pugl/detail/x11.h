@@ -61,16 +61,16 @@ struct PuglWorldInternalsImpl {
 
 struct PuglInternalsImpl {
 	Display*     display;
-	int          screen;
 	XVisualInfo* vi;
 	Window       win;
-#ifdef HAVE_XCURSOR
-	unsigned     cursorShape;
-#endif
 	XIC          xic;
 	PuglSurface* surface;
 	PuglEvent    pendingConfigure;
 	PuglEvent    pendingExpose;
+	int          screen;
+#ifdef HAVE_XCURSOR
+	unsigned     cursorShape;
+#endif
 };
 
 static inline PuglStatus

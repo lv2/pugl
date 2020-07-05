@@ -55,9 +55,9 @@ typedef enum {
 } State;
 
 typedef struct {
-	PuglTestOptions opts;
 	PuglWorld*      world;
 	PuglView*       view;
+	PuglTestOptions opts;
 	size_t          numAlarms;
 	State           state;
 } PuglTest;
@@ -97,9 +97,9 @@ roundPeriod(const double period)
 int
 main(int argc, char** argv)
 {
-	PuglTest app = {puglParseTestOptions(&argc, &argv),
-	                puglNewWorld(PUGL_PROGRAM, 0),
+	PuglTest app = {puglNewWorld(PUGL_PROGRAM, 0),
 	                NULL,
+	                puglParseTestOptions(&argc, &argv),
 	                0,
 	                START};
 

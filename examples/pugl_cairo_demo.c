@@ -33,8 +33,8 @@
 #include <string.h>
 
 typedef struct {
-	PuglTestOptions opts;
 	PuglWorld*      world;
+	PuglTestOptions opts;
 	unsigned        framesDrawn;
 	int             quit;
 	bool            entered;

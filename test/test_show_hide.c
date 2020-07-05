@@ -41,9 +41,9 @@ typedef enum {
 } State;
 
 typedef struct {
-	PuglTestOptions opts;
 	PuglWorld*      world;
 	PuglView*       view;
+	PuglTestOptions opts;
 	State           state;
 } PuglTest;
 
@@ -104,9 +104,9 @@ tick(PuglWorld* world)
 int
 main(int argc, char** argv)
 {
-	PuglTest test = {puglParseTestOptions(&argc, &argv),
-	                 puglNewWorld(PUGL_PROGRAM, 0),
+	PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0),
 	                 NULL,
+	                 puglParseTestOptions(&argc, &argv),
 	                 START};
 
 	// Set up view

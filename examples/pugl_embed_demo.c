@@ -41,14 +41,14 @@ typedef struct
 	PuglWorld* world;
 	PuglView*  parent;
 	PuglView*  child;
-	bool       continuous;
-	int        quit;
 	double     xAngle;
 	double     yAngle;
-	float      dist;
 	double     lastMouseX;
 	double     lastMouseY;
 	double     lastDrawTime;
+	float      dist;
+	int        quit;
+	bool       continuous;
 	bool       mouseEntered;
 	bool       verbose;
 	bool       reversing;

@@ -34,18 +34,18 @@ typedef struct {
 	PuglView* view;
 	double    xAngle;
 	double    yAngle;
-	float     dist;
 	double    lastMouseX;
 	double    lastMouseY;
 	double    lastDrawTime;
+	float     dist;
 	bool      entered;
 } CubeView;
 
 typedef struct {
 	PuglWorld* world;
 	CubeView   cubes[2];
-	bool       continuous;
 	int        quit;
+	bool       continuous;
 	bool       verbose;
 } PuglTestApp;
 

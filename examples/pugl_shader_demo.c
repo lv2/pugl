@@ -61,9 +61,9 @@ typedef struct
 
 typedef struct
 {
-	PuglTestOptions opts;
 	PuglWorld*      world;
 	PuglView*       view;
+	PuglTestOptions opts;
 	size_t          numRects;
 	Rect*           rects;
 	Program         drawRect;
