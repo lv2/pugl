@@ -573,7 +573,9 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.motion.xRoot   = xevent.xmotion.x_root;
 		event.motion.yRoot   = xevent.xmotion.y_root;
 		event.motion.state   = translateModifiers(xevent.xmotion.state);
-		event.motion.isHint  = (xevent.xmotion.is_hint == NotifyHint);
+		if (xevent.xmotion.is_hint == NotifyHint) {
+			event.motion.flags |= PUGL_IS_HINT;
+		}
 		break;
 	case ButtonPress:
 		if (xevent.xbutton.button >= 4 && xevent.xbutton.button <= 7) {

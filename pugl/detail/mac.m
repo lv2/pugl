@@ -379,7 +379,6 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		rloc.x,
 		[[NSScreen mainScreen] frame].size.height - rloc.y,
 		getModifiers(event),
-		0,
 	};
 
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);

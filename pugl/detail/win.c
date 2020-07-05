@@ -639,7 +639,6 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		event.motion.xRoot   = pt.x;
 		event.motion.yRoot   = pt.y;
 		event.motion.state   = getModifiers();
-		event.motion.isHint  = false;
 		break;
 	case WM_MOUSELEAVE:
 		GetCursorPos(&pt);

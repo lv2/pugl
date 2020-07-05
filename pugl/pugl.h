@@ -221,7 +221,8 @@ typedef enum {
    Common flags for all event types.
 */
 typedef enum {
-	PUGL_IS_SEND_EVENT = 1 ///< Event is synthetic
+	PUGL_IS_SEND_EVENT = 1, ///< Event is synthetic
+	PUGL_IS_HINT       = 2  ///< Event is a hint (not direct user input)
 } PuglEventFlag;
 
 /**
@@ -474,7 +475,6 @@ typedef struct {
 	double         xRoot;  ///< Root-relative X coordinate
 	double         yRoot;  ///< Root-relative Y coordinate
 	PuglMods       state;  ///< Bitwise OR of #PuglMod flags
-	bool           isHint; ///< True iff this event is a motion hint
 } PuglEventMotion;
 
 /**
