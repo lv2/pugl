@@ -459,7 +459,6 @@ typedef struct {
 	double         yRoot;  ///< Root-relative Y coordinate
 	PuglMods       state;  ///< Bitwise OR of #PuglMod flags
 	bool           isHint; ///< True iff this event is a motion hint
-	bool           focus;  ///< True iff this is the focused view
 } PuglEventMotion;
 
 /**
