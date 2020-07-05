@@ -587,10 +587,22 @@ translateEvent(PuglView* view, XEvent xevent)
 			event.scroll.dx      = 0.0;
 			event.scroll.dy      = 0.0;
 			switch (xevent.xbutton.button) {
-			case 4: event.scroll.dy =  1.0; break;
-			case 5: event.scroll.dy = -1.0; break;
-			case 6: event.scroll.dx = -1.0; break;
-			case 7: event.scroll.dx =  1.0; break;
+			case 4:
+				event.scroll.dy        = 1.0;
+				event.scroll.direction = PUGL_SCROLL_UP;
+				break;
+			case 5:
+				event.scroll.dy        = -1.0;
+				event.scroll.direction = PUGL_SCROLL_DOWN;
+				break;
+			case 6:
+				event.scroll.dx        = -1.0;
+				event.scroll.direction = PUGL_SCROLL_LEFT;
+				break;
+			case 7:
+				event.scroll.dx        = 1.0;
+				event.scroll.direction = PUGL_SCROLL_RIGHT;
+				break;
 			}
 			// fallthru
 		}

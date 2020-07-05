@@ -239,6 +239,22 @@ typedef enum {
 } PuglCrossingMode;
 
 /**
+   Scroll direction.
+
+   Describes the direction of a #PuglEventScroll along with whether the scroll
+   is a "smooth" scroll.  The discrete directions are for devices like mouse
+   wheels with constrained axes, while a smooth scroll is for those with
+   arbitrary scroll direction freedom, like some touchpads.
+*/
+typedef enum {
+	PUGL_SCROLL_UP,    ///< Scroll up
+	PUGL_SCROLL_DOWN,  ///< Scroll down
+	PUGL_SCROLL_LEFT,  ///< Scroll left
+	PUGL_SCROLL_RIGHT, ///< Scroll right
+	PUGL_SCROLL_SMOOTH ///< Smooth scroll in any direction
+} PuglScrollDirection;
+
+/**
    Common header for all event structs.
 */
 typedef struct {
@@ -471,16 +487,17 @@ typedef struct {
    gracefully.
 */
 typedef struct {
-	PuglEventType  type;  ///< #PUGL_SCROLL
-	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
-	double         time;  ///< Time in seconds
-	double         x;     ///< View-relative X coordinate
-	double         y;     ///< View-relative Y coordinate
-	double         xRoot; ///< Root-relative X coordinate
-	double         yRoot; ///< Root-relative Y coordinate
-	PuglMods       state; ///< Bitwise OR of #PuglMod flags
-	double         dx;    ///< Scroll X distance in lines
-	double         dy;    ///< Scroll Y distance in lines
+	PuglEventType       type;      ///< #PUGL_SCROLL
+	PuglEventFlags      flags;     ///< Bitwise OR of #PuglEventFlag values
+	double              time;      ///< Time in seconds
+	double              x;         ///< View-relative X coordinate
+	double              y;         ///< View-relative Y coordinate
+	double              xRoot;     ///< Root-relative X coordinate
+	double              yRoot;     ///< Root-relative Y coordinate
+	PuglMods            state;     ///< Bitwise OR of #PuglMod flags
+	PuglScrollDirection direction; ///< Scroll direction
+	double              dx;        ///< Scroll X distance in lines
+	double              dy;        ///< Scroll Y distance in lines
 } PuglEventScroll;
 
 /**

@@ -82,6 +82,25 @@ crossingModeString(const PuglCrossingMode mode)
 	return "unknown";
 }
 
+static inline const char*
+scrollDirectionString(const PuglScrollDirection direction)
+{
+	switch (direction) {
+	case PUGL_SCROLL_UP:
+		return "up";
+	case PUGL_SCROLL_DOWN:
+		return "down";
+	case PUGL_SCROLL_LEFT:
+		return "left";
+	case PUGL_SCROLL_RIGHT:
+		return "right";
+	case PUGL_SCROLL_SMOOTH:
+		return "smooth";
+	}
+
+	return "unknown";
+}
+
 static inline int
 printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 {
@@ -118,10 +137,11 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 		              event->button.y) +
 		        printModifiers(event->scroll.state));
 	case PUGL_SCROLL:
-		return (PRINT("%sScroll %5.1f %5.1f at " PFMT " ",
+		return (PRINT("%sScroll %5.1f %5.1f (%s) at " PFMT " ",
 		              prefix,
 		              event->scroll.dx,
 		              event->scroll.dy,
+		              scrollDirectionString(event->scroll.direction),
 		              event->scroll.x,
 		              event->scroll.y) +
 		        printModifiers(event->scroll.state));

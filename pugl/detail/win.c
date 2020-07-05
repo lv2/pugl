@@ -668,10 +668,16 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEWHEEL:
 		initScrollEvent(&event, view, lParam);
 		event.scroll.dy = GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		event.scroll.direction = (event.scroll.dy > 0
+		                          ? PUGL_SCROLL_UP
+		                          : PUGL_SCROLL_DOWN);
 		break;
 	case WM_MOUSEHWHEEL:
 		initScrollEvent(&event, view, lParam);
 		event.scroll.dx = GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		event.scroll.direction = (event.scroll.dx > 0
+		                          ? PUGL_SCROLL_RIGHT
+		                          : PUGL_SCROLL_LEFT);
 		break;
 	case WM_KEYDOWN:
 		if (!ignoreKeyEvent(view, lParam)) {
