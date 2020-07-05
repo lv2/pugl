@@ -564,7 +564,6 @@ translateEvent(PuglView* view, XEvent xevent)
 		event.expose.y      = xevent.xexpose.y;
 		event.expose.width  = xevent.xexpose.width;
 		event.expose.height = xevent.xexpose.height;
-		event.expose.count  = xevent.xexpose.count;
 		break;
 	case MotionNotify:
 		event.type           = PUGL_MOTION;
@@ -856,7 +855,6 @@ mergeExposeEvents(PuglEvent* dst, const PuglEvent* src)
 		dst->expose.y      = MIN(dst->expose.y, src->expose.y);
 		dst->expose.width  = max_x - dst->expose.x;
 		dst->expose.height = max_y - dst->expose.y;
-		dst->expose.count  = MIN(dst->expose.count, src->expose.count);
 	}
 }
 
@@ -1116,7 +1114,7 @@ PuglStatus
 puglPostRedisplayRect(PuglView* view, PuglRect rect)
 {
 	const PuglEventExpose event = {
-		PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height, 0
+		PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height
 	};
 
 	if (view->world->impl->dispatchingEvents) {

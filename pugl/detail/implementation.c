@@ -311,7 +311,7 @@ PuglStatus
 puglEnterContext(PuglView* view, bool drawing)
 {
 	const PuglEventExpose expose = {
-	        PUGL_EXPOSE, 0, 0, 0, view->frame.width, view->frame.height, 0};
+	    PUGL_EXPOSE, 0, 0.0, 0.0, view->frame.width, view->frame.height};
 
 	view->backend->enter(view, drawing ? &expose : NULL);
 
@@ -322,7 +322,7 @@ PuglStatus
 puglLeaveContext(PuglView* view, bool drawing)
 {
 	const PuglEventExpose expose = {
-	        PUGL_EXPOSE, 0, 0, 0, view->frame.width, view->frame.height, 0};
+	    PUGL_EXPOSE, 0, 0.0, 0.0, view->frame.width, view->frame.height};
 
 	view->backend->leave(view, drawing ? &expose : NULL);
 

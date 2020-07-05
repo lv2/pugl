@@ -333,7 +333,6 @@ typedef struct {
 	double         y;      ///< View-relative Y coordinate
 	double         width;  ///< Width of exposed region
 	double         height; ///< Height of exposed region
-	int            count;  ///< Number of expose events to follow
 } PuglEventExpose;
 
 /**

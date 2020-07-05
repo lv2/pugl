@@ -225,7 +225,6 @@ updateViewRect(PuglView* view)
 		rect.origin.y * scaleFactor,
 		rect.size.width * scaleFactor,
 		rect.size.height * scaleFactor,
-		0
 	};
 
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);

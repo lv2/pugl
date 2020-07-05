@@ -612,7 +612,6 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		event.expose.y      = rect.top;
 		event.expose.width  = rect.right - rect.left;
 		event.expose.height = rect.bottom - rect.top;
-		event.expose.count  = 0;
 		break;
 	case WM_ERASEBKGND:
 		return true;
