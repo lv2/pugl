@@ -352,9 +352,9 @@ typedef PuglEventAny PuglEventClose;
    view with the keyboard focus will receive any key press or release events.
 */
 typedef struct {
-	PuglEventType  type;  ///< #PUGL_FOCUS_IN or #PUGL_FOCUS_OUT
-	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
-	bool           grab;  ///< True iff this is a grab/ungrab event
+	PuglEventType    type;  ///< #PUGL_FOCUS_IN or #PUGL_FOCUS_OUT
+	PuglEventFlags   flags; ///< Bitwise OR of #PuglEventFlag values
+	PuglCrossingMode mode;  ///< Reason for focus change
 } PuglEventFocus;
 
 /**

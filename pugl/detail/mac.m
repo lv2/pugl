@@ -778,7 +778,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	(void)notification;
 
 	PuglEvent ev = {{PUGL_FOCUS_IN, 0}};
-	ev.focus.grab = false;
+	ev.focus.mode = PUGL_CROSSING_NORMAL;
 	puglDispatchEvent(window->puglview, &ev);
 }
 
@@ -787,7 +787,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	(void)notification;
 
 	PuglEvent ev = {{PUGL_FOCUS_OUT, 0}};
-	ev.focus.grab = false;
+	ev.focus.mode = PUGL_CROSSING_NORMAL;
 	puglDispatchEvent(window->puglview, &ev);
 }
 

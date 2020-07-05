@@ -67,6 +67,21 @@ printModifiers(const uint32_t mods)
 	               (mods & PUGL_MOD_SUPER) ? " Super" : "");
 }
 
+static inline const char*
+crossingModeString(const PuglCrossingMode mode)
+{
+	switch (mode) {
+	case PUGL_CROSSING_NORMAL:
+		return "normal";
+	case PUGL_CROSSING_GRAB:
+		return "grab";
+	case PUGL_CROSSING_UNGRAB:
+		return "ungrab";
+	}
+
+	return "unknown";
+}
+
 static inline int
 printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 {
@@ -121,13 +136,13 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 		             event->crossing.x,
 		             event->crossing.y);
 	case PUGL_FOCUS_IN:
-		return PRINT("%sFocus in%s\n",
+		return PRINT("%sFocus in (%s)\n",
 		             prefix,
-		             event->focus.grab ? " (grab)" : "");
+		             crossingModeString(event->crossing.mode));
 	case PUGL_FOCUS_OUT:
-		return PRINT("%sFocus out%s\n",
+		return PRINT("%sFocus out (%s)\n",
 		             prefix,
-		             event->focus.grab ? " (ungrab)" : "");
+		             crossingModeString(event->crossing.mode));
 	case PUGL_CLIENT:
 		return PRINT("%sClient %" PRIXPTR " %" PRIXPTR "\n",
 		             prefix,

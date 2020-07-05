@@ -644,7 +644,12 @@ translateEvent(PuglView* view, XEvent xevent)
 	case FocusIn:
 	case FocusOut:
 		event.type = (xevent.type == FocusIn) ? PUGL_FOCUS_IN : PUGL_FOCUS_OUT;
-		event.focus.grab = (xevent.xfocus.mode != NotifyNormal);
+		event.focus.mode = PUGL_CROSSING_NORMAL;
+		if (xevent.xfocus.mode == NotifyGrab) {
+			event.focus.mode = PUGL_CROSSING_GRAB;
+		} else if (xevent.xfocus.mode == NotifyUngrab) {
+			event.focus.mode = PUGL_CROSSING_UNGRAB;
+		}
 		break;
 
 	default:
