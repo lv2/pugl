@@ -21,6 +21,7 @@
 
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/mac.h"
+#include "pugl/detail/stub.h"
 #include "pugl/pugl_stub.h"
 
 #import <Cocoa/Cocoa.h>

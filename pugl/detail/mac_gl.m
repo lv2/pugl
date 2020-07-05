@@ -21,8 +21,8 @@
 
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/mac.h"
+#include "pugl/detail/stub.h"
 #include "pugl/pugl_gl.h"
-#include "pugl/pugl_stub.h"
 
 #ifndef __MAC_10_10
 #    define NSOpenGLProfileVersion4_1Core NSOpenGLProfileVersion3_2Core

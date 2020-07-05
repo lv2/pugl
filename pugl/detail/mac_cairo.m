@@ -21,8 +21,8 @@
 
 #include "pugl/detail/implementation.h"
 #include "pugl/detail/mac.h"
+#include "pugl/detail/stub.h"
 #include "pugl/pugl_cairo.h"
-#include "pugl/pugl_stub.h"
 
 #include <cairo-quartz.h>
 

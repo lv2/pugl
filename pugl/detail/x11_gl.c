@@ -19,11 +19,11 @@
    @brief OpenGL graphics backend for X11.
 */
 
+#include "pugl/detail/stub.h"
 #include "pugl/detail/types.h"
 #include "pugl/detail/x11.h"
 #include "pugl/pugl.h"
 #include "pugl/pugl_gl.h"
-#include "pugl/pugl_stub.h"
 
 #include <GL/glx.h>
 #include <X11/X.h>

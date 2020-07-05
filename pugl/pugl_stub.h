@@ -51,50 +51,6 @@ PUGL_API
 const PuglBackend*
 puglStubBackend(void);
 
-static inline PuglStatus
-puglStubConfigure(PuglView* view)
-{
-	(void)view;
-	return PUGL_SUCCESS;
-}
-
-static inline PuglStatus
-puglStubCreate(PuglView* view)
-{
-	(void)view;
-	return PUGL_SUCCESS;
-}
-
-static inline PuglStatus
-puglStubDestroy(PuglView* view)
-{
-	(void)view;
-	return PUGL_SUCCESS;
-}
-
-static inline PuglStatus
-puglStubEnter(PuglView* view, const PuglEventExpose* expose)
-{
-	(void)view;
-	(void)expose;
-	return PUGL_SUCCESS;
-}
-
-static inline PuglStatus
-puglStubLeave(PuglView* view, const PuglEventExpose* expose)
-{
-	(void)view;
-	(void)expose;
-	return PUGL_SUCCESS;
-}
-
-static inline void*
-puglStubGetContext(PuglView* view)
-{
-	(void)view;
-	return NULL;
-}
-
 /**
    @}
 */

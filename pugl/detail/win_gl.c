@@ -19,10 +19,10 @@
    @brief OpenGL graphics backend for Windows.
 */
 
+#include "pugl/detail/stub.h"
 #include "pugl/detail/types.h"
 #include "pugl/detail/win.h"
 #include "pugl/pugl_gl.h"
-#include "pugl/pugl_stub.h"
 
 #include <windows.h>
 

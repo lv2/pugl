@@ -26,6 +26,7 @@
 #include "pugl/detail/x11.h"
 
 #include "pugl/detail/implementation.h"
+#include "pugl/detail/stub.h"
 #include "pugl/detail/types.h"
 #include "pugl/pugl.h"
 #include "pugl/pugl_stub.h"
