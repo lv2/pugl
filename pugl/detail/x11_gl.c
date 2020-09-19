@@ -175,7 +175,9 @@ puglX11GlCreate(PuglView* view)
 
 	const int swapInterval = view->hints[PUGL_SWAP_INTERVAL];
 	if (glXSwapIntervalEXT && swapInterval != PUGL_DONT_CARE) {
+		puglX11GlEnter(view, NULL);
 		glXSwapIntervalEXT(display, impl->win, swapInterval);
+		puglX11GlLeave(view, NULL);
 	}
 
 	glXGetConfig(impl->display,
