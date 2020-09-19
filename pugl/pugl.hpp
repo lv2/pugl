@@ -274,9 +274,17 @@ private:
 class World : public detail::Wrapper<PuglWorld, puglFreeWorld>
 {
 public:
-	explicit World(WorldType type, WorldFlags flags = {})
+	explicit World(WorldType type, WorldFlags flags)
 	    : Wrapper{puglNewWorld(static_cast<PuglWorldType>(type), flags)}
 	    , _clock(*this)
+	{
+		if (!cobj()) {
+			throw std::runtime_error("Failed to create pugl::World");
+		}
+	}
+
+	explicit World(WorldType type)
+	    : World{type, {}}
 	{
 		if (!cobj()) {
 			throw std::runtime_error("Failed to create pugl::World");
@@ -393,6 +401,12 @@ public:
 	}
 
 	virtual ~View() = default;
+
+	View(const View&) = delete;
+	View& operator=(const View&) = delete;
+
+	View(View&&)   = delete;
+	View&& operator=(View&&) = delete;
 
 	const pugl::World& world() const { return _world; }
 	pugl::World&       world() { return _world; }
@@ -580,7 +594,7 @@ private:
 	template<class Typed, class Base>
 	static const Typed& typedEventRef(const Base& base)
 	{
-		const Typed& event = static_cast<const Typed&>(base);
+		const auto& event = static_cast<const Typed&>(base);
 		static_assert(sizeof(event) == sizeof(typename Typed::BaseEvent), "");
 		static_assert(std::is_standard_layout<Typed>::value, "");
 		assert(event.type == Typed::type);

@@ -8,8 +8,6 @@ Checks: >
   -cert-flp30-c,
   -clang-analyzer-alpha.*,
   -clang-analyzer-security.FloatLoopCounter,
-  -fuchsia-default-arguments-calls,
-  -fuchsia-default-arguments-declarations,
   -google-runtime-references,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
