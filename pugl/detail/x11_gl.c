@@ -115,6 +115,28 @@ puglX11GlConfigure(PuglView* view)
 }
 
 static PuglStatus
+puglX11GlEnter(PuglView* view, const PuglEventExpose* PUGL_UNUSED(expose))
+{
+	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
+	glXMakeCurrent(view->impl->display, view->impl->win, surface->ctx);
+	return PUGL_SUCCESS;
+}
+
+static PuglStatus
+puglX11GlLeave(PuglView* view, const PuglEventExpose* expose)
+{
+	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
+
+	if (expose && surface->double_buffered) {
+		glXSwapBuffers(view->impl->display, view->impl->win);
+	}
+
+	glXMakeCurrent(view->impl->display, None, NULL);
+
+	return PUGL_SUCCESS;
+}
+
+static PuglStatus
 puglX11GlCreate(PuglView* view)
 {
 	PuglInternals* const    impl      = view->impl;
@@ -173,28 +195,6 @@ puglX11GlDestroy(PuglView* view)
 		free(surface);
 		view->impl->surface = NULL;
 	}
-	return PUGL_SUCCESS;
-}
-
-static PuglStatus
-puglX11GlEnter(PuglView* view, const PuglEventExpose* PUGL_UNUSED(expose))
-{
-	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
-	glXMakeCurrent(view->impl->display, view->impl->win, surface->ctx);
-	return PUGL_SUCCESS;
-}
-
-static PuglStatus
-puglX11GlLeave(PuglView* view, const PuglEventExpose* expose)
-{
-	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
-
-	if (expose && surface->double_buffered) {
-		glXSwapBuffers(view->impl->display, view->impl->win);
-	}
-
-	glXMakeCurrent(view->impl->display, None, NULL);
-
 	return PUGL_SUCCESS;
 }
 
