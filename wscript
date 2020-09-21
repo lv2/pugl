@@ -226,6 +226,7 @@ def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
     env = bld.env
     prefix = env.PREFIX
     xprefix = os.path.dirname(env.LIBDIR)
+    libname = '%s-%s' % (libname, PUGL_MAJOR_VERSION)
 
     uselib   = deps.get('uselib', [])
     pkg_deps = [l for l in uselib if 'PKG_' + l.lower() in env]
