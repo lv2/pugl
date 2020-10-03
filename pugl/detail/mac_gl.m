@@ -48,12 +48,36 @@
 	                                     ? NSOpenGLProfileVersion4_1Core
 	                                     : NSOpenGLProfileVersion3_2Core));
 
-	NSOpenGLPixelFormatAttribute pixelAttribs[16] = {
+	// Set attributes to default if they are unset
+	// (There is no GLX_DONT_CARE equivalent on MacOS)
+	if (puglview->hints[PUGL_DEPTH_BITS] == PUGL_DONT_CARE) {
+		puglview->hints[PUGL_DEPTH_BITS] = 0;
+	}
+	if (puglview->hints[PUGL_STENCIL_BITS] == PUGL_DONT_CARE) {
+		puglview->hints[PUGL_STENCIL_BITS] = 0;
+	}
+	if (puglview->hints[PUGL_SAMPLES] == PUGL_DONT_CARE) {
+		puglview->hints[PUGL_SAMPLES] = 1;
+	}
+	if (puglview->hints[PUGL_DOUBLE_BUFFER] == PUGL_DONT_CARE) {
+		puglview->hints[PUGL_DOUBLE_BUFFER] = 1;
+	}
+	if (puglview->hints[PUGL_SWAP_INTERVAL] == PUGL_DONT_CARE) {
+		puglview->hints[PUGL_SWAP_INTERVAL] = 1;
+	}
+
+	const unsigned colorSize = (unsigned)(puglview->hints[PUGL_RED_BITS] +
+	                                      puglview->hints[PUGL_BLUE_BITS] +
+	                                      puglview->hints[PUGL_GREEN_BITS] +
+	                                      puglview->hints[PUGL_ALPHA_BITS]);
+
+	NSOpenGLPixelFormatAttribute pixelAttribs[17] = {
 		NSOpenGLPFADoubleBuffer,
 		NSOpenGLPFAAccelerated,
 		NSOpenGLPFAOpenGLProfile, profile,
-		NSOpenGLPFAColorSize,     32,
-		NSOpenGLPFADepthSize,     32,
+		NSOpenGLPFAColorSize,     colorSize,
+		NSOpenGLPFADepthSize,     (unsigned)puglview->hints[PUGL_DEPTH_BITS],
+		NSOpenGLPFAStencilSize,   (unsigned)puglview->hints[PUGL_STENCIL_BITS],
 		NSOpenGLPFAMultisample,   samples ? 1 : 0,
 		NSOpenGLPFASampleBuffers, samples ? 1 : 0,
 		NSOpenGLPFASamples,       samples,

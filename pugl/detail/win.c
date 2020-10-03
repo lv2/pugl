@@ -166,6 +166,20 @@ puglRealize(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
 
+	// Getting depth from the display mode seems tedious, just set usual values
+	if (view->hints[PUGL_RED_BITS] == PUGL_DONT_CARE) {
+		view->hints[PUGL_RED_BITS] = 8;
+	}
+	if (view->hints[PUGL_BLUE_BITS] == PUGL_DONT_CARE) {
+		view->hints[PUGL_BLUE_BITS] = 8;
+	}
+	if (view->hints[PUGL_GREEN_BITS] == PUGL_DONT_CARE) {
+		view->hints[PUGL_GREEN_BITS] = 8;
+	}
+	if (view->hints[PUGL_ALPHA_BITS] == PUGL_DONT_CARE) {
+		view->hints[PUGL_ALPHA_BITS] = 8;
+	}
+
 	// Get refresh rate for resize draw timer
 	DEVMODEA devMode = {0};
 	EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &devMode);

@@ -83,5 +83,10 @@ puglX11StubConfigure(PuglView* view)
 	pat.screen = impl->screen;
 	impl->vi   = XGetVisualInfo(impl->display, VisualScreenMask, &pat, &n);
 
+	view->hints[PUGL_RED_BITS]   = impl->vi->bits_per_rgb;
+	view->hints[PUGL_GREEN_BITS] = impl->vi->bits_per_rgb;
+	view->hints[PUGL_BLUE_BITS]  = impl->vi->bits_per_rgb;
+	view->hints[PUGL_ALPHA_BITS] = 0;
+
 	return PUGL_SUCCESS;
 }

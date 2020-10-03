@@ -262,6 +262,16 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
 	return PUGL_BAD_PARAMETER;
 }
 
+int
+puglGetViewHint(const PuglView* view, PuglViewHint hint)
+{
+	if (hint < PUGL_NUM_VIEW_HINTS) {
+		return view->hints[hint];
+	}
+
+	return PUGL_DONT_CARE;
+}
+
 PuglStatus
 puglSetParentWindow(PuglView* view, PuglNativeView parent)
 {

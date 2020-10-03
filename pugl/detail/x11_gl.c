@@ -71,7 +71,7 @@ puglX11GlConfigure(PuglView* view)
 		GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
 		GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
 		GLX_RENDER_TYPE,   GLX_RGBA_BIT,
-		GLX_SAMPLES,       view->hints[PUGL_SAMPLES],
+		GLX_SAMPLES,       puglX11GlHintValue(view->hints[PUGL_SAMPLES]),
 		GLX_RED_SIZE,      puglX11GlHintValue(view->hints[PUGL_RED_BITS]),
 		GLX_GREEN_SIZE,    puglX11GlHintValue(view->hints[PUGL_GREEN_BITS]),
 		GLX_BLUE_SIZE,     puglX11GlHintValue(view->hints[PUGL_BLUE_BITS]),
@@ -90,6 +90,23 @@ puglX11GlConfigure(PuglView* view)
 
 	surface->fb_config = fbc[0];
 	impl->vi           = glXGetVisualFromFBConfig(impl->display, fbc[0]);
+
+	view->hints[PUGL_RED_BITS] = puglX11GlGetAttrib(
+	    display, fbc[0], GLX_RED_SIZE);
+	view->hints[PUGL_GREEN_BITS] = puglX11GlGetAttrib(
+	    display, fbc[0], GLX_GREEN_SIZE);
+	view->hints[PUGL_BLUE_BITS] = puglX11GlGetAttrib(
+	    display, fbc[0], GLX_BLUE_SIZE);
+	view->hints[PUGL_ALPHA_BITS] = puglX11GlGetAttrib(
+	    display, fbc[0], GLX_ALPHA_SIZE);
+	view->hints[PUGL_DEPTH_BITS] = puglX11GlGetAttrib(
+	    display, fbc[0], GLX_DEPTH_SIZE);
+	view->hints[PUGL_STENCIL_BITS] = puglX11GlGetAttrib(
+	    display, fbc[0], GLX_STENCIL_SIZE);
+	view->hints[PUGL_SAMPLES] = puglX11GlGetAttrib(
+	    display, fbc[0], GLX_SAMPLES);
+	view->hints[PUGL_DOUBLE_BUFFER] = puglX11GlGetAttrib(
+	    display, fbc[0], GLX_DOUBLEBUFFER);
 
 	char msg[128];
 
@@ -181,6 +198,11 @@ puglX11GlCreate(PuglView* view)
 	             impl->vi,
 	             GLX_DOUBLEBUFFER,
 	             &view->hints[PUGL_DOUBLE_BUFFER]);
+
+	glXQueryDrawable(display,
+	                 impl->win,
+	                 GLX_SWAP_INTERVAL_EXT,
+	                 (unsigned int*)&view->hints[PUGL_SWAP_INTERVAL]);
 
 	return PUGL_SUCCESS;
 }

@@ -255,7 +255,9 @@ def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
         LIBS=' '.join(link_flags))
 
 
-tests = ['redisplay', 'show_hide', 'update', 'timer']
+gl_tests = ['gl_hints']
+basic_tests = ['stub_hints', 'redisplay', 'show_hide', 'update', 'timer']
+tests = ['gl_hints', 'stub_hints', 'redisplay', 'show_hide', 'update', 'timer']
 
 
 def build(bld):
@@ -430,18 +432,28 @@ def build(bld):
                           cflags=glad_cflags,
                           uselib=['DL', 'GL', 'M'])
 
+            for test in gl_tests:
+                bld(features     = 'c cprogram',
+                    source       = 'test/test_%s.c' % test,
+                    target       = 'test/test_%s' % test,
+                    install_path = '',
+                    use          = ['pugl_%s_static' % platform,
+                                    'pugl_%s_gl_static' % platform],
+                    uselib       = deps[platform]['uselib'] + ['GL'])
+
         if bld.env.HAVE_CAIRO:
             build_example('pugl_cairo_demo', ['examples/pugl_cairo_demo.c'],
                           platform, 'cairo',
                           uselib=['M', 'CAIRO'])
 
-        for test in tests:
+        for test in basic_tests:
             bld(features     = 'c cprogram',
                 source       = 'test/test_%s.c' % test,
                 target       = 'test/test_%s' % test,
                 install_path = '',
                 use          = ['pugl_%s_static' % platform,
-                                'pugl_%s_stub_static' % platform],
+                                'pugl_%s_stub_static' % platform,
+                                'pugl_%s_gl_static' % platform],
                 uselib       = deps[platform]['uselib'] + ['CAIRO'])
 
         # Make a hyper strict warning environment for checking API headers
@@ -488,8 +500,12 @@ def build(bld):
 def test(tst):
     if tst.options.gui_tests:
         with tst.group('gui') as check:
-            for test in tests:
+            for test in basic_tests:
                 check(['test/test_%s' % test])
+
+            if tst.env.HAVE_GL:
+                for test in gl_tests:
+                    check(['test/test_%s' % test])
 
 
 class LintContext(Build.BuildContext):

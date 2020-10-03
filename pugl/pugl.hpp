@@ -418,6 +418,12 @@ public:
 		    puglSetViewHint(cobj(), static_cast<PuglViewHint>(hint), value));
 	}
 
+	/// @copydoc puglGetViewHint
+	int getHint(ViewHint hint)
+	{
+		return puglGetViewHint(cobj(), static_cast<PuglViewHint>(hint));
+	}
+
 	/**
 	   @}
 	   @name Frame

@@ -939,6 +939,16 @@ PUGL_API PuglStatus
 puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
 
 /**
+   Get the value for a view hint.
+
+   If the view has been realized, this can be used to get the actual value of a
+   hint which was initially set to PUGL_DONT_CARE, or has been adjusted from
+   the suggested value.
+*/
+PUGL_API int
+puglGetViewHint(const PuglView* view, PuglViewHint hint);
+
+/**
    @}
    @anchor frame
    @name Frame
