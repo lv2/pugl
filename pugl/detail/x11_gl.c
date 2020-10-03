@@ -37,7 +37,6 @@
 typedef struct {
 	GLXFBConfig fb_config;
 	GLXContext  ctx;
-	int         double_buffered;
 } PuglX11GlSurface;
 
 static int
@@ -125,9 +124,7 @@ puglX11GlEnter(PuglView* view, const PuglEventExpose* PUGL_UNUSED(expose))
 static PuglStatus
 puglX11GlLeave(PuglView* view, const PuglEventExpose* expose)
 {
-	PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
-
-	if (expose && surface->double_buffered) {
+	if (expose && view->hints[PUGL_DOUBLE_BUFFER]) {
 		glXSwapBuffers(view->impl->display, view->impl->win);
 	}
 
@@ -183,7 +180,7 @@ puglX11GlCreate(PuglView* view)
 	glXGetConfig(impl->display,
 	             impl->vi,
 	             GLX_DOUBLEBUFFER,
-	             &surface->double_buffered);
+	             &view->hints[PUGL_DOUBLE_BUFFER]);
 
 	return PUGL_SUCCESS;
 }
