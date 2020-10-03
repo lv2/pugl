@@ -405,6 +405,7 @@ main(int argc, char** argv)
 	}
 
 	// Show window
+	printViewHints(app.view);
 	puglShowWindow(app.view);
 
 	// Grind away, drawing continuously

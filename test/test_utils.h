@@ -221,6 +221,59 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 	return 0;
 }
 
+static inline const char*
+puglViewHintString(const PuglViewHint hint)
+{
+	switch (hint) {
+	case PUGL_USE_COMPAT_PROFILE:
+		return "Use compatible profile";
+	case PUGL_USE_DEBUG_CONTEXT:
+		return "Use debug context";
+	case PUGL_CONTEXT_VERSION_MAJOR:
+		return "Context major version";
+	case PUGL_CONTEXT_VERSION_MINOR:
+		return "Context minor version";
+	case PUGL_RED_BITS:
+		return "Red bits";
+	case PUGL_GREEN_BITS:
+		return "Green bits";
+	case PUGL_BLUE_BITS:
+		return "Blue bits";
+	case PUGL_ALPHA_BITS:
+		return "Alpha bits";
+	case PUGL_DEPTH_BITS:
+		return "Depth bits";
+	case PUGL_STENCIL_BITS:
+		return "Stencil bits";
+	case PUGL_SAMPLES:
+		return "Samples";
+	case PUGL_DOUBLE_BUFFER:
+		return "Double buffer";
+	case PUGL_SWAP_INTERVAL:
+		return "Swap interval";
+	case PUGL_RESIZABLE:
+		return "Resizable";
+	case PUGL_IGNORE_KEY_REPEAT:
+		return "Ignore key repeat";
+	case PUGL_NUM_VIEW_HINTS:
+		return "Unknown";
+	}
+
+	return "Unknown";
+}
+
+static inline void
+printViewHints(const PuglView* view)
+{
+	for (int i = 0; i < PUGL_NUM_VIEW_HINTS; ++i) {
+		const PuglViewHint hint = (PuglViewHint)i;
+		fprintf(stderr,
+		        "%s: %d\n",
+		        puglViewHintString(hint),
+		        puglGetViewHint(view, hint));
+	}
+}
+
 static inline void
 puglPrintTestUsage(const char* prog, const char* posHelp)
 {

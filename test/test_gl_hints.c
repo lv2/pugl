@@ -60,6 +60,7 @@ main(void)
 
 	// Realize view and print all hints for debugging convenience
 	assert(!puglRealize(view));
+	printViewHints(view);
 
 	// Check that no hints are set to PUGL_DONT_CARE
 	assert(puglGetViewHint(view, PUGL_USE_COMPAT_PROFILE) != PUGL_DONT_CARE);
