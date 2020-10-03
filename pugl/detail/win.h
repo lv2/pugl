@@ -38,7 +38,6 @@ struct PuglInternalsImpl {
 	HCURSOR      cursor;
 	HDC          hdc;
 	PuglSurface* surface;
-	DWORD        refreshRate;
 	bool         flashing;
 	bool         resizing;
 	bool         mouseTracked;

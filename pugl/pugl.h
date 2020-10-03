@@ -841,6 +841,7 @@ typedef enum {
 	PUGL_SWAP_INTERVAL,         ///< Number of frames between buffer swaps
 	PUGL_RESIZABLE,             ///< True if view should be resizable
 	PUGL_IGNORE_KEY_REPEAT,     ///< True if key repeat events are ignored
+	PUGL_REFRESH_RATE,          ///< Refresh rate in Hz
 
 	PUGL_NUM_VIEW_HINTS
 } PuglViewHint;

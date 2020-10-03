@@ -146,6 +146,8 @@ def configure(conf):
     if platform == 'darwin':
         conf.check_cc(framework_name='Cocoa', framework='Cocoa',
                       uselib_store='COCOA')
+        conf.check_cc(framework_name='Corevideo', framework='Corevideo',
+                      uselib_store='COREVIDEO')
         if not Options.options.no_gl:
             conf.check_cc(framework_name='OpenGL', uselib_store='GL',
                           mandatory=False)
@@ -175,6 +177,11 @@ def configure(conf):
                          uselib_store='XCURSOR',
                          mandatory=False):
             conf.define('HAVE_XCURSOR', 1)
+
+        if conf.check_cc(lib='Xrandr',
+                         uselib_store='XRANDR',
+                         mandatory=False):
+            conf.define('HAVE_XRANDR', 1)
 
         if not Options.options.no_gl:
             glx_fragment = """#include <GL/glx.h>
@@ -343,27 +350,27 @@ def build(bld):
     elif bld.env.TARGET_PLATFORM == 'darwin':
         platform = 'mac'
         build_platform('mac',
-                       framework=['Cocoa'],
+                       framework=['Cocoa', 'Corevideo'],
                        source=lib_source + ['pugl/detail/mac.m'])
 
         build_backend('mac', 'stub',
-                      framework=['Cocoa'],
+                      framework=['Cocoa', 'Corevideo'],
                       source=['pugl/detail/mac_stub.m'])
 
         if bld.env.HAVE_GL:
             build_backend('mac', 'gl',
-                          framework=['Cocoa', 'OpenGL'],
+                          framework=['Cocoa', 'Corevideo', 'OpenGL'],
                           source=['pugl/detail/mac_gl.m'])
 
         if bld.env.HAVE_CAIRO:
             build_backend('mac', 'cairo',
-                          framework=['Cocoa'],
+                          framework=['Cocoa', 'Corevideo'],
                           uselib=['CAIRO'],
                           source=['pugl/detail/mac_cairo.m'])
     else:
         platform = 'x11'
         build_platform('x11',
-                       uselib=['M', 'X11', 'XSYNC', 'XCURSOR'],
+                       uselib=['M', 'X11', 'XSYNC', 'XCURSOR', 'XRANDR'],
                        source=lib_source + ['pugl/detail/x11.c'])
 
         if bld.env.HAVE_GL:

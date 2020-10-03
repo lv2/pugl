@@ -37,6 +37,10 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
+#ifdef HAVE_XRANDR
+#	include <X11/extensions/Xrandr.h>
+#endif
+
 #ifdef HAVE_XSYNC
 #	include <X11/extensions/sync.h>
 #	include <X11/extensions/syncconst.h>
@@ -324,6 +328,15 @@ puglRealize(PuglView* view)
 	if ((st = view->backend->create(view))) {
 		return st;
 	}
+
+#ifdef HAVE_XRANDR
+	// Set refresh rate hint to the real refresh rate
+	XRRScreenConfiguration* conf         = XRRGetScreenInfo(display, xParent);
+	short                   current_rate = XRRConfigCurrentRate(conf);
+
+	view->hints[PUGL_REFRESH_RATE] = current_rate;
+	XRRFreeScreenConfigInfo(conf);
+#endif
 
 	updateSizeHints(view);
 

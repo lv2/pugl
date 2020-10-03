@@ -358,10 +358,10 @@ enum class ViewHint {
 	swapInterval,        ///< @copydoc PUGL_SWAP_INTERVAL
 	resizable,           ///< @copydoc PUGL_RESIZABLE
 	ignoreKeyRepeat,     ///< @copydoc PUGL_IGNORE_KEY_REPEAT
+	refreshRate,         ///< @copydoc PUGL_REFRESH_RATE
 };
 
-static_assert(ViewHint(PUGL_IGNORE_KEY_REPEAT) == ViewHint::ignoreKeyRepeat,
-              "");
+static_assert(ViewHint(PUGL_REFRESH_RATE) == ViewHint::refreshRate, "");
 
 using ViewHintValue = PuglViewHintValue; ///< @copydoc PuglViewHintValue
 

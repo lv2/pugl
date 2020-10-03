@@ -255,6 +255,8 @@ puglViewHintString(const PuglViewHint hint)
 		return "Resizable";
 	case PUGL_IGNORE_KEY_REPEAT:
 		return "Ignore key repeat";
+	case PUGL_REFRESH_RATE:
+		return "Refresh rate";
 	case PUGL_NUM_VIEW_HINTS:
 		return "Unknown";
 	}

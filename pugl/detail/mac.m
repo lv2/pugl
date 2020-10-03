@@ -880,6 +880,26 @@ puglRealize(PuglView* view)
 		view->hints[PUGL_ALPHA_BITS] = 8;
 	}
 
+	CGDirectDisplayID displayId = CGMainDisplayID();
+	CGDisplayModeRef  mode      = CGDisplayCopyDisplayMode(displayId);
+
+	// Try to get refresh rate from mode (usually fails)
+	view->hints[PUGL_REFRESH_RATE] = (int)CGDisplayModeGetRefreshRate(mode);
+
+	CGDisplayModeRelease(mode);
+	if (view->hints[PUGL_REFRESH_RATE] == 0) {
+		// Get refresh rate from a display link
+		// TODO: Keep and actually use the display link for something?
+		CVDisplayLinkRef link;
+		CVDisplayLinkCreateWithCGDisplay(displayId, &link);
+
+		const CVTime p = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link);
+		const double r = p.timeScale / (double)p.timeValue;
+		view->hints[PUGL_REFRESH_RATE] = (int)lrint(r);
+
+		CVDisplayLinkRelease(link);
+	}
+
 	if (view->frame.width == 0.0 && view->frame.height == 0.0) {
 		if (view->defaultWidth == 0.0 && view->defaultHeight == 0.0) {
 			return PUGL_BAD_CONFIGURATION;

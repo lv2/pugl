@@ -183,7 +183,7 @@ puglRealize(PuglView* view)
 	// Get refresh rate for resize draw timer
 	DEVMODEA devMode = {0};
 	EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &devMode);
-	view->impl->refreshRate = devMode.dmDisplayFrequency;
+	view->hints[PUGL_REFRESH_RATE] = (int)devMode.dmDisplayFrequency;
 
 	// Register window class if necessary
 	if (!puglRegisterWindowClass(view->world->className)) {
@@ -592,7 +592,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		view->impl->resizing = true;
 		SetTimer(view->impl->hwnd,
 		         PUGL_RESIZE_TIMER_ID,
-		         1000 / view->impl->refreshRate,
+		         1000 / (UINT)view->hints[PUGL_REFRESH_RATE],
 		         NULL);
 		break;
 	case WM_TIMER:

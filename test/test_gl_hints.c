@@ -57,6 +57,7 @@ main(void)
 	assert(!puglSetViewHint(view, PUGL_STENCIL_BITS, PUGL_DONT_CARE));
 	assert(!puglSetViewHint(view, PUGL_SAMPLES, PUGL_DONT_CARE));
 	assert(!puglSetViewHint(view, PUGL_DOUBLE_BUFFER, PUGL_DONT_CARE));
+	assert(!puglSetViewHint(view, PUGL_REFRESH_RATE, PUGL_DONT_CARE));
 
 	// Realize view and print all hints for debugging convenience
 	assert(!puglRealize(view));
@@ -78,6 +79,7 @@ main(void)
 	assert(puglGetViewHint(view, PUGL_SWAP_INTERVAL) != PUGL_DONT_CARE);
 	assert(puglGetViewHint(view, PUGL_RESIZABLE) != PUGL_DONT_CARE);
 	assert(puglGetViewHint(view, PUGL_IGNORE_KEY_REPEAT) != PUGL_DONT_CARE);
+	assert(puglGetViewHint(view, PUGL_REFRESH_RATE) != PUGL_DONT_CARE);
 
 	// Tear down
 	puglFreeView(view);
