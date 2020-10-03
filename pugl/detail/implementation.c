@@ -241,6 +241,19 @@ puglGetWorld(PuglView* view)
 PuglStatus
 puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
 {
+	if (value == PUGL_DONT_CARE) {
+		switch (hint) {
+		case PUGL_USE_COMPAT_PROFILE:
+		case PUGL_USE_DEBUG_CONTEXT:
+		case PUGL_CONTEXT_VERSION_MAJOR:
+		case PUGL_CONTEXT_VERSION_MINOR:
+		case PUGL_SWAP_INTERVAL:
+			return PUGL_BAD_PARAMETER;
+		default:
+			break;
+		}
+	}
+
 	if (hint < PUGL_NUM_VIEW_HINTS) {
 		view->hints[hint] = value;
 		return PUGL_SUCCESS;
