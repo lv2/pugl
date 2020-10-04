@@ -72,12 +72,18 @@ def configure(conf):
                 '-Wno-switch-enum',
             ],
             'gcc': [
+                '-Wno-inline',
                 '-Wno-padded',
+                '-Wno-suggest-attribute=const',
+                '-Wno-suggest-attribute=malloc',
+                '-Wno-suggest-attribute=pure',
                 '-Wno-switch-enum',
             ],
             'msvc': [
                 '/wd4061',  # enumerator in switch is not explicitly handled
                 '/wd4514',  # unreferenced inline function has been removed
+                '/wd4710',  # function not inlined
+                '/wd4711',  # function selected for automatic inline expansion
                 '/wd4820',  # padding added after construct
                 '/wd5045',  # will insert Spectre mitigation for memory load
             ],
@@ -108,6 +114,7 @@ def configure(conf):
             ],
             'gcc': [
                 '-Wno-old-style-cast',
+                '-Wno-suggest-final-methods',
             ],
             'msvc': [
                 '/wd4355',  # 'this' used in base member initializer list
@@ -470,7 +477,7 @@ def build(bld):
         autowaf.set_warnings_as_errors(strict_env)
         autowaf.add_compiler_flags(strict_env, '*', {
             'clang': ['-Wno-padded'],
-            'gcc': ['-Wno-padded'],
+            'gcc': ['-Wno-padded', '-Wno-suggest-attribute=const'],
         })
         autowaf.add_compiler_flags(strict_env, 'cxx', {
             'clang': ['-Wno-documentation-unknown-command'],
