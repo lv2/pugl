@@ -108,7 +108,7 @@ puglX11GlConfigure(PuglView* view)
 	view->hints[PUGL_DOUBLE_BUFFER] = puglX11GlGetAttrib(
 	    display, fbc[0], GLX_DOUBLEBUFFER);
 
-	char msg[128];
+	char msg[256];
 
 	snprintf(
 	    msg,
