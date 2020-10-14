@@ -111,6 +111,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 	case PUGL_EXPOSE:
 		onExpose();
 		break;
+	case PUGL_POINTER_OUT:
+		puglSetCursor(view, PUGL_CURSOR_ARROW);
+		break;
 	case PUGL_CLOSE:
 		app->quit = 1;
 		break;
