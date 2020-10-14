@@ -38,6 +38,14 @@ public:
 	    : pugl::View{world}
 	{}
 
+	CubeView(const CubeView&) = delete;
+	CubeView& operator=(const CubeView&) = delete;
+
+	CubeView(CubeView&&) = delete;
+	CubeView& operator=(CubeView&&) = delete;
+
+	~CubeView() override = default;
+
 	pugl::Status onConfigure(const pugl::ConfigureEvent& event) override;
 	pugl::Status onUpdate(const pugl::UpdateEvent& event) override;
 	pugl::Status onExpose(const pugl::ExposeEvent& event) override;

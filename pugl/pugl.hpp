@@ -61,6 +61,12 @@ template<class T, FreeFunc<T> Free>
 class Wrapper
 {
 public:
+	Wrapper(const Wrapper&) = delete;
+	Wrapper& operator=(const Wrapper&) = delete;
+
+	Wrapper(Wrapper&&) = default;
+	Wrapper& operator=(Wrapper&&) = default;
+
 	T*       cobj() { return _ptr.get(); }
 	const T* cobj() const { return _ptr.get(); }
 
@@ -263,6 +269,12 @@ public:
 	    : _world{world}
 	{}
 
+	Clock(const Clock&) = delete;
+	Clock& operator=(const Clock&) = delete;
+
+	Clock(Clock&&) = delete;
+	Clock& operator=(Clock&&) = delete;
+
 	/// Return the current time
 	time_point now() const;
 
@@ -274,6 +286,12 @@ private:
 class World : public detail::Wrapper<PuglWorld, puglFreeWorld>
 {
 public:
+	World(const World&) = delete;
+	World& operator=(const World&) = delete;
+
+	World(World&&) = delete;
+	World& operator=(World&&) = delete;
+
 	explicit World(WorldType type, WorldFlags flags)
 	    : Wrapper{puglNewWorld(static_cast<PuglWorldType>(type), flags)}
 	    , _clock(*this)
