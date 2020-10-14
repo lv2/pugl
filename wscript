@@ -474,9 +474,21 @@ def build(bld):
         autowaf.add_compiler_flags(strict_env, '*', {
             'clang': ['-Wno-padded'],
             'gcc': ['-Wno-padded', '-Wno-suggest-attribute=const'],
+            'msvc': [
+                '/wd4514',  # unreferenced inline function has been removed
+                '/wd4820',  # padding added after construct
+            ],
         })
         autowaf.add_compiler_flags(strict_env, 'cxx', {
             'clang': ['-Wno-documentation-unknown-command'],
+            'msvc': [
+                '/wd4355',  # 'this' used in base member initializer list
+                '/wd4571',  # structured exceptions (SEH) are no longer caught
+                '/wd4625',  # copy constructor implicitly deleted
+                '/wd4626',  # assignment operator implicitly deleted
+                '/wd5026',  # move constructor implicitly deleted
+                '/wd5027',  # move assignment operator implicitly deleted
+            ],
         })
 
         # Check that C headers build with (almost) no warnings
