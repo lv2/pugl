@@ -587,7 +587,7 @@ typedef enum {
 /**
    Return a string describing a status code.
 */
-PUGL_API
+PUGL_API PUGL_CONST_FUNC
 const char*
 puglStrerror(PuglStatus status);
 

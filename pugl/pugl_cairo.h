@@ -38,7 +38,7 @@ PUGL_BEGIN_DECLS
 
    Pass the return value to puglInitBackend() to draw to a view with Cairo.
 */
-PUGL_API const PuglBackend*
+PUGL_API PUGL_CONST_FUNC const PuglBackend*
 puglCairoBackend(void);
 
 /**
