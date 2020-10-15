@@ -109,10 +109,10 @@ typedef struct {
    Keyboard modifier flags.
 */
 typedef enum {
-	PUGL_MOD_SHIFT = 1,      ///< Shift key
-	PUGL_MOD_CTRL  = 1 << 1, ///< Control key
-	PUGL_MOD_ALT   = 1 << 2, ///< Alt/Option key
-	PUGL_MOD_SUPER = 1 << 3  ///< Mod4/Command/Windows key
+	PUGL_MOD_SHIFT = 1u << 0u, ///< Shift key
+	PUGL_MOD_CTRL  = 1u << 1u, ///< Control key
+	PUGL_MOD_ALT   = 1u << 2u, ///< Alt/Option key
+	PUGL_MOD_SUPER = 1u << 3u  ///< Mod4/Command/Windows key
 } PuglMod;
 
 /**
@@ -637,7 +637,7 @@ typedef enum {
 
 	   - X11: Calls XInitThreads() which is required for some drivers.
 	*/
-	PUGL_WORLD_THREADS = 1 << 0
+	PUGL_WORLD_THREADS = 1u << 0u
 } PuglWorldFlag;
 
 /**
