@@ -208,7 +208,8 @@ def configure(conf):
 
     conf.env.update({
         'BUILD_SHARED': not Options.options.no_shared,
-        'BUILD_STATIC': conf.env.BUILD_TESTS or not Options.options.no_static})
+        'BUILD_STATIC': conf.env.BUILD_TESTS or not Options.options.no_static,
+        'BUILD_STRICT_HEADER_TEST': Options.options.strict})
 
     if conf.env.TARGET_PLATFORM == 'win32':
         conf.env.PUGL_PLATFORM = 'win'
@@ -466,44 +467,45 @@ def build(bld):
                                 'pugl_%s_gl_static' % platform],
                 uselib       = deps[platform]['uselib'] + ['CAIRO'])
 
-        # Make a hyper strict warning environment for checking API headers
-        strict_env = bld.env.derive()
-        autowaf.remove_all_warning_flags(strict_env)
-        autowaf.enable_all_warnings(strict_env)
-        autowaf.set_warnings_as_errors(strict_env)
-        autowaf.add_compiler_flags(strict_env, '*', {
-            'clang': ['-Wno-padded'],
-            'gcc': ['-Wno-padded', '-Wno-suggest-attribute=const'],
-            'msvc': [
-                '/wd4514',  # unreferenced inline function has been removed
-                '/wd4820',  # padding added after construct
-            ],
-        })
-        autowaf.add_compiler_flags(strict_env, 'cxx', {
-            'clang': ['-Wno-documentation-unknown-command'],
-            'msvc': [
-                '/wd4355',  # 'this' used in base member initializer list
-                '/wd4571',  # structured exceptions (SEH) are no longer caught
-            ],
-        })
+        if bld.env.BUILD_STRICT_HEADER_TEST:
+            # Make a hyper strict warning environment for checking API headers
+            strict_env = bld.env.derive()
+            autowaf.remove_all_warning_flags(strict_env)
+            autowaf.enable_all_warnings(strict_env)
+            autowaf.set_warnings_as_errors(strict_env)
+            autowaf.add_compiler_flags(strict_env, '*', {
+                'clang': ['-Wno-padded'],
+                'gcc': ['-Wno-padded', '-Wno-suggest-attribute=const'],
+                'msvc': [
+                    '/wd4514',  # unreferenced inline function has been removed
+                    '/wd4820',  # padding added after construct
+                ],
+            })
+            autowaf.add_compiler_flags(strict_env, 'cxx', {
+                'clang': ['-Wno-documentation-unknown-command'],
+                'msvc': [
+                    '/wd4355',  # 'this' used in base member initializer list
+                    '/wd4571',  # structured exceptions (SEH) are no longer caught
+                ],
+            })
 
-        # Check that C headers build with (almost) no warnings
-        bld(features     = 'c cprogram',
-            source       = 'test/test_build.c',
-            target       = 'test/test_build_c',
-            install_path = '',
-            env          = strict_env,
-            use          = ['pugl_%s_static' % platform],
-            uselib       = deps[platform]['uselib'] + ['CAIRO'])
+            # Check that C headers build with (almost) no warnings
+            bld(features     = 'c cprogram',
+                source       = 'test/test_build.c',
+                target       = 'test/test_build_c',
+                install_path = '',
+                env          = strict_env,
+                use          = ['pugl_%s_static' % platform],
+                uselib       = deps[platform]['uselib'] + ['CAIRO'])
 
-        # Check that C++ headers build with (almost) no warnings
-        bld(features     = 'cxx cxxprogram',
-            source       = 'test/test_build.cpp',
-            target       = 'test/test_build_cpp',
-            install_path = '',
-            env          = strict_env,
-            use          = ['pugl_%s_static' % platform],
-            uselib       = deps[platform]['uselib'] + ['CAIRO'])
+            # Check that C++ headers build with (almost) no warnings
+            bld(features     = 'cxx cxxprogram',
+                source       = 'test/test_build.cpp',
+                target       = 'test/test_build_cpp',
+                install_path = '',
+                env          = strict_env,
+                use          = ['pugl_%s_static' % platform],
+                uselib       = deps[platform]['uselib'] + ['CAIRO'])
 
         if bld.env.CXX and bld.env.HAVE_GL:
             build_example('pugl_cxx_demo', ['examples/pugl_cxx_demo.cpp'],
