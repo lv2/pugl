@@ -63,8 +63,9 @@ main(void)
 	puglSetHandle(app.view, &app);
 	puglSetEventFunc(app.view, onEvent);
 
-	if (puglRealize(app.view)) {
-		return logError("Failed to create window\n");
+	PuglStatus st = puglRealize(app.view);
+	if (st) {
+		return logError("Failed to create window (%s)\n", puglStrerror(st));
 	}
 
 	puglShowWindow(app.view);
