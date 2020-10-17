@@ -485,7 +485,7 @@ def build(bld):
                 'clang': ['-Wno-documentation-unknown-command'],
                 'msvc': [
                     '/wd4355',  # 'this' used in base member initializer list
-                    '/wd4571',  # structured exceptions (SEH) are no longer caught
+                    '/wd4571',  # structured exceptions are no longer caught
                 ],
             })
 
