@@ -23,10 +23,9 @@
 #include "demo_utils.h"
 #include "test/test_utils.h"
 
-#include "pugl/gl.h"
 #include "pugl/pugl.h"
 #include "pugl/pugl.hpp"
-#include "pugl/pugl.ipp"
+#include "pugl/pugl.ipp" // IWYU pragma: keep
 #include "pugl/pugl_gl.hpp"
 
 #include <cmath>

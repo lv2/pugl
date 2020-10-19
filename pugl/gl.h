@@ -22,6 +22,8 @@
    pure portable programs.
 */
 
+// IWYU pragma: begin_exports
+
 #ifdef __APPLE__
 #    include "OpenGL/gl.h"
 #else
@@ -30,3 +32,5 @@
 #    endif
 #    include "GL/gl.h"
 #endif
+
+// IWYU pragma: end_exports
