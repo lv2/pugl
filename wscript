@@ -267,8 +267,16 @@ def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
 
 
 gl_tests = ['gl_hints']
-basic_tests = ['stub_hints', 'redisplay', 'show_hide', 'update', 'timer']
-tests = ['gl_hints', 'stub_hints', 'redisplay', 'show_hide', 'update', 'timer']
+
+basic_tests = [
+    'redisplay',
+    'show_hide',
+    'stub_hints',
+    'timer',
+    'update',
+]
+
+tests = gl_tests + basic_tests
 
 
 def build(bld):
