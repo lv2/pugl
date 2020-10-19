@@ -278,7 +278,11 @@ puglDefineCursorShape(PuglView* view, unsigned shape)
 PuglStatus
 puglRealize(PuglView* view)
 {
-	PuglInternals* const impl    = view->impl;
+	PuglInternals* const impl = view->impl;
+	if (impl->win) {
+		return PUGL_FAILURE;
+	}
+
 	PuglWorld* const     world   = view->world;
 	PuglX11Atoms* const  atoms   = &view->world->impl->atoms;
 	Display* const       display = world->impl->display;

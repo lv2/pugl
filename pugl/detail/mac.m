@@ -868,7 +868,11 @@ puglConstraint(id item, NSLayoutAttribute attribute, float constant)
 PuglStatus
 puglRealize(PuglView* view)
 {
-	PuglInternals*        impl        = view->impl;
+	PuglInternals* impl = view->impl;
+	if (impl->wrapperView) {
+		return PUGL_FAILURE;
+	}
+
 	const NSScreen* const screen      = [NSScreen mainScreen];
 	const double          scaleFactor = [screen backingScaleFactor];
 

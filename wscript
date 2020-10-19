@@ -269,6 +269,7 @@ def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
 gl_tests = ['gl_hints']
 
 basic_tests = [
+    'realize',
     'redisplay',
     'show_hide',
     'stub_hints',

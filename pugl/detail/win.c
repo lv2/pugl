@@ -165,6 +165,9 @@ PuglStatus
 puglRealize(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
+	if (impl->hwnd) {
+		return PUGL_FAILURE;
+	}
 
 	// Getting depth from the display mode seems tedious, just set usual values
 	if (view->hints[PUGL_RED_BITS] == PUGL_DONT_CARE) {
