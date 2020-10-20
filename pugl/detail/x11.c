@@ -1190,15 +1190,18 @@ puglSetWindowTitle(PuglView* view, const char* title)
 PuglStatus
 puglSetFrame(PuglView* view, const PuglRect frame)
 {
-	view->frame = frame;
-
-	if (view->impl->win &&
-	    !XMoveResizeWindow(view->world->impl->display, view->impl->win,
-	                       (int)frame.x, (int)frame.y,
-	                       (unsigned)frame.width, (unsigned)frame.height)) {
-		return PUGL_UNKNOWN_ERROR;
+	if (view->impl->win) {
+		if (!XMoveResizeWindow(view->world->impl->display,
+		                       view->impl->win,
+		                       (int)frame.x,
+		                       (int)frame.y,
+		                       (unsigned)frame.width,
+		                       (unsigned)frame.height)) {
+			return PUGL_UNKNOWN_ERROR;
+		}
 	}
 
+	view->frame = frame;
 	return PUGL_SUCCESS;
 }
 

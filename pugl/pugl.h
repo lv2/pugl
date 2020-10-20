@@ -969,6 +969,9 @@ puglGetFrame(const PuglView* view);
    Set the current position and size of the view.
 
    The position is in screen coordinates with an upper left origin.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
+   unchanged.
 */
 PUGL_API PuglStatus
 puglSetFrame(PuglView* view, PuglRect frame);
