@@ -768,7 +768,9 @@ puglGetTime(const PuglWorld* world);
    of the ideal frame period should be used, to minimise input latency by
    ensuring that as many input events are consumed as possible before drawing.
 
-   @return #PUGL_SUCCESS if events are read, #PUGL_FAILURE if not, or an error.
+   @return
+   - #PUGL_SUCCESS if events are read
+   - #PUGL_FAILURE if not, or an error.
 */
 PUGL_API PuglStatus
 puglUpdate(PuglWorld* world, double timeout);
@@ -982,6 +984,9 @@ puglSetFrame(PuglView* view, PuglRect frame);
    This should be called before puglResize() to set the default size of the
    view, which will be the initial size of the window if this is a top level
    view.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
+   not yet realized.
 */
 PUGL_API PuglStatus
 puglSetDefaultSize(PuglView* view, int width, int height);
@@ -991,6 +996,9 @@ puglSetDefaultSize(PuglView* view, int width, int height);
 
    If an initial minimum size is known, this should be called before
    puglRealize() to avoid stutter, though it can be called afterwards as well.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
+   not yet realized.
 */
 PUGL_API PuglStatus
 puglSetMinSize(PuglView* view, int width, int height);
@@ -1000,6 +1008,9 @@ puglSetMinSize(PuglView* view, int width, int height);
 
    If an initial maximum size is known, this should be called before
    puglRealize() to avoid stutter, though it can be called afterwards as well.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
+   not yet realized.
 */
 PUGL_API PuglStatus
 puglSetMaxSize(PuglView* view, int width, int height);
@@ -1016,6 +1027,9 @@ puglSetMaxSize(PuglView* view, int width, int height);
 
    If an initial aspect ratio is known, this should be called before
    puglRealize() to avoid stutter, though it can be called afterwards as well.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
+   not yet realized.
 */
 PUGL_API PuglStatus
 puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
@@ -1116,9 +1130,10 @@ puglGetNativeWindow(PuglView* view);
    API requires one.  It is only available during an expose.
 
    @return
-   - OpenGL: `NULL`.
    - Cairo: A pointer to a
      [`cairo_t`](http://www.cairographics.org/manual/cairo-cairo-t.html).
+   - OpenGL: `NULL`.
+   - Stub: `NULL`.
 */
 PUGL_API void*
 puglGetContext(PuglView* view);
@@ -1206,7 +1221,7 @@ puglSetClipboard(PuglView*   view,
    @param view The view.
    @param[out] type Set to the MIME type of the data.
    @param[out] len Set to the length of the data in bytes.
-   @return The clipboard contents.
+   @return The clipboard contents, or `NULL`.
 */
 PUGL_API const void*
 puglGetClipboard(PuglView* view, const char** type, size_t* len);
@@ -1217,7 +1232,11 @@ puglGetClipboard(PuglView* view, const char** type, size_t* len);
    This changes the system cursor that is displayed when the pointer is inside
    the view.  May fail if setting the cursor is not supported on this system,
    for example if compiled on X11 without Xcursor support.
- */
+
+   @return
+   - #PUGL_BAD_PARAMETER if the given cursor is invalid.
+   - #PUGL_FAILURE if the cursor isknown but loading it from the system fails.
+*/
 PUGL_API PuglStatus
 puglSetCursor(PuglView* view, PuglCursor cursor);
 
@@ -1254,8 +1273,9 @@ puglRequestAttention(PuglView* view);
    resolution on Windows) and may be rounded up if it is too short.  On X11 and
    MacOS, a resolution of about 1ms can usually be relied on.
 
-   @return #PUGL_SUCCESS, #PUGL_FAILURE if timers are not supported on this
-   system, or an error code.
+   @return
+   - #PUGL_FAILURE if timers are not supported by this system or build.
+   - #PUGL_UNKNOWN_ERROR if setting the timer failed.
 */
 PUGL_API PuglStatus
 puglStartTimer(PuglView* view, uintptr_t id, double timeout);
@@ -1265,7 +1285,10 @@ puglStartTimer(PuglView* view, uintptr_t id, double timeout);
 
    @param view The view that the timer is set for.
    @param id The ID previously passed to puglStartTimer().
-   @return #PUGL_SUCCESS, or #PUGL_FAILURE if no such timer was found.
+
+   @return
+   - #PUGL_FAILURE if timers are not supported by this system or build.
+   - #PUGL_UNKNOWN_ERROR if stopping the timer failed.
 */
 PUGL_API PuglStatus
 puglStopTimer(PuglView* view, uintptr_t id);

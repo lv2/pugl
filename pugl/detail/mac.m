@@ -1013,7 +1013,7 @@ puglRealize(PuglView* view)
 
 	puglDispatchSimpleEvent(view, PUGL_CREATE);
 
-	return 0;
+	return PUGL_SUCCESS;
 }
 
 PuglStatus
