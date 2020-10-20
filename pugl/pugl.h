@@ -1275,8 +1275,17 @@ puglStopTimer(PuglView* view, uintptr_t id);
 
    If supported, the event will be delivered to the view via the event loop
    like other events.  Note that this function only works for certain event
-   types, and will return PUGL_UNSUPPORTED_TYPE for events that are not
-   supported.
+   types.
+
+   Currently, only #PUGL_CLIENT events are supported on all platforms.
+
+   X11: A #PUGL_EXPOSE event can be sent, which is similar to calling
+   puglPostRedisplayRect(), but will always send a message to the X server,
+   even when called in an event handler.
+
+   @return
+   - #PUGL_UNSUPPORTED_TYPE if sending events of this type is not supported.
+   - #PUGL_UNKNOWN_ERROR if sending the event failed.
 */
 PUGL_API PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event);

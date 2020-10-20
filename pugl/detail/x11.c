@@ -859,6 +859,8 @@ puglSendEvent(PuglView* view, const PuglEvent* event)
 	if (xev.type) {
 		if (XSendEvent(view->impl->display, view->impl->win, False, 0, &xev)) {
 			return PUGL_SUCCESS;
+		} else {
+			return PUGL_UNKNOWN_ERROR;
 		}
 	}
 
