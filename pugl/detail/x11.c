@@ -26,10 +26,8 @@
 #include "pugl/detail/x11.h"
 
 #include "pugl/detail/implementation.h"
-#include "pugl/detail/stub.h"
 #include "pugl/detail/types.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_stub.h"
 
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -1342,19 +1340,4 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
 	(void)cursor;
 	return PUGL_FAILURE;
 #endif
-}
-
-const PuglBackend*
-puglStubBackend(void)
-{
-	static const PuglBackend backend = {
-	    puglX11StubConfigure,
-	    puglStubCreate,
-	    puglStubDestroy,
-	    puglStubEnter,
-	    puglStubLeave,
-	    puglStubGetContext,
-	};
-
-	return &backend;
 }

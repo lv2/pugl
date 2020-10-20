@@ -350,6 +350,10 @@ def build(bld):
                        uselib=['GDI32', 'USER32'],
                        source=lib_source + ['pugl/detail/win.c'])
 
+        build_backend('win', 'stub',
+                      uselib=['GDI32', 'USER32'],
+                      source=['pugl/detail/win_stub.c'])
+
         if bld.env.HAVE_GL:
             build_backend('win', 'gl',
                           uselib=['GDI32', 'USER32', 'GL'],
@@ -386,6 +390,10 @@ def build(bld):
                        uselib=['M', 'X11', 'XSYNC', 'XCURSOR', 'XRANDR'],
                        source=lib_source + ['pugl/detail/x11.c'])
 
+        build_backend('x11', 'stub',
+                      uselib=['X11'],
+                      source=['pugl/detail/x11_stub.c'])
+
         if bld.env.HAVE_GL:
             glx_lib = 'GLX' if bld.env.LIB_GLX else 'GL'
             build_backend('x11', 'gl',
@@ -395,7 +403,8 @@ def build(bld):
         if bld.env.HAVE_CAIRO:
             build_backend('x11', 'cairo',
                           uselib=['CAIRO', 'X11'],
-                          source=['pugl/detail/x11_cairo.c'])
+                          source=['pugl/detail/x11_cairo.c',
+                                  'pugl/detail/x11_stub.c'])
 
     def build_example(prog, source, platform, backend, **kwargs):
         lang = 'cxx' if source[0].endswith('.cpp') else 'c'

@@ -1117,28 +1117,6 @@ puglSetClipboard(PuglView* const   view,
 	return PUGL_SUCCESS;
 }
 
-static PuglStatus
-puglWinStubEnter(PuglView* view, const PuglEventExpose* expose)
-{
-	if (expose) {
-		PAINTSTRUCT ps;
-		BeginPaint(view->impl->hwnd, &ps);
-	}
-
-	return PUGL_SUCCESS;
-}
-
-static PuglStatus
-puglWinStubLeave(PuglView* view, const PuglEventExpose* expose)
-{
-	if (expose) {
-		PAINTSTRUCT ps;
-		EndPaint(view->impl->hwnd, &ps);
-	}
-
-	return PUGL_SUCCESS;
-}
-
 static const char* const cursor_ids[] = {
     IDC_ARROW,  // ARROW
     IDC_IBEAM,  // CARET
@@ -1171,17 +1149,4 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
 	}
 
 	return PUGL_SUCCESS;
-}
-
-const PuglBackend*
-puglStubBackend(void)
-{
-	static const PuglBackend backend = {puglWinStubConfigure,
-	                                    puglStubCreate,
-	                                    puglStubDestroy,
-	                                    puglWinStubEnter,
-	                                    puglWinStubLeave,
-	                                    puglStubGetContext};
-
-	return &backend;
 }
