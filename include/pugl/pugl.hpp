@@ -64,14 +64,14 @@ public:
 	Wrapper(const Wrapper&) = delete;
 	Wrapper& operator=(const Wrapper&) = delete;
 
-	Wrapper(Wrapper&&) = default;
-	Wrapper& operator=(Wrapper&&) = default;
+	Wrapper(Wrapper&&) noexcept = default;
+	Wrapper& operator=(Wrapper&&) noexcept = default;
 
-	T*       cobj() { return _ptr.get(); }
-	const T* cobj() const { return _ptr.get(); }
+	T*       cobj() noexcept { return _ptr.get(); }
+	const T* cobj() const noexcept { return _ptr.get(); }
 
 protected:
-	explicit Wrapper(T* ptr)
+	explicit Wrapper(T* ptr) noexcept
 	    : _ptr(ptr, Deleter<T, Free>{})
 	{}
 
@@ -202,7 +202,7 @@ static_assert(Status(PUGL_UNSUPPORTED_TYPE) == Status::unsupportedType, "");
 
 /// @copydoc puglStrerror
 static inline const char*
-strerror(const pugl::Status status)
+strerror(const pugl::Status status) noexcept
 {
 	return puglStrerror(static_cast<PuglStatus>(status));
 }
