@@ -1,0 +1,10 @@
+Checks: >
+  *,
+  -*-magic-numbers,
+  -*-uppercase-literal-suffix,
+  -hicpp-multiway-paths-covered,
+  -hicpp-signed-bitwise,
+  -llvm-header-guard,
+  -modernize-use-trailing-return-type,
+FormatStyle: file
+HeaderFilterRegex: 'pugl/.*|test/.*'

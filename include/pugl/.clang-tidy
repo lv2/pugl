@@ -1,0 +1,5 @@
+Checks: >
+  *,
+  -*-uppercase-literal-suffix,
+FormatStyle: file
+HeaderFilterRegex: 'pugl/.*'

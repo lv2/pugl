@@ -1,0 +1,12 @@
+Checks: >
+  *,
+  -*-uppercase-literal-suffix,
+  -*magic-numbers,
+  -bugprone-suspicious-string-compare,
+  -cert-flp30-c,
+  -clang-analyzer-security.FloatLoopCounter,
+  -hicpp-multiway-paths-covered,
+  -hicpp-signed-bitwise,
+  -readability-else-after-return,
+FormatStyle: file
+HeaderFilterRegex: 'pugl/.*'
