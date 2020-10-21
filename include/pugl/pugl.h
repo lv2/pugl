@@ -1611,7 +1611,7 @@ puglEnterContext(PuglView* view, bool drawing);
 PUGL_API PUGL_DEPRECATED_BY("PUGL_DESTROY") PuglStatus
 puglLeaveContext(PuglView* view, bool drawing);
 
-#endif  /* PUGL_DISABLE_DEPRECATED */
+#endif // PUGL_DISABLE_DEPRECATED
 
 /**
    @}
@@ -1621,4 +1621,4 @@ puglLeaveContext(PuglView* view, bool drawing);
 
 PUGL_END_DECLS
 
-#endif  /* PUGL_PUGL_H */
+#endif // PUGL_PUGL_H

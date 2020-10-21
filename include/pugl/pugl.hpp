@@ -723,4 +723,4 @@ private:
    @}
 */
 
-#endif /* PUGL_PUGL_HPP */
+#endif // PUGL_PUGL_HPP
