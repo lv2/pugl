@@ -47,7 +47,7 @@ puglGetProcAddress(const char* name);
 /**
    OpenGL graphics backend.
 
-   Pass the return value to puglSetBackend() to draw to a view with OpenGL.
+   Pass the returned value to puglSetBackend() to draw to a view with OpenGL.
 */
 PUGL_API PUGL_CONST_FUNC const PuglBackend*
 puglGlBackend(void);

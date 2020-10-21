@@ -28,21 +28,13 @@ PUGL_BEGIN_DECLS
 
 /**
    @defgroup stub Stub
-
-   Stub graphics backend.
-
-   The stub backend functions do nothing and always
-   return success.  These do not make for a usable backend on their own since
-   the platform implementation would fail to create a window, but are useful
-   for other backends to reuse since not all need non-trivial implementations
-   of every backend function.
-
+   Native graphics support.
    @ingroup pugl_c
    @{
 */
 
 /**
-   Stub graphics backend.
+   Stub graphics backend accessor.
 
    This backend just creates a simple native window without setting up any
    portable graphics API.

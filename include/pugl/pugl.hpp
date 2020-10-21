@@ -32,17 +32,17 @@
 #include <type_traits>
 
 /**
+   Pugl C++ API namespace.
+*/
+namespace pugl {
+
+/**
    @defgroup pugl_cxx C++ API
    C++ API wrapper.
 
    @ingroup pugl
    @{
 */
-
-/**
-   Pugl C++ API namespace.
-*/
-namespace pugl {
 
 namespace detail {
 
@@ -84,9 +84,7 @@ private:
 using Rect = PuglRect; ///< @copydoc PuglRect
 
 /**
-   @defgroup eventsxx Events
-   @ingroup pugl_cxx
-   @copydoc events
+   @name Events
    @{
 */
 
@@ -180,9 +178,7 @@ using TimerEvent = Event<PUGL_TIMER, PuglEventTimer>;
 
 /**
    @}
-   @defgroup statusxx Status
-   @ingroup pugl_cxx
-   @copydoc status
+   @name Status
    @{
 */
 
@@ -213,9 +209,7 @@ strerror(const pugl::Status status)
 
 /**
    @}
-   @defgroup worldxx World
-   @ingroup pugl_cxx
-   @copydoc world
+   @name World
    @{
 */
 
@@ -350,9 +344,7 @@ Clock::now() const
 
 /**
    @}
-   @defgroup viewxx View
-   @ingroup pugl_cxx
-   @copydoc view
+   @name View
    @{
 */
 
@@ -715,12 +707,9 @@ private:
 
 /**
    @}
+   @}
 */
 
 } // namespace pugl
-
-/**
-   @}
-*/
 
 #endif // PUGL_PUGL_HPP

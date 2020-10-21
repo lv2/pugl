@@ -93,14 +93,12 @@ typedef struct {
 } PuglRect;
 
 /**
-   @defgroup events Events
-
-   Event definitions.
+   @name Events
 
    All updates to the view happen via events, which are dispatched to the
-   view's event function by Pugl.  Most events map directly to one from the
-   underlying window system, but some are constructed by Pugl itself so there
-   is not necessarily a direct correspondence.
+   view's event function.  Most events map directly to one from the underlying
+   window system, but some are constructed by Pugl itself so there is not
+   necessarily a direct correspondence.
 
    @{
 */
@@ -559,9 +557,9 @@ typedef union {
 
 /**
    @}
-   @defgroup status Status
+   @name Status
 
-   Status codes and error handling.
+   Most functions return a status code which can be used to check for errors.
 
    @{
 */
@@ -593,7 +591,7 @@ puglStrerror(PuglStatus status);
 
 /**
    @}
-   @defgroup world World
+   @name World
 
    The top-level context of a Pugl application or plugin.
 
@@ -777,8 +775,7 @@ puglUpdate(PuglWorld* world, double timeout);
 
 /**
    @}
-
-   @defgroup view View
+   @name View
 
    A drawable region that receives events.
 
