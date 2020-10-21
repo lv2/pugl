@@ -197,10 +197,9 @@ puglRealize(PuglView* view)
 		return PUGL_BAD_BACKEND;
 	}
 
-	PuglStatus st;
-	if ((st = view->backend->configure(view))) {
-		return st;
-	} else if ((st = view->backend->create(view))) {
+	PuglStatus st = PUGL_SUCCESS;
+	if ((st = view->backend->configure(view)) ||
+	    (st = view->backend->create(view))) {
 		return st;
 	}
 
@@ -418,9 +417,9 @@ initKeyEvent(PuglEventKey* event,
 	const PuglKey special = keySymToSpecial(vkey);
 	if (special) {
 		if (ext && (special == PUGL_KEY_CTRL || special == PUGL_KEY_ALT)) {
-			event->key = special + 1u; // Right hand key
+			event->key = (uint32_t)special + 1u; // Right hand key
 		} else {
-			event->key = special;
+			event->key = (uint32_t)special;
 		}
 	} else if (!dead) {
 		// Translate unshifted key
@@ -511,33 +510,33 @@ constrainAspect(const PuglView* const view,
 {
 	const float minA = (float)view->minAspectX / (float)view->minAspectY;
 	const float maxA = (float)view->maxAspectX / (float)view->maxAspectY;
-	const int   w    = size->right - size->left;
-	const int   h    = size->bottom - size->top;
-	const float a    = (float)w / (float)h;
+	const float w    = (float)(size->right - size->left);
+	const float h    = (float)(size->bottom - size->top);
+	const float a    = w / h;
 
 	switch (wParam) {
 	case WMSZ_TOP:
-		size->top = (a < minA ? (LONG)(size->bottom - w * minA) :
-		             a > maxA ? (LONG)(size->bottom - w * maxA) :
+		size->top = (a < minA ? (LONG)((float)size->bottom - w * minA) :
+		             a > maxA ? (LONG)((float)size->bottom - w * maxA) :
 		             size->top);
 		break;
 	case WMSZ_TOPRIGHT:
 	case WMSZ_RIGHT:
 	case WMSZ_BOTTOMRIGHT:
-		size->right = (a < minA ? (LONG)(size->left + h * minA) :
-		               a > maxA ? (LONG)(size->left + h * maxA) :
+		size->right = (a < minA ? (LONG)((float)size->left + h * minA) :
+		               a > maxA ? (LONG)((float)size->left + h * maxA) :
 		               size->right);
 		break;
 	case WMSZ_BOTTOM:
-		size->bottom = (a < minA ? (LONG)(size->top + w * minA) :
-		                a > maxA ? (LONG)(size->top + w * maxA) :
+		size->bottom = (a < minA ? (LONG)((float)size->top + w * minA) :
+		                a > maxA ? (LONG)((float)size->top + w * maxA) :
 		                size->bottom);
 		break;
 	case WMSZ_BOTTOMLEFT:
 	case WMSZ_LEFT:
 	case WMSZ_TOPLEFT:
-		size->left = (a < minA ? (LONG)(size->right - h * minA) :
-		              a > maxA ? (LONG)(size->right - h * maxA) :
+		size->left = (a < minA ? (LONG)((float)size->right - h * minA) :
+		              a > maxA ? (LONG)((float)size->right - h * maxA) :
 		              size->left);
 		break;
 	}
@@ -546,15 +545,12 @@ constrainAspect(const PuglView* const view,
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	PuglEvent   event;
+	PuglEvent   event     = {{PUGL_NOTHING, 0}};
+	RECT        rect      = {0, 0, 0, 0};
+	POINT       pt        = {0, 0};
+	MINMAXINFO* mmi       = NULL;
 	void*       dummy_ptr = NULL;
-	RECT        rect;
-	MINMAXINFO* mmi;
-	POINT       pt;
 
-	memset(&event, 0, sizeof(event));
-
-	event.any.type = PUGL_NOTHING;
 	if (InSendMessageEx(dummy_ptr)) {
 		event.any.flags |= PUGL_IS_SEND_EVENT;
 	}
@@ -686,14 +682,14 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_MOUSEWHEEL:
 		initScrollEvent(&event, view, lParam);
-		event.scroll.dy = GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		event.scroll.dy = GET_WHEEL_DELTA_WPARAM(wParam) / (double)WHEEL_DELTA;
 		event.scroll.direction = (event.scroll.dy > 0
 		                          ? PUGL_SCROLL_UP
 		                          : PUGL_SCROLL_DOWN);
 		break;
 	case WM_MOUSEHWHEEL:
 		initScrollEvent(&event, view, lParam);
-		event.scroll.dx = GET_WHEEL_DELTA_WPARAM(wParam) / (float)WHEEL_DELTA;
+		event.scroll.dx = GET_WHEEL_DELTA_WPARAM(wParam) / (double)WHEEL_DELTA;
 		event.scroll.direction = (event.scroll.dx > 0
 		                          ? PUGL_SCROLL_RIGHT
 		                          : PUGL_SCROLL_LEFT);
@@ -1094,7 +1090,8 @@ puglSetClipboard(PuglView* const   view,
 	// Measure string and allocate global memory for clipboard
 	const char* str  = (const char*)data;
 	const int   wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
-	HGLOBAL     mem  = GlobalAlloc(GMEM_MOVEABLE, (wlen + 1) * sizeof(wchar_t));
+	HGLOBAL     mem  = GlobalAlloc(GMEM_MOVEABLE,
+	                               (size_t)(wlen + 1) * sizeof(wchar_t));
 	if (!mem) {
 		CloseClipboard();
 		return PUGL_UNKNOWN_ERROR;

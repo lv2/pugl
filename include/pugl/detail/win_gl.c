@@ -160,9 +160,7 @@ puglWinGlConfigure(PuglView* view)
 	// Set pixel format for fake window
 	const PuglWinPFD fakePfd  = puglWinGetPixelFormatDescriptor(view->hints);
 	const int        fakePfId = ChoosePixelFormat(fakeWin.hdc, &fakePfd);
-	if (!fakePfId) {
-		return puglWinError(&fakeWin, PUGL_SET_FORMAT_FAILED);
-	} else if (!SetPixelFormat(fakeWin.hdc, fakePfId, &fakePfd)) {
+	if (!fakePfId || !SetPixelFormat(fakeWin.hdc, fakePfId, &fakePfd)) {
 		return puglWinError(&fakeWin, PUGL_SET_FORMAT_FAILED);
 	}
 

@@ -96,11 +96,10 @@ puglWinCairoOpen(PuglView* view)
 	PuglInternals* const       impl    = view->impl;
 	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
-	cairo_status_t st = CAIRO_STATUS_SUCCESS;
 	if (!(surface->surface = cairo_win32_surface_create(surface->drawDc)) ||
-	    (st = cairo_surface_status(surface->surface)) ||
+	    cairo_surface_status(surface->surface) ||
 	    !(surface->cr = cairo_create(surface->surface)) ||
-	    (st = cairo_status(surface->cr))) {
+	    cairo_status(surface->cr)) {
 		return PUGL_CREATE_CONTEXT_FAILED;
 	}
 

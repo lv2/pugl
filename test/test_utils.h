@@ -52,7 +52,7 @@ logError(const char* fmt, ...)
 {
 	fprintf(stderr, "error: ");
 
-	va_list args;
+	va_list args; // NOLINT
 	va_start(args, fmt);
 	vfprintf(stderr, fmt, args);
 	va_end(args);
