@@ -32,6 +32,7 @@ def options(ctx):
         opts,
         {'all-headers': 'install complete header implementation',
          'no-gl':       'do not build OpenGL support',
+         'no-cxx':      'do not build C++ examples',
          'no-cairo':    'do not build Cairo support',
          'no-static':   'do not build static library',
          'no-shared':   'do not build shared library'})
@@ -42,10 +43,11 @@ def options(ctx):
 
 def configure(conf):
     conf.load('compiler_c', cache=True)
-    try:
-        conf.load('compiler_cxx', cache=True)
-    except Exception:
-        pass
+    if not Options.options.no_cxx:
+        try:
+            conf.load('compiler_cxx', cache=True)
+        except Exception:
+            pass
 
     conf.load('autowaf', cache=True)
     autowaf.set_c_lang(conf, 'c99')
