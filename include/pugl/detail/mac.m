@@ -22,8 +22,9 @@
 
 #define GL_SILENCE_DEPRECATION 1
 
-#include "pugl/detail/implementation.h"
 #include "pugl/detail/mac.h"
+
+#include "pugl/detail/implementation.h"
 #include "pugl/pugl.h"
 
 #import <Cocoa/Cocoa.h>
