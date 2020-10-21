@@ -581,8 +581,12 @@ def lint(ctx):
     if "IWYU_TOOL" in ctx.env:
         Logs.info("Running include-what-you-use")
         cmd = [ctx.env.IWYU_TOOL[0], "-o", "clang", "-p", "build", "--",
-               "-Xiwyu", "--check_also=*.hpp",
-               "-Xiwyu", "--check_also=*.ipp"]
+               "-Xiwyu", "--check_also=pugl/*.h",
+               "-Xiwyu", "--check_also=pugl/*.hpp",
+               "-Xiwyu", "--check_also=pugl/*.ipp",
+               "-Xiwyu", "--check_also=pugl/detail/*.c",
+               "-Xiwyu", "--check_also=pugl/detail/*.h",
+               "-Xiwyu", "--check_also=pugl/detail/*.m"]
         output = subprocess.check_output(cmd).decode('utf-8')
         if 'error: ' in output:
             sys.stdout.write(output)
