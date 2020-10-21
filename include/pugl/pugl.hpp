@@ -570,6 +570,18 @@ public:
 		return static_cast<Status>(puglRequestAttention(cobj()));
 	}
 
+	/// @copydoc puglStartTimer
+	Status startTimer(const uintptr_t id, const double timeout)
+	{
+		return static_cast<Status>(puglStartTimer(cobj(), id, timeout));
+	}
+
+	/// @copydoc puglStopTimer
+	Status stopTimer(const uintptr_t id)
+	{
+		return static_cast<Status>(puglStopTimer(cobj(), id));
+	}
+
 	/**
 	   @}
 	   @name Event Handlers
