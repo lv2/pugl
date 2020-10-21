@@ -625,7 +625,9 @@ private:
 		return event;
 	}
 
-	static PuglStatus dispatchEvent(PuglView* view, const PuglEvent* event) noexcept {
+	static PuglStatus
+	dispatchEvent(PuglView* view, const PuglEvent* event) noexcept
+	{
 		try {
 			View* self = static_cast<View*>(puglGetHandle(view));
 
@@ -647,8 +649,8 @@ private:
 			return static_cast<PuglStatus>(
 			    onDestroy(typedEventRef<DestroyEvent>(event->any)));
 		case PUGL_CONFIGURE:
-			return static_cast<PuglStatus>(onConfigure(
-			    typedEventRef<ConfigureEvent>(event->configure)));
+			return static_cast<PuglStatus>(
+			    onConfigure(typedEventRef<ConfigureEvent>(event->configure)));
 		case PUGL_MAP:
 			return static_cast<PuglStatus>(
 			    onMap(typedEventRef<MapEvent>(event->any)));
@@ -680,14 +682,14 @@ private:
 			return static_cast<PuglStatus>(
 			    onText(typedEventRef<TextEvent>(event->text)));
 		case PUGL_POINTER_IN:
-			return static_cast<PuglStatus>(onPointerIn(
-			    typedEventRef<PointerInEvent>(event->crossing)));
+			return static_cast<PuglStatus>(
+			    onPointerIn(typedEventRef<PointerInEvent>(event->crossing)));
 		case PUGL_POINTER_OUT:
-			return static_cast<PuglStatus>(onPointerOut(
-			    typedEventRef<PointerOutEvent>(event->crossing)));
+			return static_cast<PuglStatus>(
+			    onPointerOut(typedEventRef<PointerOutEvent>(event->crossing)));
 		case PUGL_BUTTON_PRESS:
-			return static_cast<PuglStatus>(onButtonPress(
-			    typedEventRef<ButtonPressEvent>(event->button)));
+			return static_cast<PuglStatus>(
+			    onButtonPress(typedEventRef<ButtonPressEvent>(event->button)));
 		case PUGL_BUTTON_RELEASE:
 			return static_cast<PuglStatus>(onButtonRelease(
 			    typedEventRef<ButtonReleaseEvent>(event->button)));

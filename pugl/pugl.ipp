@@ -151,4 +151,4 @@ View::onTimer(const TimerEvent&)
 	return pugl::Status::success;
 }
 
-}
+} // namespace pugl
