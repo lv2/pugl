@@ -22,6 +22,9 @@
    pure portable programs.
 */
 
+#ifndef PUGL_GLU_H
+#define PUGL_GLU_H
+
 // IWYU pragma: begin_exports
 
 #ifdef __APPLE__
@@ -34,3 +37,5 @@
 #endif
 
 // IWYU pragma: end_exports
+
+#endif // PUGL_GLU_H

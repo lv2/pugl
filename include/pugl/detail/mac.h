@@ -20,6 +20,9 @@
    @brief Shared definitions for MacOS implementation.
 */
 
+#ifndef PUGL_DETAIL_MAC_H
+#define PUGL_DETAIL_MAC_H
+
 #include "pugl/pugl.h"
 
 #import <Cocoa/Cocoa.h>
@@ -53,3 +56,5 @@ struct PuglInternalsImpl {
 	uint32_t         mods;
 	bool             mouseTracked;
 };
+
+#endif // PUGL_DETAIL_MAC_H

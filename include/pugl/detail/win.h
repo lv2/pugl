@@ -19,6 +19,9 @@
    @brief Shared definitions for Windows implementation.
 */
 
+#ifndef PUGL_DETAIL_WIN_H
+#define PUGL_DETAIL_WIN_H
+
 #include "pugl/detail/implementation.h"
 
 #include <windows.h>
@@ -145,3 +148,5 @@ puglWinStubEnter(PuglView* view, const PuglEventExpose* expose);
 
 PuglStatus
 puglWinStubLeave(PuglView* view, const PuglEventExpose* expose);
+
+#endif // PUGL_DETAIL_WIN_H

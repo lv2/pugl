@@ -14,6 +14,9 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+#ifndef EXAMPLES_SHADER_UTILS_H
+#define EXAMPLES_SHADER_UTILS_H
+
 #include "glad/glad.h"
 
 #include <stdio.h>
@@ -100,3 +103,5 @@ compileProgram(const char* headerSource,
 
 	return program;
 }
+
+#endif // EXAMPLES_SHADER_UTILS_H

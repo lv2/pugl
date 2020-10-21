@@ -22,6 +22,9 @@
    many 2D rectangles.
 */
 
+#ifndef EXAMPLES_RECTS_H
+#define EXAMPLES_RECTS_H
+
 #include <math.h>
 #include <stddef.h>
 
@@ -80,3 +83,5 @@ moveRect(Rect* const  rect,
 	               (cosf((float)time * rect->size[1] / 64.0f + normal) + 1.0f) /
 	               2.0f;
 }
+
+#endif // EXAMPLES_RECTS_H

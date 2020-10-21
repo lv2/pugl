@@ -19,6 +19,9 @@
    @brief Shared definitions for X11 implementation.
 */
 
+#ifndef PUGL_DETAIL_X11_H
+#define PUGL_DETAIL_X11_H
+
 #include "pugl/detail/types.h"
 #include "pugl/pugl.h"
 
@@ -74,3 +77,5 @@ struct PuglInternalsImpl {
 };
 
 PuglStatus puglX11StubConfigure(PuglView* view);
+
+#endif // PUGL_DETAIL_X11_H

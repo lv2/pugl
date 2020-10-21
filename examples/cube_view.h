@@ -14,6 +14,9 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+#ifndef EXAMPLES_CUBE_VIEW_H
+#define EXAMPLES_CUBE_VIEW_H
+
 #define GL_SILENCE_DEPRECATION 1
 
 #include "demo_utils.h"
@@ -129,3 +132,5 @@ displayCube(PuglView* const view,
 	glDrawArrays(GL_LINES, 0, 8);
 	glDisableClientState(GL_VERTEX_ARRAY);
 }
+
+#endif // EXAMPLES_CUBE_VIEW_H

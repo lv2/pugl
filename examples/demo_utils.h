@@ -14,8 +14,8 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#ifndef PUGL_DEMO_UTILS_H
-#define PUGL_DEMO_UTILS_H
+#ifndef EXAMPLES_DEMO_UTILS_H
+#define EXAMPLES_DEMO_UTILS_H
 
 #include "pugl/pugl.h"
 
@@ -123,4 +123,4 @@ puglPrintFps(const PuglWorld* world,
 	}
 }
 
-#endif // PUGL_DEMO_UTILS_H
+#endif // EXAMPLES_DEMO_UTILS_H

@@ -14,6 +14,9 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
+#ifndef TEST_TEST_UTILS_H
+#define TEST_TEST_UTILS_H
+
 #define __STDC_FORMAT_MACROS 1
 
 #include "pugl/pugl.h"
@@ -345,3 +348,5 @@ puglParseTestOptions(int* pargc, char*** pargv)
 
 	return opts;
 }
+
+#endif // TEST_TEST_UTILS_H
