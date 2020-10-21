@@ -35,7 +35,7 @@
 	PuglView* puglview;
 }
 
-- (void) resizeWithOldSuperviewSize:(NSSize)oldSize
+- (void)resizeWithOldSuperviewSize:(NSSize)oldSize
 {
 	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
@@ -43,7 +43,7 @@
 	[wrapper setReshaped];
 }
 
-- (void) drawRect:(NSRect)rect
+- (void)drawRect:(NSRect)rect
 {
 	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 

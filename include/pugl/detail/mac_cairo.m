@@ -41,14 +41,14 @@
 	cairo_t*         cr;
 }
 
-- (id) initWithFrame:(NSRect)frame
+- (id)initWithFrame:(NSRect)frame
 {
 	self = [super initWithFrame:frame];
 
 	return self;
 }
 
-- (void) resizeWithOldSuperviewSize:(NSSize)oldSize
+- (void)resizeWithOldSuperviewSize:(NSSize)oldSize
 {
 	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
@@ -56,7 +56,7 @@
 	[wrapper setReshaped];
 }
 
-- (void) drawRect:(NSRect)rect
+- (void)drawRect:(NSRect)rect
 {
 	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 	[wrapper dispatchExpose:rect];

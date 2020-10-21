@@ -31,14 +31,14 @@
 
 @interface PuglWrapperView : NSView<NSTextInputClient>
 
-- (void) dispatchExpose:(NSRect)rect;
-- (void) setReshaped;
+- (void)dispatchExpose:(NSRect)rect;
+- (void)setReshaped;
 
 @end
 
 @interface PuglWindow : NSWindow
 
-- (void) setPuglview:(PuglView*)view;
+- (void)setPuglview:(PuglView*)view;
 
 @end
 

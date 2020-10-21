@@ -37,7 +37,7 @@
 	PuglView* puglview;
 }
 
-- (id) initWithFrame:(NSRect)frame
+- (id)initWithFrame:(NSRect)frame
 {
 	const bool     compat  = puglview->hints[PUGL_USE_COMPAT_PROFILE];
 	const unsigned samples = (unsigned)puglview->hints[PUGL_SAMPLES];
@@ -102,7 +102,7 @@
 	return self;
 }
 
-- (void) reshape
+- (void)reshape
 {
 	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
@@ -110,7 +110,7 @@
 	[wrapper setReshaped];
 }
 
-- (void) drawRect:(NSRect)rect
+- (void)drawRect:(NSRect)rect
 {
 	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 	[wrapper dispatchExpose:rect];

@@ -124,10 +124,10 @@ updateViewRect(PuglView* view)
 	PuglView* puglview;
 }
 
-- (id) initWithContentRect:(NSRect)contentRect
-                 styleMask:(NSWindowStyleMask)aStyle
-                   backing:(NSBackingStoreType)bufferingType
-                     defer:(BOOL)flag
+- (id)initWithContentRect:(NSRect)contentRect
+                styleMask:(NSWindowStyleMask)aStyle
+                  backing:(NSBackingStoreType)bufferingType
+                    defer:(BOOL)flag
 {
 	(void)flag;
 
@@ -148,17 +148,17 @@ updateViewRect(PuglView* view)
 	    setContentSize:sizePoints(view, view->frame.width, view->frame.height)];
 }
 
-- (BOOL) canBecomeKeyWindow
+- (BOOL)canBecomeKeyWindow
 {
 	return YES;
 }
 
-- (BOOL) canBecomeMainWindow
+- (BOOL)canBecomeMainWindow
 {
 	return YES;
 }
 
-- (void) setIsVisible:(BOOL)flag
+- (void)setIsVisible:(BOOL)flag
 {
 	if (flag && !puglview->visible) {
 		const PuglEventConfigure ev =  {
@@ -194,7 +194,7 @@ updateViewRect(PuglView* view)
 	bool                       reshaped;
 }
 
-- (void) dispatchExpose:(NSRect)rect
+- (void)dispatchExpose:(NSRect)rect
 {
 	const double scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
 
@@ -230,7 +230,7 @@ updateViewRect(PuglView* view)
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
-- (NSSize) intrinsicContentSize
+- (NSSize)intrinsicContentSize
 {
 	if (puglview->defaultWidth || puglview->defaultHeight) {
 		return sizePoints(puglview,
@@ -241,17 +241,17 @@ updateViewRect(PuglView* view)
 	return NSMakeSize(NSViewNoInstrinsicMetric, NSViewNoInstrinsicMetric);
 }
 
-- (BOOL) isFlipped
+- (BOOL)isFlipped
 {
 	return YES;
 }
 
-- (BOOL) acceptsFirstResponder
+- (BOOL)acceptsFirstResponder
 {
 	return YES;
 }
 
-- (void) setReshaped
+- (void)setReshaped
 {
 	reshaped = true;
 }
@@ -307,7 +307,7 @@ keySymToSpecial(const NSEvent* const ev)
 	return (PuglKey)0;
 }
 
-- (void) updateTrackingAreas
+- (void)updateTrackingAreas
 {
 	if (trackingArea != nil) {
 		[self removeTrackingArea:trackingArea];
@@ -325,7 +325,7 @@ keySymToSpecial(const NSEvent* const ev)
 	[super updateTrackingAreas];
 }
 
-- (NSPoint) eventLocation:(NSEvent*)event
+- (NSPoint)eventLocation:(NSEvent*)event
 {
 	return nsPointFromPoints(puglview,
 	                         [self convertPoint:[event locationInWindow]
@@ -352,27 +352,27 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglDispatchEvent(view->puglview, (const PuglEvent*)&ev);
 }
 
-- (void) mouseEntered:(NSEvent*)event
+- (void)mouseEntered:(NSEvent*)event
 {
 	handleCrossing(self, event, PUGL_POINTER_IN);
 	[puglview->impl->cursor set];
 	puglview->impl->mouseTracked = true;
 }
 
-- (void) mouseExited:(NSEvent*)event
+- (void)mouseExited:(NSEvent*)event
 {
 	[[NSCursor arrowCursor] set];
 	handleCrossing(self, event, PUGL_POINTER_OUT);
 	puglview->impl->mouseTracked = false;
 }
 
-- (void) cursorUpdate:(NSEvent*)event
+- (void)cursorUpdate:(NSEvent*)event
 {
 	(void)event;
 	[puglview->impl->cursor set];
 }
 
-- (void) mouseMoved:(NSEvent*)event
+- (void)mouseMoved:(NSEvent*)event
 {
 	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
@@ -390,22 +390,22 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
-- (void) mouseDragged:(NSEvent*)event
+- (void)mouseDragged:(NSEvent*)event
 {
 	[self mouseMoved: event];
 }
 
-- (void) rightMouseDragged:(NSEvent*)event
+- (void)rightMouseDragged:(NSEvent*)event
 {
 	[self mouseMoved: event];
 }
 
-- (void) otherMouseDragged:(NSEvent*)event
+- (void)otherMouseDragged:(NSEvent*)event
 {
 	[self mouseMoved: event];
 }
 
-- (void) mouseDown:(NSEvent*)event
+- (void)mouseDown:(NSEvent*)event
 {
 	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
@@ -424,7 +424,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
-- (void) mouseUp:(NSEvent*)event
+- (void)mouseUp:(NSEvent*)event
 {
 	const NSPoint         wloc = [self eventLocation:event];
 	const NSPoint         rloc = [NSEvent mouseLocation];
@@ -443,27 +443,27 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
-- (void) rightMouseDown:(NSEvent*)event
+- (void)rightMouseDown:(NSEvent*)event
 {
 	[self mouseDown: event];
 }
 
-- (void) rightMouseUp:(NSEvent*)event
+- (void)rightMouseUp:(NSEvent*)event
 {
 	[self mouseUp: event];
 }
 
-- (void) otherMouseDown:(NSEvent*)event
+- (void)otherMouseDown:(NSEvent*)event
 {
 	[self mouseDown: event];
 }
 
-- (void) otherMouseUp:(NSEvent*)event
+- (void)otherMouseUp:(NSEvent*)event
 {
 	[self mouseUp: event];
 }
 
-- (void) scrollWheel:(NSEvent*)event
+- (void)scrollWheel:(NSEvent*)event
 {
 	const NSPoint             wloc = [self eventLocation:event];
 	const NSPoint             rloc = [NSEvent mouseLocation];
@@ -496,7 +496,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
-- (void) keyDown:(NSEvent*)event
+- (void)keyDown:(NSEvent*)event
 {
 	if (puglview->hints[PUGL_IGNORE_KEY_REPEAT] && [event isARepeat]) {
 		return;
@@ -554,19 +554,19 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
-- (BOOL) hasMarkedText
+- (BOOL)hasMarkedText
 {
 	return [markedText length] > 0;
 }
 
-- (NSRange) markedRange
+- (NSRange)markedRange
 {
 	return (([markedText length] > 0)
 	        ? NSMakeRange(0, [markedText length] - 1)
 	        : NSMakeRange(NSNotFound, 0));
 }
 
-- (NSRange) selectedRange
+- (NSRange)selectedRange
 {
 	return NSMakeRange(NSNotFound, 0);
 }
@@ -584,33 +584,33 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 		: [[NSMutableAttributedString alloc] initWithString:string]);
 }
 
-- (void) unmarkText
+- (void)unmarkText
 {
 	[[markedText mutableString] setString:@""];
 }
 
-- (NSArray*) validAttributesForMarkedText
+- (NSArray*)validAttributesForMarkedText
 {
 	return @[];
 }
 
-- (NSAttributedString*)
- attributedSubstringForProposedRange:(NSRange)range
-                         actualRange:(NSRangePointer)actual
+- (NSAttributedString*)attributedSubstringForProposedRange:(NSRange)range
+                                               actualRange:
+                                                   (NSRangePointer)actual
 {
 	(void)range;
 	(void)actual;
 	return nil;
 }
 
-- (NSUInteger) characterIndexForPoint:(NSPoint)point
+- (NSUInteger)characterIndexForPoint:(NSPoint)point
 {
 	(void)point;
 	return 0;
 }
 
-- (NSRect) firstRectForCharacterRange:(NSRange)range
-                          actualRange:(NSRangePointer)actual
+- (NSRect)firstRectForCharacterRange:(NSRange)range
+                         actualRange:(NSRangePointer)actual
 {
 	(void)range;
 	(void)actual;
@@ -619,13 +619,12 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	return NSMakeRect(frame.origin.x, frame.origin.y, 0.0, 0.0);
 }
 
-- (void) doCommandBySelector:(SEL)selector
+- (void)doCommandBySelector:(SEL)selector
 {
 	(void)selector;
 }
 
-- (void) insertText:(id)string
-   replacementRange:(NSRange)replacement
+- (void)insertText:(id)string replacementRange:(NSRange)replacement
 {
 	(void)replacement;
 
@@ -669,7 +668,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	}
 }
 
-- (void) flagsChanged:(NSEvent*)event
+- (void)flagsChanged:(NSEvent*)event
 {
 	const uint32_t mods    = getModifiers(event);
 	PuglEventType  type    = PUGL_NOTHING;
@@ -710,12 +709,12 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglview->impl->mods = mods;
 }
 
-- (BOOL) preservesContentInLiveResize
+- (BOOL)preservesContentInLiveResize
 {
 	return NO;
 }
 
-- (void) viewWillStartLiveResize
+- (void)viewWillStartLiveResize
 {
 	timer = [NSTimer timerWithTimeInterval:(1 / 60.0)
 	                                target:self
@@ -728,18 +727,18 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	[super viewWillStartLiveResize];
 }
 
-- (void) viewWillDraw
+- (void)viewWillDraw
 {
 	puglDispatchSimpleEvent(puglview, PUGL_UPDATE);
 	[super viewWillDraw];
 }
 
-- (void) resizeTick
+- (void)resizeTick
 {
 	puglPostRedisplay(puglview);
 }
 
-- (void) timerTick:(NSTimer*)userTimer
+- (void)timerTick:(NSTimer*)userTimer
 {
 	const NSNumber*      userInfo = userTimer.userInfo;
 	const PuglEventTimer ev       = {PUGL_TIMER, 0, userInfo.unsignedLongValue};
@@ -747,7 +746,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglDispatchEvent(puglview, (const PuglEvent*)&ev);
 }
 
-- (void) viewDidEndLiveResize
+- (void)viewDidEndLiveResize
 {
 	[super viewDidEndLiveResize];
 	[timer invalidate];
@@ -758,7 +757,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 @interface PuglWindowDelegate : NSObject<NSWindowDelegate>
 
-- (instancetype) initWithPuglWindow:(PuglWindow*)window;
+- (instancetype)initWithPuglWindow:(PuglWindow*)window;
 
 @end
 
@@ -767,7 +766,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	PuglWindow* window;
 }
 
-- (instancetype) initWithPuglWindow:(PuglWindow*)puglWindow
+- (instancetype)initWithPuglWindow:(PuglWindow*)puglWindow
 {
 	if ((self = [super init])) {
 		window = puglWindow;
@@ -776,7 +775,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	return self;
 }
 
-- (BOOL) windowShouldClose:(id)sender
+- (BOOL)windowShouldClose:(id)sender
 {
 	(void)sender;
 
@@ -784,14 +783,14 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	return YES;
 }
 
-- (void) windowDidMove:(NSNotification*)notification
+- (void)windowDidMove:(NSNotification*)notification
 {
 	(void)notification;
 
 	updateViewRect(window->puglview);
 }
 
-- (void) windowDidBecomeKey:(NSNotification*)notification
+- (void)windowDidBecomeKey:(NSNotification*)notification
 {
 	(void)notification;
 
@@ -800,7 +799,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 	puglDispatchEvent(window->puglview, &ev);
 }
 
-- (void) windowDidResignKey:(NSNotification*)notification
+- (void)windowDidResignKey:(NSNotification*)notification
 {
 	(void)notification;
 
