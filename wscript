@@ -131,6 +131,9 @@ def configure(conf):
                         '-Wno-conversion',
                         '-Wno-format',
                         '-Wno-suggest-attribute=format'],
+                'clang': ['-D_CRT_SECURE_NO_WARNINGS',
+                          '-Wno-format-nonliteral',
+                          '-Wno-nonportable-system-include-path'],
             })
         elif conf.env.TARGET_PLATFORM == 'darwin':
             autowaf.add_compiler_flags(conf.env, '*', {
@@ -311,7 +314,9 @@ def build(bld):
 
         flags = []
         if not bld.env.MSVC_COMPILER:
-            flags = ['-fPIC', '-fvisibility=hidden']
+            flags = ['-fvisibility=hidden']
+        if bld.env.TARGET_PLATFORM != 'win32':
+            flags = ['-fPIC']
 
         if bld.env.BUILD_SHARED:
             bld(features  = 'c cshlib',
