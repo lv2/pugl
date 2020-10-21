@@ -151,7 +151,8 @@ puglMacCairoGetContext(PuglView* view)
 	return ((PuglCairoView*)view->impl->drawView)->cr;
 }
 
-const PuglBackend* puglCairoBackend(void)
+const PuglBackend*
+puglCairoBackend(void)
 {
 	static const PuglBackend backend = {puglStubConfigure,
 	                                    puglMacCairoCreate,

@@ -225,7 +225,8 @@ puglGetProcAddress(const char* name)
 	return glXGetProcAddress((const uint8_t*)name);
 }
 
-const PuglBackend* puglGlBackend(void)
+const PuglBackend*
+puglGlBackend(void)
 {
 	static const PuglBackend backend = {puglX11GlConfigure,
 	                                    puglX11GlCreate,

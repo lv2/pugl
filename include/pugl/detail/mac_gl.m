@@ -188,7 +188,8 @@ puglGetProcAddress(const char *name)
 	return func;
 }
 
-const PuglBackend* puglGlBackend(void)
+const PuglBackend*
+puglGlBackend(void)
 {
 	static const PuglBackend backend = {puglStubConfigure,
 	                                    puglMacGlCreate,

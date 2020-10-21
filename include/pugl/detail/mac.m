@@ -1122,7 +1122,8 @@ puglStopTimer(PuglView* view, uintptr_t id)
 	return PUGL_UNKNOWN_ERROR;
 }
 
-PuglStatus puglSendEvent(PuglView* view, const PuglEvent* event)
+PuglStatus
+puglSendEvent(PuglView* view, const PuglEvent* event)
 {
     if (event->type == PUGL_CLIENT) {
 		PuglWrapperView* wrapper = view->impl->wrapperView;
