@@ -364,7 +364,8 @@ def build(bld):
         if bld.env.HAVE_CAIRO:
             build_backend('win', 'cairo',
                           uselib=['CAIRO', 'GDI32', 'USER32'],
-                          source=['include/pugl/detail/win_cairo.c'])
+                          source=['include/pugl/detail/win_cairo.c',
+                                  'include/pugl/detail/win_stub.c'])
 
     elif bld.env.TARGET_PLATFORM == 'darwin':
         platform = 'mac'
