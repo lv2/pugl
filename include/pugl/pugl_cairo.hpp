@@ -36,7 +36,7 @@ namespace pugl {
 
 /// @copydoc puglCairoBackend
 static inline const PuglBackend*
-cairoBackend()
+cairoBackend() noexcept
 {
 	return puglCairoBackend();
 }

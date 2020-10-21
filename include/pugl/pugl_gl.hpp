@@ -39,14 +39,14 @@ using GlFunc = PuglGlFunc;
 
 /// @copydoc puglGetProcAddress
 static inline GlFunc
-getProcAddress(const char* name)
+getProcAddress(const char* name) noexcept
 {
 	return puglGetProcAddress(name);
 }
 
 /// @copydoc puglGlBackend
 static inline const PuglBackend*
-glBackend()
+glBackend() noexcept
 {
 	return puglGlBackend();
 }
