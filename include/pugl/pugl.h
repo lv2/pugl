@@ -1121,6 +1121,34 @@ puglGetNativeWindow(PuglView* view);
 */
 
 /**
+   Enter the graphics context.
+
+   This can be used to enter the graphics context in unusual situations, for
+   doing things like loading textures.  Note that this must not be used for
+   drawing, which may only be done while processing an expose event.  Note also
+   that initial setup should not use this, but instead be done while handling a
+   #PUGL_CREATE event.
+
+   - Cairo: Does nothing.
+   - OpenGL: Sets the current OpenGL context.
+   - Stub: Does nothing.
+*/
+PUGL_API PuglStatus
+puglEnterContext(PuglView* view);
+
+/**
+   Leave the graphics context.
+
+   This must only be called after puglEnterContext().
+
+   - Cairo: Does nothing.
+   - OpenGL: Resets the current OpenGL context.
+   - Stub: Does nothing.
+*/
+PUGL_API PuglStatus
+puglLeaveContext(PuglView* view);
+
+/**
    Get the graphics context.
 
    This is a backend-specific context used for drawing if the backend graphics
@@ -1574,39 +1602,6 @@ puglPollEvents(PuglWorld* world, double timeout);
 */
 PUGL_API PUGL_DEPRECATED_BY("puglUpdate") PuglStatus
 puglDispatchEvents(PuglWorld* world);
-
-/**
-   Enter the graphics context.
-
-   Note that, unlike some similar libraries, Pugl automatically enters and
-   leaves the graphics context when required and application should not
-   normally do this.  Drawing in Pugl is only allowed during the processing of
-   an expose event.
-
-   However, this can be used to enter the graphics context elsewhere, for
-   example to call any GL functions during setup.
-
-   @param view The view being entered.
-   @param drawing If true, prepare for drawing.
-
-   @deprecated Set up graphics when a #PUGL_CREATE event is received.
-*/
-PUGL_API PUGL_DEPRECATED_BY("PUGL_CREATE") PuglStatus
-puglEnterContext(PuglView* view, bool drawing);
-
-/**
-   Leave the graphics context.
-
-   This must be called after puglEnterContext() with a matching `drawing`
-   parameter.
-
-   @param view The view being left.
-   @param drawing If true, finish drawing, for example by swapping buffers.
-
-   @deprecated Shut down graphics when a #PUGL_DESTROY event is received.
-*/
-PUGL_API PUGL_DEPRECATED_BY("PUGL_DESTROY") PuglStatus
-puglLeaveContext(PuglView* view, bool drawing);
 
 #endif // PUGL_DISABLE_DEPRECATED
 

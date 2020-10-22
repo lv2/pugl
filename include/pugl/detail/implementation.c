@@ -331,29 +331,19 @@ puglDispatchEvents(PuglWorld* world)
 	return puglUpdate(world, 0.0);
 }
 
-PuglStatus
-puglEnterContext(PuglView* view, bool drawing)
-{
-	const PuglEventExpose expose = {
-	    PUGL_EXPOSE, 0, 0.0, 0.0, view->frame.width, view->frame.height};
-
-	view->backend->enter(view, drawing ? &expose : NULL);
-
-	return PUGL_SUCCESS;
-}
-
-PuglStatus
-puglLeaveContext(PuglView* view, bool drawing)
-{
-	const PuglEventExpose expose = {
-	    PUGL_EXPOSE, 0, 0.0, 0.0, view->frame.width, view->frame.height};
-
-	view->backend->leave(view, drawing ? &expose : NULL);
-
-	return PUGL_SUCCESS;
-}
-
 #endif
+
+PuglStatus
+puglEnterContext(PuglView* view)
+{
+	return view->backend->enter(view, NULL);
+}
+
+PuglStatus
+puglLeaveContext(PuglView* view)
+{
+	return view->backend->leave(view, NULL);
+}
 
 PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
