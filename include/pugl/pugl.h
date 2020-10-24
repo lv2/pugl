@@ -103,9 +103,7 @@ typedef struct {
    @{
 */
 
-/**
-   Keyboard modifier flags.
-*/
+/// Keyboard modifier flags
 typedef enum {
 	PUGL_MOD_SHIFT = 1u << 0u, ///< Shift key
 	PUGL_MOD_CTRL  = 1u << 1u, ///< Control key
@@ -113,9 +111,7 @@ typedef enum {
 	PUGL_MOD_SUPER = 1u << 3u  ///< Mod4/Command/Windows key
 } PuglMod;
 
-/**
-   Bitwise OR of #PuglMod values.
-*/
+/// Bitwise OR of #PuglMod values
 typedef uint32_t PuglMods;
 
 /**
@@ -180,9 +176,7 @@ typedef enum {
 	PUGL_KEY_PAUSE
 } PuglKey;
 
-/**
-   The type of a PuglEvent.
-*/
+/// The type of a PuglEvent
 typedef enum {
 	PUGL_NOTHING,        ///< No event
 	PUGL_CREATE,         ///< View created, a #PuglEventCreate
@@ -215,22 +209,16 @@ typedef enum {
 
 } PuglEventType;
 
-/**
-   Common flags for all event types.
-*/
+/// Common flags for all event types
 typedef enum {
 	PUGL_IS_SEND_EVENT = 1, ///< Event is synthetic
 	PUGL_IS_HINT       = 2  ///< Event is a hint (not direct user input)
 } PuglEventFlag;
 
-/**
-   Bitwise OR of #PuglEventFlag values.
-*/
+/// Bitwise OR of #PuglEventFlag values
 typedef uint32_t PuglEventFlags;
 
-/**
-   Reason for a PuglEventCrossing.
-*/
+/// Reason for a PuglEventCrossing
 typedef enum {
 	PUGL_CROSSING_NORMAL, ///< Crossing due to pointer motion
 	PUGL_CROSSING_GRAB,   ///< Crossing due to a grab
@@ -253,9 +241,7 @@ typedef enum {
 	PUGL_SCROLL_SMOOTH ///< Smooth scroll in any direction
 } PuglScrollDirection;
 
-/**
-   Common header for all event structs.
-*/
+/// Common header for all event structs
 typedef struct {
 	PuglEventType  type;  ///< Event type
 	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
@@ -564,9 +550,7 @@ typedef union {
    @{
 */
 
-/**
-   Return status code.
-*/
+/// Return status code
 typedef enum {
 	PUGL_SUCCESS,               ///< Success
 	PUGL_FAILURE,               ///< Non-fatal failure
@@ -582,9 +566,7 @@ typedef enum {
 	PUGL_UNSUPPORTED_TYPE,      ///< Unsupported data type
 } PuglStatus;
 
-/**
-   Return a string describing a status code.
-*/
+/// Return a string describing a status code
 PUGL_API PUGL_CONST_FUNC
 const char*
 puglStrerror(PuglStatus status);
@@ -613,22 +595,16 @@ puglStrerror(PuglStatus status);
 */
 typedef struct PuglWorldImpl PuglWorld;
 
-/**
-   Handle for the world's opaque user data.
-*/
+/// Handle for the world's opaque user data
 typedef void* PuglWorldHandle;
 
-/**
-   The type of a World.
-*/
+/// The type of a World
 typedef enum {
 	PUGL_PROGRAM, ///< Top-level application
 	PUGL_MODULE   ///< Plugin or module within a larger application
 } PuglWorldType;
 
-/**
-   World flags.
-*/
+/// World flags
 typedef enum {
 	/**
 	   Set up support for threads if necessary.
@@ -638,14 +614,10 @@ typedef enum {
 	PUGL_WORLD_THREADS = 1u << 0u
 } PuglWorldFlag;
 
-/**
-   Bitwise OR of #PuglWorldFlag values.
-*/
+/// Bitwise OR of #PuglWorldFlag values
 typedef uint32_t PuglWorldFlags;
 
-/**
-   A log message level, compatible with syslog.
-*/
+/// A log message level, compatible with syslog
 typedef enum {
 	PUGL_LOG_LEVEL_ERR     = 3, ///< Error
 	PUGL_LOG_LEVEL_WARNING = 4, ///< Warning
@@ -674,9 +646,7 @@ typedef void (*PuglLogFunc)(PuglWorld*   world,
 PUGL_API PuglWorld*
 puglNewWorld(PuglWorldType type, PuglWorldFlags flags);
 
-/**
-   Free a world allocated with puglNewWorld().
-*/
+/// Free a world allocated with puglNewWorld()
 PUGL_API void
 puglFreeWorld(PuglWorld* world);
 
@@ -691,9 +661,7 @@ puglFreeWorld(PuglWorld* world);
 PUGL_API void
 puglSetWorldHandle(PuglWorld* world, PuglWorldHandle handle);
 
-/**
-   Get the user data for the world.
-*/
+/// Get the user data for the world
 PUGL_API PuglWorldHandle
 puglGetWorldHandle(PuglWorld* world);
 
@@ -787,9 +755,7 @@ puglUpdate(PuglWorld* world, double timeout);
    @{
 */
 
-/**
-   A drawable region that receives events.
-*/
+/// A drawable region that receives events
 typedef struct PuglViewImpl PuglView;
 
 /**
@@ -816,14 +782,10 @@ typedef struct PuglBackendImpl PuglBackend;
 */
 typedef uintptr_t PuglNativeView;
 
-/**
-   Handle for a view's opaque user data.
-*/
+/// Handle for a view's opaque user data
 typedef void* PuglHandle;
 
-/**
-   A hint for configuring a view.
-*/
+/// A hint for configuring a view
 typedef enum {
 	PUGL_USE_COMPAT_PROFILE,    ///< Use compatible (not core) OpenGL profile
 	PUGL_USE_DEBUG_CONTEXT,     ///< True to use a debug OpenGL context
@@ -845,18 +807,14 @@ typedef enum {
 	PUGL_NUM_VIEW_HINTS
 } PuglViewHint;
 
-/**
-   A special view hint value.
-*/
+/// A special view hint value
 typedef enum {
 	PUGL_DONT_CARE = -1, ///< Use best available value
 	PUGL_FALSE     = 0,  ///< Explicitly false
 	PUGL_TRUE      = 1   ///< Explicitly true
 } PuglViewHintValue;
 
-/**
-   A function called when an event occurs.
-*/
+/// A function called when an event occurs
 typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 
 /**
@@ -875,15 +833,11 @@ typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 PUGL_API PuglView*
 puglNewView(PuglWorld* world);
 
-/**
-   Free a view created with puglNewView().
-*/
+/// Free a view created with puglNewView()
 PUGL_API void
 puglFreeView(PuglView* view);
 
-/**
-   Return the world that `view` is a part of.
-*/
+/// Return the world that `view` is a part of
 PUGL_API PuglWorld*
 puglGetWorld(PuglView* view);
 
@@ -899,9 +853,7 @@ puglGetWorld(PuglView* view);
 PUGL_API void
 puglSetHandle(PuglView* view, PuglHandle handle);
 
-/**
-   Get the user data for a view.
-*/
+/// Get the user data for a view
 PUGL_API PuglHandle
 puglGetHandle(PuglView* view);
 
@@ -924,9 +876,7 @@ puglGetHandle(PuglView* view);
 PUGL_API PuglStatus
 puglSetBackend(PuglView* view, const PuglBackend* backend);
 
-/**
-   Set the function to call when an event occurs.
-*/
+/// Set the function to call when an event occurs
 PUGL_API PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
@@ -1095,21 +1045,15 @@ puglRealize(PuglView* view);
 PUGL_API PuglStatus
 puglShowWindow(PuglView* view);
 
-/**
-   Hide the current window.
-*/
+/// Hide the current window
 PUGL_API PuglStatus
 puglHideWindow(PuglView* view);
 
-/**
-   Return true iff the view is currently visible.
-*/
+/// Return true iff the view is currently visible
 PUGL_API bool
 puglGetVisible(const PuglView* view);
 
-/**
-   Return the native window handle.
-*/
+/// Return the native window handle
 PUGL_API PuglNativeView
 puglGetNativeWindow(PuglView* view);
 
@@ -1208,15 +1152,11 @@ typedef enum {
 	PUGL_CURSOR_UP_DOWN,    ///< Up/down arrow for vertical resize
 } PuglCursor;
 
-/**
-   Grab the keyboard input focus.
-*/
+/// Grab the keyboard input focus
 PUGL_API PuglStatus
 puglGrabFocus(PuglView* view);
 
-/**
-   Return whether `view` has the keyboard input focus.
-*/
+/// Return whether `view` has the keyboard input focus
 PUGL_API bool
 puglHasFocus(const PuglView* view);
 
