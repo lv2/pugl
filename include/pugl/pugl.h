@@ -1225,7 +1225,7 @@ puglRequestAttention(PuglView* view);
 
    If the given timer already exists, it is replaced.
 
-   @param view The view to begin seding #PUGL_TIMER events to.
+   @param view The view to begin sending #PUGL_TIMER events to.
 
    @param id The identifier for this timer.  This is an application-specific ID
    that should be a low number, typically the value of a constant or `enum`
