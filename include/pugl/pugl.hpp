@@ -176,6 +176,12 @@ using ClientEvent = Event<PUGL_CLIENT, PuglEventClient>;
 /// @copydoc PuglEventTimer
 using TimerEvent = Event<PUGL_TIMER, PuglEventTimer>;
 
+/// @copydoc PuglEventLoopEnter
+using LoopEnterEvent = Event<PUGL_LOOP_ENTER, PuglEventLoopEnter>;
+
+/// @copydoc PuglEventLoopLeave
+using LoopLeaveEvent = Event<PUGL_LOOP_LEAVE, PuglEventLoopLeave>;
+
 /**
    @}
    @name Status
@@ -610,6 +616,8 @@ public:
 	virtual Status onScroll(const ScrollEvent&) PUGL_CONST_FUNC;
 	virtual Status onClient(const ClientEvent&) PUGL_CONST_FUNC;
 	virtual Status onTimer(const TimerEvent&) PUGL_CONST_FUNC;
+	virtual Status onLoopEnter(const LoopEnterEvent&) PUGL_CONST_FUNC;
+	virtual Status onLoopLeave(const LoopLeaveEvent&) PUGL_CONST_FUNC;
 
 	/**
 	   @}
@@ -709,6 +717,12 @@ private:
 		case PUGL_TIMER:
 			return static_cast<PuglStatus>(
 			    onTimer(typedEventRef<TimerEvent>(event->timer)));
+		case PUGL_LOOP_ENTER:
+			return static_cast<PuglStatus>(
+			    onLoopEnter(typedEventRef<LoopEnterEvent>(event->any)));
+		case PUGL_LOOP_LEAVE:
+			return static_cast<PuglStatus>(
+			    onLoopLeave(typedEventRef<LoopLeaveEvent>(event->any)));
 		}
 
 		return PUGL_FAILURE;

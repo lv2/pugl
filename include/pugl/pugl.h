@@ -200,6 +200,8 @@ typedef enum {
 	PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
 	PUGL_CLIENT,         ///< Custom client message, a #PuglEventClient
 	PUGL_TIMER,          ///< Timer triggered, a #PuglEventTimer
+	PUGL_LOOP_ENTER,     ///< Recursive loop entered, a #PuglEventLoopEnter
+	PUGL_LOOP_LEAVE,     ///< Recursive loop left, a #PuglEventLoopLeave
 
 #ifndef PUGL_DISABLE_DEPRECATED
 	PUGL_ENTER_NOTIFY PUGL_DEPRECATED_BY("PUGL_POINTER_IN") = PUGL_POINTER_IN,
@@ -513,6 +515,38 @@ typedef struct {
 	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
 	uintptr_t      id;    ///< Timer ID
 } PuglEventTimer;
+
+/**
+   Recursive loop enter event.
+
+   This event is sent when the window system enters a recursive loop.  The main
+   loop will be stalled and no expose events will be received while in the
+   recursive loop.  To give the application full control, Pugl does not do any
+   special handling of this situation, but this event can be used to install a
+   timer to perform continuous actions (such as drawing) on platforms that do
+   this.
+
+   - MacOS: A recursive loop is entered while the window is being live resized.
+
+   - Windows: A recursive loop is entered while the window is being live
+     resized or the menu is shown.
+
+   - X11: A recursive loop is never entered and the event loop runs as usual
+     while the view is being resized.
+
+   This event type has no extra fields.
+*/
+typedef PuglEventAny PuglEventLoopEnter;
+
+/**
+   Recursive loop leave event.
+
+   This event is sent after a loop enter event when the recursive loop is
+   finished and normal iteration will continue.
+
+   This event type has no extra fields.
+*/
+typedef PuglEventAny PuglEventLoopLeave;
 
 /**
    View event.

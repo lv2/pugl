@@ -190,7 +190,6 @@ updateViewRect(PuglView* view)
 	PuglView*                  puglview;
 	NSTrackingArea*            trackingArea;
 	NSMutableAttributedString* markedText;
-	NSTimer*                   timer;
 	NSMutableDictionary*       userTimers;
 	bool                       reshaped;
 }
@@ -717,15 +716,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 - (void)viewWillStartLiveResize
 {
-	timer = [NSTimer timerWithTimeInterval:(1 / 60.0)
-	                                target:self
-	                              selector:@selector(resizeTick)
-	                              userInfo:nil
-	                               repeats:YES];
-	[[NSRunLoop currentRunLoop] addTimer:timer
-	                             forMode:NSRunLoopCommonModes];
-
-	[super viewWillStartLiveResize];
+	puglDispatchSimpleEvent(puglview, PUGL_LOOP_ENTER);
 }
 
 - (void)viewWillDraw
@@ -749,9 +740,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 - (void)viewDidEndLiveResize
 {
-	[super viewDidEndLiveResize];
-	[timer invalidate];
-	timer = NULL;
+	puglDispatchSimpleEvent(puglview, PUGL_LOOP_LEAVE);
 }
 
 @end

@@ -151,4 +151,16 @@ View::onTimer(const TimerEvent&)
 	return pugl::Status::success;
 }
 
+Status
+View::onLoopEnter(const LoopEnterEvent&)
+{
+	return pugl::Status::success;
+}
+
+Status
+View::onLoopLeave(const LoopLeaveEvent&)
+{
+	return pugl::Status::success;
+}
+
 } // namespace pugl

@@ -51,7 +51,6 @@
 #define PUGL_LOCAL_CLOSE_MSG  (WM_USER + 50)
 #define PUGL_LOCAL_MARK_MSG   (WM_USER + 51)
 #define PUGL_LOCAL_CLIENT_MSG (WM_USER + 52)
-#define PUGL_RESIZE_TIMER_ID  9461
 #define PUGL_USER_TIMER_MIN   9470
 
 typedef BOOL (WINAPI *PFN_SetProcessDPIAware)(void);
@@ -590,17 +589,10 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_ENTERSIZEMOVE:
 	case WM_ENTERMENULOOP:
-		view->impl->resizing = true;
-		SetTimer(view->impl->hwnd,
-		         PUGL_RESIZE_TIMER_ID,
-		         1000 / (UINT)view->hints[PUGL_REFRESH_RATE],
-		         NULL);
+		puglDispatchSimpleEvent(view, PUGL_LOOP_ENTER);
 		break;
 	case WM_TIMER:
-		if (wParam == PUGL_RESIZE_TIMER_ID) {
-			RedrawWindow(view->impl->hwnd, NULL, NULL,
-			             RDW_INVALIDATE|RDW_ALLCHILDREN|RDW_INTERNALPAINT);
-		} else if (wParam >= PUGL_USER_TIMER_MIN) {
+		if (wParam >= PUGL_USER_TIMER_MIN) {
 			PuglEvent ev = {{PUGL_TIMER, 0}};
 			ev.timer.id  = wParam - PUGL_USER_TIMER_MIN;
 			puglDispatchEvent(view, &ev);
@@ -608,9 +600,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_EXITSIZEMOVE:
 	case WM_EXITMENULOOP:
-		KillTimer(view->impl->hwnd, PUGL_RESIZE_TIMER_ID);
-		view->impl->resizing = false;
-		puglPostRedisplay(view);
+		puglDispatchSimpleEvent(view, PUGL_LOOP_LEAVE);
 		break;
 	case WM_GETMINMAXINFO:
 		mmi                   = (MINMAXINFO*)lParam;

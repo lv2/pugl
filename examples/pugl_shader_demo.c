@@ -47,12 +47,14 @@
 
 #include <math.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static const int defaultWidth  = 512;
-static const int defaultHeight = 512;
+static const int       defaultWidth  = 512;
+static const int       defaultHeight = 512;
+static const uintptr_t resizeTimerId = 1u;
 
 typedef struct
 {
@@ -166,9 +168,22 @@ onEvent(PuglView* view, const PuglEvent* event)
 		break;
 	case PUGL_EXPOSE: onExpose(view); break;
 	case PUGL_CLOSE: app->quit = 1; break;
+	case PUGL_LOOP_ENTER:
+		puglStartTimer(view,
+		               resizeTimerId,
+		               1.0 / (double)puglGetViewHint(view, PUGL_REFRESH_RATE));
+		break;
+	case PUGL_LOOP_LEAVE:
+		puglStopTimer(view, resizeTimerId);
+		break;
 	case PUGL_KEY_PRESS:
 		if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
 			app->quit = 1;
+		}
+		break;
+	case PUGL_TIMER:
+		if (event->timer.id == resizeTimerId) {
+			puglPostRedisplay(view);
 		}
 		break;
 	default: break;

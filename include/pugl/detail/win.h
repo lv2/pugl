@@ -42,7 +42,6 @@ struct PuglInternalsImpl {
 	HDC          hdc;
 	PuglSurface* surface;
 	bool         flashing;
-	bool         resizing;
 	bool         mouseTracked;
 };
 
