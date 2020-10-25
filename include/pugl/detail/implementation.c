@@ -418,6 +418,10 @@ puglDispatchEventInContext(PuglView* view, const PuglEvent* event)
 			view->eventFunc(view, event);
 			view->lastConfigure = event->configure;
 		}
+	} else if (event->type == PUGL_EXPOSE) {
+		if (event->expose.width > 0 && event->expose.height > 0) {
+			view->eventFunc(view, event);
+		}
 	} else {
 		view->eventFunc(view, event);
 	}
@@ -444,7 +448,7 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 		break;
 	case PUGL_EXPOSE:
 		view->backend->enter(view, &event->expose);
-		view->eventFunc(view, event);
+		puglDispatchEventInContext(view, event);
 		view->backend->leave(view, &event->expose);
 		break;
 	default:
