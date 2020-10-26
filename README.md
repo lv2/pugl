@@ -104,6 +104,12 @@ demonstrations:
 
  * `pugl_cxx_demo` is a simple cube demo that uses the C++ API.
 
+ * `pugl_vulkan_demo` is a simple example of using Vulkan in C that simply
+   clears the window.
+
+ * `pugl_vulkan_cxx_demo` is a more advanced Vulkan demo in C++ that draws many
+   animated rectangles like `pugl_shader_demo`.
+
 All example programs support several command line options to control various
 behaviours, see the output of `--help` for details.  Please file an issue if
 any of these programs do not work as expected on your system.

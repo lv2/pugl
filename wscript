@@ -113,16 +113,28 @@ def configure(conf):
 
         autowaf.add_compiler_flags(conf.env, 'cxx', {
             'clang': [
+                '-Wno-cast-align',  # pugl_vulkan_cxx_demo
                 '-Wno-documentation-unknown-command',
                 '-Wno-old-style-cast',
             ],
             'gcc': [
+                '-Wno-cast-align',  # pugl_vulkan_cxx_demo
+                '-Wno-effc++',
                 '-Wno-old-style-cast',
                 '-Wno-suggest-final-methods',
+                '-Wno-useless-cast',
             ],
             'msvc': [
+                '/wd4191',  # unsafe conversion between function pointers
                 '/wd4355',  # 'this' used in base member initializer list
                 '/wd4571',  # structured exceptions (SEH) are no longer caught
+                '/wd4623',  # default constructor implicitly deleted
+                '/wd4625',  # copy constructor implicitly deleted
+                '/wd4626',  # assignment operator implicitly deleted
+                '/wd4706',  # assignment within conditional expression
+                '/wd4868',  # may not enforce left-to-right evaluation order
+                '/wd5026',  # move constructor implicitly deleted
+                '/wd5027',  # move assignment operator implicitly deleted
             ],
         })
 
@@ -163,6 +175,30 @@ def configure(conf):
                    header_name=sys_header + ' vulkan/vulkan.h',
                    uselib_store='VULKAN',
                    mandatory=False)
+
+        if conf.env.BUILD_TESTS and conf.env.HAVE_VULKAN:
+            # Check for Vulkan library and shader compiler
+            # The library is needed by pugl_vulkan_demo.c which has no loader
+            vulkan_linkflags = ''
+            if vulkan_sdk:
+                vk_lib_path = os.path.join(vulkan_sdk, 'Lib')
+                vulkan_linkflags = conf.env.LIBPATH_ST % vk_lib_path
+
+            # The Vulkan library has a different name on Windows
+            for l in ['vulkan', 'vulkan-1']:
+                if conf.check(lib=l,
+                              uselib_store='VULKAN_LIB',
+                              cflags=vulkan_cflags,
+                              linkflags=vulkan_linkflags,
+                              mandatory=False):
+                    break
+
+            validator_name = 'glslangValidator'
+            if vulkan_sdk:
+                vk_bin_path = os.path.join(vulkan_sdk, 'bin')
+                validator_name = os.path.join(vk_bin_path, 'glslangValidator')
+
+            conf.find_program(validator_name, var='GLSLANGVALIDATOR')
 
     # Check for base system libraries needed on some systems
     conf.check_cc(lib='pthread', uselib_store='PTHREAD', mandatory=False)
@@ -304,6 +340,15 @@ basic_tests = [
 ]
 
 tests = gl_tests + basic_tests
+
+
+def concatenate(task):
+    """Task to concatenate all input files into the output file"""
+    with open(task.outputs[0].abspath(), 'w') as out:
+        for filename in task.inputs:
+            with open(filename.abspath(), 'r') as source:
+                for line in source:
+                    out.write(line)
 
 
 def build(bld):
@@ -520,6 +565,31 @@ def build(bld):
                                     'pugl_%s_gl_static' % platform],
                     uselib       = deps[platform]['uselib'] + ['GL'])
 
+        if bld.env.HAVE_VULKAN and 'GLSLANGVALIDATOR' in bld.env:
+            for s in ['rect.vert', 'rect.frag']:
+                complete = bld.path.get_bld().make_node(
+                    'shaders/%s' % s.replace('.', '.vulkan.'))
+                bld(rule = concatenate,
+                    source = ['shaders/header_420.glsl', 'shaders/%s' % s],
+                    target = complete)
+
+                cmd = bld.env.GLSLANGVALIDATOR[0] + " -V -o ${TGT} ${SRC}"
+                bld(rule = cmd,
+                    source = complete,
+                    target = 'shaders/%s.spv' % s)
+
+            build_example('pugl_vulkan_demo',
+                          ['examples/pugl_vulkan_demo.c'],
+                          platform,
+                          'vulkan', uselib=['M', 'VULKAN', 'VULKAN_LIB'])
+
+            if bld.env.CXX:
+                build_example('pugl_vulkan_cxx_demo',
+                              ['examples/pugl_vulkan_cxx_demo.cpp'],
+                              platform, 'vulkan',
+                              defines=['PUGL_DISABLE_DEPRECATED'],
+                              uselib=['DL', 'M', 'PTHREAD', 'VULKAN'])
+
         if bld.env.HAVE_CAIRO:
             build_example('pugl_cairo_demo', ['examples/pugl_cairo_demo.c'],
                           platform, 'cairo',
@@ -619,6 +689,9 @@ def lint(ctx):
     if "IWYU_TOOL" in ctx.env:
         Logs.info("Running include-what-you-use")
         cmd = [ctx.env.IWYU_TOOL[0], "-o", "clang", "-p", "build", "--",
+               "-Xiwyu", "--check_also=*.hpp",
+               "-Xiwyu", "--check_also=examples/*.hpp",
+               "-Xiwyu", "--check_also=examples/*",
                "-Xiwyu", "--check_also=pugl/*.h",
                "-Xiwyu", "--check_also=pugl/*.hpp",
                "-Xiwyu", "--check_also=pugl/*.ipp",
