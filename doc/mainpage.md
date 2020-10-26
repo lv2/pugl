@@ -34,7 +34,7 @@ and be configured by [setting hints](@ref puglSetViewHint)
 and optionally [adjusting the frame](@ref frame).
 
 The [Backend](@ref PuglBackend) controls drawing for a view.
-Pugl includes [Cairo](@ref cairo) and [OpenGL](@ref gl) backends,
+Pugl includes [Cairo](@ref cairo), [OpenGL](@ref gl), and [Vulkan](@ref vulkan) backends,
 as well as a [stub](@ref stub) backend that creates a native window with no portable drawing context.
 
 Once the view is configured,

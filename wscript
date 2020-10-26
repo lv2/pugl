@@ -31,6 +31,7 @@ def options(ctx):
     ctx.add_flags(
         opts,
         {'all-headers': 'install complete header implementation',
+         'no-vulkan':   'do not build Vulkan support',
          'no-gl':       'do not build OpenGL support',
          'no-cxx':      'do not build C++ examples',
          'no-cairo':    'do not build Cairo support',
@@ -100,6 +101,7 @@ def configure(conf):
             'gcc': [
                 '-Wno-bad-function-cast',
                 '-Wno-float-equal',
+                '-Wno-pedantic',
             ],
             'msvc': [
                 '/wd4191',  # unsafe conversion from type to type
@@ -145,7 +147,25 @@ def configure(conf):
                         '-Wno-direct-ivar-access'],
             })
 
+    sys_header = 'windows.h' if platform == 'win32' else ''
+
+    if not Options.options.no_vulkan:
+        vulkan_sdk = os.environ.get('VULKAN_SDK', None)
+        vulkan_cflags = ''
+        if vulkan_sdk:
+            vk_include_path = os.path.join(vulkan_sdk, 'Include')
+            vulkan_cflags = conf.env.CPPPATH_ST % vk_include_path
+
+        # Check for Vulkan header (needed for backends)
+        conf.check(features='c cxx',
+                   cflags=vulkan_cflags,
+                   cxxflags=vulkan_cflags,
+                   header_name=sys_header + ' vulkan/vulkan.h',
+                   uselib_store='VULKAN',
+                   mandatory=False)
+
     # Check for base system libraries needed on some systems
+    conf.check_cc(lib='pthread', uselib_store='PTHREAD', mandatory=False)
     conf.check_cc(lib='m', uselib_store='M', mandatory=False)
     conf.check_cc(lib='dl', uselib_store='DL', mandatory=False)
 
@@ -233,8 +253,9 @@ def configure(conf):
         conf,
         {"Build static library":   bool(conf.env.BUILD_STATIC),
          "Build shared library":   bool(conf.env.BUILD_SHARED),
+         "Cairo support":          bool(conf.env.HAVE_CAIRO),
          "OpenGL support":         bool(conf.env.HAVE_GL),
-         "Cairo support":          bool(conf.env.HAVE_CAIRO)})
+         "Vulkan support":         bool(conf.env.HAVE_VULKAN)})
 
 
 def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
@@ -368,6 +389,12 @@ def build(bld):
                           uselib=['GDI32', 'USER32', 'GL'],
                           source=['include/pugl/detail/win_gl.c'])
 
+        if bld.env.HAVE_VULKAN:
+            build_backend('win', 'vulkan',
+                          uselib=['GDI32', 'USER32', 'VULKAN'],
+                          source=['include/pugl/detail/win_vulkan.c',
+                                  'include/pugl/detail/win_stub.c'])
+
         if bld.env.HAVE_CAIRO:
             build_backend('win', 'cairo',
                           uselib=['CAIRO', 'GDI32', 'USER32'],
@@ -389,6 +416,11 @@ def build(bld):
                           framework=['Cocoa', 'Corevideo', 'OpenGL'],
                           source=['include/pugl/detail/mac_gl.m'])
 
+        if bld.env.HAVE_VULKAN:
+            build_backend('mac', 'vulkan',
+                          framework=['Cocoa', 'QuartzCore'],
+                          source=['include/pugl/detail/mac_vulkan.m'])
+
         if bld.env.HAVE_CAIRO:
             build_backend('mac', 'cairo',
                           framework=['Cocoa', 'Corevideo'],
@@ -409,6 +441,12 @@ def build(bld):
             build_backend('x11', 'gl',
                           uselib=[glx_lib, 'X11'],
                           source=['include/pugl/detail/x11_gl.c'])
+
+        if bld.env.HAVE_VULKAN:
+            build_backend('x11', 'vulkan',
+                          uselib=['DL', 'X11'],
+                          source=['include/pugl/detail/x11_vulkan.c',
+                                  'include/pugl/detail/x11_stub.c'])
 
         if bld.env.HAVE_CAIRO:
             build_backend('x11', 'cairo',
