@@ -24,6 +24,35 @@
 
 #include "pugl/pugl.h"
 
+// IWYU pragma: begin_exports
+
+/* Unfortunately, GL includes vary across platforms, so include them here to
+   enable pure portable programs. */
+
+#ifndef PUGL_NO_INCLUDE_GL_H
+#	ifdef __APPLE__
+#		include "OpenGL/gl.h"
+#	else
+#		ifdef _WIN32
+#			include <windows.h>
+#		endif
+#		include "GL/gl.h"
+#	endif
+#endif
+
+#ifndef PUGL_NO_INCLUDE_GLU_H
+#	ifdef __APPLE__
+#		include "OpenGL/glu.h"
+#	else
+#		ifdef _WIN32
+#			include <windows.h>
+#		endif
+#		include "GL/glu.h"
+#	endif
+#endif
+
+// IWYU pragma: end_exports
+
 PUGL_BEGIN_DECLS
 
 /**

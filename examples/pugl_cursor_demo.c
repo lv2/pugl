@@ -21,7 +21,6 @@
 
 #include "test/test_utils.h"
 
-#include "pugl/gl.h"
 #include "pugl/pugl.h"
 #include "pugl/pugl_gl.h"
 

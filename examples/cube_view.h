@@ -21,7 +21,7 @@
 
 #include "demo_utils.h"
 
-#include "pugl/gl.h"
+#include "pugl/pugl_gl.h"
 
 // clang-format off
 
