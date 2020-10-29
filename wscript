@@ -293,18 +293,27 @@ def configure(conf):
          "Vulkan support":         bool(conf.env.HAVE_VULKAN)})
 
 
-def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
+def _build_pc_file(bld,
+                   name,
+                   desc,
+                   target,
+                   libname,
+                   deps={},
+                   requires=[],
+                   cflags=[]):
     "Builds a pkg-config file for a library"
     env = bld.env
     prefix = env.PREFIX
     xprefix = os.path.dirname(env.LIBDIR)
-    libname = '%s-%s' % (libname, PUGL_MAJOR_VERSION)
+    if libname is not None:
+        libname += '-%s' % PUGL_MAJOR_VERSION
 
     uselib   = deps.get('uselib', [])
     pkg_deps = [l for l in uselib if 'PKG_' + l.lower() in env]
     lib_deps = [l for l in uselib if 'PKG_' + l.lower() not in env]
+    lib      = deps.get('lib', []) + [libname] if libname is not None else []
 
-    link_flags = [env.LIB_ST % l for l in (deps.get('lib', []) + [libname])]
+    link_flags = [env.LIB_ST % l for l in lib]
     for l in lib_deps:
         link_flags += [env.LIB_ST % l for l in env['LIB_' + l]]
     for f in deps.get('framework', []):
@@ -324,7 +333,8 @@ def _build_pc_file(bld, name, desc, target, libname, deps={}, requires=[]):
         DESCRIPTION=desc,
         PUGL_MAJOR_VERSION=PUGL_MAJOR_VERSION,
         REQUIRES=' '.join(requires + [p.lower() for p in pkg_deps]),
-        LIBS=' '.join(link_flags))
+        LIBS=' '.join(link_flags),
+        CFLAGS=' '.join(cflags))
 
 
 gl_tests = ['gl_hints']
@@ -354,8 +364,14 @@ def build(bld):
     # C Headers
     includedir = '${INCLUDEDIR}/pugl-%s/pugl' % PUGL_MAJOR_VERSION
     bld.install_files(includedir, bld.path.ant_glob('include/pugl/*.h'))
-    bld.install_files(includedir, bld.path.ant_glob('include/pugl/*.hpp'))
-    bld.install_files(includedir, bld.path.ant_glob('include/pugl/*.ipp'))
+
+    if 'COMPILER_CXX' in bld.env:
+        # C++ Headers
+        includedirxx = '${INCLUDEDIR}/puglxx-%s/pugl' % PUGL_MAJOR_VERSION
+        bld.install_files(includedirxx,
+                          bld.path.ant_glob('bindings/cxx/include/pugl/*.hpp'))
+        bld.install_files(includedirxx,
+                          bld.path.ant_glob('bindings/cxx/include/pugl/*.ipp'))
 
     # Library dependencies of pugl libraries (for building examples)
     deps = {}
@@ -399,7 +415,8 @@ def build(bld):
         build_pugl_lib(platform, **kwargs)
         _build_pc_file(bld, 'Pugl', 'Pugl GUI library core',
                        'pugl', 'pugl_%s' % platform,
-                       deps=kwargs)
+                       deps=kwargs,
+                       cflags=['-I${includedir}/pugl-%s' % PUGL_MAJOR_VERSION])
 
     def build_backend(platform, backend, **kwargs):
         name  = '%s_%s' % (platform, backend)
@@ -409,7 +426,8 @@ def build(bld):
                        'Pugl GUI library with %s backend' % label,
                        'pugl-%s' % backend, 'pugl_' + name,
                        deps=kwargs,
-                       requires=['pugl-%s' % PUGL_MAJOR_VERSION])
+                       requires=['pugl-%s' % PUGL_MAJOR_VERSION],
+                       cflags=['-I${includedir}/pugl-%s' % PUGL_MAJOR_VERSION])
 
     lib_source = ['src/implementation.c']
     if bld.env.TARGET_PLATFORM == 'win32':
@@ -487,6 +505,15 @@ def build(bld):
             build_backend('x11', 'cairo',
                           uselib=['CAIRO', 'X11'],
                           source=['src/x11_cairo.c', 'src/x11_stub.c'])
+
+    if 'COMPILER_CXX' in bld.env:
+        _build_pc_file(
+            bld, 'Pugl C++',
+            'C++ bindings for the Pugl GUI library',
+            'puglxx',
+            None,
+            requires=['pugl-%s' % PUGL_MAJOR_VERSION],
+            cflags=['-I${includedir}/puglxx-%s' % PUGL_MAJOR_VERSION])
 
     def build_example(prog, source, platform, backend, **kwargs):
         lang = 'cxx' if source[0].endswith('.cpp') else 'c'

@@ -64,6 +64,10 @@ this can be achieved by simply depending on the package `pugl-gl-0` or
 library, distributions should retain this separation so that GL applications
 don't depend on Cairo and its dependencies, or vice-versa.
 
+The C++ bindings are header-only but installed to a separate include path than
+the C headers.  Depending on the package `puglxx-0` (in addition to the
+appropriate backend package above) will enable their use.
+
 Distributions are encouraged to include static libraries if possible so that
 developers can build portable plugin binaries.
 
