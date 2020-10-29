@@ -25,7 +25,7 @@
 #include "stub.h"
 
 #include "pugl/pugl.h"
-#include "pugl/pugl_stub.h"
+#include "pugl/stub.h"
 
 #include <windows.h>
 #include <windowsx.h>

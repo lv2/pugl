@@ -14,7 +14,7 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#include "pugl/pugl_stub.h"
+#include "pugl/stub.h"
 
 #include "stub.h"
 #include "types.h"

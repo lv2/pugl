@@ -23,8 +23,8 @@
 #include "demo_utils.h"
 #include "test/test_utils.h"
 
+#include "pugl/gl.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_gl.h"
 
 #include <math.h>
 #include <stdbool.h>

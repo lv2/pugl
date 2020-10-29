@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2020 David Robillard <d@drobilla.net>
+  Copyright 2019-2020 David Robillard <d@drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -15,46 +15,38 @@
 */
 
 /**
-   @file pugl_gl.hpp
-   @brief OpenGL-specific C++ API.
+   @file stub.h
+   @brief Stub backend functions and accessor declaration.
 */
 
-#ifndef PUGL_PUGL_GL_HPP
-#define PUGL_PUGL_GL_HPP
+#ifndef PUGL_STUB_H
+#define PUGL_STUB_H
 
 #include "pugl/pugl.h"
-#include "pugl/pugl_gl.h"
 
-namespace pugl {
+PUGL_BEGIN_DECLS
 
 /**
-   @defgroup glxx OpenGL
-   OpenGL graphics support.
-   @ingroup pugl_cxx
+   @defgroup stub Stub
+   Native graphics support.
+   @ingroup pugl_c
    @{
 */
 
-/// @copydoc PuglGlFunc
-using GlFunc = PuglGlFunc;
+/**
+   Stub graphics backend accessor.
 
-/// @copydoc puglGetProcAddress
-static inline GlFunc
-getProcAddress(const char* name) noexcept
-{
-	return puglGetProcAddress(name);
-}
-
-/// @copydoc puglGlBackend
-static inline const PuglBackend*
-glBackend() noexcept
-{
-	return puglGlBackend();
-}
+   This backend just creates a simple native window without setting up any
+   portable graphics API.
+*/
+PUGL_API PUGL_CONST_FUNC
+const PuglBackend*
+puglStubBackend(void);
 
 /**
    @}
 */
 
-} // namespace pugl
+PUGL_END_DECLS
 
-#endif // PUGL_PUGL_GL_HPP
+#endif // PUGL_STUB_H

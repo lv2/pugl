@@ -37,7 +37,7 @@
 #include "pugl/pugl.h"
 #include "pugl/pugl.hpp"
 #include "pugl/pugl.ipp" // IWYU pragma: keep
-#include "pugl/pugl_vulkan.hpp"
+#include "pugl/vulkan.hpp"
 
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>

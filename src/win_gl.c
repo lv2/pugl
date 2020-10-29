@@ -23,7 +23,7 @@
 #include "types.h"
 #include "win.h"
 
-#include "pugl/pugl_gl.h"
+#include "pugl/gl.h"
 
 #include <windows.h>
 

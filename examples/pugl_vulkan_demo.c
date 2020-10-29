@@ -24,7 +24,7 @@
 #include "test/test_utils.h"
 
 #include "pugl/pugl.h"
-#include "pugl/pugl_vulkan.h"
+#include "pugl/vulkan.h"
 
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>

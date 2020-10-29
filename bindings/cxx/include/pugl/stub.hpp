@@ -15,36 +15,36 @@
 */
 
 /**
-   @file pugl_cairo.h
-   @brief Declaration of Cairo backend accessor.
+   @file stub.hpp
+   @brief Declaration of Stub backend accessor for C++.
 */
 
-#ifndef PUGL_PUGL_CAIRO_H
-#define PUGL_PUGL_CAIRO_H
+#ifndef PUGL_STUB_HPP
+#define PUGL_STUB_HPP
 
 #include "pugl/pugl.h"
+#include "pugl/stub.h"
 
-PUGL_BEGIN_DECLS
+namespace pugl {
 
 /**
-   @defgroup cairo Cairo
-   Cairo graphics support.
-   @ingroup pugl_c
+   @defgroup stubxx Stub
+   Stub graphics support.
+   @ingroup pugl_cxx
    @{
 */
 
-/**
-   Cairo graphics backend accessor.
-
-   Pass the returned value to puglSetBackend() to draw to a view with Cairo.
-*/
-PUGL_API PUGL_CONST_FUNC const PuglBackend*
-puglCairoBackend(void);
+/// @copydoc puglStubBackend
+static inline const PuglBackend*
+stubBackend() noexcept
+{
+	return puglStubBackend();
+}
 
 /**
    @}
 */
 
-PUGL_END_DECLS
+} // namespace pugl
 
-#endif // PUGL_PUGL_CAIRO_H
+#endif // PUGL_STUB_HPP

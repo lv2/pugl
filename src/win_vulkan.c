@@ -24,8 +24,8 @@
 #include "types.h"
 #include "win.h"
 
-#include "pugl/pugl_stub.h"
-#include "pugl/pugl_vulkan.h"
+#include "pugl/stub.h"
+#include "pugl/vulkan.h"
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_win32.h>

@@ -15,30 +15,40 @@
 */
 
 /**
-   @file pugl_stub.hpp
-   @brief Declaration of Stub backend accessor for C++.
+   @file gl.hpp
+   @brief OpenGL-specific C++ API.
 */
 
-#ifndef PUGL_PUGL_STUB_HPP
-#define PUGL_PUGL_STUB_HPP
+#ifndef PUGL_GL_HPP
+#define PUGL_GL_HPP
 
+#include "pugl/gl.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_stub.h"
 
 namespace pugl {
 
 /**
-   @defgroup stubxx Stub
-   Stub graphics support.
+   @defgroup glxx OpenGL
+   OpenGL graphics support.
    @ingroup pugl_cxx
    @{
 */
 
-/// @copydoc puglStubBackend
-static inline const PuglBackend*
-stubBackend() noexcept
+/// @copydoc PuglGlFunc
+using GlFunc = PuglGlFunc;
+
+/// @copydoc puglGetProcAddress
+static inline GlFunc
+getProcAddress(const char* name) noexcept
 {
-	return puglStubBackend();
+	return puglGetProcAddress(name);
+}
+
+/// @copydoc puglGlBackend
+static inline const PuglBackend*
+glBackend() noexcept
+{
+	return puglGlBackend();
 }
 
 /**
@@ -47,4 +57,4 @@ stubBackend() noexcept
 
 } // namespace pugl
 
-#endif // PUGL_PUGL_STUB_HPP
+#endif // PUGL_GL_HPP

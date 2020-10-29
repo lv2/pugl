@@ -20,10 +20,10 @@
 
 #define PUGL_DISABLE_DEPRECATED
 
-#include "pugl/pugl.h"       // IWYU pragma: keep
-#include "pugl/pugl_cairo.h" // IWYU pragma: keep
-#include "pugl/pugl_gl.h"    // IWYU pragma: keep
-#include "pugl/pugl_stub.h"  // IWYU pragma: keep
+#include "pugl/cairo.h" // IWYU pragma: keep
+#include "pugl/gl.h"    // IWYU pragma: keep
+#include "pugl/pugl.h"  // IWYU pragma: keep
+#include "pugl/stub.h"  // IWYU pragma: keep
 
 int
 main(void)

@@ -1,5 +1,5 @@
 /*
-  Copyright 2019-2020 David Robillard <d@drobilla.net>
+  Copyright 2012-2020 David Robillard <d@drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -15,38 +15,36 @@
 */
 
 /**
-   @file pugl_stub.h
-   @brief Stub backend functions and accessor declaration.
+   @file cairo.hpp
+   @brief Declaration of Cairo backend accessor for C++.
 */
 
-#ifndef PUGL_PUGL_STUB_H
-#define PUGL_PUGL_STUB_H
+#ifndef PUGL_CAIRO_HPP
+#define PUGL_CAIRO_HPP
 
+#include "pugl/cairo.h"
 #include "pugl/pugl.h"
 
-PUGL_BEGIN_DECLS
+namespace pugl {
 
 /**
-   @defgroup stub Stub
-   Native graphics support.
-   @ingroup pugl_c
+   @defgroup cairoxx Cairo
+   Cairo graphics support.
+   @ingroup pugl_cxx
    @{
 */
 
-/**
-   Stub graphics backend accessor.
-
-   This backend just creates a simple native window without setting up any
-   portable graphics API.
-*/
-PUGL_API PUGL_CONST_FUNC
-const PuglBackend*
-puglStubBackend(void);
+/// @copydoc puglCairoBackend
+static inline const PuglBackend*
+cairoBackend() noexcept
+{
+	return puglCairoBackend();
+}
 
 /**
    @}
 */
 
-PUGL_END_DECLS
+} // namespace pugl
 
-#endif // PUGL_PUGL_STUB_H
+#endif // PUGL_CAIRO_HPP

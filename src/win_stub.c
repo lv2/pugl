@@ -18,7 +18,7 @@
 #include "types.h"
 #include "win.h"
 
-#include "pugl/pugl_stub.h"
+#include "pugl/stub.h"
 
 PuglStatus
 puglWinStubConfigure(PuglView* view)

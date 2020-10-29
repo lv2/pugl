@@ -23,8 +23,8 @@
 #include "types.h"
 #include "x11.h"
 
+#include "pugl/gl.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_gl.h"
 
 #include <GL/glx.h>
 #include <X11/X.h>

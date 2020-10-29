@@ -15,12 +15,12 @@
 */
 
 /**
-   @file pugl_gl.h
+   @file gl.h
    @brief OpenGL-specific API.
 */
 
-#ifndef PUGL_PUGL_GL_H
-#define PUGL_PUGL_GL_H
+#ifndef PUGL_GL_H
+#define PUGL_GL_H
 
 #include "pugl/pugl.h"
 
@@ -87,4 +87,4 @@ PUGL_END_DECLS
    @}
 */
 
-#endif // PUGL_PUGL_GL_H
+#endif // PUGL_GL_H

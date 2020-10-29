@@ -899,8 +899,8 @@ puglGetHandle(PuglView* view);
 
    Pugl includes the following backends:
 
-   - puglGlBackend(), declared in pugl_gl.h
-   - puglCairoBackend(), declared in pugl_cairo.h
+   - puglGlBackend(), declared in pugl/gl.h
+   - puglCairoBackend(), declared in pugl/cairo.h
 
    Note that backends are modular and not compiled into the main Pugl library
    to avoid unnecessary dependencies.  To use a particular backend,

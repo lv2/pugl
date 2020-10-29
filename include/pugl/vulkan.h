@@ -15,15 +15,15 @@
 */
 
 /**
-   @file pugl_vulkan.h Vulkan-specific API.
+   @file vulkan.h Vulkan-specific API.
 
    Note that this header includes Vulkan headers, so if you are writing a
    program or plugin that dynamically loads vulkan, you should first define
    `VK_NO_PROTOTYPES` before including it.
 */
 
-#ifndef PUGL_PUGL_VULKAN_H
-#define PUGL_PUGL_VULKAN_H
+#ifndef PUGL_VULKAN_H
+#define PUGL_VULKAN_H
 
 #include "pugl/pugl.h"
 
@@ -145,4 +145,4 @@ puglVulkanBackend(void);
 
 PUGL_END_DECLS
 
-#endif // PUGL_PUGL_VULKAN_H
+#endif // PUGL_VULKAN_H

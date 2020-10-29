@@ -22,8 +22,8 @@
 #include "demo_utils.h"
 #include "test/test_utils.h"
 
+#include "pugl/cairo.h"
 #include "pugl/pugl.h"
-#include "pugl/pugl_cairo.h"
 
 #include <cairo.h>
 

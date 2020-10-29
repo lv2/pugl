@@ -25,7 +25,7 @@
 #include "x11.h"
 
 #include "pugl/pugl.h"
-#include "pugl/pugl_vulkan.h"
+#include "pugl/vulkan.h"
 
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_xlib.h>
