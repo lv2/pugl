@@ -19,8 +19,9 @@
    @brief Cairo graphics backend for X11.
 */
 
-#include "pugl/detail/types.h"
-#include "pugl/detail/x11.h"
+#include "types.h"
+#include "x11.h"
+
 #include "pugl/pugl.h"
 #include "pugl/pugl_cairo.h"
 

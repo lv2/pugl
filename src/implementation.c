@@ -19,7 +19,8 @@
    @brief Platform-independent implementation.
 */
 
-#include "pugl/detail/implementation.h"
+#include "implementation.h"
+
 #include "pugl/pugl.h"
 
 #include <assert.h>

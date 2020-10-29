@@ -20,9 +20,10 @@
 
 #define VK_NO_PROTOTYPES 1
 
-#include "pugl/detail/stub.h"
-#include "pugl/detail/types.h"
-#include "pugl/detail/x11.h"
+#include "stub.h"
+#include "types.h"
+#include "x11.h"
+
 #include "pugl/pugl.h"
 #include "pugl/pugl_vulkan.h"
 

@@ -22,7 +22,8 @@
 #ifndef PUGL_DETAIL_X11_H
 #define PUGL_DETAIL_X11_H
 
-#include "pugl/detail/types.h"
+#include "types.h"
+
 #include "pugl/pugl.h"
 
 #include <X11/X.h>

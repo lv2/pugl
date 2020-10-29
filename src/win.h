@@ -22,7 +22,7 @@
 #ifndef PUGL_DETAIL_WIN_H
 #define PUGL_DETAIL_WIN_H
 
-#include "pugl/detail/implementation.h"
+#include "implementation.h"
 
 #include <windows.h>
 

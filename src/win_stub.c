@@ -14,11 +14,11 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-#include "pugl/pugl_stub.h"
+#include "stub.h"
+#include "types.h"
+#include "win.h"
 
-#include "pugl/detail/stub.h"
-#include "pugl/detail/types.h"
-#include "pugl/detail/win.h"
+#include "pugl/pugl_stub.h"
 
 PuglStatus
 puglWinStubConfigure(PuglView* view)

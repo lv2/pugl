@@ -55,7 +55,6 @@ def configure(conf):
     if 'COMPILER_CXX' in conf.env:
         autowaf.set_cxx_lang(conf, 'c++11')
 
-    conf.env.ALL_HEADERS     = Options.options.all_headers
     conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
     platform                 = conf.env.TARGET_PLATFORM
 
@@ -357,12 +356,6 @@ def build(bld):
     bld.install_files(includedir, bld.path.ant_glob('include/pugl/*.h'))
     bld.install_files(includedir, bld.path.ant_glob('include/pugl/*.hpp'))
     bld.install_files(includedir, bld.path.ant_glob('include/pugl/*.ipp'))
-    if bld.env.ALL_HEADERS:
-        detaildir = os.path.join(includedir, 'detail')
-        bld.install_files(detaildir,
-                          bld.path.ant_glob('include/pugl/detail/*.h'))
-        bld.install_files(detaildir,
-                          bld.path.ant_glob('include/pugl/detail/*.c'))
 
     # Library dependencies of pugl libraries (for building examples)
     deps = {}
@@ -418,86 +411,82 @@ def build(bld):
                        deps=kwargs,
                        requires=['pugl-%s' % PUGL_MAJOR_VERSION])
 
-    lib_source = ['include/pugl/detail/implementation.c']
+    lib_source = ['src/implementation.c']
     if bld.env.TARGET_PLATFORM == 'win32':
         platform = 'win'
         build_platform('win',
                        uselib=['GDI32', 'USER32'],
-                       source=lib_source + ['include/pugl/detail/win.c'])
+                       source=lib_source + ['src/win.c'])
 
         build_backend('win', 'stub',
                       uselib=['GDI32', 'USER32'],
-                      source=['include/pugl/detail/win_stub.c'])
+                      source=['src/win_stub.c'])
 
         if bld.env.HAVE_GL:
             build_backend('win', 'gl',
                           uselib=['GDI32', 'USER32', 'GL'],
-                          source=['include/pugl/detail/win_gl.c'])
+                          source=['src/win_gl.c'])
 
         if bld.env.HAVE_VULKAN:
             build_backend('win', 'vulkan',
                           uselib=['GDI32', 'USER32', 'VULKAN'],
-                          source=['include/pugl/detail/win_vulkan.c',
-                                  'include/pugl/detail/win_stub.c'])
+                          source=['src/win_vulkan.c', 'src/win_stub.c'])
 
         if bld.env.HAVE_CAIRO:
             build_backend('win', 'cairo',
                           uselib=['CAIRO', 'GDI32', 'USER32'],
-                          source=['include/pugl/detail/win_cairo.c',
-                                  'include/pugl/detail/win_stub.c'])
+                          source=['src/win_cairo.c', 'src/win_stub.c'])
 
     elif bld.env.TARGET_PLATFORM == 'darwin':
         platform = 'mac'
         build_platform('mac',
                        framework=['Cocoa', 'Corevideo'],
-                       source=lib_source + ['include/pugl/detail/mac.m'])
+                       source=lib_source + ['src/mac.m'])
 
         build_backend('mac', 'stub',
                       framework=['Cocoa', 'Corevideo'],
-                      source=['include/pugl/detail/mac_stub.m'])
+                      source=['src/mac_stub.m'])
 
         if bld.env.HAVE_GL:
             build_backend('mac', 'gl',
                           framework=['Cocoa', 'Corevideo', 'OpenGL'],
-                          source=['include/pugl/detail/mac_gl.m'])
+                          source=['src/mac_gl.m'])
 
         if bld.env.HAVE_VULKAN:
             build_backend('mac', 'vulkan',
                           framework=['Cocoa', 'QuartzCore'],
-                          source=['include/pugl/detail/mac_vulkan.m'])
+                          source=['src/mac_vulkan.m'])
 
         if bld.env.HAVE_CAIRO:
             build_backend('mac', 'cairo',
                           framework=['Cocoa', 'Corevideo'],
                           uselib=['CAIRO'],
-                          source=['include/pugl/detail/mac_cairo.m'])
+                          source=['src/mac_cairo.m'])
     else:
         platform = 'x11'
         build_platform('x11',
                        uselib=['M', 'X11', 'XSYNC', 'XCURSOR', 'XRANDR'],
-                       source=lib_source + ['include/pugl/detail/x11.c'])
+                       source=lib_source + ['src/x11.c'])
 
         build_backend('x11', 'stub',
                       uselib=['X11'],
-                      source=['include/pugl/detail/x11_stub.c'])
+                      source=['src/x11_stub.c'])
 
         if bld.env.HAVE_GL:
             glx_lib = 'GLX' if bld.env.LIB_GLX else 'GL'
             build_backend('x11', 'gl',
                           uselib=[glx_lib, 'X11'],
-                          source=['include/pugl/detail/x11_gl.c'])
+                          source=['src/x11_gl.c'])
 
         if bld.env.HAVE_VULKAN:
             build_backend('x11', 'vulkan',
                           uselib=['DL', 'X11'],
-                          source=['include/pugl/detail/x11_vulkan.c',
-                                  'include/pugl/detail/x11_stub.c'])
+                          source=['src/x11_vulkan.c', 'src/x11_stub.c'])
 
         if bld.env.HAVE_CAIRO:
             build_backend('x11', 'cairo',
                           uselib=['CAIRO', 'X11'],
-                          source=['include/pugl/detail/x11_cairo.c',
-                                  'include/pugl/detail/x11_stub.c'])
+                          source=['src/x11_cairo.c', 'src/x11_stub.c'])
 
     def build_example(prog, source, platform, backend, **kwargs):
         lang = 'cxx' if source[0].endswith('.cpp') else 'c'
@@ -695,9 +684,9 @@ def lint(ctx):
                "-Xiwyu", "--check_also=pugl/*.h",
                "-Xiwyu", "--check_also=pugl/*.hpp",
                "-Xiwyu", "--check_also=pugl/*.ipp",
-               "-Xiwyu", "--check_also=pugl/detail/*.c",
-               "-Xiwyu", "--check_also=pugl/detail/*.h",
-               "-Xiwyu", "--check_also=pugl/detail/*.m"]
+               "-Xiwyu", "--check_also=src/*.c",
+               "-Xiwyu", "--check_also=src/*.h",
+               "-Xiwyu", "--check_also=src/*.m"]
         output = subprocess.check_output(cmd).decode('utf-8')
         if 'error: ' in output:
             sys.stdout.write(output)

@@ -19,9 +19,10 @@
    @brief Stub graphics backend for MacOS.
 */
 
-#include "pugl/detail/implementation.h"
-#include "pugl/detail/mac.h"
-#include "pugl/detail/stub.h"
+#include "implementation.h"
+#include "mac.h"
+#include "stub.h"
+
 #include "pugl/pugl_stub.h"
 
 #import <Cocoa/Cocoa.h>
