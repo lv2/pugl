@@ -29,7 +29,7 @@ PUGL_BEGIN_DECLS
 /**
    @defgroup stub Stub
    Native graphics support.
-   @ingroup pugl_c
+   @ingroup pugl
    @{
 */
 

@@ -41,7 +41,7 @@ PUGL_BEGIN_DECLS
    Vulkan library, and a portable function to create a Vulkan surface for a
    view, which hides the platform-specific implementation details.
 
-   @ingroup pugl_c
+   @ingroup pugl
    @{
 */
 

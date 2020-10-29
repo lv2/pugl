@@ -32,16 +32,13 @@
 #include <stdexcept>
 #include <type_traits>
 
-/**
-   Pugl C++ API namespace.
-*/
 namespace pugl {
 
 /**
-   @defgroup pugl_cxx C++ API
+   @defgroup puglxx Pugl C++ API
    C++ API wrapper.
 
-   @ingroup pugl
+   @ingroup pugldoc
    @{
 */
 

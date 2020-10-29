@@ -671,7 +671,10 @@ def build(bld):
                           uselib=['GL', 'M'])
 
     if bld.env.DOCS:
-        autowaf.build_dox(bld, 'PUGL', PUGL_VERSION, top, out)
+        autowaf.build_dox(
+            bld, 'PUGL', PUGL_VERSION, top, out, install_man=False)
+        bld.install_files('${MANDIR}/man3', 'doc/man/man3/pugl.3')
+        bld.install_files('${MANDIR}/man3', 'doc/man/man3/puglxx.3')
 
 
 def test(tst):

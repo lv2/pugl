@@ -70,12 +70,12 @@
 PUGL_BEGIN_DECLS
 
 /**
-   @defgroup pugl Pugl
+   @defgroup pugldoc Pugl
    A minimal portable API for embeddable GUIs.
    @{
 
-   @defgroup pugl_c C API
-   Public C API.
+   @defgroup pugl Pugl C API
+   Pugl C API.
    @{
 */
 

@@ -4,8 +4,8 @@ This is the documentation for Pugl, a minimal API for writing GUIs.
 
 Pugl is implemented in C, but also provides a header-only C++ API wrapper.
 
- * [C API reference](@ref pugl_c)
- * [C++ API reference](@ref pugl_cxx)
+ * [C API reference](@ref pugl)
+ * [C++ API reference](@ref puglxx)
 
 ## Overview
 
