@@ -491,6 +491,8 @@ def build(bld):
     def build_example(prog, source, platform, backend, **kwargs):
         lang = 'cxx' if source[0].endswith('.cpp') else 'c'
 
+        includes = ['.'] + (['bindings/cxx/include'] if lang == 'cxx' else [])
+
         use = ['pugl_%s_static' % platform,
                'pugl_%s_%s_static' % (platform, backend)]
 
@@ -501,7 +503,7 @@ def build(bld):
             bld(features     = 'subst',
                 source       = 'resources/Info.plist.in',
                 target       = '{}.app/Contents/Info.plist'.format(prog),
-                includes     = ['.'],
+                includes     = includes,
                 install_path = '',
                 NAME         = prog)
 
@@ -514,7 +516,7 @@ def build(bld):
         bld(features     = '%s %sprogram' % (lang, lang),
             source       = source,
             target       = target,
-            includes     = ['.'],
+            includes     = includes,
             use          = use,
             install_path = '',
             **kwargs)
@@ -631,6 +633,7 @@ def build(bld):
                 target       = 'test/test_build_cpp',
                 install_path = '',
                 env          = strict_env,
+                includes     = ['bindings/cxx/include'],
                 use          = ['pugl_%s_static' % platform],
                 uselib       = deps[platform]['uselib'] + ['CAIRO'])
 
@@ -682,8 +685,7 @@ def lint(ctx):
                "-Xiwyu", "--check_also=examples/*.hpp",
                "-Xiwyu", "--check_also=examples/*",
                "-Xiwyu", "--check_also=pugl/*.h",
-               "-Xiwyu", "--check_also=pugl/*.hpp",
-               "-Xiwyu", "--check_also=pugl/*.ipp",
+               "-Xiwyu", "--check_also=bindings/cxx/include/pugl/*.*",
                "-Xiwyu", "--check_also=src/*.c",
                "-Xiwyu", "--check_also=src/*.h",
                "-Xiwyu", "--check_also=src/*.m"]
