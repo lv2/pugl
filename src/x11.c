@@ -360,15 +360,11 @@ puglRealize(PuglView* view)
 
 	// Create input context
 	const XIMStyle im_style = XIMPreeditNothing | XIMStatusNothing;
-	if (!(impl->xic = XCreateIC(world->impl->xim,
-	                            XNInputStyle,   im_style,
-	                            XNClientWindow, win,
-	                            XNFocusWindow,  win,
-	                            NULL))) {
-		view->world->logFunc(view->world,
-		                     PUGL_LOG_LEVEL_WARNING,
-		                     "XCreateID failed\n");
-	}
+	impl->xic = XCreateIC(world->impl->xim,
+	                      XNInputStyle,   im_style,
+	                      XNClientWindow, win,
+	                      XNFocusWindow,  win,
+	                      NULL);
 
 #ifdef HAVE_XCURSOR
 	puglDefineCursorShape(view, impl->cursorShape);

@@ -83,12 +83,10 @@ struct PuglViewImpl {
 struct PuglWorldImpl {
 	PuglWorldInternals* impl;
 	PuglWorldHandle     handle;
-	PuglLogFunc         logFunc;
 	char*               className;
 	double              startTime;
 	size_t              numViews;
 	PuglView**          views;
-	PuglLogLevel        logLevel;
 };
 
 /// Opaque surface used by graphics backend

@@ -27,7 +27,6 @@
 #include <cassert>
 #include <chrono>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <stdexcept>
 #include <type_traits>
@@ -236,20 +235,6 @@ static_assert(WorldFlag(PUGL_WORLD_THREADS) == WorldFlag::threads, "");
 
 using WorldFlags = PuglWorldFlags; ///< @copydoc PuglWorldFlags
 
-/// @copydoc PuglLogLevel
-enum class LogLevel {
-	err     = PUGL_LOG_LEVEL_ERR,     ///< @copydoc PUGL_LOG_LEVEL_ERR
-	warning = PUGL_LOG_LEVEL_WARNING, ///< @copydoc PUGL_LOG_LEVEL_WARNING
-	info    = PUGL_LOG_LEVEL_INFO,    ///< @copydoc PUGL_LOG_LEVEL_INFO
-	debug   = PUGL_LOG_LEVEL_DEBUG,   ///< @copydoc PUGL_LOG_LEVEL_DEBUG
-};
-
-static_assert(LogLevel(PUGL_LOG_LEVEL_DEBUG) == LogLevel::debug, "");
-
-/// @copydoc PuglLogFunc
-using LogFunc =
-    std::function<void(World& world, LogLevel level, const char* msg)>;
-
 /**
    A `std::chrono` compatible clock that uses Pugl time.
 */
@@ -309,14 +294,6 @@ public:
 
 	/// @copydoc puglGetNativeWorld
 	void* nativeWorld() { return puglGetNativeWorld(cobj()); }
-
-	// TODO: setLogFunc
-
-	Status setLogLevel(const LogLevel level)
-	{
-		return static_cast<Status>(
-		    puglSetLogLevel(cobj(), static_cast<PuglLogLevel>(level)));
-	}
 
 	/// @copydoc puglSetClassName
 	Status setClassName(const char* const name)

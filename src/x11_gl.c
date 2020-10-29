@@ -109,23 +109,6 @@ puglX11GlConfigure(PuglView* view)
 	view->hints[PUGL_DOUBLE_BUFFER] = puglX11GlGetAttrib(
 	    display, fbc[0], GLX_DOUBLEBUFFER);
 
-	char msg[256];
-
-	snprintf(
-	    msg,
-	    sizeof(msg),
-	    "Using visual 0x%lX: R=%d G=%d B=%d A=%d D=%d DOUBLE=%d SAMPLES=%d\n",
-	    impl->vi->visualid,
-	    puglX11GlGetAttrib(display, fbc[0], GLX_RED_SIZE),
-	    puglX11GlGetAttrib(display, fbc[0], GLX_GREEN_SIZE),
-	    puglX11GlGetAttrib(display, fbc[0], GLX_BLUE_SIZE),
-	    puglX11GlGetAttrib(display, fbc[0], GLX_ALPHA_SIZE),
-	    puglX11GlGetAttrib(display, fbc[0], GLX_DEPTH_SIZE),
-	    puglX11GlGetAttrib(display, fbc[0], GLX_DOUBLEBUFFER),
-	    puglX11GlGetAttrib(display, fbc[0], GLX_SAMPLES));
-
-	view->world->logFunc(view->world, PUGL_LOG_LEVEL_INFO, msg);
-
 	XFree(fbc);
 
 	return PUGL_SUCCESS;

@@ -651,25 +651,6 @@ typedef enum {
 /// Bitwise OR of #PuglWorldFlag values
 typedef uint32_t PuglWorldFlags;
 
-/// A log message level, compatible with syslog
-typedef enum {
-	PUGL_LOG_LEVEL_ERR     = 3, ///< Error
-	PUGL_LOG_LEVEL_WARNING = 4, ///< Warning
-	PUGL_LOG_LEVEL_INFO    = 6, ///< Informational message
-	PUGL_LOG_LEVEL_DEBUG   = 7  ///< Debug message
-} PuglLogLevel;
-
-/**
-   A function called to report log messages.
-
-   @param world The world that produced this log message.
-   @param level Log level.
-   @param msg Message string.
-*/
-typedef void (*PuglLogFunc)(PuglWorld*   world,
-                            PuglLogLevel level,
-                            const char*  msg);
-
 /**
    Create a new world.
 
@@ -709,23 +690,6 @@ puglGetWorldHandle(PuglWorld* world);
 */
 PUGL_API void*
 puglGetNativeWorld(PuglWorld* world);
-
-/**
-   Set the function to call to log a message.
-
-   This will be called to report any log messages generated internally by Pugl
-   which are enabled according to the log level.
-*/
-PUGL_API PuglStatus
-puglSetLogFunc(PuglWorld* world, PuglLogFunc logFunc);
-
-/**
-   Set the level of log messages to emit.
-
-   Any log messages with a level less than or equal to `level` will be emitted.
-*/
-PUGL_API PuglStatus
-puglSetLogLevel(PuglWorld* world, PuglLogLevel level);
 
 /**
    Set the class name of the application.

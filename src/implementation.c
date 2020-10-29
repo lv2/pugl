@@ -29,30 +29,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static const char*
-puglLogLevelPrefix(const PuglLogLevel level)
-{
-	switch (level) {
-	case PUGL_LOG_LEVEL_ERR:
-		return "error: ";
-	case PUGL_LOG_LEVEL_WARNING:
-		return "warning: ";
-	case PUGL_LOG_LEVEL_INFO:
-	case PUGL_LOG_LEVEL_DEBUG:
-		return "";
-	}
-
-	return "";
-}
-
-static void
-puglDefaultLogFunc(PuglWorld*   PUGL_UNUSED(world),
-                   PuglLogLevel level,
-                   const char*  msg)
-{
-	fprintf(stderr, "%s%s", puglLogLevelPrefix(level), msg);
-}
-
 const char*
 puglStrerror(const PuglStatus status)
 {
@@ -131,8 +107,6 @@ puglNewWorld(PuglWorldType type, PuglWorldFlags flags)
 	}
 
 	world->startTime = puglGetTime(world);
-	world->logFunc   = puglDefaultLogFunc;
-	world->logLevel  = PUGL_LOG_LEVEL_INFO;
 
 	puglSetString(&world->className, "Pugl");
 
@@ -158,22 +132,6 @@ PuglWorldHandle
 puglGetWorldHandle(PuglWorld* world)
 {
 	return world->handle;
-}
-
-PuglStatus
-puglSetLogFunc(PuglWorld* world, PuglLogFunc logFunc)
-{
-	world->logFunc = logFunc;
-
-	return PUGL_SUCCESS;
-}
-
-PuglStatus
-puglSetLogLevel(PuglWorld* world, PuglLogLevel level)
-{
-	world->logLevel = level;
-
-	return PUGL_SUCCESS;
 }
 
 PuglStatus
