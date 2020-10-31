@@ -275,19 +275,19 @@ public:
 	}
 
 	/// @copydoc puglGetNativeWorld
-	void* nativeWorld() { return puglGetNativeWorld(cobj()); }
+	void* nativeWorld() noexcept { return puglGetNativeWorld(cobj()); }
 
 	/// @copydoc puglSetClassName
-	Status setClassName(const char* const name)
+	Status setClassName(const char* const name) noexcept
 	{
 		return static_cast<Status>(puglSetClassName(cobj(), name));
 	}
 
 	/// @copydoc puglGetTime
-	double time() const { return puglGetTime(cobj()); }
+	double time() const noexcept { return puglGetTime(cobj()); }
 
 	/// @copydoc puglUpdate
-	Status update(const double timeout)
+	Status update(const double timeout) noexcept
 	{
 		return static_cast<Status>(puglUpdate(cobj(), timeout));
 	}
@@ -369,18 +369,18 @@ public:
 	View(View&&)   = delete;
 	View&& operator=(View&&) = delete;
 
-	const World& world() const { return _world; }
-	World&       world() { return _world; }
+	const World& world() const noexcept { return _world; }
+	World&       world() noexcept { return _world; }
 
 	/// @copydoc puglSetViewHint
-	Status setHint(ViewHint hint, int value)
+	Status setHint(ViewHint hint, int value) noexcept
 	{
 		return static_cast<Status>(
 		    puglSetViewHint(cobj(), static_cast<PuglViewHint>(hint), value));
 	}
 
 	/// @copydoc puglGetViewHint
-	int getHint(ViewHint hint)
+	int getHint(ViewHint hint) noexcept
 	{
 		return puglGetViewHint(cobj(), static_cast<PuglViewHint>(hint));
 	}
@@ -393,34 +393,34 @@ public:
 	*/
 
 	/// @copydoc puglGetFrame
-	Rect frame() const { return puglGetFrame(cobj()); }
+	Rect frame() const noexcept { return puglGetFrame(cobj()); }
 
 	/// @copydoc puglSetFrame
-	Status setFrame(Rect frame)
+	Status setFrame(Rect frame) noexcept
 	{
 		return static_cast<Status>(puglSetFrame(cobj(), frame));
 	}
 
 	/// @copydoc puglSetDefaultSize
-	Status setDefaultSize(int width, int height)
+	Status setDefaultSize(int width, int height) noexcept
 	{
 		return static_cast<Status>(puglSetDefaultSize(cobj(), width, height));
 	}
 
 	/// @copydoc puglSetMinSize
-	Status setMinSize(int width, int height)
+	Status setMinSize(int width, int height) noexcept
 	{
 		return static_cast<Status>(puglSetMinSize(cobj(), width, height));
 	}
 
 	/// @copydoc puglSetMaxSize
-	Status setMaxSize(int width, int height)
+	Status setMaxSize(int width, int height) noexcept
 	{
 		return static_cast<Status>(puglSetMaxSize(cobj(), width, height));
 	}
 
 	/// @copydoc puglSetAspectRatio
-	Status setAspectRatio(int minX, int minY, int maxX, int maxY)
+	Status setAspectRatio(int minX, int minY, int maxX, int maxY) noexcept
 	{
 		return static_cast<Status>(
 		    puglSetAspectRatio(cobj(), minX, minY, maxX, maxY));
@@ -434,37 +434,46 @@ public:
 	*/
 
 	/// @copydoc puglSetWindowTitle
-	Status setWindowTitle(const char* title)
+	Status setWindowTitle(const char* title) noexcept
 	{
 		return static_cast<Status>(puglSetWindowTitle(cobj(), title));
 	}
 
 	/// @copydoc puglSetParentWindow
-	Status setParentWindow(NativeView parent)
+	Status setParentWindow(NativeView parent) noexcept
 	{
 		return static_cast<Status>(puglSetParentWindow(cobj(), parent));
 	}
 
 	/// @copydoc puglSetTransientFor
-	Status setTransientFor(NativeView parent)
+	Status setTransientFor(NativeView parent) noexcept
 	{
 		return static_cast<Status>(puglSetTransientFor(cobj(), parent));
 	}
 
 	/// @copydoc puglRealize
-	Status realize() { return static_cast<Status>(puglRealize(cobj())); }
+	Status realize() noexcept
+	{
+		return static_cast<Status>(puglRealize(cobj()));
+	}
 
 	/// @copydoc puglShowWindow
-	Status showWindow() { return static_cast<Status>(puglShowWindow(cobj())); }
+	Status showWindow() noexcept
+	{
+		return static_cast<Status>(puglShowWindow(cobj()));
+	}
 
 	/// @copydoc puglHideWindow
-	Status hideWindow() { return static_cast<Status>(puglHideWindow(cobj())); }
+	Status hideWindow() noexcept
+	{
+		return static_cast<Status>(puglHideWindow(cobj()));
+	}
 
 	/// @copydoc puglGetVisible
-	bool visible() const { return puglGetVisible(cobj()); }
+	bool visible() const noexcept { return puglGetVisible(cobj()); }
 
 	/// @copydoc puglGetNativeWindow
-	NativeView nativeWindow() { return puglGetNativeWindow(cobj()); }
+	NativeView nativeWindow() noexcept { return puglGetNativeWindow(cobj()); }
 
 	/**
 	   @}
@@ -475,16 +484,16 @@ public:
 	*/
 
 	/// @copydoc puglGetContext
-	void* context() { return puglGetContext(cobj()); }
+	void* context() noexcept { return puglGetContext(cobj()); }
 
 	/// @copydoc puglPostRedisplay
-	Status postRedisplay()
+	Status postRedisplay() noexcept
 	{
 		return static_cast<Status>(puglPostRedisplay(cobj()));
 	}
 
 	/// @copydoc puglPostRedisplayRect
-	Status postRedisplayRect(const Rect rect)
+	Status postRedisplayRect(const Rect rect) noexcept
 	{
 		return static_cast<Status>(puglPostRedisplayRect(cobj(), rect));
 	}
@@ -497,38 +506,41 @@ public:
 	*/
 
 	/// @copydoc puglGrabFocus
-	Status grabFocus() { return static_cast<Status>(puglGrabFocus(cobj())); }
+	Status grabFocus() noexcept
+	{
+		return static_cast<Status>(puglGrabFocus(cobj()));
+	}
 
 	/// @copydoc puglHasFocus
-	bool hasFocus() const { return puglHasFocus(cobj()); }
+	bool hasFocus() const noexcept { return puglHasFocus(cobj()); }
 
 	/// @copydoc puglSetBackend
-	Status setBackend(const PuglBackend* backend)
+	Status setBackend(const PuglBackend* backend) noexcept
 	{
 		return static_cast<Status>(puglSetBackend(cobj(), backend));
 	}
 
 	/// @copydoc puglSetCursor
-	Status setCursor(const Cursor cursor)
+	Status setCursor(const Cursor cursor) noexcept
 	{
 		return static_cast<Status>(
 		    puglSetCursor(cobj(), static_cast<PuglCursor>(cursor)));
 	}
 
 	/// @copydoc puglRequestAttention
-	Status requestAttention()
+	Status requestAttention() noexcept
 	{
 		return static_cast<Status>(puglRequestAttention(cobj()));
 	}
 
 	/// @copydoc puglStartTimer
-	Status startTimer(const uintptr_t id, const double timeout)
+	Status startTimer(const uintptr_t id, const double timeout) noexcept
 	{
 		return static_cast<Status>(puglStartTimer(cobj(), id, timeout));
 	}
 
 	/// @copydoc puglStopTimer
-	Status stopTimer(const uintptr_t id)
+	Status stopTimer(const uintptr_t id) noexcept
 	{
 		return static_cast<Status>(puglStopTimer(cobj(), id));
 	}
@@ -568,8 +580,8 @@ public:
 	   @}
 	*/
 
-	PuglView*       cobj() { return Wrapper::cobj(); }
-	const PuglView* cobj() const { return Wrapper::cobj(); }
+	PuglView*       cobj() noexcept { return Wrapper::cobj(); }
+	const PuglView* cobj() const noexcept { return Wrapper::cobj(); }
 
 private:
 	static PuglStatus
