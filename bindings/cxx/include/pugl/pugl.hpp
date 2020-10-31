@@ -27,7 +27,6 @@
 #include <cassert>
 #include <chrono>
 #include <cstdint>
-#include <memory>
 #include <stdexcept>
 #include <type_traits>
 
@@ -47,12 +46,6 @@ namespace detail {
 template<typename T>
 using FreeFunc = void (*)(T*);
 
-/// Simple overhead-free deleter for a C object
-template<typename T, FreeFunc<T> Free>
-struct Deleter {
-	void operator()(T* ptr) { Free(ptr); }
-};
-
 /// Generic C++ wrapper for a C object
 template<class T, FreeFunc<T> Free>
 class Wrapper
@@ -61,19 +54,30 @@ public:
 	Wrapper(const Wrapper&) = delete;
 	Wrapper& operator=(const Wrapper&) = delete;
 
-	Wrapper(Wrapper&&) noexcept = default;
-	Wrapper& operator=(Wrapper&&) noexcept = default;
+	Wrapper(Wrapper&& wrapper) noexcept
+	    : _ptr{wrapper._ptr}
+	{
+		wrapper._ptr = nullptr;
+	}
 
-	T*       cobj() noexcept { return _ptr.get(); }
-	const T* cobj() const noexcept { return _ptr.get(); }
+	Wrapper& operator=(Wrapper&& wrapper) noexcept
+	{
+		_ptr         = wrapper._ptr;
+		wrapper._ptr = nullptr;
+	}
+
+	~Wrapper() noexcept { Free(_ptr); }
+
+	T*       cobj() noexcept { return _ptr; }
+	const T* cobj() const noexcept { return _ptr; }
 
 protected:
 	explicit Wrapper(T* ptr) noexcept
-	    : _ptr(ptr, Deleter<T, Free>{})
+	    : _ptr{ptr}
 	{}
 
 private:
-	std::unique_ptr<T, Deleter<T, Free>> _ptr;
+	T* _ptr;
 };
 
 } // namespace detail
