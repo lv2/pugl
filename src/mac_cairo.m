@@ -23,7 +23,7 @@
 #include "mac.h"
 #include "stub.h"
 
-#include "pugl/pugl_cairo.h"
+#include "pugl/cairo.h"
 
 #include <cairo-quartz.h>
 
