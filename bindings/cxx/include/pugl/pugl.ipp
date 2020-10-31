@@ -25,6 +25,12 @@
 
 namespace pugl {
 
+const char*
+FailedConstructionError::what() const noexcept
+{
+	return _msg;
+}
+
 Status
 View::onCreate(const CreateEvent&)
 {

@@ -26,7 +26,7 @@
 
 #include <cassert>
 #include <cstdint>
-#include <stdexcept>
+#include <exception>
 #include <type_traits>
 
 namespace pugl {
@@ -236,6 +236,20 @@ static_assert(WorldFlag(PUGL_WORLD_THREADS) == WorldFlag::threads, "");
 
 using WorldFlags = PuglWorldFlags; ///< @copydoc PuglWorldFlags
 
+/// An exception thrown when construction fails
+class FailedConstructionError : public std::exception
+{
+public:
+	FailedConstructionError(const char* const msg) noexcept
+	    : _msg{msg}
+	{}
+
+	virtual const char* what() const noexcept override;
+
+private:
+	const char* _msg;
+};
+
 /// @copydoc PuglWorld
 class World : public detail::Wrapper<PuglWorld, puglFreeWorld>
 {
@@ -250,7 +264,7 @@ public:
 	    : Wrapper{puglNewWorld(static_cast<PuglWorldType>(type), flags)}
 	{
 		if (!cobj()) {
-			throw std::runtime_error("Failed to create pugl::World");
+			throw FailedConstructionError("Failed to create pugl::World");
 		}
 	}
 
@@ -258,7 +272,7 @@ public:
 	    : World{type, {}}
 	{
 		if (!cobj()) {
-			throw std::runtime_error("Failed to create pugl::World");
+			throw FailedConstructionError("Failed to create pugl::World");
 		}
 	}
 
@@ -342,7 +356,7 @@ public:
 	    , _world(world)
 	{
 		if (!cobj()) {
-			throw std::runtime_error("Failed to create pugl::View");
+			throw FailedConstructionError("Failed to create pugl::View");
 		}
 
 		puglSetHandle(cobj(), this);
