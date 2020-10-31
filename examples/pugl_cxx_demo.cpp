@@ -26,30 +26,23 @@
 #include "pugl/gl.hpp"
 #include "pugl/pugl.h"
 #include "pugl/pugl.hpp"
-#include "pugl/pugl.ipp" // IWYU pragma: keep
 
 #include <cmath>
 
-class CubeView : public pugl::View
+class CubeView : public pugl::View<CubeView>
 {
 public:
 	explicit CubeView(pugl::World& world)
-	    : pugl::View{world}
+	    : pugl::View<CubeView>{world}
 	{}
 
-	CubeView(const CubeView&) = delete;
-	CubeView& operator=(const CubeView&) = delete;
+	using pugl::View<CubeView>::onEvent;
 
-	CubeView(CubeView&&) = delete;
-	CubeView& operator=(CubeView&&) = delete;
-
-	~CubeView() override = default;
-
-	pugl::Status onConfigure(const pugl::ConfigureEvent& event) override;
-	pugl::Status onUpdate(const pugl::UpdateEvent& event) override;
-	pugl::Status onExpose(const pugl::ExposeEvent& event) override;
-	pugl::Status onKeyPress(const pugl::KeyPressEvent& event) override;
-	pugl::Status onClose(const pugl::CloseEvent& event) override;
+	static pugl::Status onEvent(const pugl::ConfigureEvent& event) noexcept;
+	pugl::Status        onEvent(const pugl::UpdateEvent& event) noexcept;
+	pugl::Status        onEvent(const pugl::ExposeEvent& event) noexcept;
+	pugl::Status        onEvent(const pugl::KeyPressEvent& event) noexcept;
+	pugl::Status        onEvent(const pugl::CloseEvent& event) noexcept;
 
 	bool quit() const { return _quit; }
 
@@ -61,7 +54,7 @@ private:
 };
 
 pugl::Status
-CubeView::onConfigure(const pugl::ConfigureEvent& event)
+CubeView::onEvent(const pugl::ConfigureEvent& event) noexcept
 {
 	reshapeCube(static_cast<float>(event.width),
 	            static_cast<float>(event.height));
@@ -70,13 +63,13 @@ CubeView::onConfigure(const pugl::ConfigureEvent& event)
 }
 
 pugl::Status
-CubeView::onUpdate(const pugl::UpdateEvent&)
+CubeView::onEvent(const pugl::UpdateEvent&) noexcept
 {
 	return postRedisplay();
 }
 
 pugl::Status
-CubeView::onExpose(const pugl::ExposeEvent&)
+CubeView::onEvent(const pugl::ExposeEvent&) noexcept
 {
 	const double thisTime = world().time();
 	const double dTime    = thisTime - _lastDrawTime;
@@ -96,7 +89,7 @@ CubeView::onExpose(const pugl::ExposeEvent&)
 }
 
 pugl::Status
-CubeView::onKeyPress(const pugl::KeyPressEvent& event)
+CubeView::onEvent(const pugl::KeyPressEvent& event) noexcept
 {
 	if (event.key == PUGL_KEY_ESCAPE || event.key == 'q') {
 		_quit = true;
@@ -106,7 +99,7 @@ CubeView::onKeyPress(const pugl::KeyPressEvent& event)
 }
 
 pugl::Status
-CubeView::onClose(const pugl::CloseEvent&)
+CubeView::onEvent(const pugl::CloseEvent&) noexcept
 {
 	_quit = true;
 

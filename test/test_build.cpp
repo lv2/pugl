@@ -24,7 +24,6 @@
 #include "pugl/gl.hpp"    // IWYU pragma: keep
 #include "pugl/pugl.h"    // IWYU pragma: keep
 #include "pugl/pugl.hpp"  // IWYU pragma: keep
-#include "pugl/pugl.ipp"  // IWYU pragma: keep
 #include "pugl/stub.hpp"  // IWYU pragma: keep
 
 int

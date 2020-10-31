@@ -143,7 +143,7 @@ getInstanceExtensions() noexcept
 /// @copydoc puglCreateSurface
 inline VkResult
 createSurface(const VulkanLoader&                loader,
-              View&                              view,
+              ViewBase&                          view,
               VkInstance                         instance,
               const VkAllocationCallbacks* const allocator,
               VkSurfaceKHR* const                surface) noexcept

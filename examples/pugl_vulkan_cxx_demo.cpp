@@ -36,7 +36,6 @@
 
 #include "pugl/pugl.h"
 #include "pugl/pugl.hpp"
-#include "pugl/pugl.ipp" // IWYU pragma: keep
 #include "pugl/vulkan.hpp"
 
 #include <vulkan/vk_platform.h>
@@ -79,7 +78,7 @@ struct VulkanContext {
 struct GraphicsDevice {
 	VkResult init(const pugl::VulkanLoader& loader,
 	              const VulkanContext&      context,
-	              pugl::View&               view,
+	              pugl::ViewBase&           view,
 	              const PuglTestOptions&    opts);
 
 	sk::SurfaceKHR     surface;
@@ -410,7 +409,7 @@ selectPhysicalDevice(const sk::VulkanApi&     vk,
 VkResult
 GraphicsDevice::init(const pugl::VulkanLoader& loader,
                      const VulkanContext&      context,
-                     pugl::View&               view,
+                     pugl::ViewBase&           view,
                      const PuglTestOptions&    opts)
 {
 	const auto& vk = context.vk;
@@ -1373,22 +1372,24 @@ recordCommandBuffers(const sk::VulkanApi& vk,
 
 class PuglVulkanDemo;
 
-class View : public pugl::View
+class View : public pugl::View<View>
 {
 public:
 	View(pugl::World& world, PuglVulkanDemo& app)
-	    : pugl::View{world}
+	    : pugl::View<View>{world}
 	    , _app{app}
 	{}
 
-	pugl::Status onConfigure(const pugl::ConfigureEvent& event) override;
-	pugl::Status onUpdate(const pugl::UpdateEvent& event) override;
-	pugl::Status onExpose(const pugl::ExposeEvent& event) override;
-	pugl::Status onLoopEnter(const pugl::LoopEnterEvent& event) override;
-	pugl::Status onTimer(const pugl::TimerEvent& event) override;
-	pugl::Status onLoopLeave(const pugl::LoopLeaveEvent& event) override;
-	pugl::Status onKeyPress(const pugl::KeyPressEvent& event) override;
-	pugl::Status onClose(const pugl::CloseEvent& event) override;
+	using pugl::View<View>::onEvent;
+
+	pugl::Status onEvent(const pugl::ConfigureEvent& event);
+	pugl::Status onEvent(const pugl::UpdateEvent& event);
+	pugl::Status onEvent(const pugl::ExposeEvent& event);
+	pugl::Status onEvent(const pugl::LoopEnterEvent& event);
+	pugl::Status onEvent(const pugl::TimerEvent& event);
+	pugl::Status onEvent(const pugl::LoopLeaveEvent& event);
+	pugl::Status onEvent(const pugl::KeyPressEvent& event);
+	pugl::Status onEvent(const pugl::CloseEvent& event);
 
 private:
 	PuglVulkanDemo& _app;
@@ -1482,7 +1483,7 @@ recreateRenderer(PuglVulkanDemo&       app,
 }
 
 pugl::Status
-View::onConfigure(const pugl::ConfigureEvent& event)
+View::onEvent(const pugl::ConfigureEvent& event)
 {
 	// We just record the size here and lazily resize the surface when exposed
 	_app.extent = {static_cast<uint32_t>(event.width),
@@ -1492,7 +1493,7 @@ View::onConfigure(const pugl::ConfigureEvent& event)
 }
 
 pugl::Status
-View::onUpdate(const pugl::UpdateEvent&)
+View::onEvent(const pugl::UpdateEvent&)
 {
 	return postRedisplay();
 }
@@ -1633,7 +1634,7 @@ endFrame(const sk::VulkanApi&  vk,
 }
 
 pugl::Status
-View::onExpose(const pugl::ExposeEvent&)
+View::onEvent(const pugl::ExposeEvent&)
 {
 	const auto& vk  = _app.vulkan.vk;
 	const auto& gpu = _app.gpu;
@@ -1658,7 +1659,7 @@ View::onExpose(const pugl::ExposeEvent&)
 }
 
 pugl::Status
-View::onLoopEnter(const pugl::LoopEnterEvent&)
+View::onEvent(const pugl::LoopEnterEvent&)
 {
 	_app.resizing = true;
 	startTimer(resizeTimerId,
@@ -1668,13 +1669,13 @@ View::onLoopEnter(const pugl::LoopEnterEvent&)
 }
 
 pugl::Status
-View::onTimer(const pugl::TimerEvent&)
+View::onEvent(const pugl::TimerEvent&)
 {
 	return postRedisplay();
 }
 
 pugl::Status
-View::onLoopLeave(const pugl::LoopLeaveEvent&)
+View::onEvent(const pugl::LoopLeaveEvent&)
 {
 	stopTimer(resizeTimerId);
 
@@ -1686,7 +1687,7 @@ View::onLoopLeave(const pugl::LoopLeaveEvent&)
 }
 
 pugl::Status
-View::onKeyPress(const pugl::KeyPressEvent& event)
+View::onEvent(const pugl::KeyPressEvent& event)
 {
 	if (event.key == PUGL_KEY_ESCAPE || event.key == 'q') {
 		_app.quit = true;
@@ -1696,7 +1697,7 @@ View::onKeyPress(const pugl::KeyPressEvent& event)
 }
 
 pugl::Status
-View::onClose(const pugl::CloseEvent&)
+View::onEvent(const pugl::CloseEvent&)
 {
 	_app.quit = true;
 
