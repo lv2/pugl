@@ -25,7 +25,6 @@
 #include "pugl/pugl.h"
 
 #include <cassert>
-#include <chrono>
 #include <cstdint>
 #include <stdexcept>
 #include <type_traits>
@@ -220,8 +219,6 @@ strerror(const Status status) noexcept
    @{
 */
 
-class World;
-
 /// @copydoc PuglWorldType
 enum class WorldType {
 	program, ///< @copydoc PUGL_PROGRAM
@@ -239,36 +236,6 @@ static_assert(WorldFlag(PUGL_WORLD_THREADS) == WorldFlag::threads, "");
 
 using WorldFlags = PuglWorldFlags; ///< @copydoc PuglWorldFlags
 
-/**
-   A `std::chrono` compatible clock that uses Pugl time.
-*/
-class Clock
-{
-public:
-	using rep        = double;                         ///< Time representation
-	using duration   = std::chrono::duration<double>;  ///< Duration in seconds
-	using time_point = std::chrono::time_point<Clock>; ///< A Pugl time point
-
-	static constexpr bool is_steady = true; ///< Steady clock flag, always true
-
-	/// Construct a clock that uses time from puglGetTime()
-	explicit Clock(World& world)
-	    : _world{world}
-	{}
-
-	Clock(const Clock&) = delete;
-	Clock& operator=(const Clock&) = delete;
-
-	Clock(Clock&&) = delete;
-	Clock& operator=(Clock&&) = delete;
-
-	/// Return the current time
-	time_point now() const;
-
-private:
-	const World& _world;
-};
-
 /// @copydoc PuglWorld
 class World : public detail::Wrapper<PuglWorld, puglFreeWorld>
 {
@@ -281,7 +248,6 @@ public:
 
 	explicit World(WorldType type, WorldFlags flags)
 	    : Wrapper{puglNewWorld(static_cast<PuglWorldType>(type), flags)}
-	    , _clock(*this)
 	{
 		if (!cobj()) {
 			throw std::runtime_error("Failed to create pugl::World");
@@ -313,19 +279,7 @@ public:
 	{
 		return static_cast<Status>(puglUpdate(cobj(), timeout));
 	}
-
-	/// Return a clock that uses Pugl time
-	const Clock& clock() { return _clock; }
-
-private:
-	Clock _clock;
 };
-
-inline Clock::time_point
-Clock::now() const
-{
-	return time_point{duration{_world.time()}};
-}
 
 /**
    @}
