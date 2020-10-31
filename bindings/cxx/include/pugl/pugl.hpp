@@ -24,10 +24,8 @@
 
 #include "pugl/pugl.h"
 
-#include <cassert>
 #include <cstdint>
 #include <exception>
-#include <type_traits>
 
 namespace pugl {
 
@@ -574,16 +572,6 @@ public:
 	const PuglView* cobj() const { return Wrapper::cobj(); }
 
 private:
-	template<class Typed, class Base>
-	static const Typed& typedEventRef(const Base& base)
-	{
-		const auto& event = static_cast<const Typed&>(base);
-		static_assert(sizeof(event) == sizeof(typename Typed::BaseEvent), "");
-		static_assert(std::is_standard_layout<Typed>::value, "");
-		assert(event.type == Typed::type);
-		return event;
-	}
-
 	static PuglStatus
 	dispatchEvent(PuglView* view, const PuglEvent* event) noexcept
 	{
@@ -603,73 +591,73 @@ private:
 			return PUGL_SUCCESS;
 		case PUGL_CREATE:
 			return static_cast<PuglStatus>(
-			    onCreate(typedEventRef<CreateEvent>(event->any)));
+			    onCreate(static_cast<const CreateEvent&>(event->any)));
 		case PUGL_DESTROY:
 			return static_cast<PuglStatus>(
-			    onDestroy(typedEventRef<DestroyEvent>(event->any)));
+			    onDestroy(static_cast<const DestroyEvent&>(event->any)));
 		case PUGL_CONFIGURE:
-			return static_cast<PuglStatus>(
-			    onConfigure(typedEventRef<ConfigureEvent>(event->configure)));
+			return static_cast<PuglStatus>(onConfigure(
+			    static_cast<const ConfigureEvent&>(event->configure)));
 		case PUGL_MAP:
 			return static_cast<PuglStatus>(
-			    onMap(typedEventRef<MapEvent>(event->any)));
+			    onMap(static_cast<const MapEvent&>(event->any)));
 		case PUGL_UNMAP:
 			return static_cast<PuglStatus>(
-			    onUnmap(typedEventRef<UnmapEvent>(event->any)));
+			    onUnmap(static_cast<const UnmapEvent&>(event->any)));
 		case PUGL_UPDATE:
 			return static_cast<PuglStatus>(
-			    onUpdate(typedEventRef<UpdateEvent>(event->any)));
+			    onUpdate(static_cast<const UpdateEvent&>(event->any)));
 		case PUGL_EXPOSE:
 			return static_cast<PuglStatus>(
-			    onExpose(typedEventRef<ExposeEvent>(event->expose)));
+			    onExpose(static_cast<const ExposeEvent&>(event->expose)));
 		case PUGL_CLOSE:
 			return static_cast<PuglStatus>(
-			    onClose(typedEventRef<CloseEvent>(event->any)));
+			    onClose(static_cast<const CloseEvent&>(event->any)));
 		case PUGL_FOCUS_IN:
 			return static_cast<PuglStatus>(
-			    onFocusIn(typedEventRef<FocusInEvent>(event->focus)));
+			    onFocusIn(static_cast<const FocusInEvent&>(event->focus)));
 		case PUGL_FOCUS_OUT:
 			return static_cast<PuglStatus>(
-			    onFocusOut(typedEventRef<FocusOutEvent>(event->focus)));
+			    onFocusOut(static_cast<const FocusOutEvent&>(event->focus)));
 		case PUGL_KEY_PRESS:
 			return static_cast<PuglStatus>(
-			    onKeyPress(typedEventRef<KeyPressEvent>(event->key)));
+			    onKeyPress(static_cast<const KeyPressEvent&>(event->key)));
 		case PUGL_KEY_RELEASE:
 			return static_cast<PuglStatus>(
-			    onKeyRelease(typedEventRef<KeyReleaseEvent>(event->key)));
+			    onKeyRelease(static_cast<const KeyReleaseEvent&>(event->key)));
 		case PUGL_TEXT:
 			return static_cast<PuglStatus>(
-			    onText(typedEventRef<TextEvent>(event->text)));
+			    onText(static_cast<const TextEvent&>(event->text)));
 		case PUGL_POINTER_IN:
-			return static_cast<PuglStatus>(
-			    onPointerIn(typedEventRef<PointerInEvent>(event->crossing)));
+			return static_cast<PuglStatus>(onPointerIn(
+			    static_cast<const PointerInEvent&>(event->crossing)));
 		case PUGL_POINTER_OUT:
-			return static_cast<PuglStatus>(
-			    onPointerOut(typedEventRef<PointerOutEvent>(event->crossing)));
+			return static_cast<PuglStatus>(onPointerOut(
+			    static_cast<const PointerOutEvent&>(event->crossing)));
 		case PUGL_BUTTON_PRESS:
-			return static_cast<PuglStatus>(
-			    onButtonPress(typedEventRef<ButtonPressEvent>(event->button)));
+			return static_cast<PuglStatus>(onButtonPress(
+			    static_cast<const ButtonPressEvent&>(event->button)));
 		case PUGL_BUTTON_RELEASE:
 			return static_cast<PuglStatus>(onButtonRelease(
-			    typedEventRef<ButtonReleaseEvent>(event->button)));
+			    static_cast<const ButtonReleaseEvent&>(event->button)));
 		case PUGL_MOTION:
 			return static_cast<PuglStatus>(
-			    onMotion(typedEventRef<MotionEvent>(event->motion)));
+			    onMotion(static_cast<const MotionEvent&>(event->motion)));
 		case PUGL_SCROLL:
 			return static_cast<PuglStatus>(
-			    onScroll(typedEventRef<ScrollEvent>(event->scroll)));
+			    onScroll(static_cast<const ScrollEvent&>(event->scroll)));
 		case PUGL_CLIENT:
 			return static_cast<PuglStatus>(
-			    onClient(typedEventRef<ClientEvent>(event->client)));
+			    onClient(static_cast<const ClientEvent&>(event->client)));
 		case PUGL_TIMER:
 			return static_cast<PuglStatus>(
-			    onTimer(typedEventRef<TimerEvent>(event->timer)));
+			    onTimer(static_cast<const TimerEvent&>(event->timer)));
 		case PUGL_LOOP_ENTER:
 			return static_cast<PuglStatus>(
-			    onLoopEnter(typedEventRef<LoopEnterEvent>(event->any)));
+			    onLoopEnter(static_cast<const LoopEnterEvent&>(event->any)));
 		case PUGL_LOOP_LEAVE:
 			return static_cast<PuglStatus>(
-			    onLoopLeave(typedEventRef<LoopLeaveEvent>(event->any)));
+			    onLoopLeave(static_cast<const LoopLeaveEvent&>(event->any)));
 		}
 
 		return PUGL_FAILURE;
