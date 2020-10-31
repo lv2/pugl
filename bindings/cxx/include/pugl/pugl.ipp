@@ -25,11 +25,15 @@
 
 namespace pugl {
 
+#ifdef PUGL_HPP_THROW_FAILED_CONSTRUCTION
+
 const char*
 FailedConstructionError::what() const noexcept
 {
 	return _msg;
 }
+
+#endif
 
 Status
 View::onCreate(const CreateEvent&)

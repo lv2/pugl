@@ -25,7 +25,12 @@
 #include "pugl/pugl.h"
 
 #include <cstdint>
-#include <exception>
+
+#if defined(PUGL_HPP_THROW_FAILED_CONSTRUCTION)
+#	include <exception>
+#elif defined(PUGL_HPP_ASSERT_CONSTRUCTION)
+#	include <cassert>
+#endif
 
 namespace pugl {
 
@@ -234,6 +239,8 @@ static_assert(WorldFlag(PUGL_WORLD_THREADS) == WorldFlag::threads, "");
 
 using WorldFlags = PuglWorldFlags; ///< @copydoc PuglWorldFlags
 
+#if defined(PUGL_HPP_THROW_FAILED_CONSTRUCTION)
+
 /// An exception thrown when construction fails
 class FailedConstructionError : public std::exception
 {
@@ -248,6 +255,19 @@ private:
 	const char* _msg;
 };
 
+#	define PUGL_CHECK_CONSTRUCTION(cond, msg)      \
+		do {                                        \
+			if (!(cond)) {                          \
+				throw FailedConstructionError(msg); \
+			}                                       \
+		} while (0)
+
+#elif defined(PUGL_HPP_ASSERT_CONSTRUCTION)
+#	define PUGL_CHECK_CONSTRUCTION(cond, msg) assert(cond);
+#else
+#	define PUGL_CHECK_CONSTRUCTION(cond, msg)
+#endif
+
 /// @copydoc PuglWorld
 class World : public detail::Wrapper<PuglWorld, puglFreeWorld>
 {
@@ -261,18 +281,12 @@ public:
 	explicit World(WorldType type, WorldFlags flags)
 	    : Wrapper{puglNewWorld(static_cast<PuglWorldType>(type), flags)}
 	{
-		if (!cobj()) {
-			throw FailedConstructionError("Failed to create pugl::World");
-		}
+		PUGL_CHECK_CONSTRUCTION(cobj(), "Failed to create pugl::World");
 	}
 
 	explicit World(WorldType type)
 	    : World{type, {}}
-	{
-		if (!cobj()) {
-			throw FailedConstructionError("Failed to create pugl::World");
-		}
-	}
+	{}
 
 	/// @copydoc puglGetNativeWorld
 	void* nativeWorld() noexcept { return puglGetNativeWorld(cobj()); }
@@ -353,15 +367,15 @@ public:
 	    : Wrapper{puglNewView(world.cobj())}
 	    , _world(world)
 	{
-		if (!cobj()) {
-			throw FailedConstructionError("Failed to create pugl::View");
+		if (cobj()) {
+			puglSetHandle(cobj(), this);
+			puglSetEventFunc(cobj(), dispatchEvent);
 		}
 
-		puglSetHandle(cobj(), this);
-		puglSetEventFunc(cobj(), dispatchEvent);
+		PUGL_CHECK_CONSTRUCTION(cobj(), "Failed to create pugl::View");
 	}
 
-	virtual ~View() = default;
+	virtual ~View() noexcept = default;
 
 	View(const View&) = delete;
 	View& operator=(const View&) = delete;
@@ -587,16 +601,20 @@ private:
 	static PuglStatus
 	dispatchEvent(PuglView* view, const PuglEvent* event) noexcept
 	{
-		try {
-			View* self = static_cast<View*>(puglGetHandle(view));
+		View* self = static_cast<View*>(puglGetHandle(view));
 
+#ifdef __cpp_exceptions
+		try {
 			return self->dispatch(event);
 		} catch (...) {
 			return PUGL_UNKNOWN_ERROR;
 		}
+#else
+		return self->dispatch(event);
+#endif
 	}
 
-	PuglStatus dispatch(const PuglEvent* event)
+	PuglStatus dispatch(const PuglEvent* event) noexcept
 	{
 		switch (event->type) {
 		case PUGL_NOTHING:
