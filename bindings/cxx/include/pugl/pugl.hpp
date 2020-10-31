@@ -205,7 +205,7 @@ static_assert(Status(PUGL_UNSUPPORTED_TYPE) == Status::unsupportedType, "");
 
 /// @copydoc puglStrerror
 static inline const char*
-strerror(const pugl::Status status) noexcept
+strerror(const Status status) noexcept
 {
 	return puglStrerror(static_cast<PuglStatus>(status));
 }
@@ -262,7 +262,7 @@ public:
 	time_point now() const;
 
 private:
-	const pugl::World& _world;
+	const World& _world;
 };
 
 /// @copydoc PuglWorld
@@ -399,8 +399,8 @@ public:
 	View(View&&)   = delete;
 	View&& operator=(View&&) = delete;
 
-	const pugl::World& world() const { return _world; }
-	pugl::World&       world() { return _world; }
+	const World& world() const { return _world; }
+	World&       world() { return _world; }
 
 	/// @copydoc puglSetViewHint
 	Status setHint(ViewHint hint, int value)

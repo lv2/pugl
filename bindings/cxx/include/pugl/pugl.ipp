@@ -28,139 +28,139 @@ namespace pugl {
 Status
 View::onCreate(const CreateEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onDestroy(const DestroyEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onConfigure(const ConfigureEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onMap(const MapEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onUnmap(const UnmapEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onUpdate(const UpdateEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onExpose(const ExposeEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onClose(const CloseEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onFocusIn(const FocusInEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onFocusOut(const FocusOutEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onKeyPress(const KeyPressEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onKeyRelease(const KeyReleaseEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onText(const TextEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onPointerIn(const PointerInEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onPointerOut(const PointerOutEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onButtonPress(const ButtonPressEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onButtonRelease(const ButtonReleaseEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onMotion(const MotionEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onScroll(const ScrollEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onClient(const ClientEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onTimer(const TimerEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onLoopEnter(const LoopEnterEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 Status
 View::onLoopLeave(const LoopLeaveEvent&)
 {
-	return pugl::Status::success;
+	return Status::success;
 }
 
 } // namespace pugl
