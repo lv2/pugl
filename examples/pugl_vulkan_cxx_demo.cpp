@@ -173,7 +173,7 @@ struct RectPipeline {
 	uint32_t                                         numImages{};
 };
 
-/// Synchronization primites used to coordinate drawing frames
+/// Synchronization primitives used to coordinate drawing frames
 struct RenderSync {
 	VkResult
 	init(const sk::VulkanApi& vk, const sk::Device& device, uint32_t numImages);
