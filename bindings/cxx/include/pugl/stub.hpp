@@ -35,7 +35,7 @@ namespace pugl {
 */
 
 /// @copydoc puglStubBackend
-static inline const PuglBackend*
+inline const PuglBackend*
 stubBackend() noexcept
 {
 	return puglStubBackend();

@@ -1,5 +1,8 @@
 Checks: >
   *,
+  -*-magic-numbers,
   -*-uppercase-literal-suffix,
+  -clang-diagnostic-unused-function,
+  -clang-diagnostic-unused-macros,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'

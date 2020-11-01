@@ -210,7 +210,7 @@ enum class Status {
 static_assert(Status(PUGL_UNSUPPORTED_TYPE) == Status::unsupportedType, "");
 
 /// @copydoc puglStrerror
-static inline const char*
+inline const char*
 strerror(const Status status) noexcept
 {
 	return puglStrerror(static_cast<PuglStatus>(status));
@@ -277,6 +277,8 @@ public:
 
 	World(World&&) = delete;
 	World& operator=(World&&) = delete;
+
+	~World() = default;
 
 	explicit World(WorldType type, WorldFlags flags)
 	    : Wrapper{puglNewWorld(static_cast<PuglWorldType>(type), flags)}

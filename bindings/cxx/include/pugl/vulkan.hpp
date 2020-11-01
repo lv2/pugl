@@ -155,7 +155,7 @@ createSurface(const VulkanLoader&                loader,
 }
 
 /// @copydoc puglVulkanBackend
-static inline const PuglBackend*
+inline const PuglBackend*
 vulkanBackend() noexcept
 {
 	return puglVulkanBackend();

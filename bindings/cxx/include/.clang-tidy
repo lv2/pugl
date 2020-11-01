@@ -1,5 +1,12 @@
 Checks: >
   *,
   -*-uppercase-literal-suffix,
+  -clang-diagnostic-unused-macros,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-static-cast-downcast,
+  -google-runtime-references,
+  -modernize-use-trailing-return-type,
+  -readability-implicit-bool-conversion,
+  -readability-named-parameter,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'

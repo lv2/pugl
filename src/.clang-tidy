@@ -5,8 +5,10 @@ Checks: >
   -bugprone-suspicious-string-compare,
   -cert-flp30-c,
   -clang-analyzer-security.FloatLoopCounter,
+  -clang-diagnostic-unused-macros,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
+  -llvm-header-guard,
   -readability-else-after-return,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'

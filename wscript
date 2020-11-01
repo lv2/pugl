@@ -694,6 +694,7 @@ class LintContext(Build.BuildContext):
 
 def lint(ctx):
     "checks code for style issues"
+    import glob
     import json
     import subprocess
 
@@ -736,8 +737,13 @@ def lint(ctx):
             c_files = [os.path.join('build', f)
                        for f in files if f.endswith('.c')]
 
+            c_files += glob.glob('include/pugl/*.h')
+            c_files += glob.glob('src/implementation.h')
+
             cpp_files = [os.path.join('build', f)
                          for f in files if f.endswith('.cpp')]
+
+            cpp_files += glob.glob('bindings/cxx/include/pugl/*')
 
         c_files = list(map(os.path.abspath, c_files))
         cpp_files = list(map(os.path.abspath, cpp_files))
@@ -749,7 +755,7 @@ def lint(ctx):
 
         for cpp_file in cpp_files:
             cmd = [ctx.env.CLANG_TIDY[0],
-                   '--header-filter=".*\\.hpp"',
+                   '--header-filter=".*"',
                    "--quiet",
                    "-p=.", cpp_file]
             procs += [subprocess.Popen(cmd, cwd="build")]

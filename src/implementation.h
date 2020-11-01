@@ -19,8 +19,8 @@
    @brief Shared declarations for implementation.
 */
 
-#ifndef PUGL_DETAIL_IMPLEMENTATION_H
-#define PUGL_DETAIL_IMPLEMENTATION_H
+#ifndef PUGL_IMPLEMENTATION_H
+#define PUGL_IMPLEMENTATION_H
 
 #include "types.h"
 
@@ -84,4 +84,4 @@ puglSetInternalClipboard(PuglView*   view,
 
 PUGL_END_DECLS
 
-#endif // PUGL_DETAIL_IMPLEMENTATION_H
+#endif // PUGL_IMPLEMENTATION_H

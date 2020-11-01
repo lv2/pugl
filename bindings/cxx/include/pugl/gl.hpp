@@ -38,14 +38,14 @@ namespace pugl {
 using GlFunc = PuglGlFunc;
 
 /// @copydoc puglGetProcAddress
-static inline GlFunc
+inline GlFunc
 getProcAddress(const char* name) noexcept
 {
 	return puglGetProcAddress(name);
 }
 
 /// @copydoc puglGlBackend
-static inline const PuglBackend*
+inline const PuglBackend*
 glBackend() noexcept
 {
 	return puglGlBackend();
