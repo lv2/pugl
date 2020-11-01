@@ -29,14 +29,16 @@
 
 #include <cmath>
 
-class CubeView : public pugl::View<CubeView>
+class CubeView : public pugl::View
 {
 public:
 	explicit CubeView(pugl::World& world)
-	    : pugl::View<CubeView>{world}
-	{}
+	    : pugl::View{world}
+	{
+		setEventHandler(*this);
+	}
 
-	using pugl::View<CubeView>::onEvent;
+	using pugl::View::onEvent;
 
 	static pugl::Status onEvent(const pugl::ConfigureEvent& event) noexcept;
 	pugl::Status        onEvent(const pugl::UpdateEvent& event) noexcept;

@@ -353,14 +353,8 @@ enum class Cursor {
 
 static_assert(Cursor(PUGL_CURSOR_UP_DOWN) == Cursor::upDown, "");
 
-/**
-   A drawable region that receives events.
-
-   This is the generic base class for all views.  It can be used directly by
-   manually setting an event handling function, but typical applications should
-   use pugl::View which handles dispatching events.
-*/
-class ViewBase : protected detail::Wrapper<PuglView, puglFreeView>
+/// @copydoc PuglView
+class View : protected detail::Wrapper<PuglView, puglFreeView>
 {
 public:
 	/**
@@ -369,7 +363,7 @@ public:
 	   @{
 	*/
 
-	explicit ViewBase(World& world)
+	explicit View(World& world)
 	    : Wrapper{puglNewView(world.cobj())}
 	    , _world(world)
 	{
@@ -378,6 +372,46 @@ public:
 
 	const World& world() const noexcept { return _world; }
 	World&       world() noexcept { return _world; }
+
+	/**
+	   Set the object that will be called to handle events.
+
+	   This is a type-safe wrapper for the C functions puglSetHandle() and
+	   puglSetEventFunc() that will automatically dispatch events to the
+	   `onEvent` method of `handler` that takes the appropriate event type.
+	   The handler must have such a method defined for every event type, but if
+	   the handler is the view itself, a `using` declaration can be used to
+	   "inherit" the default implementation to avoid having to define every
+	   method.  For example:
+
+	   @code
+	   class MyView : public pugl::View
+	   {
+	   public:
+	       explicit MyView(pugl::World& world)
+	           : pugl::View{world}
+	       {
+	           setEventHandler(*this);
+	       }
+
+	       using pugl::View::onEvent;
+
+	       pugl::Status onEvent(const pugl::ConfigureEvent& event) noexcept;
+	       pugl::Status onEvent(const pugl::ExposeEvent& event) noexcept;
+	   };
+	   @endcode
+
+	   This facility is just a convenience, applications may use the C API
+	   directly to set a handle and event function to set up a different
+	   approach for event handling.
+	*/
+	template<class Handler>
+	Status setEventHandler(Handler& handler)
+	{
+		puglSetHandle(cobj(), &handler);
+		return static_cast<Status>(
+		    puglSetEventFunc(cobj(), eventFunc<Handler>));
+	}
 
 	/// @copydoc puglSetBackend
 	Status setBackend(const PuglBackend* backend) noexcept
@@ -552,176 +586,222 @@ public:
 		return static_cast<Status>(puglStopTimer(cobj(), id));
 	}
 
-	PuglView*       cobj() noexcept { return Wrapper::cobj(); }
-	const PuglView* cobj() const noexcept { return Wrapper::cobj(); }
-
-private:
-	World& _world;
-};
-
-/**
-   A view with event handlers.
-
-   To implement a view, applications can inherit from this class, which handles
-   type-safe dispatching of events to methods.  This class uses the CRTP
-   pattern, so the name of the derived class needs to be passed as a template
-   paramter, for example:
-
-   @code
-   class MyView : public pugl::View<MyView>
-   @endcode
-*/
-template<class Derived>
-class View : public ViewBase
-{
-public:
-	explicit View(World& world)
-	    : ViewBase{world}
-	{
-		if (cobj()) {
-			puglSetHandle(cobj(), this);
-			puglSetEventFunc(cobj(), eventFunc);
-		}
-	}
-
 	/**
 	   @}
 	   @name Event Handlers
 	   Methods called when events are dispatched to the view.
+
+	   For convenience, the methods defined here are all trivial stubs that
+	   return success.
 	   @{
 	*/
 
-	Status onEvent(const CreateEvent&) noexcept { return Status::success; }
-	Status onEvent(const DestroyEvent&) noexcept { return Status::success; }
-	Status onEvent(const ConfigureEvent&) noexcept { return Status::success; }
-	Status onEvent(const MapEvent&) noexcept { return Status::success; }
-	Status onEvent(const UnmapEvent&) noexcept { return Status::success; }
-	Status onEvent(const UpdateEvent&) noexcept { return Status::success; }
-	Status onEvent(const ExposeEvent&) noexcept { return Status::success; }
-	Status onEvent(const CloseEvent&) noexcept { return Status::success; }
-	Status onEvent(const FocusInEvent&) noexcept { return Status::success; }
-	Status onEvent(const FocusOutEvent&) noexcept { return Status::success; }
-	Status onEvent(const KeyPressEvent&) noexcept { return Status::success; }
-	Status onEvent(const KeyReleaseEvent&) noexcept { return Status::success; }
-	Status onEvent(const TextEvent&) noexcept { return Status::success; }
-	Status onEvent(const PointerInEvent&) noexcept { return Status::success; }
-	Status onEvent(const PointerOutEvent&) noexcept { return Status::success; }
-	Status onEvent(const ButtonPressEvent&) noexcept { return Status::success; }
-	Status onEvent(const ButtonReleaseEvent&) noexcept
+	static Status onEvent(const CreateEvent&) noexcept
 	{
 		return Status::success;
 	}
-	Status onEvent(const MotionEvent&) noexcept { return Status::success; }
-	Status onEvent(const ScrollEvent&) noexcept { return Status::success; }
-	Status onEvent(const ClientEvent&) noexcept { return Status::success; }
-	Status onEvent(const TimerEvent&) noexcept { return Status::success; }
-	Status onEvent(const LoopEnterEvent&) noexcept { return Status::success; }
-	Status onEvent(const LoopLeaveEvent&) noexcept { return Status::success; }
+
+	static Status onEvent(const DestroyEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const ConfigureEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const MapEvent&) noexcept { return Status::success; }
+
+	static Status onEvent(const UnmapEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const UpdateEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const ExposeEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const CloseEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const FocusInEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const FocusOutEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const KeyPressEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const KeyReleaseEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const TextEvent&) noexcept { return Status::success; }
+
+	static Status onEvent(const PointerInEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const PointerOutEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const ButtonPressEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const ButtonReleaseEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const MotionEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const ScrollEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const ClientEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const TimerEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const LoopEnterEvent&) noexcept
+	{
+		return Status::success;
+	}
+
+	static Status onEvent(const LoopLeaveEvent&) noexcept
+	{
+		return Status::success;
+	}
 
 	/**
 	   @}
 	*/
 
+	PuglView*       cobj() noexcept { return Wrapper::cobj(); }
+	const PuglView* cobj() const noexcept { return Wrapper::cobj(); }
+
 private:
-	Derived&       self() noexcept { return *static_cast<Derived*>(this); }
-	const Derived& self() const noexcept
+	template<class Target>
+	static Status dispatch(Target& target, const PuglEvent* event)
 	{
-		return *static_cast<Derived*>(this);
+		switch (event->type) {
+		case PUGL_NOTHING:
+			return Status::success;
+		case PUGL_CREATE:
+			return target.onEvent(static_cast<const CreateEvent&>(event->any));
+		case PUGL_DESTROY:
+			return target.onEvent(static_cast<const DestroyEvent&>(event->any));
+		case PUGL_CONFIGURE:
+			return target.onEvent(
+			    static_cast<const ConfigureEvent&>(event->configure));
+		case PUGL_MAP:
+			return target.onEvent(static_cast<const MapEvent&>(event->any));
+		case PUGL_UNMAP:
+			return target.onEvent(static_cast<const UnmapEvent&>(event->any));
+		case PUGL_UPDATE:
+			return target.onEvent(static_cast<const UpdateEvent&>(event->any));
+		case PUGL_EXPOSE:
+			return target.onEvent(
+			    static_cast<const ExposeEvent&>(event->expose));
+		case PUGL_CLOSE:
+			return target.onEvent(static_cast<const CloseEvent&>(event->any));
+		case PUGL_FOCUS_IN:
+			return target.onEvent(
+			    static_cast<const FocusInEvent&>(event->focus));
+		case PUGL_FOCUS_OUT:
+			return target.onEvent(
+			    static_cast<const FocusOutEvent&>(event->focus));
+		case PUGL_KEY_PRESS:
+			return target.onEvent(
+			    static_cast<const KeyPressEvent&>(event->key));
+		case PUGL_KEY_RELEASE:
+			return target.onEvent(
+			    static_cast<const KeyReleaseEvent&>(event->key));
+		case PUGL_TEXT:
+			return target.onEvent(static_cast<const TextEvent&>(event->text));
+		case PUGL_POINTER_IN:
+			return target.onEvent(
+			    static_cast<const PointerInEvent&>(event->crossing));
+		case PUGL_POINTER_OUT:
+			return target.onEvent(
+			    static_cast<const PointerOutEvent&>(event->crossing));
+		case PUGL_BUTTON_PRESS:
+			return target.onEvent(
+			    static_cast<const ButtonPressEvent&>(event->button));
+		case PUGL_BUTTON_RELEASE:
+			return target.onEvent(
+			    static_cast<const ButtonReleaseEvent&>(event->button));
+		case PUGL_MOTION:
+			return target.onEvent(
+			    static_cast<const MotionEvent&>(event->motion));
+		case PUGL_SCROLL:
+			return target.onEvent(
+			    static_cast<const ScrollEvent&>(event->scroll));
+		case PUGL_CLIENT:
+			return target.onEvent(
+			    static_cast<const ClientEvent&>(event->client));
+		case PUGL_TIMER:
+			return target.onEvent(static_cast<const TimerEvent&>(event->timer));
+		case PUGL_LOOP_ENTER:
+			return target.onEvent(
+			    static_cast<const LoopEnterEvent&>(event->any));
+		case PUGL_LOOP_LEAVE:
+			return target.onEvent(
+			    static_cast<const LoopLeaveEvent&>(event->any));
+		}
+
+		return Status::failure;
 	}
 
+	template<class Target>
 	static PuglStatus eventFunc(PuglView* view, const PuglEvent* event) noexcept
 	{
-		View* self = static_cast<View*>(puglGetHandle(view));
+		auto* target = static_cast<Target*>(puglGetHandle(view));
 
 #ifdef __cpp_exceptions
 		try {
-			return self->dispatch(event);
+			return static_cast<PuglStatus>(dispatch(*target, event));
 		} catch (...) {
 			return PUGL_UNKNOWN_ERROR;
 		}
 #else
-		return self->dispatch(event);
+		return static_cast<PuglStatus>(pugl::dispatch(*target, event));
 #endif
 	}
 
-	PuglStatus dispatch(const PuglEvent* event) noexcept
-	{
-		switch (event->type) {
-		case PUGL_NOTHING:
-			return PUGL_SUCCESS;
-		case PUGL_CREATE:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const CreateEvent&>(event->any)));
-		case PUGL_DESTROY:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const DestroyEvent&>(event->any)));
-		case PUGL_CONFIGURE:
-			return static_cast<PuglStatus>(self().onEvent(
-			    static_cast<const ConfigureEvent&>(event->configure)));
-		case PUGL_MAP:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const MapEvent&>(event->any)));
-		case PUGL_UNMAP:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const UnmapEvent&>(event->any)));
-		case PUGL_UPDATE:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const UpdateEvent&>(event->any)));
-		case PUGL_EXPOSE:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const ExposeEvent&>(event->expose)));
-		case PUGL_CLOSE:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const CloseEvent&>(event->any)));
-		case PUGL_FOCUS_IN:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const FocusInEvent&>(event->focus)));
-		case PUGL_FOCUS_OUT:
-			return static_cast<PuglStatus>(self().onEvent(
-			    static_cast<const FocusOutEvent&>(event->focus)));
-		case PUGL_KEY_PRESS:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const KeyPressEvent&>(event->key)));
-		case PUGL_KEY_RELEASE:
-			return static_cast<PuglStatus>(self().onEvent(
-			    static_cast<const KeyReleaseEvent&>(event->key)));
-		case PUGL_TEXT:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const TextEvent&>(event->text)));
-		case PUGL_POINTER_IN:
-			return static_cast<PuglStatus>(self().onEvent(
-			    static_cast<const PointerInEvent&>(event->crossing)));
-		case PUGL_POINTER_OUT:
-			return static_cast<PuglStatus>(self().onEvent(
-			    static_cast<const PointerOutEvent&>(event->crossing)));
-		case PUGL_BUTTON_PRESS:
-			return static_cast<PuglStatus>(self().onEvent(
-			    static_cast<const ButtonPressEvent&>(event->button)));
-		case PUGL_BUTTON_RELEASE:
-			return static_cast<PuglStatus>(self().onEvent(
-			    static_cast<const ButtonReleaseEvent&>(event->button)));
-		case PUGL_MOTION:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const MotionEvent&>(event->motion)));
-		case PUGL_SCROLL:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const ScrollEvent&>(event->scroll)));
-		case PUGL_CLIENT:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const ClientEvent&>(event->client)));
-		case PUGL_TIMER:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const TimerEvent&>(event->timer)));
-		case PUGL_LOOP_ENTER:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const LoopEnterEvent&>(event->any)));
-		case PUGL_LOOP_LEAVE:
-			return static_cast<PuglStatus>(
-			    self().onEvent(static_cast<const LoopLeaveEvent&>(event->any)));
-		}
-
-		return PUGL_FAILURE;
-	}
+	World& _world;
 };
 
 /**

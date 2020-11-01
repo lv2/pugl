@@ -78,7 +78,7 @@ struct VulkanContext {
 struct GraphicsDevice {
 	VkResult init(const pugl::VulkanLoader& loader,
 	              const VulkanContext&      context,
-	              pugl::ViewBase&           view,
+	              pugl::View&               view,
 	              const PuglTestOptions&    opts);
 
 	sk::SurfaceKHR     surface;
@@ -409,7 +409,7 @@ selectPhysicalDevice(const sk::VulkanApi&     vk,
 VkResult
 GraphicsDevice::init(const pugl::VulkanLoader& loader,
                      const VulkanContext&      context,
-                     pugl::ViewBase&           view,
+                     pugl::View&               view,
                      const PuglTestOptions&    opts)
 {
 	const auto& vk = context.vk;
@@ -1372,15 +1372,17 @@ recordCommandBuffers(const sk::VulkanApi& vk,
 
 class PuglVulkanDemo;
 
-class View : public pugl::View<View>
+class View : public pugl::View
 {
 public:
 	View(pugl::World& world, PuglVulkanDemo& app)
-	    : pugl::View<View>{world}
+	    : pugl::View{world}
 	    , _app{app}
-	{}
+	{
+		setEventHandler(*this);
+	}
 
-	using pugl::View<View>::onEvent;
+	using pugl::View::onEvent;
 
 	pugl::Status onEvent(const pugl::ConfigureEvent& event);
 	pugl::Status onEvent(const pugl::UpdateEvent& event);
