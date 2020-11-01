@@ -66,6 +66,7 @@ public:
 	{
 		_ptr         = wrapper._ptr;
 		wrapper._ptr = nullptr;
+		return *this;
 	}
 
 	~Wrapper() noexcept { Free(_ptr); }
