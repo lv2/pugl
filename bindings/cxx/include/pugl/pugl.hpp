@@ -379,6 +379,12 @@ public:
 	const World& world() const noexcept { return _world; }
 	World&       world() noexcept { return _world; }
 
+	/// @copydoc puglSetBackend
+	Status setBackend(const PuglBackend* backend) noexcept
+	{
+		return static_cast<Status>(puglSetBackend(cobj(), backend));
+	}
+
 	/// @copydoc puglSetViewHint
 	Status setHint(ViewHint hint, int value) noexcept
 	{
@@ -520,12 +526,6 @@ public:
 
 	/// @copydoc puglHasFocus
 	bool hasFocus() const noexcept { return puglHasFocus(cobj()); }
-
-	/// @copydoc puglSetBackend
-	Status setBackend(const PuglBackend* backend) noexcept
-	{
-		return static_cast<Status>(puglSetBackend(cobj(), backend));
-	}
 
 	/// @copydoc puglSetCursor
 	Status setCursor(const Cursor cursor) noexcept
