@@ -863,8 +863,9 @@ puglGetHandle(PuglView* view);
 
    Pugl includes the following backends:
 
-   - puglGlBackend(), declared in pugl/gl.h
    - puglCairoBackend(), declared in pugl/cairo.h
+   - puglGlBackend(), declared in pugl/gl.h
+   - puglVulkanBackend(), declared in pugl/vulkan.h
 
    Note that backends are modular and not compiled into the main Pugl library
    to avoid unnecessary dependencies.  To use a particular backend,
@@ -1074,6 +1075,7 @@ puglGetNativeWindow(PuglView* view);
    - Cairo: Does nothing.
    - OpenGL: Sets the current OpenGL context.
    - Stub: Does nothing.
+   - Vulkan: Does nothing.
 */
 PUGL_API PuglStatus
 puglEnterContext(PuglView* view);
@@ -1086,6 +1088,7 @@ puglEnterContext(PuglView* view);
    - Cairo: Does nothing.
    - OpenGL: Resets the current OpenGL context.
    - Stub: Does nothing.
+   - Vulkan: Does nothing.
 */
 PUGL_API PuglStatus
 puglLeaveContext(PuglView* view);
@@ -1101,6 +1104,7 @@ puglLeaveContext(PuglView* view);
      [`cairo_t`](http://www.cairographics.org/manual/cairo-cairo-t.html).
    - OpenGL: `NULL`.
    - Stub: `NULL`.
+   - Vulkan: `NULL`.
 */
 PUGL_API void*
 puglGetContext(PuglView* view);
