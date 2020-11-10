@@ -875,20 +875,18 @@ puglWaitForEvent(PuglView* view)
 #endif
 
 static void
-mergeExposeEvents(PuglEvent* dst, const PuglEvent* src)
+mergeExposeEvents(PuglEventExpose* dst, const PuglEventExpose* src)
 {
 	if (!dst->type) {
 		*dst = *src;
 	} else {
-		const double max_x = MAX(dst->expose.x + dst->expose.width,
-		                         src->expose.x + src->expose.width);
-		const double max_y = MAX(dst->expose.y + dst->expose.height,
-		                         src->expose.y + src->expose.height);
+		const double max_x = MAX(dst->x + dst->width, src->x + src->width);
+		const double max_y = MAX(dst->y + dst->height, src->y + src->height);
 
-		dst->expose.x      = MIN(dst->expose.x, src->expose.x);
-		dst->expose.y      = MIN(dst->expose.y, src->expose.y);
-		dst->expose.width  = max_x - dst->expose.x;
-		dst->expose.height = max_y - dst->expose.y;
+		dst->x      = MIN(dst->x, src->x);
+		dst->y      = MIN(dst->y, src->y);
+		dst->width  = max_x - dst->x;
+		dst->height = max_y - dst->y;
 	}
 }
 
@@ -1063,7 +1061,7 @@ puglDispatchX11Events(PuglWorld* world)
 
 		if (event.type == PUGL_EXPOSE) {
 			// Expand expose event to be dispatched after loop
-			mergeExposeEvents(&view->impl->pendingExpose, &event);
+			mergeExposeEvents(&view->impl->pendingExpose.expose, &event.expose);
 		} else if (event.type == PUGL_CONFIGURE) {
 			// Expand configure event to be dispatched after loop
 			view->impl->pendingConfigure = event;
@@ -1153,7 +1151,7 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect)
 
 	if (view->world->impl->dispatchingEvents) {
 		// Currently dispatching events, add/expand expose for the loop end
-		mergeExposeEvents(&view->impl->pendingExpose, (const PuglEvent*)&event);
+		mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
 	} else if (view->visible) {
 		// Not dispatching events, send an X expose so we wake up next time
 		return puglSendEvent(view, (const PuglEvent*)&event);
