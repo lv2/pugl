@@ -527,6 +527,40 @@ puglGetAncestorCenter(const PuglView* const view)
   return center;
 }
 
+#ifndef NDEBUG
+static PuglStatus
+puglCheckWindow(Display* const display, const Window top, const Window window)
+{
+  PuglStatus st         = PUGL_SUCCESS;
+  Window     root       = 0;
+  Window     parent     = 0;
+  Window*    children   = NULL;
+  unsigned   n_children = 0;
+
+  if (top == window) {
+    return PUGL_SUCCESS;
+  }
+
+  if (!XQueryTree(display, top, &root, &parent, &children, &n_children)) {
+    return PUGL_UNKNOWN_ERROR;
+  }
+
+  for (unsigned i = 0; i < n_children; ++i) {
+    st = puglCheckWindow(display, children[i], window);
+    if (st != PUGL_FAILURE) {
+      XFree(children);
+      return st;
+    }
+  }
+
+  if (children) {
+    XFree(children);
+  }
+
+  return PUGL_FAILURE;
+}
+#endif
+
 PuglStatus
 puglRealize(PuglView* const view)
 {
@@ -554,6 +588,14 @@ puglRealize(PuglView* const view)
   puglEnsureHint(view, PUGL_IGNORE_KEY_REPEAT, PUGL_FALSE);
   puglEnsureHint(view, PUGL_RESIZABLE, PUGL_TRUE);
   puglEnsureHint(view, PUGL_VIEW_TYPE, PUGL_VIEW_TYPE_NORMAL);
+
+#ifndef NDEBUG
+  // Ensure that the parent, if given, actually exists
+  if ((st = puglCheckWindow(display, root, parent))) {
+    view->backend->destroy(view);
+    return st;
+  }
+#endif
 
   // Configure the backend to get the visual info
   impl->screen = screen;
