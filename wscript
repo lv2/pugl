@@ -134,6 +134,7 @@ def configure(conf):
                 '/wd4868',  # may not enforce left-to-right evaluation order
                 '/wd5026',  # move constructor implicitly deleted
                 '/wd5027',  # move assignment operator implicitly deleted
+                '/wd5039',  # pointer to throwing function passed to C function
             ],
         })
 

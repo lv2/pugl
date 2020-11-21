@@ -142,14 +142,14 @@ getInstanceExtensions() noexcept
 
 /// @copydoc puglCreateSurface
 inline VkResult
-createSurface(const VulkanLoader&                loader,
+createSurface(PFN_vkGetInstanceProcAddr          vkGetInstanceProcAddr,
               View&                              view,
               VkInstance                         instance,
               const VkAllocationCallbacks* const allocator,
               VkSurfaceKHR* const                surface) noexcept
 {
 	const VkResult r = puglCreateSurface(
-	    loader.cobj(), view.cobj(), instance, allocator, surface);
+	    vkGetInstanceProcAddr, view.cobj(), instance, allocator, surface);
 
 	return (!r && !surface) ? VK_ERROR_INITIALIZATION_FAILED : r;
 }

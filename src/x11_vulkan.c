@@ -110,7 +110,7 @@ puglGetInstanceExtensions(uint32_t* const count)
 }
 
 VkResult
-puglCreateSurface(const PuglVulkanLoader* const      loader,
+puglCreateSurface(PFN_vkGetInstanceProcAddr          vkGetInstanceProcAddr,
                   PuglView* const                    view,
                   VkInstance                         instance,
                   const VkAllocationCallbacks* const allocator,
@@ -120,8 +120,8 @@ puglCreateSurface(const PuglVulkanLoader* const      loader,
 	PuglWorldInternals*  world_impl = view->world->impl;
 
 	PFN_vkCreateXlibSurfaceKHR vkCreateXlibSurfaceKHR =
-	        (PFN_vkCreateXlibSurfaceKHR)puglGetInstanceProcAddrFunc(loader)(
-	                instance, "vkCreateXlibSurfaceKHR");
+	    (PFN_vkCreateXlibSurfaceKHR)
+	        vkGetInstanceProcAddr(instance, "vkCreateXlibSurfaceKHR");
 
 	const VkXlibSurfaceCreateInfoKHR info = {
 	        VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,

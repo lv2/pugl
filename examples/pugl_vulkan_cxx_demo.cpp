@@ -417,8 +417,11 @@ GraphicsDevice::init(const pugl::VulkanLoader& loader,
 
 	// Create a Vulkan surface for the window using the Pugl API
 	VkSurfaceKHR surfaceHandle = {};
-	if ((r = pugl::createSurface(
-	         loader, view, context.instance, nullptr, &surfaceHandle))) {
+	if ((r = pugl::createSurface(loader.getInstanceProcAddrFunc(),
+	                             view,
+	                             context.instance,
+	                             nullptr,
+	                             &surfaceHandle))) {
 		return r;
 	}
 

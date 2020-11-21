@@ -1100,8 +1100,11 @@ main(int argc, char** argv)
 
 	// Create Vulkan surface for Window
 	PuglVulkanLoader* loader = puglNewVulkanLoader(app.world);
-	if (puglCreateSurface(
-	        loader, app.view, vk->instance, ALLOC_VK, &vk->surface)) {
+	if (puglCreateSurface(puglGetInstanceProcAddrFunc(loader),
+	                      app.view,
+	                      vk->instance,
+	                      ALLOC_VK,
+	                      &vk->surface)) {
 		return logError("Failed to create surface\n");
 	}
 

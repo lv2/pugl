@@ -194,7 +194,7 @@ puglGetInstanceExtensions(uint32_t* const count)
 }
 
 VkResult
-puglCreateSurface(const PuglVulkanLoader* const      loader,
+puglCreateSurface(PFN_vkGetInstanceProcAddr          vkGetInstanceProcAddr,
                   PuglView* const                    view,
                   VkInstance                         instance,
                   const VkAllocationCallbacks* const allocator,
@@ -203,8 +203,8 @@ puglCreateSurface(const PuglVulkanLoader* const      loader,
 	PuglInternals* const impl = view->impl;
 
 	PFN_vkCreateMacOSSurfaceMVK vkCreateMacOSSurfaceMVK =
-	    (PFN_vkCreateMacOSSurfaceMVK)puglGetInstanceProcAddrFunc(
-	        loader)(instance, "vkCreateMacOSSurfaceMVK");
+	    (PFN_vkCreateMacOSSurfaceMVK)
+	        vkGetInstanceProcAddr(instance, "vkCreateMacOSSurfaceMVK");
 
 	const VkMacOSSurfaceCreateInfoMVK info = {
 	    VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK,
