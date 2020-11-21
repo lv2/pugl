@@ -662,7 +662,10 @@ puglRealize(PuglView* const view)
 
   // Set supported WM protocols
   Atom protocols[] = {atoms->NET_WM_PING, atoms->WM_DELETE_WINDOW};
-  XSetWMProtocols(display, impl->win, protocols, (parent == root) ? 2 : 1);
+  if (!XSetWMProtocols(
+        display, impl->win, protocols, (parent == root) ? 2 : 1)) {
+    st = PUGL_UNKNOWN_ERROR;
+  }
 
   // Create input context
   if (world->impl->xim) {
