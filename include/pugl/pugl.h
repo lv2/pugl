@@ -1064,36 +1064,6 @@ puglGetNativeWindow(PuglView* view);
 */
 
 /**
-   Enter the graphics context.
-
-   This can be used to enter the graphics context in unusual situations, for
-   doing things like loading textures.  Note that this must not be used for
-   drawing, which may only be done while processing an expose event.  Note also
-   that initial setup should not use this, but instead be done while handling a
-   #PUGL_CREATE event.
-
-   - Cairo: Does nothing.
-   - OpenGL: Sets the current OpenGL context.
-   - Stub: Does nothing.
-   - Vulkan: Does nothing.
-*/
-PUGL_API PuglStatus
-puglEnterContext(PuglView* view);
-
-/**
-   Leave the graphics context.
-
-   This must only be called after puglEnterContext().
-
-   - Cairo: Does nothing.
-   - OpenGL: Resets the current OpenGL context.
-   - Stub: Does nothing.
-   - Vulkan: Does nothing.
-*/
-PUGL_API PuglStatus
-puglLeaveContext(PuglView* view);
-
-/**
    Get the graphics context.
 
    This is a backend-specific context used for drawing if the backend graphics

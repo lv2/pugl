@@ -74,6 +74,24 @@ PUGL_API PuglGlFunc
 puglGetProcAddress(const char* name);
 
 /**
+   Enter the OpenGL context.
+
+   This can be used to enter the graphics context in unusual situations, for
+   doing things like loading textures.  Note that this must not be used for
+   drawing, which may only be done while processing an expose event.
+*/
+PUGL_API PuglStatus
+puglEnterContext(PuglView* view);
+
+/**
+   Leave the OpenGL context.
+
+   This must only be called after puglEnterContext().
+*/
+PUGL_API PuglStatus
+puglLeaveContext(PuglView* view);
+
+/**
    OpenGL graphics backend.
 
    Pass the returned value to puglSetBackend() to draw to a view with OpenGL.

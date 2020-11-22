@@ -292,18 +292,6 @@ puglDispatchEvents(PuglWorld* world)
 #endif
 
 PuglStatus
-puglEnterContext(PuglView* view)
-{
-	return view->backend->enter(view, NULL);
-}
-
-PuglStatus
-puglLeaveContext(PuglView* view)
-{
-	return view->backend->leave(view, NULL);
-}
-
-PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 {
 	view->eventFunc = eventFunc;

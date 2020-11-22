@@ -310,6 +310,18 @@ puglGetProcAddress(const char* name)
 		: (PuglGlFunc)GetProcAddress(GetModuleHandle("opengl32.dll"), name);
 }
 
+PuglStatus
+puglEnterContext(PuglView* view)
+{
+	return view->backend->enter(view, NULL);
+}
+
+PuglStatus
+puglLeaveContext(PuglView* view)
+{
+	return view->backend->leave(view, NULL);
+}
+
 const PuglBackend*
 puglGlBackend(void)
 {
