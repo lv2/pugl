@@ -74,12 +74,6 @@ enum WmClientStateMessageAction {
 	WM_STATE_TOGGLE
 };
 
-static const long eventMask =
-	(ExposureMask | StructureNotifyMask |
-	 VisibilityChangeMask | FocusChangeMask |
-	 EnterWindowMask | LeaveWindowMask | PointerMotionMask |
-	 ButtonPressMask | ButtonReleaseMask | KeyPressMask | KeyReleaseMask);
-
 static bool
 puglInitXSync(PuglWorldInternals* impl)
 {
@@ -277,64 +271,89 @@ puglDefineCursorShape(PuglView* view, unsigned shape)
 PuglStatus
 puglRealize(PuglView* view)
 {
-	PuglInternals* const impl = view->impl;
-	if (impl->win) {
-		return PUGL_FAILURE;
-	}
-
+	PuglInternals* const impl    = view->impl;
 	PuglWorld* const     world   = view->world;
 	PuglX11Atoms* const  atoms   = &view->world->impl->atoms;
 	Display* const       display = world->impl->display;
+	const int            screen  = DefaultScreen(display);
+	const Window         root    = RootWindow(display, screen);
+	const Window         parent  = view->parent ? (Window)view->parent : root;
+	XSetWindowAttributes attr    = {0};
+	PuglStatus           st      = PUGL_SUCCESS;
 
-	impl->display = display;
-	impl->screen  = DefaultScreen(display);
-
-	if (!view->backend || !view->backend->configure) {
+	// Ensure that we're unrealized and that a reasonable backend has been set
+	if (impl->win) {
+		return PUGL_FAILURE;
+	} else if (!view->backend || !view->backend->configure) {
 		return PUGL_BAD_BACKEND;
-	} else if (view->frame.width == 0.0 && view->frame.height == 0.0) {
-		if (view->defaultWidth == 0.0 && view->defaultHeight == 0.0) {
+	}
+
+	// Set the size to the default if it has not already been set
+	if (view->frame.width == 0.0 && view->frame.height == 0.0) {
+		if (view->defaultWidth == 0.0 || view->defaultHeight == 0.0) {
 			return PUGL_BAD_CONFIGURATION;
 		}
 
-		const int screenWidth  = DisplayWidth(display, impl->screen);
-		const int screenHeight = DisplayHeight(display, impl->screen);
-
 		view->frame.width  = view->defaultWidth;
 		view->frame.height = view->defaultHeight;
-		view->frame.x      = screenWidth / 2.0 - view->frame.width / 2.0;
-		view->frame.y      = screenHeight / 2.0 - view->frame.height / 2.0;
 	}
 
-	PuglStatus st = view->backend->configure(view);
-	if (st || !impl->vi) {
+	// Center top-level windows if a position has not been set
+	if (!view->parent && view->frame.x == 0.0 && view->frame.y == 0.0) {
+		const int screenWidth  = DisplayWidth(display, screen);
+		const int screenHeight = DisplayHeight(display, screen);
+
+		view->frame.x = screenWidth / 2.0 - view->frame.width / 2.0;
+		view->frame.y = screenHeight / 2.0 - view->frame.height / 2.0;
+	}
+
+	// Configure the backend to get the visual info
+	impl->display = display;
+	impl->screen  = screen;
+	if ((st = view->backend->configure(view)) || !impl->vi) {
 		view->backend->destroy(view);
 		return st ? st : PUGL_BACKEND_FAILED;
 	}
 
-	Window xParent = view->parent ? (Window)view->parent
-	                              : RootWindow(display, impl->screen);
+	// Create a colormap based on the visual info from the backend
+	attr.colormap =
+	    XCreateColormap(display, parent, impl->vi->visual, AllocNone);
 
-	Colormap cmap = XCreateColormap(
-		display, xParent, impl->vi->visual, AllocNone);
+	// Set the event mask to request all of the event types we react to
+	attr.event_mask |= ButtonPressMask;
+	attr.event_mask |= ButtonReleaseMask;
+	attr.event_mask |= EnterWindowMask;
+	attr.event_mask |= ExposureMask;
+	attr.event_mask |= FocusChangeMask;
+	attr.event_mask |= KeyPressMask;
+	attr.event_mask |= KeyReleaseMask;
+	attr.event_mask |= LeaveWindowMask;
+	attr.event_mask |= PointerMotionMask;
+	attr.event_mask |= StructureNotifyMask;
+	attr.event_mask |= VisibilityChangeMask;
 
-	XSetWindowAttributes attr = {0};
-	attr.colormap   = cmap;
-	attr.event_mask = eventMask;
+	// Create the window
+	impl->win = XCreateWindow(display,
+	                          parent,
+	                          (int)view->frame.x,
+	                          (int)view->frame.y,
+	                          (unsigned)view->frame.width,
+	                          (unsigned)view->frame.height,
+	                          0,
+	                          impl->vi->depth,
+	                          InputOutput,
+	                          impl->vi->visual,
+	                          CWColormap | CWEventMask,
+	                          &attr);
 
-	const Window win = impl->win = XCreateWindow(
-		display, xParent,
-		(int)view->frame.x, (int)view->frame.y,
-		(unsigned)view->frame.width, (unsigned)view->frame.height,
-		0, impl->vi->depth, InputOutput,
-		impl->vi->visual, CWColormap | CWEventMask, &attr);
-
+	// Create the backend drawing context/surface
 	if ((st = view->backend->create(view))) {
 		return st;
 	}
 
 #ifdef HAVE_XRANDR
 	// Set refresh rate hint to the real refresh rate
-	XRRScreenConfiguration* conf         = XRRGetScreenInfo(display, xParent);
+	XRRScreenConfiguration* conf         = XRRGetScreenInfo(display, parent);
 	short                   current_rate = XRRConfigCurrentRate(conf);
 
 	view->hints[PUGL_REFRESH_RATE] = current_rate;
@@ -344,26 +363,25 @@ puglRealize(PuglView* view)
 	updateSizeHints(view);
 
 	XClassHint classHint = { world->className, world->className };
-	XSetClassHint(display, win, &classHint);
+	XSetClassHint(display, impl->win, &classHint);
 
 	if (view->title) {
 		puglSetWindowTitle(view, view->title);
 	}
 
-	if (!view->parent) {
-		XSetWMProtocols(display, win, &atoms->WM_DELETE_WINDOW, 1);
+	if (parent == root) {
+		XSetWMProtocols(display, impl->win, &atoms->WM_DELETE_WINDOW, 1);
 	}
 
 	if (view->transientParent) {
-		XSetTransientForHint(display, win, (Window)(view->transientParent));
+		XSetTransientForHint(display, impl->win, (Window)view->transientParent);
 	}
 
 	// Create input context
-	const XIMStyle im_style = XIMPreeditNothing | XIMStatusNothing;
 	impl->xic = XCreateIC(world->impl->xim,
-	                      XNInputStyle,   im_style,
-	                      XNClientWindow, win,
-	                      XNFocusWindow,  win,
+	                      XNInputStyle,   XIMPreeditNothing | XIMStatusNothing,
+	                      XNClientWindow, impl->win,
+	                      XNFocusWindow,  impl->win,
 	                      NULL);
 
 #ifdef HAVE_XCURSOR
