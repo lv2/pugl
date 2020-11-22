@@ -5,6 +5,8 @@ Checks: >
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-static-cast-downcast,
   -google-runtime-references,
+  -hicpp-named-parameter,
+  -llvmlibc-*,
   -modernize-use-trailing-return-type,
   -readability-implicit-bool-conversion,
   -readability-named-parameter,

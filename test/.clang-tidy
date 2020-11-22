@@ -2,9 +2,13 @@ Checks: >
   *,
   -*-magic-numbers,
   -*-uppercase-literal-suffix,
+  -bugprone-reserved-identifier,
+  -cert-dcl37-c,
+  -cert-dcl51-cpp,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
+  -llvmlibc-*,
   -modernize-use-trailing-return-type,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*|test/.*'

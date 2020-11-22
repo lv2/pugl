@@ -2,13 +2,18 @@ Checks: >
   *,
   -*-uppercase-literal-suffix,
   -*magic-numbers,
+  -bugprone-reserved-identifier,
   -bugprone-suspicious-string-compare,
+  -cert-dcl37-c,
+  -cert-dcl51-cpp,
   -cert-flp30-c,
   -clang-analyzer-security.FloatLoopCounter,
   -clang-diagnostic-unused-macros,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
+  -llvm-else-after-return,
   -llvm-header-guard,
+  -llvmlibc-*,
   -readability-else-after-return,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'
