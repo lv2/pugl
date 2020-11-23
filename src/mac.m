@@ -1007,7 +1007,7 @@ puglRealize(PuglView* view)
 }
 
 PuglStatus
-puglShowWindow(PuglView* view)
+puglShow(PuglView* view)
 {
 	if (![view->impl->window isVisible]) {
 		[view->impl->window setIsVisible:YES];
@@ -1019,7 +1019,7 @@ puglShowWindow(PuglView* view)
 }
 
 PuglStatus
-puglHideWindow(PuglView* view)
+puglHide(PuglView* view)
 {
 	[view->impl->window setIsVisible:NO];
 	return PUGL_SUCCESS;

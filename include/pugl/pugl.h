@@ -1042,11 +1042,11 @@ puglRealize(PuglView* view);
    top depending on the platform.
 */
 PUGL_API PuglStatus
-puglShowWindow(PuglView* view);
+puglShow(PuglView* view);
 
 /// Hide the current window
 PUGL_API PuglStatus
-puglHideWindow(PuglView* view);
+puglHide(PuglView* view);
 
 /// Return true iff the view is currently visible
 PUGL_API bool
@@ -1514,6 +1514,12 @@ puglPollEvents(PuglWorld* world, double timeout);
 */
 PUGL_API PUGL_DEPRECATED_BY("puglUpdate") PuglStatus
 puglDispatchEvents(PuglWorld* world);
+
+PUGL_API PUGL_DEPRECATED_BY("puglShow") PuglStatus
+puglShowWindow(PuglView* view);
+
+PUGL_API PUGL_DEPRECATED_BY("puglHide") PuglStatus
+puglHideWindow(PuglView* view);
 
 #endif // PUGL_DISABLE_DEPRECATED
 

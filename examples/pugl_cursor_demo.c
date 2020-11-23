@@ -160,7 +160,7 @@ main(int argc, char** argv)
 		return logError("Failed to create window (%s)\n", puglStrerror(st));
 	}
 
-	puglShowWindow(view);
+	puglShow(view);
 
 	while (!app.quit) {
 		puglUpdate(app.world, -1.0);

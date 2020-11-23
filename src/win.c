@@ -218,7 +218,7 @@ puglRealize(PuglView* view)
 }
 
 PuglStatus
-puglShowWindow(PuglView* view)
+puglShow(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
 
@@ -228,7 +228,7 @@ puglShowWindow(PuglView* view)
 }
 
 PuglStatus
-puglHideWindow(PuglView* view)
+puglHide(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
 

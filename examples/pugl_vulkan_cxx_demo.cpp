@@ -1804,7 +1804,7 @@ run(const PuglTestOptions opts, const size_t numRects)
 	const double timeout       = app.opts.sync ? frameDuration : 0.0;
 
 	PuglFpsPrinter fpsPrinter = {app.world.time()};
-	app.view.showWindow();
+	app.view.show();
 	while (!app.quit) {
 		app.world.update(timeout);
 		puglPrintFps(app.world.cobj(), &fpsPrinter, &app.framesDrawn);

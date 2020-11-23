@@ -507,16 +507,16 @@ public:
 		return static_cast<Status>(puglRealize(cobj()));
 	}
 
-	/// @copydoc puglShowWindow
-	Status showWindow() noexcept
+	/// @copydoc puglShow
+	Status show() noexcept
 	{
-		return static_cast<Status>(puglShowWindow(cobj()));
+		return static_cast<Status>(puglShow(cobj()));
 	}
 
-	/// @copydoc puglHideWindow
-	Status hideWindow() noexcept
+	/// @copydoc puglHide
+	Status hide() noexcept
 	{
-		return static_cast<Status>(puglHideWindow(cobj()));
+		return static_cast<Status>(puglHide(cobj()));
 	}
 
 	/// @copydoc puglGetVisible

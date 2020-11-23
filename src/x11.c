@@ -394,7 +394,7 @@ puglRealize(PuglView* view)
 }
 
 PuglStatus
-puglShowWindow(PuglView* view)
+puglShow(PuglView* view)
 {
 	PuglStatus st = PUGL_SUCCESS;
 
@@ -411,7 +411,7 @@ puglShowWindow(PuglView* view)
 }
 
 PuglStatus
-puglHideWindow(PuglView* view)
+puglHide(PuglView* view)
 {
 	XUnmapWindow(view->impl->display, view->impl->win);
 	return PUGL_SUCCESS;

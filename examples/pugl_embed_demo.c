@@ -335,8 +335,8 @@ main(int argc, char** argv)
 		                puglStrerror(st));
 	}
 
-	puglShowWindow(app.parent);
-	puglShowWindow(app.child);
+	puglShow(app.parent);
+	puglShow(app.child);
 
 	puglStartTimer(app.child, reverseTimerId, 3.6);
 

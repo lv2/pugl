@@ -289,6 +289,18 @@ puglDispatchEvents(PuglWorld* world)
 	return puglUpdate(world, 0.0);
 }
 
+PuglStatus
+puglShowWindow(PuglView* view)
+{
+	return puglShow(view);
+}
+
+PuglStatus
+puglHideWindow(PuglView* view)
+{
+	return puglHide(view);
+}
+
 #endif
 
 PuglStatus

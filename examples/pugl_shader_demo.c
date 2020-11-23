@@ -426,7 +426,7 @@ main(int argc, char** argv)
 
 	// Show window
 	printViewHints(app.view);
-	puglShowWindow(app.view);
+	puglShow(app.view);
 
 	// Calculate ideal frame duration to drive the main loop at a good rate
 	const int    refreshRate   = puglGetViewHint(app.view, PUGL_REFRESH_RATE);

@@ -893,7 +893,7 @@ destroyWorld(VulkanApp* const app)
 		closeDevice(vk);
 
 		if (app->view) {
-			puglHideWindow(app->view);
+			puglHide(app->view);
 			puglFreeView(app->view);
 			app->view = NULL;
 		}
@@ -1123,7 +1123,7 @@ main(int argc, char** argv)
 	printf("Swapchain images:            %u\n", app.vk.swapchain->nImages);
 
 	PuglFpsPrinter fpsPrinter = {puglGetTime(app.world)};
-	puglShowWindow(app.view);
+	puglShow(app.view);
 	while (!app.quit) {
 		puglUpdate(app.world, -1.0);
 

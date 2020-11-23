@@ -126,13 +126,13 @@ main(int argc, char** argv)
 
 	// Show and hide window a couple of times
 	for (unsigned i = 0u; i < 2u; ++i) {
-		assert(!puglShowWindow(test.view));
+		assert(!puglShow(test.view));
 		while (test.state != EXPOSED) {
 			tick(test.world);
 		}
 
 		assert(puglGetVisible(test.view));
-		assert(!puglHideWindow(test.view));
+		assert(!puglHide(test.view));
 		while (test.state != UNMAPPED) {
 			tick(test.world);
 		}
