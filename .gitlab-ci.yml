@@ -43,7 +43,7 @@ arm64_rel:
 x64_dbg:
   <<: *build_definition
   image: lv2plugin/debian-x64
-  script: python ./waf configure build -dST --werror --no-coverage --docs
+  script: python3 ./waf configure build -dST --werror --no-coverage --docs
   artifacts:
     paths:
       - build/doc
@@ -108,7 +108,12 @@ win_rel:
 
 pages:
   stage: deploy
-  script: mv build/doc/html/ public/
+  script:
+    - mkdir public
+    - mkdir public/c
+    - mkdir public/cpp
+    - mv build/doc/c/singlehtml/ public/c/singlehtml/
+    - mv build/doc/cpp/singlehtml/ public/cpp/singlehtml/
   dependencies:
     - x64_dbg
   artifacts:

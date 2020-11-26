@@ -37,39 +37,16 @@ being, however, the API may break occasionally.  Please report any relevant
 feedback, or file feature requests, so that we can ensure that the released API
 is stable for as long as possible.
 
-Distribution
-------------
+Documentation
+-------------
 
-Pugl is designed for flexible distribution.  It can be used by simply including
-the source code, or installed and linked against as a static or shared library.
-Static linking or direct inclusion is a good idea for plugins that will be
-distributed as binaries to avoid dependency problems.
+Pugl is a C library that includes C++ bindings.
+Each API is documented separately:
 
-If you are including the code, please use a submodule so that suitable changes
-can be merged upstream to keep fragmentation to a minimum.
+ * [C Documentation](https://lv2.gitlab.io/pugl/c/singlehtml)
+ * [C++ Documentation](https://lv2.gitlab.io/pugl/cpp/singlehtml)
 
-When installed, Pugl is split into different libraries to keep dependencies
-minimal.  The core implementation is separate from graphics backends:
-
- * The core implementation for a particular platform is in one library:
-   `pugl_x11`, `pugl_mac`, or `pugl_win`.  This does not depend on backends or
-   their dependencies.
-
- * Backends for platforms are in separate libraries, which depend on the core:
-   `pugl_x11_cairo`, `pugl_x11_gl`, `pugl_mac_cairo`, and so on.
-
-Applications must link against the core and at least one backend.  Normally,
-this can be achieved by simply depending on the package `pugl-gl-0` or
-`pugl-cairo-0`.  Though it is possible to compile everything into a monolithic
-library, distributions should retain this separation so that GL applications
-don't depend on Cairo and its dependencies, or vice-versa.
-
-The C++ bindings are header-only but installed to a separate include path than
-the C headers.  Depending on the package `puglxx-0` (in addition to the
-appropriate backend package above) will enable their use.
-
-Distributions are encouraged to include static libraries if possible so that
-developers can build portable plugin binaries.
+The documentation can also be built from the source by configuring with `--docs`.
 
 Testing
 -------
@@ -85,8 +62,8 @@ Then, after building, the unit tests can be run:
     ./waf
     ./waf test --gui-tests
 
-Several example programs are included that serve as both manual tests and
-demonstrations:
+The `examples` directory contains several programs that serve as both manual
+tests and demonstrations:
 
  * `pugl_embed_demo` shows a view embedded in another, and also tests
    requesting attention (which happens after 5 seconds), keyboard focus
@@ -117,12 +94,5 @@ demonstrations:
 All example programs support several command line options to control various
 behaviours, see the output of `--help` for details.  Please file an issue if
 any of these programs do not work as expected on your system.
-
-Documentation
--------------
-
-The [API reference](https://lv2.gitlab.io/pugl/) for the latest master is
-available online, and can also be built from the source code by configuring
-with `--docs`.
 
  -- David Robillard <d@drobilla.net>
