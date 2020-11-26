@@ -261,6 +261,17 @@ private:
 #elif defined(PUGL_HPP_ASSERT_CONSTRUCTION)
 #	define PUGL_CHECK_CONSTRUCTION(cond, msg) assert(cond);
 #else
+/**
+   Configurable macro for handling construction failure.
+
+   If `PUGL_HPP_THROW_FAILED_CONSTRUCTION` is defined, then this throws a
+   `pugl::FailedConstructionError` if construction fails.
+
+   If `PUGL_HPP_ASSERT_CONSTRUCTION` is defined, then this asserts if
+   construction fails.
+
+   Otherwise, this does nothing.
+*/
 #	define PUGL_CHECK_CONSTRUCTION(cond, msg)
 #endif
 
