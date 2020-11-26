@@ -38,7 +38,11 @@ public:
 		setEventHandler(*this);
 	}
 
-	using pugl::View::onEvent;
+	template<PuglEventType t, class Base>
+	pugl::Status onEvent(const pugl::Event<t, Base>&) noexcept
+	{
+		return pugl::Status::success;
+	}
 
 	static pugl::Status onEvent(const pugl::ConfigureEvent& event) noexcept;
 	pugl::Status        onEvent(const pugl::UpdateEvent& event) noexcept;
