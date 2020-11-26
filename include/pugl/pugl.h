@@ -84,7 +84,7 @@ typedef struct {
 } PuglRect;
 
 /**
-   @name Events
+   @defgroup events Events
 
    All updates to the view happen via events, which are dispatched to the
    view's event function.  Most events map directly to one from the underlying
@@ -568,7 +568,7 @@ typedef union {
 
 /**
    @}
-   @name Status
+   @defgroup status Status
 
    Most functions return a status code which can be used to check for errors.
 
@@ -598,7 +598,7 @@ puglStrerror(PuglStatus status);
 
 /**
    @}
-   @name World
+   @defgroup world World
 
    The top-level context of a Pugl application or plugin.
 
@@ -731,7 +731,7 @@ puglUpdate(PuglWorld* world, double timeout);
 
 /**
    @}
-   @name View
+   @defgroup view View
 
    A drawable region that receives events.
 
@@ -806,7 +806,7 @@ typedef enum {
 typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 
 /**
-   @name Setup
+   @defgroup setup Setup
    Functions for creating and destroying a view.
    @{
 */
@@ -889,8 +889,7 @@ puglGetViewHint(const PuglView* view, PuglViewHint hint);
 
 /**
    @}
-   @anchor frame
-   @name Frame
+   @defgroup frame Frame
    Functions for working with the position and size of a view.
    @{
 */
@@ -972,8 +971,8 @@ puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
 
 /**
    @}
-   @name Windows
-   Functions for working with system views and the window hierarchy.
+   @defgroup window Window
+   Functions to control the top-level window of a view.
    @{
 */
 
@@ -1048,7 +1047,7 @@ puglGetNativeWindow(PuglView* view);
 
 /**
    @}
-   @name Graphics
+   @defgroup graphics Graphics
    Functions for working with the graphics context and scheduling redisplays.
    @{
 */
@@ -1090,8 +1089,7 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect);
 
 /**
    @}
-   @anchor interaction
-   @name Interaction
+   @defgroup interaction Interaction
    Functions for interacting with the user and window system.
    @{
 */
@@ -1246,7 +1244,7 @@ puglSendEvent(PuglView* view, const PuglEvent* event);
 
 /**
    @}
-   @name Deprecated API
+   @defgroup deprecated Deprecated API
    @{
 */
 

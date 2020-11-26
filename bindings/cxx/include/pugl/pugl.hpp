@@ -81,7 +81,7 @@ private:
 using Rect = PuglRect; ///< @copydoc PuglRect
 
 /**
-   @name Events
+   @defgroup eventsxx Events
    @{
 */
 
@@ -183,7 +183,7 @@ using LoopLeaveEvent = Event<PUGL_LOOP_LEAVE, PuglEventLoopLeave>;
 
 /**
    @}
-   @name Status
+   @defgroup statusxx Status
    @{
 */
 
@@ -214,7 +214,7 @@ strerror(const Status status) noexcept
 
 /**
    @}
-   @name World
+   @defgroup worldxx World
    @{
 */
 
@@ -325,7 +325,7 @@ public:
 
 /**
    @}
-   @name View
+   @defgroup viewxx View
    @{
 */
 
