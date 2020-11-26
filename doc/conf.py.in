@@ -1,0 +1,88 @@
+# Project information
+
+project = "Pugl"
+copyright = "2020, David Robillard"
+author = "David Robillard"
+release = "@PUGL_VERSION@"
+
+# General configuration
+
+language = "en"
+
+extensions = [
+    # 'breathe',
+    # 'sphinx_rtd_theme',
+    # 'sphinx.ext.autodoc',
+    # 'sphinx.ext.doctest',
+    # 'sphinx.ext.napoleon',
+    # 'sphinx.ext.viewcode',
+]
+
+# Enable nitpicky mode to get warnings about broken links
+# Unfortunately this means we need to explicitly ignore everything external
+nitpicky = True
+_opaque = [
+    "PFN_vkGetDeviceProcAddr",
+    "PFN_vkGetInstanceProcAddr",
+    "PuglBackendImpl",
+    "PuglViewImpl",
+    "PuglVulkanLoaderImpl",
+    "PuglWorldImpl",
+    "VkAllocationCallbacks",
+    "VkInstance",
+    "VkResult",
+    "VkSurfaceKHR",
+    "size_t",
+    "uint32_t",
+    "uintptr_t",
+]
+_c_nitpick_ignore = map(lambda x: ("c:identifier", x), _opaque)
+_cpp_nitpick_ignore = map(lambda x: ("cpp:identifier", x), _opaque)
+nitpick_ignore = list(_c_nitpick_ignore) + list(_cpp_nitpick_ignore)
+
+templates_path = ["_templates"]
+
+pygments_style = "friendly"
+
+# C++
+
+cpp_index_common_prefix = ["pugl::"]
+
+# HTML output
+
+exclude_patterns = ["xml"]
+html_static_path = ["_static"]
+
+html_theme = "alabaster"
+# html_theme = "sphinx_rtd_theme"
+
+if html_theme == "alabaster":
+
+    html_theme_options = {
+        "description": "A minimal portable API for embeddable GUIs.",
+        "donate_url": "http://drobilla.net/pages/donate.html",
+        # "github_repo": "pugl",
+        # "github_user": "lv2",
+        "logo": "pugl.svg",
+        "logo_name": True,
+        "logo_text_align": "center",
+        "page_width": "80em - 20em",
+        "sidebar_width": "20em",
+    }
+
+    html_sidebars = {
+        "**": [
+            "about.html",
+            "localtoc.html",
+            "donate.html",
+        ]
+    }
+
+elif html_theme == "sphinx_rtd_theme":
+
+    html_theme_options = {
+        "sticky_navigation": False,
+        "collapse_navigation": False,
+        "navigation_depth": 4,
+        "display_version": True,
+    }

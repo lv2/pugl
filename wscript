@@ -159,6 +159,14 @@ def configure(conf):
                         '-Wno-direct-ivar-access'],
             })
 
+    if conf.env.DOCS:
+        conf.load('python')
+        conf.load('sphinx')
+        conf.find_program('doxygen', var='DOXYGEN')
+
+        if not (conf.env.DOXYGEN and conf.env.SPHINX_BUILD):
+            conf.env.DOCS = False
+
     sys_header = 'windows.h' if platform == 'win32' else ''
 
     if not Options.options.no_vulkan:
@@ -270,7 +278,9 @@ def configure(conf):
     conf.env.update({
         'BUILD_SHARED': not Options.options.no_shared,
         'BUILD_STATIC': conf.env.BUILD_TESTS or not Options.options.no_static,
-        'BUILD_STRICT_HEADER_TEST': Options.options.strict})
+        'BUILD_STRICT_HEADER_TEST': Options.options.strict,
+        'PUGL_MAJOR_VERSION': PUGL_MAJOR_VERSION,
+    })
 
     if conf.env.TARGET_PLATFORM == 'win32':
         conf.env.PUGL_PLATFORM = 'win'
@@ -672,10 +682,8 @@ def build(bld):
                           uselib=['GL', 'M'])
 
     if bld.env.DOCS:
-        autowaf.build_dox(
-            bld, 'PUGL', PUGL_VERSION, top, out, install_man=False)
-        bld.install_files('${MANDIR}/man3', 'doc/man/man3/pugl.3')
-        bld.install_files('${MANDIR}/man3', 'doc/man/man3/puglxx.3')
+        bld.recurse('doc/c')
+        bld.recurse('doc/cpp')
 
 
 def test(tst):

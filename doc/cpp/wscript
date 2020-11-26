@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+def build(bld):
+    dox_to_sphinx = bld.path.find_node("../../scripts/dox_to_sphinx.py")
+    index_xml = bld.path.get_bld().make_node("xml/index.xml")
+
+    files = [
+        ("../../resources/pugl.svg", "sphinx/_static/pugl.svg"),
+        ("../_static/custom.css", "sphinx/_static/custom.css"),
+        ("../_templates/about.html", "sphinx/_templates/about.html"),
+        ("../deployment.rst", "sphinx/deployment.rst"),
+        ("../pugl.rst", "sphinx/pugl.rst"),
+        ("c-reference.rst", "sphinx/c-reference.rst"),
+        ("cpp-reference.rst", "sphinx/cpp-reference.rst"),
+        ("index.rst", "sphinx/index.rst"),
+        ("overview.rst", "sphinx/overview.rst"),
+    ]
+
+    # Run Doxygen to generate XML documentation
+    bld(features="doxygen", doxyfile="Doxyfile")
+
+    # Substitute variables to make Sphinx configuration file
+    bld(features="subst",
+        source="../conf.py.in",
+        target="sphinx/conf.py",
+        PUGL_VERSION=bld.env.PUGL_VERSION)
+
+    # Copy static documentation files to Sphinx build directory
+    for f in files:
+        bld(features="subst", is_copy=True, source=f[0], target=f[1])
+
+    # Generate Sphinx markup from Doxygen XML
+    bld.add_group()
+    bld(rule="${PYTHON} " + dox_to_sphinx.abspath() + " -l cpp -f ${SRC} ${TGT}",
+        source=index_xml,
+        target="sphinx/api/")
+
+    # Run Sphinx to generate HTML documentation
+    doc_dir = bld.env.DOCDIR + "/pugl-%s/" % bld.env.PUGL_MAJOR_VERSION
+    bld(features="sphinx",
+        sphinx_source=bld.path.get_bld().make_node("sphinx"),
+        sphinx_output_format="singlehtml",
+        sphinx_options=["-E", "-q"],
+        install_path=doc_dir + "cpp/singlehtml/")
