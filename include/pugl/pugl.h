@@ -683,10 +683,11 @@ puglGetWorldHandle(PuglWorld* world);
 /**
    Return a pointer to the native handle of the world.
 
-   @return
-   - X11: A pointer to the `Display`.
-   - MacOS: `NULL`.
-   - Windows: The `HMODULE` of the calling process.
+   X11: Returns a pointer to the `Display`.
+
+   MacOS: Returns null.
+
+   Windows: Returns the `HMODULE` of the calling process.
 */
 PUGL_API void*
 puglGetNativeWorld(PuglWorld* world);
@@ -732,9 +733,7 @@ puglGetTime(const PuglWorld* world);
    of the ideal frame period should be used, to minimise input latency by
    ensuring that as many input events are consumed as possible before drawing.
 
-   @return
-   - #PUGL_SUCCESS if events are read
-   - #PUGL_FAILURE if not, or an error.
+   @return #PUGL_SUCCESS if events are read, #PUGL_FAILURE if not, or an error.
 */
 PUGL_API PuglStatus
 puglUpdate(PuglWorld* world, double timeout);
@@ -1069,12 +1068,10 @@ puglGetNativeWindow(PuglView* view);
    This is a backend-specific context used for drawing if the backend graphics
    API requires one.  It is only available during an expose.
 
-   @return
-   - Cairo: A pointer to a
-     [`cairo_t`](http://www.cairographics.org/manual/cairo-cairo-t.html).
-   - OpenGL: `NULL`.
-   - Stub: `NULL`.
-   - Vulkan: `NULL`.
+   Cairo: Returns a pointer to a
+   [`cairo_t`](http://www.cairographics.org/manual/cairo-cairo-t.html).
+
+   All other backends: returns null.
 */
 PUGL_API void*
 puglGetContext(PuglView* view);
@@ -1170,7 +1167,7 @@ puglGetClipboard(PuglView* view, const char** type, size_t* len);
    the view.  May fail if setting the cursor is not supported on this system,
    for example if compiled on X11 without Xcursor support.
 
-   @return
+   Errors:
    - #PUGL_BAD_PARAMETER if the given cursor is invalid.
    - #PUGL_FAILURE if the cursor isknown but loading it from the system fails.
 */
@@ -1210,7 +1207,7 @@ puglRequestAttention(PuglView* view);
    resolution on Windows) and may be rounded up if it is too short.  On X11 and
    MacOS, a resolution of about 1ms can usually be relied on.
 
-   @return
+   Errors:
    - #PUGL_FAILURE if timers are not supported by this system or build.
    - #PUGL_UNKNOWN_ERROR if setting the timer failed.
 */
@@ -1223,7 +1220,7 @@ puglStartTimer(PuglView* view, uintptr_t id, double timeout);
    @param view The view that the timer is set for.
    @param id The ID previously passed to puglStartTimer().
 
-   @return
+   Errors:
    - #PUGL_FAILURE if timers are not supported by this system or build.
    - #PUGL_UNKNOWN_ERROR if stopping the timer failed.
 */
@@ -1243,7 +1240,7 @@ puglStopTimer(PuglView* view, uintptr_t id);
    puglPostRedisplayRect(), but will always send a message to the X server,
    even when called in an event handler.
 
-   @return
+   Errors:
    - #PUGL_UNSUPPORTED_TYPE if sending events of this type is not supported.
    - #PUGL_UNKNOWN_ERROR if sending the event failed.
 */
