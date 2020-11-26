@@ -1438,8 +1438,7 @@ makeRects(const size_t numRects, const uint32_t windowWidth)
 
 PuglVulkanDemo::PuglVulkanDemo(const PuglTestOptions& o, const size_t numRects)
     : opts{o}
-    , world{pugl::WorldType::program,
-            static_cast<pugl::WorldFlags>(pugl::WorldFlag::threads)} // FIXME?
+    , world{pugl::WorldType::program, pugl::WorldFlag::threads}
     , loader{world}
     , view{world, *this}
     , rects{makeRects(numRects, extent.width)}

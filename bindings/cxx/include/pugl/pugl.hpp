@@ -281,14 +281,21 @@ public:
 
 	~World() = default;
 
-	explicit World(WorldType type, WorldFlags flags)
+	World(WorldType type, WorldFlag flag)
+	    : Wrapper{puglNewWorld(static_cast<PuglWorldType>(type),
+	                           static_cast<PuglWorldFlags>(flag))}
+	{
+		PUGL_CHECK_CONSTRUCTION(cobj(), "Failed to create pugl::World");
+	}
+
+	World(WorldType type, WorldFlags flags)
 	    : Wrapper{puglNewWorld(static_cast<PuglWorldType>(type), flags)}
 	{
 		PUGL_CHECK_CONSTRUCTION(cobj(), "Failed to create pugl::World");
 	}
 
 	explicit World(WorldType type)
-	    : World{type, {}}
+	    : World{type, WorldFlags{}}
 	{}
 
 	/// @copydoc puglGetNativeWorld
