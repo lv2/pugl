@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file gl.h
-   @brief OpenGL-specific API.
-*/
-
 #ifndef PUGL_GL_H
 #define PUGL_GL_H
 

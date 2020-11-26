@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file implementation.c
-   @brief Platform-independent implementation.
-*/
-
 #include "implementation.h"
 
 #include "pugl/pugl.h"

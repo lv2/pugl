@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file stub.h
-   @brief Definition of generic stub backend functions.
-*/
-
 #ifndef PUGL_DETAIL_STUB_H
 #define PUGL_DETAIL_STUB_H
 

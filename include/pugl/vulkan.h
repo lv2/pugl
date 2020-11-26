@@ -14,12 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file vulkan.h Vulkan-specific API.
-
-   Note that this header includes Vulkan headers, so if you are writing a
-   program or plugin that dynamically loads vulkan, you should first define
-   `VK_NO_PROTOTYPES` before including it.
+/*
+  Note that this header includes Vulkan headers, so if you are writing a
+  program or plugin that dynamically loads vulkan, you should first define
+  `VK_NO_PROTOTYPES` before including it.
 */
 
 #ifndef PUGL_VULKAN_H

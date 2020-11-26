@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file mac_stub.m
-   @brief Stub graphics backend for MacOS.
-*/
-
 #include "implementation.h"
 #include "mac.h"
 #include "stub.h"

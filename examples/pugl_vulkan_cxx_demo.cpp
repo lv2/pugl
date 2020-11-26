@@ -14,18 +14,17 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl_vulkan_cxx_demo.cpp
-   @brief An example of drawing with Vulkan.
+/*
+  An example of drawing with Vulkan.
 
-   This is an example of using Vulkan for pixel-perfect 2D drawing.  It uses
-   the same data and shaders as pugl_shader_demo.c and attempts to draw the
-   same thing, except using Vulkan.
+  This is an example of using Vulkan for pixel-perfect 2D drawing.  It uses
+  the same data and shaders as pugl_shader_demo.c and attempts to draw the
+  same thing, except using Vulkan.
 
-   Since Vulkan is a complicated and very verbose API, this example is
-   unfortunately much larger than the others.  You should not use this as a
-   resource to learn Vulkan, but it provides a decent demo of using Vulkan with
-   Pugl that works nicely on all supported platforms.
+  Since Vulkan is a complicated and very verbose API, this example is
+  unfortunately much larger than the others.  You should not use this as a
+  resource to learn Vulkan, but it provides a decent demo of using Vulkan with
+  Pugl that works nicely on all supported platforms.
 */
 
 #include "demo_utils.h"

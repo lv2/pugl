@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file stub.hpp
-   @brief Declaration of Stub backend accessor for C++.
-*/
-
 #ifndef PUGL_STUB_HPP
 #define PUGL_STUB_HPP
 

@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl.h
-   @brief Pugl API.
-*/
-
 #ifndef PUGL_PUGL_H
 #define PUGL_PUGL_H
 
@@ -862,9 +857,9 @@ puglGetHandle(PuglView* view);
 
    Pugl includes the following backends:
 
-   - puglCairoBackend(), declared in pugl/cairo.h
-   - puglGlBackend(), declared in pugl/gl.h
-   - puglVulkanBackend(), declared in pugl/vulkan.h
+   - puglCairoBackend()
+   - puglGlBackend()
+   - puglVulkanBackend()
 
    Note that backends are modular and not compiled into the main Pugl library
    to avoid unnecessary dependencies.  To use a particular backend,

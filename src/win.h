@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file win.h
-   @brief Shared definitions for Windows implementation.
-*/
-
 #ifndef PUGL_DETAIL_WIN_H
 #define PUGL_DETAIL_WIN_H
 

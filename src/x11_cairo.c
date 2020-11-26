@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file x11_cairo.c
-   @brief Cairo graphics backend for X11.
-*/
-
 #include "types.h"
 #include "x11.h"
 

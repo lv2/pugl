@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file implementation.h
-   @brief Shared declarations for implementation.
-*/
-
 #ifndef PUGL_IMPLEMENTATION_H
 #define PUGL_IMPLEMENTATION_H
 

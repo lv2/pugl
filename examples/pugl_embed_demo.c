@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl_embed_demo.c
-   @brief An example of embedding a view in another.
-*/
-
 #include "cube_view.h"
 #include "demo_utils.h"
 #include "test/test_utils.h"

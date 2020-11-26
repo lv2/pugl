@@ -14,14 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file rects.h
-   @brief Utilities for rectangle animation demos.
-
-   This file contains common definitions for demos that show an animation of
-   many 2D rectangles.
-*/
-
 #ifndef EXAMPLES_RECTS_H
 #define EXAMPLES_RECTS_H
 

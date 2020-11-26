@@ -15,11 +15,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file mac.h
-   @brief Shared definitions for MacOS implementation.
-*/
-
 #ifndef PUGL_DETAIL_MAC_H
 #define PUGL_DETAIL_MAC_H
 

@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl_cairo_demo.c
-   @brief An example of drawing with Cairo.
-*/
-
 #include "demo_utils.h"
 #include "test/test_utils.h"
 

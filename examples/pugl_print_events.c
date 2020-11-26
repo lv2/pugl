@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl_print_events.c
-   @brief A utility program that prints view events.
-*/
-
 #include "test/test_utils.h"
 
 #include "pugl/pugl.h"

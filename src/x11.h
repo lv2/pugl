@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file x11.h
-   @brief Shared definitions for X11 implementation.
-*/
-
 #ifndef PUGL_DETAIL_X11_H
 #define PUGL_DETAIL_X11_H
 

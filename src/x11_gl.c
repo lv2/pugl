@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file x11_gl.c
-   @brief OpenGL graphics backend for X11.
-*/
-
 #include "stub.h"
 #include "types.h"
 #include "x11.h"

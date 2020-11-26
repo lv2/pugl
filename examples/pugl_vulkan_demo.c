@@ -15,9 +15,11 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl_vulkan_demo.c
-   @brief A simple example of drawing with Vulkan.
+/*
+  A simple example of drawing with Vulkan.
+
+  For a more advanced demo that actually draws something interesting, see
+  pugl_vulkan_cxx_demo.cpp.
 */
 
 #include "demo_utils.h"

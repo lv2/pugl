@@ -14,25 +14,24 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl_shader_demo.c
-   @brief An example of drawing with OpenGL 3/4.
+/*
+  An example of drawing with OpenGL 3/4.
 
-   This is an example of using OpenGL for pixel-perfect 2D drawing.  It uses
-   pixel coordinates for positions and sizes so that things work roughly like a
-   typical 2D graphics API.
+  This is an example of using OpenGL for pixel-perfect 2D drawing.  It uses
+  pixel coordinates for positions and sizes so that things work roughly like a
+  typical 2D graphics API.
 
-   The program draws a bunch of rectangles with borders, using instancing.
-   Each rectangle has origin, size, and fill color attributes, which are shared
-   for all four vertices.  On each frame, a single buffer with all the
-   rectangle data is sent to the GPU, and everything is drawn with a single
-   draw call.
+  The program draws a bunch of rectangles with borders, using instancing.
+  Each rectangle has origin, size, and fill color attributes, which are shared
+  for all four vertices.  On each frame, a single buffer with all the
+  rectangle data is sent to the GPU, and everything is drawn with a single
+  draw call.
 
-   This is not particularly realistic or optimal, but serves as a decent rough
-   benchmark for how much simple geometry you can draw.  The number of
-   rectangles can be given on the command line.  For reference, it begins to
-   struggle to maintain 60 FPS on my machine (1950x + Vega64) with more than
-   about 100000 rectangles.
+  This is not particularly realistic or optimal, but serves as a decent rough
+  benchmark for how much simple geometry you can draw.  The number of
+  rectangles can be given on the command line.  For reference, it begins to
+  struggle to maintain 60 FPS on my machine (1950x + Vega64) with more than
+  about 100000 rectangles.
 */
 
 #include "demo_utils.h"

@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file win.c
-   @brief Windows implementation.
-*/
-
 #include "win.h"
 
 #include "implementation.h"

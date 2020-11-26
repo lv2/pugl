@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file types.h
-   @brief Shared internal type definitions.
-*/
-
 #ifndef PUGL_DETAIL_TYPES_H
 #define PUGL_DETAIL_TYPES_H
 

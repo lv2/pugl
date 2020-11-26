@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file stub.h
-   @brief Stub backend functions and accessor declaration.
-*/
-
 #ifndef PUGL_STUB_H
 #define PUGL_STUB_H
 

@@ -14,12 +14,10 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file vulkan.hpp Vulkan-specific C++ API.
-
-   Note that this header includes Vulkan headers, so if you are writing a
-   program or plugin that dynamically loads vulkan, you should first define
-   `VK_NO_PROTOTYPES` before including it.
+/*
+  Note that this header includes Vulkan headers, so if you are writing a
+  program or plugin that dynamically loads vulkan, you should first define
+  `VK_NO_PROTOTYPES` before including it.
 */
 
 #ifndef PUGL_VULKAN_HPP
@@ -39,10 +37,10 @@ namespace pugl {
    @defgroup vulkanxx Vulkan
    Vulkan graphics support.
 
-   Note that the Pugl C++ wrapper does not use vulkan.hpp because it is a
+   Note that the Pugl C++ wrapper does not use vulkan-hpp because it is a
    heavyweight dependency which not everyone uses, and its design is not very
    friendly to dynamic loading in plugins anyway.  However, if you do use
-   vulkan.hpp smart handles, it is relatively straightforward to wrap the
+   vulkan-hpp smart handles, it is relatively straightforward to wrap the
    result of createSurface() manually.
 
    @ingroup pugl_cxx

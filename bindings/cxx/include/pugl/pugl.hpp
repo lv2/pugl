@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl.hpp
-   @brief Pugl C++ API wrapper.
-*/
-
 #ifndef PUGL_PUGL_HPP
 #define PUGL_PUGL_HPP
 

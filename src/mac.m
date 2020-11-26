@@ -15,11 +15,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file mac.m
-   @brief MacOS implementation.
-*/
-
 #define GL_SILENCE_DEPRECATION 1
 
 #include "mac.h"

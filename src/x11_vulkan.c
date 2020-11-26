@@ -14,10 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file x11_vulkan.c Vulkan graphics backend for X11.
-*/
-
 #define VK_NO_PROTOTYPES 1
 
 #include "stub.h"

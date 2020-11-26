@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file cairo.h
-   @brief Declaration of Cairo backend accessor.
-*/
-
 #ifndef PUGL_CAIRO_H
 #define PUGL_CAIRO_H
 

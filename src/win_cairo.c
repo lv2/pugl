@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file win_cairo.c
-   @brief Cairo graphics backend for Windows.
-*/
-
 #include "stub.h"
 #include "types.h"
 #include "win.h"

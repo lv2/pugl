@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file win_gl.c
-   @brief OpenGL graphics backend for Windows.
-*/
-
 #include "stub.h"
 #include "types.h"
 #include "win.h"

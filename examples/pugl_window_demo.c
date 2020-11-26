@@ -14,9 +14,8 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl_window_demo.c
-   @brief A demonstration of multiple Pugl windows.
+/*
+  A demonstration of using multiple top-level windows.
 */
 
 #include "cube_view.h"

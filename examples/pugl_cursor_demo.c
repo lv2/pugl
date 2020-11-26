@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl_cursor_demo.c
-   @brief An example of changing the mouse cursor.
-*/
-
 #include "test/test_utils.h"
 
 #include "pugl/gl.h"

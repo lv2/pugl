@@ -14,10 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file win_vulkan.c Vulkan graphics backend for Windows.
-*/
-
 #define VK_NO_PROTOTYPES 1
 
 #include "stub.h"

@@ -14,10 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file mac_vulkan.m Vulkan graphics backend for MacOS.
-*/
-
 #define VK_NO_PROTOTYPES 1
 
 #include "implementation.h"

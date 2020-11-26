@@ -14,11 +14,6 @@
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 */
 
-/**
-   @file pugl_cxx_demo.cpp
-   @brief A simple demo of the Pugl C++ API.
-*/
-
 #include "cube_view.h"
 #include "demo_utils.h"
 #include "test/test_utils.h"
