@@ -99,8 +99,10 @@ using Rect = PuglRect; ///< @copydoc PuglRect
 */
 template<PuglEventType t, class Base>
 struct Event final : Base {
+	/// The type of the corresponding C event structure
 	using BaseEvent = Base;
 
+	/// The `type` field of the corresponding C event structure
 	static constexpr const PuglEventType type = t;
 };
 
