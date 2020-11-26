@@ -587,7 +587,7 @@ typedef enum {
 	PUGL_BAD_BACKEND,           ///< Invalid or missing backend
 	PUGL_BAD_CONFIGURATION,     ///< Invalid view configuration
 	PUGL_BAD_PARAMETER,         ///< Invalid parameter
-	PUGL_BACKEND_FAILED,        ///< Backend initialisation failed
+	PUGL_BACKEND_FAILED,        ///< Backend initialization failed
 	PUGL_REGISTRATION_FAILED,   ///< Class registration failed
 	PUGL_REALIZE_FAILED,        ///< System view realization failed
 	PUGL_SET_FORMAT_FAILED,     ///< Failed to set pixel format
@@ -725,7 +725,7 @@ puglGetTime(const PuglWorld* world);
    until an event occurs.
 
    For continuously animating programs, a timeout that is a reasonable fraction
-   of the ideal frame period should be used, to minimise input latency by
+   of the ideal frame period should be used, to minimize input latency by
    ensuring that as many input events are consumed as possible before drawing.
 
    @return #PUGL_SUCCESS if events are read, #PUGL_FAILURE if not, or an error.
@@ -1013,7 +1013,7 @@ PUGL_API PuglStatus
 puglSetTransientFor(PuglView* view, PuglNativeView parent);
 
 /**
-   Realise a view by creating a corresponding system view or window.
+   Realize a view by creating a corresponding system view or window.
 
    After this call, the (initially invisible) underlying system view exists and
    can be accessed with puglGetNativeWindow().  There is currently no
@@ -1437,7 +1437,7 @@ puglInitBackend(PuglView* view, const PuglBackend* backend)
 }
 
 /**
-   Realise a view by creating a corresponding system view or window.
+   Realize a view by creating a corresponding system view or window.
 
    The view should be fully configured using the above functions before this is
    called.  This function may only be called once per view.
