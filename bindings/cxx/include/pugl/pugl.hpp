@@ -31,9 +31,7 @@ namespace pugl {
 
 /**
    @defgroup puglxx Pugl C++ API
-   C++ API wrapper.
-
-   @ingroup pugldoc
+   Pugl C++ API wrapper.
    @{
 */
 

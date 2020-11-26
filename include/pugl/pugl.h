@@ -65,10 +65,6 @@
 PUGL_BEGIN_DECLS
 
 /**
-   @defgroup pugldoc Pugl
-   A minimal portable API for embeddable GUIs.
-   @{
-
    @defgroup pugl Pugl C API
    Pugl C API.
    @{
@@ -1516,7 +1512,6 @@ puglHideWindow(PuglView* view);
 #endif // PUGL_DISABLE_DEPRECATED
 
 /**
-   @}
    @}
    @}
 */
