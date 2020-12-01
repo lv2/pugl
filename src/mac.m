@@ -1004,6 +1004,13 @@ puglRealize(PuglView* view)
 PuglStatus
 puglShow(PuglView* view)
 {
+	if (!view->impl->wrapperView) {
+		const PuglStatus st = puglRealize(view);
+		if (st) {
+			return st;
+		}
+	}
+
 	if (![view->impl->window isVisible]) {
 		[view->impl->window setIsVisible:YES];
 		[view->impl->drawView setNeedsDisplay: YES];

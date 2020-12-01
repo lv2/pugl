@@ -217,6 +217,13 @@ puglShow(PuglView* view)
 {
 	PuglInternals* impl = view->impl;
 
+	if (!impl->hwnd) {
+		const PuglStatus st = puglRealize(view);
+		if (st) {
+			return st;
+		}
+	}
+
 	ShowWindow(impl->hwnd, SW_SHOWNORMAL);
 	SetFocus(impl->hwnd);
 	return PUGL_SUCCESS;
