@@ -159,6 +159,11 @@ def configure(conf):
                         '-Wno-direct-ivar-access'],
             })
 
+    if Options.options.debug and not Options.options.no_coverage:
+        conf.env.append_unique('CFLAGS', ['--coverage'])
+        conf.env.append_unique('CXXFLAGS', ['--coverage'])
+        conf.env.append_unique('LINKFLAGS', ['--coverage'])
+
     if conf.env.DOCS:
         conf.load('python')
         conf.load('sphinx')
