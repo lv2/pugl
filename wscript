@@ -356,6 +356,7 @@ def _build_pc_file(bld,
 gl_tests = ['gl_hints']
 
 basic_tests = [
+    'clipboard',
     'realize',
     'redisplay',
     'show_hide',
