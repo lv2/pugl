@@ -436,7 +436,8 @@ initKeyEvent(PuglEventKey* event,
 static void
 initCharEvent(PuglEvent* event, PuglView* view, WPARAM wParam, LPARAM lParam)
 {
-	const wchar_t utf16[2] = { wParam & 0xFFFF, (wParam >> 16) & 0xFFFF };
+	const wchar_t utf16[2] = {wParam & 0xFFFF,
+	                          (wchar_t)((wParam >> 16) & 0xFFFF)};
 
 	initKeyEvent(&event->key, view, true, wParam, lParam);
 	event->type           = PUGL_TEXT;
