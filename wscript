@@ -58,6 +58,8 @@ def configure(conf):
     conf.env.TARGET_PLATFORM = Options.options.target or sys.platform
     platform                 = conf.env.TARGET_PLATFORM
 
+    data_dir = '%s/%s' % (conf.env.DATADIR, 'pugl-%s' % PUGL_MAJOR_VERSION)
+
     if Options.options.strict:
         # Check for programs used by lint target
         conf.find_program("flake8", var="FLAKE8", mandatory=False)
@@ -87,6 +89,7 @@ def configure(conf):
                 '/wd4710',  # function not inlined
                 '/wd4711',  # function selected for automatic inline expansion
                 '/wd4820',  # padding added after construct
+                '/wd4996',  # POSIX name for this item is deprecated
                 '/wd5045',  # will insert Spectre mitigation for memory load
             ],
         })
@@ -294,6 +297,8 @@ def configure(conf):
     else:
         conf.env.PUGL_PLATFORM = 'x11'
 
+    conf.define('PUGL_DATA_DIR', data_dir)
+
     autowaf.set_lib_env(conf, 'pugl', PUGL_VERSION,
                         lib='pugl_' + conf.env.PUGL_PLATFORM)
 
@@ -392,6 +397,8 @@ def build(bld):
 
     # Library dependencies of pugl libraries (for building examples)
     deps = {}
+
+    data_dir = os.path.join(bld.env.DATADIR, 'pugl-%s' % PUGL_MAJOR_VERSION)
 
     def build_pugl_lib(name, **kwargs):
         deps[name] = {}
@@ -540,7 +547,7 @@ def build(bld):
         use = ['pugl_%s_static' % platform,
                'pugl_%s_%s_static' % (platform, backend)]
 
-        target = prog
+        target = 'examples/' + prog
         if bld.env.TARGET_PLATFORM == 'darwin':
             target = '{0}.app/Contents/MacOS/{0}'.format(prog)
 
@@ -562,16 +569,22 @@ def build(bld):
             target       = target,
             includes     = includes,
             use          = use,
-            install_path = '',
+            install_path = bld.env.BINDIR,
             **kwargs)
 
     if bld.env.BUILD_TESTS:
-        for s in ('rect.vert', 'rect.frag'):
+        for s in [
+                'header_330.glsl',
+                'header_420.glsl',
+                'rect.frag',
+                'rect.vert',
+        ]:
             # Copy shaders to build directory for example programs
             bld(features = 'subst',
                 is_copy  = True,
-                source   = 'shaders/%s' % s,
-                target   = 'shaders/%s' % s)
+                source   = 'examples/shaders/%s' % s,
+                target   = 'examples/shaders/%s' % s,
+                install_path = os.path.join(data_dir, 'shaders'))
 
         if bld.env.HAVE_GL:
             glad_cflags = [] if bld.env.MSVC_COMPILER else ['-Wno-pedantic']
@@ -586,6 +599,7 @@ def build(bld):
                           platform, 'stub')
             build_example('pugl_shader_demo',
                           ['examples/pugl_shader_demo.c',
+                           'examples/file_utils.c',
                            'examples/glad/glad.c'],
                           platform, 'gl',
                           cflags=glad_cflags,
@@ -605,13 +619,15 @@ def build(bld):
                 complete = bld.path.get_bld().make_node(
                     'shaders/%s' % s.replace('.', '.vulkan.'))
                 bld(rule = concatenate,
-                    source = ['shaders/header_420.glsl', 'shaders/%s' % s],
+                    source = ['examples/shaders/header_420.glsl',
+                              'examples/shaders/%s' % s],
                     target = complete)
 
                 cmd = bld.env.GLSLANGVALIDATOR[0] + " -V -o ${TGT} ${SRC}"
                 bld(rule = cmd,
                     source = complete,
-                    target = 'shaders/%s.spv' % s)
+                    target = 'examples/shaders/%s.spv' % s,
+                    install_path = os.path.join(data_dir, 'shaders'))
 
             build_example('pugl_vulkan_demo',
                           ['examples/pugl_vulkan_demo.c'],
@@ -620,7 +636,8 @@ def build(bld):
 
             if bld.env.CXX:
                 build_example('pugl_vulkan_cxx_demo',
-                              ['examples/pugl_vulkan_cxx_demo.cpp'],
+                              ['examples/pugl_vulkan_cxx_demo.cpp',
+                               'examples/file_utils.c'],
                               platform, 'vulkan',
                               defines=['PUGL_DISABLE_DEPRECATED'],
                               uselib=['DL', 'M', 'PTHREAD', 'VULKAN'])

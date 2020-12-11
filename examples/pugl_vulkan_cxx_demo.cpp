@@ -28,6 +28,7 @@
 */
 
 #include "demo_utils.h"
+#include "file_utils.h"
 #include "rects.h"
 #include "test/test_utils.h"
 
@@ -150,7 +151,9 @@ struct RectData {
 
 /// Shader modules for drawing rectangles
 struct RectShaders {
-	VkResult init(const sk::VulkanApi& vk, const GraphicsDevice& gpu);
+	VkResult init(const sk::VulkanApi&  vk,
+	              const GraphicsDevice& gpu,
+	              const std::string&    programPath);
 
 	sk::ShaderModule vert{};
 	sk::ShaderModule frag{};
@@ -687,9 +690,15 @@ RenderPass::init(const sk::VulkanApi&  vk,
 }
 
 std::vector<uint32_t>
-readFile(const std::string& filename)
+readFile(const char* const programPath, const std::string& filename)
 {
-	std::unique_ptr<FILE, decltype(&fclose)> file{fopen(filename.c_str(), "rb"),
+	std::unique_ptr<char, decltype(&free)> path{resourcePath(programPath,
+	                                                         filename.c_str()),
+	                                            &free};
+
+	std::cerr << "Loading shader:           " << path.get() << std::endl;
+
+	std::unique_ptr<FILE, decltype(&fclose)> file{fopen(path.get(), "rb"),
 	                                              &fclose};
 
 	if (!file) {
@@ -726,10 +735,15 @@ createShaderModule(const sk::VulkanApi&         vk,
 }
 
 VkResult
-RectShaders::init(const sk::VulkanApi& vk, const GraphicsDevice& gpu)
+RectShaders::init(const sk::VulkanApi&  vk,
+                  const GraphicsDevice& gpu,
+                  const std::string&    programPath)
 {
-	auto vertShaderCode = readFile("build/shaders/rect.vert.spv");
-	auto fragShaderCode = readFile("build/shaders/rect.frag.spv");
+	auto vertShaderCode = readFile(programPath.c_str(),
+	                               "shaders/rect.vert.spv");
+
+	auto fragShaderCode = readFile(programPath.c_str(),
+	                               "shaders/rect.frag.spv");
 
 	if (vertShaderCode.empty() || fragShaderCode.empty()) {
 		return VK_ERROR_INITIALIZATION_FAILED;
@@ -1407,8 +1421,11 @@ private:
 class PuglVulkanDemo
 {
 public:
-	PuglVulkanDemo(const PuglTestOptions& o, size_t numRects);
+	PuglVulkanDemo(const char*            executablePath,
+	               const PuglTestOptions& o,
+	               size_t                 numRects);
 
+	const char*        programPath;
 	PuglTestOptions    opts;
 	pugl::World        world;
 	pugl::VulkanLoader loader;
@@ -1436,8 +1453,11 @@ makeRects(const size_t numRects, const uint32_t windowWidth)
 	return rects;
 }
 
-PuglVulkanDemo::PuglVulkanDemo(const PuglTestOptions& o, const size_t numRects)
-    : opts{o}
+PuglVulkanDemo::PuglVulkanDemo(const char* const      executablePath,
+                               const PuglTestOptions& o,
+                               const size_t           numRects)
+    : programPath{executablePath}
+    , opts{o}
     , world{pugl::WorldType::program, pugl::WorldFlag::threads}
     , loader{world}
     , view{world, *this}
@@ -1732,9 +1752,11 @@ VulkanContext::init(pugl::VulkanLoader& loader, const PuglTestOptions& opts)
 }
 
 int
-run(const PuglTestOptions opts, const size_t numRects)
+run(const char* const     programPath,
+    const PuglTestOptions opts,
+    const size_t          numRects)
 {
-	PuglVulkanDemo app{opts, numRects};
+	PuglVulkanDemo app{programPath, opts, numRects};
 
 	VkResult   r      = VK_SUCCESS;
 	const auto width  = static_cast<int>(app.extent.width);
@@ -1778,7 +1800,7 @@ run(const PuglTestOptions opts, const size_t numRects)
 	}
 
 	// Load shader modules
-	if ((r = app.rectShaders.init(vk, app.gpu))) {
+	if ((r = app.rectShaders.init(vk, app.gpu, app.programPath))) {
 		return logError("Failed to load shaders (%s)\n", sk::string(r));
 	}
 
@@ -1826,9 +1848,10 @@ int
 main(int argc, char** argv)
 {
 	// Parse command line options
-	const PuglTestOptions opts = puglParseTestOptions(&argc, &argv);
+	const char* const     programPath = argv[0];
+	const PuglTestOptions opts        = puglParseTestOptions(&argc, &argv);
 	if (opts.help) {
-		puglPrintTestUsage(argv[0], "");
+		puglPrintTestUsage(programPath, "");
 		return 0;
 	}
 
@@ -1844,5 +1867,5 @@ main(int argc, char** argv)
 	}
 
 	// Run application
-	return run(opts, static_cast<size_t>(numRects));
+	return run(programPath, opts, static_cast<size_t>(numRects));
 }
