@@ -693,6 +693,7 @@ readFile(const std::string& filename)
 	                                              &fclose};
 
 	if (!file) {
+		std::cerr << "Failed to open file '" << filename << "'\n";
 		return {};
 	}
 
