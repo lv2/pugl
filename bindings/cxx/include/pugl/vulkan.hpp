@@ -48,7 +48,7 @@ namespace pugl {
 */
 
 /// @copydoc PuglVulkanLoader
-class PUGL_API VulkanLoader final
+class VulkanLoader final
     : public detail::Wrapper<PuglVulkanLoader, puglFreeVulkanLoader>
 {
 public:
@@ -99,7 +99,7 @@ public:
    This provides a minimal API that supports iteration, like `std::vector`, but
    avoids allocation, exceptions, and a dependency on the C++ standard library.
 */
-class PUGL_API StaticStringArray final
+class StaticStringArray final
 {
 public:
 	using value_type     = const char*;
