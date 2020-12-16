@@ -539,6 +539,8 @@ def build(bld):
             requires=['pugl-%s' % PUGL_MAJOR_VERSION],
             cflags=['-I${includedir}/puglxx-%s' % PUGL_MAJOR_VERSION])
 
+    bld.add_group()
+
     def build_example(prog, source, platform, backend, **kwargs):
         lang = 'cxx' if source[0].endswith('.cpp') else 'c'
 
