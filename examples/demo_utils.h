@@ -20,9 +20,7 @@
 #include "pugl/pugl.h"
 
 #include <math.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 
 typedef struct {
   double lastReportTime;

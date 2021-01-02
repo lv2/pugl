@@ -22,6 +22,9 @@
 #include "demo_utils.h"
 
 #include "pugl/gl.h"
+#include "pugl/pugl.h"
+
+#include <stdbool.h>
 
 // clang-format off
 

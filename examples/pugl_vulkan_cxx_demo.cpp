@@ -39,7 +39,6 @@
 #include "pugl/vulkan.hpp"
 
 #include <vulkan/vk_platform.h>
-#include <vulkan/vulkan_core.h>
 
 #include <algorithm>
 #include <array>

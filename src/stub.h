@@ -19,6 +19,8 @@
 
 #include "pugl/pugl.h"
 
+#include <stddef.h>
+
 PUGL_BEGIN_DECLS
 
 static inline PuglStatus

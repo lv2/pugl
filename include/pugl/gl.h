@@ -26,23 +26,23 @@
 
 #ifndef PUGL_NO_INCLUDE_GL_H
 #  ifdef __APPLE__
-#    include "OpenGL/gl.h"
+#    include <OpenGL/gl.h>
 #  else
 #    ifdef _WIN32
 #      include <windows.h>
 #    endif
-#    include "GL/gl.h"
+#    include <GL/gl.h>
 #  endif
 #endif
 
 #ifndef PUGL_NO_INCLUDE_GLU_H
 #  ifdef __APPLE__
-#    include "OpenGL/glu.h"
+#    include <OpenGL/glu.h>
 #  else
 #    ifdef _WIN32
 #      include <windows.h>
 #    endif
-#    include "GL/glu.h"
+#    include <GL/glu.h>
 #  endif
 #endif
 
