@@ -22,44 +22,44 @@
 #include <stdint.h>
 
 #ifdef PUGL_SHARED
-#    ifdef _WIN32
-#        define PUGL_LIB_IMPORT __declspec(dllimport)
-#        define PUGL_LIB_EXPORT __declspec(dllexport)
-#    else
-#        define PUGL_LIB_IMPORT __attribute__((visibility("default")))
-#        define PUGL_LIB_EXPORT __attribute__((visibility("default")))
-#    endif
-#    ifdef PUGL_INTERNAL
-#        define PUGL_API PUGL_LIB_EXPORT
-#    else
-#        define PUGL_API PUGL_LIB_IMPORT
-#    endif
+#  ifdef _WIN32
+#    define PUGL_LIB_IMPORT __declspec(dllimport)
+#    define PUGL_LIB_EXPORT __declspec(dllexport)
+#  else
+#    define PUGL_LIB_IMPORT __attribute__((visibility("default")))
+#    define PUGL_LIB_EXPORT __attribute__((visibility("default")))
+#  endif
+#  ifdef PUGL_INTERNAL
+#    define PUGL_API PUGL_LIB_EXPORT
+#  else
+#    define PUGL_API PUGL_LIB_IMPORT
+#  endif
 #else
-#    define PUGL_API
+#  define PUGL_API
 #endif
 
 #ifndef PUGL_DISABLE_DEPRECATED
-#    if defined(__clang__)
-#        define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("", rep)))
-#    elif defined(__GNUC__)
-#        define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("Use " rep)))
-#    else
-#        define PUGL_DEPRECATED_BY(rep)
-#    endif
+#  if defined(__clang__)
+#    define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("", rep)))
+#  elif defined(__GNUC__)
+#    define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("Use " rep)))
+#  else
+#    define PUGL_DEPRECATED_BY(rep)
+#  endif
 #endif
 
 #if defined(__GNUC__)
-#    define PUGL_CONST_FUNC __attribute__((const))
+#  define PUGL_CONST_FUNC __attribute__((const))
 #else
-#    define PUGL_CONST_FUNC
+#  define PUGL_CONST_FUNC
 #endif
 
 #ifdef __cplusplus
-#	define PUGL_BEGIN_DECLS extern "C" {
-#	define PUGL_END_DECLS }
+#  define PUGL_BEGIN_DECLS extern "C" {
+#  define PUGL_END_DECLS }
 #else
-#	define PUGL_BEGIN_DECLS
-#	define PUGL_END_DECLS
+#  define PUGL_BEGIN_DECLS
+#  define PUGL_END_DECLS
 #endif
 
 PUGL_BEGIN_DECLS
@@ -77,10 +77,10 @@ PUGL_BEGIN_DECLS
    uses coordinates where the top left corner is 0,0.
 */
 typedef struct {
-	double x;
-	double y;
-	double width;
-	double height;
+  double x;
+  double y;
+  double width;
+  double height;
 } PuglRect;
 
 /**
@@ -96,10 +96,10 @@ typedef struct {
 
 /// Keyboard modifier flags
 typedef enum {
-	PUGL_MOD_SHIFT = 1u << 0u, ///< Shift key
-	PUGL_MOD_CTRL  = 1u << 1u, ///< Control key
-	PUGL_MOD_ALT   = 1u << 2u, ///< Alt/Option key
-	PUGL_MOD_SUPER = 1u << 3u  ///< Mod4/Command/Windows key
+  PUGL_MOD_SHIFT = 1u << 0u, ///< Shift key
+  PUGL_MOD_CTRL  = 1u << 1u, ///< Control key
+  PUGL_MOD_ALT   = 1u << 2u, ///< Alt/Option key
+  PUGL_MOD_SUPER = 1u << 3u  ///< Mod4/Command/Windows key
 } PuglMod;
 
 /// Bitwise OR of #PuglMod values
@@ -120,92 +120,92 @@ typedef uint32_t PuglMods;
    mapping used here is arbitrary and specific to Pugl.
 */
 typedef enum {
-	// ASCII control codes
-	PUGL_KEY_BACKSPACE = 0x08,
-	PUGL_KEY_ESCAPE    = 0x1B,
-	PUGL_KEY_DELETE    = 0x7F,
+  // ASCII control codes
+  PUGL_KEY_BACKSPACE = 0x08,
+  PUGL_KEY_ESCAPE    = 0x1B,
+  PUGL_KEY_DELETE    = 0x7F,
 
-	// Unicode Private Use Area
-	PUGL_KEY_F1 = 0xE000,
-	PUGL_KEY_F2,
-	PUGL_KEY_F3,
-	PUGL_KEY_F4,
-	PUGL_KEY_F5,
-	PUGL_KEY_F6,
-	PUGL_KEY_F7,
-	PUGL_KEY_F8,
-	PUGL_KEY_F9,
-	PUGL_KEY_F10,
-	PUGL_KEY_F11,
-	PUGL_KEY_F12,
-	PUGL_KEY_LEFT,
-	PUGL_KEY_UP,
-	PUGL_KEY_RIGHT,
-	PUGL_KEY_DOWN,
-	PUGL_KEY_PAGE_UP,
-	PUGL_KEY_PAGE_DOWN,
-	PUGL_KEY_HOME,
-	PUGL_KEY_END,
-	PUGL_KEY_INSERT,
-	PUGL_KEY_SHIFT,
-	PUGL_KEY_SHIFT_L = PUGL_KEY_SHIFT,
-	PUGL_KEY_SHIFT_R,
-	PUGL_KEY_CTRL,
-	PUGL_KEY_CTRL_L = PUGL_KEY_CTRL,
-	PUGL_KEY_CTRL_R,
-	PUGL_KEY_ALT,
-	PUGL_KEY_ALT_L = PUGL_KEY_ALT,
-	PUGL_KEY_ALT_R,
-	PUGL_KEY_SUPER,
-	PUGL_KEY_SUPER_L = PUGL_KEY_SUPER,
-	PUGL_KEY_SUPER_R,
-	PUGL_KEY_MENU,
-	PUGL_KEY_CAPS_LOCK,
-	PUGL_KEY_SCROLL_LOCK,
-	PUGL_KEY_NUM_LOCK,
-	PUGL_KEY_PRINT_SCREEN,
-	PUGL_KEY_PAUSE
+  // Unicode Private Use Area
+  PUGL_KEY_F1 = 0xE000,
+  PUGL_KEY_F2,
+  PUGL_KEY_F3,
+  PUGL_KEY_F4,
+  PUGL_KEY_F5,
+  PUGL_KEY_F6,
+  PUGL_KEY_F7,
+  PUGL_KEY_F8,
+  PUGL_KEY_F9,
+  PUGL_KEY_F10,
+  PUGL_KEY_F11,
+  PUGL_KEY_F12,
+  PUGL_KEY_LEFT,
+  PUGL_KEY_UP,
+  PUGL_KEY_RIGHT,
+  PUGL_KEY_DOWN,
+  PUGL_KEY_PAGE_UP,
+  PUGL_KEY_PAGE_DOWN,
+  PUGL_KEY_HOME,
+  PUGL_KEY_END,
+  PUGL_KEY_INSERT,
+  PUGL_KEY_SHIFT,
+  PUGL_KEY_SHIFT_L = PUGL_KEY_SHIFT,
+  PUGL_KEY_SHIFT_R,
+  PUGL_KEY_CTRL,
+  PUGL_KEY_CTRL_L = PUGL_KEY_CTRL,
+  PUGL_KEY_CTRL_R,
+  PUGL_KEY_ALT,
+  PUGL_KEY_ALT_L = PUGL_KEY_ALT,
+  PUGL_KEY_ALT_R,
+  PUGL_KEY_SUPER,
+  PUGL_KEY_SUPER_L = PUGL_KEY_SUPER,
+  PUGL_KEY_SUPER_R,
+  PUGL_KEY_MENU,
+  PUGL_KEY_CAPS_LOCK,
+  PUGL_KEY_SCROLL_LOCK,
+  PUGL_KEY_NUM_LOCK,
+  PUGL_KEY_PRINT_SCREEN,
+  PUGL_KEY_PAUSE
 } PuglKey;
 
 /// The type of a PuglEvent
 typedef enum {
-	PUGL_NOTHING,        ///< No event
-	PUGL_CREATE,         ///< View created, a #PuglEventCreate
-	PUGL_DESTROY,        ///< View destroyed, a #PuglEventDestroy
-	PUGL_CONFIGURE,      ///< View moved/resized, a #PuglEventConfigure
-	PUGL_MAP,            ///< View made visible, a #PuglEventMap
-	PUGL_UNMAP,          ///< View made invisible, a #PuglEventUnmap
-	PUGL_UPDATE,         ///< View ready to draw, a #PuglEventUpdate
-	PUGL_EXPOSE,         ///< View must be drawn, a #PuglEventExpose
-	PUGL_CLOSE,          ///< View will be closed, a #PuglEventClose
-	PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
-	PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
-	PUGL_KEY_PRESS,      ///< Key pressed, a #PuglEventKey
-	PUGL_KEY_RELEASE,    ///< Key released, a #PuglEventKey
-	PUGL_TEXT,           ///< Character entered, a #PuglEventText
-	PUGL_POINTER_IN,     ///< Pointer entered view, a #PuglEventCrossing
-	PUGL_POINTER_OUT,    ///< Pointer left view, a #PuglEventCrossing
-	PUGL_BUTTON_PRESS,   ///< Mouse button pressed, a #PuglEventButton
-	PUGL_BUTTON_RELEASE, ///< Mouse button released, a #PuglEventButton
-	PUGL_MOTION,         ///< Pointer moved, a #PuglEventMotion
-	PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
-	PUGL_CLIENT,         ///< Custom client message, a #PuglEventClient
-	PUGL_TIMER,          ///< Timer triggered, a #PuglEventTimer
-	PUGL_LOOP_ENTER,     ///< Recursive loop entered, a #PuglEventLoopEnter
-	PUGL_LOOP_LEAVE,     ///< Recursive loop left, a #PuglEventLoopLeave
+  PUGL_NOTHING,        ///< No event
+  PUGL_CREATE,         ///< View created, a #PuglEventCreate
+  PUGL_DESTROY,        ///< View destroyed, a #PuglEventDestroy
+  PUGL_CONFIGURE,      ///< View moved/resized, a #PuglEventConfigure
+  PUGL_MAP,            ///< View made visible, a #PuglEventMap
+  PUGL_UNMAP,          ///< View made invisible, a #PuglEventUnmap
+  PUGL_UPDATE,         ///< View ready to draw, a #PuglEventUpdate
+  PUGL_EXPOSE,         ///< View must be drawn, a #PuglEventExpose
+  PUGL_CLOSE,          ///< View will be closed, a #PuglEventClose
+  PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
+  PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
+  PUGL_KEY_PRESS,      ///< Key pressed, a #PuglEventKey
+  PUGL_KEY_RELEASE,    ///< Key released, a #PuglEventKey
+  PUGL_TEXT,           ///< Character entered, a #PuglEventText
+  PUGL_POINTER_IN,     ///< Pointer entered view, a #PuglEventCrossing
+  PUGL_POINTER_OUT,    ///< Pointer left view, a #PuglEventCrossing
+  PUGL_BUTTON_PRESS,   ///< Mouse button pressed, a #PuglEventButton
+  PUGL_BUTTON_RELEASE, ///< Mouse button released, a #PuglEventButton
+  PUGL_MOTION,         ///< Pointer moved, a #PuglEventMotion
+  PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
+  PUGL_CLIENT,         ///< Custom client message, a #PuglEventClient
+  PUGL_TIMER,          ///< Timer triggered, a #PuglEventTimer
+  PUGL_LOOP_ENTER,     ///< Recursive loop entered, a #PuglEventLoopEnter
+  PUGL_LOOP_LEAVE,     ///< Recursive loop left, a #PuglEventLoopLeave
 
 #ifndef PUGL_DISABLE_DEPRECATED
-	PUGL_ENTER_NOTIFY PUGL_DEPRECATED_BY("PUGL_POINTER_IN") = PUGL_POINTER_IN,
-	PUGL_LEAVE_NOTIFY PUGL_DEPRECATED_BY("PUGL_POINTER_OUT") = PUGL_POINTER_OUT,
-	PUGL_MOTION_NOTIFY PUGL_DEPRECATED_BY("PUGL_MOTION") = PUGL_MOTION,
+  PUGL_ENTER_NOTIFY  PUGL_DEPRECATED_BY("PUGL_POINTER_IN")  = PUGL_POINTER_IN,
+  PUGL_LEAVE_NOTIFY  PUGL_DEPRECATED_BY("PUGL_POINTER_OUT") = PUGL_POINTER_OUT,
+  PUGL_MOTION_NOTIFY PUGL_DEPRECATED_BY("PUGL_MOTION")      = PUGL_MOTION,
 #endif
 
 } PuglEventType;
 
 /// Common flags for all event types
 typedef enum {
-	PUGL_IS_SEND_EVENT = 1, ///< Event is synthetic
-	PUGL_IS_HINT       = 2  ///< Event is a hint (not direct user input)
+  PUGL_IS_SEND_EVENT = 1, ///< Event is synthetic
+  PUGL_IS_HINT       = 2  ///< Event is a hint (not direct user input)
 } PuglEventFlag;
 
 /// Bitwise OR of #PuglEventFlag values
@@ -213,9 +213,9 @@ typedef uint32_t PuglEventFlags;
 
 /// Reason for a PuglEventCrossing
 typedef enum {
-	PUGL_CROSSING_NORMAL, ///< Crossing due to pointer motion
-	PUGL_CROSSING_GRAB,   ///< Crossing due to a grab
-	PUGL_CROSSING_UNGRAB  ///< Crossing due to a grab release
+  PUGL_CROSSING_NORMAL, ///< Crossing due to pointer motion
+  PUGL_CROSSING_GRAB,   ///< Crossing due to a grab
+  PUGL_CROSSING_UNGRAB  ///< Crossing due to a grab release
 } PuglCrossingMode;
 
 /**
@@ -227,17 +227,17 @@ typedef enum {
    arbitrary scroll direction freedom, like some touchpads.
 */
 typedef enum {
-	PUGL_SCROLL_UP,    ///< Scroll up
-	PUGL_SCROLL_DOWN,  ///< Scroll down
-	PUGL_SCROLL_LEFT,  ///< Scroll left
-	PUGL_SCROLL_RIGHT, ///< Scroll right
-	PUGL_SCROLL_SMOOTH ///< Smooth scroll in any direction
+  PUGL_SCROLL_UP,    ///< Scroll up
+  PUGL_SCROLL_DOWN,  ///< Scroll down
+  PUGL_SCROLL_LEFT,  ///< Scroll left
+  PUGL_SCROLL_RIGHT, ///< Scroll right
+  PUGL_SCROLL_SMOOTH ///< Smooth scroll in any direction
 } PuglScrollDirection;
 
 /// Common header for all event structs
 typedef struct {
-	PuglEventType  type;  ///< Event type
-	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
+  PuglEventType  type;  ///< Event type
+  PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
 } PuglEventAny;
 
 /**
@@ -275,12 +275,12 @@ typedef PuglEventAny PuglEventDestroy;
    otherwise configure the context, but not to draw anything.
 */
 typedef struct {
-	PuglEventType  type;   ///< #PUGL_CONFIGURE
-	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
-	double         x;      ///< New parent-relative X coordinate
-	double         y;      ///< New parent-relative Y coordinate
-	double         width;  ///< New width
-	double         height; ///< New height
+  PuglEventType  type;   ///< #PUGL_CONFIGURE
+  PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
+  double         x;      ///< New parent-relative X coordinate
+  double         y;      ///< New parent-relative Y coordinate
+  double         width;  ///< New width
+  double         height; ///< New height
 } PuglEventConfigure;
 
 /**
@@ -321,12 +321,12 @@ typedef PuglEventAny PuglEventUpdate;
    undefined, there is no preservation of anything drawn previously.
 */
 typedef struct {
-	PuglEventType  type;   ///< #PUGL_EXPOSE
-	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
-	double         x;      ///< View-relative X coordinate
-	double         y;      ///< View-relative Y coordinate
-	double         width;  ///< Width of exposed region
-	double         height; ///< Height of exposed region
+  PuglEventType  type;   ///< #PUGL_EXPOSE
+  PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
+  double         x;      ///< View-relative X coordinate
+  double         y;      ///< View-relative Y coordinate
+  double         width;  ///< Width of exposed region
+  double         height; ///< Height of exposed region
 } PuglEventExpose;
 
 /**
@@ -346,9 +346,9 @@ typedef PuglEventAny PuglEventClose;
    view with the keyboard focus will receive any key press or release events.
 */
 typedef struct {
-	PuglEventType    type;  ///< #PUGL_FOCUS_IN or #PUGL_FOCUS_OUT
-	PuglEventFlags   flags; ///< Bitwise OR of #PuglEventFlag values
-	PuglCrossingMode mode;  ///< Reason for focus change
+  PuglEventType    type;  ///< #PUGL_FOCUS_IN or #PUGL_FOCUS_OUT
+  PuglEventFlags   flags; ///< Bitwise OR of #PuglEventFlag values
+  PuglCrossingMode mode;  ///< Reason for focus change
 } PuglEventFocus;
 
 /**
@@ -369,16 +369,16 @@ typedef struct {
    and hardware.
 */
 typedef struct {
-	PuglEventType  type;    ///< #PUGL_KEY_PRESS or #PUGL_KEY_RELEASE
-	PuglEventFlags flags;   ///< Bitwise OR of #PuglEventFlag values
-	double         time;    ///< Time in seconds
-	double         x;       ///< View-relative X coordinate
-	double         y;       ///< View-relative Y coordinate
-	double         xRoot;   ///< Root-relative X coordinate
-	double         yRoot;   ///< Root-relative Y coordinate
-	PuglMods       state;   ///< Bitwise OR of #PuglMod flags
-	uint32_t       keycode; ///< Raw key code
-	uint32_t       key;     ///< Unshifted Unicode character code, or 0
+  PuglEventType  type;    ///< #PUGL_KEY_PRESS or #PUGL_KEY_RELEASE
+  PuglEventFlags flags;   ///< Bitwise OR of #PuglEventFlag values
+  double         time;    ///< Time in seconds
+  double         x;       ///< View-relative X coordinate
+  double         y;       ///< View-relative Y coordinate
+  double         xRoot;   ///< Root-relative X coordinate
+  double         yRoot;   ///< Root-relative Y coordinate
+  PuglMods       state;   ///< Bitwise OR of #PuglMod flags
+  uint32_t       keycode; ///< Raw key code
+  uint32_t       key;     ///< Unshifted Unicode character code, or 0
 } PuglEventKey;
 
 /**
@@ -393,17 +393,17 @@ typedef struct {
    presses will generate a single character.
 */
 typedef struct {
-	PuglEventType  type;      ///< #PUGL_TEXT
-	PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
-	double         time;      ///< Time in seconds
-	double         x;         ///< View-relative X coordinate
-	double         y;         ///< View-relative Y coordinate
-	double         xRoot;     ///< Root-relative X coordinate
-	double         yRoot;     ///< Root-relative Y coordinate
-	PuglMods       state;     ///< Bitwise OR of #PuglMod flags
-	uint32_t       keycode;   ///< Raw key code
-	uint32_t       character; ///< Unicode character code
-	char           string[8]; ///< UTF-8 string
+  PuglEventType  type;      ///< #PUGL_TEXT
+  PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
+  double         time;      ///< Time in seconds
+  double         x;         ///< View-relative X coordinate
+  double         y;         ///< View-relative Y coordinate
+  double         xRoot;     ///< Root-relative X coordinate
+  double         yRoot;     ///< Root-relative Y coordinate
+  PuglMods       state;     ///< Bitwise OR of #PuglMod flags
+  uint32_t       keycode;   ///< Raw key code
+  uint32_t       character; ///< Unicode character code
+  char           string[8]; ///< UTF-8 string
 } PuglEventText;
 
 /**
@@ -414,44 +414,44 @@ typedef struct {
    window edge), as described by the `mode` field.
 */
 typedef struct {
-	PuglEventType    type;  ///< #PUGL_POINTER_IN or #PUGL_POINTER_OUT
-	PuglEventFlags   flags; ///< Bitwise OR of #PuglEventFlag values
-	double           time;  ///< Time in seconds
-	double           x;     ///< View-relative X coordinate
-	double           y;     ///< View-relative Y coordinate
-	double           xRoot; ///< Root-relative X coordinate
-	double           yRoot; ///< Root-relative Y coordinate
-	PuglMods         state; ///< Bitwise OR of #PuglMod flags
-	PuglCrossingMode mode;  ///< Reason for crossing
+  PuglEventType    type;  ///< #PUGL_POINTER_IN or #PUGL_POINTER_OUT
+  PuglEventFlags   flags; ///< Bitwise OR of #PuglEventFlag values
+  double           time;  ///< Time in seconds
+  double           x;     ///< View-relative X coordinate
+  double           y;     ///< View-relative Y coordinate
+  double           xRoot; ///< Root-relative X coordinate
+  double           yRoot; ///< Root-relative Y coordinate
+  PuglMods         state; ///< Bitwise OR of #PuglMod flags
+  PuglCrossingMode mode;  ///< Reason for crossing
 } PuglEventCrossing;
 
 /**
    Button press or release event.
 */
 typedef struct {
-	PuglEventType  type;   ///< #PUGL_BUTTON_PRESS or #PUGL_BUTTON_RELEASE
-	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
-	double         time;   ///< Time in seconds
-	double         x;      ///< View-relative X coordinate
-	double         y;      ///< View-relative Y coordinate
-	double         xRoot;  ///< Root-relative X coordinate
-	double         yRoot;  ///< Root-relative Y coordinate
-	PuglMods       state;  ///< Bitwise OR of #PuglMod flags
-	uint32_t       button; ///< Button number starting from 1
+  PuglEventType  type;   ///< #PUGL_BUTTON_PRESS or #PUGL_BUTTON_RELEASE
+  PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
+  double         time;   ///< Time in seconds
+  double         x;      ///< View-relative X coordinate
+  double         y;      ///< View-relative Y coordinate
+  double         xRoot;  ///< Root-relative X coordinate
+  double         yRoot;  ///< Root-relative Y coordinate
+  PuglMods       state;  ///< Bitwise OR of #PuglMod flags
+  uint32_t       button; ///< Button number starting from 1
 } PuglEventButton;
 
 /**
    Pointer motion event.
 */
 typedef struct {
-	PuglEventType  type;   ///< #PUGL_MOTION
-	PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
-	double         time;   ///< Time in seconds
-	double         x;      ///< View-relative X coordinate
-	double         y;      ///< View-relative Y coordinate
-	double         xRoot;  ///< Root-relative X coordinate
-	double         yRoot;  ///< Root-relative Y coordinate
-	PuglMods       state;  ///< Bitwise OR of #PuglMod flags
+  PuglEventType  type;  ///< #PUGL_MOTION
+  PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
+  double         time;  ///< Time in seconds
+  double         x;     ///< View-relative X coordinate
+  double         y;     ///< View-relative Y coordinate
+  double         xRoot; ///< Root-relative X coordinate
+  double         yRoot; ///< Root-relative Y coordinate
+  PuglMods       state; ///< Bitwise OR of #PuglMod flags
 } PuglEventMotion;
 
 /**
@@ -464,17 +464,17 @@ typedef struct {
    gracefully.
 */
 typedef struct {
-	PuglEventType       type;      ///< #PUGL_SCROLL
-	PuglEventFlags      flags;     ///< Bitwise OR of #PuglEventFlag values
-	double              time;      ///< Time in seconds
-	double              x;         ///< View-relative X coordinate
-	double              y;         ///< View-relative Y coordinate
-	double              xRoot;     ///< Root-relative X coordinate
-	double              yRoot;     ///< Root-relative Y coordinate
-	PuglMods            state;     ///< Bitwise OR of #PuglMod flags
-	PuglScrollDirection direction; ///< Scroll direction
-	double              dx;        ///< Scroll X distance in lines
-	double              dy;        ///< Scroll Y distance in lines
+  PuglEventType       type;      ///< #PUGL_SCROLL
+  PuglEventFlags      flags;     ///< Bitwise OR of #PuglEventFlag values
+  double              time;      ///< Time in seconds
+  double              x;         ///< View-relative X coordinate
+  double              y;         ///< View-relative Y coordinate
+  double              xRoot;     ///< Root-relative X coordinate
+  double              yRoot;     ///< Root-relative Y coordinate
+  PuglMods            state;     ///< Bitwise OR of #PuglMod flags
+  PuglScrollDirection direction; ///< Scroll direction
+  double              dx;        ///< Scroll X distance in lines
+  double              dy;        ///< Scroll Y distance in lines
 } PuglEventScroll;
 
 /**
@@ -485,10 +485,10 @@ typedef struct {
    things, this makes it possible to wake up the event loop for any reason.
 */
 typedef struct {
-	PuglEventType  type;  ///< #PUGL_CLIENT
-	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
-	uintptr_t      data1; ///< Client-specific data
-	uintptr_t      data2; ///< Client-specific data
+  PuglEventType  type;  ///< #PUGL_CLIENT
+  PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
+  uintptr_t      data1; ///< Client-specific data
+  uintptr_t      data2; ///< Client-specific data
 } PuglEventClient;
 
 /**
@@ -502,9 +502,9 @@ typedef struct {
    event handler, even in applications that register only one timer.
 */
 typedef struct {
-	PuglEventType  type;  ///< #PUGL_TIMER
-	PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
-	uintptr_t      id;    ///< Timer ID
+  PuglEventType  type;  ///< #PUGL_TIMER
+  PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
+  uintptr_t      id;    ///< Timer ID
 } PuglEventTimer;
 
 /**
@@ -551,19 +551,19 @@ typedef PuglEventAny PuglEventLoopLeave;
    and #PUGL_EXPOSE, but only enabled for drawing for #PUGL_EXPOSE.
 */
 typedef union {
-	PuglEventAny       any;       ///< Valid for all event types
-	PuglEventType      type;      ///< Event type
-	PuglEventButton    button;    ///< #PUGL_BUTTON_PRESS, #PUGL_BUTTON_RELEASE
-	PuglEventConfigure configure; ///< #PUGL_CONFIGURE
-	PuglEventExpose    expose;    ///< #PUGL_EXPOSE
-	PuglEventKey       key;       ///< #PUGL_KEY_PRESS, #PUGL_KEY_RELEASE
-	PuglEventText      text;      ///< #PUGL_TEXT
-	PuglEventCrossing  crossing;  ///< #PUGL_POINTER_IN, #PUGL_POINTER_OUT
-	PuglEventMotion    motion;    ///< #PUGL_MOTION
-	PuglEventScroll    scroll;    ///< #PUGL_SCROLL
-	PuglEventFocus     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
-	PuglEventClient    client;    ///< #PUGL_CLIENT
-	PuglEventTimer     timer;     ///< #PUGL_TIMER
+  PuglEventAny       any;       ///< Valid for all event types
+  PuglEventType      type;      ///< Event type
+  PuglEventButton    button;    ///< #PUGL_BUTTON_PRESS, #PUGL_BUTTON_RELEASE
+  PuglEventConfigure configure; ///< #PUGL_CONFIGURE
+  PuglEventExpose    expose;    ///< #PUGL_EXPOSE
+  PuglEventKey       key;       ///< #PUGL_KEY_PRESS, #PUGL_KEY_RELEASE
+  PuglEventText      text;      ///< #PUGL_TEXT
+  PuglEventCrossing  crossing;  ///< #PUGL_POINTER_IN, #PUGL_POINTER_OUT
+  PuglEventMotion    motion;    ///< #PUGL_MOTION
+  PuglEventScroll    scroll;    ///< #PUGL_SCROLL
+  PuglEventFocus     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
+  PuglEventClient    client;    ///< #PUGL_CLIENT
+  PuglEventTimer     timer;     ///< #PUGL_TIMER
 } PuglEvent;
 
 /**
@@ -577,22 +577,23 @@ typedef union {
 
 /// Return status code
 typedef enum {
-	PUGL_SUCCESS,               ///< Success
-	PUGL_FAILURE,               ///< Non-fatal failure
-	PUGL_UNKNOWN_ERROR,         ///< Unknown system error
-	PUGL_BAD_BACKEND,           ///< Invalid or missing backend
-	PUGL_BAD_CONFIGURATION,     ///< Invalid view configuration
-	PUGL_BAD_PARAMETER,         ///< Invalid parameter
-	PUGL_BACKEND_FAILED,        ///< Backend initialization failed
-	PUGL_REGISTRATION_FAILED,   ///< Class registration failed
-	PUGL_REALIZE_FAILED,        ///< System view realization failed
-	PUGL_SET_FORMAT_FAILED,     ///< Failed to set pixel format
-	PUGL_CREATE_CONTEXT_FAILED, ///< Failed to create drawing context
-	PUGL_UNSUPPORTED_TYPE,      ///< Unsupported data type
+  PUGL_SUCCESS,               ///< Success
+  PUGL_FAILURE,               ///< Non-fatal failure
+  PUGL_UNKNOWN_ERROR,         ///< Unknown system error
+  PUGL_BAD_BACKEND,           ///< Invalid or missing backend
+  PUGL_BAD_CONFIGURATION,     ///< Invalid view configuration
+  PUGL_BAD_PARAMETER,         ///< Invalid parameter
+  PUGL_BACKEND_FAILED,        ///< Backend initialization failed
+  PUGL_REGISTRATION_FAILED,   ///< Class registration failed
+  PUGL_REALIZE_FAILED,        ///< System view realization failed
+  PUGL_SET_FORMAT_FAILED,     ///< Failed to set pixel format
+  PUGL_CREATE_CONTEXT_FAILED, ///< Failed to create drawing context
+  PUGL_UNSUPPORTED_TYPE,      ///< Unsupported data type
 } PuglStatus;
 
 /// Return a string describing a status code
-PUGL_API PUGL_CONST_FUNC
+PUGL_API
+PUGL_CONST_FUNC
 const char*
 puglStrerror(PuglStatus status);
 
@@ -625,18 +626,18 @@ typedef void* PuglWorldHandle;
 
 /// The type of a World
 typedef enum {
-	PUGL_PROGRAM, ///< Top-level application
-	PUGL_MODULE   ///< Plugin or module within a larger application
+  PUGL_PROGRAM, ///< Top-level application
+  PUGL_MODULE   ///< Plugin or module within a larger application
 } PuglWorldType;
 
 /// World flags
 typedef enum {
-	/**
-	   Set up support for threads if necessary.
+  /**
+     Set up support for threads if necessary.
 
-	   - X11: Calls XInitThreads() which is required for some drivers.
-	*/
-	PUGL_WORLD_THREADS = 1u << 0u
+     - X11: Calls XInitThreads() which is required for some drivers.
+  */
+  PUGL_WORLD_THREADS = 1u << 0u
 } PuglWorldFlag;
 
 /// Bitwise OR of #PuglWorldFlag values
@@ -649,11 +650,13 @@ typedef uint32_t PuglWorldFlags;
    @param flags Flags to control world features.
    @return A new world, which must be later freed with puglFreeWorld().
 */
-PUGL_API PuglWorld*
+PUGL_API
+PuglWorld*
 puglNewWorld(PuglWorldType type, PuglWorldFlags flags);
 
 /// Free a world allocated with puglNewWorld()
-PUGL_API void
+PUGL_API
+void
 puglFreeWorld(PuglWorld* world);
 
 /**
@@ -664,11 +667,13 @@ puglFreeWorld(PuglWorld* world);
 
    The handle is opaque to Pugl and is not interpreted in any way.
 */
-PUGL_API void
+PUGL_API
+void
 puglSetWorldHandle(PuglWorld* world, PuglWorldHandle handle);
 
 /// Get the user data for the world
-PUGL_API PuglWorldHandle
+PUGL_API
+PuglWorldHandle
 puglGetWorldHandle(PuglWorld* world);
 
 /**
@@ -680,7 +685,8 @@ puglGetWorldHandle(PuglWorld* world);
 
    Windows: Returns the `HMODULE` of the calling process.
 */
-PUGL_API void*
+PUGL_API
+void*
 puglGetNativeWorld(PuglWorld* world);
 
 /**
@@ -692,7 +698,8 @@ puglGetNativeWorld(PuglWorld* world);
    for every instance of the application, but different from other
    applications.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetClassName(PuglWorld* world, const char* name);
 
 /**
@@ -702,7 +709,8 @@ puglSetClassName(PuglWorld* world, const char* name);
    time is only useful to compare against other times returned by this
    function, its absolute value has no meaning.
 */
-PUGL_API double
+PUGL_API
+double
 puglGetTime(const PuglWorld* world);
 
 /**
@@ -726,7 +734,8 @@ puglGetTime(const PuglWorld* world);
 
    @return #PUGL_SUCCESS if events are read, #PUGL_FAILURE if not, or an error.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglUpdate(PuglWorld* world, double timeout);
 
 /**
@@ -775,31 +784,31 @@ typedef void* PuglHandle;
 
 /// A hint for configuring a view
 typedef enum {
-	PUGL_USE_COMPAT_PROFILE,    ///< Use compatible (not core) OpenGL profile
-	PUGL_USE_DEBUG_CONTEXT,     ///< True to use a debug OpenGL context
-	PUGL_CONTEXT_VERSION_MAJOR, ///< OpenGL context major version
-	PUGL_CONTEXT_VERSION_MINOR, ///< OpenGL context minor version
-	PUGL_RED_BITS,              ///< Number of bits for red channel
-	PUGL_GREEN_BITS,            ///< Number of bits for green channel
-	PUGL_BLUE_BITS,             ///< Number of bits for blue channel
-	PUGL_ALPHA_BITS,            ///< Number of bits for alpha channel
-	PUGL_DEPTH_BITS,            ///< Number of bits for depth buffer
-	PUGL_STENCIL_BITS,          ///< Number of bits for stencil buffer
-	PUGL_SAMPLES,               ///< Number of samples per pixel (AA)
-	PUGL_DOUBLE_BUFFER,         ///< True if double buffering should be used
-	PUGL_SWAP_INTERVAL,         ///< Number of frames between buffer swaps
-	PUGL_RESIZABLE,             ///< True if view should be resizable
-	PUGL_IGNORE_KEY_REPEAT,     ///< True if key repeat events are ignored
-	PUGL_REFRESH_RATE,          ///< Refresh rate in Hz
+  PUGL_USE_COMPAT_PROFILE,    ///< Use compatible (not core) OpenGL profile
+  PUGL_USE_DEBUG_CONTEXT,     ///< True to use a debug OpenGL context
+  PUGL_CONTEXT_VERSION_MAJOR, ///< OpenGL context major version
+  PUGL_CONTEXT_VERSION_MINOR, ///< OpenGL context minor version
+  PUGL_RED_BITS,              ///< Number of bits for red channel
+  PUGL_GREEN_BITS,            ///< Number of bits for green channel
+  PUGL_BLUE_BITS,             ///< Number of bits for blue channel
+  PUGL_ALPHA_BITS,            ///< Number of bits for alpha channel
+  PUGL_DEPTH_BITS,            ///< Number of bits for depth buffer
+  PUGL_STENCIL_BITS,          ///< Number of bits for stencil buffer
+  PUGL_SAMPLES,               ///< Number of samples per pixel (AA)
+  PUGL_DOUBLE_BUFFER,         ///< True if double buffering should be used
+  PUGL_SWAP_INTERVAL,         ///< Number of frames between buffer swaps
+  PUGL_RESIZABLE,             ///< True if view should be resizable
+  PUGL_IGNORE_KEY_REPEAT,     ///< True if key repeat events are ignored
+  PUGL_REFRESH_RATE,          ///< Refresh rate in Hz
 
-	PUGL_NUM_VIEW_HINTS
+  PUGL_NUM_VIEW_HINTS
 } PuglViewHint;
 
 /// A special view hint value
 typedef enum {
-	PUGL_DONT_CARE = -1, ///< Use best available value
-	PUGL_FALSE     = 0,  ///< Explicitly false
-	PUGL_TRUE      = 1   ///< Explicitly true
+  PUGL_DONT_CARE = -1, ///< Use best available value
+  PUGL_FALSE     = 0,  ///< Explicitly false
+  PUGL_TRUE      = 1   ///< Explicitly true
 } PuglViewHintValue;
 
 /// A function called when an event occurs
@@ -818,15 +827,18 @@ typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
    It must first be configured, then the system view can be created with
    puglRealize().
 */
-PUGL_API PuglView*
+PUGL_API
+PuglView*
 puglNewView(PuglWorld* world);
 
 /// Free a view created with puglNewView()
-PUGL_API void
+PUGL_API
+void
 puglFreeView(PuglView* view);
 
 /// Return the world that `view` is a part of
-PUGL_API PuglWorld*
+PUGL_API
+PuglWorld*
 puglGetWorld(PuglView* view);
 
 /**
@@ -838,11 +850,13 @@ puglGetWorld(PuglView* view);
 
    The handle is opaque to Pugl and is not interpreted in any way.
 */
-PUGL_API void
+PUGL_API
+void
 puglSetHandle(PuglView* view, PuglHandle handle);
 
 /// Get the user data for a view
-PUGL_API PuglHandle
+PUGL_API
+PuglHandle
 puglGetHandle(PuglView* view);
 
 /**
@@ -862,11 +876,13 @@ puglGetHandle(PuglView* view);
    applications must link against the appropriate backend library, or be sure
    to compile in the appropriate code if using a local copy of Pugl.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetBackend(PuglView* view, const PuglBackend* backend);
 
 /// Set the function to call when an event occurs
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
 /**
@@ -874,7 +890,8 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
    This only has an effect when called before puglRealize().
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
 
 /**
@@ -884,7 +901,8 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
    hint which was initially set to PUGL_DONT_CARE, or has been adjusted from
    the suggested value.
 */
-PUGL_API int
+PUGL_API
+int
 puglGetViewHint(const PuglView* view, PuglViewHint hint);
 
 /**
@@ -899,7 +917,8 @@ puglGetViewHint(const PuglView* view, PuglViewHint hint);
 
    The position is in screen coordinates with an upper left origin.
 */
-PUGL_API PuglRect
+PUGL_API
+PuglRect
 puglGetFrame(const PuglView* view);
 
 /**
@@ -910,7 +929,8 @@ puglGetFrame(const PuglView* view);
    @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
    unchanged.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetFrame(PuglView* view, PuglRect frame);
 
 /**
@@ -923,7 +943,8 @@ puglSetFrame(PuglView* view, PuglRect frame);
    @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
    not yet realized.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetDefaultSize(PuglView* view, int width, int height);
 
 /**
@@ -935,7 +956,8 @@ puglSetDefaultSize(PuglView* view, int width, int height);
    @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
    not yet realized.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetMinSize(PuglView* view, int width, int height);
 
 /**
@@ -947,7 +969,8 @@ puglSetMinSize(PuglView* view, int width, int height);
    @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
    not yet realized.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetMaxSize(PuglView* view, int width, int height);
 
 /**
@@ -966,7 +989,8 @@ puglSetMaxSize(PuglView* view, int width, int height);
    @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
    not yet realized.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
 
 /**
@@ -983,7 +1007,8 @@ puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
    top-level window, and sets the title, typically displayed in the title bar
    or in window switchers.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetWindowTitle(PuglView* view, const char* title);
 
 /**
@@ -991,7 +1016,8 @@ puglSetWindowTitle(PuglView* view, const char* title);
 
    This must be called before puglRealize(), reparenting is not supported.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetParentWindow(PuglView* view, PuglNativeView parent);
 
 /**
@@ -1004,7 +1030,8 @@ puglSetParentWindow(PuglView* view, PuglNativeView parent);
    A view can either have a parent (for embedding) or a transient parent (for
    top-level windows like dialogs), but not both.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetTransientFor(PuglView* view, PuglNativeView parent);
 
 /**
@@ -1018,7 +1045,8 @@ puglSetTransientFor(PuglView* view, PuglNativeView parent);
    The view should be fully configured using the above functions before this is
    called.  This function may only be called once per view.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglRealize(PuglView* view);
 
 /**
@@ -1030,19 +1058,23 @@ puglRealize(PuglView* view);
    If the view is currently hidden, it will be shown and possibly raised to the
    top depending on the platform.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglShow(PuglView* view);
 
 /// Hide the current window
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglHide(PuglView* view);
 
 /// Return true iff the view is currently visible
-PUGL_API bool
+PUGL_API
+bool
 puglGetVisible(const PuglView* view);
 
 /// Return the native window handle
-PUGL_API PuglNativeView
+PUGL_API
+PuglNativeView
 puglGetNativeWindow(PuglView* view);
 
 /**
@@ -1063,7 +1095,8 @@ puglGetNativeWindow(PuglView* view);
 
    All other backends: returns null.
 */
-PUGL_API void*
+PUGL_API
+void*
 puglGetContext(PuglView* view);
 
 /**
@@ -1075,7 +1108,8 @@ puglGetContext(PuglView* view);
    platforms.  If called elsewhere, an expose will be enqueued to be processed
    in the next event loop iteration.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglPostRedisplay(PuglView* view);
 
 /**
@@ -1084,7 +1118,8 @@ puglPostRedisplay(PuglView* view);
    This has the same semantics as puglPostRedisplay(), but allows giving a
    precise region for redrawing only a portion of the view.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglPostRedisplayRect(PuglView* view, PuglRect rect);
 
 /**
@@ -1101,21 +1136,23 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect);
    Windows.
 */
 typedef enum {
-	PUGL_CURSOR_ARROW,      ///< Default pointing arrow
-	PUGL_CURSOR_CARET,      ///< Caret (I-Beam) for text entry
-	PUGL_CURSOR_CROSSHAIR,  ///< Cross-hair
-	PUGL_CURSOR_HAND,       ///< Hand with a pointing finger
-	PUGL_CURSOR_NO,         ///< Operation not allowed
-	PUGL_CURSOR_LEFT_RIGHT, ///< Left/right arrow for horizontal resize
-	PUGL_CURSOR_UP_DOWN,    ///< Up/down arrow for vertical resize
+  PUGL_CURSOR_ARROW,      ///< Default pointing arrow
+  PUGL_CURSOR_CARET,      ///< Caret (I-Beam) for text entry
+  PUGL_CURSOR_CROSSHAIR,  ///< Cross-hair
+  PUGL_CURSOR_HAND,       ///< Hand with a pointing finger
+  PUGL_CURSOR_NO,         ///< Operation not allowed
+  PUGL_CURSOR_LEFT_RIGHT, ///< Left/right arrow for horizontal resize
+  PUGL_CURSOR_UP_DOWN,    ///< Up/down arrow for vertical resize
 } PuglCursor;
 
 /// Grab the keyboard input focus
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglGrabFocus(PuglView* view);
 
 /// Return whether `view` has the keyboard input focus
-PUGL_API bool
+PUGL_API
+bool
 puglHasFocus(const PuglView* view);
 
 /**
@@ -1129,7 +1166,8 @@ puglHasFocus(const PuglView* view);
    @param data The data to copy to the clipboard.
    @param len The length of data in bytes (including terminator if necessary).
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetClipboard(PuglView*   view,
                  const char* type,
                  const void* data,
@@ -1146,7 +1184,8 @@ puglSetClipboard(PuglView*   view,
    @param[out] len Set to the length of the data in bytes.
    @return The clipboard contents, or `NULL`.
 */
-PUGL_API const void*
+PUGL_API
+const void*
 puglGetClipboard(PuglView* view, const char** type, size_t* len);
 
 /**
@@ -1160,7 +1199,8 @@ puglGetClipboard(PuglView* view, const char** type, size_t* len);
    - #PUGL_BAD_PARAMETER if the given cursor is invalid.
    - #PUGL_FAILURE if the cursor isknown but loading it from the system fails.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSetCursor(PuglView* view, PuglCursor cursor);
 
 /**
@@ -1170,7 +1210,8 @@ puglSetCursor(PuglView* view, PuglCursor cursor);
    from the user.  The exact effect depends on the platform, but is usually
    something like a flashing task bar entry or bouncing application icon.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglRequestAttention(PuglView* view);
 
 /**
@@ -1200,7 +1241,8 @@ puglRequestAttention(PuglView* view);
    - #PUGL_FAILURE if timers are not supported by this system or build.
    - #PUGL_UNKNOWN_ERROR if setting the timer failed.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglStartTimer(PuglView* view, uintptr_t id, double timeout);
 
 /**
@@ -1213,7 +1255,8 @@ puglStartTimer(PuglView* view, uintptr_t id, double timeout);
    - #PUGL_FAILURE if timers are not supported by this system or build.
    - #PUGL_UNKNOWN_ERROR if stopping the timer failed.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglStopTimer(PuglView* view, uintptr_t id);
 
 /**
@@ -1233,7 +1276,8 @@ puglStopTimer(PuglView* view, uintptr_t id);
    - #PUGL_UNSUPPORTED_TYPE if sending events of this type is not supported.
    - #PUGL_UNKNOWN_ERROR if sending the event failed.
 */
-PUGL_API PuglStatus
+PUGL_API
+PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event);
 
 /**
@@ -1271,13 +1315,14 @@ typedef uintptr_t PuglNativeWindow;
    @param argv  Arguments (currently unused).
    @return A newly created view.
 */
-static inline PUGL_DEPRECATED_BY("puglNewView") PuglView*
+static inline PUGL_DEPRECATED_BY("puglNewView")
+PuglView*
 puglInit(const int* pargc, char** argv)
 {
-	(void)pargc;
-	(void)argv;
+  (void)pargc;
+  (void)argv;
 
-	return puglNewView(puglNewWorld(PUGL_MODULE, 0));
+  return puglNewView(puglNewWorld(PUGL_MODULE, 0));
 }
 
 /**
@@ -1285,22 +1330,24 @@ puglInit(const int* pargc, char** argv)
 
    @deprecated Use puglFreeApp() and puglFreeView().
 */
-static inline PUGL_DEPRECATED_BY("puglFreeView") void
+static inline PUGL_DEPRECATED_BY("puglFreeView")
+void
 puglDestroy(PuglView* view)
 {
-	PuglWorld* const world = puglGetWorld(view);
+  PuglWorld* const world = puglGetWorld(view);
 
-	puglFreeView(view);
-	puglFreeWorld(world);
+  puglFreeView(view);
+  puglFreeWorld(world);
 }
 
 /**
    Set the window class name before creating a window.
 */
-static inline PUGL_DEPRECATED_BY("puglSetClassName") void
+static inline PUGL_DEPRECATED_BY("puglSetClassName")
+void
 puglInitWindowClass(PuglView* view, const char* name)
 {
-	puglSetClassName(puglGetWorld(view), name);
+  puglSetClassName(puglGetWorld(view), name);
 }
 
 /**
@@ -1308,24 +1355,26 @@ puglInitWindowClass(PuglView* view, const char* name)
 
    @deprecated Use puglSetFrame().
 */
-static inline PUGL_DEPRECATED_BY("puglSetFrame") void
+static inline PUGL_DEPRECATED_BY("puglSetFrame")
+void
 puglInitWindowSize(PuglView* view, int width, int height)
 {
-	PuglRect frame = puglGetFrame(view);
+  PuglRect frame = puglGetFrame(view);
 
-	frame.width = width;
-	frame.height = height;
+  frame.width  = width;
+  frame.height = height;
 
-	puglSetFrame(view, frame);
+  puglSetFrame(view, frame);
 }
 
 /**
    Set the minimum window size before creating a window.
 */
-static inline PUGL_DEPRECATED_BY("puglSetMinSize") void
+static inline PUGL_DEPRECATED_BY("puglSetMinSize")
+void
 puglInitWindowMinSize(PuglView* view, int width, int height)
 {
-	puglSetMinSize(view, width, height);
+  puglSetMinSize(view, width, height);
 }
 
 /**
@@ -1338,14 +1387,15 @@ puglInitWindowMinSize(PuglView* view, int width, int height)
    currenty work on MacOS (the minimum is used), so only setting a fixed aspect
    ratio works properly across all platforms.
 */
-static inline PUGL_DEPRECATED_BY("puglSetAspectRatio") void
+static inline PUGL_DEPRECATED_BY("puglSetAspectRatio")
+void
 puglInitWindowAspectRatio(PuglView* view,
                           int       minX,
                           int       minY,
                           int       maxX,
                           int       maxY)
 {
-	puglSetAspectRatio(view, minX, minY, maxX, maxY);
+  puglSetAspectRatio(view, minX, minY, maxX, maxY);
 }
 
 /**
@@ -1354,10 +1404,11 @@ puglInitWindowAspectRatio(PuglView* view,
    On X11, parent must be a Window.
    On OSX, parent must be an NSView*.
 */
-static inline PUGL_DEPRECATED_BY("puglSetTransientFor") void
+static inline PUGL_DEPRECATED_BY("puglSetTransientFor")
+void
 puglInitTransientFor(PuglView* view, uintptr_t parent)
 {
-	puglSetTransientFor(view, (PuglNativeWindow)parent);
+  puglSetTransientFor(view, (PuglNativeWindow)parent);
 }
 
 /**
@@ -1365,10 +1416,11 @@ puglInitTransientFor(PuglView* view, uintptr_t parent)
 
    @deprecated Use puglSetViewHint() with #PUGL_RESIZABLE.
 */
-static inline PUGL_DEPRECATED_BY("puglSetViewHint") void
+static inline PUGL_DEPRECATED_BY("puglSetViewHint")
+void
 puglInitResizable(PuglView* view, bool resizable)
 {
-	puglSetViewHint(view, PUGL_RESIZABLE, resizable);
+  puglSetViewHint(view, PUGL_RESIZABLE, resizable);
 }
 
 /**
@@ -1377,13 +1429,14 @@ puglInitResizable(PuglView* view, bool resizable)
    @deprecated Use puglGetFrame().
 
 */
-static inline PUGL_DEPRECATED_BY("puglGetFrame") void
+static inline PUGL_DEPRECATED_BY("puglGetFrame")
+void
 puglGetSize(PuglView* view, int* width, int* height)
 {
-	const PuglRect frame = puglGetFrame(view);
+  const PuglRect frame = puglGetFrame(view);
 
-	*width  = (int)frame.width;
-	*height = (int)frame.height;
+  *width  = (int)frame.width;
+  *height = (int)frame.height;
 }
 
 /**
@@ -1391,10 +1444,11 @@ puglGetSize(PuglView* view, int* width, int* height)
 
    @deprecated Use puglSetViewHint() with #PUGL_IGNORE_KEY_REPEAT.
 */
-static inline PUGL_DEPRECATED_BY("puglSetViewHint") void
+static inline PUGL_DEPRECATED_BY("puglSetViewHint")
+void
 puglIgnoreKeyRepeat(PuglView* view, bool ignore)
 {
-	puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, ignore);
+  puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, ignore);
 }
 
 /**
@@ -1402,10 +1456,11 @@ puglIgnoreKeyRepeat(PuglView* view, bool ignore)
 
    @deprecated Use puglSetWindowHint().
 */
-static inline PUGL_DEPRECATED_BY("puglSetViewHint") void
+static inline PUGL_DEPRECATED_BY("puglSetViewHint")
+void
 puglInitWindowHint(PuglView* view, PuglViewHint hint, int value)
 {
-	puglSetViewHint(view, hint, value);
+  puglSetViewHint(view, hint, value);
 }
 
 /**
@@ -1413,10 +1468,11 @@ puglInitWindowHint(PuglView* view, PuglViewHint hint, int value)
 
    @deprecated Use puglSetWindowParent().
 */
-static inline PUGL_DEPRECATED_BY("puglSetParentWindow") void
+static inline PUGL_DEPRECATED_BY("puglSetParentWindow")
+void
 puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
 {
-	puglSetParentWindow(view, parent);
+  puglSetParentWindow(view, parent);
 }
 
 /**
@@ -1424,10 +1480,11 @@ puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
 
    @deprecated Use puglSetBackend().
 */
-static inline PUGL_DEPRECATED_BY("puglSetBackend") int
+static inline PUGL_DEPRECATED_BY("puglSetBackend")
+int
 puglInitBackend(PuglView* view, const PuglBackend* backend)
 {
-	return (int)puglSetBackend(view, backend);
+  return (int)puglSetBackend(view, backend);
 }
 
 /**
@@ -1438,11 +1495,12 @@ puglInitBackend(PuglView* view, const PuglBackend* backend)
 
    @deprecated Use puglRealize(), or just show the view.
 */
-static inline PUGL_DEPRECATED_BY("puglRealize") PuglStatus
+static inline PUGL_DEPRECATED_BY("puglRealize")
+PuglStatus
 puglCreateWindow(PuglView* view, const char* title)
 {
-	puglSetWindowTitle(view, title);
-	return puglRealize(view);
+  puglSetWindowTitle(view, title);
+  return puglRealize(view);
 }
 
 /**
@@ -1455,7 +1513,9 @@ puglCreateWindow(PuglView* view, const char* title)
 
    @deprecated Use puglPollEvents().
 */
-PUGL_API PUGL_DEPRECATED_BY("puglPollEvents") PuglStatus
+PUGL_API
+PUGL_DEPRECATED_BY("puglPollEvents")
+PuglStatus
 puglWaitForEvent(PuglView* view);
 
 /**
@@ -1467,7 +1527,9 @@ puglWaitForEvent(PuglView* view);
 
    @deprecated Use puglDispatchEvents().
 */
-PUGL_API PUGL_DEPRECATED_BY("puglDispatchEvents") PuglStatus
+PUGL_API
+PUGL_DEPRECATED_BY("puglDispatchEvents")
+PuglStatus
 puglProcessEvents(PuglView* view);
 
 /**
@@ -1485,7 +1547,9 @@ puglProcessEvents(PuglView* view);
 
    @deprecated Use puglUpdate().
 */
-PUGL_API PUGL_DEPRECATED_BY("puglUpdate") PuglStatus
+PUGL_API
+PUGL_DEPRECATED_BY("puglUpdate")
+PuglStatus
 puglPollEvents(PuglWorld* world, double timeout);
 
 /**
@@ -1498,13 +1562,19 @@ puglPollEvents(PuglWorld* world, double timeout);
 
    @deprecated Use puglUpdate().
 */
-PUGL_API PUGL_DEPRECATED_BY("puglUpdate") PuglStatus
+PUGL_API
+PUGL_DEPRECATED_BY("puglUpdate")
+PuglStatus
 puglDispatchEvents(PuglWorld* world);
 
-PUGL_API PUGL_DEPRECATED_BY("puglShow") PuglStatus
+PUGL_API
+PUGL_DEPRECATED_BY("puglShow")
+PuglStatus
 puglShowWindow(PuglView* view);
 
-PUGL_API PUGL_DEPRECATED_BY("puglHide") PuglStatus
+PUGL_API
+PUGL_DEPRECATED_BY("puglHide")
+PuglStatus
 puglHideWindow(PuglView* view);
 
 #endif // PUGL_DISABLE_DEPRECATED

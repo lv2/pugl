@@ -49,48 +49,48 @@ namespace pugl {
 
 /// @copydoc PuglVulkanLoader
 class VulkanLoader final
-    : public detail::Wrapper<PuglVulkanLoader, puglFreeVulkanLoader>
+  : public detail::Wrapper<PuglVulkanLoader, puglFreeVulkanLoader>
 {
 public:
-	/**
-	   Create a new dynamic loader for Vulkan functions.
+  /**
+     Create a new dynamic loader for Vulkan functions.
 
-	   This dynamically loads the Vulkan library and gets the load functions
-	   from it.
+     This dynamically loads the Vulkan library and gets the load functions
+     from it.
 
-	   Note that this constructor does not throw exceptions, though failure is
-	   possible.  To check if the Vulkan library failed to load, test this
-	   loader, which is explicitly convertible to `bool`.  It is safe to use a
-	   failed loader, but the accessors will always return null.
-	*/
-	explicit VulkanLoader(World& world) noexcept
-	    : Wrapper{puglNewVulkanLoader(world.cobj())}
-	{}
+     Note that this constructor does not throw exceptions, though failure is
+     possible.  To check if the Vulkan library failed to load, test this
+     loader, which is explicitly convertible to `bool`.  It is safe to use a
+     failed loader, but the accessors will always return null.
+  */
+  explicit VulkanLoader(World& world) noexcept
+    : Wrapper{puglNewVulkanLoader(world.cobj())}
+  {}
 
-	/**
-	   Return the `vkGetInstanceProcAddr` function.
+  /**
+     Return the `vkGetInstanceProcAddr` function.
 
-	   @return Null if the Vulkan library failed to load, or does not contain
-	   this function (which is unlikely and indicates a broken system).
-	*/
-	PFN_vkGetInstanceProcAddr getInstanceProcAddrFunc() const noexcept
-	{
-		return cobj() ? puglGetInstanceProcAddrFunc(cobj()) : nullptr;
-	}
+     @return Null if the Vulkan library failed to load, or does not contain
+     this function (which is unlikely and indicates a broken system).
+  */
+  PFN_vkGetInstanceProcAddr getInstanceProcAddrFunc() const noexcept
+  {
+    return cobj() ? puglGetInstanceProcAddrFunc(cobj()) : nullptr;
+  }
 
-	/**
-	   Return the `vkGetDeviceProcAddr` function.
+  /**
+     Return the `vkGetDeviceProcAddr` function.
 
-	   @return Null if the Vulkan library failed to load, or does not contain
-	   this function (which is unlikely and indicates a broken system).
-	*/
-	PFN_vkGetDeviceProcAddr getDeviceProcAddrFunc() const noexcept
-	{
-		return cobj() ? puglGetDeviceProcAddrFunc(cobj()) : nullptr;
-	}
+     @return Null if the Vulkan library failed to load, or does not contain
+     this function (which is unlikely and indicates a broken system).
+  */
+  PFN_vkGetDeviceProcAddr getDeviceProcAddrFunc() const noexcept
+  {
+    return cobj() ? puglGetDeviceProcAddrFunc(cobj()) : nullptr;
+  }
 
-	/// Return true if this loader is valid to use
-	explicit operator bool() const noexcept { return cobj(); }
+  /// Return true if this loader is valid to use
+  explicit operator bool() const noexcept { return cobj(); }
 };
 
 /**
@@ -102,23 +102,23 @@ public:
 class StaticStringArray final
 {
 public:
-	using value_type     = const char*;
-	using const_iterator = const char* const*;
-	using size_type      = uint32_t;
+  using value_type     = const char*;
+  using const_iterator = const char* const*;
+  using size_type      = uint32_t;
 
-	StaticStringArray(const char* const* strings, const uint32_t size) noexcept
-	    : _strings{strings}
-	    , _size{size}
-	{}
+  StaticStringArray(const char* const* strings, const uint32_t size) noexcept
+    : _strings{strings}
+    , _size{size}
+  {}
 
-	const char* const* begin() const noexcept { return _strings; }
-	const char* const* end() const noexcept { return _strings + _size; }
-	const char* const* data() const noexcept { return _strings; }
-	uint32_t           size() const noexcept { return _size; }
+  const char* const* begin() const noexcept { return _strings; }
+  const char* const* end() const noexcept { return _strings + _size; }
+  const char* const* data() const noexcept { return _strings; }
+  uint32_t           size() const noexcept { return _size; }
 
 private:
-	const char* const* _strings;
-	uint32_t           _size;
+  const char* const* _strings;
+  uint32_t           _size;
 };
 
 /**
@@ -132,10 +132,10 @@ private:
 inline StaticStringArray
 getInstanceExtensions() noexcept
 {
-	uint32_t                 count      = 0;
-	const char* const* const extensions = puglGetInstanceExtensions(&count);
+  uint32_t                 count      = 0;
+  const char* const* const extensions = puglGetInstanceExtensions(&count);
 
-	return StaticStringArray{extensions, count};
+  return StaticStringArray{extensions, count};
 }
 
 /// @copydoc puglCreateSurface
@@ -146,17 +146,17 @@ createSurface(PFN_vkGetInstanceProcAddr          vkGetInstanceProcAddr,
               const VkAllocationCallbacks* const allocator,
               VkSurfaceKHR* const                surface) noexcept
 {
-	const VkResult r = puglCreateSurface(
-	    vkGetInstanceProcAddr, view.cobj(), instance, allocator, surface);
+  const VkResult r = puglCreateSurface(
+    vkGetInstanceProcAddr, view.cobj(), instance, allocator, surface);
 
-	return (!r && !surface) ? VK_ERROR_INITIALIZATION_FAILED : r;
+  return (!r && !surface) ? VK_ERROR_INITIALIZATION_FAILED : r;
 }
 
 /// @copydoc puglVulkanBackend
 inline const PuglBackend*
 vulkanBackend() noexcept
 {
-	return puglVulkanBackend();
+  return puglVulkanBackend();
 }
 
 /**

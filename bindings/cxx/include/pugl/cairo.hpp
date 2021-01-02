@@ -33,7 +33,7 @@ namespace pugl {
 inline const PuglBackend*
 cairoBackend() noexcept
 {
-	return puglCairoBackend();
+  return puglCairoBackend();
 }
 
 /**

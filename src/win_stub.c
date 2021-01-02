@@ -23,58 +23,58 @@
 PuglStatus
 puglWinStubConfigure(PuglView* view)
 {
-	PuglInternals* const impl = view->impl;
-	PuglStatus           st   = PUGL_SUCCESS;
+  PuglInternals* const impl = view->impl;
+  PuglStatus           st   = PUGL_SUCCESS;
 
-	if ((st = puglWinCreateWindow(view, "Pugl", &impl->hwnd, &impl->hdc))) {
-		return st;
-	}
+  if ((st = puglWinCreateWindow(view, "Pugl", &impl->hwnd, &impl->hdc))) {
+    return st;
+  }
 
-	impl->pfd  = puglWinGetPixelFormatDescriptor(view->hints);
-	impl->pfId = ChoosePixelFormat(impl->hdc, &impl->pfd);
+  impl->pfd  = puglWinGetPixelFormatDescriptor(view->hints);
+  impl->pfId = ChoosePixelFormat(impl->hdc, &impl->pfd);
 
-	if (!SetPixelFormat(impl->hdc, impl->pfId, &impl->pfd)) {
-		ReleaseDC(impl->hwnd, impl->hdc);
-		DestroyWindow(impl->hwnd);
-		impl->hwnd = NULL;
-		impl->hdc  = NULL;
-		return PUGL_SET_FORMAT_FAILED;
-	}
+  if (!SetPixelFormat(impl->hdc, impl->pfId, &impl->pfd)) {
+    ReleaseDC(impl->hwnd, impl->hdc);
+    DestroyWindow(impl->hwnd);
+    impl->hwnd = NULL;
+    impl->hdc  = NULL;
+    return PUGL_SET_FORMAT_FAILED;
+  }
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 PuglStatus
 puglWinStubEnter(PuglView* view, const PuglEventExpose* expose)
 {
-	if (expose) {
-		PAINTSTRUCT ps;
-		BeginPaint(view->impl->hwnd, &ps);
-	}
+  if (expose) {
+    PAINTSTRUCT ps;
+    BeginPaint(view->impl->hwnd, &ps);
+  }
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 PuglStatus
 puglWinStubLeave(PuglView* view, const PuglEventExpose* expose)
 {
-	if (expose) {
-		PAINTSTRUCT ps;
-		EndPaint(view->impl->hwnd, &ps);
-	}
+  if (expose) {
+    PAINTSTRUCT ps;
+    EndPaint(view->impl->hwnd, &ps);
+  }
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 const PuglBackend*
 puglStubBackend(void)
 {
-	static const PuglBackend backend = {puglWinStubConfigure,
-	                                    puglStubCreate,
-	                                    puglStubDestroy,
-	                                    puglWinStubEnter,
-	                                    puglWinStubLeave,
-	                                    puglStubGetContext};
+  static const PuglBackend backend = {puglWinStubConfigure,
+                                      puglStubCreate,
+                                      puglStubDestroy,
+                                      puglWinStubEnter,
+                                      puglWinStubLeave,
+                                      puglStubGetContext};
 
-	return &backend;
+  return &backend;
 }

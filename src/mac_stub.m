@@ -25,25 +25,24 @@
 @interface PuglStubView : NSView
 @end
 
-@implementation PuglStubView
-{
+@implementation PuglStubView {
 @public
-	PuglView* puglview;
+  PuglView* puglview;
 }
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
 {
-	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
+  PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
-	[super resizeWithOldSuperviewSize:oldSize];
-	[wrapper setReshaped];
+  [super resizeWithOldSuperviewSize:oldSize];
+  [wrapper setReshaped];
 }
 
 - (void)drawRect:(NSRect)rect
 {
-	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
+  PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
-	[wrapper dispatchExpose:rect];
+  [wrapper dispatchExpose:rect];
 }
 
 @end
@@ -51,42 +50,43 @@
 static PuglStatus
 puglMacStubCreate(PuglView* view)
 {
-	PuglInternals* impl    = view->impl;
-	PuglStubView* drawView = [PuglStubView alloc];
+  PuglInternals* impl     = view->impl;
+  PuglStubView*  drawView = [PuglStubView alloc];
 
-	drawView->puglview = view;
-	[drawView initWithFrame:NSMakeRect(0, 0, view->frame.width, view->frame.height)];
-	if (view->hints[PUGL_RESIZABLE]) {
-		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	} else {
-		[drawView setAutoresizingMask:NSViewNotSizable];
-	}
+  drawView->puglview = view;
+  [drawView
+    initWithFrame:NSMakeRect(0, 0, view->frame.width, view->frame.height)];
+  if (view->hints[PUGL_RESIZABLE]) {
+    [drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+  } else {
+    [drawView setAutoresizingMask:NSViewNotSizable];
+  }
 
-	impl->drawView = drawView;
-	return PUGL_SUCCESS;
+  impl->drawView = drawView;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglMacStubDestroy(PuglView* view)
 {
-	PuglStubView* const drawView = (PuglStubView*)view->impl->drawView;
+  PuglStubView* const drawView = (PuglStubView*)view->impl->drawView;
 
-	[drawView removeFromSuperview];
-	[drawView release];
+  [drawView removeFromSuperview];
+  [drawView release];
 
-	view->impl->drawView = nil;
-	return PUGL_SUCCESS;
+  view->impl->drawView = nil;
+  return PUGL_SUCCESS;
 }
 
 const PuglBackend*
 puglStubBackend(void)
 {
-	static const PuglBackend backend = {puglStubConfigure,
-	                                    puglMacStubCreate,
-	                                    puglMacStubDestroy,
-	                                    puglStubEnter,
-	                                    puglStubLeave,
-	                                    puglStubGetContext};
+  static const PuglBackend backend = {puglStubConfigure,
+                                      puglMacStubCreate,
+                                      puglMacStubDestroy,
+                                      puglStubEnter,
+                                      puglStubLeave,
+                                      puglStubGetContext};
 
-	return &backend;
+  return &backend;
 }

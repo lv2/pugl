@@ -40,47 +40,45 @@
 
 @end
 
-@implementation PuglVulkanView
-{
+@implementation PuglVulkanView {
 @public
-	PuglView* puglview;
+  PuglView* puglview;
 }
 
 - (id)initWithFrame:(NSRect)frame
 {
-	self = [super initWithFrame:frame];
+  self = [super initWithFrame:frame];
 
-	if (self) {
-		self.wantsLayer = YES;
-		self.layerContentsRedrawPolicy =
-		    NSViewLayerContentsRedrawOnSetNeedsDisplay;
-	}
+  if (self) {
+    self.wantsLayer                = YES;
+    self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawOnSetNeedsDisplay;
+  }
 
-	return self;
+  return self;
 }
 
 - (CALayer*)makeBackingLayer
 {
-	CAMetalLayer* layer = [CAMetalLayer layer];
-	[layer setDelegate:self];
-	return layer;
+  CAMetalLayer* layer = [CAMetalLayer layer];
+  [layer setDelegate:self];
+  return layer;
 }
 
 - (void)setFrameSize:(NSSize)newSize
 {
-	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
+  PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
-	[super setFrameSize:newSize];
-	[wrapper setReshaped];
+  [super setFrameSize:newSize];
+  [wrapper setReshaped];
 
-	self.layer.frame = self.bounds;
+  self.layer.frame = self.bounds;
 }
 
 - (void)displayLayer:(CALayer*)layer
 {
-	(void)layer;
-	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
-	[wrapper dispatchExpose:[self bounds]];
+  (void)layer;
+  PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
+  [wrapper dispatchExpose:[self bounds]];
 }
 
 @end
@@ -88,105 +86,105 @@
 static PuglStatus
 puglMacVulkanCreate(PuglView* view)
 {
-	PuglInternals*  impl     = view->impl;
-	PuglVulkanView* drawView = [PuglVulkanView alloc];
-	const NSRect rect = NSMakeRect(0, 0, view->frame.width, view->frame.height);
+  PuglInternals*  impl     = view->impl;
+  PuglVulkanView* drawView = [PuglVulkanView alloc];
+  const NSRect rect = NSMakeRect(0, 0, view->frame.width, view->frame.height);
 
-	drawView->puglview = view;
-	[drawView initWithFrame:rect];
-	if (view->hints[PUGL_RESIZABLE]) {
-		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	} else {
-		[drawView setAutoresizingMask:NSViewNotSizable];
-	}
+  drawView->puglview = view;
+  [drawView initWithFrame:rect];
+  if (view->hints[PUGL_RESIZABLE]) {
+    [drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+  } else {
+    [drawView setAutoresizingMask:NSViewNotSizable];
+  }
 
-	impl->drawView = drawView;
-	return PUGL_SUCCESS;
+  impl->drawView = drawView;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglMacVulkanDestroy(PuglView* view)
 {
-	PuglVulkanView* const drawView = (PuglVulkanView*)view->impl->drawView;
+  PuglVulkanView* const drawView = (PuglVulkanView*)view->impl->drawView;
 
-	[drawView removeFromSuperview];
-	[drawView release];
+  [drawView removeFromSuperview];
+  [drawView release];
 
-	view->impl->drawView = nil;
-	return PUGL_SUCCESS;
+  view->impl->drawView = nil;
+  return PUGL_SUCCESS;
 }
 
 struct PuglVulkanLoaderImpl {
-	void*                     libvulkan;
-	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
-	PFN_vkGetDeviceProcAddr   vkGetDeviceProcAddr;
+  void*                     libvulkan;
+  PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
+  PFN_vkGetDeviceProcAddr   vkGetDeviceProcAddr;
 };
 
 PuglVulkanLoader*
 puglNewVulkanLoader(PuglWorld* PUGL_UNUSED(world))
 {
-	PuglVulkanLoader* loader = (PuglVulkanLoader*)
-	    calloc(1, sizeof(PuglVulkanLoader));
-	if (!loader) {
-		return NULL;
-	}
+  PuglVulkanLoader* loader =
+    (PuglVulkanLoader*)calloc(1, sizeof(PuglVulkanLoader));
+  if (!loader) {
+    return NULL;
+  }
 
-	if (!(loader->libvulkan = dlopen("libvulkan.dylib", RTLD_LAZY))) {
-		free(loader);
-		return NULL;
-	}
+  if (!(loader->libvulkan = dlopen("libvulkan.dylib", RTLD_LAZY))) {
+    free(loader);
+    return NULL;
+  }
 
-	loader->vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)
-	    dlsym(loader->libvulkan, "vkGetInstanceProcAddr");
+  loader->vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(
+    loader->libvulkan, "vkGetInstanceProcAddr");
 
-	loader->vkGetDeviceProcAddr = (PFN_vkGetDeviceProcAddr)
-	    dlsym(loader->libvulkan, "vkGetDeviceProcAddr");
+  loader->vkGetDeviceProcAddr =
+    (PFN_vkGetDeviceProcAddr)dlsym(loader->libvulkan, "vkGetDeviceProcAddr");
 
-	return loader;
+  return loader;
 }
 
 void
 puglFreeVulkanLoader(PuglVulkanLoader* loader)
 {
-	if (loader) {
-		dlclose(loader->libvulkan);
-		free(loader);
-	}
+  if (loader) {
+    dlclose(loader->libvulkan);
+    free(loader);
+  }
 }
 
 PFN_vkGetInstanceProcAddr
 puglGetInstanceProcAddrFunc(const PuglVulkanLoader* loader)
 {
-	return loader->vkGetInstanceProcAddr;
+  return loader->vkGetInstanceProcAddr;
 }
 
 PFN_vkGetDeviceProcAddr
 puglGetDeviceProcAddrFunc(const PuglVulkanLoader* loader)
 {
-	return loader->vkGetDeviceProcAddr;
+  return loader->vkGetDeviceProcAddr;
 }
 
 const PuglBackend*
 puglVulkanBackend(void)
 {
-	static const PuglBackend backend = {puglStubConfigure,
-	                                    puglMacVulkanCreate,
-	                                    puglMacVulkanDestroy,
-	                                    puglStubEnter,
-	                                    puglStubLeave,
-	                                    puglStubGetContext};
+  static const PuglBackend backend = {puglStubConfigure,
+                                      puglMacVulkanCreate,
+                                      puglMacVulkanDestroy,
+                                      puglStubEnter,
+                                      puglStubLeave,
+                                      puglStubGetContext};
 
-	return &backend;
+  return &backend;
 }
 
 const char* const*
 puglGetInstanceExtensions(uint32_t* const count)
 {
-	static const char* const extensions[] = {"VK_KHR_surface",
-	                                         "VK_MVK_macos_surface"};
+  static const char* const extensions[] = {"VK_KHR_surface",
+                                           "VK_MVK_macos_surface"};
 
-	*count = 2;
-	return extensions;
+  *count = 2;
+  return extensions;
 }
 
 VkResult
@@ -196,18 +194,18 @@ puglCreateSurface(PFN_vkGetInstanceProcAddr          vkGetInstanceProcAddr,
                   const VkAllocationCallbacks* const allocator,
                   VkSurfaceKHR* const                surface)
 {
-	PuglInternals* const impl = view->impl;
+  PuglInternals* const impl = view->impl;
 
-	PFN_vkCreateMacOSSurfaceMVK vkCreateMacOSSurfaceMVK =
-	    (PFN_vkCreateMacOSSurfaceMVK)
-	        vkGetInstanceProcAddr(instance, "vkCreateMacOSSurfaceMVK");
+  PFN_vkCreateMacOSSurfaceMVK vkCreateMacOSSurfaceMVK =
+    (PFN_vkCreateMacOSSurfaceMVK)vkGetInstanceProcAddr(
+      instance, "vkCreateMacOSSurfaceMVK");
 
-	const VkMacOSSurfaceCreateInfoMVK info = {
-	    VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK,
-	    NULL,
-	    0,
-	    impl->drawView,
-	};
+  const VkMacOSSurfaceCreateInfoMVK info = {
+    VK_STRUCTURE_TYPE_MACOS_SURFACE_CREATE_INFO_MVK,
+    NULL,
+    0,
+    impl->drawView,
+  };
 
-	return vkCreateMacOSSurfaceMVK(instance, &info, allocator, surface);
+  return vkCreateMacOSSurfaceMVK(instance, &info, allocator, surface);
 }

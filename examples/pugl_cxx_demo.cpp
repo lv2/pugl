@@ -27,121 +27,121 @@
 class CubeView : public pugl::View
 {
 public:
-	explicit CubeView(pugl::World& world)
-	    : pugl::View{world}
-	{
-		setEventHandler(*this);
-	}
+  explicit CubeView(pugl::World& world)
+    : pugl::View{world}
+  {
+    setEventHandler(*this);
+  }
 
-	template<PuglEventType t, class Base>
-	pugl::Status onEvent(const pugl::Event<t, Base>&) noexcept
-	{
-		return pugl::Status::success;
-	}
+  template<PuglEventType t, class Base>
+  pugl::Status onEvent(const pugl::Event<t, Base>&) noexcept
+  {
+    return pugl::Status::success;
+  }
 
-	static pugl::Status onEvent(const pugl::ConfigureEvent& event) noexcept;
-	pugl::Status        onEvent(const pugl::UpdateEvent& event) noexcept;
-	pugl::Status        onEvent(const pugl::ExposeEvent& event) noexcept;
-	pugl::Status        onEvent(const pugl::KeyPressEvent& event) noexcept;
-	pugl::Status        onEvent(const pugl::CloseEvent& event) noexcept;
+  static pugl::Status onEvent(const pugl::ConfigureEvent& event) noexcept;
+  pugl::Status        onEvent(const pugl::UpdateEvent& event) noexcept;
+  pugl::Status        onEvent(const pugl::ExposeEvent& event) noexcept;
+  pugl::Status        onEvent(const pugl::KeyPressEvent& event) noexcept;
+  pugl::Status        onEvent(const pugl::CloseEvent& event) noexcept;
 
-	bool quit() const { return _quit; }
+  bool quit() const { return _quit; }
 
 private:
-	double _xAngle{0.0};
-	double _yAngle{0.0};
-	double _lastDrawTime{0.0};
-	bool   _quit{false};
+  double _xAngle{0.0};
+  double _yAngle{0.0};
+  double _lastDrawTime{0.0};
+  bool   _quit{false};
 };
 
 pugl::Status
 CubeView::onEvent(const pugl::ConfigureEvent& event) noexcept
 {
-	reshapeCube(static_cast<float>(event.width),
-	            static_cast<float>(event.height));
+  reshapeCube(static_cast<float>(event.width),
+              static_cast<float>(event.height));
 
-	return pugl::Status::success;
+  return pugl::Status::success;
 }
 
 pugl::Status
 CubeView::onEvent(const pugl::UpdateEvent&) noexcept
 {
-	return postRedisplay();
+  return postRedisplay();
 }
 
 pugl::Status
 CubeView::onEvent(const pugl::ExposeEvent&) noexcept
 {
-	const double thisTime = world().time();
-	const double dTime    = thisTime - _lastDrawTime;
-	const double dAngle   = dTime * 100.0;
+  const double thisTime = world().time();
+  const double dTime    = thisTime - _lastDrawTime;
+  const double dAngle   = dTime * 100.0;
 
-	_xAngle = fmod(_xAngle + dAngle, 360.0);
-	_yAngle = fmod(_yAngle + dAngle, 360.0);
-	displayCube(cobj(),
-	            8.0f,
-	            static_cast<float>(_xAngle),
-	            static_cast<float>(_yAngle),
-	            false);
+  _xAngle = fmod(_xAngle + dAngle, 360.0);
+  _yAngle = fmod(_yAngle + dAngle, 360.0);
+  displayCube(cobj(),
+              8.0f,
+              static_cast<float>(_xAngle),
+              static_cast<float>(_yAngle),
+              false);
 
-	_lastDrawTime = thisTime;
+  _lastDrawTime = thisTime;
 
-	return pugl::Status::success;
+  return pugl::Status::success;
 }
 
 pugl::Status
 CubeView::onEvent(const pugl::KeyPressEvent& event) noexcept
 {
-	if (event.key == PUGL_KEY_ESCAPE || event.key == 'q') {
-		_quit = true;
-	}
+  if (event.key == PUGL_KEY_ESCAPE || event.key == 'q') {
+    _quit = true;
+  }
 
-	return pugl::Status::success;
+  return pugl::Status::success;
 }
 
 pugl::Status
 CubeView::onEvent(const pugl::CloseEvent&) noexcept
 {
-	_quit = true;
+  _quit = true;
 
-	return pugl::Status::success;
+  return pugl::Status::success;
 }
 
 int
 main(int argc, char** argv)
 {
-	const PuglTestOptions opts = puglParseTestOptions(&argc, &argv);
-	if (opts.help) {
-		puglPrintTestUsage("pugl_cxx_demo", "");
-		return 1;
-	}
+  const PuglTestOptions opts = puglParseTestOptions(&argc, &argv);
+  if (opts.help) {
+    puglPrintTestUsage("pugl_cxx_demo", "");
+    return 1;
+  }
 
-	pugl::World    world{pugl::WorldType::program};
-	CubeView       view{world};
-	PuglFpsPrinter fpsPrinter{};
+  pugl::World    world{pugl::WorldType::program};
+  CubeView       view{world};
+  PuglFpsPrinter fpsPrinter{};
 
-	world.setClassName("PuglCppTest");
+  world.setClassName("PuglCppTest");
 
-	view.setWindowTitle("Pugl C++ Test");
-	view.setDefaultSize(512, 512);
-	view.setMinSize(64, 64);
-	view.setAspectRatio(1, 1, 16, 9);
-	view.setBackend(pugl::glBackend());
-	view.setHint(pugl::ViewHint::resizable, opts.resizable);
-	view.setHint(pugl::ViewHint::samples, opts.samples);
-	view.setHint(pugl::ViewHint::doubleBuffer, opts.doubleBuffer);
-	view.setHint(pugl::ViewHint::swapInterval, opts.sync);
-	view.setHint(pugl::ViewHint::ignoreKeyRepeat, opts.ignoreKeyRepeat);
-	view.realize();
-	view.show();
+  view.setWindowTitle("Pugl C++ Test");
+  view.setDefaultSize(512, 512);
+  view.setMinSize(64, 64);
+  view.setAspectRatio(1, 1, 16, 9);
+  view.setBackend(pugl::glBackend());
+  view.setHint(pugl::ViewHint::resizable, opts.resizable);
+  view.setHint(pugl::ViewHint::samples, opts.samples);
+  view.setHint(pugl::ViewHint::doubleBuffer, opts.doubleBuffer);
+  view.setHint(pugl::ViewHint::swapInterval, opts.sync);
+  view.setHint(pugl::ViewHint::ignoreKeyRepeat, opts.ignoreKeyRepeat);
+  view.realize();
+  view.show();
 
-	unsigned framesDrawn = 0;
-	while (!view.quit()) {
-		world.update(0.0);
+  unsigned framesDrawn = 0;
+  while (!view.quit()) {
+    world.update(0.0);
 
-		++framesDrawn;
-		puglPrintFps(world.cobj(), &fpsPrinter, &framesDrawn);
-	}
+    ++framesDrawn;
+    puglPrintFps(world.cobj(), &fpsPrinter, &framesDrawn);
+  }
 
-	return 0;
+  return 0;
 }

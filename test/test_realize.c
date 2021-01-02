@@ -34,67 +34,67 @@
 #include <stddef.h>
 
 typedef enum {
-	START,
-	CREATED,
+  START,
+  CREATED,
 } State;
 
 typedef struct {
-	PuglWorld*      world;
-	PuglView*       view;
-	PuglTestOptions opts;
-	State           state;
+  PuglWorld*      world;
+  PuglView*       view;
+  PuglTestOptions opts;
+  State           state;
 } PuglTest;
 
 static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
 {
-	PuglTest* test = (PuglTest*)puglGetHandle(view);
+  PuglTest* test = (PuglTest*)puglGetHandle(view);
 
-	if (test->opts.verbose) {
-		printEvent(event, "Event: ", true);
-	}
+  if (test->opts.verbose) {
+    printEvent(event, "Event: ", true);
+  }
 
-	switch (event->type) {
-	case PUGL_CREATE:
-		assert(test->state == START);
-		test->state = CREATED;
-		break;
-	default:
-		break;
-	}
+  switch (event->type) {
+  case PUGL_CREATE:
+    assert(test->state == START);
+    test->state = CREATED;
+    break;
+  default:
+    break;
+  }
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 int
 main(int argc, char** argv)
 {
-	PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0),
-	                 NULL,
-	                 puglParseTestOptions(&argc, &argv),
-	                 START};
+  PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0),
+                   NULL,
+                   puglParseTestOptions(&argc, &argv),
+                   START};
 
-	// Set up view
-	test.view = puglNewView(test.world);
-	puglSetClassName(test.world, "Pugl Test");
-	puglSetBackend(test.view, puglStubBackend());
-	puglSetHandle(test.view, &test);
-	puglSetEventFunc(test.view, onEvent);
-	puglSetDefaultSize(test.view, 512, 512);
+  // Set up view
+  test.view = puglNewView(test.world);
+  puglSetClassName(test.world, "Pugl Test");
+  puglSetBackend(test.view, puglStubBackend());
+  puglSetHandle(test.view, &test);
+  puglSetEventFunc(test.view, onEvent);
+  puglSetDefaultSize(test.view, 512, 512);
 
-	// Create initially invisible window
-	assert(!puglRealize(test.view));
-	assert(!puglGetVisible(test.view));
-	while (test.state < CREATED) {
-		assert(!puglUpdate(test.world, -1.0));
-	}
+  // Create initially invisible window
+  assert(!puglRealize(test.view));
+  assert(!puglGetVisible(test.view));
+  while (test.state < CREATED) {
+    assert(!puglUpdate(test.world, -1.0));
+  }
 
-	// Check that calling realize() again is okay
-	assert(puglRealize(test.view) == PUGL_FAILURE);
+  // Check that calling realize() again is okay
+  assert(puglRealize(test.view) == PUGL_FAILURE);
 
-	// Tear down
-	puglFreeView(test.view);
-	puglFreeWorld(test.world);
+  // Tear down
+  puglFreeView(test.view);
+  puglFreeWorld(test.world);
 
-	return 0;
+  return 0;
 }

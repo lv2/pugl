@@ -29,33 +29,32 @@
 @interface PuglCairoView : NSView
 @end
 
-@implementation PuglCairoView
-{
+@implementation PuglCairoView {
 @public
-	PuglView*        puglview;
-	cairo_surface_t* surface;
-	cairo_t*         cr;
+  PuglView*        puglview;
+  cairo_surface_t* surface;
+  cairo_t*         cr;
 }
 
 - (id)initWithFrame:(NSRect)frame
 {
-	self = [super initWithFrame:frame];
+  self = [super initWithFrame:frame];
 
-	return self;
+  return self;
 }
 
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
 {
-	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
+  PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
-	[super resizeWithOldSuperviewSize:oldSize];
-	[wrapper setReshaped];
+  [super resizeWithOldSuperviewSize:oldSize];
+  [wrapper setReshaped];
 }
 
 - (void)drawRect:(NSRect)rect
 {
-	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
-	[wrapper dispatchExpose:rect];
+  PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
+  [wrapper dispatchExpose:rect];
 }
 
 @end
@@ -63,99 +62,99 @@
 static PuglStatus
 puglMacCairoCreate(PuglView* view)
 {
-	PuglInternals* impl     = view->impl;
-	PuglCairoView* drawView = [PuglCairoView alloc];
+  PuglInternals* impl     = view->impl;
+  PuglCairoView* drawView = [PuglCairoView alloc];
 
-	drawView->puglview = view;
-	[drawView initWithFrame:[impl->wrapperView bounds]];
-	if (view->hints[PUGL_RESIZABLE]) {
-		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	} else {
-		[drawView setAutoresizingMask:NSViewNotSizable];
-	}
+  drawView->puglview = view;
+  [drawView initWithFrame:[impl->wrapperView bounds]];
+  if (view->hints[PUGL_RESIZABLE]) {
+    [drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+  } else {
+    [drawView setAutoresizingMask:NSViewNotSizable];
+  }
 
-	impl->drawView = drawView;
-	return PUGL_SUCCESS;
+  impl->drawView = drawView;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglMacCairoDestroy(PuglView* view)
 {
-	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
+  PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
 
-	[drawView removeFromSuperview];
-	[drawView release];
+  [drawView removeFromSuperview];
+  [drawView release];
 
-	view->impl->drawView = nil;
-	return PUGL_SUCCESS;
+  view->impl->drawView = nil;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglMacCairoEnter(PuglView* view, const PuglEventExpose* expose)
 {
-	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
-	if (!expose) {
-		return PUGL_SUCCESS;
-	}
+  PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
+  if (!expose) {
+    return PUGL_SUCCESS;
+  }
 
-	assert(!drawView->surface);
-	assert(!drawView->cr);
+  assert(!drawView->surface);
+  assert(!drawView->cr);
 
-	const double scale   = 1.0 / [[NSScreen mainScreen] backingScaleFactor];
-	CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
-	const CGSize sizePx  = {view->frame.width, view->frame.height};
-	const CGSize sizePt  = CGContextConvertSizeToUserSpace(context, sizePx);
+  const double scale   = 1.0 / [[NSScreen mainScreen] backingScaleFactor];
+  CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
+  const CGSize sizePx  = {view->frame.width, view->frame.height};
+  const CGSize sizePt  = CGContextConvertSizeToUserSpace(context, sizePx);
 
-	// Convert coordinates to standard Cairo space
-	CGContextTranslateCTM(context, 0.0, -sizePt.height);
-	CGContextScaleCTM(context, scale, -scale);
+  // Convert coordinates to standard Cairo space
+  CGContextTranslateCTM(context, 0.0, -sizePt.height);
+  CGContextScaleCTM(context, scale, -scale);
 
-	drawView->surface = cairo_quartz_surface_create_for_cg_context(
-		context, (unsigned)sizePx.width, (unsigned)sizePx.height);
+  drawView->surface = cairo_quartz_surface_create_for_cg_context(
+    context, (unsigned)sizePx.width, (unsigned)sizePx.height);
 
-	drawView->cr = cairo_create(drawView->surface);
+  drawView->cr = cairo_create(drawView->surface);
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglMacCairoLeave(PuglView* view, const PuglEventExpose* expose)
 {
-	PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
-	if (!expose) {
-		return PUGL_SUCCESS;
-	}
+  PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
+  if (!expose) {
+    return PUGL_SUCCESS;
+  }
 
-	assert(drawView->surface);
-	assert(drawView->cr);
+  assert(drawView->surface);
+  assert(drawView->cr);
 
-	CGContextRef context = cairo_quartz_surface_get_cg_context(drawView->surface);
+  CGContextRef context = cairo_quartz_surface_get_cg_context(drawView->surface);
 
-	cairo_destroy(drawView->cr);
-	cairo_surface_destroy(drawView->surface);
-	drawView->cr      = NULL;
-	drawView->surface = NULL;
+  cairo_destroy(drawView->cr);
+  cairo_surface_destroy(drawView->surface);
+  drawView->cr      = NULL;
+  drawView->surface = NULL;
 
-	CGContextFlush(context);
+  CGContextFlush(context);
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 static void*
 puglMacCairoGetContext(PuglView* view)
 {
-	return ((PuglCairoView*)view->impl->drawView)->cr;
+  return ((PuglCairoView*)view->impl->drawView)->cr;
 }
 
 const PuglBackend*
 puglCairoBackend(void)
 {
-	static const PuglBackend backend = {puglStubConfigure,
-	                                    puglMacCairoCreate,
-	                                    puglMacCairoDestroy,
-	                                    puglMacCairoEnter,
-	                                    puglMacCairoLeave,
-	                                    puglMacCairoGetContext};
+  static const PuglBackend backend = {puglStubConfigure,
+                                      puglMacCairoCreate,
+                                      puglMacCairoDestroy,
+                                      puglMacCairoEnter,
+                                      puglMacCairoLeave,
+                                      puglMacCairoGetContext};
 
-	return &backend;
+  return &backend;
 }

@@ -25,149 +25,154 @@
 
 #include <stdlib.h>
 
-typedef struct  {
-	cairo_surface_t* surface;
-	cairo_t*         cr;
-	HDC              drawDc;
-	HBITMAP          drawBitmap;
+typedef struct {
+  cairo_surface_t* surface;
+  cairo_t*         cr;
+  HDC              drawDc;
+  HBITMAP          drawBitmap;
 } PuglWinCairoSurface;
 
 static PuglStatus
 puglWinCairoCreateDrawContext(PuglView* view)
 {
-	PuglInternals* const       impl    = view->impl;
-	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
+  PuglInternals* const       impl    = view->impl;
+  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
-	surface->drawDc     = CreateCompatibleDC(impl->hdc);
-	surface->drawBitmap = CreateCompatibleBitmap(
-		impl->hdc, (int)view->frame.width, (int)view->frame.height);
+  surface->drawDc     = CreateCompatibleDC(impl->hdc);
+  surface->drawBitmap = CreateCompatibleBitmap(
+    impl->hdc, (int)view->frame.width, (int)view->frame.height);
 
-	DeleteObject(SelectObject(surface->drawDc, surface->drawBitmap));
+  DeleteObject(SelectObject(surface->drawDc, surface->drawBitmap));
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglWinCairoDestroyDrawContext(PuglView* view)
 {
-	PuglInternals* const       impl    = view->impl;
-	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
+  PuglInternals* const       impl    = view->impl;
+  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
-	DeleteDC(surface->drawDc);
-	DeleteObject(surface->drawBitmap);
+  DeleteDC(surface->drawDc);
+  DeleteObject(surface->drawBitmap);
 
-	surface->drawDc     = NULL;
-	surface->drawBitmap = NULL;
+  surface->drawDc     = NULL;
+  surface->drawBitmap = NULL;
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglWinCairoConfigure(PuglView* view)
 {
-	const PuglStatus st = puglWinStubConfigure(view);
+  const PuglStatus st = puglWinStubConfigure(view);
 
-	if (!st) {
-		view->impl->surface = (PuglWinCairoSurface*)calloc(
-			1, sizeof(PuglWinCairoSurface));
-	}
+  if (!st) {
+    view->impl->surface =
+      (PuglWinCairoSurface*)calloc(1, sizeof(PuglWinCairoSurface));
+  }
 
-	return st;
+  return st;
 }
 
 static void
 puglWinCairoClose(PuglView* view)
 {
-	PuglInternals* const       impl    = view->impl;
-	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
+  PuglInternals* const       impl    = view->impl;
+  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
-	cairo_surface_destroy(surface->surface);
+  cairo_surface_destroy(surface->surface);
 
-	surface->surface = NULL;
+  surface->surface = NULL;
 }
 
 static PuglStatus
 puglWinCairoOpen(PuglView* view)
 {
-	PuglInternals* const       impl    = view->impl;
-	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
+  PuglInternals* const       impl    = view->impl;
+  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
-	if (!(surface->surface = cairo_win32_surface_create(surface->drawDc)) ||
-	    cairo_surface_status(surface->surface) ||
-	    !(surface->cr = cairo_create(surface->surface)) ||
-	    cairo_status(surface->cr)) {
-		return PUGL_CREATE_CONTEXT_FAILED;
-	}
+  if (!(surface->surface = cairo_win32_surface_create(surface->drawDc)) ||
+      cairo_surface_status(surface->surface) ||
+      !(surface->cr = cairo_create(surface->surface)) ||
+      cairo_status(surface->cr)) {
+    return PUGL_CREATE_CONTEXT_FAILED;
+  }
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglWinCairoDestroy(PuglView* view)
 {
-	PuglInternals* const       impl    = view->impl;
-	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
+  PuglInternals* const       impl    = view->impl;
+  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
-	puglWinCairoClose(view);
-	puglWinCairoDestroyDrawContext(view);
-	free(surface);
-	impl->surface = NULL;
+  puglWinCairoClose(view);
+  puglWinCairoDestroyDrawContext(view);
+  free(surface);
+  impl->surface = NULL;
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglWinCairoEnter(PuglView* view, const PuglEventExpose* expose)
 {
-	PuglStatus st = PUGL_SUCCESS;
+  PuglStatus st = PUGL_SUCCESS;
 
-	if (expose &&
-	    !(st = puglWinCairoCreateDrawContext(view)) &&
-	    !(st = puglWinCairoOpen(view))) {
-		PAINTSTRUCT ps;
-		BeginPaint(view->impl->hwnd, &ps);
-	}
+  if (expose && !(st = puglWinCairoCreateDrawContext(view)) &&
+      !(st = puglWinCairoOpen(view))) {
+    PAINTSTRUCT ps;
+    BeginPaint(view->impl->hwnd, &ps);
+  }
 
-	return st;
+  return st;
 }
 
 static PuglStatus
 puglWinCairoLeave(PuglView* view, const PuglEventExpose* expose)
 {
-	PuglInternals* const       impl    = view->impl;
-	PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
+  PuglInternals* const       impl    = view->impl;
+  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
-	if (expose) {
-		cairo_surface_flush(surface->surface);
-		BitBlt(impl->hdc,
-		       0, 0, (int)view->frame.width, (int)view->frame.height,
-		       surface->drawDc, 0, 0, SRCCOPY);
+  if (expose) {
+    cairo_surface_flush(surface->surface);
+    BitBlt(impl->hdc,
+           0,
+           0,
+           (int)view->frame.width,
+           (int)view->frame.height,
+           surface->drawDc,
+           0,
+           0,
+           SRCCOPY);
 
-		puglWinCairoClose(view);
-		puglWinCairoDestroyDrawContext(view);
+    puglWinCairoClose(view);
+    puglWinCairoDestroyDrawContext(view);
 
-		PAINTSTRUCT ps;
-		EndPaint(view->impl->hwnd, &ps);
-	}
+    PAINTSTRUCT ps;
+    EndPaint(view->impl->hwnd, &ps);
+  }
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 static void*
 puglWinCairoGetContext(PuglView* view)
 {
-	return ((PuglWinCairoSurface*)view->impl->surface)->cr;
+  return ((PuglWinCairoSurface*)view->impl->surface)->cr;
 }
 
 const PuglBackend*
 puglCairoBackend()
 {
-	static const PuglBackend backend = {puglWinCairoConfigure,
-	                                    puglStubCreate,
-	                                    puglWinCairoDestroy,
-	                                    puglWinCairoEnter,
-	                                    puglWinCairoLeave,
-	                                    puglWinCairoGetContext};
+  static const PuglBackend backend = {puglWinCairoConfigure,
+                                      puglStubCreate,
+                                      puglWinCairoDestroy,
+                                      puglWinCairoEnter,
+                                      puglWinCairoLeave,
+                                      puglWinCairoGetContext};
 
-	return &backend;
+  return &backend;
 }

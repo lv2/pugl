@@ -21,95 +21,95 @@
 #include "pugl/gl.h"
 
 #ifndef __MAC_10_10
-#    define NSOpenGLProfileVersion4_1Core NSOpenGLProfileVersion3_2Core
+#  define NSOpenGLProfileVersion4_1Core NSOpenGLProfileVersion3_2Core
 #endif
 
 @interface PuglOpenGLView : NSOpenGLView
 @end
 
-@implementation PuglOpenGLView
-{
+@implementation PuglOpenGLView {
 @public
-	PuglView* puglview;
+  PuglView* puglview;
 }
 
 - (id)initWithFrame:(NSRect)frame
 {
-	const bool     compat  = puglview->hints[PUGL_USE_COMPAT_PROFILE];
-	const unsigned samples = (unsigned)puglview->hints[PUGL_SAMPLES];
-	const int      major   = puglview->hints[PUGL_CONTEXT_VERSION_MAJOR];
-	const unsigned profile = ((compat || major < 3)
-	                              ? NSOpenGLProfileVersionLegacy
-	                              : (major >= 4
-	                                     ? NSOpenGLProfileVersion4_1Core
-	                                     : NSOpenGLProfileVersion3_2Core));
+  const bool     compat  = puglview->hints[PUGL_USE_COMPAT_PROFILE];
+  const unsigned samples = (unsigned)puglview->hints[PUGL_SAMPLES];
+  const int      major   = puglview->hints[PUGL_CONTEXT_VERSION_MAJOR];
+  const unsigned profile =
+    ((compat || major < 3) ? NSOpenGLProfileVersionLegacy
+                           : (major >= 4 ? NSOpenGLProfileVersion4_1Core
+                                         : NSOpenGLProfileVersion3_2Core));
 
-	// Set attributes to default if they are unset
-	// (There is no GLX_DONT_CARE equivalent on MacOS)
-	if (puglview->hints[PUGL_DEPTH_BITS] == PUGL_DONT_CARE) {
-		puglview->hints[PUGL_DEPTH_BITS] = 0;
-	}
-	if (puglview->hints[PUGL_STENCIL_BITS] == PUGL_DONT_CARE) {
-		puglview->hints[PUGL_STENCIL_BITS] = 0;
-	}
-	if (puglview->hints[PUGL_SAMPLES] == PUGL_DONT_CARE) {
-		puglview->hints[PUGL_SAMPLES] = 1;
-	}
-	if (puglview->hints[PUGL_DOUBLE_BUFFER] == PUGL_DONT_CARE) {
-		puglview->hints[PUGL_DOUBLE_BUFFER] = 1;
-	}
-	if (puglview->hints[PUGL_SWAP_INTERVAL] == PUGL_DONT_CARE) {
-		puglview->hints[PUGL_SWAP_INTERVAL] = 1;
-	}
+  // Set attributes to default if they are unset
+  // (There is no GLX_DONT_CARE equivalent on MacOS)
+  if (puglview->hints[PUGL_DEPTH_BITS] == PUGL_DONT_CARE) {
+    puglview->hints[PUGL_DEPTH_BITS] = 0;
+  }
+  if (puglview->hints[PUGL_STENCIL_BITS] == PUGL_DONT_CARE) {
+    puglview->hints[PUGL_STENCIL_BITS] = 0;
+  }
+  if (puglview->hints[PUGL_SAMPLES] == PUGL_DONT_CARE) {
+    puglview->hints[PUGL_SAMPLES] = 1;
+  }
+  if (puglview->hints[PUGL_DOUBLE_BUFFER] == PUGL_DONT_CARE) {
+    puglview->hints[PUGL_DOUBLE_BUFFER] = 1;
+  }
+  if (puglview->hints[PUGL_SWAP_INTERVAL] == PUGL_DONT_CARE) {
+    puglview->hints[PUGL_SWAP_INTERVAL] = 1;
+  }
 
-	const unsigned colorSize = (unsigned)(puglview->hints[PUGL_RED_BITS] +
-	                                      puglview->hints[PUGL_BLUE_BITS] +
-	                                      puglview->hints[PUGL_GREEN_BITS] +
-	                                      puglview->hints[PUGL_ALPHA_BITS]);
+  const unsigned colorSize = (unsigned)(puglview->hints[PUGL_RED_BITS] +
+                                        puglview->hints[PUGL_BLUE_BITS] +
+                                        puglview->hints[PUGL_GREEN_BITS] +
+                                        puglview->hints[PUGL_ALPHA_BITS]);
 
-	NSOpenGLPixelFormatAttribute pixelAttribs[17] = {
-		NSOpenGLPFADoubleBuffer,
-		NSOpenGLPFAAccelerated,
-		NSOpenGLPFAOpenGLProfile, profile,
-		NSOpenGLPFAColorSize,     colorSize,
-		NSOpenGLPFADepthSize,     (unsigned)puglview->hints[PUGL_DEPTH_BITS],
-		NSOpenGLPFAStencilSize,   (unsigned)puglview->hints[PUGL_STENCIL_BITS],
-		NSOpenGLPFAMultisample,   samples ? 1 : 0,
-		NSOpenGLPFASampleBuffers, samples ? 1 : 0,
-		NSOpenGLPFASamples,       samples,
-		0};
+  // clang-format off
+  NSOpenGLPixelFormatAttribute pixelAttribs[17] = {
+    NSOpenGLPFADoubleBuffer,
+    NSOpenGLPFAAccelerated,
+    NSOpenGLPFAOpenGLProfile, profile,
+    NSOpenGLPFAColorSize,     colorSize,
+    NSOpenGLPFADepthSize,     (unsigned)puglview->hints[PUGL_DEPTH_BITS],
+    NSOpenGLPFAStencilSize,   (unsigned)puglview->hints[PUGL_STENCIL_BITS],
+    NSOpenGLPFAMultisample,   samples ? 1 : 0,
+    NSOpenGLPFASampleBuffers, samples ? 1 : 0,
+    NSOpenGLPFASamples,       samples,
+    0};
+  // clang-format on
 
-	NSOpenGLPixelFormat* pixelFormat = [
-		[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttribs];
+  NSOpenGLPixelFormat* pixelFormat =
+    [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttribs];
 
-	if (pixelFormat) {
-		self = [super initWithFrame:frame pixelFormat:pixelFormat];
-		[pixelFormat release];
-	} else {
-		self = [super initWithFrame:frame];
-	}
+  if (pixelFormat) {
+    self = [super initWithFrame:frame pixelFormat:pixelFormat];
+    [pixelFormat release];
+  } else {
+    self = [super initWithFrame:frame];
+  }
 
-	[self setWantsBestResolutionOpenGLSurface:YES];
+  [self setWantsBestResolutionOpenGLSurface:YES];
 
-	if (self) {
-		[[self openGLContext] makeCurrentContext];
-		[self reshape];
-	}
-	return self;
+  if (self) {
+    [[self openGLContext] makeCurrentContext];
+    [self reshape];
+  }
+  return self;
 }
 
 - (void)reshape
 {
-	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
+  PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
-	[super reshape];
-	[wrapper setReshaped];
+  [super reshape];
+  [wrapper setReshaped];
 }
 
 - (void)drawRect:(NSRect)rect
 {
-	PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
-	[wrapper dispatchExpose:rect];
+  PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
+  [wrapper dispatchExpose:rect];
 }
 
 @end
@@ -117,94 +117,94 @@
 static PuglStatus
 puglMacGlCreate(PuglView* view)
 {
-	PuglInternals*  impl     = view->impl;
-	PuglOpenGLView* drawView = [PuglOpenGLView alloc];
+  PuglInternals*  impl     = view->impl;
+  PuglOpenGLView* drawView = [PuglOpenGLView alloc];
 
-	drawView->puglview = view;
-	[drawView initWithFrame:[impl->wrapperView bounds]];
-	if (view->hints[PUGL_RESIZABLE]) {
-		[drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-	} else {
-		[drawView setAutoresizingMask:NSViewNotSizable];
-	}
+  drawView->puglview = view;
+  [drawView initWithFrame:[impl->wrapperView bounds]];
+  if (view->hints[PUGL_RESIZABLE]) {
+    [drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+  } else {
+    [drawView setAutoresizingMask:NSViewNotSizable];
+  }
 
-	impl->drawView = drawView;
-	return PUGL_SUCCESS;
+  impl->drawView = drawView;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglMacGlDestroy(PuglView* view)
 {
-	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+  PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
 
-	[drawView removeFromSuperview];
-	[drawView release];
+  [drawView removeFromSuperview];
+  [drawView release];
 
-	view->impl->drawView = nil;
-	return PUGL_SUCCESS;
+  view->impl->drawView = nil;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglMacGlEnter(PuglView* view, const PuglEventExpose* PUGL_UNUSED(expose))
 {
-	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+  PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
 
-	[[drawView openGLContext] makeCurrentContext];
-	return PUGL_SUCCESS;
+  [[drawView openGLContext] makeCurrentContext];
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
 puglMacGlLeave(PuglView* view, const PuglEventExpose* expose)
 {
-	PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+  PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
 
-	if (expose) {
-		[[drawView openGLContext] flushBuffer];
-	}
+  if (expose) {
+    [[drawView openGLContext] flushBuffer];
+  }
 
-	[NSOpenGLContext clearCurrentContext];
+  [NSOpenGLContext clearCurrentContext];
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 PuglGlFunc
-puglGetProcAddress(const char *name)
+puglGetProcAddress(const char* name)
 {
-	CFBundleRef framework =
-		CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
+  CFBundleRef framework =
+    CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
 
-	CFStringRef symbol = CFStringCreateWithCString(
-		kCFAllocatorDefault, name, kCFStringEncodingASCII);
+  CFStringRef symbol = CFStringCreateWithCString(
+    kCFAllocatorDefault, name, kCFStringEncodingASCII);
 
-	PuglGlFunc func = (PuglGlFunc)CFBundleGetFunctionPointerForName(
-		framework, symbol);
+  PuglGlFunc func =
+    (PuglGlFunc)CFBundleGetFunctionPointerForName(framework, symbol);
 
-	CFRelease(symbol);
+  CFRelease(symbol);
 
-	return func;
+  return func;
 }
 
 PuglStatus
 puglEnterContext(PuglView* view)
 {
-	return view->backend->enter(view, NULL);
+  return view->backend->enter(view, NULL);
 }
 
 PuglStatus
 puglLeaveContext(PuglView* view)
 {
-	return view->backend->leave(view, NULL);
+  return view->backend->leave(view, NULL);
 }
 
 const PuglBackend*
 puglGlBackend(void)
 {
-	static const PuglBackend backend = {puglStubConfigure,
-	                                    puglMacGlCreate,
-	                                    puglMacGlDestroy,
-	                                    puglMacGlEnter,
-	                                    puglMacGlLeave,
-	                                    puglStubGetContext};
+  static const PuglBackend backend = {puglStubConfigure,
+                                      puglMacGlCreate,
+                                      puglMacGlDestroy,
+                                      puglMacGlEnter,
+                                      puglMacGlLeave,
+                                      puglStubGetContext};
 
-	return &backend;
+  return &backend;
 }

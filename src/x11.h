@@ -30,48 +30,49 @@
 #include <stdint.h>
 
 typedef struct {
-	Atom CLIPBOARD;
-	Atom UTF8_STRING;
-	Atom WM_PROTOCOLS;
-	Atom WM_DELETE_WINDOW;
-	Atom PUGL_CLIENT_MSG;
-	Atom NET_WM_NAME;
-	Atom NET_WM_STATE;
-	Atom NET_WM_STATE_DEMANDS_ATTENTION;
+  Atom CLIPBOARD;
+  Atom UTF8_STRING;
+  Atom WM_PROTOCOLS;
+  Atom WM_DELETE_WINDOW;
+  Atom PUGL_CLIENT_MSG;
+  Atom NET_WM_NAME;
+  Atom NET_WM_STATE;
+  Atom NET_WM_STATE_DEMANDS_ATTENTION;
 } PuglX11Atoms;
 
 typedef struct {
-	XID       alarm;
-	PuglView* view;
-	uintptr_t id;
+  XID       alarm;
+  PuglView* view;
+  uintptr_t id;
 } PuglTimer;
 
 struct PuglWorldInternalsImpl {
-	Display*     display;
-	PuglX11Atoms atoms;
-	XIM          xim;
-	PuglTimer*   timers;
-	size_t       numTimers;
-	XID          serverTimeCounter;
-	int          syncEventBase;
-	bool         syncSupported;
-	bool         dispatchingEvents;
+  Display*     display;
+  PuglX11Atoms atoms;
+  XIM          xim;
+  PuglTimer*   timers;
+  size_t       numTimers;
+  XID          serverTimeCounter;
+  int          syncEventBase;
+  bool         syncSupported;
+  bool         dispatchingEvents;
 };
 
 struct PuglInternalsImpl {
-	Display*     display;
-	XVisualInfo* vi;
-	Window       win;
-	XIC          xic;
-	PuglSurface* surface;
-	PuglEvent    pendingConfigure;
-	PuglEvent    pendingExpose;
-	int          screen;
+  Display*     display;
+  XVisualInfo* vi;
+  Window       win;
+  XIC          xic;
+  PuglSurface* surface;
+  PuglEvent    pendingConfigure;
+  PuglEvent    pendingExpose;
+  int          screen;
 #ifdef HAVE_XCURSOR
-	unsigned     cursorShape;
+  unsigned cursorShape;
 #endif
 };
 
-PuglStatus puglX11StubConfigure(PuglView* view);
+PuglStatus
+puglX11StubConfigure(PuglView* view);
 
 #endif // PUGL_DETAIL_X11_H

@@ -22,56 +22,58 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-typedef struct
-{
-	PuglWorld* world;
-	PuglView*  view;
-	int        quit;
+typedef struct {
+  PuglWorld* world;
+  PuglView*  view;
+  int        quit;
 } PuglPrintEventsApp;
 
 static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
 {
-	PuglPrintEventsApp* app = (PuglPrintEventsApp*)puglGetHandle(view);
+  PuglPrintEventsApp* app = (PuglPrintEventsApp*)puglGetHandle(view);
 
-	printEvent(event, "Event: ", true);
+  printEvent(event, "Event: ", true);
 
-	switch (event->type) {
-	case PUGL_CLOSE: app->quit = 1; break;
-	default: break;
-	}
+  switch (event->type) {
+  case PUGL_CLOSE:
+    app->quit = 1;
+    break;
+  default:
+    break;
+  }
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 int
 main(void)
 {
-	PuglPrintEventsApp app = {NULL, NULL, 0};
+  PuglPrintEventsApp app = {NULL, NULL, 0};
 
-	app.world = puglNewWorld(PUGL_PROGRAM, 0);
-	app.view  = puglNewView(app.world);
+  app.world = puglNewWorld(PUGL_PROGRAM, 0);
+  app.view  = puglNewView(app.world);
 
-	puglSetClassName(app.world, "Pugl Print Events");
-	puglSetWindowTitle(app.view, "Pugl Event Printer");
-	puglSetDefaultSize(app.view, 512, 512);
-	puglSetBackend(app.view, puglStubBackend());
-	puglSetHandle(app.view, &app);
-	puglSetEventFunc(app.view, onEvent);
+  puglSetClassName(app.world, "Pugl Print Events");
+  puglSetWindowTitle(app.view, "Pugl Event Printer");
+  puglSetDefaultSize(app.view, 512, 512);
+  puglSetBackend(app.view, puglStubBackend());
+  puglSetHandle(app.view, &app);
+  puglSetEventFunc(app.view, onEvent);
 
-	PuglStatus st = puglRealize(app.view);
-	if (st) {
-		return logError("Failed to create window (%s)\n", puglStrerror(st));
-	}
+  PuglStatus st = puglRealize(app.view);
+  if (st) {
+    return logError("Failed to create window (%s)\n", puglStrerror(st));
+  }
 
-	puglShow(app.view);
+  puglShow(app.view);
 
-	while (!app.quit) {
-		puglUpdate(app.world, -1.0);
-	}
+  while (!app.quit) {
+    puglUpdate(app.world, -1.0);
+  }
 
-	puglFreeView(app.view);
-	puglFreeWorld(app.world);
+  puglFreeView(app.view);
+  puglFreeWorld(app.world);
 
-	return 0;
+  return 0;
 }

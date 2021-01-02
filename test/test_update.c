@@ -37,89 +37,89 @@ static const double timeout = -1.0;
 #endif
 
 typedef enum {
-	START,
-	EXPOSED1,
-	UPDATED,
-	EXPOSED2,
+  START,
+  EXPOSED1,
+  UPDATED,
+  EXPOSED2,
 } State;
 
 typedef struct {
-	PuglWorld*      world;
-	PuglView*       view;
-	PuglTestOptions opts;
-	State           state;
+  PuglWorld*      world;
+  PuglView*       view;
+  PuglTestOptions opts;
+  State           state;
 } PuglTest;
 
 static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
 {
-	PuglTest* test = (PuglTest*)puglGetHandle(view);
+  PuglTest* test = (PuglTest*)puglGetHandle(view);
 
-	if (test->opts.verbose) {
-		printEvent(event, "Event: ", true);
-	}
+  if (test->opts.verbose) {
+    printEvent(event, "Event: ", true);
+  }
 
-	switch (event->type) {
-	case PUGL_EXPOSE:
-		switch (test->state) {
-		case START:
-			test->state = EXPOSED1;
-			break;
-		case UPDATED:
-			test->state = EXPOSED2;
-			break;
-		default:
-			break;
-		}
-		break;
+  switch (event->type) {
+  case PUGL_EXPOSE:
+    switch (test->state) {
+    case START:
+      test->state = EXPOSED1;
+      break;
+    case UPDATED:
+      test->state = EXPOSED2;
+      break;
+    default:
+      break;
+    }
+    break;
 
-	case PUGL_UPDATE:
-		if (test->state == EXPOSED1) {
-			puglPostRedisplay(view);
-			test->state = UPDATED;
-		}
-		break;
+  case PUGL_UPDATE:
+    if (test->state == EXPOSED1) {
+      puglPostRedisplay(view);
+      test->state = UPDATED;
+    }
+    break;
 
-	default:
-		break;
-	}
+  default:
+    break;
+  }
 
-	return PUGL_SUCCESS;
+  return PUGL_SUCCESS;
 }
 
 int
 main(int argc, char** argv)
 {
-	PuglTest app = {puglNewWorld(PUGL_PROGRAM, 0),
-	                NULL,
-	                puglParseTestOptions(&argc, &argv),
-	                START};
+  PuglTest app = {puglNewWorld(PUGL_PROGRAM, 0),
+                  NULL,
+                  puglParseTestOptions(&argc, &argv),
+                  START};
 
-	// Set up view
-	app.view = puglNewView(app.world);
-	puglSetClassName(app.world, "Pugl Test");
-	puglSetBackend(app.view, puglStubBackend());
-	puglSetHandle(app.view, &app);
-	puglSetEventFunc(app.view, onEvent);
-	puglSetDefaultSize(app.view, 512, 512);
+  // Set up view
+  app.view = puglNewView(app.world);
+  puglSetClassName(app.world, "Pugl Test");
+  puglSetBackend(app.view, puglStubBackend());
+  puglSetHandle(app.view, &app);
+  puglSetEventFunc(app.view, onEvent);
+  puglSetDefaultSize(app.view, 512, 512);
 
-	// Create and show window
-	assert(!puglRealize(app.view));
-	assert(!puglShow(app.view));
+  // Create and show window
+  assert(!puglRealize(app.view));
+  assert(!puglShow(app.view));
 
-	// Tick until an expose happens
-	while (app.state < EXPOSED1) {
-		assert(!puglUpdate(app.world, timeout));
-		assert(app.state != UPDATED);
-	}
+  // Tick until an expose happens
+  while (app.state < EXPOSED1) {
+    assert(!puglUpdate(app.world, timeout));
+    assert(app.state != UPDATED);
+  }
 
-	// Tick once and ensure the update and the expose it posted both happened
-	assert(!puglUpdate(app.world, 0.0));
-	assert(app.state == EXPOSED2);
+  // Tick once and ensure the update and the expose it posted both happened
+  assert(!puglUpdate(app.world, 0.0));
+  assert(app.state == EXPOSED2);
 
-	// Tear down
-	puglFreeView(app.view);
-	puglFreeWorld(app.world);
+  // Tear down
+  puglFreeView(app.view);
+  puglFreeWorld(app.world);
 
-	return 0;
+  return 0;
 }

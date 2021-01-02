@@ -38,18 +38,18 @@
 @end
 
 struct PuglWorldInternalsImpl {
-	NSApplication*     app;
-	NSAutoreleasePool* autoreleasePool;
+  NSApplication*     app;
+  NSAutoreleasePool* autoreleasePool;
 };
 
 struct PuglInternalsImpl {
-	NSApplication*   app;
-	PuglWrapperView* wrapperView;
-	NSView*          drawView;
-	NSCursor*        cursor;
-	PuglWindow*      window;
-	uint32_t         mods;
-	bool             mouseTracked;
+  NSApplication*   app;
+  PuglWrapperView* wrapperView;
+  NSView*          drawView;
+  NSCursor*        cursor;
+  PuglWindow*      window;
+  uint32_t         mods;
+  bool             mouseTracked;
 };
 
 #endif // PUGL_DETAIL_MAC_H

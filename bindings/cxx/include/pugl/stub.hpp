@@ -33,7 +33,7 @@ namespace pugl {
 inline const PuglBackend*
 stubBackend() noexcept
 {
-	return puglStubBackend();
+  return puglStubBackend();
 }
 
 /**

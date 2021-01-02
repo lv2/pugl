@@ -2,4 +2,3 @@
 
 #define INTER(qualifiers)
 #define UBO(qualifiers) layout(std140)
-

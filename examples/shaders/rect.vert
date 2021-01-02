@@ -3,8 +3,9 @@
 
 UBO(binding = 0) uniform UniformBufferObject
 {
-	mat4 projection;
-} ubo;
+  mat4 projection;
+}
+ubo;
 
 layout(location = 0) in vec2 v_position;
 layout(location = 1) in vec2 v_origin;
@@ -18,18 +19,18 @@ INTER(location = 2) noperspective out vec4 f_fillColor;
 void
 main()
 {
-	// clang-format off
-	mat4 m = mat4(v_size[0],   0.0,         0.0, 0.0,
-	              0.0,         v_size[1],   0.0, 0.0,
-	              0.0,         0.0,         1.0, 0.0,
-	              v_origin[0], v_origin[1], 0.0, 1.0);
-	// clang-format on
+  // clang-format off
+  mat4 m = mat4(v_size[0],   0.0,         0.0, 0.0,
+                0.0,         v_size[1],   0.0, 0.0,
+                0.0,         0.0,         1.0, 0.0,
+                v_origin[0], v_origin[1], 0.0, 1.0);
+  // clang-format on
 
-	mat4 MVP = ubo.projection * m;
+  mat4 MVP = ubo.projection * m;
 
-	f_uv        = v_position * v_size;
-	f_size      = v_size;
-	f_fillColor = v_fillColor;
+  f_uv        = v_position * v_size;
+  f_size      = v_size;
+  f_fillColor = v_fillColor;
 
-	gl_Position = MVP * vec4(v_position, 0.0, 1.0);
+  gl_Position = MVP * vec4(v_position, 0.0, 1.0);
 }

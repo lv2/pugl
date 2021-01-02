@@ -25,11 +25,11 @@
 
 // Unused parameter macro to suppresses warnings and make it impossible to use
 #if defined(__cplusplus)
-#   define PUGL_UNUSED(name)
+#  define PUGL_UNUSED(name)
 #elif defined(__GNUC__) || defined(__clang__)
-#   define PUGL_UNUSED(name) name##_unused __attribute__((__unused__))
+#  define PUGL_UNUSED(name) name##_unused __attribute__((__unused__))
 #else
-#   define PUGL_UNUSED(name) name
+#  define PUGL_UNUSED(name) name
 #endif
 
 /// Platform-specific world internals
@@ -43,45 +43,45 @@ typedef int PuglHints[PUGL_NUM_VIEW_HINTS];
 
 /// Blob of arbitrary data
 typedef struct {
-	void*  data; ///< Dynamically allocated data
-	size_t len;  ///< Length of data in bytes
+  void*  data; ///< Dynamically allocated data
+  size_t len;  ///< Length of data in bytes
 } PuglBlob;
 
 /// Cross-platform view definition
 struct PuglViewImpl {
-	PuglWorld*         world;
-	const PuglBackend* backend;
-	PuglInternals*     impl;
-	PuglHandle         handle;
-	PuglEventFunc      eventFunc;
-	char*              title;
-	PuglBlob           clipboard;
-	PuglNativeView     parent;
-	uintptr_t          transientParent;
-	PuglRect           frame;
-	PuglEventConfigure lastConfigure;
-	PuglHints          hints;
-	int                defaultWidth;
-	int                defaultHeight;
-	int                minWidth;
-	int                minHeight;
-	int                maxWidth;
-	int                maxHeight;
-	int                minAspectX;
-	int                minAspectY;
-	int                maxAspectX;
-	int                maxAspectY;
-	bool               visible;
+  PuglWorld*         world;
+  const PuglBackend* backend;
+  PuglInternals*     impl;
+  PuglHandle         handle;
+  PuglEventFunc      eventFunc;
+  char*              title;
+  PuglBlob           clipboard;
+  PuglNativeView     parent;
+  uintptr_t          transientParent;
+  PuglRect           frame;
+  PuglEventConfigure lastConfigure;
+  PuglHints          hints;
+  int                defaultWidth;
+  int                defaultHeight;
+  int                minWidth;
+  int                minHeight;
+  int                maxWidth;
+  int                maxHeight;
+  int                minAspectX;
+  int                minAspectY;
+  int                maxAspectX;
+  int                maxAspectY;
+  bool               visible;
 };
 
 /// Cross-platform world definition
 struct PuglWorldImpl {
-	PuglWorldInternals* impl;
-	PuglWorldHandle     handle;
-	char*               className;
-	double              startTime;
-	size_t              numViews;
-	PuglView**          views;
+  PuglWorldInternals* impl;
+  PuglWorldHandle     handle;
+  char*               className;
+  double              startTime;
+  size_t              numViews;
+  PuglView**          views;
 };
 
 /// Opaque surface used by graphics backend
@@ -89,23 +89,23 @@ typedef void PuglSurface;
 
 /// Graphics backend interface
 struct PuglBackendImpl {
-	/// Get visual information from display and setup view as necessary
-	PuglStatus (*configure)(PuglView*);
+  /// Get visual information from display and setup view as necessary
+  PuglStatus (*configure)(PuglView*);
 
-	/// Create surface and drawing context
-	PuglStatus (*create)(PuglView*);
+  /// Create surface and drawing context
+  PuglStatus (*create)(PuglView*);
 
-	/// Destroy surface and drawing context
-	PuglStatus (*destroy)(PuglView*);
+  /// Destroy surface and drawing context
+  PuglStatus (*destroy)(PuglView*);
 
-	/// Enter drawing context, for drawing if expose is non-null
-	PuglStatus (*enter)(PuglView*, const PuglEventExpose*);
+  /// Enter drawing context, for drawing if expose is non-null
+  PuglStatus (*enter)(PuglView*, const PuglEventExpose*);
 
-	/// Leave drawing context, after drawing if expose is non-null
-	PuglStatus (*leave)(PuglView*, const PuglEventExpose*);
+  /// Leave drawing context, after drawing if expose is non-null
+  PuglStatus (*leave)(PuglView*, const PuglEventExpose*);
 
-	/// Return the puglGetContext() handle for the application, if any
-	void* (*getContext)(PuglView*);
+  /// Return the puglGetContext() handle for the application, if any
+  void* (*getContext)(PuglView*);
 };
 
 #endif // PUGL_DETAIL_TYPES_H
