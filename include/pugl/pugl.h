@@ -47,6 +47,10 @@
 #  define PUGL_CONST_FUNC
 #endif
 
+#define PUGL_CONST_API \
+  PUGL_API             \
+  PUGL_CONST_FUNC
+
 #ifdef __cplusplus
 #  define PUGL_BEGIN_DECLS extern "C" {
 #  define PUGL_END_DECLS }
@@ -585,8 +589,7 @@ typedef enum {
 } PuglStatus;
 
 /// Return a string describing a status code
-PUGL_API
-PUGL_CONST_FUNC
+PUGL_CONST_API
 const char*
 puglStrerror(PuglStatus status);
 

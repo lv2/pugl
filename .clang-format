@@ -20,6 +20,7 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 SpacesInContainerLiterals: false
 StatementMacros:
   - PUGL_API
+  - PUGL_CONST_API
   - PUGL_CONST_FUNC
   - PUGL_DEPRECATED_BY
   - PUGL_UNUSED

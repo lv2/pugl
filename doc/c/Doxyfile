@@ -19,7 +19,7 @@ XML_PROGRAMLISTING     = NO
 SHOW_FILES             = NO
 
 MACRO_EXPANSION        = YES
-PREDEFINED             = PUGL_API PUGL_DISABLE_DEPRECATED PUGL_CONST_FUNC=
+PREDEFINED             = PUGL_API PUGL_DISABLE_DEPRECATED PUGL_CONST_API= PUGL_CONST_FUNC=
 
 INPUT                  = ../../include/pugl/cairo.h \
                          ../../include/pugl/gl.h \

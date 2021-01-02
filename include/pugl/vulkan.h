@@ -143,8 +143,7 @@ puglCreateSurface(PFN_vkGetInstanceProcAddr    vkGetInstanceProcAddr,
 
    Pass the returned value to puglSetBackend() to draw to a view with Vulkan.
 */
-PUGL_API
-PUGL_CONST_FUNC
+PUGL_CONST_API
 const PuglBackend*
 puglVulkanBackend(void);
 
