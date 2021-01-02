@@ -278,7 +278,9 @@ puglRealize(PuglView* view)
   // Ensure that we're unrealized and that a reasonable backend has been set
   if (impl->win) {
     return PUGL_FAILURE;
-  } else if (!view->backend || !view->backend->configure) {
+  }
+
+  if (!view->backend || !view->backend->configure) {
     return PUGL_BAD_BACKEND;
   }
 
@@ -902,9 +904,9 @@ puglSendEvent(PuglView* view, const PuglEvent* event)
   if (xev.type) {
     if (XSendEvent(view->impl->display, view->impl->win, False, 0, &xev)) {
       return PUGL_SUCCESS;
-    } else {
-      return PUGL_UNKNOWN_ERROR;
     }
+
+    return PUGL_UNKNOWN_ERROR;
   }
 
   return PUGL_UNSUPPORTED_TYPE;

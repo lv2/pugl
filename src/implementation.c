@@ -320,19 +320,27 @@ puglDecodeUTF8(const uint8_t* buf)
 
   if (buf[0] < 0x80) {
     return buf[0];
-  } else if (buf[0] < 0xC2) {
+  }
+
+  if (buf[0] < 0xC2) {
     return 0xFFFD;
-  } else if (buf[0] < 0xE0) {
+  }
+
+  if (buf[0] < 0xE0) {
     FAIL_IF((buf[1] & 0xC0u) != 0x80);
     return ((uint32_t)buf[0] << 6u) + buf[1] - 0x3080u;
-  } else if (buf[0] < 0xF0) {
+  }
+
+  if (buf[0] < 0xF0) {
     FAIL_IF((buf[1] & 0xC0u) != 0x80);
     FAIL_IF(buf[0] == 0xE0 && buf[1] < 0xA0);
     FAIL_IF((buf[2] & 0xC0u) != 0x80);
     return ((uint32_t)buf[0] << 12u) + //
            ((uint32_t)buf[1] << 6u) +  //
            ((uint32_t)buf[2] - 0xE2080u);
-  } else if (buf[0] < 0xF5) {
+  }
+
+  if (buf[0] < 0xF5) {
     FAIL_IF((buf[1] & 0xC0u) != 0x80);
     FAIL_IF(buf[0] == 0xF0 && buf[1] < 0x90);
     FAIL_IF(buf[0] == 0xF4 && buf[1] >= 0x90);
@@ -343,6 +351,7 @@ puglDecodeUTF8(const uint8_t* buf)
             ((uint32_t)buf[2] << 6u) +  //
             ((uint32_t)buf[3] - 0x3C82080u));
   }
+
   return 0xFFFD;
 }
 

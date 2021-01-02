@@ -312,7 +312,9 @@ getGraphicsQueueIndex(VkSurfaceKHR     surface,
              device, q, surface, &supported))) {
         free(props);
         return r;
-      } else if (supported) {
+      }
+
+      if (supported) {
         *graphicsIndex = q;
         free(props);
         return VK_SUCCESS;
@@ -1059,7 +1061,9 @@ main(int argc, char** argv)
   // Create world and view
   if (!(app.world = puglNewWorld(PUGL_PROGRAM, PUGL_WORLD_THREADS))) {
     return logError("Failed to create world\n");
-  } else if (!(app.view = puglNewView(app.world))) {
+  }
+
+  if (!(app.view = puglNewView(app.world))) {
     puglFreeWorld(app.world);
     return logError("Failed to create Pugl World and View\n");
   }

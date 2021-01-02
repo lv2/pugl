@@ -249,7 +249,9 @@ parseOptions(PuglTestApp* app, int argc, char** argv)
     if (endptr != argv[1] + strlen(argv[1])) {
       logError("Invalid GL major version: %s\n", argv[1]);
       return 1;
-    } else if (app->glMajorVersion == 4) {
+    }
+
+    if (app->glMajorVersion == 4) {
       app->glMinorVersion = 2;
     } else if (app->glMajorVersion != 3) {
       logError("Unsupported GL major version %d\n", app->glMajorVersion);

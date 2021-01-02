@@ -30,12 +30,10 @@ Checks: >
   -hicpp-no-array-decay,
   -hicpp-signed-bitwise,
   -hicpp-vararg,
-  -llvm-else-after-return,
   -llvm-header-guard,
   -llvmlibc-*,
   -misc-misplaced-const,
   -modernize-use-trailing-return-type,
-  -readability-else-after-return,
   -readability-implicit-bool-conversion,
   -readability-named-parameter,
 FormatStyle: file

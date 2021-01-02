@@ -782,7 +782,9 @@ public:
     VkInstance h = {};
     if (const VkResult r = vkCreateInstance(&createInfo, nullptr, &h)) {
       return r;
-    } else if (!h) {
+    }
+
+    if (!h) {
       // Shouldn't actually happen, but this lets the compiler know that
       return VK_ERROR_INITIALIZATION_FAILED;
     }
@@ -1392,7 +1394,9 @@ public:
     VkDeviceMemory h = {};
     if (const VkResult r = vkAllocateMemory(device, &info, nullptr, &h)) {
       return r;
-    } else if (!h) {
+    }
+
+    if (!h) {
       return VK_ERROR_OUT_OF_DEVICE_MEMORY;
     }
 
@@ -1484,7 +1488,9 @@ public:
     if (const VkResult r =
           vkCreateDebugReportCallbackEXT(instance, &createInfo, nullptr, &h)) {
       return r;
-    } else if (!h) {
+    }
+
+    if (!h) {
       return VK_ERROR_FEATURE_NOT_PRESENT;
     }
 
@@ -1577,7 +1583,9 @@ public:
 
     if (r) {
       return r;
-    } else if (!h) {
+    }
+
+    if (!h) {
       return VK_ERROR_INCOMPATIBLE_DRIVER;
     }
 
@@ -1763,7 +1771,9 @@ private:
   {
     if (r) {
       return r;
-    } else if (!handle) {
+    }
+
+    if (!handle) {
       return VK_ERROR_INITIALIZATION_FAILED;
     }
 

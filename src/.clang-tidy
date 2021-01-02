@@ -11,9 +11,7 @@ Checks: >
   -clang-diagnostic-unused-macros,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
-  -llvm-else-after-return,
   -llvm-header-guard,
   -llvmlibc-*,
-  -readability-else-after-return,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'
