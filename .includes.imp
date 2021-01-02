@@ -1,0 +1,4 @@
+[
+  { "include": [ "<ext/alloc_traits.h>", "private", "<string>", "public", ] },
+  { "include": [ "<ext/alloc_traits.h>", "private", "<vector>", "public", ] }
+]
