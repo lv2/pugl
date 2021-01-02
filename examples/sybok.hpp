@@ -63,6 +63,15 @@
 #ifndef SYBOK_HPP
 #define SYBOK_HPP
 
+#ifdef VULKAN_CORE_H_
+#  error "sybok.hpp must be included before or instead of vulkan headers"
+#endif
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wswitch-enum"
+#endif
+
 #define VK_NO_PROTOTYPES
 
 // On 64-bit platforms, all handles are "dispatchable" pointers
@@ -72,7 +81,7 @@
   defined(__powerpc64__)
 
 #  define VK_DEFINE_NON_DISPATCHABLE_HANDLE(object) \
-    typedef struct object##_T* object;
+    typedef struct object##_T* object; // NOLINT(bugprone-macro-parentheses)
 
 // On 32-bit platforms, some "non-dispatchable" handles are 64 bit integers
 #else
@@ -91,7 +100,7 @@ struct NonDispatchableHandle {
 
 #endif
 
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan_core.h> // IWYU pragma: export
 
 #include <array>
 #include <cassert>
@@ -116,7 +125,7 @@ namespace sk {
 class CommandScope;
 class RenderCommandScope;
 
-static inline const char*
+inline const char*
 string(const VkResult result)
 {
   switch (result) {
@@ -177,7 +186,7 @@ string(const VkResult result)
   return "Unknown error";
 }
 
-static inline const char*
+inline const char*
 string(const VkPresentModeKHR presentMode)
 {
   switch (presentMode) {
@@ -196,7 +205,7 @@ string(const VkPresentModeKHR presentMode)
   return "Unknown present mode";
 }
 
-static inline const char*
+inline const char*
 string(const VkDebugReportFlagBitsEXT flag)
 {
   switch (flag) {
@@ -226,6 +235,7 @@ public:
   GlobalDeleter()  = default;
   ~GlobalDeleter() = default;
 
+  // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
   GlobalDeleter(DestroyFunc destroyFunc) noexcept
     : _destroyFunc{destroyFunc}
   {}
@@ -390,6 +400,7 @@ public:
 
   const Handle& get() const noexcept { return _handle; }
 
+  // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
   operator Handle() const noexcept { return _handle; }
 
 private:
@@ -533,13 +544,13 @@ class OptionalParameter
 public:
   using Handle = typename T::Handle;
 
+  // NOLINTNEXTLINE(hicpp-explicit-conversions, google-explicit-constructor)
   OptionalParameter(const T& value) noexcept
     : _handle{value.get()}
   {}
 
-  OptionalParameter() noexcept
-    : _handle{}
-  {}
+  OptionalParameter() noexcept  = default;
+  ~OptionalParameter() noexcept = default;
 
   OptionalParameter(const OptionalParameter&) = delete;
   OptionalParameter& operator=(const OptionalParameter&) = delete;
@@ -547,7 +558,7 @@ public:
   OptionalParameter(OptionalParameter&&) = delete;
   OptionalParameter& operator=(OptionalParameter&&) = delete;
 
-  const Handle get() const noexcept { return _handle; }
+  Handle get() const noexcept { return _handle; }
 
 private:
   Handle _handle{};
@@ -810,7 +821,7 @@ public:
   }
 
 private:
-  PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
+  PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr{};
 
 #define SK_FUNC(name) \
   PFN_##name name {}
@@ -1779,6 +1790,7 @@ public:
   CommonCommandScope(CommonCommandScope&& scope) noexcept
     : _api{scope._api}
     , _commandBuffer{scope._commandBuffer}
+    , _result{scope._result}
   {
     scope._commandBuffer = {};
   }
@@ -2266,7 +2278,7 @@ public:
   }
 };
 
-CommandScope
+inline CommandScope
 VulkanApi::beginCommandBuffer(
   VkCommandBuffer                commandBuffer,
   const VkCommandBufferBeginInfo beginInfo) const noexcept
@@ -2295,5 +2307,9 @@ inline MappedMemory::~MappedMemory() noexcept
 }
 
 } // namespace sk
+
+#ifdef __GNUC__
+#  pragma GCC diagnostic pop
+#endif
 
 #endif // SYBOK_HPP

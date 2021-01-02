@@ -5,6 +5,8 @@ Checks: >
   -bugprone-reserved-identifier,
   -cert-dcl37-c,
   -cert-dcl51-cpp,
+  -cppcoreguidelines-pro-type-static-cast-downcast,
+  -google-runtime-references,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
