@@ -421,7 +421,7 @@ def build(bld):
             bld(features  = 'c cshlib',
                 name      = name,
                 target    = 'pugl_%s-%s' % (name, PUGL_MAJOR_VERSION),
-                defines   = ['PUGL_INTERNAL', 'PUGL_SHARED'],
+                defines   = ['PUGL_INTERNAL'],
                 cflags    = flags,
                 linkflags = flags,
                 **args)
@@ -430,7 +430,7 @@ def build(bld):
             bld(features  = 'c cstlib',
                 name      = 'pugl_%s_static' % name,
                 target    = 'pugl_%s-%s' % (name, PUGL_MAJOR_VERSION),
-                defines   = ['PUGL_INTERNAL', 'PUGL_DISABLE_DEPRECATED'],
+                defines   = ['PUGL_STATIC', 'PUGL_INTERNAL', 'PUGL_DISABLE_DEPRECATED'],
                 cflags    = flags,
                 linkflags = flags,
                 **args)
@@ -566,6 +566,8 @@ def build(bld):
                                deps.get(platform, {}).get(k, []) +
                                deps.get(backend_lib, {}).get(k, []))})
 
+        kwargs['defines'] = kwargs.get('defines', []) + ['PUGL_STATIC']
+
         bld(features     = '%s %sprogram' % (lang, lang),
             source       = source,
             target       = target,
@@ -612,6 +614,7 @@ def build(bld):
                     source       = 'test/test_%s.c' % test,
                     target       = 'test/test_%s' % test,
                     install_path = '',
+                    defines      = ['PUGL_STATIC'],
                     use          = ['pugl_%s_static' % platform,
                                     'pugl_%s_gl_static' % platform],
                     uselib       = deps[platform]['uselib'] + ['GL'])
@@ -641,7 +644,7 @@ def build(bld):
                               ['examples/pugl_vulkan_cxx_demo.cpp',
                                'examples/file_utils.c'],
                               platform, 'vulkan',
-                              defines=['PUGL_DISABLE_DEPRECATED'],
+                              defines=['PUGL_STATIC', 'PUGL_DISABLE_DEPRECATED'],
                               uselib=['DL', 'M', 'PTHREAD', 'VULKAN'])
 
         if bld.env.HAVE_CAIRO:
@@ -654,6 +657,7 @@ def build(bld):
                 source       = 'test/test_%s.c' % test,
                 target       = 'test/test_%s' % test,
                 install_path = '',
+                defines      = ['PUGL_STATIC'],
                 use          = ['pugl_%s_static' % platform,
                                 'pugl_%s_stub_static' % platform,
                                 'pugl_%s_gl_static' % platform],
