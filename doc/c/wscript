@@ -10,9 +10,14 @@ def build(bld):
         ("../_templates/about.html", "sphinx/_templates/about.html"),
         ("../deployment.rst", "sphinx/deployment.rst"),
         ("../pugl.rst", "sphinx/pugl.rst"),
+        ("event-loop.rst", "sphinx/event-loop.rst"),
+        ("events.rst", "sphinx/events.rst"),
         ("index.rst", "sphinx/index.rst"),
         ("overview.rst", "sphinx/overview.rst"),
         ("reference.rst", "sphinx/reference.rst"),
+        ("shutting-down.rst", "sphinx/shutting-down.rst"),
+        ("view.rst", "sphinx/view.rst"),
+        ("world.rst", "sphinx/world.rst"),
     ]
 
     # Run Doxygen to generate XML documentation

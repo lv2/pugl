@@ -12,8 +12,12 @@ def build(bld):
         ("../pugl.rst", "sphinx/pugl.rst"),
         ("c-reference.rst", "sphinx/c-reference.rst"),
         ("cpp-reference.rst", "sphinx/cpp-reference.rst"),
+        ("event-loop.rst", "sphinx/event-loop.rst"),
+        ("events.rst", "sphinx/events.rst"),
         ("index.rst", "sphinx/index.rst"),
         ("overview.rst", "sphinx/overview.rst"),
+        ("view.rst", "sphinx/view.rst"),
+        ("world.rst", "sphinx/world.rst"),
     ]
 
     # Run Doxygen to generate XML documentation
