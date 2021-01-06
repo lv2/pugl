@@ -601,9 +601,8 @@ public:
      resolution on Windows) and may be rounded up if it is too short.  On X11
      and MacOS, a resolution of about 1ms can usually be relied on.
 
-     Errors:
-     - #PUGL_FAILURE if timers are not supported by this system or build.
-     - #PUGL_UNKNOWN_ERROR if setting the timer failed.
+     @return #PUGL_FAILURE if timers are not supported by the system,
+     #PUGL_UNKNOWN_ERROR if setting the timer failed.
   */
   Status startTimer(const uintptr_t id, const double timeout) noexcept
   {
@@ -615,9 +614,8 @@ public:
 
      @param id The ID previously passed to startTimer().
 
-     Errors:
-     - #PUGL_FAILURE if timers are not supported by this system or build.
-     - #PUGL_UNKNOWN_ERROR if stopping the timer failed.
+     @return #PUGL_FAILURE if timers are not supported by this system,
+     #PUGL_UNKNOWN_ERROR if stopping the timer failed.
   */
   Status stopTimer(const uintptr_t id) noexcept
   {
