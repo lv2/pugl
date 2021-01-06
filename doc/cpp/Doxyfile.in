@@ -26,15 +26,7 @@ SHOW_FILES             = NO
 MACRO_EXPANSION        = YES
 PREDEFINED             = PUGL_API PUGL_DISABLE_DEPRECATED PUGL_CONST_API= PUGL_CONST_FUNC=
 
-INPUT                  = ../../include/pugl/cairo.h \
-                         ../../include/pugl/gl.h \
-                         ../../include/pugl/pugl.h \
-                         ../../include/pugl/stub.h \
-                         ../../include/pugl/vulkan.h \
-                         ../../bindings/cxx/include/pugl/cairo.hpp \
-                         ../../bindings/cxx/include/pugl/gl.hpp \
-                         ../../bindings/cxx/include/pugl/pugl.hpp \
-                         ../../bindings/cxx/include/pugl/stub.hpp \
-                         ../../bindings/cxx/include/pugl/vulkan.hpp
+STRIP_FROM_PATH        = @PUGL_SRCDIR@
+INPUT                  = @PUGL_HEADERS@
 
-OUTPUT_DIRECTORY       = .
+OUTPUT_DIRECTORY       = doc/cpp

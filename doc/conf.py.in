@@ -41,7 +41,7 @@ cpp_index_common_prefix = ["pugl::"]
 
 html_copy_source = False
 html_short_title = "Pugl"
-html_static_path = ["_static"]
+html_static_path = ["../_static"]
 html_theme = "sphinx_lv2_theme"
 
 if tags.has('singlehtml'):
@@ -52,8 +52,8 @@ if tags.has('singlehtml'):
     }
 
     html_theme_options = {
-        "body_max_width": "50em",
-        "body_min_width": "50em",
+        "body_max_width": "51em",
+        "body_min_width": "51em",
         "description": "A minimal portable API for embeddable GUIs.",
         "show_footer_version": True,
         "show_logo_version": False,

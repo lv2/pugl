@@ -649,4 +649,5 @@ if __name__ == "__main__":
     ap.add_argument("index_xml_path", help="path index.xml from Doxygen")
     ap.add_argument("output_dir", help="output directory")
 
+    print(sys.argv)
     run(**vars(ap.parse_args(sys.argv[1:])))

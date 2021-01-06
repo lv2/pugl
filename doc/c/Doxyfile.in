@@ -8,6 +8,7 @@ WARN_NO_PARAMDOC       = NO
 
 JAVADOC_AUTOBRIEF      = YES
 
+FULL_PATH_NAMES        = NO
 CASE_SENSE_NAMES       = YES
 HIDE_IN_BODY_DOCS      = YES
 REFERENCES_LINK_SOURCE = NO
@@ -21,10 +22,7 @@ SHOW_FILES             = NO
 MACRO_EXPANSION        = YES
 PREDEFINED             = PUGL_API PUGL_DISABLE_DEPRECATED PUGL_CONST_API= PUGL_CONST_FUNC=
 
-INPUT                  = ../../include/pugl/cairo.h \
-                         ../../include/pugl/gl.h \
-                         ../../include/pugl/pugl.h \
-                         ../../include/pugl/stub.h \
-                         ../../include/pugl/vulkan.h
+STRIP_FROM_PATH        = @PUGL_SRCDIR@
+INPUT                  = @PUGL_HEADERS@
 
-OUTPUT_DIRECTORY       = .
+OUTPUT_DIRECTORY       = doc/c

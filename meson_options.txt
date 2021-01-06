@@ -1,0 +1,20 @@
+option('cairo', type: 'feature', value: 'auto',
+       description : 'Enable support for the Cairo graphics API')
+
+option('examples', type: 'boolean', value: true,
+       description: 'Build example programs')
+
+option('docs', type: 'feature', value: 'auto',
+       description: 'Build documentation')
+
+option('opengl', type: 'feature', value: 'auto',
+       description : 'Enable support for the OpenGL graphics API')
+
+option('strict', type: 'boolean', value: false,
+       description: 'Enable ultra-strict warnings')
+
+option('tests', type: 'boolean', value: true,
+       description: 'Build tests')
+
+option('vulkan', type: 'feature', value: 'auto',
+       description : 'Enable support for the Vulkan graphics API')
