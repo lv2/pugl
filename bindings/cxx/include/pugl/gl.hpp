@@ -26,7 +26,7 @@ namespace pugl {
 /**
    @defgroup glxx OpenGL
    OpenGL graphics support.
-   @ingroup pugl_cxx
+   @ingroup puglxx
    @{
 */
 

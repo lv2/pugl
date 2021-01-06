@@ -25,7 +25,7 @@ namespace pugl {
 /**
    @defgroup cairoxx Cairo
    Cairo graphics support.
-   @ingroup pugl_cxx
+   @ingroup puglxx
    @{
 */
 

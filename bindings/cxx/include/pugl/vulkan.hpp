@@ -43,7 +43,7 @@ namespace pugl {
    vulkan-hpp smart handles, it is relatively straightforward to wrap the
    result of createSurface() manually.
 
-   @ingroup pugl_cxx
+   @ingroup puglxx
    @{
 */
 
