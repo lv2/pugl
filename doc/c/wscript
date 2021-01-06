@@ -6,15 +6,12 @@ def build(bld):
 
     files = [
         ("../../resources/pugl.svg", "sphinx/_static/pugl.svg"),
-        ("../_static/custom.css", "sphinx/_static/custom.css"),
-        ("../_templates/about.html", "sphinx/_templates/about.html"),
         ("../deployment.rst", "sphinx/deployment.rst"),
-        ("../pugl.rst", "sphinx/pugl.rst"),
+        ("../summary.rst", "sphinx/summary.rst"),
         ("event-loop.rst", "sphinx/event-loop.rst"),
         ("events.rst", "sphinx/events.rst"),
         ("index.rst", "sphinx/index.rst"),
         ("overview.rst", "sphinx/overview.rst"),
-        ("reference.rst", "sphinx/reference.rst"),
         ("shutting-down.rst", "sphinx/shutting-down.rst"),
         ("view.rst", "sphinx/view.rst"),
         ("world.rst", "sphinx/world.rst"),
@@ -44,5 +41,5 @@ def build(bld):
     bld(features="sphinx",
         sphinx_source=bld.path.get_bld().make_node("sphinx"),
         sphinx_output_format="singlehtml",
-        sphinx_options=["-E", "-q"],
+        sphinx_options=["-E", "-q", "-t", "singlehtml"],
         install_path=doc_dir + "c/singlehtml/")

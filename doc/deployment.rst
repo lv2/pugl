@@ -1,13 +1,13 @@
-##########
-Using Pugl
-##########
+#####
+Usage
+#####
 
-Pugl is designed for flexible deployment,
-so the exact method of building against it depends on your approach.
+*********************
+Building Against Pugl
+*********************
 
-When targeting systems with pkg-config_,
-packages are provided that link against the core platform library and the desired backend,
-along with any backend dependencies:
+When Pugl is installed,
+pkg-config_ packages are provided that link with the core platform library and desired backend:
 
 - ``pugl-cairo-0``
 - ``pugl-gl-0``

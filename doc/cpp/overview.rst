@@ -33,4 +33,3 @@ then creates one or more views to display.
    view
    events
    event-loop
-   shutting-down

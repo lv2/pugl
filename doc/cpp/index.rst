@@ -1,7 +1,12 @@
+####
+Pugl
+####
+
+.. include:: summary.rst
+
 .. toctree::
 
-   pugl
    deployment
    overview
-   cpp-reference
-   c-reference
+   api/pugl
+   api/puglxx

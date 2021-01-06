@@ -9,6 +9,12 @@ The Pugl API revolves around two main objects: the `world` and the `view`.
 An application creates a world to manage top-level state,
 then creates one or more views to display.
 
+The core API (excluding backend-specific components) is declared in ``pugl.h``:
+
+.. code-block:: c
+
+   #include <pugl/pugl.h>
+
 .. toctree::
 
    world
@@ -16,3 +22,5 @@ then creates one or more views to display.
    events
    event-loop
    shutting-down
+
+.. _pkg-config: https://www.freedesktop.org/wiki/Software/pkg-config/

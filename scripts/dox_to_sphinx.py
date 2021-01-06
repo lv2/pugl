@@ -238,7 +238,7 @@ def heading(text, level):
     chars = ("#", "*", "=", "-", "^", '"')
     line = chars[level] * len(text)
 
-    return "%s\n%s\n%s\n\n" % (line if level < 3 else "", text, line)
+    return "%s%s\n%s\n\n" % (line + "\n" if level < 3 else "", text, line)
 
 
 def dox_to_rst(index, lang, node):
@@ -256,6 +256,12 @@ def dox_to_rst(index, lang, node):
             return "\n" + indent(markup, 1)
 
         return " " + markup.strip()
+
+    if node.tag == "lsquo":
+        return "‘"
+
+    if node.tag == "rsquo":
+        return "’"
 
     if node.tag == "computeroutput":
         assert len(node) == 0
@@ -332,7 +338,7 @@ def description_markup(index, lang, node):
     assert not (node.tag == "briefdescription" and len(node) > 1)
     assert len(node.text.strip()) == 0
 
-    return "".join([dox_to_rst(index, lang, child) for child in node])
+    return "".join([dox_to_rst(index, lang, child) for child in node]).strip()
 
 
 def set_descriptions(index, lang, definition, record):
@@ -454,6 +460,9 @@ def read_definition_doc(index, lang, root):
                             name,
                         )
 
+            elif kind == "variable":
+                record["definition"] = member.find("definition").text
+
 
 def declaration_string(record):
     """
@@ -474,6 +483,11 @@ def declaration_string(record):
         result += record["prototype"]
     elif kind == "typedef":
         result += record["definition"]
+    elif kind == "variable":
+        if "parent" in record:
+            result += "%s %s" % (record["type"], local_name(record["name"]))
+        else:
+            result += record["definition"]
     elif "type" in record:
         result += "%s %s" % (record["type"], local_name(record["name"]))
     else:
@@ -497,9 +511,9 @@ def document_markup(index, lang, record):
     markup += ".. %s:: %s\n" % (role, declaration_string(record))
 
     # Write main description blurb
-    markup += "\n"
-    markup += indent(record["briefdescription"], 1)
-    markup += indent(record["detaileddescription"], 1)
+    markup += "\n" + indent(record["briefdescription"] + "\n", 1)
+    if len(record["detaileddescription"]) > 0:
+        markup += "\n" + indent(record["detaileddescription"], 1) + "\n"
 
     assert (
         kind in ["class", "enum", "namespace", "struct", "union"]
@@ -510,7 +524,7 @@ def document_markup(index, lang, record):
     child_indent = 0 if kind == "namespace" else 1
 
     # Write inline children if applicable
-    markup += "\n"
+    markup += "\n" if "children" in record else ""
     for child_id in record.get("children", []):
         child_record = index[child_id]
         child_role = sphinx_role(child_record, lang)
@@ -524,7 +538,6 @@ def document_markup(index, lang, record):
         markup += indent(child_header, child_indent)
         markup += indent(child_record["briefdescription"], child_indent + 1)
         markup += indent(child_record["detaileddescription"], child_indent + 1)
-        markup += "\n"
 
     return markup
 
@@ -535,28 +548,7 @@ def symbol_filename(name):
     return name.replace("::", "__")
 
 
-def emit_symbols(index, lang, symbol_dir, force):
-    """Write a description file for every symbol documented in the index."""
-
-    for record in index.values():
-        if (
-            record["kind"] in ["group", "namespace"]
-            or "parent" in record
-            and index[record["parent"]]["kind"] != "group"
-        ):
-            continue
-
-        name = record["name"]
-        filename = os.path.join(symbol_dir, symbol_filename("%s.rst" % name))
-        if not force and os.path.exists(filename):
-            raise FileExistsError("File already exists: '%s'" % filename)
-
-        with open(filename, "w") as rst:
-            rst.write(heading(local_name(name), 3))
-            rst.write(document_markup(index, lang, record))
-
-
-def emit_groups(index, output_dir, symbol_dir_name, force):
+def emit_groups(index, lang, output_dir, force):
     """Write a description file for every group documented in the index."""
 
     for record in index.values():
@@ -569,40 +561,38 @@ def emit_groups(index, output_dir, symbol_dir_name, force):
             raise FileExistsError("File already exists: '%s'" % filename)
 
         with open(filename, "w") as rst:
-            rst.write(heading(record["title"], 2))
+            rst.write(heading(record["title"], 1))
 
             # Get all child group and symbol names
-            group_names = []
-            symbol_names = []
+            child_groups = {}
+            child_symbols = {}
             for child_id in record["children"]:
                 child = index[child_id]
                 if child["kind"] == "group":
-                    group_names += [child["name"]]
+                    child_groups[child["name"]] = child
                 else:
-                    symbol_names += [child["name"]]
+                    child_symbols[child["name"]] = child
 
             # Emit description (document body)
-            rst.write(record["briefdescription"] + "\n\n")
-            rst.write(record["detaileddescription"] + "\n\n")
+            if len(record["briefdescription"]) > 0:
+                rst.write(record["briefdescription"] + "\n\n")
+            if len(record["detaileddescription"]) > 0:
+                rst.write(record["detaileddescription"] + "\n\n")
 
-            # Emit TOC
-            rst.write(".. toctree::\n")
-
-            # Emit groups at the top of the TOC
-            for group_name in group_names:
-                rst.write("\n" + indent(group_name, 1))
+            if len(child_groups) > 0:
+                # Emit TOC for child groups
+                rst.write(".. toctree::\n\n")
+                for name, group in child_groups.items():
+                    rst.write(indent(group["name"], 1) + "\n")
 
             # Emit symbols in sorted order
-            for symbol_name in sorted(symbol_names):
-                path = "/".join(
-                    [symbol_dir_name, symbol_filename(symbol_name)]
-                )
-                rst.write("\n" + indent(path, 1))
-
-            rst.write("\n")
+            for name, symbol in child_symbols.items():
+                rst.write("\n")
+                rst.write(document_markup(index, lang, symbol))
+                rst.write("\n")
 
 
-def run(index_xml_path, output_dir, symbol_dir_name, language, force):
+def run(index_xml_path, output_dir, language, force):
     """Write a directory of Sphinx files from a Doxygen XML directory."""
 
     # Build skeleton index from index.xml
@@ -624,11 +614,14 @@ def run(index_xml_path, output_dir, symbol_dir_name, language, force):
     for root in definition_docs:
         read_definition_doc(index, language, root)
 
+    # Create output directory
+    try:
+        os.makedirs(output_dir)
+    except OSError:
+        pass
+
     # Emit output files
-    symbol_dir = os.path.join(output_dir, symbol_dir_name)
-    os.makedirs(symbol_dir, exist_ok=True)
-    emit_symbols(index, language, symbol_dir, force)
-    emit_groups(index, output_dir, symbol_dir_name, force)
+    emit_groups(index, language, output_dir, force)
 
 
 if __name__ == "__main__":
@@ -651,13 +644,6 @@ if __name__ == "__main__":
         default="c",
         choices=["c", "cpp"],
         help="language domain for output",
-    )
-
-    ap.add_argument(
-        "-s",
-        "--symbol-dir-name",
-        default="symbols",
-        help="name for subdirectory of symbol documentation files",
     )
 
     ap.add_argument("index_xml_path", help="path index.xml from Doxygen")

@@ -7,20 +7,12 @@ release = "@PUGL_VERSION@"
 
 # General configuration
 
+exclude_patterns = ["xml"]
 language = "en"
-
-extensions = [
-    # 'breathe',
-    # 'sphinx_rtd_theme',
-    # 'sphinx.ext.autodoc',
-    # 'sphinx.ext.doctest',
-    # 'sphinx.ext.napoleon',
-    # 'sphinx.ext.viewcode',
-]
-
-# Enable nitpicky mode to get warnings about broken links
-# Unfortunately this means we need to explicitly ignore everything external
 nitpicky = True
+pygments_style = "friendly"
+
+# Ignore everything opaque or external for nitpicky mode
 _opaque = [
     "PFN_vkGetDeviceProcAddr",
     "PFN_vkGetInstanceProcAddr",
@@ -36,13 +28,10 @@ _opaque = [
     "uint32_t",
     "uintptr_t",
 ]
+
 _c_nitpick_ignore = map(lambda x: ("c:identifier", x), _opaque)
 _cpp_nitpick_ignore = map(lambda x: ("cpp:identifier", x), _opaque)
 nitpick_ignore = list(_c_nitpick_ignore) + list(_cpp_nitpick_ignore)
-
-templates_path = ["_templates"]
-
-pygments_style = "friendly"
 
 # C++
 
@@ -50,39 +39,47 @@ cpp_index_common_prefix = ["pugl::"]
 
 # HTML output
 
-exclude_patterns = ["xml"]
+html_copy_source = False
+html_short_title = "Pugl"
 html_static_path = ["_static"]
+html_theme = "sphinx_lv2_theme"
 
-html_theme = "alabaster"
-# html_theme = "sphinx_rtd_theme"
-
-if html_theme == "alabaster":
-
-    html_theme_options = {
-        "description": "A minimal portable API for embeddable GUIs.",
-        "donate_url": "http://drobilla.net/pages/donate.html",
-        # "github_repo": "pugl",
-        # "github_user": "lv2",
-        "logo": "pugl.svg",
-        "logo_name": True,
-        "logo_text_align": "center",
-        "page_width": "80em - 20em",
-        "sidebar_width": "20em",
-    }
-
+if tags.has('singlehtml'):
     html_sidebars = {
         "**": [
-            "about.html",
-            "localtoc.html",
-            "donate.html",
+        "globaltoc.html",
         ]
     }
 
-elif html_theme == "sphinx_rtd_theme":
-
     html_theme_options = {
-        "sticky_navigation": False,
-        "collapse_navigation": False,
-        "navigation_depth": 4,
-        "display_version": True,
+        "body_max_width": "50em",
+        "body_min_width": "50em",
+        "description": "A minimal portable API for embeddable GUIs.",
+        "show_footer_version": True,
+        "show_logo_version": False,
+        "logo": "pugl.svg",
+        "logo_name": True,
+        "logo_width": "8em",
+        "nosidebar": False,
+        "page_width": "80em",
+        "sidebar_width": "16em",
+        "globaltoc_maxdepth": 3,
+        "globaltoc_collapse": False,
+    }
+
+else:
+    html_theme_options = {
+        "body_max_width": "60em",
+        "body_min_width": "40em",
+        "description": "A minimal portable API for embeddable GUIs.",
+        "show_footer_version": True,
+        "show_logo_version": False,
+        "logo": "pugl.svg",
+        "logo_name": True,
+        "logo_width": "8em",
+        "nosidebar": True,
+        "page_width": "60em",
+        "sidebar_width": "14em",
+        "globaltoc_maxdepth": 1,
+        "globaltoc_collapse": True,
     }
