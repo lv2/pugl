@@ -580,13 +580,45 @@ public:
     return static_cast<Status>(puglRequestAttention(cobj()));
   }
 
-  /// @copydoc puglStartTimer
+  /**
+     Activate a repeating timer event.
+
+     This starts a timer which will send a timer event to `view` every
+     `timeout` seconds.  This can be used to perform some action in a view at a
+     regular interval with relatively low frequency.  Note that the frequency
+     of timer events may be limited by how often update() is called.
+
+     If the given timer already exists, it is replaced.
+
+     @param id The identifier for this timer.  This is an application-specific
+     ID that should be a low number, typically the value of a constant or `enum`
+     that starts from 0.  There is a platform-specific limit to the number of
+     supported timers, and overhead associated with each, so applications should
+     create only a few timers and perform several tasks in one if necessary.
+
+     @param timeout The period, in seconds, of this timer.  This is not
+     guaranteed to have a resolution better than 10ms (the maximum timer
+     resolution on Windows) and may be rounded up if it is too short.  On X11
+     and MacOS, a resolution of about 1ms can usually be relied on.
+
+     Errors:
+     - #PUGL_FAILURE if timers are not supported by this system or build.
+     - #PUGL_UNKNOWN_ERROR if setting the timer failed.
+  */
   Status startTimer(const uintptr_t id, const double timeout) noexcept
   {
     return static_cast<Status>(puglStartTimer(cobj(), id, timeout));
   }
 
-  /// @copydoc puglStopTimer
+  /**
+     Stop an active timer.
+
+     @param id The ID previously passed to startTimer().
+
+     Errors:
+     - #PUGL_FAILURE if timers are not supported by this system or build.
+     - #PUGL_UNKNOWN_ERROR if stopping the timer failed.
+  */
   Status stopTimer(const uintptr_t id) noexcept
   {
     return static_cast<Status>(puglStopTimer(cobj(), id));
