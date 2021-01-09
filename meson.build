@@ -124,6 +124,7 @@ if get_option('strict')
         '/wd4996',  # function or variable may be unsafe
         '/wd5026',  # move constructor implicitly deleted
         '/wd5027',  # move assignment operator implicitly deleted
+        '/wd5039',  # potentially throwing function passed to C
         '/wd5045',  # will insert Spectre mitigation for memory load
       ]
     endif
