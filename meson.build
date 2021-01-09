@@ -191,7 +191,6 @@ core_args = []
 
 # MacOS
 if host_machine.system() == 'darwin'
-  add_project_arguments(['-Wno-deprecated-declarations'], language: ['objc'])
   cocoa_dep = dependency('Cocoa', required: false, modules: 'foundation')
   corevideo_dep = dependency('CoreVideo', required: false)
 
@@ -199,6 +198,9 @@ if host_machine.system() == 'darwin'
   platform_sources = ['src/mac.m', 'src/mac_stub.m']
   core_deps = [cocoa_dep, corevideo_dep]
   extension = '.m'
+
+  add_project_arguments(['-Wno-deprecated-declarations'], language: ['objc'])
+  add_project_arguments(['-Wno-direct-ivar-access'], language: ['objc'])
 
   add_project_arguments(['-DGL_SILENCE_DEPRECATION'],
                         language: ['c', 'objc'])
