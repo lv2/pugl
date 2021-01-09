@@ -1,5 +1,5 @@
 project('pugl', ['c'],
-        version: '0.2.0',
+        version: '0.3.0',
         license: 'ISC',
         meson_version: '>= 0.49.2',
         default_options: [
