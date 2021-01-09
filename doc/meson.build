@@ -11,8 +11,3 @@ if build_docs
   subdir('c')
   subdir('cpp')
 endif
-
-if meson.version().version_compare('>=0.53.0')
-  summary('Documentation', build_docs, bool_yn: true)
-endif
-

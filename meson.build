@@ -420,15 +420,6 @@ endif
 install_headers(c_headers, subdir: versioned_name / 'pugl')
 install_headers(cpp_headers, subdir: 'puglxx' + version_suffix)
 
-if meson.version().version_compare('>=0.53.0')
-  summary('Platform', platform)
-  summary('Cairo backend', cairo_dep.found(), bool_yn: true)
-  summary('OpenGL backend', opengl_dep.found(), bool_yn: true)
-  summary('Vulkan backend', vulkan_dep.found(), bool_yn: true)
-  summary('Tests', get_option('tests'), bool_yn: true)
-  summary('Examples', get_option('examples'), bool_yn: true)
-endif
-
 if not get_option('docs').disabled()
   subdir('doc')
 endif
@@ -439,4 +430,22 @@ endif
 
 if get_option('tests')
   subdir('test')
+endif
+
+if meson.version().version_compare('>=0.53.0')
+  summary('Platform', platform)
+  summary('Cairo backend', cairo_dep.found(), bool_yn: true)
+  summary('OpenGL backend', opengl_dep.found(), bool_yn: true)
+  summary('Vulkan backend', vulkan_dep.found(), bool_yn: true)
+  summary('Tests', get_option('tests'), bool_yn: true)
+  summary('Examples', get_option('examples'), bool_yn: true)
+  summary('Documentation', build_docs, bool_yn: true)
+
+  summary('Install prefix', get_option('prefix'))
+  summary('Headers', get_option('prefix') / get_option('includedir'))
+  summary('Libraries', get_option('prefix') / get_option('libdir'))
+
+  if get_option('examples')
+    summary('Executables', get_option('prefix') / get_option('bindir'))
+  endif
 endif
