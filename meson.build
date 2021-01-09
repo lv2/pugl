@@ -422,6 +422,8 @@ install_headers(cpp_headers, subdir: 'puglxx' + version_suffix)
 
 if not get_option('docs').disabled()
   subdir('doc')
+else
+  build_docs = false
 endif
 
 if get_option('examples')
