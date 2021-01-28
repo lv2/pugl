@@ -1275,8 +1275,8 @@ puglSetMinSize(PuglView* const view, const int width, const int height)
 PuglStatus
 puglSetMaxSize(PuglView* const view, const int width, const int height)
 {
-  view->minWidth  = width;
-  view->minHeight = height;
+  view->maxWidth  = width;
+  view->maxHeight = height;
   return updateSizeHints(view);
 }
 
