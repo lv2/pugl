@@ -216,20 +216,23 @@ updateSizeHints(const PuglView* view)
     sizeHints.max_height  = (int)view->frame.height;
   } else {
     if (view->defaultWidth || view->defaultHeight) {
-      sizeHints.flags       = PBaseSize;
+      sizeHints.flags |= PBaseSize;
       sizeHints.base_width  = view->defaultWidth;
       sizeHints.base_height = view->defaultHeight;
     }
+
     if (view->minWidth || view->minHeight) {
-      sizeHints.flags      = PMinSize;
+      sizeHints.flags |= PMinSize;
       sizeHints.min_width  = view->minWidth;
       sizeHints.min_height = view->minHeight;
     }
+
     if (view->maxWidth || view->maxHeight) {
-      sizeHints.flags      = PMaxSize;
+      sizeHints.flags |= PMaxSize;
       sizeHints.max_width  = view->maxWidth;
       sizeHints.max_height = view->maxHeight;
     }
+
     if (view->minAspectX) {
       sizeHints.flags |= PAspect;
       sizeHints.min_aspect.x = view->minAspectX;
