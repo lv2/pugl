@@ -1722,6 +1722,7 @@ run(const char* const     programPath,
   app.view.setAspectRatio(1, 1, 16, 9);
   app.view.setDefaultSize(width, height);
   app.view.setMinSize(width / 4, height / 4);
+  app.view.setMaxSize(width * 4, height * 4);
   app.view.setBackend(pugl::vulkanBackend());
   app.view.setHint(pugl::ViewHint::resizable, opts.resizable);
   const pugl::Status st = app.view.realize();

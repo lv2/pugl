@@ -275,6 +275,7 @@ setupPugl(PuglTestApp* app)
   puglSetWindowTitle(app->view, "Pugl OpenGL 3");
   puglSetDefaultSize(app->view, defaultWidth, defaultHeight);
   puglSetMinSize(app->view, defaultWidth / 4, defaultHeight / 4);
+  puglSetMaxSize(app->view, defaultWidth * 4, defaultHeight * 4);
   puglSetAspectRatio(app->view, 1, 1, 16, 9);
   puglSetBackend(app->view, puglGlBackend());
   puglSetViewHint(app->view, PUGL_USE_COMPAT_PROFILE, PUGL_FALSE);

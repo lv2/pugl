@@ -139,6 +139,7 @@ main(int argc, char** argv)
   puglSetWindowTitle(view, "Pugl Window Demo");
   puglSetDefaultSize(view, 512, 256);
   puglSetMinSize(view, 128, 64);
+  puglSetMaxSize(view, 512, 256);
   puglSetBackend(view, puglGlBackend());
 
   puglSetViewHint(view, PUGL_USE_DEBUG_CONTEXT, app.opts.errorChecking);

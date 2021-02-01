@@ -231,6 +231,7 @@ main(int argc, char** argv)
   puglSetWindowTitle(view, "Pugl Cairo Demo");
   puglSetDefaultSize(view, 512, 512);
   puglSetMinSize(view, 256, 256);
+  puglSetMaxSize(view, 2048, 2048);
   puglSetViewHint(view, PUGL_RESIZABLE, app.opts.resizable);
   puglSetHandle(view, &app);
   puglSetBackend(view, puglCairoBackend());

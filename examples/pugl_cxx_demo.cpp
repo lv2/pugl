@@ -125,6 +125,7 @@ main(int argc, char** argv)
   view.setWindowTitle("Pugl C++ Test");
   view.setDefaultSize(512, 512);
   view.setMinSize(64, 64);
+  view.setMaxSize(256, 256);
   view.setAspectRatio(1, 1, 16, 9);
   view.setBackend(pugl::glBackend());
   view.setHint(pugl::ViewHint::resizable, opts.resizable);
