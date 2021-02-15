@@ -190,13 +190,6 @@ typedef enum {
   PUGL_TIMER,          ///< Timer triggered, a #PuglEventTimer
   PUGL_LOOP_ENTER,     ///< Recursive loop entered, a #PuglEventLoopEnter
   PUGL_LOOP_LEAVE,     ///< Recursive loop left, a #PuglEventLoopLeave
-
-#ifndef PUGL_DISABLE_DEPRECATED
-  PUGL_ENTER_NOTIFY  PUGL_DEPRECATED_BY("PUGL_POINTER_IN")  = PUGL_POINTER_IN,
-  PUGL_LEAVE_NOTIFY  PUGL_DEPRECATED_BY("PUGL_POINTER_OUT") = PUGL_POINTER_OUT,
-  PUGL_MOTION_NOTIFY PUGL_DEPRECATED_BY("PUGL_MOTION")      = PUGL_MOTION,
-#endif
-
 } PuglEventType;
 
 /// Common flags for all event types
