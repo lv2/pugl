@@ -264,7 +264,7 @@ puglViewHintString(const PuglViewHint hint)
   case PUGL_REFRESH_RATE:
     return "Refresh rate";
   case PUGL_NUM_VIEW_HINTS:
-    return "Unknown";
+    break;
   }
 
   return "Unknown";
