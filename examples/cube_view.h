@@ -42,7 +42,7 @@ static const float cubeStripVertices[] = {
   -1.0f, -1.0f, -1.0f, // Back bottom left
    1.0f, -1.0f, -1.0f, // Back bottom right
   -1.0f,  1.0f, -1.0f, // Back top left
-   1.0f,  1.0f, -1.0f  // Back top right
+   1.0f,  1.0f, -1.0f, // Back top right
 };
 
 static const float cubeStripColorVertices[] = {
@@ -59,7 +59,7 @@ static const float cubeStripColorVertices[] = {
   0.25f, 0.25f, 0.25f, // Back bottom left
   0.75f, 0.25f, 0.25f, // Back bottom right
   0.25f, 0.75f, 0.25f, // Back top left
-  0.75f, 0.75f, 0.25f  // Back top right
+  0.75f, 0.75f, 0.25f, // Back top right
 };
 
 static const float cubeFrontLineLoop[] = {
@@ -87,7 +87,7 @@ static const float cubeBackLineLoopColors[] = {
   0.25f, 0.75f, 0.25f, // Back top left
   0.75f, 0.75f, 0.25f, // Back top right
   0.75f, 0.25f, 0.25f, // Back bottom right
-  0.25f, 0.25f, 0.25f  // Back bottom left
+  0.25f, 0.25f, 0.25f, // Back bottom left
 };
 
 static const float cubeSideLines[] = {
@@ -97,24 +97,24 @@ static const float cubeSideLines[] = {
   -1.0f, -1.0f,  1.0f, // Front bottom left
   -1.0f, -1.0f, -1.0f, // Back bottom left
 
-  1.0f,  1.0f,  1.0f, // Front top right
-  1.0f,  1.0f, -1.0f, // Back top right
+   1.0f,  1.0f,  1.0f, // Front top right
+   1.0f,  1.0f, -1.0f, // Back top right
 
-  1.0f, -1.0f,  1.0f, // Front bottom right
-  1.0f, -1.0f, -1.0f, // Back bottom right
+   1.0f, -1.0f,  1.0f, // Front bottom right
+   1.0f, -1.0f, -1.0f, // Back bottom right
 };
 
 static const float cubeSideLineColors[] = {
-  0.25f,  0.75f,  0.75f, // Front top left
-  0.25f,  0.75f, 0.25f, // Back top left
+  0.25f, 0.75f, 0.75f, // Front top left
+  0.25f, 0.75f, 0.25f, // Back top left
 
-  0.25f, 0.25f,  0.75f, // Front bottom left
+  0.25f, 0.25f, 0.75f, // Front bottom left
   0.25f, 0.25f, 0.25f, // Back bottom left
 
-  0.75f,  0.75f,  0.75f, // Front top right
-  0.75f,  0.75f, 0.25f, // Back top right
+  0.75f, 0.75f, 0.75f, // Front top right
+  0.75f, 0.75f, 0.25f, // Back top right
 
-  0.75f, 0.25f,  0.75f, // Front bottom right
+  0.75f, 0.25f, 0.75f, // Front bottom right
   0.75f, 0.25f, 0.25f, // Back bottom right
 };
 

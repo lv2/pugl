@@ -57,10 +57,10 @@ static const float backgroundVertices[] = {
 };
 
 static const float backgroundColorVertices[] = {
-  0.25f, 0.75f, 0.25f, // Top left
-  0.75f, 0.75f, 0.25f, // Top right
-  0.25f, 0.25f, 0.25f, // Bottom left
-  0.75f, 0.25f, 0.25f, // Bottom right
+  0.25f, 0.25f, 0.25f, // Top left
+  0.25f, 0.50f, 0.25f, // Top right
+  0.25f, 0.50f, 0.25f, // Bottom left
+  0.25f, 0.75f, 0.5f,  // Bottom right
 };
 
 // clang-format on
