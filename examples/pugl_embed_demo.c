@@ -48,12 +48,21 @@ typedef struct {
 } PuglTestApp;
 
 // clang-format off
+
 static const float backgroundVertices[] = {
   -1.0f,  1.0f,  -1.0f, // Top left
    1.0f,  1.0f,  -1.0f, // Top right
   -1.0f, -1.0f,  -1.0f, // Bottom left
    1.0f, -1.0f,  -1.0f, // Bottom right
 };
+
+static const float backgroundColorVertices[] = {
+  0.25f, 0.75f, 0.25f, // Top left
+  0.75f, 0.75f, 0.25f, // Top right
+  0.25f, 0.25f, 0.25f, // Bottom left
+  0.75f, 0.25f, 0.25f, // Bottom right
+};
+
 // clang-format on
 
 static PuglRect
@@ -177,7 +186,7 @@ onParentEvent(PuglView* view, const PuglEvent* event)
       glEnableClientState(GL_VERTEX_ARRAY);
       glEnableClientState(GL_COLOR_ARRAY);
       glVertexPointer(3, GL_FLOAT, 0, backgroundVertices);
-      glColorPointer(3, GL_FLOAT, 0, backgroundVertices);
+      glColorPointer(3, GL_FLOAT, 0, backgroundColorVertices);
       glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
       glDisableClientState(GL_COLOR_ARRAY);
       glDisableClientState(GL_VERTEX_ARRAY);
