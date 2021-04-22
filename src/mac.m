@@ -1188,36 +1188,38 @@ dispatchClientEvent(PuglWorld* world, NSEvent* ev)
 PuglStatus
 puglUpdate(PuglWorld* world, const double timeout)
 {
-  NSDate* date =
-    ((timeout < 0) ? [NSDate distantFuture]
-                   : [NSDate dateWithTimeIntervalSinceNow:timeout]);
+  @autoreleasepool {
+    NSDate* date =
+      ((timeout < 0) ? [NSDate distantFuture]
+                     : [NSDate dateWithTimeIntervalSinceNow:timeout]);
 
-  for (NSEvent* ev = NULL;
-       (ev = [world->impl->app nextEventMatchingMask:NSAnyEventMask
-                                           untilDate:date
-                                              inMode:NSDefaultRunLoopMode
-                                             dequeue:YES]);) {
-    if ([ev type] == NSApplicationDefined && [ev subtype] == PUGL_CLIENT) {
-      dispatchClientEvent(world, ev);
+    for (NSEvent* ev = NULL;
+         (ev = [world->impl->app nextEventMatchingMask:NSAnyEventMask
+                                             untilDate:date
+                                                inMode:NSDefaultRunLoopMode
+                                               dequeue:YES]);) {
+      if ([ev type] == NSApplicationDefined && [ev subtype] == PUGL_CLIENT) {
+        dispatchClientEvent(world, ev);
+      }
+
+      [world->impl->app sendEvent:ev];
+
+      if (timeout < 0) {
+        // Now that we've waited and got an event, set the date to now to
+        // avoid looping forever
+        date = [NSDate date];
+      }
     }
 
-    [world->impl->app sendEvent:ev];
+    for (size_t i = 0; i < world->numViews; ++i) {
+      PuglView* const view = world->views[i];
 
-    if (timeout < 0) {
-      // Now that we've waited and got an event, set the date to now to
-      // avoid looping forever
-      date = [NSDate date];
+      if ([[view->impl->drawView window] isVisible]) {
+        puglDispatchSimpleEvent(view, PUGL_UPDATE);
+      }
+
+      [view->impl->drawView displayIfNeeded];
     }
-  }
-
-  for (size_t i = 0; i < world->numViews; ++i) {
-    PuglView* const view = world->views[i];
-
-    if ([[view->impl->drawView window] isVisible]) {
-      puglDispatchSimpleEvent(view, PUGL_UPDATE);
-    }
-
-    [view->impl->drawView displayIfNeeded];
   }
 
   return PUGL_SUCCESS;
