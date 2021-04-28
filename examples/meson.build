@@ -18,12 +18,12 @@ vulkan_examples = [
   'pugl_vulkan_demo.c',
 ]
 
-includes = [
+includes = include_directories(
   '.',
   '..',
   '../bindings/cxx/include',
   '../include',
-]
+)
 
 subdir('shaders')
 
@@ -42,7 +42,7 @@ if opengl_dep.found()
     endif
 
     executable(target, source,
-               include_directories: include_directories(includes),
+               include_directories: includes,
                c_args: example_args,
                cpp_args: example_args,
                dependencies: dependencies)
@@ -54,7 +54,7 @@ if cairo_dep.found()
   foreach example : cairo_examples
     target = example.split('.')[0]
     executable(target, example,
-               include_directories: include_directories(includes),
+               include_directories: includes,
                c_args: example_args,
                dependencies: [pugl_dep, cairo_backend_dep])
   endforeach
@@ -72,7 +72,7 @@ if vulkan_dep.found()
     endif
 
     executable(target, source,
-               include_directories: include_directories(includes),
+               include_directories: includes,
                c_args: example_args,
                cpp_args: example_args,
                dependencies: dependencies)
