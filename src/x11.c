@@ -1043,8 +1043,7 @@ handleTimerEvent(PuglWorld* world, XEvent xevent)
       if (world->impl->timers[i].alarm == notify->alarm) {
         PuglEvent event = {{PUGL_TIMER, 0}};
         event.timer.id  = world->impl->timers[i].id;
-        puglDispatchEvent(world->impl->timers[i].view,
-                          (const PuglEvent*)&event);
+        puglDispatchEvent(world->impl->timers[i].view, &event);
       }
     }
 
@@ -1129,7 +1128,10 @@ puglDispatchX11Events(PuglWorld* world)
                                             (double)attrs.width,
                                             (double)attrs.height};
 
-      puglDispatchEvent(view, (const PuglEvent*)&configure);
+      PuglEvent configureEvent;
+      configureEvent.configure = configure;
+
+      puglDispatchEvent(view, &configureEvent);
       puglDispatchEvent(view, &event);
     } else {
       // Dispatch event to application immediately
@@ -1206,7 +1208,9 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect)
     mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
   } else if (view->visible) {
     // Not dispatching events, send an X expose so we wake up next time
-    return puglSendEvent(view, (const PuglEvent*)&event);
+    PuglEvent exposeEvent = {{PUGL_EXPOSE, 0}};
+    exposeEvent.expose    = event;
+    return puglSendEvent(view, &exposeEvent);
   }
 
   return PUGL_SUCCESS;

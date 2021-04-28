@@ -502,7 +502,9 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
     PUGL_CROSSING_NORMAL,
   };
 
-  puglDispatchEvent(view, (const PuglEvent*)&ev);
+  PuglEvent crossingEvent = {{type, 0}};
+  crossingEvent.crossing  = ev;
+  puglDispatchEvent(view, &crossingEvent);
 }
 
 static void
