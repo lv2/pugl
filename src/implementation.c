@@ -16,6 +16,8 @@
 
 #include "implementation.h"
 
+#include "types.h"
+
 #include "pugl/pugl.h"
 
 #include <assert.h>
