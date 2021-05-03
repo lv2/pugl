@@ -871,9 +871,9 @@ puglFreeWorldInternals(PuglWorld* world)
 }
 
 void*
-puglGetNativeWorld(PuglWorld* PUGL_UNUSED(world))
+puglGetNativeWorld(PuglWorld* world)
 {
-  return NULL;
+  return world->impl->app;
 }
 
 PuglInternals*
