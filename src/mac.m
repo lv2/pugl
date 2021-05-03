@@ -1084,15 +1084,23 @@ puglFreeViewInternals(PuglView* view)
     }
 
     if (view->impl) {
-      [view->impl->wrapperView removeFromSuperview];
-      view->impl->wrapperView->puglview = NULL;
+      if (view->impl->wrapperView) {
+        [view->impl->wrapperView removeFromSuperview];
+        view->impl->wrapperView->puglview = NULL;
+      }
+
       if (view->impl->window) {
         [view->impl->window close];
       }
-      [view->impl->wrapperView release];
+
+      if (view->impl->wrapperView) {
+        [view->impl->wrapperView release];
+      }
+
       if (view->impl->window) {
         [view->impl->window release];
       }
+
       free(view->impl);
     }
   }

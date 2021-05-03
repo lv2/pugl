@@ -163,7 +163,9 @@ puglNewView(PuglWorld* const world)
 void
 puglFreeView(PuglView* view)
 {
-  puglDispatchSimpleEvent(view, PUGL_DESTROY);
+  if (view->eventFunc && view->backend) {
+    puglDispatchSimpleEvent(view, PUGL_DESTROY);
+  }
 
   // Remove from world view list
   PuglWorld* world = view->world;
