@@ -284,7 +284,6 @@ keyString(const uint32_t key)
 static inline int
 printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 {
-#define PFFMT "%6.1f %6.1f"
 #define PIFMT "%5d %5d"
 #define PUFMT "%5u %5u"
 
@@ -319,7 +318,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
                  event->text.string);
   case PUGL_BUTTON_PRESS:
   case PUGL_BUTTON_RELEASE:
-    return (PRINT("%sMouse %u %s at " PFFMT " ",
+    return (PRINT("%sMouse %u %s at " PIFMT " ",
                   prefix,
                   event->button.button,
                   (event->type == PUGL_BUTTON_PRESS) ? "down" : "up  ",
@@ -327,7 +326,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
                   event->button.y) +
             printModifiers(event->scroll.state));
   case PUGL_SCROLL:
-    return (PRINT("%sScroll %5.1f %5.1f (%s) at " PFFMT " ",
+    return (PRINT("%sScroll %5.1f %5.1f (%s) at " PIFMT " ",
                   prefix,
                   event->scroll.dx,
                   event->scroll.dy,
@@ -336,13 +335,13 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
                   event->scroll.y) +
             printModifiers(event->scroll.state));
   case PUGL_POINTER_IN:
-    return PRINT("%sMouse enter  at " PFFMT " (%s)\n",
+    return PRINT("%sMouse enter  at " PIFMT " (%s)\n",
                  prefix,
                  event->crossing.x,
                  event->crossing.y,
                  crossingModeString(event->crossing.mode));
   case PUGL_POINTER_OUT:
-    return PRINT("%sMouse leave  at " PFFMT " (%s)\n",
+    return PRINT("%sMouse leave  at " PIFMT " (%s)\n",
                  prefix,
                  event->crossing.x,
                  event->crossing.y,
@@ -399,7 +398,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     case PUGL_CLOSE:
       return PRINT("%sClose\n", prefix);
     case PUGL_MOTION:
-      return PRINT("%sMouse motion at " PFFMT "\n",
+      return PRINT("%sMouse motion at " PIFMT "\n",
                    prefix,
                    event->motion.x,
                    event->motion.y);
@@ -413,7 +412,6 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 #undef PRINT
 #undef PUFMT
 #undef PIFMT
-#undef PFFMT
 
   return 0;
 }

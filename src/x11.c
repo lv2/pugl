@@ -1214,10 +1214,10 @@ translateEvent(PuglView* const view, XEvent xevent)
   case MotionNotify:
     event.type         = PUGL_MOTION;
     event.motion.time  = (double)xevent.xmotion.time / 1e3;
-    event.motion.x     = xevent.xmotion.x;
-    event.motion.y     = xevent.xmotion.y;
-    event.motion.xRoot = xevent.xmotion.x_root;
-    event.motion.yRoot = xevent.xmotion.y_root;
+    event.motion.x     = (PuglCoord)xevent.xmotion.x;
+    event.motion.y     = (PuglCoord)xevent.xmotion.y;
+    event.motion.xRoot = (PuglCoord)xevent.xmotion.x_root;
+    event.motion.yRoot = (PuglCoord)xevent.xmotion.y_root;
     event.motion.state = translateModifiers(xevent.xmotion.state);
     if (xevent.xmotion.is_hint == NotifyHint) {
       event.motion.flags |= PUGL_IS_HINT;
@@ -1229,10 +1229,10 @@ translateEvent(PuglView* const view, XEvent xevent)
         xevent.xbutton.button <= 7) {
       event.type         = PUGL_SCROLL;
       event.scroll.time  = (double)xevent.xbutton.time / 1e3;
-      event.scroll.x     = xevent.xbutton.x;
-      event.scroll.y     = xevent.xbutton.y;
-      event.scroll.xRoot = xevent.xbutton.x_root;
-      event.scroll.yRoot = xevent.xbutton.y_root;
+      event.scroll.x     = (PuglCoord)xevent.xbutton.x;
+      event.scroll.y     = (PuglCoord)xevent.xbutton.y;
+      event.scroll.xRoot = (PuglCoord)xevent.xbutton.x_root;
+      event.scroll.yRoot = (PuglCoord)xevent.xbutton.y_root;
       event.scroll.state = translateModifiers(xevent.xbutton.state);
       event.scroll.dx    = 0.0;
       event.scroll.dy    = 0.0;
@@ -1258,10 +1258,10 @@ translateEvent(PuglView* const view, XEvent xevent)
       event.button.type   = ((xevent.type == ButtonPress) ? PUGL_BUTTON_PRESS
                                                           : PUGL_BUTTON_RELEASE);
       event.button.time   = (double)xevent.xbutton.time / 1e3;
-      event.button.x      = xevent.xbutton.x;
-      event.button.y      = xevent.xbutton.y;
-      event.button.xRoot  = xevent.xbutton.x_root;
-      event.button.yRoot  = xevent.xbutton.y_root;
+      event.button.x      = (PuglCoord)xevent.xbutton.x;
+      event.button.y      = (PuglCoord)xevent.xbutton.y;
+      event.button.xRoot  = (PuglCoord)xevent.xbutton.x_root;
+      event.button.yRoot  = (PuglCoord)xevent.xbutton.y_root;
       event.button.state  = translateModifiers(xevent.xbutton.state);
       event.button.button = xevent.xbutton.button - 1;
       if (event.button.button == 1) {
@@ -1278,10 +1278,10 @@ translateEvent(PuglView* const view, XEvent xevent)
     event.type =
       ((xevent.type == KeyPress) ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE);
     event.key.time  = (double)xevent.xkey.time / 1e3;
-    event.key.x     = xevent.xkey.x;
-    event.key.y     = xevent.xkey.y;
-    event.key.xRoot = xevent.xkey.x_root;
-    event.key.yRoot = xevent.xkey.y_root;
+    event.key.x     = (PuglCoord)xevent.xkey.x;
+    event.key.y     = (PuglCoord)xevent.xkey.y;
+    event.key.xRoot = (PuglCoord)xevent.xkey.x_root;
+    event.key.yRoot = (PuglCoord)xevent.xkey.y_root;
     event.key.state = translateModifiers(xevent.xkey.state);
     translateKey(view, &xevent, &event);
     break;
@@ -1290,10 +1290,10 @@ translateEvent(PuglView* const view, XEvent xevent)
     event.type =
       ((xevent.type == EnterNotify) ? PUGL_POINTER_IN : PUGL_POINTER_OUT);
     event.crossing.time  = (double)xevent.xcrossing.time / 1e3;
-    event.crossing.x     = xevent.xcrossing.x;
-    event.crossing.y     = xevent.xcrossing.y;
-    event.crossing.xRoot = xevent.xcrossing.x_root;
-    event.crossing.yRoot = xevent.xcrossing.y_root;
+    event.crossing.x     = (PuglCoord)xevent.xcrossing.x;
+    event.crossing.y     = (PuglCoord)xevent.xcrossing.y;
+    event.crossing.xRoot = (PuglCoord)xevent.xcrossing.x_root;
+    event.crossing.yRoot = (PuglCoord)xevent.xcrossing.y_root;
     event.crossing.state = translateModifiers(xevent.xcrossing.state);
     event.crossing.mode  = PUGL_CROSSING_NORMAL;
     if (xevent.xcrossing.mode == NotifyGrab) {
