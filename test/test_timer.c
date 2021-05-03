@@ -39,12 +39,8 @@ static const double timeout = 1 / 60.0;
 static const double timeout = -1.0;
 #endif
 
-#ifdef _WIN32
 // Windows SetTimer has a maximum resolution of 10ms
 static const double tolerance = 0.012;
-#else
-static const double tolerance = 0.002;
-#endif
 
 static const uintptr_t timerId     = 1u;
 static const double    timerPeriod = 1 / 60.0;
