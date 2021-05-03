@@ -445,10 +445,10 @@ typedef struct {
   PuglEventType  type;    ///< #PUGL_KEY_PRESS or #PUGL_KEY_RELEASE
   PuglEventFlags flags;   ///< Bitwise OR of #PuglEventFlag values
   double         time;    ///< Time in seconds
-  double         x;       ///< View-relative X coordinate
-  double         y;       ///< View-relative Y coordinate
-  double         xRoot;   ///< Root-relative X coordinate
-  double         yRoot;   ///< Root-relative Y coordinate
+  PuglCoord      x;       ///< View-relative X coordinate
+  PuglCoord      y;       ///< View-relative Y coordinate
+  PuglCoord      xRoot;   ///< Root-relative X coordinate
+  PuglCoord      yRoot;   ///< Root-relative Y coordinate
   PuglMods       state;   ///< Bitwise OR of #PuglMod flags
   uint32_t       keycode; ///< Raw key code
   uint32_t       key;     ///< Unshifted Unicode character code, or 0
@@ -469,10 +469,10 @@ typedef struct {
   PuglEventType  type;      ///< #PUGL_TEXT
   PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
   double         time;      ///< Time in seconds
-  double         x;         ///< View-relative X coordinate
-  double         y;         ///< View-relative Y coordinate
-  double         xRoot;     ///< Root-relative X coordinate
-  double         yRoot;     ///< Root-relative Y coordinate
+  PuglCoord      x;         ///< View-relative X coordinate
+  PuglCoord      y;         ///< View-relative Y coordinate
+  PuglCoord      xRoot;     ///< Root-relative X coordinate
+  PuglCoord      yRoot;     ///< Root-relative Y coordinate
   PuglMods       state;     ///< Bitwise OR of #PuglMod flags
   uint32_t       keycode;   ///< Raw key code
   uint32_t       character; ///< Unicode character code
@@ -512,10 +512,10 @@ typedef struct {
   PuglEventType    type;  ///< #PUGL_POINTER_IN or #PUGL_POINTER_OUT
   PuglEventFlags   flags; ///< Bitwise OR of #PuglEventFlag values
   double           time;  ///< Time in seconds
-  double           x;     ///< View-relative X coordinate
-  double           y;     ///< View-relative Y coordinate
-  double           xRoot; ///< Root-relative X coordinate
-  double           yRoot; ///< Root-relative Y coordinate
+  PuglCoord        x;     ///< View-relative X coordinate
+  PuglCoord        y;     ///< View-relative Y coordinate
+  PuglCoord        xRoot; ///< Root-relative X coordinate
+  PuglCoord        yRoot; ///< Root-relative Y coordinate
   PuglMods         state; ///< Bitwise OR of #PuglMod flags
   PuglCrossingMode mode;  ///< Reason for crossing
 } PuglCrossingEvent;
@@ -542,10 +542,10 @@ typedef struct {
   PuglEventType  type;   ///< #PUGL_BUTTON_PRESS or #PUGL_BUTTON_RELEASE
   PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
   double         time;   ///< Time in seconds
-  double         x;      ///< View-relative X coordinate
-  double         y;      ///< View-relative Y coordinate
-  double         xRoot;  ///< Root-relative X coordinate
-  double         yRoot;  ///< Root-relative Y coordinate
+  PuglCoord      x;      ///< View-relative X coordinate
+  PuglCoord      y;      ///< View-relative Y coordinate
+  PuglCoord      xRoot;  ///< Root-relative X coordinate
+  PuglCoord      yRoot;  ///< Root-relative Y coordinate
   PuglMods       state;  ///< Bitwise OR of #PuglMod flags
   uint32_t       button; ///< Button number starting from 0
 } PuglButtonEvent;
@@ -557,10 +557,10 @@ typedef struct {
   PuglEventType  type;  ///< #PUGL_MOTION
   PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
   double         time;  ///< Time in seconds
-  double         x;     ///< View-relative X coordinate
-  double         y;     ///< View-relative Y coordinate
-  double         xRoot; ///< Root-relative X coordinate
-  double         yRoot; ///< Root-relative Y coordinate
+  PuglCoord      x;     ///< View-relative X coordinate
+  PuglCoord      y;     ///< View-relative Y coordinate
+  PuglCoord      xRoot; ///< Root-relative X coordinate
+  PuglCoord      yRoot; ///< Root-relative Y coordinate
   PuglMods       state; ///< Bitwise OR of #PuglMod flags
 } PuglMotionEvent;
 
@@ -577,10 +577,10 @@ typedef struct {
   PuglEventType       type;      ///< #PUGL_SCROLL
   PuglEventFlags      flags;     ///< Bitwise OR of #PuglEventFlag values
   double              time;      ///< Time in seconds
-  double              x;         ///< View-relative X coordinate
-  double              y;         ///< View-relative Y coordinate
-  double              xRoot;     ///< Root-relative X coordinate
-  double              yRoot;     ///< Root-relative Y coordinate
+  PuglCoord           x;         ///< View-relative X coordinate
+  PuglCoord           y;         ///< View-relative Y coordinate
+  PuglCoord           xRoot;     ///< Root-relative X coordinate
+  PuglCoord           yRoot;     ///< Root-relative Y coordinate
   PuglMods            state;     ///< Bitwise OR of #PuglMod flags
   PuglScrollDirection direction; ///< Scroll direction
   double              dx;        ///< Scroll X distance in lines
@@ -664,8 +664,8 @@ typedef struct {
   PuglEventType  type;      ///< #PUGL_DATA_OFFER
   PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
   double         time;      ///< Time in seconds
-  double         x;         ///< View-relative X coordinate
-  double         y;         ///< View-relative Y coordinate
+  PuglCoord      x;         ///< View-relative X coordinate
+  PuglCoord      y;         ///< View-relative Y coordinate
   PuglClipboard  clipboard; ///< Clipboard with available data
 } PuglDataOfferEvent;
 
@@ -680,8 +680,8 @@ typedef struct {
   PuglEventType  type;      ///< #PUGL_DATA
   PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
   double         time;      ///< Time in seconds
-  double         x;         ///< View-relative X coordinate
-  double         y;         ///< View-relative Y coordinate
+  PuglCoord      x;         ///< View-relative X coordinate
+  PuglCoord      y;         ///< View-relative Y coordinate
   PuglClipboard  clipboard; ///< Clipboard with available data
   uint32_t       typeIndex; ///< Index of datatype
 } PuglDataEvent;

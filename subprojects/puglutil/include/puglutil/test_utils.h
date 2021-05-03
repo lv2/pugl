@@ -65,7 +65,6 @@ printModifiers(const uint32_t mods)
 static inline int
 printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 {
-#define PFFMT "%6.1f %6.1f"
 #define PIFMT "%5d %5d"
 #define PUFMT "%5u %5u"
 
@@ -120,14 +119,14 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
   case PUGL_BUTTON_PRESS:
   case PUGL_BUTTON_RELEASE:
     PRINT(
-      " %u " PFFMT " ", event->button.button, event->button.x, event->button.y);
+      " %u " PIFMT " ", event->button.button, event->button.x, event->button.y);
     printModifiers(event->scroll.state);
     break;
   case PUGL_MOTION:
-    PRINT(" " PFFMT, event->motion.x, event->motion.y);
+    PRINT(" " PIFMT, event->motion.x, event->motion.y);
     break;
   case PUGL_SCROLL:
-    PRINT(" %5.1f %5.1f (%s) at " PFFMT " ",
+    PRINT(" %5.1f %5.1f (%s) at " PIFMT " ",
           event->scroll.dx,
           event->scroll.dy,
           scrollDirectionString(event->scroll.direction),
@@ -137,7 +136,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     break;
   case PUGL_POINTER_IN:
   case PUGL_POINTER_OUT:
-    PRINT(" " PFFMT " (%s)",
+    PRINT(" " PIFMT " (%s)",
           event->crossing.x,
           event->crossing.y,
           crossingModeString(event->crossing.mode));
@@ -153,7 +152,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     PRINT(" %" PRIuPTR, event->timer.id);
     break;
   case PUGL_DATA_OFFER:
-    PRINT("%sData offer at   " PFFMT, prefix, event->offer.x, event->offer.y);
+    PRINT(" " PIFMT, event->offer.x, event->offer.y);
     break;
   default:
     break;
@@ -163,7 +162,6 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 #undef PRINT
 #undef PUFMT
 #undef PIFMT
-#undef PFFMT
 
   return 0;
 }

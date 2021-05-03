@@ -1524,8 +1524,8 @@ puglAcceptOffer(PuglView* const                 view,
     PUGL_DATA,
     0U,
     GetMessageTime() / 1e3,
-    (double)regionX,
-    (double)regionY,
+    (PuglCoord)regionX,
+    (PuglCoord)regionY,
     offer->clipboard,
     typeIndex,
   };
@@ -1641,8 +1641,8 @@ puglPaste(PuglView* const view)
     PUGL_DATA_OFFER,
     0U,
     GetMessageTime() / 1e3,
-    0.0,
-    0.0,
+    0,
+    0,
     PUGL_CLIPBOARD_GENERAL,
   };
 

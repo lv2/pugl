@@ -2021,8 +2021,8 @@ puglPaste(PuglView* const view)
     PUGL_DATA_OFFER,
     0U,
     puglGetTime(view->world),
-    0.0,
-    0.0,
+    0,
+    0,
     PUGL_CLIPBOARD_GENERAL,
   };
 
@@ -2111,8 +2111,8 @@ puglAcceptOffer(PuglView* const                 view,
   const PuglDataEvent data = {PUGL_DATA,
                               0U,
                               now,
-                              (double)regionX,
-                              (double)regionY,
+                              (PuglCoord)regionX,
+                              (PuglCoord)regionY,
                               offer->clipboard,
                               (uint32_t)typeIndex};
 
