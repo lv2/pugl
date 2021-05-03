@@ -222,11 +222,7 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
 int
 puglGetViewHint(const PuglView* view, PuglViewHint hint)
 {
-  if (hint < PUGL_NUM_VIEW_HINTS) {
-    return view->hints[hint];
-  }
-
-  return PUGL_DONT_CARE;
+  return (hint < PUGL_NUM_VIEW_HINTS) ? view->hints[hint] : PUGL_DONT_CARE;
 }
 
 PuglStatus
