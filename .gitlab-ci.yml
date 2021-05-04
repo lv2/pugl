@@ -142,6 +142,8 @@ pages:
     - mkdir public/cpp
     - mv build/doc/c/singlehtml/ public/c/singlehtml/
     - mv build/doc/cpp/singlehtml/ public/cpp/singlehtml/
+    - mv build/doc/c/html/ public/c/html/
+    - mv build/doc/cpp/html/ public/cpp/html/
   dependencies:
     - x64_dbg
   artifacts:

@@ -48,7 +48,8 @@ Each API is documented separately:
  * [C++ Documentation (single page)](https://lv2.gitlab.io/pugl/cpp/singlehtml/)
  * [C++ Documentation (paginated)](https://lv2.gitlab.io/pugl/cpp/html/)
 
-The documentation can also be built from the source by configuring with `--docs`.
+The documentation will also be built from the source if the `docs`
+configuration option is enabled, and both Doxygen and Sphinx are available.
 
 Testing
 -------
