@@ -44,6 +44,7 @@ main(void)
 
   // Set up view
   puglSetClassName(world, "Pugl Test");
+  puglSetWindowTitle(view, "Pugl Stub Hints Test");
   puglSetBackend(view, puglStubBackend());
   puglSetEventFunc(view, onEvent);
   puglSetDefaultSize(view, 512, 512);

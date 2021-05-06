@@ -74,6 +74,7 @@ main(int argc, char** argv)
 
   // Set up and show view
   puglSetClassName(test.world, "Pugl Test");
+  puglSetWindowTitle(test.view, "Pugl Cairo Test");
   puglSetHandle(test.view, &test);
   puglSetBackend(test.view, puglCairoBackend());
   puglSetEventFunc(test.view, onEvent);

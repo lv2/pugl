@@ -44,6 +44,7 @@ main(void)
 
   // Set up view
   puglSetClassName(world, "Pugl Test");
+  puglSetWindowTitle(view, "Pugl OpenGL Hints Test");
   puglSetBackend(view, puglGlBackend());
   puglSetEventFunc(view, onEvent);
   puglSetDefaultSize(view, 512, 512);
