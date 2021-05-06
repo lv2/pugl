@@ -70,7 +70,7 @@ enum WmClientStateMessageAction {
 };
 
 static bool
-puglInitXSync(PuglWorldInternals* impl)
+initXSync(PuglWorldInternals* const impl)
 {
 #ifdef HAVE_XSYNC
   int                 syncMajor   = 0;
@@ -100,7 +100,7 @@ puglInitXSync(PuglWorldInternals* impl)
 }
 
 PuglWorldInternals*
-puglInitWorldInternals(PuglWorldType type, PuglWorldFlags flags)
+puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
 {
   if (type == PUGL_PROGRAM && (flags & PUGL_WORLD_THREADS)) {
     XInitThreads();
@@ -134,14 +134,14 @@ puglInitWorldInternals(PuglWorldType type, PuglWorldFlags flags)
     impl->xim = XOpenIM(display, NULL, NULL, NULL);
   }
 
-  puglInitXSync(impl);
+  initXSync(impl);
   XFlush(display);
 
   return impl;
 }
 
 void*
-puglGetNativeWorld(PuglWorld* world)
+puglGetNativeWorld(PuglWorld* const world)
 {
   return world->impl->display;
 }
@@ -159,7 +159,7 @@ puglInitViewInternals(void)
 }
 
 static PuglStatus
-puglPollX11Socket(PuglWorld* world, const double timeout)
+pollX11Socket(PuglWorld* const world, const double timeout)
 {
   if (XPending(world->impl->display) > 0) {
     return PUGL_SUCCESS;
@@ -185,7 +185,7 @@ puglPollX11Socket(PuglWorld* world, const double timeout)
 }
 
 static PuglView*
-puglFindView(PuglWorld* world, const Window window)
+findView(PuglWorld* const world, const Window window)
 {
   for (size_t i = 0; i < world->numViews; ++i) {
     if (world->views[i]->impl->win == window) {
@@ -197,7 +197,7 @@ puglFindView(PuglWorld* world, const Window window)
 }
 
 static PuglStatus
-updateSizeHints(const PuglView* view)
+updateSizeHints(const PuglView* const view)
 {
   if (!view->impl->win) {
     return PUGL_SUCCESS;
@@ -248,7 +248,7 @@ updateSizeHints(const PuglView* view)
 
 #ifdef HAVE_XCURSOR
 static PuglStatus
-puglDefineCursorShape(PuglView* view, unsigned shape)
+defineCursorShape(PuglView* const view, const unsigned shape)
 {
   PuglInternals* const impl    = view->impl;
   PuglWorld* const     world   = view->world;
@@ -266,7 +266,7 @@ puglDefineCursorShape(PuglView* view, unsigned shape)
 #endif
 
 PuglStatus
-puglRealize(PuglView* view)
+puglRealize(PuglView* const view)
 {
   PuglInternals* const impl    = view->impl;
   PuglWorld* const     world   = view->world;
@@ -386,7 +386,7 @@ puglRealize(PuglView* view)
                         NULL);
 
 #ifdef HAVE_XCURSOR
-  puglDefineCursorShape(view, impl->cursorShape);
+  defineCursorShape(view, impl->cursorShape);
 #endif
 
   puglDispatchSimpleEvent(view, PUGL_CREATE);
@@ -395,31 +395,27 @@ puglRealize(PuglView* view)
 }
 
 PuglStatus
-puglShow(PuglView* view)
+puglShow(PuglView* const view)
 {
-  PuglStatus st = PUGL_SUCCESS;
+  PuglStatus st = view->impl->win ? PUGL_SUCCESS : puglRealize(view);
 
-  if (!view->impl->win) {
-    if ((st = puglRealize(view))) {
-      return st;
-    }
+  if (!st) {
+    XMapRaised(view->impl->display, view->impl->win);
+    st = puglPostRedisplay(view);
   }
-
-  XMapRaised(view->impl->display, view->impl->win);
-  puglPostRedisplay(view);
 
   return st;
 }
 
 PuglStatus
-puglHide(PuglView* view)
+puglHide(PuglView* const view)
 {
   XUnmapWindow(view->impl->display, view->impl->win);
   return PUGL_SUCCESS;
 }
 
 void
-puglFreeViewInternals(PuglView* view)
+puglFreeViewInternals(PuglView* const view)
 {
   if (view && view->impl) {
     if (view->impl->xic) {
@@ -437,7 +433,7 @@ puglFreeViewInternals(PuglView* view)
 }
 
 void
-puglFreeWorldInternals(PuglWorld* world)
+puglFreeWorldInternals(PuglWorld* const world)
 {
   if (world->impl->xim) {
     XCloseIM(world->impl->xim);
@@ -448,88 +444,55 @@ puglFreeWorldInternals(PuglWorld* world)
 }
 
 static PuglKey
-keySymToSpecial(KeySym sym)
+keySymToSpecial(const KeySym sym)
 {
+  // clang-format off
   switch (sym) {
-  case XK_F1:
-    return PUGL_KEY_F1;
-  case XK_F2:
-    return PUGL_KEY_F2;
-  case XK_F3:
-    return PUGL_KEY_F3;
-  case XK_F4:
-    return PUGL_KEY_F4;
-  case XK_F5:
-    return PUGL_KEY_F5;
-  case XK_F6:
-    return PUGL_KEY_F6;
-  case XK_F7:
-    return PUGL_KEY_F7;
-  case XK_F8:
-    return PUGL_KEY_F8;
-  case XK_F9:
-    return PUGL_KEY_F9;
-  case XK_F10:
-    return PUGL_KEY_F10;
-  case XK_F11:
-    return PUGL_KEY_F11;
-  case XK_F12:
-    return PUGL_KEY_F12;
-  case XK_Left:
-    return PUGL_KEY_LEFT;
-  case XK_Up:
-    return PUGL_KEY_UP;
-  case XK_Right:
-    return PUGL_KEY_RIGHT;
-  case XK_Down:
-    return PUGL_KEY_DOWN;
-  case XK_Page_Up:
-    return PUGL_KEY_PAGE_UP;
-  case XK_Page_Down:
-    return PUGL_KEY_PAGE_DOWN;
-  case XK_Home:
-    return PUGL_KEY_HOME;
-  case XK_End:
-    return PUGL_KEY_END;
-  case XK_Insert:
-    return PUGL_KEY_INSERT;
-  case XK_Shift_L:
-    return PUGL_KEY_SHIFT_L;
-  case XK_Shift_R:
-    return PUGL_KEY_SHIFT_R;
-  case XK_Control_L:
-    return PUGL_KEY_CTRL_L;
-  case XK_Control_R:
-    return PUGL_KEY_CTRL_R;
-  case XK_Alt_L:
-    return PUGL_KEY_ALT_L;
+  case XK_F1:               return PUGL_KEY_F1;
+  case XK_F2:               return PUGL_KEY_F2;
+  case XK_F3:               return PUGL_KEY_F3;
+  case XK_F4:               return PUGL_KEY_F4;
+  case XK_F5:               return PUGL_KEY_F5;
+  case XK_F6:               return PUGL_KEY_F6;
+  case XK_F7:               return PUGL_KEY_F7;
+  case XK_F8:               return PUGL_KEY_F8;
+  case XK_F9:               return PUGL_KEY_F9;
+  case XK_F10:              return PUGL_KEY_F10;
+  case XK_F11:              return PUGL_KEY_F11;
+  case XK_F12:              return PUGL_KEY_F12;
+  case XK_Left:             return PUGL_KEY_LEFT;
+  case XK_Up:               return PUGL_KEY_UP;
+  case XK_Right:            return PUGL_KEY_RIGHT;
+  case XK_Down:             return PUGL_KEY_DOWN;
+  case XK_Page_Up:          return PUGL_KEY_PAGE_UP;
+  case XK_Page_Down:        return PUGL_KEY_PAGE_DOWN;
+  case XK_Home:             return PUGL_KEY_HOME;
+  case XK_End:              return PUGL_KEY_END;
+  case XK_Insert:           return PUGL_KEY_INSERT;
+  case XK_Shift_L:          return PUGL_KEY_SHIFT_L;
+  case XK_Shift_R:          return PUGL_KEY_SHIFT_R;
+  case XK_Control_L:        return PUGL_KEY_CTRL_L;
+  case XK_Control_R:        return PUGL_KEY_CTRL_R;
+  case XK_Alt_L:            return PUGL_KEY_ALT_L;
   case XK_ISO_Level3_Shift:
-  case XK_Alt_R:
-    return PUGL_KEY_ALT_R;
-  case XK_Super_L:
-    return PUGL_KEY_SUPER_L;
-  case XK_Super_R:
-    return PUGL_KEY_SUPER_R;
-  case XK_Menu:
-    return PUGL_KEY_MENU;
-  case XK_Caps_Lock:
-    return PUGL_KEY_CAPS_LOCK;
-  case XK_Scroll_Lock:
-    return PUGL_KEY_SCROLL_LOCK;
-  case XK_Num_Lock:
-    return PUGL_KEY_NUM_LOCK;
-  case XK_Print:
-    return PUGL_KEY_PRINT_SCREEN;
-  case XK_Pause:
-    return PUGL_KEY_PAUSE;
-  default:
-    break;
+  case XK_Alt_R:            return PUGL_KEY_ALT_R;
+  case XK_Super_L:          return PUGL_KEY_SUPER_L;
+  case XK_Super_R:          return PUGL_KEY_SUPER_R;
+  case XK_Menu:             return PUGL_KEY_MENU;
+  case XK_Caps_Lock:        return PUGL_KEY_CAPS_LOCK;
+  case XK_Scroll_Lock:      return PUGL_KEY_SCROLL_LOCK;
+  case XK_Num_Lock:         return PUGL_KEY_NUM_LOCK;
+  case XK_Print:            return PUGL_KEY_PRINT_SCREEN;
+  case XK_Pause:            return PUGL_KEY_PAUSE;
+  default:                  break;
   }
+  // clang-format on
+
   return (PuglKey)0;
 }
 
 static int
-lookupString(XIC xic, XEvent* xevent, char* str, KeySym* sym)
+lookupString(XIC xic, XEvent* const xevent, char* const str, KeySym* const sym)
 {
   Status status = 0;
 
@@ -543,7 +506,7 @@ lookupString(XIC xic, XEvent* xevent, char* str, KeySym* sym)
 }
 
 static void
-translateKey(PuglView* view, XEvent* xevent, PuglEvent* event)
+translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
 {
   const unsigned state  = xevent->xkey.state;
   const bool     filter = XFilterEvent(xevent, None);
@@ -588,7 +551,7 @@ translateModifiers(const unsigned xstate)
 }
 
 static PuglEvent
-translateEvent(PuglView* view, XEvent xevent)
+translateEvent(PuglView* const view, XEvent xevent)
 {
   const PuglX11Atoms* atoms = &view->world->impl->atoms;
 
@@ -738,15 +701,16 @@ translateEvent(PuglView* view, XEvent xevent)
 }
 
 PuglStatus
-puglGrabFocus(PuglView* view)
+puglGrabFocus(PuglView* const view)
 {
-  XSetInputFocus(
-    view->impl->display, view->impl->win, RevertToNone, CurrentTime);
+  PuglInternals* const impl = view->impl;
+
+  XSetInputFocus(impl->display, impl->win, RevertToNone, CurrentTime);
   return PUGL_SUCCESS;
 }
 
 bool
-puglHasFocus(const PuglView* view)
+puglHasFocus(const PuglView* const view)
 {
   int    revertTo      = 0;
   Window focusedWindow = 0;
@@ -755,7 +719,7 @@ puglHasFocus(const PuglView* view)
 }
 
 PuglStatus
-puglRequestAttention(PuglView* view)
+puglRequestAttention(PuglView* const view)
 {
   PuglInternals* const      impl  = view->impl;
   const PuglX11Atoms* const atoms = &view->world->impl->atoms;
@@ -782,7 +746,7 @@ puglRequestAttention(PuglView* view)
 }
 
 PuglStatus
-puglStartTimer(PuglView* view, uintptr_t id, double timeout)
+puglStartTimer(PuglView* const view, const uintptr_t id, const double timeout)
 {
 #ifdef HAVE_XSYNC
   if (view->world->impl->syncSupported) {
@@ -825,7 +789,7 @@ puglStartTimer(PuglView* view, uintptr_t id, double timeout)
 }
 
 PuglStatus
-puglStopTimer(PuglView* view, uintptr_t id)
+puglStopTimer(PuglView* const view, const uintptr_t id)
 {
 #ifdef HAVE_XSYNC
   PuglWorldInternals* w = view->world->impl;
@@ -857,7 +821,7 @@ puglStopTimer(PuglView* view, uintptr_t id)
 }
 
 static XEvent
-puglEventToX(PuglView* view, const PuglEvent* event)
+eventToX(PuglView* const view, const PuglEvent* const event)
 {
   XEvent xev          = {0};
   xev.xany.send_event = True;
@@ -900,9 +864,9 @@ puglEventToX(PuglView* view, const PuglEvent* event)
 }
 
 PuglStatus
-puglSendEvent(PuglView* view, const PuglEvent* event)
+puglSendEvent(PuglView* const view, const PuglEvent* const event)
 {
-  XEvent xev = puglEventToX(view, event);
+  XEvent xev = eventToX(view, event);
 
   if (xev.type) {
     if (XSendEvent(view->impl->display, view->impl->win, False, 0, &xev)) {
@@ -917,7 +881,7 @@ puglSendEvent(PuglView* view, const PuglEvent* event)
 
 #ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
-puglWaitForEvent(PuglView* view)
+puglWaitForEvent(PuglView* const view)
 {
   XEvent xevent;
   XPeekEvent(view->impl->display, &xevent);
@@ -926,7 +890,7 @@ puglWaitForEvent(PuglView* view)
 #endif
 
 static void
-mergeExposeEvents(PuglEventExpose* dst, const PuglEventExpose* src)
+mergeExposeEvents(PuglEventExpose* const dst, const PuglEventExpose* const src)
 {
   if (!dst->type) {
     *dst = *src;
@@ -942,7 +906,7 @@ mergeExposeEvents(PuglEventExpose* dst, const PuglEventExpose* src)
 }
 
 static void
-handleSelectionNotify(const PuglWorld* world, PuglView* view)
+handleSelectionNotify(const PuglWorld* const world, PuglView* const view)
 {
   uint8_t*      str  = NULL;
   Atom          type = 0;
@@ -971,9 +935,9 @@ handleSelectionNotify(const PuglWorld* world, PuglView* view)
 }
 
 static void
-handleSelectionRequest(const PuglWorld*              world,
-                       PuglView*                     view,
-                       const XSelectionRequestEvent* request)
+handleSelectionRequest(const PuglWorld* const              world,
+                       PuglView* const                     view,
+                       const XSelectionRequestEvent* const request)
 {
   XSelectionEvent note = {SelectionNotify,
                           request->serial,
@@ -1008,7 +972,7 @@ handleSelectionRequest(const PuglWorld*              world,
 
 /// Flush pending configure and expose events for all views
 static void
-flushExposures(PuglWorld* world)
+flushExposures(PuglWorld* const world)
 {
   for (size_t i = 0; i < world->numViews; ++i) {
     PuglView* const view = world->views[i];
@@ -1033,11 +997,12 @@ flushExposures(PuglWorld* world)
 }
 
 static bool
-handleTimerEvent(PuglWorld* world, XEvent xevent)
+handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 {
 #ifdef HAVE_XSYNC
   if (xevent.type == world->impl->syncEventBase + XSyncAlarmNotify) {
-    XSyncAlarmNotifyEvent* notify = ((XSyncAlarmNotifyEvent*)&xevent);
+    const XSyncAlarmNotifyEvent* const notify =
+      ((const XSyncAlarmNotifyEvent*)&xevent);
 
     for (size_t i = 0; i < world->impl->numTimers; ++i) {
       if (world->impl->timers[i].alarm == notify->alarm) {
@@ -1058,7 +1023,7 @@ handleTimerEvent(PuglWorld* world, XEvent xevent)
 }
 
 static PuglStatus
-puglDispatchX11Events(PuglWorld* world)
+dispatchX11Events(PuglWorld* const world)
 {
   const PuglX11Atoms* const atoms = &world->impl->atoms;
 
@@ -1075,7 +1040,7 @@ puglDispatchX11Events(PuglWorld* world)
       continue;
     }
 
-    PuglView* view = puglFindView(world, xevent.xany.window);
+    PuglView* view = findView(world, xevent.xany.window);
     if (!view) {
       continue;
     }
@@ -1111,26 +1076,21 @@ puglDispatchX11Events(PuglWorld* world)
       // Expand expose event to be dispatched after loop
       mergeExposeEvents(&view->impl->pendingExpose.expose, &event.expose);
     } else if (event.type == PUGL_CONFIGURE) {
-      // Expand configure event to be dispatched after loop
+      // Update configure event to be dispatched after loop
       view->impl->pendingConfigure = event;
-      view->frame.x                = event.configure.x;
-      view->frame.y                = event.configure.y;
-      view->frame.width            = event.configure.width;
-      view->frame.height           = event.configure.height;
     } else if (event.type == PUGL_MAP && view->parent) {
+      // Get initial window position and size
       XWindowAttributes attrs;
       XGetWindowAttributes(view->impl->display, view->impl->win, &attrs);
 
-      const PuglEventConfigure configure = {PUGL_CONFIGURE,
-                                            0,
-                                            (double)attrs.x,
-                                            (double)attrs.y,
-                                            (double)attrs.width,
-                                            (double)attrs.height};
+      // Build an initial configure event in case the WM doesn't send one
+      PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
+      configureEvent.configure.x      = (double)attrs.x;
+      configureEvent.configure.y      = (double)attrs.y;
+      configureEvent.configure.width  = (double)attrs.width;
+      configureEvent.configure.height = (double)attrs.height;
 
-      PuglEvent configureEvent;
-      configureEvent.configure = configure;
-
+      // Dispatch an initial configure (if necessary), then the map event
       puglDispatchEvent(view, &configureEvent);
       puglDispatchEvent(view, &event);
     } else {
@@ -1144,14 +1104,14 @@ puglDispatchX11Events(PuglWorld* world)
 
 #ifndef PUGL_DISABLE_DEPRECATED
 PuglStatus
-puglProcessEvents(PuglView* view)
+puglProcessEvents(PuglView* const view)
 {
   return puglUpdate(view->world, 0.0);
 }
 #endif
 
 PuglStatus
-puglUpdate(PuglWorld* world, double timeout)
+puglUpdate(PuglWorld* const world, const double timeout)
 {
   const double startTime = puglGetTime(world);
   PuglStatus   st        = PUGL_SUCCESS;
@@ -1159,17 +1119,19 @@ puglUpdate(PuglWorld* world, double timeout)
   world->impl->dispatchingEvents = true;
 
   if (timeout < 0.0) {
-    st = puglPollX11Socket(world, timeout);
-    st = st ? st : puglDispatchX11Events(world);
+    st = pollX11Socket(world, timeout);
+    st = st ? st : dispatchX11Events(world);
   } else if (timeout <= 0.001) {
-    st = puglDispatchX11Events(world);
+    st = dispatchX11Events(world);
   } else {
     const double endTime = startTime + timeout - 0.001;
-    for (double t = startTime; t < endTime; t = puglGetTime(world)) {
-      if ((st = puglPollX11Socket(world, endTime - t)) ||
-          (st = puglDispatchX11Events(world))) {
-        break;
+    double       t       = startTime;
+    while (!st && t < endTime) {
+      if (!(st = pollX11Socket(world, endTime - t))) {
+        st = dispatchX11Events(world);
       }
+
+      t = puglGetTime(world);
     }
   }
 
@@ -1181,7 +1143,7 @@ puglUpdate(PuglWorld* world, double timeout)
 }
 
 double
-puglGetTime(const PuglWorld* world)
+puglGetTime(const PuglWorld* const world)
 {
   struct timespec ts;
   clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -1190,7 +1152,7 @@ puglGetTime(const PuglWorld* world)
 }
 
 PuglStatus
-puglPostRedisplay(PuglView* view)
+puglPostRedisplay(PuglView* const view)
 {
   const PuglRect rect = {0, 0, view->frame.width, view->frame.height};
 
@@ -1198,7 +1160,7 @@ puglPostRedisplay(PuglView* view)
 }
 
 PuglStatus
-puglPostRedisplayRect(PuglView* view, PuglRect rect)
+puglPostRedisplayRect(PuglView* const view, const PuglRect rect)
 {
   const PuglEventExpose event = {
     PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height};
@@ -1217,13 +1179,13 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect)
 }
 
 PuglNativeView
-puglGetNativeWindow(PuglView* view)
+puglGetNativeWindow(PuglView* const view)
 {
   return (PuglNativeView)view->impl->win;
 }
 
 PuglStatus
-puglSetWindowTitle(PuglView* view, const char* title)
+puglSetWindowTitle(PuglView* const view, const char* const title)
 {
   Display*                  display = view->world->impl->display;
   const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
@@ -1246,7 +1208,7 @@ puglSetWindowTitle(PuglView* view, const char* title)
 }
 
 PuglStatus
-puglSetFrame(PuglView* view, const PuglRect frame)
+puglSetFrame(PuglView* const view, const PuglRect frame)
 {
   if (view->impl->win) {
     if (!XMoveResizeWindow(view->world->impl->display,
@@ -1298,12 +1260,11 @@ puglSetAspectRatio(PuglView* const view,
   view->minAspectY = minY;
   view->maxAspectX = maxX;
   view->maxAspectY = maxY;
-
   return updateSizeHints(view);
 }
 
 PuglStatus
-puglSetTransientFor(PuglView* view, PuglNativeView parent)
+puglSetTransientFor(PuglView* const view, const PuglNativeView parent)
 {
   Display* display = view->world->impl->display;
 
@@ -1377,7 +1338,7 @@ static const unsigned cursor_nums[] = {
 #endif
 
 PuglStatus
-puglSetCursor(PuglView* view, PuglCursor cursor)
+puglSetCursor(PuglView* const view, const PuglCursor cursor)
 {
 #ifdef HAVE_XCURSOR
   PuglInternals* const impl  = view->impl;
@@ -1394,7 +1355,7 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
 
   impl->cursorShape = cursor_nums[index];
 
-  return puglDefineCursorShape(view, impl->cursorShape);
+  return defineCursorShape(view, impl->cursorShape);
 #else
   (void)view;
   (void)cursor;
