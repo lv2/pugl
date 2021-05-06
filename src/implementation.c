@@ -445,7 +445,7 @@ puglSetInternalClipboard(PuglView* const   view,
                          const void* const data,
                          const size_t      len)
 {
-  if (type && strcmp(type, "text/plain")) {
+  if (type && !!strcmp(type, "text/plain")) {
     return PUGL_UNSUPPORTED_TYPE;
   }
 
