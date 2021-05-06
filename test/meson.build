@@ -19,6 +19,7 @@ cairo_tests = [
 ]
 
 gl_tests = [
+  'gl',
   'gl_hints'
 ]
 
