@@ -6,6 +6,7 @@ basic_tests = [
   'show_hide',
   'size',
   'strerror',
+  'stub',
   'stub_hints',
   'timer',
   'update',
