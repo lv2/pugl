@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2020 David Robillard <d@drobilla.net>
+  Copyright 2012-2021 David Robillard <d@drobilla.net>
   Copyright 2013 Robin Gareus <robin@gareus.org>
   Copyright 2011-2012 Ben Loftis, Harrison Consoles
 
@@ -1357,12 +1357,11 @@ puglSetClipboard(PuglView* const   view,
   const PuglX11Atoms* const atoms = &view->world->impl->atoms;
 
   PuglStatus st = puglSetInternalClipboard(view, type, data, len);
-  if (st) {
-    return st;
+  if (!st) {
+    XSetSelectionOwner(impl->display, atoms->CLIPBOARD, impl->win, CurrentTime);
   }
 
-  XSetSelectionOwner(impl->display, atoms->CLIPBOARD, impl->win, CurrentTime);
-  return PUGL_SUCCESS;
+  return st;
 }
 
 #ifdef HAVE_XCURSOR

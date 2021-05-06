@@ -1,6 +1,8 @@
 basic_tests = [
+  'local_copy_paste',
   'realize',
   'redisplay',
+  'remote_copy_paste',
   'show_hide',
   'size',
   'strerror',
