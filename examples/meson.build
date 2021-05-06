@@ -9,6 +9,7 @@ stub_examples = [
 ]
 
 gl_examples = [
+  'pugl_clipboard_demo.c',
   'pugl_cpp_demo.cpp',
   'pugl_cursor_demo.c',
   'pugl_embed_demo.c',
@@ -81,6 +82,7 @@ subdir('shaders')
 if host_machine.system() == 'darwin'
   # On Darwin, build examples as application bundles (required to work properly)
 
+  subdir('pugl_clipboard_demo.app')
 
   if cairo_dep.found()
     subdir('pugl_cairo_demo.app')

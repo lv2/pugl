@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "cube_view.h"
@@ -11,8 +11,6 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <string.h>
 
 static const uint8_t   borderWidth    = 64u;
 static const uintptr_t reverseTimerId = 1u;
@@ -100,7 +98,7 @@ swapFocus(PuglTestApp* app)
 }
 
 static void
-onKeyPress(PuglView* view, const PuglKeyEvent* event, const char* prefix)
+onKeyPress(PuglView* view, const PuglKeyEvent* event)
 {
   PuglTestApp* app   = (PuglTestApp*)puglGetHandle(view);
   PuglRect     frame = puglGetFrame(view);
@@ -109,14 +107,6 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event, const char* prefix)
     swapFocus(app);
   } else if (event->key == 'q' || event->key == PUGL_KEY_ESCAPE) {
     app->quit = 1;
-  } else if (event->state & PUGL_MOD_CTRL && event->key == 'c') {
-    puglSetClipboard(view, NULL, "Pugl test", strlen("Pugl test") + 1);
-    fprintf(stderr, "%sCopy \"Pugl test\"\n", prefix);
-  } else if (event->state & PUGL_MOD_CTRL && event->key == 'v') {
-    const char* type = NULL;
-    size_t      len  = 0;
-    const char* text = (const char*)puglGetClipboard(view, &type, &len);
-    fprintf(stderr, "%sPaste \"%s\"\n", prefix, text);
   } else if (event->state & PUGL_MOD_SHIFT) {
     if (event->key == PUGL_KEY_UP) {
       puglSetSize(view, frame.width, frame.height - 10u);
@@ -178,7 +168,7 @@ onParentEvent(PuglView* view, const PuglEvent* event)
     }
     break;
   case PUGL_KEY_PRESS:
-    onKeyPress(view, &event->key, "Parent: ");
+    onKeyPress(view, &event->key);
     break;
   case PUGL_MOTION:
     break;
@@ -215,7 +205,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     app->quit = 1;
     break;
   case PUGL_KEY_PRESS:
-    onKeyPress(view, &event->key, "Child:  ");
+    onKeyPress(view, &event->key);
     break;
   case PUGL_MOTION:
     app->xAngle -= event->motion.x - app->lastMouseX;
