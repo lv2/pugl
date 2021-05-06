@@ -1088,7 +1088,7 @@ main(int argc, char** argv)
     return logError("Failed to create window (%s)\n", puglStrerror(st));
   }
 
-  // Create Vulkan surface for Window
+  // Create Vulkan surface for window
   PuglVulkanLoader* loader = puglNewVulkanLoader(app.world);
   if (puglCreateSurface(puglGetInstanceProcAddrFunc(loader),
                         app.view,

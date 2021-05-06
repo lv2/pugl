@@ -40,13 +40,10 @@ struct PuglVulkanLoaderImpl {
 PuglVulkanLoader*
 puglNewVulkanLoader(PuglWorld* PUGL_UNUSED(world))
 {
-  PuglVulkanLoader* loader =
+  PuglVulkanLoader* const loader =
     (PuglVulkanLoader*)calloc(1, sizeof(PuglVulkanLoader));
-  if (!loader) {
-    return NULL;
-  }
 
-  if (!(loader->libvulkan = dlopen("libvulkan.so", RTLD_LAZY))) {
+  if (!loader || !(loader->libvulkan = dlopen("libvulkan.so", RTLD_LAZY))) {
     free(loader);
     return NULL;
   }

@@ -13,12 +13,16 @@ basic_tests = [
   'world',
 ]
 
+cairo_tests = [
+  'cairo'
+]
+
 gl_tests = [
   'gl_hints'
 ]
 
-cairo_tests = [
-  'cairo'
+vulkan_tests = [
+  'vulkan'
 ]
 
 includes = [
@@ -48,5 +52,14 @@ if cairo_dep.found()
          executable('test_' + test, 'test_@0@.c'.format(test),
                     include_directories: include_directories(includes),
                     dependencies: [pugl_dep, cairo_backend_dep]))
+  endforeach
+endif
+
+if vulkan_dep.found()
+  foreach test : vulkan_tests
+    test(test,
+         executable('test_' + test, 'test_@0@.c'.format(test),
+                    include_directories: include_directories(includes),
+                    dependencies: [pugl_dep, vulkan_backend_dep]))
   endforeach
 endif
