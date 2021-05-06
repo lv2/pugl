@@ -55,11 +55,28 @@ typedef struct {
   PuglView*       view;
   PuglTestOptions opts;
   size_t          numAlarms;
+  double          firstAlarmTime;
+  double          lastAlarmTime;
   State           state;
 } PuglTest;
 
+static void
+onTimer(PuglView* const view, const PuglEventTimer* const event)
+{
+  PuglTest* const test = (PuglTest*)puglGetHandle(view);
+  const double    time = puglGetTime(puglGetWorld(view));
+
+  assert(event->id == timerId);
+
+  if (test->numAlarms++ == 0) {
+    test->firstAlarmTime = time;
+  }
+
+  test->lastAlarmTime = time;
+}
+
 static PuglStatus
-onEvent(PuglView* view, const PuglEvent* event)
+onEvent(PuglView* const view, const PuglEvent* const event)
 {
   PuglTest* test = (PuglTest*)puglGetHandle(view);
 
@@ -73,8 +90,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
 
   case PUGL_TIMER:
-    assert(event->timer.id == timerId);
-    ++test->numAlarms;
+    onTimer(view, &event->timer);
     break;
 
   default:
@@ -97,6 +113,8 @@ main(int argc, char** argv)
                    NULL,
                    puglParseTestOptions(&argc, &argv),
                    0,
+                   0.0,
+                   0.0,
                    START};
 
   // Set up view
@@ -121,21 +139,18 @@ main(int argc, char** argv)
   // Replace it with the one we want (to ensure timers are replaced)
   assert(!puglStartTimer(test.view, timerId, timerPeriod));
 
-  const double startTime = puglGetTime(test.world);
-
-  puglUpdate(test.world, 1.0);
+  puglUpdate(test.world, timerPeriod * 90.0);
+  assert(test.numAlarms > 0);
 
   // Calculate the actual period of the timer
-  const double endTime        = puglGetTime(test.world);
-  const double duration       = endTime - startTime;
-  const double expectedPeriod = roundPeriod(timerPeriod);
-  const double actualPeriod   = roundPeriod(duration / (double)test.numAlarms);
-  const double difference     = fabs(actualPeriod - expectedPeriod);
+  const double duration = test.lastAlarmTime - test.firstAlarmTime;
+  const double expected = roundPeriod(timerPeriod);
+  const double actual   = roundPeriod(duration / (double)(test.numAlarms - 1));
+  const double difference = fabs(actual - expected);
 
   if (difference > tolerance) {
-    fprintf(
-      stderr, "error: Period not within %f of %f\n", tolerance, expectedPeriod);
-    fprintf(stderr, "note: Actual period %f\n", actualPeriod);
+    fprintf(stderr, "error: Period not within %f of %f\n", tolerance, expected);
+    fprintf(stderr, "note: Actual period %f\n", actual);
   }
 
   assert(difference <= tolerance);
