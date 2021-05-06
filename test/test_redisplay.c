@@ -100,42 +100,42 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(int argc, char** argv)
 {
-  PuglTest app = {puglNewWorld(PUGL_PROGRAM, 0),
-                  NULL,
-                  puglParseTestOptions(&argc, &argv),
-                  START};
+  PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0),
+                   NULL,
+                   puglParseTestOptions(&argc, &argv),
+                   START};
 
   // Set up view
-  app.view = puglNewView(app.world);
-  puglSetClassName(app.world, "Pugl Test");
-  puglSetBackend(app.view, puglStubBackend());
-  puglSetHandle(app.view, &app);
-  puglSetEventFunc(app.view, onEvent);
-  puglSetDefaultSize(app.view, 512, 512);
+  test.view = puglNewView(test.world);
+  puglSetClassName(test.world, "Pugl Test");
+  puglSetBackend(test.view, puglStubBackend());
+  puglSetHandle(test.view, &test);
+  puglSetEventFunc(test.view, onEvent);
+  puglSetDefaultSize(test.view, 512, 512);
 
   // Create and show window
-  assert(!puglRealize(app.view));
-  assert(!puglShow(app.view));
-  while (app.state != EXPOSED) {
-    assert(!puglUpdate(app.world, timeout));
+  assert(!puglRealize(test.view));
+  assert(!puglShow(test.view));
+  while (test.state != EXPOSED) {
+    assert(!puglUpdate(test.world, timeout));
   }
 
   // Send a custom event to trigger a redisplay in the event loop
   PuglEvent client_event    = {{PUGL_CLIENT, 0}};
   client_event.client.data1 = postRedisplayId;
   client_event.client.data2 = 0;
-  assert(!puglSendEvent(app.view, &client_event));
+  assert(!puglSendEvent(test.view, &client_event));
 
   // Loop until an expose happens in the same iteration as the redisplay
-  app.state = SHOULD_REDISPLAY;
-  while (app.state != REDISPLAYED) {
-    assert(!puglUpdate(app.world, timeout));
-    assert(app.state != POSTED_REDISPLAY);
+  test.state = SHOULD_REDISPLAY;
+  while (test.state != REDISPLAYED) {
+    assert(!puglUpdate(test.world, timeout));
+    assert(test.state != POSTED_REDISPLAY);
   }
 
   // Tear down
-  puglFreeView(app.view);
-  puglFreeWorld(app.world);
+  puglFreeView(test.view);
+  puglFreeWorld(test.world);
 
   return 0;
 }

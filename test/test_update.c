@@ -90,36 +90,36 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(int argc, char** argv)
 {
-  PuglTest app = {puglNewWorld(PUGL_PROGRAM, 0),
-                  NULL,
-                  puglParseTestOptions(&argc, &argv),
-                  START};
+  PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0),
+                   NULL,
+                   puglParseTestOptions(&argc, &argv),
+                   START};
 
   // Set up view
-  app.view = puglNewView(app.world);
-  puglSetClassName(app.world, "Pugl Test");
-  puglSetBackend(app.view, puglStubBackend());
-  puglSetHandle(app.view, &app);
-  puglSetEventFunc(app.view, onEvent);
-  puglSetDefaultSize(app.view, 512, 512);
+  test.view = puglNewView(test.world);
+  puglSetClassName(test.world, "Pugl Test");
+  puglSetBackend(test.view, puglStubBackend());
+  puglSetHandle(test.view, &test);
+  puglSetEventFunc(test.view, onEvent);
+  puglSetDefaultSize(test.view, 512, 512);
 
   // Create and show window
-  assert(!puglRealize(app.view));
-  assert(!puglShow(app.view));
+  assert(!puglRealize(test.view));
+  assert(!puglShow(test.view));
 
   // Tick until an expose happens
-  while (app.state < EXPOSED1) {
-    assert(!puglUpdate(app.world, timeout));
-    assert(app.state != UPDATED);
+  while (test.state < EXPOSED1) {
+    assert(!puglUpdate(test.world, timeout));
+    assert(test.state != UPDATED);
   }
 
   // Tick once and ensure the update and the expose it posted both happened
-  assert(!puglUpdate(app.world, 0.0));
-  assert(app.state == EXPOSED2);
+  assert(!puglUpdate(test.world, 0.0));
+  assert(test.state == EXPOSED2);
 
   // Tear down
-  puglFreeView(app.view);
-  puglFreeWorld(app.world);
+  puglFreeView(test.view);
+  puglFreeWorld(test.world);
 
   return 0;
 }

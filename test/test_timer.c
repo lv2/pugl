@@ -93,42 +93,42 @@ roundPeriod(const double period)
 int
 main(int argc, char** argv)
 {
-  PuglTest app = {puglNewWorld(PUGL_PROGRAM, 0),
-                  NULL,
-                  puglParseTestOptions(&argc, &argv),
-                  0,
-                  START};
+  PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0),
+                   NULL,
+                   puglParseTestOptions(&argc, &argv),
+                   0,
+                   START};
 
   // Set up view
-  app.view = puglNewView(app.world);
-  puglSetClassName(app.world, "Pugl Test");
-  puglSetBackend(app.view, puglStubBackend());
-  puglSetHandle(app.view, &app);
-  puglSetEventFunc(app.view, onEvent);
-  puglSetDefaultSize(app.view, 512, 512);
+  test.view = puglNewView(test.world);
+  puglSetClassName(test.world, "Pugl Test");
+  puglSetBackend(test.view, puglStubBackend());
+  puglSetHandle(test.view, &test);
+  puglSetEventFunc(test.view, onEvent);
+  puglSetDefaultSize(test.view, 512, 512);
 
   // Create and show window
-  assert(!puglRealize(app.view));
-  assert(!puglShow(app.view));
-  while (app.state != EXPOSED) {
-    assert(!puglUpdate(app.world, timeout));
+  assert(!puglRealize(test.view));
+  assert(!puglShow(test.view));
+  while (test.state != EXPOSED) {
+    assert(!puglUpdate(test.world, timeout));
   }
 
   // Register a timer with a longer period first
-  assert(!puglStartTimer(app.view, timerId, timerPeriod * 2.0));
+  assert(!puglStartTimer(test.view, timerId, timerPeriod * 2.0));
 
   // Replace it with the one we want (to ensure timers are replaced)
-  assert(!puglStartTimer(app.view, timerId, timerPeriod));
+  assert(!puglStartTimer(test.view, timerId, timerPeriod));
 
-  const double startTime = puglGetTime(app.world);
+  const double startTime = puglGetTime(test.world);
 
-  puglUpdate(app.world, 1.0);
+  puglUpdate(test.world, 1.0);
 
   // Calculate the actual period of the timer
-  const double endTime        = puglGetTime(app.world);
+  const double endTime        = puglGetTime(test.world);
   const double duration       = endTime - startTime;
   const double expectedPeriod = roundPeriod(timerPeriod);
-  const double actualPeriod   = roundPeriod(duration / (double)app.numAlarms);
+  const double actualPeriod   = roundPeriod(duration / (double)test.numAlarms);
   const double difference     = fabs(actualPeriod - expectedPeriod);
 
   if (difference > tolerance) {
@@ -140,16 +140,16 @@ main(int argc, char** argv)
   assert(difference <= tolerance);
 
   // Deregister timer and tick once to synchronize
-  assert(!puglStopTimer(app.view, timerId));
-  puglUpdate(app.world, 0.0);
+  assert(!puglStopTimer(test.view, timerId));
+  puglUpdate(test.world, 0.0);
 
   // Update for a half second and check that we receive no more alarms
-  app.numAlarms = 0;
-  puglUpdate(app.world, 0.5);
-  assert(app.numAlarms == 0);
+  test.numAlarms = 0;
+  puglUpdate(test.world, 0.5);
+  assert(test.numAlarms == 0);
 
-  puglFreeView(app.view);
-  puglFreeWorld(app.world);
+  puglFreeView(test.view);
+  puglFreeWorld(test.world);
 
   return 0;
 }
