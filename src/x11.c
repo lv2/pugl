@@ -1087,7 +1087,7 @@ dispatchX11Events(PuglWorld* const world)
     } else if (event.type == PUGL_CONFIGURE) {
       // Update configure event to be dispatched after loop
       view->impl->pendingConfigure = event;
-    } else if (event.type == PUGL_MAP && view->parent) {
+    } else if (event.type == PUGL_MAP) {
       // Get initial window position and size
       XWindowAttributes attrs;
       XGetWindowAttributes(view->impl->display, view->impl->win, &attrs);
