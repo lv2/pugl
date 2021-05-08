@@ -579,14 +579,17 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
                    RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_INTERNALPAINT);
     }
 
-    if ((bool)wParam != view->visible) {
-      view->visible  = wParam;
-      event.any.type = wParam ? PUGL_MAP : PUGL_UNMAP;
-    }
+    event.any.type = wParam ? PUGL_MAP : PUGL_UNMAP;
     break;
   case WM_SIZE:
-    handleConfigure(view, &event);
-    InvalidateRect(view->impl->hwnd, NULL, false);
+    if (wParam == SIZE_MINIMIZED) {
+      event.type = PUGL_UNMAP;
+    } else if (!view->visible) {
+      event.type = PUGL_MAP;
+    } else {
+      handleConfigure(view, &event);
+      InvalidateRect(view->impl->hwnd, NULL, false);
+    }
     break;
   case WM_SIZING:
     if (view->minAspectX) {

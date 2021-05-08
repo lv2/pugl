@@ -48,6 +48,7 @@
 #include <sys/select.h>
 #include <sys/time.h>
 
+#include <limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -126,6 +127,8 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
   impl->atoms.NET_WM_STATE     = XInternAtom(display, "_NET_WM_STATE", 0);
   impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION =
     XInternAtom(display, "_NET_WM_STATE_DEMANDS_ATTENTION", 0);
+  impl->atoms.NET_WM_STATE_HIDDEN =
+    XInternAtom(display, "_NET_WM_STATE_HIDDEN", 0);
 
   // Open input method
   XSetLocaleModifiers("");
@@ -327,6 +330,7 @@ puglRealize(PuglView* const view)
   attr.event_mask |= KeyReleaseMask;
   attr.event_mask |= LeaveWindowMask;
   attr.event_mask |= PointerMotionMask;
+  attr.event_mask |= PropertyChangeMask;
   attr.event_mask |= StructureNotifyMask;
   attr.event_mask |= VisibilityChangeMask;
 
@@ -550,6 +554,33 @@ translateModifiers(const unsigned xstate)
           ((xstate & Mod4Mask) ? PUGL_MOD_SUPER : 0u));
 }
 
+static PuglStatus
+getAtomProperty(PuglView* const view,
+                const Window    window,
+                const Atom      property,
+                unsigned long*  numValues,
+                Atom**          values)
+{
+  Atom          actualType   = 0;
+  int           actualFormat = 0;
+  unsigned long bytesAfter   = 0;
+
+  return (XGetWindowProperty(view->impl->display,
+                             window,
+                             property,
+                             0,
+                             LONG_MAX,
+                             False,
+                             XA_ATOM,
+                             &actualType,
+                             &actualFormat,
+                             numValues,
+                             &bytesAfter,
+                             (unsigned char**)values) == Success)
+           ? PUGL_SUCCESS
+           : PUGL_FAILURE;
+}
+
 static PuglEvent
 translateClientMessage(PuglView* const view, const XClientMessageEvent message)
 {
@@ -571,6 +602,39 @@ translateClientMessage(PuglView* const view, const XClientMessageEvent message)
 }
 
 static PuglEvent
+translatePropertyNotify(PuglView* const view, XPropertyEvent message)
+{
+  const PuglX11Atoms* const atoms = &view->world->impl->atoms;
+
+  PuglEvent event  = {{PUGL_NOTHING, 0}};
+  bool      hidden = false;
+  if (message.atom == atoms->NET_WM_STATE) {
+    unsigned long numHints = 0;
+    Atom*         hints    = NULL;
+    if (getAtomProperty(
+          view, view->impl->win, message.atom, &numHints, &hints)) {
+      return event;
+    }
+
+    for (unsigned long i = 0; i < numHints; ++i) {
+      if (hints[i] == atoms->NET_WM_STATE_HIDDEN) {
+        hidden = true;
+      }
+    }
+
+    if (hidden && view->visible) {
+      event.type = PUGL_UNMAP;
+    } else if (!hidden && !view->visible) {
+      event.type = PUGL_MAP;
+    }
+
+    XFree(hints);
+  }
+
+  return event;
+}
+
+static PuglEvent
 translateEvent(PuglView* const view, XEvent xevent)
 {
   PuglEvent event = {{PUGL_NOTHING, 0}};
@@ -580,15 +644,21 @@ translateEvent(PuglView* const view, XEvent xevent)
   case ClientMessage:
     event = translateClientMessage(view, xevent.xclient);
     break;
+  case PropertyNotify:
+    event = translatePropertyNotify(view, xevent.xproperty);
+    break;
   case VisibilityNotify:
-    view->visible = xevent.xvisibility.state != VisibilityFullyObscured;
+    if (xevent.xvisibility.state == VisibilityFullyObscured) {
+      event.type = PUGL_UNMAP;
+    } else {
+      event.type = PUGL_MAP;
+    }
     break;
   case MapNotify:
     event.type = PUGL_MAP;
     break;
   case UnmapNotify:
-    event.type    = PUGL_UNMAP;
-    view->visible = false;
+    event.type = PUGL_UNMAP;
     break;
   case ConfigureNotify:
     event.type             = PUGL_CONFIGURE;
@@ -986,21 +1056,35 @@ flushExposures(PuglWorld* const world)
   for (size_t i = 0; i < world->numViews; ++i) {
     PuglView* const view = world->views[i];
 
+    // Send update event so the application can trigger redraws
     if (view->visible) {
       puglDispatchSimpleEvent(view, PUGL_UPDATE);
     }
 
+    // Copy and reset pending events (in case their handlers write new ones)
     const PuglEvent configure = view->impl->pendingConfigure;
     const PuglEvent expose    = view->impl->pendingExpose;
 
     view->impl->pendingConfigure.type = PUGL_NOTHING;
     view->impl->pendingExpose.type    = PUGL_NOTHING;
 
-    if (configure.type || expose.type) {
-      view->backend->enter(view, expose.type ? &expose.expose : NULL);
-      puglDispatchEventInContext(view, &configure);
-      puglDispatchEventInContext(view, &expose);
-      view->backend->leave(view, expose.type ? &expose.expose : NULL);
+    if (expose.type) {
+      view->backend->enter(view, &expose.expose);
+
+      if (configure.type) {
+        puglConfigure(view, &configure);
+      }
+
+      puglExpose(view, &expose);
+      view->backend->leave(view, &expose.expose);
+    } else if (configure.type) {
+      view->backend->enter(view, NULL);
+
+      if (configure.type) {
+        puglConfigure(view, &configure);
+      }
+
+      view->backend->leave(view, NULL);
     }
   }
 }

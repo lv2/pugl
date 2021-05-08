@@ -58,9 +58,13 @@ puglDecodeUTF8(const uint8_t* buf);
 void
 puglDispatchSimpleEvent(PuglView* view, PuglEventType type);
 
-/// Dispatch `event` to `view` while already in the graphics context
+/// Process configure event while already in the graphics context
 void
-puglDispatchEventInContext(PuglView* view, const PuglEvent* event);
+puglConfigure(PuglView* view, const PuglEvent* event);
+
+/// Process expose event while already in the graphics context
+void
+puglExpose(PuglView* view, const PuglEvent* event);
 
 /// Dispatch `event` to `view`, entering graphics context if necessary
 void

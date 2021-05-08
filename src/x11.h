@@ -38,6 +38,7 @@ typedef struct {
   Atom NET_WM_NAME;
   Atom NET_WM_STATE;
   Atom NET_WM_STATE_DEMANDS_ATTENTION;
+  Atom NET_WM_STATE_HIDDEN;
 } PuglX11Atoms;
 
 typedef struct {

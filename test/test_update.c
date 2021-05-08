@@ -75,8 +75,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 
   case PUGL_UPDATE:
     if (test->state == EXPOSED1) {
-      puglPostRedisplay(view);
       test->state = UPDATED;
+      puglPostRedisplay(view);
     }
     break;
 

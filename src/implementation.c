@@ -373,23 +373,25 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 }
 
 void
-puglDispatchEventInContext(PuglView* view, const PuglEvent* event)
+puglConfigure(PuglView* view, const PuglEvent* event)
 {
-  if (event->type == PUGL_CONFIGURE) {
-    view->frame.x      = event->configure.x;
-    view->frame.y      = event->configure.y;
-    view->frame.width  = event->configure.width;
-    view->frame.height = event->configure.height;
+  assert(event->type == PUGL_CONFIGURE);
 
-    if (puglMustConfigure(view, &event->configure)) {
-      view->eventFunc(view, event);
-      view->lastConfigure = event->configure;
-    }
-  } else if (event->type == PUGL_EXPOSE) {
-    if (event->expose.width > 0 && event->expose.height > 0) {
-      view->eventFunc(view, event);
-    }
-  } else {
+  view->frame.x      = event->configure.x;
+  view->frame.y      = event->configure.y;
+  view->frame.width  = event->configure.width;
+  view->frame.height = event->configure.height;
+
+  if (puglMustConfigure(view, &event->configure)) {
+    view->eventFunc(view, event);
+    view->lastConfigure = event->configure;
+  }
+}
+
+void
+puglExpose(PuglView* view, const PuglEvent* event)
+{
+  if (event->expose.width > 0.0 && event->expose.height > 0.0) {
     view->eventFunc(view, event);
   }
 }
@@ -409,13 +411,25 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
   case PUGL_CONFIGURE:
     if (puglMustConfigure(view, &event->configure)) {
       view->backend->enter(view, NULL);
-      puglDispatchEventInContext(view, event);
+      puglConfigure(view, event);
       view->backend->leave(view, NULL);
+    }
+    break;
+  case PUGL_MAP:
+    if (!view->visible) {
+      view->visible = true;
+      view->eventFunc(view, event);
+    }
+    break;
+  case PUGL_UNMAP:
+    if (view->visible) {
+      view->visible = false;
+      view->eventFunc(view, event);
     }
     break;
   case PUGL_EXPOSE:
     view->backend->enter(view, &event->expose);
-    puglDispatchEventInContext(view, event);
+    puglExpose(view, event);
     view->backend->leave(view, &event->expose);
     break;
   default:

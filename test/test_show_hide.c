@@ -75,7 +75,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     test->state = EXPOSED;
     break;
   case PUGL_UNMAP:
-    assert(test->state == EXPOSED);
+    assert(test->state == MAPPED || test->state == EXPOSED);
     test->state = UNMAPPED;
     break;
   case PUGL_DESTROY:
