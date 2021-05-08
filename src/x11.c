@@ -551,25 +551,34 @@ translateModifiers(const unsigned xstate)
 }
 
 static PuglEvent
+translateClientMessage(PuglView* const view, const XClientMessageEvent message)
+{
+  const PuglX11Atoms* const atoms = &view->world->impl->atoms;
+  PuglEvent                 event = {{PUGL_NOTHING, 0}};
+
+  if (message.message_type == atoms->WM_PROTOCOLS) {
+    const Atom protocol = (Atom)message.data.l[0];
+    if (protocol == atoms->WM_DELETE_WINDOW) {
+      event.type = PUGL_CLOSE;
+    }
+  } else if (message.message_type == atoms->PUGL_CLIENT_MSG) {
+    event.type         = PUGL_CLIENT;
+    event.client.data1 = (uintptr_t)message.data.l[0];
+    event.client.data2 = (uintptr_t)message.data.l[1];
+  }
+
+  return event;
+}
+
+static PuglEvent
 translateEvent(PuglView* const view, XEvent xevent)
 {
-  const PuglX11Atoms* atoms = &view->world->impl->atoms;
-
   PuglEvent event = {{PUGL_NOTHING, 0}};
   event.any.flags = xevent.xany.send_event ? PUGL_IS_SEND_EVENT : 0;
 
   switch (xevent.type) {
   case ClientMessage:
-    if (xevent.xclient.message_type == atoms->WM_PROTOCOLS) {
-      const Atom protocol = (Atom)xevent.xclient.data.l[0];
-      if (protocol == atoms->WM_DELETE_WINDOW) {
-        event.type = PUGL_CLOSE;
-      }
-    } else if (xevent.xclient.message_type == atoms->PUGL_CLIENT_MSG) {
-      event.type         = PUGL_CLIENT;
-      event.client.data1 = (uintptr_t)xevent.xclient.data.l[0];
-      event.client.data2 = (uintptr_t)xevent.xclient.data.l[1];
-    }
+    event = translateClientMessage(view, xevent.xclient);
     break;
   case VisibilityNotify:
     view->visible = xevent.xvisibility.state != VisibilityFullyObscured;
