@@ -1079,11 +1079,7 @@ flushExposures(PuglWorld* const world)
       view->backend->leave(view, &expose.expose);
     } else if (configure.type) {
       view->backend->enter(view, NULL);
-
-      if (configure.type) {
-        puglConfigure(view, &configure);
-      }
-
+      puglConfigure(view, &configure);
       view->backend->leave(view, NULL);
     }
   }
