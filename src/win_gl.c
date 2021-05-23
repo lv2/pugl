@@ -52,10 +52,16 @@
 #define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
 #define WGL_CONTEXT_DEBUG_BIT_ARB 0x00000001
 
-typedef HGLRC (*WglCreateContextAttribs)(HDC, HGLRC, const int*);
-typedef BOOL (*WglSwapInterval)(int);
-typedef BOOL (
-  *WglChoosePixelFormat)(HDC, const int*, const FLOAT*, UINT, int*, UINT*);
+typedef HGLRC(WINAPI* WglCreateContextAttribs)(HDC, HGLRC, const int*);
+
+typedef BOOL(WINAPI* WglSwapInterval)(int);
+
+typedef BOOL(WINAPI* WglChoosePixelFormat)(HDC,
+                                           const int*,
+                                           const FLOAT*,
+                                           UINT,
+                                           int*,
+                                           UINT*);
 
 typedef struct {
   WglChoosePixelFormat    wglChoosePixelFormat;
