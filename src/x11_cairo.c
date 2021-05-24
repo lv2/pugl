@@ -101,10 +101,7 @@ puglX11CairoEnter(PuglView* view, const PuglEventExpose* expose)
 
   if (expose && !(st = puglX11CairoOpen(view))) {
     surface->cr = cairo_create(surface->front);
-
-    if (cairo_status(surface->cr)) {
-      st = PUGL_CREATE_CONTEXT_FAILED;
-    }
+    st = cairo_status(surface->cr) ? PUGL_CREATE_CONTEXT_FAILED : PUGL_SUCCESS;
   }
 
   return st;
