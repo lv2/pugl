@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2020 David Robillard <d@drobilla.net>
+  Copyright 2012-2021 David Robillard <d@drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -22,31 +22,11 @@
 
 #include "pugl/pugl.h"
 
-#include <X11/Xutil.h>
-
-PuglStatus
-puglX11StubConfigure(PuglView* view)
-{
-  PuglInternals* const impl = view->impl;
-  XVisualInfo          pat  = {0};
-  int                  n    = 0;
-
-  pat.screen = impl->screen;
-  impl->vi   = XGetVisualInfo(impl->display, VisualScreenMask, &pat, &n);
-
-  view->hints[PUGL_RED_BITS]   = impl->vi->bits_per_rgb;
-  view->hints[PUGL_GREEN_BITS] = impl->vi->bits_per_rgb;
-  view->hints[PUGL_BLUE_BITS]  = impl->vi->bits_per_rgb;
-  view->hints[PUGL_ALPHA_BITS] = 0;
-
-  return PUGL_SUCCESS;
-}
-
 const PuglBackend*
 puglStubBackend(void)
 {
   static const PuglBackend backend = {
-    puglX11StubConfigure,
+    puglX11Configure,
     puglStubCreate,
     puglStubDestroy,
     puglStubEnter,

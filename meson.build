@@ -356,22 +356,21 @@ endif
 # Build Cairo backend
 if cairo_dep.found()
   name = 'pugl_' + platform + '_cairo' + version_suffix
-  sources = ['src/' + platform + '_cairo' + extension,
-             'src/' + platform + '_stub' + extension]
+  sources = ['src/' + platform + '_cairo' + extension]
 
   cairo_backend = build_target(
     name, sources,
     version: meson.project_version(),
     include_directories: include_directories(['include']),
     c_args: library_args,
-    dependencies: [pugl_dep, cairo_dep, stub_backend_dep],
+    dependencies: [pugl_dep, cairo_dep],
     gnu_symbol_visibility: 'hidden',
     install: true,
     target_type: library_type)
 
   cairo_backend_dep = declare_dependency(
     link_with: cairo_backend,
-    dependencies: [pugl_dep, cairo_dep, stub_backend_dep])
+    dependencies: [pugl_dep, cairo_dep])
 
   pkg.generate(cairo_backend,
                name: 'Pugl Cairo',
@@ -384,8 +383,7 @@ endif
 # Build Vulkan backend
 if vulkan_dep.found()
   name = 'pugl_' + platform + '_vulkan' + version_suffix
-  sources = ['src/' + platform + '_vulkan' + extension,
-             'src/' + platform + '_stub' + extension]
+  sources = ['src/' + platform + '_vulkan' + extension]
 
   vulkan_deps = [pugl_dep, vulkan_dep, dl_dep]
   vulkan_c_args = library_args

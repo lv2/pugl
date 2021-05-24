@@ -152,7 +152,7 @@ puglX11CairoGetContext(PuglView* view)
 const PuglBackend*
 puglCairoBackend(void)
 {
-  static const PuglBackend backend = {puglX11StubConfigure,
+  static const PuglBackend backend = {puglX11Configure,
                                       puglX11CairoCreate,
                                       puglX11CairoDestroy,
                                       puglX11CairoEnter,

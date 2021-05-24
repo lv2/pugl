@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2020 David Robillard <d@drobilla.net>
+  Copyright 2012-2021 David Robillard <d@drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -24,28 +24,28 @@
 PUGL_BEGIN_DECLS
 
 static inline PuglStatus
-puglStubConfigure(PuglView* view)
+puglStubConfigure(PuglView* const view)
 {
   (void)view;
   return PUGL_SUCCESS;
 }
 
 static inline PuglStatus
-puglStubCreate(PuglView* view)
+puglStubCreate(PuglView* const view)
 {
   (void)view;
   return PUGL_SUCCESS;
 }
 
 static inline PuglStatus
-puglStubDestroy(PuglView* view)
+puglStubDestroy(PuglView* const view)
 {
   (void)view;
   return PUGL_SUCCESS;
 }
 
 static inline PuglStatus
-puglStubEnter(PuglView* view, const PuglEventExpose* expose)
+puglStubEnter(PuglView* const view, const PuglEventExpose* const expose)
 {
   (void)view;
   (void)expose;
@@ -53,7 +53,7 @@ puglStubEnter(PuglView* view, const PuglEventExpose* expose)
 }
 
 static inline PuglStatus
-puglStubLeave(PuglView* view, const PuglEventExpose* expose)
+puglStubLeave(PuglView* const view, const PuglEventExpose* const expose)
 {
   (void)view;
   (void)expose;
@@ -61,7 +61,7 @@ puglStubLeave(PuglView* view, const PuglEventExpose* expose)
 }
 
 static inline void*
-puglStubGetContext(PuglView* view)
+puglStubGetContext(PuglView* const view)
 {
   (void)view;
   return NULL;

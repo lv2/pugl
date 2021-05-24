@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2020 David Robillard <d@drobilla.net>
+  Copyright 2012-2021 David Robillard <d@drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -73,7 +73,8 @@ struct PuglInternalsImpl {
 #endif
 };
 
+PUGL_API
 PuglStatus
-puglX11StubConfigure(PuglView* view);
+puglX11Configure(PuglView* view);
 
 #endif // PUGL_DETAIL_X11_H

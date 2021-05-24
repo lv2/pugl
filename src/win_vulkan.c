@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2020 David Robillard <d@drobilla.net>
+  Copyright 2012-2021 David Robillard <d@drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -20,7 +20,6 @@
 #include "types.h"
 #include "win.h"
 
-#include "pugl/stub.h"
 #include "pugl/vulkan.h"
 
 #include <vulkan/vulkan.h>
@@ -81,11 +80,11 @@ puglGetDeviceProcAddrFunc(const PuglVulkanLoader* loader)
 const PuglBackend*
 puglVulkanBackend()
 {
-  static const PuglBackend backend = {puglWinStubConfigure,
+  static const PuglBackend backend = {puglWinConfigure,
                                       puglStubCreate,
                                       puglStubDestroy,
-                                      puglWinStubEnter,
-                                      puglWinStubLeave,
+                                      puglWinEnter,
+                                      puglWinLeave,
                                       puglStubGetContext};
 
   return &backend;

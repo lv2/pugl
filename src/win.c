@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2020 David Robillard <d@drobilla.net>
+  Copyright 2012-2021 David Robillard <d@drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -17,10 +17,8 @@
 #include "win.h"
 
 #include "implementation.h"
-#include "stub.h"
 
 #include "pugl/pugl.h"
-#include "pugl/stub.h"
 
 #include <windows.h>
 #include <windowsx.h>
@@ -99,6 +97,24 @@ puglRegisterWindowClass(const char* name)
   wc.lpszClassName = name;
 
   return RegisterClassEx(&wc);
+}
+
+static unsigned
+puglWinGetWindowFlags(const PuglView* const view)
+{
+  const bool     resizable = view->hints[PUGL_RESIZABLE];
+  const unsigned sizeFlags = resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0u;
+
+  return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
+          (view->parent
+             ? WS_CHILD
+             : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX | sizeFlags)));
+}
+
+static unsigned
+puglWinGetWindowExFlags(const PuglView* const view)
+{
+  return WS_EX_NOINHERITLAYOUT | (view->parent ? 0u : WS_EX_APPWINDOW);
 }
 
 PuglWorldInternals*
@@ -1137,6 +1153,140 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
   impl->cursor = cur;
   if (impl->mouseTracked) {
     SetCursor(cur);
+  }
+
+  return PUGL_SUCCESS;
+}
+
+// Semi-public platform API used by backends
+
+PuglWinPFD
+puglWinGetPixelFormatDescriptor(const PuglHints hints)
+{
+  const int rgbBits = (hints[PUGL_RED_BITS] +   //
+                       hints[PUGL_GREEN_BITS] + //
+                       hints[PUGL_BLUE_BITS]);
+
+  const DWORD dwFlags = hints[PUGL_DOUBLE_BUFFER] ? PFD_DOUBLEBUFFER : 0u;
+
+  PuglWinPFD pfd;
+  ZeroMemory(&pfd, sizeof(pfd));
+  pfd.nSize        = sizeof(pfd);
+  pfd.nVersion     = 1;
+  pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | dwFlags;
+  pfd.iPixelType   = PFD_TYPE_RGBA;
+  pfd.cColorBits   = (BYTE)rgbBits;
+  pfd.cRedBits     = (BYTE)hints[PUGL_RED_BITS];
+  pfd.cGreenBits   = (BYTE)hints[PUGL_GREEN_BITS];
+  pfd.cBlueBits    = (BYTE)hints[PUGL_BLUE_BITS];
+  pfd.cAlphaBits   = (BYTE)hints[PUGL_ALPHA_BITS];
+  pfd.cDepthBits   = (BYTE)hints[PUGL_DEPTH_BITS];
+  pfd.cStencilBits = (BYTE)hints[PUGL_STENCIL_BITS];
+  pfd.iLayerType   = PFD_MAIN_PLANE;
+  return pfd;
+}
+
+PuglStatus
+puglWinCreateWindow(PuglView* const   view,
+                    const char* const title,
+                    HWND* const       hwnd,
+                    HDC* const        hdc)
+{
+  const char*    className  = (const char*)view->world->className;
+  const unsigned winFlags   = puglWinGetWindowFlags(view);
+  const unsigned winExFlags = puglWinGetWindowExFlags(view);
+
+  if (view->frame.width == 0.0 && view->frame.height == 0.0) {
+    if (view->defaultWidth == 0.0 && view->defaultHeight == 0.0) {
+      return PUGL_BAD_CONFIGURATION;
+    }
+
+    RECT desktopRect;
+    GetClientRect(GetDesktopWindow(), &desktopRect);
+
+    const int screenWidth  = desktopRect.right - desktopRect.left;
+    const int screenHeight = desktopRect.bottom - desktopRect.top;
+
+    view->frame.width  = view->defaultWidth;
+    view->frame.height = view->defaultHeight;
+    view->frame.x      = screenWidth / 2.0 - view->frame.width / 2.0;
+    view->frame.y      = screenHeight / 2.0 - view->frame.height / 2.0;
+  }
+
+  // The meaning of "parent" depends on the window type (WS_CHILD)
+  PuglNativeView parent = view->parent ? view->parent : view->transientParent;
+
+  // Calculate total window size to accommodate requested view size
+  RECT wr = {(long)view->frame.x,
+             (long)view->frame.y,
+             (long)view->frame.width,
+             (long)view->frame.height};
+  AdjustWindowRectEx(&wr, winFlags, FALSE, winExFlags);
+
+  // Create window and get drawing context
+  if (!(*hwnd = CreateWindowEx(winExFlags,
+                               className,
+                               title,
+                               winFlags,
+                               CW_USEDEFAULT,
+                               CW_USEDEFAULT,
+                               wr.right - wr.left,
+                               wr.bottom - wr.top,
+                               (HWND)parent,
+                               NULL,
+                               NULL,
+                               NULL))) {
+    return PUGL_REALIZE_FAILED;
+  } else if (!(*hdc = GetDC(*hwnd))) {
+    DestroyWindow(*hwnd);
+    *hwnd = NULL;
+    return PUGL_REALIZE_FAILED;
+  }
+
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglWinConfigure(PuglView* view)
+{
+  PuglInternals* const impl = view->impl;
+  PuglStatus           st   = PUGL_SUCCESS;
+
+  if ((st = puglWinCreateWindow(view, "Pugl", &impl->hwnd, &impl->hdc))) {
+    return st;
+  }
+
+  impl->pfd  = puglWinGetPixelFormatDescriptor(view->hints);
+  impl->pfId = ChoosePixelFormat(impl->hdc, &impl->pfd);
+
+  if (!SetPixelFormat(impl->hdc, impl->pfId, &impl->pfd)) {
+    ReleaseDC(impl->hwnd, impl->hdc);
+    DestroyWindow(impl->hwnd);
+    impl->hwnd = NULL;
+    impl->hdc  = NULL;
+    return PUGL_SET_FORMAT_FAILED;
+  }
+
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglWinEnter(PuglView* view, const PuglEventExpose* expose)
+{
+  if (expose) {
+    PAINTSTRUCT ps;
+    BeginPaint(view->impl->hwnd, &ps);
+  }
+
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglWinLeave(PuglView* view, const PuglEventExpose* expose)
+{
+  if (expose) {
+    PAINTSTRUCT ps;
+    EndPaint(view->impl->hwnd, &ps);
   }
 
   return PUGL_SUCCESS;
