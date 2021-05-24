@@ -49,6 +49,10 @@ main(void)
   puglSetEventFunc(view, onEvent);
   puglSetDefaultSize(view, 512, 512);
 
+  // Check invalid cases
+  assert(puglSetViewHint(view, (PuglViewHint)9999, 0) == PUGL_BAD_PARAMETER);
+  assert(puglGetViewHint(view, (PuglViewHint)9999) == PUGL_DONT_CARE);
+
   // Set all relevant hints that support it to PUGL_DONT_CARE
   assert(!puglSetViewHint(view, PUGL_RED_BITS, PUGL_DONT_CARE));
   assert(!puglSetViewHint(view, PUGL_GREEN_BITS, PUGL_DONT_CARE));
