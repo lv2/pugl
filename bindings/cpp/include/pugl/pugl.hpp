@@ -30,7 +30,7 @@
 namespace pugl {
 
 /**
-   @defgroup puglxx Pugl C++ API
+   @defgroup puglpp Pugl C++ API
    Pugl C++ API wrapper.
    @{
 */
@@ -81,7 +81,7 @@ private:
 using Rect = PuglRect; ///< @copydoc PuglRect
 
 /**
-   @defgroup eventsxx Events
+   @defgroup eventspp Events
    @{
 */
 
@@ -183,7 +183,7 @@ using LoopLeaveEvent = Event<PUGL_LOOP_LEAVE, PuglEventLoopLeave>;
 
 /**
    @}
-   @defgroup statusxx Status
+   @defgroup statuspp Status
    @{
 */
 
@@ -214,7 +214,7 @@ strerror(const Status status) noexcept
 
 /**
    @}
-   @defgroup worldxx World
+   @defgroup worldpp World
    @{
 */
 
@@ -325,7 +325,7 @@ public:
 
 /**
    @}
-   @defgroup viewxx View
+   @defgroup viewpp View
    @{
 */
 

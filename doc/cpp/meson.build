@@ -31,7 +31,7 @@ docs = custom_target(
   output: 'singlehtml',
   build_by_default: true,
   install: true,
-  install_dir: docdir / 'puglxx-0')
+  install_dir: docdir / 'puglpp-0')
 
 docs = custom_target(
   'C++ API Documentation (html)',
@@ -40,4 +40,4 @@ docs = custom_target(
   output: 'html',
   build_by_default: true,
   install: true,
-  install_dir: docdir / 'puglxx-0')
+  install_dir: docdir / 'puglpp-0')

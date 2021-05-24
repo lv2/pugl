@@ -23,9 +23,9 @@
 namespace pugl {
 
 /**
-   @defgroup stubxx Stub
+   @defgroup stubpp Stub
    Stub graphics support.
-   @ingroup puglxx
+   @ingroup puglpp
    @{
 */
 

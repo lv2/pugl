@@ -2,7 +2,7 @@ data_dir = get_option('prefix') / get_option('datadir') / 'pugl-0'
 example_args = ['-DPUGL_DATA_DIR="@0@"'.format(data_dir)]
 
 gl_examples = [
-  'pugl_cxx_demo.cpp',
+  'pugl_cpp_demo.cpp',
   'pugl_embed_demo.c',
   'pugl_print_events.c',
   'pugl_shader_demo.c',
@@ -14,14 +14,14 @@ cairo_examples = [
 ]
 
 vulkan_examples = [
-  'pugl_vulkan_cxx_demo.cpp',
+  'pugl_vulkan_cpp_demo.cpp',
   'pugl_vulkan_demo.c',
 ]
 
 includes = include_directories(
   '.',
   '..',
-  '../bindings/cxx/include',
+  '../bindings/cpp/include',
   '../include',
 )
 
@@ -67,7 +67,7 @@ if vulkan_dep.found()
     target = example.split('.')[0]
     dependencies = [dl_dep, vulkan_backend_dep]
 
-    if target == 'pugl_vulkan_cxx_demo'
+    if target == 'pugl_vulkan_cpp_demo'
       source += ['file_utils.c']
     endif
 

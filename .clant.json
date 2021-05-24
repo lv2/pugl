@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "include_dirs": [
-    "bindings/cxx/include",
+    "bindings/cpp/include",
     "include"
   ],
   "exclude_patterns": [

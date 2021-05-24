@@ -112,7 +112,7 @@ main(int argc, char** argv)
 {
   const PuglTestOptions opts = puglParseTestOptions(&argc, &argv);
   if (opts.help) {
-    puglPrintTestUsage("pugl_cxx_demo", "");
+    puglPrintTestUsage("pugl_cpp_demo", "");
     return 1;
   }
 

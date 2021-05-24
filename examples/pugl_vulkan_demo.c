@@ -19,7 +19,7 @@
   A simple example of drawing with Vulkan.
 
   For a more advanced demo that actually draws something interesting, see
-  pugl_vulkan_cxx_demo.cpp.
+  pugl_vulkan_cpp_demo.cpp.
 */
 
 #include "demo_utils.h"

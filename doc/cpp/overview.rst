@@ -15,7 +15,7 @@ The C++ bindings are very lightweight and do not require virtual functions,
 RTTI,
 exceptions,
 or linking to the C++ standard library.
-They are provided by the package ``puglxx-0`` which must be used in addition to the desired platform+backend package above.
+They are provided by the package ``puglpp-0`` which must be used in addition to the desired platform+backend package above.
 
 The core API (excluding backend-specific components) is declared in ``pugl.hpp``:
 

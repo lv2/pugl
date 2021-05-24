@@ -158,12 +158,12 @@ c_headers = [
 c_header_files = files(c_headers)
 
 cpp_headers = [
-  'bindings/cxx/include/pugl/pugl.hpp',
+  'bindings/cpp/include/pugl/pugl.hpp',
 
-  'bindings/cxx/include/pugl/cairo.hpp',
-  'bindings/cxx/include/pugl/gl.hpp',
-  'bindings/cxx/include/pugl/stub.hpp',
-  'bindings/cxx/include/pugl/vulkan.hpp',
+  'bindings/cpp/include/pugl/cairo.hpp',
+  'bindings/cpp/include/pugl/gl.hpp',
+  'bindings/cpp/include/pugl/stub.hpp',
+  'bindings/cpp/include/pugl/vulkan.hpp',
 ]
 
 cpp_header_files = files(cpp_headers)
@@ -323,7 +323,7 @@ stub_backend_dep = declare_dependency(link_with: stub_backend)
 pkg.generate(stub_backend,
              name: 'Pugl Stub',
              filebase: 'pugl-stub-@0@'.format(major_version),
-             subdirs: [name],
+             subdirs: [versioned_name],
              version: meson.project_version(),
              description: 'Native window pugl graphics backend')
 
@@ -348,7 +348,7 @@ if opengl_dep.found()
   pkg.generate(gl_backend,
                name: 'Pugl OpenGL',
                filebase: 'pugl-gl-@0@'.format(major_version),
-               subdirs: [name],
+               subdirs: [versioned_name],
                version: meson.project_version(),
                description: 'Pugl GUI library with OpenGL backend')
 endif
@@ -376,7 +376,7 @@ if cairo_dep.found()
   pkg.generate(cairo_backend,
                name: 'Pugl Cairo',
                filebase: 'pugl-cairo-@0@'.format(major_version),
-               subdirs: [name],
+               subdirs: [versioned_name],
                version: meson.project_version(),
                description: 'Pugl GUI library with Cairo backend')
 endif
@@ -414,13 +414,19 @@ if vulkan_dep.found()
   pkg.generate(vulkan_backend,
                name: 'Pugl Vulkan',
                filebase: 'pugl-vulkan-@0@'.format(major_version),
-               subdirs: [name],
+               subdirs: [versioned_name],
                version: meson.project_version(),
                description: 'Pugl GUI library with Vulkan backend')
 endif
 
 install_headers(c_headers, subdir: versioned_name / 'pugl')
-install_headers(cpp_headers, subdir: 'puglxx' + version_suffix)
+install_headers(cpp_headers, subdir: 'puglpp' + version_suffix / 'pugl')
+
+pkg.generate(name: 'Pugl++',
+             filebase: 'puglpp-@0@'.format(major_version),
+             subdirs: ['puglpp-@0@'.format(major_version)],
+             version: meson.project_version(),
+             description: 'Pugl GUI library C++ bindings')
 
 if not get_option('docs').disabled()
   subdir('doc')

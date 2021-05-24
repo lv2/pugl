@@ -83,12 +83,12 @@ tests and demonstrations:
  * `pugl_print_events` is a utility that prints all received events to the
    console in a human readable format.
 
- * `pugl_cxx_demo` is a simple cube demo that uses the C++ API.
+ * `pugl_cpp_demo` is a simple cube demo that uses the C++ API.
 
  * `pugl_vulkan_demo` is a simple example of using Vulkan in C that simply
    clears the window.
 
- * `pugl_vulkan_cxx_demo` is a more advanced Vulkan demo in C++ that draws many
+ * `pugl_vulkan_cpp_demo` is a more advanced Vulkan demo in C++ that draws many
    animated rectangles like `pugl_shader_demo`.
 
 All example programs support several command line options to control various
