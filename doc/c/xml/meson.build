@@ -6,8 +6,8 @@ foreach h : c_headers
 endforeach
 
 config = configuration_data()
-config.set('PUGL_HEADERS', ' '.join(c_doxygen_input))
 config.set('PUGL_SRCDIR', pugl_src_root)
+config.set('DOX_OUTPUT', meson.current_build_dir() / '..')
 
 c_doxyfile = configure_file(configuration: config,
                             input: '../Doxyfile.in',

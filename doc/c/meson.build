@@ -26,8 +26,10 @@ subdir('xml')
 subdir('api')
 
 docs = custom_target(
-  'C API Documentation (singlehtml)',
-  command: [sphinx_build, '-M', 'singlehtml', 'doc/c/', 'doc/c/', '-E', '-q', '-t', 'singlehtml'],
+  'singlehtml C documentation for pugl',
+  command: [sphinx_build, '-M', 'singlehtml',
+            meson.current_build_dir(), meson.current_build_dir(),
+            '-E', '-q', '-t', 'singlehtml'],
   input: [c_rst_files, c_pugl_rst, c_index_xml],
   output: 'singlehtml',
   build_by_default: true,
@@ -35,8 +37,10 @@ docs = custom_target(
   install_dir: docdir / 'pugl-0')
 
 docs = custom_target(
-  'C API Documentation (html)',
-  command: [sphinx_build, '-M', 'html', 'doc/c/', 'doc/c/', '-E', '-q', '-t', 'html'],
+  'html C documentation for pugl',
+  command: [sphinx_build, '-M', 'html',
+            meson.current_build_dir(), meson.current_build_dir(),
+            '-E', '-q', '-t', 'html'],
   input: [c_rst_files, c_pugl_rst, c_index_xml],
   output: 'html',
   build_by_default: true,

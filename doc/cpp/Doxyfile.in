@@ -24,9 +24,14 @@ XML_PROGRAMLISTING     = NO
 SHOW_FILES             = NO
 
 MACRO_EXPANSION        = YES
-PREDEFINED             = PUGL_API PUGL_DISABLE_DEPRECATED PUGL_CONST_API= PUGL_CONST_FUNC=
+PREDEFINED             = PUGL_API \
+                         PUGL_DISABLE_DEPRECATED \
+                         PUGL_CONST_API= \
+                         PUGL_CONST_FUNC=
 
+RECURSIVE              = YES
 STRIP_FROM_PATH        = @PUGL_SRCDIR@
-INPUT                  = @PUGL_HEADERS@
+INPUT                  = @PUGL_SRCDIR@/include \
+                         @PUGL_SRCDIR@/bindings/cpp/include
 
-OUTPUT_DIRECTORY       = doc/cpp
+OUTPUT_DIRECTORY       = @DOX_OUTPUT@
