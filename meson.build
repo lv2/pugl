@@ -197,7 +197,7 @@ if host_machine.system() == 'darwin'
   corevideo_dep = dependency('CoreVideo', required: false)
 
   platform = 'mac'
-  platform_sources = ['src/mac.m', 'src/mac_stub.m']
+  platform_sources = ['src/mac.m']
   core_deps = [cocoa_dep, corevideo_dep]
   extension = '.m'
 
