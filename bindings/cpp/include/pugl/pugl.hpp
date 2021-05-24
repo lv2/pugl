@@ -102,6 +102,11 @@ struct Event final : Base {
 
   /// The `type` field of the corresponding C event structure
   static constexpr const PuglEventType type = t;
+
+  template<class... Args>
+  explicit Event(const PuglEventFlags f, Args... args)
+    : Base{t, f, args...}
+  {}
 };
 
 using Mod          = PuglMod;          ///< @copydoc PuglMod
@@ -620,6 +625,16 @@ public:
   Status stopTimer(const uintptr_t id) noexcept
   {
     return static_cast<Status>(puglStopTimer(cobj(), id));
+  }
+
+  template<PuglEventType t, class Base>
+  Status sendEvent(const Event<t, Base>& event) noexcept
+  {
+    PuglEvent cEvent{{t, 0}};
+
+    *reinterpret_cast<Base*>(&cEvent) = event;
+
+    return static_cast<Status>(puglSendEvent(cobj(), &cEvent));
   }
 
   /**

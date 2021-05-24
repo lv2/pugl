@@ -66,7 +66,12 @@ CubeView::onEvent(const pugl::ConfigureEvent& event) noexcept
 pugl::Status
 CubeView::onEvent(const pugl::UpdateEvent&) noexcept
 {
-  return postRedisplay();
+  // Normally, we would post a redisplay:
+  // return postRedisplay();
+
+  // But for testing, use sendEvent() instead:
+  return sendEvent(
+    pugl::ExposeEvent{0u, 0.0, 0.0, frame().width, frame().height});
 }
 
 pugl::Status
