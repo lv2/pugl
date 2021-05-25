@@ -1129,6 +1129,10 @@ dispatchX11Events(PuglWorld* const world)
       continue;
     }
 
+    if (world->impl->eventFilter && world->impl->eventFilter(display, &xevent)) {
+      continue;
+    }
+
     PuglView* view = findView(world, xevent.xany.window);
     if (!view) {
       continue;
@@ -1468,6 +1472,12 @@ puglX11Configure(PuglView* view)
   view->hints[PUGL_GREEN_BITS] = impl->vi->bits_per_rgb;
   view->hints[PUGL_BLUE_BITS]  = impl->vi->bits_per_rgb;
   view->hints[PUGL_ALPHA_BITS] = 0;
+  return PUGL_SUCCESS;
+}
 
+PuglStatus
+puglX11SetEventFilter(PuglWorld* world, PuglX11EventFilter filter)
+{
+  world->impl->eventFilter = filter;
   return PUGL_SUCCESS;
 }
