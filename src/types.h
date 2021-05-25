@@ -59,7 +59,7 @@ struct PuglViewImpl {
   PuglNativeView     parent;
   uintptr_t          transientParent;
   PuglRect           frame;
-  PuglEventConfigure lastConfigure;
+  PuglConfigureEvent lastConfigure;
   PuglHints          hints;
   int                defaultWidth;
   int                defaultHeight;
@@ -99,10 +99,10 @@ struct PuglBackendImpl {
   PuglStatus (*destroy)(PuglView*);
 
   /// Enter drawing context, for drawing if expose is non-null
-  PuglStatus (*enter)(PuglView*, const PuglEventExpose*);
+  PuglStatus (*enter)(PuglView*, const PuglExposeEvent*);
 
   /// Leave drawing context, after drawing if expose is non-null
-  PuglStatus (*leave)(PuglView*, const PuglEventExpose*);
+  PuglStatus (*leave)(PuglView*, const PuglExposeEvent*);
 
   /// Return the puglGetContext() handle for the application, if any
   void* (*getContext)(PuglView*);

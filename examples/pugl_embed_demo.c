@@ -112,7 +112,7 @@ swapFocus(PuglTestApp* app)
 }
 
 static void
-onKeyPress(PuglView* view, const PuglEventKey* event, const char* prefix)
+onKeyPress(PuglView* view, const PuglKeyEvent* event, const char* prefix)
 {
   PuglTestApp* app   = (PuglTestApp*)puglGetHandle(view);
   PuglRect     frame = puglGetFrame(view);

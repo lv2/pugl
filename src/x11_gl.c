@@ -110,7 +110,7 @@ puglX11GlConfigure(PuglView* view)
 }
 
 static PuglStatus
-puglX11GlEnter(PuglView* view, const PuglEventExpose* PUGL_UNUSED(expose))
+puglX11GlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 {
   PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
   glXMakeCurrent(view->impl->display, view->impl->win, surface->ctx);
@@ -118,7 +118,7 @@ puglX11GlEnter(PuglView* view, const PuglEventExpose* PUGL_UNUSED(expose))
 }
 
 static PuglStatus
-puglX11GlLeave(PuglView* view, const PuglEventExpose* expose)
+puglX11GlLeave(PuglView* view, const PuglExposeEvent* expose)
 {
   if (expose && view->hints[PUGL_DOUBLE_BUFFER]) {
     glXSwapBuffers(view->impl->display, view->impl->win);

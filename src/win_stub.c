@@ -27,13 +27,13 @@ puglWinStubConfigure(PuglView* view)
 }
 
 static PuglStatus
-puglWinStubEnter(PuglView* view, const PuglEventExpose* expose)
+puglWinStubEnter(PuglView* view, const PuglExposeEvent* expose)
 {
   return puglWinEnter(view, expose);
 }
 
 static PuglStatus
-puglWinStubLeave(PuglView* view, const PuglEventExpose* expose)
+puglWinStubLeave(PuglView* view, const PuglExposeEvent* expose)
 {
   return puglWinLeave(view, expose);
 }

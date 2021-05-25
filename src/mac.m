@@ -157,7 +157,7 @@ updateViewRect(PuglView* view)
 - (void)setIsVisible:(BOOL)flag
 {
   if (flag && !puglview->visible) {
-    const PuglEventConfigure ev = {
+    const PuglConfigureEvent ev = {
       PUGL_CONFIGURE,
       0,
       puglview->frame.x,
@@ -197,7 +197,7 @@ updateViewRect(PuglView* view)
   if (reshaped) {
     updateViewRect(puglview);
 
-    const PuglEventConfigure ev = {
+    const PuglConfigureEvent ev = {
       PUGL_CONFIGURE,
       0,
       puglview->frame.x,
@@ -216,7 +216,7 @@ updateViewRect(PuglView* view)
     return;
   }
 
-  const PuglEventExpose ev = {
+  const PuglExposeEvent ev = {
     PUGL_EXPOSE,
     0,
     rect.origin.x * scaleFactor,
@@ -362,7 +362,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
   const NSPoint           wloc = [view eventLocation:event];
   const NSPoint           rloc = [NSEvent mouseLocation];
-  const PuglEventCrossing ev   = {
+  const PuglCrossingEvent ev   = {
     type,
     0,
     [event timestamp],
@@ -403,7 +403,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
   const NSPoint         wloc = [self eventLocation:event];
   const NSPoint         rloc = [NSEvent mouseLocation];
-  const PuglEventMotion ev   = {
+  const PuglMotionEvent ev   = {
     PUGL_MOTION,
     0,
     [event timestamp],
@@ -438,7 +438,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
   const NSPoint         wloc = [self eventLocation:event];
   const NSPoint         rloc = [NSEvent mouseLocation];
-  const PuglEventButton ev   = {
+  const PuglButtonEvent ev   = {
     PUGL_BUTTON_PRESS,
     0,
     [event timestamp],
@@ -459,7 +459,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 {
   const NSPoint         wloc = [self eventLocation:event];
   const NSPoint         rloc = [NSEvent mouseLocation];
-  const PuglEventButton ev   = {
+  const PuglButtonEvent ev   = {
     PUGL_BUTTON_RELEASE,
     0,
     [event timestamp],
@@ -512,7 +512,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
                  : ((dy == 0.0 && dx < 0.0) ? PUGL_SCROLL_LEFT
                                             : PUGL_SCROLL_SMOOTH))));
 
-  const PuglEventScroll ev = {
+  const PuglScrollEvent ev = {
     PUGL_SCROLL,
     0,
     [event timestamp],
@@ -544,7 +544,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   const char*     str   = [[chars lowercaseString] UTF8String];
   const uint32_t  code  = (spec ? spec : puglDecodeUTF8((const uint8_t*)str));
 
-  const PuglEventKey ev = {
+  const PuglKeyEvent ev = {
     PUGL_KEY_PRESS,
     0,
     [event timestamp],
@@ -575,7 +575,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   const char*     str   = [[chars lowercaseString] UTF8String];
   const uint32_t  code  = (spec ? spec : puglDecodeUTF8((const uint8_t*)str));
 
-  const PuglEventKey ev = {
+  const PuglKeyEvent ev = {
     PUGL_KEY_RELEASE,
     0,
     [event timestamp],
@@ -687,7 +687,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
                    range:NSMakeRange(i, i + 1)
           remainingRange:nil];
 
-    PuglEventText ev = {
+    PuglTextEvent ev = {
       PUGL_TEXT,
       0,
       [event timestamp],
@@ -734,7 +734,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     const NSPoint wloc = [self eventLocation:event];
     const NSPoint rloc = [NSEvent mouseLocation];
 
-    const PuglEventKey ev = {type,
+    const PuglKeyEvent ev = {type,
                              0,
                              [event timestamp],
                              wloc.x,
@@ -777,7 +777,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 - (void)timerTick:(NSTimer*)userTimer
 {
   const NSNumber*      userInfo = userTimer.userInfo;
-  const PuglEventTimer ev       = {PUGL_TIMER, 0, userInfo.unsignedLongValue};
+  const PuglTimerEvent ev       = {PUGL_TIMER, 0, userInfo.unsignedLongValue};
 
   PuglEvent timerEvent;
   timerEvent.timer = ev;
@@ -1214,7 +1214,7 @@ dispatchClientEvent(PuglWorld* world, NSEvent* ev)
     PuglView*        view    = world->views[i];
     PuglWrapperView* wrapper = view->impl->wrapperView;
     if ([wrapper window] == win && NSPointInRect(loc, [wrapper frame])) {
-      const PuglEventClient event = {
+      const PuglClientEvent event = {
         PUGL_CLIENT, 0, (uintptr_t)[ev data1], (uintptr_t)[ev data2]};
 
       PuglEvent clientEvent;

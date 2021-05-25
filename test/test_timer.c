@@ -61,7 +61,7 @@ typedef struct {
 } PuglTest;
 
 static void
-onTimer(PuglView* const view, const PuglEventTimer* const event)
+onTimer(PuglView* const view, const PuglTimerEvent* const event)
 {
   PuglTest* const test = (PuglTest*)puglGetHandle(view);
   const double    time = puglGetTime(puglGetWorld(view));

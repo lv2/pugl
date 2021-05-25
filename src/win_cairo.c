@@ -117,7 +117,7 @@ puglWinCairoDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglWinCairoEnter(PuglView* view, const PuglEventExpose* expose)
+puglWinCairoEnter(PuglView* view, const PuglExposeEvent* expose)
 {
   PuglStatus st = PUGL_SUCCESS;
 
@@ -131,7 +131,7 @@ puglWinCairoEnter(PuglView* view, const PuglEventExpose* expose)
 }
 
 static PuglStatus
-puglWinCairoLeave(PuglView* view, const PuglEventExpose* expose)
+puglWinCairoLeave(PuglView* view, const PuglExposeEvent* expose)
 {
   PuglInternals* const       impl    = view->impl;
   PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;

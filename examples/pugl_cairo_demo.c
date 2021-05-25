@@ -124,7 +124,7 @@ postButtonRedisplay(PuglView* view)
 }
 
 static void
-onDisplay(PuglTestApp* app, PuglView* view, const PuglEventExpose* event)
+onDisplay(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
 {
   cairo_t* cr = (cairo_t*)puglGetContext(view);
 

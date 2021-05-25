@@ -399,7 +399,7 @@ puglDecodeUTF16(const wchar_t* buf, const int len)
 }
 
 static void
-initKeyEvent(PuglEventKey* event,
+initKeyEvent(PuglKeyEvent* event,
              PuglView*     view,
              bool          press,
              WPARAM        wParam,
@@ -506,7 +506,7 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
   POINT root_pos = pos;
   ClientToScreen(view->impl->hwnd, &root_pos);
 
-  const PuglEventCrossing ev = {
+  const PuglCrossingEvent ev = {
     type,
     0,
     GetMessageTime() / 1e3,
@@ -1270,7 +1270,7 @@ puglWinConfigure(PuglView* view)
 }
 
 PuglStatus
-puglWinEnter(PuglView* view, const PuglEventExpose* expose)
+puglWinEnter(PuglView* view, const PuglExposeEvent* expose)
 {
   if (expose) {
     PAINTSTRUCT ps;
@@ -1281,7 +1281,7 @@ puglWinEnter(PuglView* view, const PuglEventExpose* expose)
 }
 
 PuglStatus
-puglWinLeave(PuglView* view, const PuglEventExpose* expose)
+puglWinLeave(PuglView* view, const PuglExposeEvent* expose)
 {
   if (expose) {
     PAINTSTRUCT ps;

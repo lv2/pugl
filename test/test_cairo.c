@@ -36,7 +36,7 @@ typedef struct {
 } PuglTest;
 
 static void
-onExpose(PuglView* const view, const PuglEventExpose* const event)
+onExpose(PuglView* const view, const PuglExposeEvent* const event)
 {
   cairo_t* const cr = (cairo_t*)puglGetContext(view);
 

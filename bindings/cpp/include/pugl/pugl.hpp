@@ -117,74 +117,74 @@ using EventFlag    = PuglEventFlag;    ///< @copydoc PuglEventFlag
 using EventFlags   = PuglEventFlags;   ///< @copydoc PuglEventFlags
 using CrossingMode = PuglCrossingMode; ///< @copydoc PuglCrossingMode
 
-/// @copydoc PuglEventCreate
-using CreateEvent = Event<PUGL_CREATE, PuglEventCreate>;
+/// @copydoc PuglCreateEvent
+using CreateEvent = Event<PUGL_CREATE, PuglCreateEvent>;
 
-/// @copydoc PuglEventDestroy
-using DestroyEvent = Event<PUGL_DESTROY, PuglEventDestroy>;
+/// @copydoc PuglDestroyEvent
+using DestroyEvent = Event<PUGL_DESTROY, PuglDestroyEvent>;
 
-/// @copydoc PuglEventConfigure
-using ConfigureEvent = Event<PUGL_CONFIGURE, PuglEventConfigure>;
+/// @copydoc PuglConfigureEvent
+using ConfigureEvent = Event<PUGL_CONFIGURE, PuglConfigureEvent>;
 
-/// @copydoc PuglEventMap
-using MapEvent = Event<PUGL_MAP, PuglEventMap>;
+/// @copydoc PuglMapEvent
+using MapEvent = Event<PUGL_MAP, PuglMapEvent>;
 
-/// @copydoc PuglEventUnmap
-using UnmapEvent = Event<PUGL_UNMAP, PuglEventUnmap>;
+/// @copydoc PuglUnmapEvent
+using UnmapEvent = Event<PUGL_UNMAP, PuglUnmapEvent>;
 
-/// @copydoc PuglEventUpdate
-using UpdateEvent = Event<PUGL_UPDATE, PuglEventUpdate>;
+/// @copydoc PuglUpdateEvent
+using UpdateEvent = Event<PUGL_UPDATE, PuglUpdateEvent>;
 
-/// @copydoc PuglEventExpose
-using ExposeEvent = Event<PUGL_EXPOSE, PuglEventExpose>;
+/// @copydoc PuglExposeEvent
+using ExposeEvent = Event<PUGL_EXPOSE, PuglExposeEvent>;
 
-/// @copydoc PuglEventClose
-using CloseEvent = Event<PUGL_CLOSE, PuglEventClose>;
+/// @copydoc PuglCloseEvent
+using CloseEvent = Event<PUGL_CLOSE, PuglCloseEvent>;
 
-/// @copydoc PuglEventFocus
-using FocusInEvent = Event<PUGL_FOCUS_IN, PuglEventFocus>;
+/// @copydoc PuglFocusEvent
+using FocusInEvent = Event<PUGL_FOCUS_IN, PuglFocusEvent>;
 
-/// @copydoc PuglEventFocus
-using FocusOutEvent = Event<PUGL_FOCUS_OUT, PuglEventFocus>;
+/// @copydoc PuglFocusEvent
+using FocusOutEvent = Event<PUGL_FOCUS_OUT, PuglFocusEvent>;
 
-/// @copydoc PuglEventKey
-using KeyPressEvent = Event<PUGL_KEY_PRESS, PuglEventKey>;
+/// @copydoc PuglKeyEvent
+using KeyPressEvent = Event<PUGL_KEY_PRESS, PuglKeyEvent>;
 
-/// @copydoc PuglEventKey
-using KeyReleaseEvent = Event<PUGL_KEY_RELEASE, PuglEventKey>;
+/// @copydoc PuglKeyEvent
+using KeyReleaseEvent = Event<PUGL_KEY_RELEASE, PuglKeyEvent>;
 
-/// @copydoc PuglEventText
-using TextEvent = Event<PUGL_TEXT, PuglEventText>;
+/// @copydoc PuglTextEvent
+using TextEvent = Event<PUGL_TEXT, PuglTextEvent>;
 
-/// @copydoc PuglEventCrossing
-using PointerInEvent = Event<PUGL_POINTER_IN, PuglEventCrossing>;
+/// @copydoc PuglCrossingEvent
+using PointerInEvent = Event<PUGL_POINTER_IN, PuglCrossingEvent>;
 
-/// @copydoc PuglEventCrossing
-using PointerOutEvent = Event<PUGL_POINTER_OUT, PuglEventCrossing>;
+/// @copydoc PuglCrossingEvent
+using PointerOutEvent = Event<PUGL_POINTER_OUT, PuglCrossingEvent>;
 
-/// @copydoc PuglEventButton
-using ButtonPressEvent = Event<PUGL_BUTTON_PRESS, PuglEventButton>;
+/// @copydoc PuglButtonEvent
+using ButtonPressEvent = Event<PUGL_BUTTON_PRESS, PuglButtonEvent>;
 
-/// @copydoc PuglEventButton
-using ButtonReleaseEvent = Event<PUGL_BUTTON_RELEASE, PuglEventButton>;
+/// @copydoc PuglButtonEvent
+using ButtonReleaseEvent = Event<PUGL_BUTTON_RELEASE, PuglButtonEvent>;
 
-/// @copydoc PuglEventMotion
-using MotionEvent = Event<PUGL_MOTION, PuglEventMotion>;
+/// @copydoc PuglMotionEvent
+using MotionEvent = Event<PUGL_MOTION, PuglMotionEvent>;
 
-/// @copydoc PuglEventScroll
-using ScrollEvent = Event<PUGL_SCROLL, PuglEventScroll>;
+/// @copydoc PuglScrollEvent
+using ScrollEvent = Event<PUGL_SCROLL, PuglScrollEvent>;
 
-/// @copydoc PuglEventClient
-using ClientEvent = Event<PUGL_CLIENT, PuglEventClient>;
+/// @copydoc PuglClientEvent
+using ClientEvent = Event<PUGL_CLIENT, PuglClientEvent>;
 
-/// @copydoc PuglEventTimer
-using TimerEvent = Event<PUGL_TIMER, PuglEventTimer>;
+/// @copydoc PuglTimerEvent
+using TimerEvent = Event<PUGL_TIMER, PuglTimerEvent>;
 
-/// @copydoc PuglEventLoopEnter
-using LoopEnterEvent = Event<PUGL_LOOP_ENTER, PuglEventLoopEnter>;
+/// @copydoc PuglLoopEnterEvent
+using LoopEnterEvent = Event<PUGL_LOOP_ENTER, PuglLoopEnterEvent>;
 
-/// @copydoc PuglEventLoopLeave
-using LoopLeaveEvent = Event<PUGL_LOOP_LEAVE, PuglEventLoopLeave>;
+/// @copydoc PuglLoopLeaveEvent
+using LoopLeaveEvent = Event<PUGL_LOOP_LEAVE, PuglLoopLeaveEvent>;
 
 /**
    @}

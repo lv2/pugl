@@ -356,9 +356,9 @@ puglDecodeUTF8(const uint8_t* buf)
 }
 
 static inline bool
-puglMustConfigure(PuglView* view, const PuglEventConfigure* configure)
+puglMustConfigure(PuglView* view, const PuglConfigureEvent* configure)
 {
-  return memcmp(configure, &view->lastConfigure, sizeof(PuglEventConfigure));
+  return memcmp(configure, &view->lastConfigure, sizeof(PuglConfigureEvent));
 }
 
 void

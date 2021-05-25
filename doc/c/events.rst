@@ -60,7 +60,7 @@ and handles exposure internally to provide optimized and consistent behavior acr
 Cairo Context
 -------------
 
-A Cairo context is created for each :struct:`PuglEventExpose`,
+A Cairo context is created for each :struct:`PuglExposeEvent`,
 and only exists during the handling of that event.
 Null is returned by :func:`puglGetContext` at any other time.
 
@@ -69,10 +69,10 @@ OpenGL Context
 
 The OpenGL context is only active during the handling of these events:
 
-- :struct:`PuglEventCreate`
-- :struct:`PuglEventDestroy`
-- :struct:`PuglEventConfigure`
-- :struct:`PuglEventExpose`
+- :struct:`PuglCreateEvent`
+- :struct:`PuglDestroyEvent`
+- :struct:`PuglConfigureEvent`
+- :struct:`PuglExposeEvent`
 
 As always, drawing is only possible during an expose.
 

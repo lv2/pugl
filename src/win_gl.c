@@ -266,7 +266,7 @@ puglWinGlDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglWinGlEnter(PuglView* view, const PuglEventExpose* expose)
+puglWinGlEnter(PuglView* view, const PuglExposeEvent* expose)
 {
   PuglWinGlSurface* surface = (PuglWinGlSurface*)view->impl->surface;
 
@@ -281,7 +281,7 @@ puglWinGlEnter(PuglView* view, const PuglEventExpose* expose)
 }
 
 static PuglStatus
-puglWinGlLeave(PuglView* view, const PuglEventExpose* expose)
+puglWinGlLeave(PuglView* view, const PuglExposeEvent* expose)
 {
   if (expose) {
     PAINTSTRUCT ps;

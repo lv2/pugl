@@ -72,7 +72,7 @@ onDisplay(PuglView* view)
 }
 
 static void
-onKeyPress(PuglView* view, const PuglEventKey* event)
+onKeyPress(PuglView* view, const PuglKeyEvent* event)
 {
   PuglWorld*   world = puglGetWorld(view);
   PuglTestApp* app   = (PuglTestApp*)puglGetWorldHandle(world);

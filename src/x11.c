@@ -971,7 +971,7 @@ puglWaitForEvent(PuglView* const view)
 #endif
 
 static void
-mergeExposeEvents(PuglEventExpose* const dst, const PuglEventExpose* const src)
+mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
 {
   if (!dst->type) {
     *dst = *src;
@@ -1253,7 +1253,7 @@ puglPostRedisplay(PuglView* const view)
 PuglStatus
 puglPostRedisplayRect(PuglView* const view, const PuglRect rect)
 {
-  const PuglEventExpose event = {
+  const PuglExposeEvent event = {
     PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height};
 
   if (view->world->impl->dispatchingEvents) {

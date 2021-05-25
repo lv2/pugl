@@ -25,10 +25,10 @@ Redrawing
 
 Occasional redrawing can be requested by calling :func:`puglPostRedisplay` or :func:`puglPostRedisplayRect`.
 After these are called,
-a :struct:`PuglEventExpose` will be dispatched on the next call to :func:`puglUpdate`.
+a :struct:`PuglExposeEvent` will be dispatched on the next call to :func:`puglUpdate`.
 
 For continuous redrawing,
-call :func:`puglPostRedisplay` while handling a :struct:`PuglEventUpdate` event.
+call :func:`puglPostRedisplay` while handling a :struct:`PuglUpdateEvent` event.
 This event is sent just before views are redrawn,
 so it can be used as a hook to expand the update region right before the view is exposed.
 Anything else that needs to be done every frame can be handled similarly.
@@ -88,10 +88,10 @@ has displayed the window menu.
 This means that :func:`puglUpdate` will block until the resize is finished,
 or the menu is closed.
 
-Pugl dispatches :struct:`PuglEventLoopEnter` and :struct:`PuglEventLoopLeave` events to notify the application of this situation.
+Pugl dispatches :struct:`PuglLoopEnterEvent` and :struct:`PuglLoopLeaveEvent` events to notify the application of this situation.
 If you want to continuously redraw during resizing on these platforms,
 you can schedule a timer with :func:`puglStartTimer` when the recursive loop is entered,
-and post redisplays when handling the :struct:`PuglEventTimer`.
+and post redisplays when handling the :struct:`PuglTimerEvent`.
 Be sure to remove the timer with :func:`puglStopTimer` when the recursive loop is finished.
 
 On X11, there are no recursive event loops,

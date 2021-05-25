@@ -74,7 +74,7 @@ pushString(const char*** const array,
 }
 
 static void
-onExpose(PuglView* const view, const PuglEventExpose* const event)
+onExpose(PuglView* const view, const PuglExposeEvent* const event)
 {
   (void)view;
   (void)event;

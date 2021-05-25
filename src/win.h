@@ -59,10 +59,10 @@ puglWinConfigure(PuglView* view);
 
 PUGL_API
 PuglStatus
-puglWinEnter(PuglView* view, const PuglEventExpose* expose);
+puglWinEnter(PuglView* view, const PuglExposeEvent* expose);
 
 PUGL_API
 PuglStatus
-puglWinLeave(PuglView* view, const PuglEventExpose* expose);
+puglWinLeave(PuglView* view, const PuglExposeEvent* expose);
 
 #endif // PUGL_DETAIL_WIN_H

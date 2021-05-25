@@ -107,7 +107,7 @@ typedef uint32_t PuglMods;
 /**
    Keyboard key codepoints.
 
-   All keys are identified by a Unicode code point in PuglEventKey::key.  This
+   All keys are identified by a Unicode code point in PuglKeyEvent::key.  This
    enumeration defines constants for special keys that do not have a standard
    code point, and some convenience constants for control characters.  Note
    that all keys are handled in the same way, this enumeration is just for
@@ -169,29 +169,29 @@ typedef enum {
 /// The type of a PuglEvent
 typedef enum {
   PUGL_NOTHING,        ///< No event
-  PUGL_CREATE,         ///< View created, a #PuglEventCreate
-  PUGL_DESTROY,        ///< View destroyed, a #PuglEventDestroy
-  PUGL_CONFIGURE,      ///< View moved/resized, a #PuglEventConfigure
-  PUGL_MAP,            ///< View made visible, a #PuglEventMap
-  PUGL_UNMAP,          ///< View made invisible, a #PuglEventUnmap
-  PUGL_UPDATE,         ///< View ready to draw, a #PuglEventUpdate
-  PUGL_EXPOSE,         ///< View must be drawn, a #PuglEventExpose
-  PUGL_CLOSE,          ///< View will be closed, a #PuglEventClose
-  PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglEventFocus
-  PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglEventFocus
-  PUGL_KEY_PRESS,      ///< Key pressed, a #PuglEventKey
-  PUGL_KEY_RELEASE,    ///< Key released, a #PuglEventKey
-  PUGL_TEXT,           ///< Character entered, a #PuglEventText
-  PUGL_POINTER_IN,     ///< Pointer entered view, a #PuglEventCrossing
-  PUGL_POINTER_OUT,    ///< Pointer left view, a #PuglEventCrossing
-  PUGL_BUTTON_PRESS,   ///< Mouse button pressed, a #PuglEventButton
-  PUGL_BUTTON_RELEASE, ///< Mouse button released, a #PuglEventButton
-  PUGL_MOTION,         ///< Pointer moved, a #PuglEventMotion
-  PUGL_SCROLL,         ///< Scrolled, a #PuglEventScroll
-  PUGL_CLIENT,         ///< Custom client message, a #PuglEventClient
-  PUGL_TIMER,          ///< Timer triggered, a #PuglEventTimer
-  PUGL_LOOP_ENTER,     ///< Recursive loop entered, a #PuglEventLoopEnter
-  PUGL_LOOP_LEAVE,     ///< Recursive loop left, a #PuglEventLoopLeave
+  PUGL_CREATE,         ///< View created, a #PuglCreateEvent
+  PUGL_DESTROY,        ///< View destroyed, a #PuglDestroyEvent
+  PUGL_CONFIGURE,      ///< View moved/resized, a #PuglConfigureEvent
+  PUGL_MAP,            ///< View made visible, a #PuglMapEvent
+  PUGL_UNMAP,          ///< View made invisible, a #PuglUnmapEvent
+  PUGL_UPDATE,         ///< View ready to draw, a #PuglUpdateEvent
+  PUGL_EXPOSE,         ///< View must be drawn, a #PuglExposeEvent
+  PUGL_CLOSE,          ///< View will be closed, a #PuglCloseEvent
+  PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglFocusEvent
+  PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglFocusEvent
+  PUGL_KEY_PRESS,      ///< Key pressed, a #PuglKeyEvent
+  PUGL_KEY_RELEASE,    ///< Key released, a #PuglKeyEvent
+  PUGL_TEXT,           ///< Character entered, a #PuglTextEvent
+  PUGL_POINTER_IN,     ///< Pointer entered view, a #PuglCrossingEvent
+  PUGL_POINTER_OUT,    ///< Pointer left view, a #PuglCrossingEvent
+  PUGL_BUTTON_PRESS,   ///< Mouse button pressed, a #PuglButtonEvent
+  PUGL_BUTTON_RELEASE, ///< Mouse button released, a #PuglButtonEvent
+  PUGL_MOTION,         ///< Pointer moved, a #PuglMotionEvent
+  PUGL_SCROLL,         ///< Scrolled, a #PuglScrollEvent
+  PUGL_CLIENT,         ///< Custom client message, a #PuglClientEvent
+  PUGL_TIMER,          ///< Timer triggered, a #PuglTimerEvent
+  PUGL_LOOP_ENTER,     ///< Recursive loop entered, a #PuglLoopEnterEvent
+  PUGL_LOOP_LEAVE,     ///< Recursive loop left, a #PuglLoopLeaveEvent
 } PuglEventType;
 
 /// Common flags for all event types
@@ -203,7 +203,7 @@ typedef enum {
 /// Bitwise OR of #PuglEventFlag values
 typedef uint32_t PuglEventFlags;
 
-/// Reason for a PuglEventCrossing
+/// Reason for a PuglCrossingEvent
 typedef enum {
   PUGL_CROSSING_NORMAL, ///< Crossing due to pointer motion
   PUGL_CROSSING_GRAB,   ///< Crossing due to a grab
@@ -213,7 +213,7 @@ typedef enum {
 /**
    Scroll direction.
 
-   Describes the direction of a #PuglEventScroll along with whether the scroll
+   Describes the direction of a #PuglScrollEvent along with whether the scroll
    is a "smooth" scroll.  The discrete directions are for devices like mouse
    wheels with constrained axes, while a smooth scroll is for those with
    arbitrary scroll direction freedom, like some touchpads.
@@ -230,7 +230,7 @@ typedef enum {
 typedef struct {
   PuglEventType  type;  ///< Event type
   PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
-} PuglEventAny;
+} PuglAnyEvent;
 
 /**
    View create event.
@@ -241,12 +241,12 @@ typedef struct {
 
    This event type has no extra fields.
 */
-typedef PuglEventAny PuglEventCreate;
+typedef PuglAnyEvent PuglCreateEvent;
 
 /**
    View destroy event.
 
-   This event is the counterpart to #PuglEventCreate, and it is sent when the
+   This event is the counterpart to #PuglCreateEvent, and it is sent when the
    view is being destroyed.  This is typically used for tearing down the
    graphics system, or otherwise freeing any resources allocated when the
    create event was handled.
@@ -256,7 +256,7 @@ typedef PuglEventAny PuglEventCreate;
 
    This event type has no extra fields.
 */
-typedef PuglEventAny PuglEventDestroy;
+typedef PuglAnyEvent PuglDestroyEvent;
 
 /**
    View resize or move event.
@@ -273,7 +273,7 @@ typedef struct {
   double         y;      ///< New parent-relative Y coordinate
   double         width;  ///< New width
   double         height; ///< New height
-} PuglEventConfigure;
+} PuglConfigureEvent;
 
 /**
    View show event.
@@ -282,7 +282,7 @@ typedef struct {
 
    This event type has no extra fields.
 */
-typedef PuglEventAny PuglEventMap;
+typedef PuglAnyEvent PuglMapEvent;
 
 /**
    View hide event.
@@ -292,7 +292,7 @@ typedef PuglEventAny PuglEventMap;
 
    This event type has no extra fields.
 */
-typedef PuglEventAny PuglEventUnmap;
+typedef PuglAnyEvent PuglUnmapEvent;
 
 /**
    View update event.
@@ -303,7 +303,7 @@ typedef PuglEventAny PuglEventUnmap;
    example, to continuously animate, a view calls puglPostRedisplay() when an
    update event is received, and it will then shortly receive an expose event.
 */
-typedef PuglEventAny PuglEventUpdate;
+typedef PuglAnyEvent PuglUpdateEvent;
 
 /**
    Expose event for when a region must be redrawn.
@@ -319,7 +319,7 @@ typedef struct {
   double         y;      ///< View-relative Y coordinate
   double         width;  ///< Width of exposed region
   double         height; ///< Height of exposed region
-} PuglEventExpose;
+} PuglExposeEvent;
 
 /**
    View close event.
@@ -329,7 +329,7 @@ typedef struct {
 
    This event type has no extra fields.
 */
-typedef PuglEventAny PuglEventClose;
+typedef PuglAnyEvent PuglCloseEvent;
 
 /**
    Keyboard focus event.
@@ -341,7 +341,7 @@ typedef struct {
   PuglEventType    type;  ///< #PUGL_FOCUS_IN or #PUGL_FOCUS_OUT
   PuglEventFlags   flags; ///< Bitwise OR of #PuglEventFlag values
   PuglCrossingMode mode;  ///< Reason for focus change
-} PuglEventFocus;
+} PuglFocusEvent;
 
 /**
    Key press or release event.
@@ -371,7 +371,7 @@ typedef struct {
   PuglMods       state;   ///< Bitwise OR of #PuglMod flags
   uint32_t       keycode; ///< Raw key code
   uint32_t       key;     ///< Unshifted Unicode character code, or 0
-} PuglEventKey;
+} PuglKeyEvent;
 
 /**
    Character input event.
@@ -396,7 +396,7 @@ typedef struct {
   uint32_t       keycode;   ///< Raw key code
   uint32_t       character; ///< Unicode character code
   char           string[8]; ///< UTF-8 string
-} PuglEventText;
+} PuglTextEvent;
 
 /**
    Pointer enter or leave event.
@@ -415,7 +415,7 @@ typedef struct {
   double           yRoot; ///< Root-relative Y coordinate
   PuglMods         state; ///< Bitwise OR of #PuglMod flags
   PuglCrossingMode mode;  ///< Reason for crossing
-} PuglEventCrossing;
+} PuglCrossingEvent;
 
 /**
    Button press or release event.
@@ -430,7 +430,7 @@ typedef struct {
   double         yRoot;  ///< Root-relative Y coordinate
   PuglMods       state;  ///< Bitwise OR of #PuglMod flags
   uint32_t       button; ///< Button number starting from 1
-} PuglEventButton;
+} PuglButtonEvent;
 
 /**
    Pointer motion event.
@@ -444,7 +444,7 @@ typedef struct {
   double         xRoot; ///< Root-relative X coordinate
   double         yRoot; ///< Root-relative Y coordinate
   PuglMods       state; ///< Bitwise OR of #PuglMod flags
-} PuglEventMotion;
+} PuglMotionEvent;
 
 /**
    Scroll event.
@@ -467,7 +467,7 @@ typedef struct {
   PuglScrollDirection direction; ///< Scroll direction
   double              dx;        ///< Scroll X distance in lines
   double              dy;        ///< Scroll Y distance in lines
-} PuglEventScroll;
+} PuglScrollEvent;
 
 /**
    Custom client message event.
@@ -481,7 +481,7 @@ typedef struct {
   PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
   uintptr_t      data1; ///< Client-specific data
   uintptr_t      data2; ///< Client-specific data
-} PuglEventClient;
+} PuglClientEvent;
 
 /**
    Timer event.
@@ -497,7 +497,7 @@ typedef struct {
   PuglEventType  type;  ///< #PUGL_TIMER
   PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
   uintptr_t      id;    ///< Timer ID
-} PuglEventTimer;
+} PuglTimerEvent;
 
 /**
    Recursive loop enter event.
@@ -519,7 +519,7 @@ typedef struct {
 
    This event type has no extra fields.
 */
-typedef PuglEventAny PuglEventLoopEnter;
+typedef PuglAnyEvent PuglLoopEnterEvent;
 
 /**
    Recursive loop leave event.
@@ -529,7 +529,7 @@ typedef PuglEventAny PuglEventLoopEnter;
 
    This event type has no extra fields.
 */
-typedef PuglEventAny PuglEventLoopLeave;
+typedef PuglAnyEvent PuglLoopLeaveEvent;
 
 /**
    View event.
@@ -543,19 +543,19 @@ typedef PuglEventAny PuglEventLoopLeave;
    and #PUGL_EXPOSE, but only enabled for drawing for #PUGL_EXPOSE.
 */
 typedef union {
-  PuglEventAny       any;       ///< Valid for all event types
+  PuglAnyEvent       any;       ///< Valid for all event types
   PuglEventType      type;      ///< Event type
-  PuglEventButton    button;    ///< #PUGL_BUTTON_PRESS, #PUGL_BUTTON_RELEASE
-  PuglEventConfigure configure; ///< #PUGL_CONFIGURE
-  PuglEventExpose    expose;    ///< #PUGL_EXPOSE
-  PuglEventKey       key;       ///< #PUGL_KEY_PRESS, #PUGL_KEY_RELEASE
-  PuglEventText      text;      ///< #PUGL_TEXT
-  PuglEventCrossing  crossing;  ///< #PUGL_POINTER_IN, #PUGL_POINTER_OUT
-  PuglEventMotion    motion;    ///< #PUGL_MOTION
-  PuglEventScroll    scroll;    ///< #PUGL_SCROLL
-  PuglEventFocus     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
-  PuglEventClient    client;    ///< #PUGL_CLIENT
-  PuglEventTimer     timer;     ///< #PUGL_TIMER
+  PuglButtonEvent    button;    ///< #PUGL_BUTTON_PRESS, #PUGL_BUTTON_RELEASE
+  PuglConfigureEvent configure; ///< #PUGL_CONFIGURE
+  PuglExposeEvent    expose;    ///< #PUGL_EXPOSE
+  PuglKeyEvent       key;       ///< #PUGL_KEY_PRESS, #PUGL_KEY_RELEASE
+  PuglTextEvent      text;      ///< #PUGL_TEXT
+  PuglCrossingEvent  crossing;  ///< #PUGL_POINTER_IN, #PUGL_POINTER_OUT
+  PuglMotionEvent    motion;    ///< #PUGL_MOTION
+  PuglScrollEvent    scroll;    ///< #PUGL_SCROLL
+  PuglFocusEvent     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
+  PuglClientEvent    client;    ///< #PUGL_CLIENT
+  PuglTimerEvent     timer;     ///< #PUGL_TIMER
 } PuglEvent;
 
 /**
@@ -1208,7 +1208,7 @@ puglRequestAttention(PuglView* view);
 /**
    Activate a repeating timer event.
 
-   This starts a timer which will send a #PuglEventTimer to `view` every
+   This starts a timer which will send a #PuglTimerEvent to `view` every
    `timeout` seconds.  This can be used to perform some action in a view at a
    regular interval with relatively low frequency.  Note that the frequency of
    timer events may be limited by how often puglUpdate() is called.
@@ -1279,6 +1279,63 @@ puglSendEvent(PuglView* view, const PuglEvent* event);
    @defgroup deprecated Deprecated API
    @{
 */
+
+PUGL_DEPRECATED_BY("PuglCreateEvent")
+typedef PuglCreateEvent PuglEventCreate;
+
+PUGL_DEPRECATED_BY("PuglDestroyEvent")
+typedef PuglDestroyEvent PuglEventDestroy;
+
+PUGL_DEPRECATED_BY("PuglConfigureEvent")
+typedef PuglConfigureEvent PuglEventConfigure;
+
+PUGL_DEPRECATED_BY("PuglMapEvent")
+typedef PuglMapEvent PuglEventMap;
+
+PUGL_DEPRECATED_BY("PuglUnmapEvent")
+typedef PuglUnmapEvent PuglEventUnmap;
+
+PUGL_DEPRECATED_BY("PuglUpdateEvent")
+typedef PuglUpdateEvent PuglEventUpdate;
+
+PUGL_DEPRECATED_BY("PuglExposeEvent")
+typedef PuglExposeEvent PuglEventExpose;
+
+PUGL_DEPRECATED_BY("PuglCloseEvent")
+typedef PuglCloseEvent PuglEventClose;
+
+PUGL_DEPRECATED_BY("PuglFocusEvent")
+typedef PuglFocusEvent PuglEventFocus;
+
+PUGL_DEPRECATED_BY("PuglKeyEvent")
+typedef PuglKeyEvent PuglEventKey;
+
+PUGL_DEPRECATED_BY("PuglTextEvent")
+typedef PuglTextEvent PuglEventText;
+
+PUGL_DEPRECATED_BY("PuglCrossingEvent")
+typedef PuglCrossingEvent PuglEventCrossing;
+
+PUGL_DEPRECATED_BY("PuglButtonEvent")
+typedef PuglButtonEvent PuglEventButton;
+
+PUGL_DEPRECATED_BY("PuglMotionEvent")
+typedef PuglMotionEvent PuglEventMotion;
+
+PUGL_DEPRECATED_BY("PuglScrollEvent")
+typedef PuglScrollEvent PuglEventScroll;
+
+PUGL_DEPRECATED_BY("PuglClientEvent")
+typedef PuglClientEvent PuglEventClient;
+
+PUGL_DEPRECATED_BY("PuglTimerEvent")
+typedef PuglTimerEvent PuglEventTimer;
+
+PUGL_DEPRECATED_BY("PuglLoopEnterEvent")
+typedef PuglLoopEnterEvent PuglEventLoopEnter;
+
+PUGL_DEPRECATED_BY("PuglLoopLeaveEvent")
+typedef PuglLoopLeaveEvent PuglEventLoopLeave;
 
 /**
    A native window handle.

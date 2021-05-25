@@ -90,7 +90,7 @@ puglMacCairoDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglMacCairoEnter(PuglView* view, const PuglEventExpose* expose)
+puglMacCairoEnter(PuglView* view, const PuglExposeEvent* expose)
 {
   PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
   if (!expose) {
@@ -118,7 +118,7 @@ puglMacCairoEnter(PuglView* view, const PuglEventExpose* expose)
 }
 
 static PuglStatus
-puglMacCairoLeave(PuglView* view, const PuglEventExpose* expose)
+puglMacCairoLeave(PuglView* view, const PuglExposeEvent* expose)
 {
   PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
   if (!expose) {

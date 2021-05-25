@@ -34,7 +34,7 @@ typedef struct {
 } PuglTest;
 
 static void
-onConfigure(PuglView* const view, const PuglEventConfigure* const event)
+onConfigure(PuglView* const view, const PuglConfigureEvent* const event)
 {
   (void)view;
 
@@ -48,7 +48,7 @@ onConfigure(PuglView* const view, const PuglEventConfigure* const event)
 }
 
 static void
-onExpose(PuglView* const view, const PuglEventExpose* const event)
+onExpose(PuglView* const view, const PuglExposeEvent* const event)
 {
   (void)view;
   (void)event;

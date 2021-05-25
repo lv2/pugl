@@ -93,7 +93,7 @@ puglX11CairoDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglX11CairoEnter(PuglView* view, const PuglEventExpose* expose)
+puglX11CairoEnter(PuglView* view, const PuglExposeEvent* expose)
 {
   PuglInternals* const       impl    = view->impl;
   PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
@@ -108,7 +108,7 @@ puglX11CairoEnter(PuglView* view, const PuglEventExpose* expose)
 }
 
 static PuglStatus
-puglX11CairoLeave(PuglView* view, const PuglEventExpose* expose)
+puglX11CairoLeave(PuglView* view, const PuglExposeEvent* expose)
 {
   PuglInternals* const       impl    = view->impl;
   PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
