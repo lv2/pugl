@@ -1259,8 +1259,8 @@ puglStopTimer(PuglView* view, uintptr_t id);
    puglPostRedisplayRect(), but will always send a message to the X server,
    even when called in an event handler.
 
-   @return #PUGL_UNSUPPORTED_TYPE if sending events of this type is not supported,
-   #PUGL_UNKNOWN_ERROR if sending the event failed.
+   @return #PUGL_UNSUPPORTED_TYPE if sending events of this type is not
+   supported, #PUGL_UNKNOWN_ERROR if sending the event failed.
 */
 PUGL_API
 PuglStatus
