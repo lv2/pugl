@@ -73,8 +73,8 @@
     NSOpenGLPFAColorSize,     colorSize,
     NSOpenGLPFADepthSize,     (unsigned)puglview->hints[PUGL_DEPTH_BITS],
     NSOpenGLPFAStencilSize,   (unsigned)puglview->hints[PUGL_STENCIL_BITS],
-    NSOpenGLPFAMultisample,   samples ? 1 : 0,
-    NSOpenGLPFASampleBuffers, samples ? 1 : 0,
+    NSOpenGLPFAMultisample,   (NSOpenGLPixelFormatAttribute)(samples ? 1 : 0),
+    NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)(samples ? 1 : 0),
     NSOpenGLPFASamples,       samples,
     0};
   // clang-format on
