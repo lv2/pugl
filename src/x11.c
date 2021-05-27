@@ -66,6 +66,16 @@
 #  define MAX(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
+#ifdef __cplusplus
+#  define PUGL_INIT_STRUCT \
+    {}
+#else
+#  define PUGL_INIT_STRUCT \
+    {                      \
+      0                    \
+    }
+#endif
+
 enum WmClientStateMessageAction {
   WM_STATE_REMOVE,
   WM_STATE_ADD,
@@ -209,7 +219,7 @@ updateSizeHints(const PuglView* const view)
   }
 
   Display*   display   = view->world->impl->display;
-  XSizeHints sizeHints = {0};
+  XSizeHints sizeHints = PUGL_INIT_STRUCT;
 
   if (!view->hints[PUGL_RESIZABLE]) {
     sizeHints.flags       = PBaseSize | PMinSize | PMaxSize;
@@ -280,7 +290,7 @@ puglRealize(PuglView* const view)
   const int            screen  = DefaultScreen(display);
   const Window         root    = RootWindow(display, screen);
   const Window         parent  = view->parent ? (Window)view->parent : root;
-  XSetWindowAttributes attr    = {0};
+  XSetWindowAttributes attr    = PUGL_INIT_STRUCT;
   PuglStatus           st      = PUGL_SUCCESS;
 
   // Ensure that we're unrealized and that a reasonable backend has been set
@@ -1458,7 +1468,7 @@ PuglStatus
 puglX11Configure(PuglView* view)
 {
   PuglInternals* const impl = view->impl;
-  XVisualInfo          pat  = {0};
+  XVisualInfo          pat  = PUGL_INIT_STRUCT;
   int                  n    = 0;
 
   pat.screen = impl->screen;

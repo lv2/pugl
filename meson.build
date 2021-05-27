@@ -86,6 +86,7 @@ if get_option('strict')
   if is_variable('cpp')
     if cpp.get_id() == 'clang'
       cpp_warnings += [
+        '-Wno-documentation', # Cairo
         '-Wno-documentation-unknown-command', # Cairo
         '-Wno-old-style-cast',
         '-Wno-padded',
@@ -95,7 +96,9 @@ if get_option('strict')
       ]
     elif cpp.get_id() == 'gcc'
       cpp_warnings += [
+        '-Wno-conditionally-supported',
         '-Wno-effc++',
+        '-Wno-float-equal',
         '-Wno-inline',
         '-Wno-old-style-cast',
         '-Wno-padded',
