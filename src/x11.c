@@ -389,7 +389,7 @@ puglRealize(PuglView* const view)
                         impl->win,
                         XNFocusWindow,
                         impl->win,
-                        NULL);
+                        (XIM)0);
 
 #ifdef HAVE_XCURSOR
   defineCursorShape(view, impl->cursorShape);
