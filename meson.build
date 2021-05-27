@@ -140,7 +140,15 @@ if get_option('strict')
 
   # Objective C warnings
   if is_variable('objcc')
-    add_project_arguments(objcc.get_supported_arguments(all_objc_warnings),
+    objc_warnings = all_objc_warnings
+
+    objc_warnings += [
+      '-Wno-deprecated-declarations',
+      '-Wno-direct-ivar-access',
+      '-Wno-pedantic',
+    ]
+
+    add_project_arguments(objcc.get_supported_arguments(objc_warnings),
                           language: ['objc'])
   endif
 endif
@@ -203,9 +211,6 @@ if host_machine.system() == 'darwin'
   platform_sources = ['src/mac.m']
   core_deps = [cocoa_dep, corevideo_dep]
   extension = '.m'
-
-  add_project_arguments(['-Wno-deprecated-declarations'], language: ['objc'])
-  add_project_arguments(['-Wno-direct-ivar-access'], language: ['objc'])
 
   add_project_arguments(['-DGL_SILENCE_DEPRECATION'],
                         language: ['c', 'objc'])
