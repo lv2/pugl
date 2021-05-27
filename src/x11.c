@@ -689,7 +689,9 @@ translateEvent(PuglView* const view, XEvent xevent)
     }
     break;
   case ButtonPress:
-    if (xevent.xbutton.button >= 4 && xevent.xbutton.button <= 7) {
+  case ButtonRelease:
+    if (xevent.type == ButtonPress && xevent.xbutton.button >= 4 &&
+        xevent.xbutton.button <= 7) {
       event.type         = PUGL_SCROLL;
       event.scroll.time  = (double)xevent.xbutton.time / 1e3;
       event.scroll.x     = xevent.xbutton.x;
@@ -717,11 +719,7 @@ translateEvent(PuglView* const view, XEvent xevent)
         event.scroll.direction = PUGL_SCROLL_RIGHT;
         break;
       }
-      // fallthru
-    }
-    // fallthru
-  case ButtonRelease:
-    if (xevent.xbutton.button < 4 || xevent.xbutton.button > 7) {
+    } else if (xevent.xbutton.button < 4 || xevent.xbutton.button > 7) {
       event.button.type   = ((xevent.type == ButtonPress) ? PUGL_BUTTON_PRESS
                                                           : PUGL_BUTTON_RELEASE);
       event.button.time   = (double)xevent.xbutton.time / 1e3;
