@@ -146,7 +146,7 @@ if host_machine.system() == 'darwin'
   corevideo_dep = dependency('CoreVideo', required: false)
 
   platform = 'mac'
-  platform_sources = ['src/mac.m']
+  platform_sources = files('src/mac.m')
   core_deps = [cocoa_dep, corevideo_dep]
   extension = '.m'
 
@@ -177,7 +177,7 @@ elif host_machine.system() == 'windows'
   add_project_arguments(win_args, language: ['c', 'cpp'])
 
   platform = 'win'
-  platform_sources = ['src/win.c']
+  platform_sources = files('src/win.c')
   core_deps = []
   extension = '.c'
 
@@ -205,7 +205,7 @@ else # X11
   endif
 
   platform = 'x11'
-  platform_sources = ['src/x11.c']
+  platform_sources = files('src/x11.c')
   core_deps = [x11_dep, xcursor_dep, xrandr_dep, xext_dep]
   extension = '.c'
 endif
@@ -213,7 +213,6 @@ endif
 # Build core library
 
 core_deps += [m_dep]
-core_sources += platform_sources
 core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
 
 library_args = ['-DPUGL_INTERNAL']
@@ -231,7 +230,8 @@ else
 endif
 
 libpugl = build_target(
-  core_name, core_sources,
+  core_name,
+  files('src/implementation.c') + platform_sources,
   version: meson.project_version(),
   include_directories: include_directories(['include']),
   c_args: library_args + core_args,
@@ -252,7 +252,7 @@ pkg.generate(libpugl,
 # Build stub backend
 
 name = 'pugl_' + platform + '_stub' + version_suffix
-sources = 'src/' + platform + '_stub' + extension
+sources = files('src/' + platform + '_stub' + extension)
 
 stub_backend = build_target(
   name, sources,
@@ -276,7 +276,7 @@ pkg.generate(stub_backend,
 # Build GL backend
 if opengl_dep.found()
   name = 'pugl_' + platform + '_gl' + version_suffix
-  sources = 'src/' + platform + '_gl' + extension
+  sources = files('src/' + platform + '_gl' + extension)
 
   gl_backend = build_target(
     name, sources,
@@ -302,7 +302,7 @@ endif
 # Build Cairo backend
 if cairo_dep.found()
   name = 'pugl_' + platform + '_cairo' + version_suffix
-  sources = ['src/' + platform + '_cairo' + extension]
+  sources = files('src/' + platform + '_cairo' + extension)
 
   cairo_backend = build_target(
     name, sources,
@@ -329,7 +329,7 @@ endif
 # Build Vulkan backend
 if vulkan_dep.found()
   name = 'pugl_' + platform + '_vulkan' + version_suffix
-  sources = ['src/' + platform + '_vulkan' + extension]
+  sources = files('src/' + platform + '_vulkan' + extension)
 
   vulkan_deps = [pugl_dep, vulkan_dep, dl_dep]
   vulkan_c_args = library_args
