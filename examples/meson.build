@@ -19,7 +19,6 @@ vulkan_examples = [
 ]
 
 includes = include_directories(
-  '.',
   '..',
   '../bindings/cpp/include',
   '../include',
