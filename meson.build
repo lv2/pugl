@@ -18,7 +18,7 @@ pkg = import('pkgconfig')
 cc = meson.get_compiler('c')
 
 # Enable C++ support if we're building the examples
-if get_option('examples')
+if get_option('examples') or get_option('tests')
   add_languages(['cpp'])
   cpp = meson.get_compiler('cpp')
 endif
@@ -30,31 +30,26 @@ if host_machine.system() == 'darwin'
 endif
 
 # Set ultra strict warnings for developers, if requested
+# These are for the implementation, tests and examples add more suppressions
 if get_option('strict')
   subdir('meson')
 
-  # C warnings
   c_warnings = all_c_warnings
   if cc.get_id() == 'clang'
     c_warnings += [
       '-Wno-bad-function-cast',
       '-Wno-documentation', # Cairo
       '-Wno-documentation-unknown-command', # Cairo
-      '-Wno-float-equal',
-      '-Wno-implicit-fallthrough',
       '-Wno-padded',
       '-Wno-reserved-id-macro',
       '-Wno-switch-default',
       '-Wno-switch-enum',
-      '-Wno-unused-macros', # Mac
     ]
   elif cc.get_id() == 'gcc'
     c_warnings += [
       '-Wno-bad-function-cast',
       '-Wno-float-equal',
-      '-Wno-inline',
       '-Wno-padded',
-      '-Wno-pedantic',
       '-Wno-suggest-attribute=const',
       '-Wno-suggest-attribute=malloc',
       '-Wno-suggest-attribute=pure',
@@ -80,64 +75,6 @@ if get_option('strict')
 
   add_project_arguments(cc.get_supported_arguments(c_warnings),
                         language: ['c', 'objc'])
-
-  # C++ warnings
-  if is_variable('cpp')
-    cpp_warnings = all_cpp_warnings
-
-    if cpp.get_id() == 'clang'
-      cpp_warnings += [
-        '-Wno-documentation', # Cairo
-        '-Wno-documentation-unknown-command', # Cairo
-        '-Wno-old-style-cast',
-        '-Wno-padded',
-        '-Wno-reserved-id-macro',
-        '-Wno-switch-enum',
-        '-Wno-unused-macros', # Mac
-      ]
-    elif cpp.get_id() == 'gcc'
-      cpp_warnings += [
-        '-Wno-conditionally-supported',
-        '-Wno-effc++',
-        '-Wno-float-equal',
-        '-Wno-inline',
-        '-Wno-old-style-cast',
-        '-Wno-padded',
-        '-Wno-suggest-attribute=const',
-        '-Wno-suggest-attribute=malloc',
-        '-Wno-suggest-attribute=pure',
-        '-Wno-suggest-final-methods',
-        '-Wno-switch-default',
-        '-Wno-switch-enum',
-        '-Wno-unused-const-variable',
-        '-Wno-useless-cast',
-      ]
-    elif cpp.get_id() == 'msvc'
-      cpp_warnings += [
-        '/wd4061',  # enumerator in switch is not explicitly handled
-        '/wd4191',  # unsafe conversion from type to type
-        '/wd4355',  # 'this' used in base member initializer list
-        '/wd4514',  # unreferenced inline function has been removed
-        '/wd4571',  # structured exceptions (SEH) are no longer caught
-        '/wd4625',  # copy constructor implicitly deleted
-        '/wd4626',  # assignment operator implicitly deleted
-        '/wd4706',  # assignment within conditional expression
-        '/wd4710',  # function not inlined
-        '/wd4711',  # function selected for automatic inline expansion
-        '/wd4800',  # implicit conversion from int to bool
-        '/wd4820',  # padding added after construct
-        '/wd4868',  # compiler may not enforce left-to-right evaluation order
-        '/wd4996',  # function or variable may be unsafe
-        '/wd5026',  # move constructor implicitly deleted
-        '/wd5027',  # move assignment operator implicitly deleted
-        '/wd5039',  # potentially throwing function passed to C
-        '/wd5045',  # will insert Spectre mitigation for memory load
-      ]
-    endif
-
-    add_project_arguments(cpp.get_supported_arguments(cpp_warnings),
-                          language: ['cpp'])
-  endif
 
   # Objective C warnings
   if is_variable('objcc')
@@ -221,7 +158,7 @@ if host_machine.system() == 'darwin'
 
 # Windows
 elif host_machine.system() == 'windows'
-  if cpp.get_id() == 'msvc'
+  if cc.get_id() == 'msvc'
     msvc_args = [
       '/TP',
       '/experimental:external',
