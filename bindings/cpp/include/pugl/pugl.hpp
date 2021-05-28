@@ -88,8 +88,7 @@ using Rect = PuglRect; ///< @copydoc PuglRect
 /**
    A strongly-typed analogue of PuglEvent.
 
-   This is bit-for-bit identical to the corresponding PuglEvent, so events are
-   simply cast to this type to avoid any copying overhead.
+   This is bit-for-bit identical to the corresponding PuglEvent.
 
    @tparam t The `type` field of the corresponding PuglEvent.
 
@@ -102,6 +101,10 @@ struct Event final : Base {
 
   /// The `type` field of the corresponding C event structure
   static constexpr const PuglEventType type = t;
+
+  explicit Event(Base base)
+    : Base{base}
+  {}
 
   template<class... Args>
   explicit Event(const PuglEventFlags f, Args... args)
@@ -652,56 +655,51 @@ private:
     case PUGL_NOTHING:
       return Status::success;
     case PUGL_CREATE:
-      return target.onEvent(static_cast<const CreateEvent&>(event->any));
+      return target.onEvent(CreateEvent{event->any});
     case PUGL_DESTROY:
-      return target.onEvent(static_cast<const DestroyEvent&>(event->any));
+      return target.onEvent(DestroyEvent{event->any});
     case PUGL_CONFIGURE:
-      return target.onEvent(
-        static_cast<const ConfigureEvent&>(event->configure));
+      return target.onEvent(ConfigureEvent{event->configure});
     case PUGL_MAP:
-      return target.onEvent(static_cast<const MapEvent&>(event->any));
+      return target.onEvent(MapEvent{event->any});
     case PUGL_UNMAP:
-      return target.onEvent(static_cast<const UnmapEvent&>(event->any));
+      return target.onEvent(UnmapEvent{event->any});
     case PUGL_UPDATE:
-      return target.onEvent(static_cast<const UpdateEvent&>(event->any));
+      return target.onEvent(UpdateEvent{event->any});
     case PUGL_EXPOSE:
-      return target.onEvent(static_cast<const ExposeEvent&>(event->expose));
+      return target.onEvent(ExposeEvent{event->expose});
     case PUGL_CLOSE:
-      return target.onEvent(static_cast<const CloseEvent&>(event->any));
+      return target.onEvent(CloseEvent{event->any});
     case PUGL_FOCUS_IN:
-      return target.onEvent(static_cast<const FocusInEvent&>(event->focus));
+      return target.onEvent(FocusInEvent{event->focus});
     case PUGL_FOCUS_OUT:
-      return target.onEvent(static_cast<const FocusOutEvent&>(event->focus));
+      return target.onEvent(FocusOutEvent{event->focus});
     case PUGL_KEY_PRESS:
-      return target.onEvent(static_cast<const KeyPressEvent&>(event->key));
+      return target.onEvent(KeyPressEvent{event->key});
     case PUGL_KEY_RELEASE:
-      return target.onEvent(static_cast<const KeyReleaseEvent&>(event->key));
+      return target.onEvent(KeyReleaseEvent{event->key});
     case PUGL_TEXT:
-      return target.onEvent(static_cast<const TextEvent&>(event->text));
+      return target.onEvent(TextEvent{event->text});
     case PUGL_POINTER_IN:
-      return target.onEvent(
-        static_cast<const PointerInEvent&>(event->crossing));
+      return target.onEvent(PointerInEvent{event->crossing});
     case PUGL_POINTER_OUT:
-      return target.onEvent(
-        static_cast<const PointerOutEvent&>(event->crossing));
+      return target.onEvent(PointerOutEvent{event->crossing});
     case PUGL_BUTTON_PRESS:
-      return target.onEvent(
-        static_cast<const ButtonPressEvent&>(event->button));
+      return target.onEvent(ButtonPressEvent{event->button});
     case PUGL_BUTTON_RELEASE:
-      return target.onEvent(
-        static_cast<const ButtonReleaseEvent&>(event->button));
+      return target.onEvent(ButtonReleaseEvent{event->button});
     case PUGL_MOTION:
-      return target.onEvent(static_cast<const MotionEvent&>(event->motion));
+      return target.onEvent(MotionEvent{event->motion});
     case PUGL_SCROLL:
-      return target.onEvent(static_cast<const ScrollEvent&>(event->scroll));
+      return target.onEvent(ScrollEvent{event->scroll});
     case PUGL_CLIENT:
-      return target.onEvent(static_cast<const ClientEvent&>(event->client));
+      return target.onEvent(ClientEvent{event->client});
     case PUGL_TIMER:
-      return target.onEvent(static_cast<const TimerEvent&>(event->timer));
+      return target.onEvent(TimerEvent{event->timer});
     case PUGL_LOOP_ENTER:
-      return target.onEvent(static_cast<const LoopEnterEvent&>(event->any));
+      return target.onEvent(LoopEnterEvent{event->any});
     case PUGL_LOOP_LEAVE:
-      return target.onEvent(static_cast<const LoopLeaveEvent&>(event->any));
+      return target.onEvent(LoopLeaveEvent{event->any});
     }
 
     return Status::failure;

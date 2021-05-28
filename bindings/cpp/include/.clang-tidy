@@ -4,7 +4,6 @@ Checks: >
   -clang-diagnostic-unused-macros,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-reinterpret-cast,
-  -cppcoreguidelines-pro-type-static-cast-downcast,
   -google-runtime-references,
   -hicpp-named-parameter,
   -llvmlibc-*,

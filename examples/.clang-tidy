@@ -19,7 +19,6 @@ Checks: >
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-reinterpret-cast,
-  -cppcoreguidelines-pro-type-static-cast-downcast,
   -cppcoreguidelines-pro-type-vararg,
   -fuchsia-default-arguments,
   -fuchsia-default-arguments-calls,
