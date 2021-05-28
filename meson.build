@@ -95,32 +95,6 @@ endif
 add_project_arguments(['-DPUGL_DISABLE_DEPRECATED'],
                       language: ['c', 'cpp', 'objc'])
 
-c_headers = [
-  'include/pugl/pugl.h',
-
-  'include/pugl/cairo.h',
-  'include/pugl/gl.h',
-  'include/pugl/stub.h',
-  'include/pugl/vulkan.h',
-]
-
-c_header_files = files(c_headers)
-
-cpp_headers = [
-  'bindings/cpp/include/pugl/pugl.hpp',
-
-  'bindings/cpp/include/pugl/cairo.hpp',
-  'bindings/cpp/include/pugl/gl.hpp',
-  'bindings/cpp/include/pugl/stub.hpp',
-  'bindings/cpp/include/pugl/vulkan.hpp',
-]
-
-cpp_header_files = files(cpp_headers)
-
-core_sources = [
-  'src/implementation.c'
-]
-
 # System libraries
 m_dep = cc.find_library('m', required: false)
 dl_dep = cc.find_library('dl', required: false)
@@ -215,6 +189,7 @@ endif
 core_deps += [m_dep]
 core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
 
+# Determine library type and set up defines for building them
 library_args = ['-DPUGL_INTERNAL']
 if get_option('default_library') == 'both'
   if host_machine.system() == 'windows'
@@ -229,6 +204,7 @@ else
   add_project_arguments(['-DPUGL_STATIC'], language: ['c', 'cpp', 'objc'])
 endif
 
+# Build core library
 libpugl = build_target(
   core_name,
   files('src/implementation.c') + platform_sources,
@@ -242,6 +218,7 @@ libpugl = build_target(
 
 pugl_dep = declare_dependency(link_with: libpugl, dependencies: core_deps)
 
+# Build pkg-config file
 pkg.generate(libpugl,
              name: 'Pugl',
              filebase: versioned_name,
@@ -363,14 +340,9 @@ if vulkan_dep.found()
                description: 'Pugl GUI library with Vulkan backend')
 endif
 
-install_headers(c_headers, subdir: versioned_name / 'pugl')
-install_headers(cpp_headers, subdir: 'puglpp' + version_suffix / 'pugl')
-
-pkg.generate(name: 'Pugl++',
-             filebase: 'puglpp-@0@'.format(major_version),
-             subdirs: ['puglpp-@0@'.format(major_version)],
-             version: meson.project_version(),
-             description: 'Pugl GUI library C++ bindings')
+# Process all headers first so they are available for building documentation
+subdir('include')
+subdir('bindings/cpp')
 
 if not get_option('docs').disabled()
   subdir('doc')
