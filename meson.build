@@ -82,8 +82,9 @@ if get_option('strict')
                         language: ['c', 'objc'])
 
   # C++ warnings
-  cpp_warnings = all_cpp_warnings
   if is_variable('cpp')
+    cpp_warnings = all_cpp_warnings
+
     if cpp.get_id() == 'clang'
       cpp_warnings += [
         '-Wno-documentation', # Cairo
