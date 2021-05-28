@@ -1195,8 +1195,8 @@ puglWinCreateWindow(PuglView* const   view,
   const unsigned winFlags   = puglWinGetWindowFlags(view);
   const unsigned winExFlags = puglWinGetWindowExFlags(view);
 
-  if (view->frame.width == 0.0 && view->frame.height == 0.0) {
-    if (view->defaultWidth == 0.0 && view->defaultHeight == 0.0) {
+  if (view->frame.width <= 0.0 && view->frame.height <= 0.0) {
+    if (view->defaultWidth <= 0.0 && view->defaultHeight <= 0.0) {
       return PUGL_BAD_CONFIGURATION;
     }
 

@@ -303,8 +303,8 @@ puglRealize(PuglView* const view)
   }
 
   // Set the size to the default if it has not already been set
-  if (view->frame.width == 0.0 && view->frame.height == 0.0) {
-    if (view->defaultWidth == 0.0 || view->defaultHeight == 0.0) {
+  if (view->frame.width <= 0.0 && view->frame.height <= 0.0) {
+    if (view->defaultWidth <= 0.0 || view->defaultHeight <= 0.0) {
       return PUGL_BAD_CONFIGURATION;
     }
 
@@ -313,7 +313,7 @@ puglRealize(PuglView* const view)
   }
 
   // Center top-level windows if a position has not been set
-  if (!view->parent && view->frame.x == 0.0 && view->frame.y == 0.0) {
+  if (!view->parent && view->frame.x <= 0.0 && view->frame.y <= 0.0) {
     const int screenWidth  = DisplayWidth(display, screen);
     const int screenHeight = DisplayHeight(display, screen);
 
