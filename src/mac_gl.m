@@ -94,6 +94,7 @@
   if (self) {
     [[self openGLContext] makeCurrentContext];
     [self reshape];
+    [NSOpenGLContext clearCurrentContext];
   }
   return self;
 }
