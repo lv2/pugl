@@ -118,8 +118,7 @@ puglWinGetWindowExFlags(const PuglView* const view)
 }
 
 PuglWorldInternals*
-puglInitWorldInternals(PuglWorldType  PUGL_UNUSED(type),
-                       PuglWorldFlags PUGL_UNUSED(flags))
+puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
 {
   PuglWorldInternals* impl =
     (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
@@ -127,15 +126,17 @@ puglInitWorldInternals(PuglWorldType  PUGL_UNUSED(type),
     return NULL;
   }
 
-  HMODULE user32 = LoadLibrary("user32.dll");
-  if (user32) {
-    PFN_SetProcessDPIAware SetProcessDPIAware =
-      (PFN_SetProcessDPIAware)GetProcAddress(user32, "SetProcessDPIAware");
-    if (SetProcessDPIAware) {
-      SetProcessDPIAware();
-    }
+  if (type == PUGL_PROGRAM) {
+    HMODULE user32 = LoadLibrary("user32.dll");
+    if (user32) {
+      PFN_SetProcessDPIAware SetProcessDPIAware =
+        (PFN_SetProcessDPIAware)GetProcAddress(user32, "SetProcessDPIAware");
+      if (SetProcessDPIAware) {
+        SetProcessDPIAware();
+      }
 
-    FreeLibrary(user32);
+      FreeLibrary(user32);
+    }
   }
 
   LARGE_INTEGER frequency;
