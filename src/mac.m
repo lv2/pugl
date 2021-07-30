@@ -1545,23 +1545,21 @@ PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event)
 {
   if (event->type == PUGL_CLIENT) {
-    PuglWrapperView* wrapper = view->impl->wrapperView;
-    const NSWindow*  window  = [wrapper window];
-    const NSRect     rect    = [wrapper frame];
-    const NSPoint    center  = {NSMidX(rect), NSMidY(rect)};
+    PuglEvent copiedEvent = *event;
 
-    NSEvent* nsevent =
-      [NSEvent otherEventWithType:NSApplicationDefined
-                         location:center
-                    modifierFlags:0
-                        timestamp:[[NSProcessInfo processInfo] systemUptime]
-                     windowNumber:window.windowNumber
-                          context:nil
-                          subtype:PUGL_CLIENT
-                            data1:(NSInteger)event->client.data1
-                            data2:(NSInteger)event->client.data2];
+    CFRunLoopObserverRef observer = CFRunLoopObserverCreateWithHandler(
+      NULL,
+      kCFRunLoopBeforeSources,
+      false,
+      0,
+      ^(CFRunLoopObserverRef ref, CFRunLoopActivity activity) {
+        (void)ref;
+        (void)activity;
+        puglDispatchEvent(view, &copiedEvent);
+      });
 
-    [view->world->impl->app postEvent:nsevent atStart:false];
+    CFRunLoopAddObserver(CFRunLoopGetMain(), observer, kCFRunLoopCommonModes);
+    CFRelease(observer);
     return PUGL_SUCCESS;
   }
 
@@ -1581,49 +1579,26 @@ puglWaitForEvent(PuglView* view)
 }
 #endif
 
-static void
-dispatchClientEvent(PuglWorld* world, NSEvent* ev)
-{
-  NSWindow* win = [ev window];
-  NSPoint   loc = [ev locationInWindow];
-  for (size_t i = 0; i < world->numViews; ++i) {
-    PuglView*        view    = world->views[i];
-    PuglWrapperView* wrapper = view->impl->wrapperView;
-    if ([wrapper window] == win && NSPointInRect(loc, [wrapper frame])) {
-      const PuglClientEvent event = {
-        PUGL_CLIENT, 0, (uintptr_t)[ev data1], (uintptr_t)[ev data2]};
-
-      PuglEvent clientEvent;
-      clientEvent.client = event;
-      puglDispatchEvent(view, &clientEvent);
-    }
-  }
-}
-
 PuglStatus
 puglUpdate(PuglWorld* world, const double timeout)
 {
   @autoreleasepool {
-    NSDate* date =
-      ((timeout < 0) ? [NSDate distantFuture]
-                     : [NSDate dateWithTimeIntervalSinceNow:timeout]);
+    if (world->type == PUGL_PROGRAM) {
+      NSDate* date =
+        ((timeout < 0) ? [NSDate distantFuture]
+                       : [NSDate dateWithTimeIntervalSinceNow:timeout]);
 
-    for (NSEvent* ev = NULL;
-         (ev = [world->impl->app nextEventMatchingMask:NSAnyEventMask
-                                             untilDate:date
-                                                inMode:NSDefaultRunLoopMode
-                                               dequeue:YES]);) {
-      if ([ev type] == NSApplicationDefined &&
-          [ev subtype] == (NSEventSubtype)PUGL_CLIENT) {
-        dispatchClientEvent(world, ev);
-      }
+      for (NSEvent* ev = NULL;
+           (ev = [world->impl->app nextEventMatchingMask:NSAnyEventMask
+                                               untilDate:date
+                                                  inMode:NSDefaultRunLoopMode
+                                                 dequeue:YES]);) {
+        [world->impl->app sendEvent:ev];
 
-      [world->impl->app sendEvent:ev];
-
-      if (timeout < 0) {
-        // Now that we've waited and got an event, set the date to now to avoid
-        // looping forever
-        date = [NSDate date];
+        if (timeout < 0) {
+          // Now that we've got an event, mark the date to avoid looping forever
+          date = [NSDate date];
+        }
       }
     }
 

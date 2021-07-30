@@ -73,6 +73,7 @@ struct PuglWorldImpl {
   double              startTime;
   size_t              numViews;
   PuglView**          views;
+  PuglWorldType       type;
 };
 
 /// Opaque surface used by graphics backend

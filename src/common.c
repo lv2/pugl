@@ -50,6 +50,7 @@ puglNewWorld(PuglWorldType type, PuglWorldFlags flags)
   }
 
   world->startTime = puglGetTime(world);
+  world->type      = type;
 
   puglSetString(&world->className, "Pugl");
 
