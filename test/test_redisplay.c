@@ -55,6 +55,22 @@ typedef struct {
 static const PuglRect  redisplayRect   = {2, 4, 8, 16};
 static const uintptr_t postRedisplayId = 42;
 
+static bool
+rectContains(PuglRect outer, PuglRect inner)
+{
+  return outer.x <= inner.x && outer.y <= inner.y &&
+         inner.x + inner.width <= outer.x + outer.width &&
+         inner.y + inner.height <= outer.y + outer.height;
+}
+
+static PuglRect
+getExposeRect(PuglExposeEvent event)
+{
+  PuglRect result = {
+    .x = event.x, .y = event.y, .width = event.width, .height = event.height};
+  return result;
+}
+
 static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
 {
@@ -76,10 +92,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     if (test->state == START) {
       test->state = EXPOSED;
     } else if (test->state == POSTED_REDISPLAY &&
-               event->expose.x == redisplayRect.x &&
-               event->expose.y == redisplayRect.y &&
-               event->expose.width == redisplayRect.width &&
-               event->expose.height == redisplayRect.height) {
+               rectContains(getExposeRect(event->expose), redisplayRect)) {
       test->state = REDISPLAYED;
     }
     break;
