@@ -1036,10 +1036,14 @@ puglRealize(PuglView* view)
     puglSetFrame(view, view->frame);
 
     [window setContentView:impl->wrapperView];
-    [view->world->impl->app activateIgnoringOtherApps:YES];
     [window makeFirstResponder:impl->wrapperView];
-    [window makeKeyAndOrderFront:window];
-    [impl->window setIsVisible:NO];
+    [window setIsVisible:NO];
+
+    if (! view->transientParent)
+    {
+      [window makeKeyAndOrderFront:window];
+      [view->world->impl->app activateIgnoringOtherApps:YES];
+    }
   }
 
   [impl->wrapperView updateTrackingAreas];
