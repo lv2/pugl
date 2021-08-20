@@ -29,6 +29,10 @@
 
 #include <stdlib.h>
 
+#ifndef __MAC_10_9
+typedef NSUInteger NSEventSubtype;
+#endif
+
 #ifndef __MAC_10_10
 typedef NSUInteger NSEventModifierFlags;
 #endif
