@@ -31,6 +31,7 @@
 
 #ifndef __MAC_10_10
 typedef NSUInteger NSEventModifierFlags;
+typedef NSUInteger NSEventSubtype;
 #endif
 
 #ifndef __MAC_10_12
