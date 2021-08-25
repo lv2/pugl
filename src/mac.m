@@ -1238,7 +1238,8 @@ puglUpdate(PuglWorld* world, const double timeout)
                                              untilDate:date
                                                 inMode:NSDefaultRunLoopMode
                                                dequeue:YES]);) {
-      if ([ev type] == NSApplicationDefined && [ev subtype] == (NSEventSubtype)PUGL_CLIENT) {
+      if ([ev type] == NSApplicationDefined &&
+          [ev subtype] == (NSEventSubtype)PUGL_CLIENT) {
         dispatchClientEvent(world, ev);
       }
 
