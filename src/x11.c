@@ -366,12 +366,15 @@ puglRealize(PuglView* const view)
   }
 
 #ifdef HAVE_XRANDR
-  // Set refresh rate hint to the real refresh rate
-  XRRScreenConfiguration* conf         = XRRGetScreenInfo(display, parent);
-  short                   current_rate = XRRConfigCurrentRate(conf);
+  if (XRRQueryExtension(display, NULL, NULL))
+  {
+    // Set refresh rate hint to the real refresh rate
+    XRRScreenConfiguration* conf         = XRRGetScreenInfo(display, parent);
+    short                   current_rate = XRRConfigCurrentRate(conf);
 
-  view->hints[PUGL_REFRESH_RATE] = current_rate;
-  XRRFreeScreenConfigInfo(conf);
+    view->hints[PUGL_REFRESH_RATE] = current_rate;
+    XRRFreeScreenConfigInfo(conf);
+  }
 #endif
 
   updateSizeHints(view);
