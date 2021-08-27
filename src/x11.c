@@ -366,7 +366,8 @@ puglRealize(PuglView* const view)
   }
 
 #ifdef HAVE_XRANDR
-  if (XRRQueryExtension(display, NULL, NULL))
+  int ignored;
+  if (XRRQueryExtension(display, &ignored, &ignored))
   {
     // Set refresh rate hint to the real refresh rate
     XRRScreenConfiguration* conf         = XRRGetScreenInfo(display, parent);
