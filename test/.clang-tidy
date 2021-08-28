@@ -2,7 +2,9 @@ Checks: >
   *,
   -*-magic-numbers,
   -*-uppercase-literal-suffix,
+  -altera-struct-pack-align,
   -bugprone-reserved-identifier,
+  -bugprone-suspicious-include,
   -cert-dcl37-c,
   -cert-dcl51-cpp,
   -google-runtime-references,
@@ -11,5 +13,6 @@ Checks: >
   -llvm-header-guard,
   -llvmlibc-*,
   -modernize-use-trailing-return-type,
+  -readability-function-cognitive-complexity,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*|test/.*'

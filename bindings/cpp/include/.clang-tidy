@@ -1,6 +1,7 @@
 Checks: >
   *,
   -*-uppercase-literal-suffix,
+  -altera-struct-pack-align,
   -clang-diagnostic-unused-macros,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-reinterpret-cast,
