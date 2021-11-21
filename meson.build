@@ -49,6 +49,7 @@ if get_option('strict')
     c_warnings += [
       '-Wno-bad-function-cast',
       '-Wno-float-equal',
+      '-Wno-inline',
       '-Wno-padded',
       '-Wno-suggest-attribute=const',
       '-Wno-suggest-attribute=malloc',
