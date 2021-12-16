@@ -127,8 +127,19 @@ if host_machine.system() == 'darwin'
   add_languages(['objcpp'])
 
   objcpp = meson.get_compiler('objcpp')
+
+  objcpp_args = []
+  if objcpp.get_id() == 'clang'
+    objcpp_args += [
+      '-Wno-c++98-compat',
+      '-Wno-c++98-compat-pedantic',
+      '-Wno-deprecated-declarations',
+      '-Wno-direct-ivar-access',
+    ]
+  endif
+
   unified_args += objcpp.get_supported_arguments(
-    c_warnings + test_cpp_args + objc_warnings)
+    c_warnings + test_cpp_args + objcpp_args)
 
   executable('inline_objcpp', 'test_inline_objcpp.mm',
              include_directories: include_directories(includes),
