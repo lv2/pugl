@@ -1137,7 +1137,14 @@ typedef enum {
   PUGL_CURSOR_UP_DOWN,    ///< Up/down arrow for vertical resize
 } PuglCursor;
 
-/// Grab the keyboard input focus
+/**
+   Grab the keyboard input focus.
+
+   Note that this will fail if the view is not mapped and so should not, for
+   example, be called immediately after puglShow().
+
+   @return #PUGL_SUCCESS if the focus was successfully grabbed, or an error.
+*/
 PUGL_API
 PuglStatus
 puglGrabFocus(PuglView* view);

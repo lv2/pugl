@@ -795,7 +795,16 @@ translateEvent(PuglView* const view, XEvent xevent)
 PuglStatus
 puglGrabFocus(PuglView* const view)
 {
-  PuglInternals* const impl = view->impl;
+  PuglInternals* const impl  = view->impl;
+  XWindowAttributes    attrs = {0};
+
+  if (!impl->win || !XGetWindowAttributes(impl->display, impl->win, &attrs)) {
+    return PUGL_UNKNOWN_ERROR;
+  }
+
+  if (attrs.map_state != IsViewable) {
+    return PUGL_FAILURE;
+  }
 
   XSetInputFocus(impl->display, impl->win, RevertToNone, CurrentTime);
   return PUGL_SUCCESS;
