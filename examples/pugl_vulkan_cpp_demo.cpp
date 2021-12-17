@@ -1605,7 +1605,7 @@ endFrame(const sk::VulkanApi&  vk,
     nullptr};
 
   switch ((r = vk.queuePresentKHR(gpu.graphicsQueue, presentInfo))) {
-  case VK_SUCCESS:               // Sucessfully presented
+  case VK_SUCCESS:               // Successfully presented
   case VK_SUBOPTIMAL_KHR:        // Probably a resize race, ignore
   case VK_ERROR_OUT_OF_DATE_KHR: // Probably a resize race, ignore
     break;

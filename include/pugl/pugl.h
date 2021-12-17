@@ -996,8 +996,8 @@ puglSetMaxSize(PuglView* view, int width, int height);
    fixed aspect ratio, set the minimum and maximum values to the same ratio.
 
    Note that setting different minimum and maximum constraints does not
-   currenty work on MacOS (the minimum is used), so only setting a fixed aspect
-   ratio works properly across all platforms.
+   currently work on MacOS (the minimum is used), so only setting a fixed
+   aspect ratio works properly across all platforms.
 
    If an initial aspect ratio is known, this should be called before
    puglRealize() to avoid stutter, though it can be called afterwards as well.
@@ -1480,8 +1480,8 @@ puglInitWindowMinSize(PuglView* view, int width, int height)
    fixed aspect ratio, set the minimum and maximum values to the same ratio.
 
    Note that setting different minimum and maximum constraints does not
-   currenty work on MacOS (the minimum is used), so only setting a fixed aspect
-   ratio works properly across all platforms.
+   currently work on MacOS (the minimum is used), so only setting a fixed
+   aspect ratio works properly across all platforms.
 */
 static inline PUGL_DEPRECATED_BY("puglSetAspectRatio")
 void
