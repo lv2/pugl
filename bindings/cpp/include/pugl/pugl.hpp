@@ -515,10 +515,10 @@ public:
     return static_cast<Status>(puglSetParentWindow(cobj(), parent));
   }
 
-  /// @copydoc puglSetTransientFor
-  Status setTransientFor(NativeView parent) noexcept
+  /// @copydoc puglSetTransientParent
+  Status setTransientParent(NativeView parent) noexcept
   {
-    return static_cast<Status>(puglSetTransientFor(cobj(), parent));
+    return static_cast<Status>(puglSetTransientParent(cobj(), parent));
   }
 
   /// @copydoc puglRealize

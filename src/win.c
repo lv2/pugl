@@ -1039,7 +1039,7 @@ puglSetAspectRatio(PuglView* const view,
 }
 
 PuglStatus
-puglSetTransientFor(PuglView* view, PuglNativeView parent)
+puglSetTransientParent(PuglView* view, PuglNativeView parent)
 {
   if (view->parent) {
     return PUGL_FAILURE;

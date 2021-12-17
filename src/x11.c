@@ -1375,7 +1375,7 @@ puglSetAspectRatio(PuglView* const view,
 }
 
 PuglStatus
-puglSetTransientFor(PuglView* const view, const PuglNativeView parent)
+puglSetTransientParent(PuglView* const view, const PuglNativeView parent)
 {
   Display* display = view->world->impl->display;
 

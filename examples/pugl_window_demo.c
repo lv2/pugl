@@ -222,8 +222,8 @@ main(int argc, char** argv)
     puglSetEventFunc(view, onEvent);
 
     if (i == 1) {
-      puglSetTransientFor(app.cubes[1].view,
-                          puglGetNativeWindow(app.cubes[0].view));
+      puglSetTransientParent(app.cubes[1].view,
+                             puglGetNativeWindow(app.cubes[0].view));
     }
 
     if ((st = puglRealize(view))) {

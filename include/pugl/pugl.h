@@ -1024,7 +1024,7 @@ puglSetParentWindow(PuglView* view, PuglNativeView parent);
 */
 PUGL_API
 PuglStatus
-puglSetTransientFor(PuglView* view, PuglNativeView parent);
+puglSetTransientParent(PuglView* view, PuglNativeView parent);
 
 /**
    Realize a view by creating a corresponding system view or window.
@@ -1456,11 +1456,23 @@ puglInitWindowAspectRatio(PuglView* view,
    On X11, parent must be a Window.
    On OSX, parent must be an NSView*.
 */
-static inline PUGL_DEPRECATED_BY("puglSetTransientFor")
+static inline PUGL_DEPRECATED_BY("puglSetTransientParent")
 void
 puglInitTransientFor(PuglView* view, uintptr_t parent)
 {
-  puglSetTransientFor(view, (PuglNativeWindow)parent);
+  puglSetTransientParent(view, (PuglNativeWindow)parent);
+}
+
+/**
+   Set transient parent before creating a window.
+
+   @deprecated Use puglSetTransientParent().
+*/
+static inline PUGL_DEPRECATED_BY("puglSetTransientParent")
+PuglStatus
+puglSetTransientFor(PuglView* view, uintptr_t parent)
+{
+  return puglSetTransientParent(view, (PuglNativeWindow)parent);
 }
 
 /**
