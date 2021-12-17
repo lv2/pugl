@@ -608,8 +608,7 @@ translatePropertyNotify(PuglView* const view, XPropertyEvent message)
 {
   const PuglX11Atoms* const atoms = &view->world->impl->atoms;
 
-  PuglEvent event  = {{PUGL_NOTHING, 0}};
-  bool      hidden = false;
+  PuglEvent event = {{PUGL_NOTHING, 0}};
   if (message.atom == atoms->NET_WM_STATE) {
     unsigned long numHints = 0;
     Atom*         hints    = NULL;
@@ -618,6 +617,7 @@ translatePropertyNotify(PuglView* const view, XPropertyEvent message)
       return event;
     }
 
+    bool hidden = false;
     for (unsigned long i = 0; i < numHints; ++i) {
       if (hints[i] == atoms->NET_WM_STATE_HIDDEN) {
         hidden = true;
