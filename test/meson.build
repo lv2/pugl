@@ -1,3 +1,8 @@
+# Copyright 2021 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: CC0-1.0 OR ISC
+
+reuse = find_program('reuse', required: false)
+
 # Suppress some additional C warnings in tests
 test_c_args = []
 if get_option('strict')
@@ -31,6 +36,11 @@ if get_option('strict') and is_variable('cpp')
   endif
 
   test_cpp_args = cpp.get_supported_arguments(test_cpp_args)
+endif
+
+# Check licensing metadata
+if reuse.found()
+  test('REUSE', reuse, args: ['--root', pugl_src_root, 'lint'], suite: 'data')
 endif
 
 basic_tests = [

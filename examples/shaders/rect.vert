@@ -1,3 +1,6 @@
+// Copyright 2019-2020 David Robillard <d@drobilla.net>
+// SPDX-License-Identifier: ISC
+
 /* The vertex shader is trivial, but forwards scaled UV coordinates (in pixels)
    to the fragment shader for drawing the border. */
 

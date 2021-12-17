@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Copyright 2021 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: ISC
+
 import sys
 
 for filename in sys.argv[1:]:

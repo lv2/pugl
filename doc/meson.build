@@ -1,3 +1,6 @@
+# Copyright 2021 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: CC0-1.0 OR ISC
+
 docdir = get_option('datadir') / 'doc'
 
 doxygen = find_program('doxygen', required: get_option('docs'))

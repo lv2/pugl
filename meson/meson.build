@@ -1,3 +1,6 @@
+# Copyright 2021 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: CC0-1.0 OR ISC
+
 # General code to enable approximately all warnings.
 #
 # This is trivial for clang and MSVC, but GCC does not have such an option, and

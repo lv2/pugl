@@ -1,3 +1,6 @@
+# Copyright 2021 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: CC0-1.0 OR ISC
+
 shader_files = [
   'header_330.glsl',
   'header_420.glsl',

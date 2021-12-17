@@ -1,0 +1,16 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: pugl
+Upstream-Contact: David Robillard <d@drobilla.net>
+Source: https://gitlab.com/lv2/pugl
+
+Files: *.md */.clang* .clang* .clant.json .editorconfig .git* .includes.imp AUTHORS doc/*.in meson_options.txt resources/Info.plist.in
+Copyright: 2021 David Robillard <d@drobilla.net>
+License: CC0-1.0 OR ISC
+
+Files: doc/*.rst examples/glad/glad.c examples/glad/glad.h resources/pugl.ipe resources/pugl.png resources/pugl.svg
+Copyright: 2021 David Robillard <d@drobilla.net>
+License: ISC
+
+Files: examples/glad/khrplatform.h
+Copyright: 2008-2018 The Khronos Group Inc.
+License: MIT

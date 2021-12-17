@@ -1,3 +1,6 @@
+// Copyright 2019-2020 David Robillard <d@drobilla.net>
+// SPDX-License-Identifier: ISC
+
 /* The fragment shader uses the UV coordinates to calculate whether it is in
    the T, R, B, or L border.  These are then mixed with the border color, and
    their inverse is mixed with the fill color, to calculate the fragment color.
