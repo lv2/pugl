@@ -53,7 +53,7 @@ struct PhysicalDeviceSelection {
 
 /// Basic Vulkan context associated with the window
 struct VulkanContext {
-  VkResult init(pugl::VulkanLoader& loader, const PuglTestOptions& opts);
+  VkResult init(const pugl::VulkanLoader& loader, const PuglTestOptions& opts);
 
   sk::VulkanApi              vk;
   sk::Instance               instance;
@@ -1237,8 +1237,8 @@ createInstance(sk::VulkanInitApi&     initApi,
 }
 
 VkResult
-getDebugReportCallback(sk::VulkanApi&              api,
-                       sk::Instance&               instance,
+getDebugReportCallback(const sk::VulkanApi&        api,
+                       const sk::Instance&         instance,
                        const bool                  verbose,
                        sk::DebugReportCallbackEXT& callback)
 {
@@ -1675,7 +1675,8 @@ View::onEvent(const pugl::CloseEvent&)
 }
 
 VkResult
-VulkanContext::init(pugl::VulkanLoader& loader, const PuglTestOptions& opts)
+VulkanContext::init(const pugl::VulkanLoader& loader,
+                    const PuglTestOptions&    opts)
 {
   VkResult r = VK_SUCCESS;
 
@@ -1693,9 +1694,9 @@ VulkanContext::init(pugl::VulkanLoader& loader, const PuglTestOptions& opts)
 }
 
 int
-run(const char* const     programPath,
-    const PuglTestOptions opts,
-    const size_t          numRects)
+run(const char* const      programPath,
+    const PuglTestOptions& opts,
+    const size_t           numRects)
 {
   PuglVulkanDemo app{programPath, opts, numRects};
 

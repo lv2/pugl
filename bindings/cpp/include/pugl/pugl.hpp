@@ -89,7 +89,7 @@ struct Event final : Base {
   /// The `type` field of the corresponding C event structure
   static constexpr const PuglEventType type = t;
 
-  explicit Event(Base base)
+  explicit Event(const Base& base)
     : Base{base}
   {}
 
@@ -453,7 +453,7 @@ public:
   Rect frame() const noexcept { return puglGetFrame(cobj()); }
 
   /// @copydoc puglSetFrame
-  Status setFrame(Rect frame) noexcept
+  Status setFrame(const Rect& frame) noexcept
   {
     return static_cast<Status>(puglSetFrame(cobj(), frame));
   }
@@ -541,7 +541,7 @@ public:
   }
 
   /// @copydoc puglPostRedisplayRect
-  Status postRedisplayRect(const Rect rect) noexcept
+  Status postRedisplayRect(const Rect& rect) noexcept
   {
     return static_cast<Status>(puglPostRedisplayRect(cobj(), rect));
   }
