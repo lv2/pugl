@@ -235,6 +235,12 @@ puglSetParentWindow(PuglView* view, PuglNativeView parent)
 }
 
 PuglNativeView
+puglGetParentWindow(const PuglView* const view)
+{
+  return view->parent;
+}
+
+PuglNativeView
 puglGetTransientParent(const PuglView* const view)
 {
   return view->transientParent;

@@ -1012,6 +1012,11 @@ PUGL_API
 PuglStatus
 puglSetParentWindow(PuglView* view, PuglNativeView parent);
 
+/// Return the parent window this view is embedded in, or null
+PUGL_API
+PuglNativeView
+puglGetParentWindow(const PuglView* view);
+
 /**
    Set the transient parent of the window.
 
