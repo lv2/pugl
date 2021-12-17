@@ -2,7 +2,7 @@ Checks: >
   *,
   -*-magic-numbers,
   -*-uppercase-literal-suffix,
-  -altera-struct-pack-align,
+  -altera*,
   -bugprone-reserved-identifier,
   -bugprone-suspicious-include,
   -cert-dcl37-c,

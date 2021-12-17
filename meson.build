@@ -42,6 +42,7 @@ if get_option('strict')
       '-Wno-documentation-unknown-command', # Cairo
       '-Wno-padded',
       '-Wno-reserved-id-macro',
+      '-Wno-reserved-identifier', # Cairo, FD_ZERO
       '-Wno-switch-default',
       '-Wno-switch-enum',
     ]
