@@ -265,6 +265,12 @@ puglSetBackend(PuglView* view, const PuglBackend* backend)
   return PUGL_SUCCESS;
 }
 
+const PuglBackend*
+puglGetBackend(const PuglView* view)
+{
+  return view->backend;
+}
+
 void
 puglSetHandle(PuglView* view, PuglHandle handle)
 {

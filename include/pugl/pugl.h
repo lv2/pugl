@@ -877,6 +877,10 @@ PUGL_API
 PuglStatus
 puglSetBackend(PuglView* view, const PuglBackend* backend);
 
+/// Return the graphics backend used by a view
+const PuglBackend*
+puglGetBackend(const PuglView* view);
+
 /// Set the function to call when an event occurs
 PUGL_API
 PuglStatus
