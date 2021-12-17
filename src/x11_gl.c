@@ -182,12 +182,20 @@ puglX11GlCreate(PuglView* view)
       (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddress(
         (const uint8_t*)"glXSwapIntervalEXT");
 
+    // Note that some drivers (NVidia) require the context to be entered here
     puglX11GlEnter(view, NULL);
 
     // Set the swap interval if the user requested a specific value
     if (view->hints[PUGL_SWAP_INTERVAL] != PUGL_DONT_CARE) {
       glXSwapIntervalEXT(display, impl->win, view->hints[PUGL_SWAP_INTERVAL]);
     }
+
+    // Get the actual current swap interval
+    glXQueryDrawable(impl->display,
+                     impl->win,
+                     GLX_SWAP_INTERVAL_EXT,
+                     (unsigned int*)&view->hints[PUGL_SWAP_INTERVAL]);
+
     puglX11GlLeave(view, NULL);
   }
 
@@ -195,11 +203,6 @@ puglX11GlCreate(PuglView* view)
                impl->vi,
                GLX_DOUBLEBUFFER,
                &view->hints[PUGL_DOUBLE_BUFFER]);
-
-  glXQueryDrawable(display,
-                   impl->win,
-                   GLX_SWAP_INTERVAL_EXT,
-                   (unsigned int*)&view->hints[PUGL_SWAP_INTERVAL]);
 
   return PUGL_SUCCESS;
 }
