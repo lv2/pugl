@@ -693,6 +693,11 @@ PUGL_API
 PuglStatus
 puglSetClassName(PuglWorld* world, const char* name);
 
+/// Get the class name of the application, or null
+PUGL_API
+const char*
+puglGetClassName(const PuglWorld* world);
+
 /**
    Return the time in seconds.
 

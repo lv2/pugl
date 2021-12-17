@@ -137,6 +137,12 @@ puglSetClassName(PuglWorld* const world, const char* const name)
   return PUGL_SUCCESS;
 }
 
+const char*
+puglGetClassName(const PuglWorld* world)
+{
+  return world->className;
+}
+
 PuglView*
 puglNewView(PuglWorld* const world)
 {
