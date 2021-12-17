@@ -1,5 +1,5 @@
 /*
-  Copyright 2012-2020 David Robillard <d@drobilla.net>
+  Copyright 2012-2021 David Robillard <d@drobilla.net>
 
   Permission to use, copy, modify, and/or distribute this software for any
   purpose with or without fee is hereby granted, provided that the above
@@ -28,6 +28,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct {
   GLXFBConfig fb_config;
@@ -153,15 +154,19 @@ puglX11GlCreate(PuglView* view)
        : GLX_CONTEXT_CORE_PROFILE_BIT_ARB),
     0};
 
-  PFNGLXCREATECONTEXTATTRIBSARBPROC create_context =
-    (PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddress(
-      (const uint8_t*)"glXCreateContextAttribsARB");
+  const char* const extensions =
+    glXQueryExtensionsString(display, view->impl->screen);
 
-  PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT =
-    (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddress(
-      (const uint8_t*)"glXSwapIntervalEXT");
+  // Try to create a modern context
+  if (!!strstr(extensions, "GLX_ARB_create_context")) {
+    PFNGLXCREATECONTEXTATTRIBSARBPROC create_context =
+      (PFNGLXCREATECONTEXTATTRIBSARBPROC)glXGetProcAddress(
+        (const uint8_t*)"glXCreateContextAttribsARB");
 
-  surface->ctx = create_context(display, fb_config, 0, True, ctx_attrs);
+    surface->ctx = create_context(display, fb_config, 0, True, ctx_attrs);
+  }
+
+  // If that failed, fall back to the legacy API
   if (!surface->ctx) {
     surface->ctx =
       glXCreateNewContext(display, fb_config, GLX_RGBA_TYPE, 0, True);
@@ -171,10 +176,18 @@ puglX11GlCreate(PuglView* view)
     return PUGL_CREATE_CONTEXT_FAILED;
   }
 
-  const int swapInterval = view->hints[PUGL_SWAP_INTERVAL];
-  if (glXSwapIntervalEXT && swapInterval != PUGL_DONT_CARE) {
+  // Set up the swap interval
+  if (!!strstr(extensions, "GLX_EXT_swap_control")) {
+    PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT =
+      (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddress(
+        (const uint8_t*)"glXSwapIntervalEXT");
+
     puglX11GlEnter(view, NULL);
-    glXSwapIntervalEXT(display, impl->win, swapInterval);
+
+    // Set the swap interval if the user requested a specific value
+    if (view->hints[PUGL_SWAP_INTERVAL] != PUGL_DONT_CARE) {
+      glXSwapIntervalEXT(display, impl->win, view->hints[PUGL_SWAP_INTERVAL]);
+    }
     puglX11GlLeave(view, NULL);
   }
 
