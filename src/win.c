@@ -688,6 +688,13 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
   case WM_RBUTTONDOWN:
     initMouseEvent(&event, view, 1, true, lParam);
     break;
+  case WM_XBUTTONDOWN:
+    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) {
+      initMouseEvent(&event, view, 3, true, lParam);
+    } else {
+      initMouseEvent(&event, view, 4, true, lParam);
+    }
+    break;
   case WM_LBUTTONUP:
     initMouseEvent(&event, view, 0, false, lParam);
     break;
@@ -696,6 +703,13 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     break;
   case WM_RBUTTONUP:
     initMouseEvent(&event, view, 1, false, lParam);
+    break;
+  case WM_XBUTTONUP:
+    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1) {
+      initMouseEvent(&event, view, 3, false, lParam);
+    } else {
+      initMouseEvent(&event, view, 4, false, lParam);
+    }
     break;
   case WM_MOUSEWHEEL:
     initScrollEvent(&event, view, lParam);
