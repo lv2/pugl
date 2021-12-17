@@ -227,6 +227,12 @@ puglGetViewHint(const PuglView* view, PuglViewHint hint)
   return (hint < PUGL_NUM_VIEW_HINTS) ? view->hints[hint] : PUGL_DONT_CARE;
 }
 
+const char*
+puglGetWindowTitle(const PuglView* const view)
+{
+  return view->title;
+}
+
 PuglStatus
 puglSetParentWindow(PuglView* view, PuglNativeView parent)
 {

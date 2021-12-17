@@ -1003,6 +1003,11 @@ PUGL_API
 PuglStatus
 puglSetWindowTitle(PuglView* view, const char* title);
 
+/// Return the title of the window, or null
+PUGL_API
+const char*
+puglGetWindowTitle(const PuglView* view);
+
 /**
    Set the parent window for embedding a view in an existing window.
 
