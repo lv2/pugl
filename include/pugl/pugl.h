@@ -1027,6 +1027,16 @@ PuglStatus
 puglSetTransientParent(PuglView* view, PuglNativeView parent);
 
 /**
+   Return the transient parent of the window.
+
+   @return The native handle to the window this view is a transient child of,
+   or null.
+*/
+PUGL_API
+PuglNativeView
+puglGetTransientParent(const PuglView* view);
+
+/**
    Realize a view by creating a corresponding system view or window.
 
    After this call, the (initially invisible) underlying system view exists and
