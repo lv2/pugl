@@ -44,10 +44,6 @@ static const int       defaultHeight = 512;
 static const uintptr_t resizeTimerId = 1u;
 
 typedef struct {
-  mat4 projection;
-} RectUniforms;
-
-typedef struct {
   const char*     programPath;
   PuglWorld*      world;
   PuglView*       view;
