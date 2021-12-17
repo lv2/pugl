@@ -448,7 +448,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     rloc.x,
     [[NSScreen mainScreen] frame].size.height - rloc.y,
     getModifiers(event),
-    (uint32_t)[event buttonNumber] + 1,
+    (uint32_t)[event buttonNumber],
   };
 
   PuglEvent pressEvent;
@@ -469,7 +469,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     rloc.x,
     [[NSScreen mainScreen] frame].size.height - rloc.y,
     getModifiers(event),
-    (uint32_t)[event buttonNumber] + 1,
+    (uint32_t)[event buttonNumber],
   };
 
   PuglEvent releaseEvent;

@@ -741,7 +741,14 @@ translateEvent(PuglView* const view, XEvent xevent)
       event.button.xRoot  = xevent.xbutton.x_root;
       event.button.yRoot  = xevent.xbutton.y_root;
       event.button.state  = translateModifiers(xevent.xbutton.state);
-      event.button.button = xevent.xbutton.button;
+      event.button.button = xevent.xbutton.button - 1;
+      if (event.button.button == 1) {
+        event.button.button = 2;
+      } else if (event.button.button == 2) {
+        event.button.button = 1;
+      } else if (event.button.button >= 7) {
+        event.button.button -= 4;
+      }
     }
     break;
   case KeyPress:

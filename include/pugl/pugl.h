@@ -419,6 +419,21 @@ typedef struct {
 
 /**
    Button press or release event.
+
+   Button numbers start from 0, and are ordered: primary, secondary, middle.
+   So, on a typical right-handed mouse, the button numbers are:
+
+   Left: 0
+   Right: 1
+   Middle (often a wheel): 2
+
+   Higher button numbers are reported in the same order they are represented on
+   the system.  There is no universal standard here, but buttons 3 and 4 are
+   typically a pair of buttons or a rocker, which are usually bound to "back"
+   and "forward" operations.
+
+   Note that these numbers may differ from those used on the underlying
+   platform, since they are manipulated to provide a consistent portable API.
 */
 typedef struct {
   PuglEventType  type;   ///< #PUGL_BUTTON_PRESS or #PUGL_BUTTON_RELEASE
@@ -429,7 +444,7 @@ typedef struct {
   double         xRoot;  ///< Root-relative X coordinate
   double         yRoot;  ///< Root-relative Y coordinate
   PuglMods       state;  ///< Bitwise OR of #PuglMod flags
-  uint32_t       button; ///< Button number starting from 1
+  uint32_t       button; ///< Button number starting from 0
 } PuglButtonEvent;
 
 /**

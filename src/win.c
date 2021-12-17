@@ -680,22 +680,22 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     view->impl->mouseTracked = false;
     break;
   case WM_LBUTTONDOWN:
-    initMouseEvent(&event, view, 1, true, lParam);
+    initMouseEvent(&event, view, 0, true, lParam);
     break;
   case WM_MBUTTONDOWN:
     initMouseEvent(&event, view, 2, true, lParam);
     break;
   case WM_RBUTTONDOWN:
-    initMouseEvent(&event, view, 3, true, lParam);
+    initMouseEvent(&event, view, 1, true, lParam);
     break;
   case WM_LBUTTONUP:
-    initMouseEvent(&event, view, 1, false, lParam);
+    initMouseEvent(&event, view, 0, false, lParam);
     break;
   case WM_MBUTTONUP:
     initMouseEvent(&event, view, 2, false, lParam);
     break;
   case WM_RBUTTONUP:
-    initMouseEvent(&event, view, 3, false, lParam);
+    initMouseEvent(&event, view, 1, false, lParam);
     break;
   case WM_MOUSEWHEEL:
     initScrollEvent(&event, view, lParam);
