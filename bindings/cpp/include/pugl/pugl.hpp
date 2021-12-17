@@ -240,7 +240,7 @@ public:
     : _msg{msg}
   {}
 
-  virtual const char* what() const noexcept override;
+  const char* what() const noexcept override;
 
 private:
   const char* _msg;
