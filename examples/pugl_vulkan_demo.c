@@ -1032,7 +1032,9 @@ onEvent(PuglView* const view, const PuglEvent* const e)
 int
 main(int argc, char** argv)
 {
-  VulkanApp      app           = {0};
+  VulkanApp app;
+  memset(&app, 0, sizeof(app));
+
   VulkanState*   vk            = &app.vk;
   const uint32_t defaultWidth  = 640;
   const uint32_t defaultHeight = 360;
