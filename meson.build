@@ -63,6 +63,12 @@ if get_option('strict')
       '-Wno-switch-enum',
       '-Wno-unsuffixed-float-constants',
     ]
+
+    if host_machine.system() == 'windows'
+      c_warnings += [
+        '-Wno-suggest-attribute=format',
+      ]
+    endif
   elif cc.get_id() == 'msvc'
     c_warnings += [
       '/wd4028',  # formal parameter different from declaration
