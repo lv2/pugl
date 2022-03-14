@@ -570,7 +570,7 @@ def emit_groups(index, lang, output_dir, force):
 
             if len(child_groups) > 0:
                 # Emit TOC for child groups
-                rst.write(".. toctree::\n\n")
+                rst.write("\n.. toctree::\n\n")
                 for name, group in child_groups.items():
                     rst.write(indent(group["name"], 1) + "\n")
 
