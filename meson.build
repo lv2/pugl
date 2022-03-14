@@ -22,8 +22,9 @@ cc = meson.get_compiler('c')
 
 # Enable C++ support if we're building the examples
 if get_option('examples') or get_option('tests')
-  add_languages(['cpp'])
-  cpp = meson.get_compiler('cpp')
+  if add_languages(['cpp'], required: false)
+    cpp = meson.get_compiler('cpp')
+  endif
 endif
 
 # Enable Objective C support if we're building for MacOS
