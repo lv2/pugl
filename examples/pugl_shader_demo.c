@@ -35,7 +35,6 @@
 #include <pugl/gl.h>
 #include <pugl/pugl.h>
 
-#include <math.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -63,8 +62,7 @@ typedef struct {
   GLuint          vbo;
   GLuint          instanceVbo;
   GLuint          ibo;
-  double          lastDrawDuration;
-  double          lastFrameEndTime;
+  double          lastUpdateTime;
   double          mouseX;
   double          mouseY;
   PuglArea        size;
@@ -148,9 +146,6 @@ onExpose(PuglView* view)
                           (GLsizei)((app->numRects + 2) * 4));
 
   ++app->framesDrawn;
-
-  app->lastFrameEndTime = puglGetTime(puglGetWorld(view));
-  app->lastDrawDuration = app->lastFrameEndTime - time;
 }
 
 static PuglStatus
@@ -172,6 +167,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     app->size.height = event->configure.height;
     break;
   case PUGL_UPDATE:
+    app->lastUpdateTime = puglGetTime(app->world);
     puglObscureView(view);
     break;
   case PUGL_EXPOSE:
@@ -445,42 +441,6 @@ teardownGl(PuglTestApp* app)
   deleteProgram(app->drawRect);
 }
 
-static double
-updateTimeout(const PuglTestApp* const app)
-{
-  if (!puglGetVisible(app->view)) {
-    return -1.0; // View is invisible (minimized), wait until something happens
-  }
-
-  if (!app->opts.sync) {
-    return 0.0; // VSync explicitly disabled, run as fast as possible
-  }
-
-  /* To minimize input latency and get smooth performance during window
-     resizing, we want to poll for events as long as possible before starting
-     to draw the next frame.  This ensures that as many events are consumed as
-     possible before starting to draw, or, equivalently, that the next rendered
-     frame represents the latest events possible.  This is particularly
-     important for mouse input and "live" window resizing, where many events
-     tend to pile up within a frame.
-
-     To do this, we keep track of the time when the last frame was finished
-     drawing, and how long it took to expose (and assume this is relatively
-     stable).  Then, we can calculate how much time there is from now until the
-     time when we should start drawing to not miss the deadline, and use that
-     as the timeout for puglUpdate().
-  */
-
-  const int    refreshRate      = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
-  const double now              = puglGetTime(app->world);
-  const double nextFrameEndTime = app->lastFrameEndTime + (1.0 / refreshRate);
-  const double neededTime       = 1.5 * app->lastDrawDuration;
-  const double nextExposeTime   = nextFrameEndTime - neededTime;
-  const double timeUntilNext    = nextExposeTime - now;
-
-  return fmax(0.0, (timeUntilNext * 0.9) - 0.001);
-}
-
 int
 main(int argc, char** argv)
 {
@@ -509,11 +469,25 @@ main(int argc, char** argv)
   printViewHints(app.view);
   puglShow(app.view, PUGL_SHOW_RAISE);
 
+  // Get refresh rate information so we can drive the loop tightly
+  const int    refreshRate = puglGetViewHint(app.view, PUGL_REFRESH_RATE);
+  const double framePeriod = 1.0 / (double)refreshRate;
+
   // Grind away, drawing continuously
-  const double   startTime  = puglGetTime(app.world);
-  PuglFpsPrinter fpsPrinter = {startTime};
+  const double   startTime   = puglGetTime(app.world);
+  double         lastEndTime = startTime;
+  PuglFpsPrinter fpsPrinter  = {startTime};
   while (!app.quit) {
-    puglUpdate(app.world, updateTimeout(&app));
+    const double updateStartTime = puglGetTime(app.world);
+    const double timeout =
+      app.opts.sync
+        ? puglUpdateWaitTime(
+            app.lastUpdateTime, lastEndTime, updateStartTime, framePeriod)
+        : 0.0;
+
+    puglUpdate(app.world, timeout);
+    lastEndTime = puglGetTime(app.world);
+
     puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
   }
 

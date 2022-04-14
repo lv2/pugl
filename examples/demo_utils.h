@@ -109,4 +109,50 @@ puglPrintFps(const PuglWorld* world,
   }
 }
 
+/**
+   Calculate the timeout that should be passed to puglUpdate().
+
+   For simply drawing as fast as possible (with vsync on or off), applications
+   can simply always pass zero to puglUpdate().  However, depending on
+   configuration, this can have a negative impact on input latency because
+   drawing happens too early while there is still time to process incoming
+   events.
+
+   This function attempts to calculate an ideal timeout based on timings from
+   the last frame, to wait as long as possible (and process as many input
+   events as possible) before triggering a redraw.
+
+   All parameters must be times from puglGetTime().
+
+   @param lastUpdateTime The time the application last received a
+   #PUGL_UPDATE event.  This should be recorded in the event handler.
+
+   @param lastFrameEndTime The time the last frame was finished drawing.  This
+   should be recorded right after puglUpdate() returns.
+
+   @param currentTime The current time, right before puglUpdate() is to be
+   called again for the current frame.
+
+   @param framePeriod The period of a frame (the inverse of the refresh rate).
+
+   @return A timeout value in seconds to pass to puglUpdate() which represents
+   the amount of time pugl should process events before proceeding to render
+   the frame.
+*/
+static inline double
+puglUpdateWaitTime(const double lastUpdateTime,
+                   const double lastFrameEndTime,
+                   const double currentTime,
+                   const double framePeriod)
+{
+  const double fuzz = framePeriod / 8.0;
+
+  const double lastDrawDuration    = lastFrameEndTime - lastUpdateTime;
+  const double idealNextEndTime    = lastFrameEndTime + framePeriod;
+  const double idealNextUpdateTime = idealNextEndTime - lastDrawDuration - fuzz;
+
+  return idealNextUpdateTime > currentTime ? idealNextUpdateTime - currentTime
+                                           : 0.0;
+}
+
 #endif // EXAMPLES_DEMO_UTILS_H
