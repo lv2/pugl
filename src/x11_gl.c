@@ -1,6 +1,7 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
+#include "attributes.h"
 #include "stub.h"
 #include "types.h"
 #include "x11.h"
