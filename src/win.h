@@ -1,8 +1,8 @@
 // Copyright 2012-2021 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#ifndef PUGL_DETAIL_WIN_H
-#define PUGL_DETAIL_WIN_H
+#ifndef PUGL_SRC_WIN_H
+#define PUGL_SRC_WIN_H
 
 #include "implementation.h"
 
@@ -52,4 +52,4 @@ PUGL_API
 PuglStatus
 puglWinLeave(PuglView* view, const PuglExposeEvent* expose);
 
-#endif // PUGL_DETAIL_WIN_H
+#endif // PUGL_SRC_WIN_H

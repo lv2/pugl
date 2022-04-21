@@ -1,8 +1,8 @@
 // Copyright 2012-2021 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#ifndef PUGL_DETAIL_X11_H
-#define PUGL_DETAIL_X11_H
+#ifndef PUGL_SRC_X11_H
+#define PUGL_SRC_X11_H
 
 #include "types.h"
 
@@ -64,4 +64,4 @@ PUGL_API
 PuglStatus
 puglX11Configure(PuglView* view);
 
-#endif // PUGL_DETAIL_X11_H
+#endif // PUGL_SRC_X11_H

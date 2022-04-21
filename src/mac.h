@@ -2,8 +2,8 @@
 // Copyright 2017 Hanspeter Portner <dev@open-music-kontrollers.ch>
 // SPDX-License-Identifier: ISC
 
-#ifndef PUGL_DETAIL_MAC_H
-#define PUGL_DETAIL_MAC_H
+#ifndef PUGL_SRC_MAC_H
+#define PUGL_SRC_MAC_H
 
 #include "pugl/pugl.h"
 
@@ -39,4 +39,4 @@ struct PuglInternalsImpl {
   bool             mouseTracked;
 };
 
-#endif // PUGL_DETAIL_MAC_H
+#endif // PUGL_SRC_MAC_H

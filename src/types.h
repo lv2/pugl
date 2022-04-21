@@ -1,8 +1,8 @@
 // Copyright 2012-2020 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#ifndef PUGL_DETAIL_TYPES_H
-#define PUGL_DETAIL_TYPES_H
+#ifndef PUGL_SRC_TYPES_H
+#define PUGL_SRC_TYPES_H
 
 #include "pugl/pugl.h"
 
@@ -95,4 +95,4 @@ struct PuglBackendImpl {
   void* (*getContext)(PuglView*);
 };
 
-#endif // PUGL_DETAIL_TYPES_H
+#endif // PUGL_SRC_TYPES_H

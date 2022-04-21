@@ -1,8 +1,8 @@
 // Copyright 2012-2021 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#ifndef PUGL_DETAIL_STUB_H
-#define PUGL_DETAIL_STUB_H
+#ifndef PUGL_SRC_STUB_H
+#define PUGL_SRC_STUB_H
 
 #include "pugl/pugl.h"
 
@@ -56,4 +56,4 @@ puglStubGetContext(PuglView* const view)
 
 PUGL_END_DECLS
 
-#endif // PUGL_DETAIL_STUB_H
+#endif // PUGL_SRC_STUB_H
