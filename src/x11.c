@@ -1,4 +1,4 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // Copyright 2013 Robin Gareus <robin@gareus.org>
 // Copyright 2011-2012 Ben Loftis, Harrison Consoles
 // SPDX-License-Identifier: ISC
@@ -9,6 +9,7 @@
 
 #include "x11.h"
 
+#include "attributes.h"
 #include "implementation.h"
 #include "types.h"
 
@@ -831,13 +832,14 @@ puglRequestAttention(PuglView* const view)
   event.xclient.data.l[4]    = 0;
 
   const Window root = RootWindow(impl->display, impl->screen);
-  XSendEvent(impl->display,
-             root,
-             False,
-             SubstructureNotifyMask | SubstructureRedirectMask,
-             &event);
 
-  return PUGL_SUCCESS;
+  return XSendEvent(impl->display,
+                    root,
+                    False,
+                    SubstructureNotifyMask | SubstructureRedirectMask,
+                    &event)
+           ? PUGL_SUCCESS
+           : PUGL_UNKNOWN_ERROR;
 }
 
 PuglStatus
@@ -964,11 +966,9 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
   XEvent xev = eventToX(view, event);
 
   if (xev.type) {
-    if (XSendEvent(view->impl->display, view->impl->win, False, 0, &xev)) {
-      return PUGL_SUCCESS;
-    }
-
-    return PUGL_UNKNOWN_ERROR;
+    return XSendEvent(view->impl->display, view->impl->win, False, 0, &xev)
+             ? PUGL_SUCCESS
+             : PUGL_UNKNOWN_ERROR;
   }
 
   return PUGL_UNSUPPORTED_TYPE;
@@ -1029,7 +1029,7 @@ handleSelectionNotify(const PuglWorld* const world, PuglView* const view)
   XFree(str);
 }
 
-static void
+static PuglStatus
 handleSelectionRequest(const PuglWorld* const              world,
                        PuglView* const                     view,
                        const XSelectionRequestEvent* const request)
@@ -1062,13 +1062,21 @@ handleSelectionRequest(const PuglWorld* const              world,
     note.property = None;
   }
 
-  XSendEvent(world->impl->display, note.requestor, True, 0, (XEvent*)&note);
+  return XSendEvent(
+           world->impl->display, note.requestor, True, 0, (XEvent*)&note)
+           ? PUGL_SUCCESS
+           : PUGL_UNKNOWN_ERROR;
 }
 
 /// Flush pending configure and expose events for all views
-static void
+PUGL_WARN_UNUSED_RESULT
+static PuglStatus
 flushExposures(PuglWorld* const world)
 {
+  PuglStatus st0 = PUGL_SUCCESS;
+  PuglStatus st1 = PUGL_SUCCESS;
+  PuglStatus st2 = PUGL_SUCCESS;
+
   for (size_t i = 0; i < world->numViews; ++i) {
     PuglView* const view = world->views[i];
 
@@ -1085,20 +1093,23 @@ flushExposures(PuglWorld* const world)
     view->impl->pendingExpose.type    = PUGL_NOTHING;
 
     if (expose.type) {
-      view->backend->enter(view, &expose.expose);
+      if (!(st0 = view->backend->enter(view, &expose.expose))) {
+        if (configure.type) {
+          st0 = puglConfigure(view, &configure);
+        }
 
-      if (configure.type) {
-        puglConfigure(view, &configure);
+        st1 = puglExpose(view, &expose);
+        st2 = view->backend->leave(view, &expose.expose);
       }
-
-      puglExpose(view, &expose);
-      view->backend->leave(view, &expose.expose);
     } else if (configure.type) {
-      view->backend->enter(view, NULL);
-      puglConfigure(view, &configure);
-      view->backend->leave(view, NULL);
+      if (!(st0 = view->backend->enter(view, NULL))) {
+        st0 = puglConfigure(view, &configure);
+        st1 = view->backend->leave(view, NULL);
+      }
     }
   }
+
+  return st0 ? st0 : st1 ? st1 : st2;
 }
 
 static bool
@@ -1130,6 +1141,9 @@ handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 static PuglStatus
 dispatchX11Events(PuglWorld* const world)
 {
+  PuglStatus st0 = PUGL_SUCCESS;
+  PuglStatus st1 = PUGL_SUCCESS;
+
   const PuglX11Atoms* const atoms = &world->impl->atoms;
 
   // Flush output to the server once at the start
@@ -1196,15 +1210,15 @@ dispatchX11Events(PuglWorld* const world)
       configureEvent.configure.height = (double)attrs.height;
 
       // Dispatch an initial configure (if necessary), then the map event
-      puglDispatchEvent(view, &configureEvent);
-      puglDispatchEvent(view, &event);
+      st0 = puglDispatchEvent(view, &configureEvent);
+      st1 = puglDispatchEvent(view, &event);
     } else {
       // Dispatch event to application immediately
-      puglDispatchEvent(view, &event);
+      st0 = puglDispatchEvent(view, &event);
     }
   }
 
-  return PUGL_SUCCESS;
+  return st0 ? st0 : st1;
 }
 
 #ifndef PUGL_DISABLE_DEPRECATED
@@ -1219,32 +1233,33 @@ PuglStatus
 puglUpdate(PuglWorld* const world, const double timeout)
 {
   const double startTime = puglGetTime(world);
-  PuglStatus   st        = PUGL_SUCCESS;
+  PuglStatus   st0       = PUGL_SUCCESS;
+  PuglStatus   st1       = PUGL_SUCCESS;
 
   world->impl->dispatchingEvents = true;
 
   if (timeout < 0.0) {
-    st = pollX11Socket(world, timeout);
-    st = st ? st : dispatchX11Events(world);
+    st0 = pollX11Socket(world, timeout);
+    st0 = st0 ? st0 : dispatchX11Events(world);
   } else if (timeout <= 0.001) {
-    st = dispatchX11Events(world);
+    st0 = dispatchX11Events(world);
   } else {
     const double endTime = startTime + timeout - 0.001;
     double       t       = startTime;
-    while (!st && t < endTime) {
-      if (!(st = pollX11Socket(world, endTime - t))) {
-        st = dispatchX11Events(world);
+    while (!st0 && t < endTime) {
+      if (!(st0 = pollX11Socket(world, endTime - t))) {
+        st0 = dispatchX11Events(world);
       }
 
       t = puglGetTime(world);
     }
   }
 
-  flushExposures(world);
+  st1 = flushExposures(world);
 
   world->impl->dispatchingEvents = false;
 
-  return st;
+  return st0 ? st0 : st1;
 }
 
 double
@@ -1478,7 +1493,9 @@ puglX11Configure(PuglView* view)
   int                  n    = 0;
 
   pat.screen = impl->screen;
-  impl->vi   = XGetVisualInfo(impl->display, VisualScreenMask, &pat, &n);
+  if (!(impl->vi = XGetVisualInfo(impl->display, VisualScreenMask, &pat, &n))) {
+    return PUGL_BAD_CONFIGURATION;
+  }
 
   view->hints[PUGL_RED_BITS]   = impl->vi->bits_per_rgb;
   view->hints[PUGL_GREEN_BITS] = impl->vi->bits_per_rgb;

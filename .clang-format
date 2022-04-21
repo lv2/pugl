@@ -24,5 +24,6 @@ StatementMacros:
   - PUGL_CONST_FUNC
   - PUGL_DEPRECATED_BY
   - PUGL_UNUSED
+  - PUGL_WARN_UNUSED_RESULT
   - _Pragma
 ...

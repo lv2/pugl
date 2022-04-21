@@ -1,9 +1,10 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_IMPLEMENTATION_H
 #define PUGL_IMPLEMENTATION_H
 
+#include "attributes.h"
 #include "types.h"
 
 #include "pugl/pugl.h"
@@ -42,19 +43,21 @@ uint32_t
 puglDecodeUTF8(const uint8_t* buf);
 
 /// Dispatch an event with a simple `type` to `view`
-void
+PuglStatus
 puglDispatchSimpleEvent(PuglView* view, PuglEventType type);
 
 /// Process configure event while already in the graphics context
-void
+PUGL_WARN_UNUSED_RESULT
+PuglStatus
 puglConfigure(PuglView* view, const PuglEvent* event);
 
 /// Process expose event while already in the graphics context
-void
+PUGL_WARN_UNUSED_RESULT
+PuglStatus
 puglExpose(PuglView* view, const PuglEvent* event);
 
 /// Dispatch `event` to `view`, entering graphics context if necessary
-void
+PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event);
 
 /// Set internal (stored in view) clipboard contents
@@ -62,6 +65,7 @@ const void*
 puglGetInternalClipboard(const PuglView* view, const char** type, size_t* len);
 
 /// Set internal (stored in view) clipboard contents
+PUGL_WARN_UNUSED_RESULT
 PuglStatus
 puglSetInternalClipboard(PuglView*   view,
                          const char* type,

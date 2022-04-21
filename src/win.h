@@ -1,4 +1,4 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_SRC_WIN_H
@@ -33,6 +33,7 @@ PUGL_API
 PuglWinPFD
 puglWinGetPixelFormatDescriptor(const PuglHints hints);
 
+PUGL_WARN_UNUSED_RESULT
 PUGL_API
 PuglStatus
 puglWinCreateWindow(PuglView* const   view,
@@ -40,14 +41,17 @@ puglWinCreateWindow(PuglView* const   view,
                     HWND* const       hwnd,
                     HDC* const        hdc);
 
+PUGL_WARN_UNUSED_RESULT
 PUGL_API
 PuglStatus
 puglWinConfigure(PuglView* view);
 
+PUGL_WARN_UNUSED_RESULT
 PUGL_API
 PuglStatus
 puglWinEnter(PuglView* view, const PuglExposeEvent* expose);
 
+PUGL_WARN_UNUSED_RESULT
 PUGL_API
 PuglStatus
 puglWinLeave(PuglView* view, const PuglExposeEvent* expose);

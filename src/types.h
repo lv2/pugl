@@ -4,6 +4,8 @@
 #ifndef PUGL_SRC_TYPES_H
 #define PUGL_SRC_TYPES_H
 
+#include "attributes.h"
+
 #include "pugl/pugl.h"
 
 #include <stdbool.h>
@@ -68,18 +70,22 @@ typedef void PuglSurface;
 /// Graphics backend interface
 struct PuglBackendImpl {
   /// Get visual information from display and setup view as necessary
+  PUGL_WARN_UNUSED_RESULT
   PuglStatus (*configure)(PuglView*);
 
   /// Create surface and drawing context
+  PUGL_WARN_UNUSED_RESULT
   PuglStatus (*create)(PuglView*);
 
   /// Destroy surface and drawing context
   void (*destroy)(PuglView*);
 
   /// Enter drawing context, for drawing if expose is non-null
+  PUGL_WARN_UNUSED_RESULT
   PuglStatus (*enter)(PuglView*, const PuglExposeEvent*);
 
   /// Leave drawing context, after drawing if expose is non-null
+  PUGL_WARN_UNUSED_RESULT
   PuglStatus (*leave)(PuglView*, const PuglExposeEvent*);
 
   /// Return the puglGetContext() handle for the application, if any

@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "implementation.h"
@@ -378,7 +378,7 @@ puglMustConfigure(PuglView* view, const PuglConfigureEvent* configure)
   return memcmp(configure, &view->lastConfigure, sizeof(PuglConfigureEvent));
 }
 
-void
+PuglStatus
 puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 {
   assert(type == PUGL_CREATE || type == PUGL_DESTROY || type == PUGL_MAP ||
@@ -386,12 +386,14 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
          type == PUGL_LOOP_ENTER || type == PUGL_LOOP_LEAVE);
 
   const PuglEvent event = {{type, 0}};
-  puglDispatchEvent(view, &event);
+  return puglDispatchEvent(view, &event);
 }
 
-void
+PuglStatus
 puglConfigure(PuglView* view, const PuglEvent* event)
 {
+  PuglStatus st = PUGL_SUCCESS;
+
   assert(event->type == PUGL_CONFIGURE);
 
   view->frame.x      = event->configure.x;
@@ -400,58 +402,68 @@ puglConfigure(PuglView* view, const PuglEvent* event)
   view->frame.height = event->configure.height;
 
   if (puglMustConfigure(view, &event->configure)) {
-    view->eventFunc(view, event);
+    st                  = view->eventFunc(view, event);
     view->lastConfigure = event->configure;
   }
+
+  return st;
 }
 
-void
+PuglStatus
 puglExpose(PuglView* view, const PuglEvent* event)
 {
-  if (event->expose.width > 0.0 && event->expose.height > 0.0) {
-    view->eventFunc(view, event);
-  }
+  return (event->expose.width > 0.0 && event->expose.height > 0.0)
+           ? view->eventFunc(view, event)
+           : PUGL_SUCCESS;
 }
 
-void
+PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
+  PuglStatus st0 = PUGL_SUCCESS;
+  PuglStatus st1 = PUGL_SUCCESS;
+
   switch (event->type) {
   case PUGL_NOTHING:
     break;
   case PUGL_CREATE:
   case PUGL_DESTROY:
-    view->backend->enter(view, NULL);
-    view->eventFunc(view, event);
-    view->backend->leave(view, NULL);
+    if (!(st0 = view->backend->enter(view, NULL))) {
+      st0 = view->eventFunc(view, event);
+      st1 = view->backend->leave(view, NULL);
+    }
     break;
   case PUGL_CONFIGURE:
     if (puglMustConfigure(view, &event->configure)) {
-      view->backend->enter(view, NULL);
-      puglConfigure(view, event);
-      view->backend->leave(view, NULL);
+      if (!(st0 = view->backend->enter(view, NULL))) {
+        st0 = puglConfigure(view, event);
+        st1 = view->backend->leave(view, NULL);
+      }
     }
     break;
   case PUGL_MAP:
     if (!view->visible) {
       view->visible = true;
-      view->eventFunc(view, event);
+      st0           = view->eventFunc(view, event);
     }
     break;
   case PUGL_UNMAP:
     if (view->visible) {
       view->visible = false;
-      view->eventFunc(view, event);
+      st0           = view->eventFunc(view, event);
     }
     break;
   case PUGL_EXPOSE:
-    view->backend->enter(view, &event->expose);
-    puglExpose(view, event);
-    view->backend->leave(view, &event->expose);
+    if (!(st0 = view->backend->enter(view, &event->expose))) {
+      st0 = puglExpose(view, event);
+      st1 = view->backend->leave(view, &event->expose);
+    }
     break;
   default:
-    view->eventFunc(view, event);
+    st0 = view->eventFunc(view, event);
   }
+
+  return st0 ? st0 : st1;
 }
 
 const void*

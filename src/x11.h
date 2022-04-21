@@ -4,6 +4,7 @@
 #ifndef PUGL_SRC_X11_H
 #define PUGL_SRC_X11_H
 
+#include "attributes.h"
 #include "types.h"
 
 #include "pugl/pugl.h"
@@ -60,6 +61,7 @@ struct PuglInternalsImpl {
 #endif
 };
 
+PUGL_WARN_UNUSED_RESULT
 PUGL_API
 PuglStatus
 puglX11Configure(PuglView* view);

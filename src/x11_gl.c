@@ -98,14 +98,18 @@ puglX11GlConfigure(PuglView* view)
   return PUGL_SUCCESS;
 }
 
+PUGL_WARN_UNUSED_RESULT
 static PuglStatus
 puglX11GlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 {
   PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
-  glXMakeCurrent(view->impl->display, view->impl->win, surface->ctx);
-  return PUGL_SUCCESS;
+
+  return glXMakeCurrent(view->impl->display, view->impl->win, surface->ctx)
+           ? PUGL_SUCCESS
+           : PUGL_FAILURE;
 }
 
+PUGL_WARN_UNUSED_RESULT
 static PuglStatus
 puglX11GlLeave(PuglView* view, const PuglExposeEvent* expose)
 {
@@ -113,9 +117,8 @@ puglX11GlLeave(PuglView* view, const PuglExposeEvent* expose)
     glXSwapBuffers(view->impl->display, view->impl->win);
   }
 
-  glXMakeCurrent(view->impl->display, None, NULL);
-
-  return PUGL_SUCCESS;
+  return glXMakeCurrent(view->impl->display, None, NULL) ? PUGL_SUCCESS
+                                                         : PUGL_FAILURE;
 }
 
 static PuglStatus
@@ -125,6 +128,7 @@ puglX11GlCreate(PuglView* view)
   PuglX11GlSurface* const surface   = (PuglX11GlSurface*)impl->surface;
   Display* const          display   = impl->display;
   GLXFBConfig             fb_config = surface->fb_config;
+  PuglStatus              st        = PUGL_SUCCESS;
 
   const int ctx_attrs[] = {
     GLX_CONTEXT_MAJOR_VERSION_ARB,
@@ -171,7 +175,9 @@ puglX11GlCreate(PuglView* view)
         (const uint8_t*)"glXSwapIntervalEXT");
 
     // Note that some drivers (NVidia) require the context to be entered here
-    puglX11GlEnter(view, NULL);
+    if ((st = puglX11GlEnter(view, NULL))) {
+      return st;
+    }
 
     // Set the swap interval if the user requested a specific value
     if (view->hints[PUGL_SWAP_INTERVAL] != PUGL_DONT_CARE) {
@@ -184,15 +190,17 @@ puglX11GlCreate(PuglView* view)
                      GLX_SWAP_INTERVAL_EXT,
                      (unsigned int*)&view->hints[PUGL_SWAP_INTERVAL]);
 
-    puglX11GlLeave(view, NULL);
+    if ((st = puglX11GlLeave(view, NULL))) {
+      return st;
+    }
   }
 
-  glXGetConfig(impl->display,
-               impl->vi,
-               GLX_DOUBLEBUFFER,
-               &view->hints[PUGL_DOUBLE_BUFFER]);
-
-  return PUGL_SUCCESS;
+  return !glXGetConfig(impl->display,
+                       impl->vi,
+                       GLX_DOUBLEBUFFER,
+                       &view->hints[PUGL_DOUBLE_BUFFER])
+           ? PUGL_SUCCESS
+           : PUGL_UNKNOWN_ERROR;
 }
 
 static void
