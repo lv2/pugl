@@ -50,6 +50,12 @@ if get_option('strict')
       '-Wno-switch-default',
       '-Wno-switch-enum',
     ]
+
+    if host_machine.system() == 'darwin'
+      c_warnings += [
+        '-Wno-poison-system-directories',
+      ]
+    endif
   elif cc.get_id() == 'gcc'
     c_warnings += [
       '-Wno-bad-function-cast',
