@@ -1,4 +1,4 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_SRC_STUB_H
@@ -24,11 +24,10 @@ puglStubCreate(PuglView* const view)
   return PUGL_SUCCESS;
 }
 
-static inline PuglStatus
+static inline void
 puglStubDestroy(PuglView* const view)
 {
   (void)view;
-  return PUGL_SUCCESS;
 }
 
 static inline PuglStatus

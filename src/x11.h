@@ -1,4 +1,4 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_SRC_X11_H

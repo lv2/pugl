@@ -195,7 +195,7 @@ puglX11GlCreate(PuglView* view)
   return PUGL_SUCCESS;
 }
 
-static PuglStatus
+static void
 puglX11GlDestroy(PuglView* view)
 {
   PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
@@ -204,7 +204,6 @@ puglX11GlDestroy(PuglView* view)
     free(surface);
     view->impl->surface = NULL;
   }
-  return PUGL_SUCCESS;
 }
 
 PuglGlFunc

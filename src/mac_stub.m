@@ -1,4 +1,4 @@
-// Copyright 2019-2020 David Robillard <d@drobilla.net>
+// Copyright 2019-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "implementation.h"
@@ -53,7 +53,7 @@ puglMacStubCreate(PuglView* view)
   return PUGL_SUCCESS;
 }
 
-static PuglStatus
+static void
 puglMacStubDestroy(PuglView* view)
 {
   PuglStubView* const drawView = (PuglStubView*)view->impl->drawView;
@@ -62,7 +62,6 @@ puglMacStubDestroy(PuglView* view)
   [drawView release];
 
   view->impl->drawView = nil;
-  return PUGL_SUCCESS;
 }
 
 const PuglBackend*

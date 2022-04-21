@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #define VK_NO_PROTOTYPES 1
@@ -89,7 +89,7 @@ puglMacVulkanCreate(PuglView* view)
   return PUGL_SUCCESS;
 }
 
-static PuglStatus
+static void
 puglMacVulkanDestroy(PuglView* view)
 {
   PuglVulkanView* const drawView = (PuglVulkanView*)view->impl->drawView;
@@ -98,7 +98,6 @@ puglMacVulkanDestroy(PuglView* view)
   [drawView release];
 
   view->impl->drawView = nil;
-  return PUGL_SUCCESS;
 }
 
 struct PuglVulkanLoaderImpl {

@@ -1,4 +1,4 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "stub.h"
@@ -89,7 +89,7 @@ puglWinCairoOpen(PuglView* view)
   return PUGL_SUCCESS;
 }
 
-static PuglStatus
+static void
 puglWinCairoDestroy(PuglView* view)
 {
   PuglInternals* const       impl    = view->impl;
@@ -99,8 +99,6 @@ puglWinCairoDestroy(PuglView* view)
   puglWinCairoDestroyDrawContext(view);
   free(surface);
   impl->surface = NULL;
-
-  return PUGL_SUCCESS;
 }
 
 static PuglStatus

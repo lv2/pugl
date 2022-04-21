@@ -74,7 +74,7 @@ struct PuglBackendImpl {
   PuglStatus (*create)(PuglView*);
 
   /// Destroy surface and drawing context
-  PuglStatus (*destroy)(PuglView*);
+  void (*destroy)(PuglView*);
 
   /// Enter drawing context, for drawing if expose is non-null
   PuglStatus (*enter)(PuglView*, const PuglExposeEvent*);

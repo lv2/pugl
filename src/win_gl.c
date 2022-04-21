@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "stub.h"
@@ -238,7 +238,7 @@ puglWinGlCreate(PuglView* view)
   return PUGL_SUCCESS;
 }
 
-static PuglStatus
+static void
 puglWinGlDestroy(PuglView* view)
 {
   PuglWinGlSurface* surface = (PuglWinGlSurface*)view->impl->surface;
@@ -248,8 +248,6 @@ puglWinGlDestroy(PuglView* view)
     free(surface);
     view->impl->surface = NULL;
   }
-
-  return PUGL_SUCCESS;
 }
 
 static PuglStatus

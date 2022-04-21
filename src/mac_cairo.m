@@ -1,4 +1,4 @@
-// Copyright 2019-2020 David Robillard <d@drobilla.net>
+// Copyright 2019-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "implementation.h"
@@ -64,7 +64,7 @@ puglMacCairoCreate(PuglView* view)
   return PUGL_SUCCESS;
 }
 
-static PuglStatus
+static void
 puglMacCairoDestroy(PuglView* view)
 {
   PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
@@ -73,7 +73,6 @@ puglMacCairoDestroy(PuglView* view)
   [drawView release];
 
   view->impl->drawView = nil;
-  return PUGL_SUCCESS;
 }
 
 static PuglStatus
@@ -87,10 +86,11 @@ puglMacCairoEnter(PuglView* view, const PuglExposeEvent* expose)
   assert(!drawView->surface);
   assert(!drawView->cr);
 
-  const double scale   = 1.0 / [[NSScreen mainScreen] backingScaleFactor];
-  CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
-  const CGSize sizePx  = {view->frame.width, view->frame.height};
-  const CGSize sizePt  = CGContextConvertSizeToUserSpace(context, sizePx);
+  const double scale = 1.0 / [[NSScreen mainScreen] backingScaleFactor];
+  CGContextRef context =
+    (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
+  const CGSize sizePx = {view->frame.width, view->frame.height};
+  const CGSize sizePt = CGContextConvertSizeToUserSpace(context, sizePx);
 
   // Convert coordinates to standard Cairo space
   CGContextTranslateCTM(context, 0.0, -sizePt.height);
