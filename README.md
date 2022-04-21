@@ -3,7 +3,7 @@ Pugl
 
 Pugl (PlUgin Graphics Library) is a minimal portable API for GUIs which is
 suitable for use in plugins.  It works on X11, MacOS, and Windows, and
-optionally supports Vulkan, OpenGL, and Cairo graphics contexts.
+includes optional support for drawing with Vulkan, OpenGL, and Cairo.
 
 Pugl is vaguely similar to libraries like GLUT and GLFW, but with some
 distinguishing features:
@@ -16,7 +16,7 @@ distinguishing features:
  * Support for embedding in native windows, for example as a plugin or
    component within a larger application that is not based on Pugl.
 
- * Simple and extensible event-based API that makes dispatching in application
+ * Simple and consistent event-based API that makes dispatching in application
    or toolkit code easy with minimal boilerplate.
 
  * Suitable not only for continuously rendering applications like games, but
@@ -27,7 +27,7 @@ distinguishing features:
 
  * Small, liberally licensed Free Software implementation that is suitable for
    vendoring and/or static linking.  Pugl can be installed as a library, or
-   used by simply copying the headers into a project.
+   used by simply copying the implementation into a project.
 
 Stability
 ---------
@@ -36,6 +36,10 @@ Pugl is currently being developed towards a long-term stable API.  For the time
 being, however, the API may break occasionally.  Please report any relevant
 feedback, or file feature requests, so that we can ensure that the released API
 is stable for as long as possible.
+
+When the API changes, backwards compatibility is maintained where possible.
+These compatibility shims will be removed before release, so users are
+encouraged to build with `PUGL_DISABLE_DEPRECATED` defined.
 
 Documentation
 -------------
