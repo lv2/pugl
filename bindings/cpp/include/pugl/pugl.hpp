@@ -6,7 +6,7 @@
 
 #include "pugl/pugl.h"
 
-#include <cstdint>
+#include <cstdint> // IWYU pragma: keep
 
 #if defined(PUGL_HPP_THROW_FAILED_CONSTRUCTION)
 #  include <exception>
@@ -599,7 +599,7 @@ public:
      @return #PUGL_FAILURE if timers are not supported by the system,
      #PUGL_UNKNOWN_ERROR if setting the timer failed.
   */
-  Status startTimer(const uintptr_t id, const double timeout) noexcept
+  Status startTimer(const std::uintptr_t id, const double timeout) noexcept
   {
     return static_cast<Status>(puglStartTimer(cobj(), id, timeout));
   }
@@ -612,7 +612,7 @@ public:
      @return #PUGL_FAILURE if timers are not supported by this system,
      #PUGL_UNKNOWN_ERROR if stopping the timer failed.
   */
-  Status stopTimer(const uintptr_t id) noexcept
+  Status stopTimer(const std::uintptr_t id) noexcept
   {
     return static_cast<Status>(puglStopTimer(cobj(), id));
   }
