@@ -12,6 +12,7 @@ Checks: >
   -hicpp-signed-bitwise,
   -llvm-header-guard,
   -llvmlibc-*,
+  -performance-no-int-to-ptr,
   -readability-function-cognitive-complexity,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'
