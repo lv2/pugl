@@ -36,10 +36,7 @@ puglWinGetPixelFormatDescriptor(const PuglHints hints);
 PUGL_WARN_UNUSED_RESULT
 PUGL_API
 PuglStatus
-puglWinCreateWindow(PuglView* const   view,
-                    const char* const title,
-                    HWND* const       hwnd,
-                    HDC* const        hdc);
+puglWinCreateWindow(PuglView* view, const char* title, HWND* hwnd, HDC* hdc);
 
 PUGL_WARN_UNUSED_RESULT
 PUGL_API
