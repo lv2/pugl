@@ -483,11 +483,6 @@ handleConfigure(PuglView* view, PuglEvent* event)
   event->configure.width  = width;
   event->configure.height = height;
 
-  if (view->frame.width != width || view->frame.height != height) {
-    view->frame.width  = width;
-    view->frame.height = height;
-  }
-
   return rect;
 }
 
