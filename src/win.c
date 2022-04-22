@@ -376,7 +376,9 @@ puglDecodeUTF16(const wchar_t* buf, const int len)
   if (c0 >= 0xD800u && c0 < 0xDC00u) {
     if (len < 2) {
       return 0xFFFD; // Surrogate, but length is only 1
-    } else if (c1 >= 0xDC00u && c1 <= 0xDFFFu) {
+    }
+
+    if (c1 >= 0xDC00u && c1 <= 0xDFFFu) {
       return ((c0 & 0x03FFu) << 10u) + (c1 & 0x03FFu) + 0x10000u;
     }
 
@@ -1094,7 +1096,9 @@ puglSetClipboard(PuglView* const   view,
   PuglStatus st = puglSetInternalClipboard(view, type, data, len);
   if (st) {
     return st;
-  } else if (!OpenClipboard(impl->hwnd)) {
+  }
+
+  if (!OpenClipboard(impl->hwnd)) {
     return PUGL_UNKNOWN_ERROR;
   }
 
@@ -1238,7 +1242,9 @@ puglWinCreateWindow(PuglView* const   view,
                                NULL,
                                NULL))) {
     return PUGL_REALIZE_FAILED;
-  } else if (!(*hdc = GetDC(*hwnd))) {
+  }
+
+  if (!(*hdc = GetDC(*hwnd))) {
     DestroyWindow(*hwnd);
     *hwnd = NULL;
     return PUGL_REALIZE_FAILED;
