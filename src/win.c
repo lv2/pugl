@@ -83,13 +83,13 @@ puglRegisterWindowClass(const char* name)
   wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
   wc.lpszClassName = name;
 
-  return RegisterClassEx(&wc);
+  return !!RegisterClassEx(&wc);
 }
 
 static unsigned
 puglWinGetWindowFlags(const PuglView* const view)
 {
-  const bool     resizable = view->hints[PUGL_RESIZABLE];
+  const bool     resizable = !!view->hints[PUGL_RESIZABLE];
   const unsigned sizeFlags = resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0u;
 
   return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
