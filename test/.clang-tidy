@@ -3,7 +3,6 @@ Checks: >
   -*-magic-numbers,
   -*-uppercase-literal-suffix,
   -altera*,
-  -bugprone-reserved-identifier,
   -bugprone-suspicious-include,
   -cert-dcl37-c,
   -cert-dcl51-cpp,

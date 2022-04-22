@@ -1,10 +1,6 @@
 // Copyright 2019-2020 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#if !defined(__APPLE__) && !defined(_GNU_SOURCE)
-#  define _GNU_SOURCE
-#endif
-
 #include "file_utils.h"
 
 #ifdef _WIN32

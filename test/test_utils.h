@@ -4,8 +4,6 @@
 #ifndef TEST_TEST_UTILS_H
 #define TEST_TEST_UTILS_H
 
-#define __STDC_FORMAT_MACROS 1
-
 #include "pugl/pugl.h"
 
 #include <inttypes.h>
