@@ -82,7 +82,8 @@ foreach test : basic_tests
        executable('test_' + test, 'test_@0@.c'.format(test),
                   c_args: test_c_args,
                   include_directories: include_directories(includes),
-                  dependencies: [pugl_dep, stub_backend_dep]))
+                  dependencies: [pugl_dep, stub_backend_dep]),
+      suite: 'unit')
 endforeach
 
 if opengl_dep.found()
@@ -91,7 +92,8 @@ if opengl_dep.found()
          executable('test_' + test, 'test_@0@.c'.format(test),
                     c_args: test_c_args,
                     include_directories: include_directories(includes),
-                    dependencies: [pugl_dep, gl_backend_dep]))
+                    dependencies: [pugl_dep, gl_backend_dep]),
+         suite: 'unit')
   endforeach
 endif
 
@@ -101,7 +103,8 @@ if cairo_dep.found()
          executable('test_' + test, 'test_@0@.c'.format(test),
                     c_args: test_c_args,
                     include_directories: include_directories(includes),
-                    dependencies: [pugl_dep, cairo_backend_dep]))
+                    dependencies: [pugl_dep, cairo_backend_dep]),
+         suite: 'unit')
   endforeach
 endif
 
@@ -112,7 +115,8 @@ if vulkan_dep.found()
                     c_args: test_c_args,
                     cpp_args: test_cpp_args,
                     include_directories: include_directories(includes),
-                    dependencies: [pugl_dep, vulkan_backend_dep]))
+                    dependencies: [pugl_dep, vulkan_backend_dep]),
+         suite: 'unit')
   endforeach
 endif
 
