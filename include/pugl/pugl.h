@@ -4,9 +4,12 @@
 #ifndef PUGL_PUGL_H
 #define PUGL_PUGL_H
 
-#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#ifndef __cplusplus
+#  include <stdbool.h>
+#endif
 
 #ifndef PUGL_API
 #  if defined(_WIN32) && !defined(PUGL_STATIC) && defined(PUGL_INTERNAL)
