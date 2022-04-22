@@ -7,7 +7,7 @@ project('pugl', ['c'],
         meson_version: '>= 0.49.2',
         default_options: [
           'c_std=c99',
-          'cpp_std=c++11',
+          'cpp_std=c++14',
           'default_library=shared'
         ])
 
