@@ -211,7 +211,9 @@ puglWinGlCreate(PuglView* view)
   // Create real window with desired pixel format
   if ((st = puglWinCreateWindow(view, "Pugl", &impl->hwnd, &impl->hdc))) {
     return st;
-  } else if (!SetPixelFormat(impl->hdc, impl->pfId, &impl->pfd)) {
+  }
+
+  if (!SetPixelFormat(impl->hdc, impl->pfId, &impl->pfd)) {
     ReleaseDC(impl->hwnd, impl->hdc);
     DestroyWindow(impl->hwnd);
     impl->hwnd = NULL;
@@ -224,7 +226,9 @@ puglWinGlCreate(PuglView* view)
       !(surface->hglrc = surface->procs.wglCreateContextAttribs(
           impl->hdc, 0, contextAttribs))) {
     return PUGL_CREATE_CONTEXT_FAILED;
-  } else if (!(surface->hglrc = wglCreateContext(impl->hdc))) {
+  }
+
+  if (!(surface->hglrc = wglCreateContext(impl->hdc))) {
     return PUGL_CREATE_CONTEXT_FAILED;
   }
 
