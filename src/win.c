@@ -182,7 +182,8 @@ puglRealize(PuglView* view)
   }
 
   // Get refresh rate for resize draw timer
-  DEVMODEA devMode = {0};
+  DEVMODEA devMode;
+  memset(&devMode, 0, sizeof(devMode));
   EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &devMode);
   view->hints[PUGL_REFRESH_RATE] = (int)devMode.dmDisplayFrequency;
 
