@@ -17,6 +17,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #ifdef __APPLE__
 static const double timeout = 1 / 60.0;
@@ -24,13 +25,24 @@ static const double timeout = 1 / 60.0;
 static const double timeout = -1.0;
 #endif
 
-typedef enum {
-  START,
-  EXPOSED,
-  SHOULD_REDISPLAY,
-  POSTED_REDISPLAY,
-  REDISPLAYED,
-} State;
+#define STATES        \
+  X(START)            \
+  X(EXPOSED)          \
+  X(SHOULD_REDISPLAY) \
+  X(POSTED_REDISPLAY) \
+  X(REDISPLAYED)
+
+#define X(state) state,
+
+typedef enum { STATES } State;
+
+#undef X
+
+#define X(state) #state,
+
+static const char* const state_names[] = {STATES};
+
+#undef X
 
 typedef struct {
   PuglWorld*      world;
@@ -48,7 +60,8 @@ onEvent(PuglView* view, const PuglEvent* event)
   PuglTest* test = (PuglTest*)puglGetHandle(view);
 
   if (test->opts.verbose) {
-    printEvent(event, "Event: ", true);
+    fprintf(stderr, "%-16s", state_names[test->state]);
+    printEvent(event, " ", true);
   }
 
   switch (event->type) {
