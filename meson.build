@@ -1,4 +1,4 @@
-# Copyright 2021 David Robillard <d@drobilla.net>
+# Copyright 2022 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: CC0-1.0 OR ISC
 
 project('pugl', ['c'],
@@ -7,7 +7,7 @@ project('pugl', ['c'],
         meson_version: '>= 0.49.2',
         default_options: [
           'c_std=c99',
-          'cpp_std=c++14',
+          'cpp_std=c++17',
           'default_library=shared'
         ])
 
