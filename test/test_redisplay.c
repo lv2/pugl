@@ -76,10 +76,12 @@ onEvent(PuglView* view, const PuglEvent* event)
     if (test->state == START) {
       test->state = EXPOSED;
     } else if (test->state == POSTED_REDISPLAY &&
-               event->expose.x == redisplayRect.x &&
-               event->expose.y == redisplayRect.y &&
-               event->expose.width == redisplayRect.width &&
-               event->expose.height == redisplayRect.height) {
+               event->expose.x <= redisplayRect.x &&
+               event->expose.y <= redisplayRect.y &&
+               (event->expose.x + event->expose.width >=
+                redisplayRect.x + redisplayRect.width) &&
+               (event->expose.y + event->expose.height >=
+                redisplayRect.y + redisplayRect.height)) {
       test->state = REDISPLAYED;
     }
     break;
