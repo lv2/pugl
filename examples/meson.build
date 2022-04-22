@@ -34,6 +34,7 @@ if get_option('strict')
     example_c_args += [
       '-Wno-float-equal',
       '-Wno-padded',
+      '-Wno-reserved-id-macro',
     ]
   elif cc.get_id() == 'gcc'
     example_c_args += [
@@ -54,7 +55,6 @@ if is_variable('cpp')
       '-Wno-documentation-unknown-command', # Cairo
       '-Wno-old-style-cast',
       '-Wno-padded',
-      '-Wno-reserved-id-macro',
       '-Wno-switch-enum',
     ]
   elif cpp.get_id() == 'gcc'
@@ -80,18 +80,20 @@ if opengl_dep.found()
     source = [example]
     target = example.split('.')[0]
     dependencies = [gl_backend_dep]
+    defines = []
 
     if target == 'pugl_shader_demo'
       source += ['file_utils.c', 'glad/glad.c']
       dependencies += [dl_dep]
+      defines += ['-D_POSIX_C_SOURCE=200809L']
     elif target == 'pugl_print_events'
       dependencies += [stub_backend_dep]
     endif
 
     executable(target, source,
                include_directories: includes,
-               c_args: example_defines + example_c_args,
-               cpp_args: example_defines + example_cpp_args,
+               c_args: example_defines + example_c_args + defines,
+               cpp_args: example_defines + example_cpp_args + defines,
                dependencies: dependencies)
   endforeach
 endif
@@ -113,15 +115,17 @@ if vulkan_dep.found()
     source = [example]
     target = example.split('.')[0]
     dependencies = [dl_dep, vulkan_backend_dep]
+    defines = []
 
     if target == 'pugl_vulkan_cpp_demo'
       source += ['file_utils.c']
+      defines += ['-D_POSIX_C_SOURCE=200809L']
     endif
 
     executable(target, source,
                include_directories: includes,
-               c_args: example_defines + example_c_args,
-               cpp_args: example_defines + example_cpp_args,
+               c_args: example_defines + example_c_args + defines,
+               cpp_args: example_defines + example_cpp_args + defines,
                dependencies: dependencies)
   endforeach
 endif

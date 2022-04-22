@@ -162,7 +162,6 @@ elif is_variable('cpp')
   if cpp.get_id() == 'clang'
     unified_args += [
       '-Wno-old-style-cast',
-      '-Wno-reserved-id-macro',
       '-Wno-switch-default',
       '-Wno-switch-enum',
       '-Wno-unused-macros', # Mac

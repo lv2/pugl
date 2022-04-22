@@ -45,7 +45,6 @@ if get_option('strict')
       '-Wno-documentation', # Cairo
       '-Wno-documentation-unknown-command', # Cairo
       '-Wno-padded',
-      '-Wno-reserved-id-macro',
       '-Wno-reserved-identifier', # Cairo, FD_ZERO
       '-Wno-switch-default',
       '-Wno-switch-enum',
@@ -180,6 +179,7 @@ elif host_machine.system() == 'windows'
 
 else # X11
   x11_dep = cc.find_library('X11')
+  core_args += '-D_POSIX_C_SOURCE=200809L'
 
   xcursor_dep = cc.find_library('Xcursor', required: false)
   if xcursor_dep.found()

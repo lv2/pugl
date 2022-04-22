@@ -3,10 +3,6 @@
 // Copyright 2011-2012 Ben Loftis, Harrison Consoles
 // SPDX-License-Identifier: ISC
 
-#ifndef _POSIX_C_SOURCE
-#  define _POSIX_C_SOURCE 199309L
-#endif
-
 #include "x11.h"
 
 #include "attributes.h"
