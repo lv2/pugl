@@ -55,6 +55,13 @@ if get_option('strict')
       c_warnings += [
         '-Wno-poison-system-directories',
       ]
+    elif host_machine.system() == 'windows'
+      c_warnings += [
+        '-Wno-deprecated-declarations',
+        '-Wno-format-nonliteral',
+        '-Wno-nonportable-system-include-path',
+        '-Wno-unused-macros',
+      ]
     endif
   elif cc.get_id() == 'gcc'
     c_warnings += [
