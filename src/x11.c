@@ -1065,48 +1065,6 @@ handleSelectionRequest(const PuglWorld* const              world,
            : PUGL_UNKNOWN_ERROR;
 }
 
-/// Flush pending configure and expose events for all views
-PUGL_WARN_UNUSED_RESULT
-static PuglStatus
-flushExposures(PuglWorld* const world)
-{
-  PuglStatus st0 = PUGL_SUCCESS;
-  PuglStatus st1 = PUGL_SUCCESS;
-  PuglStatus st2 = PUGL_SUCCESS;
-
-  for (size_t i = 0; i < world->numViews; ++i) {
-    PuglView* const view = world->views[i];
-
-    // Send update event so the application can trigger redraws
-    if (view->visible) {
-      puglDispatchSimpleEvent(view, PUGL_UPDATE);
-    }
-
-    // Copy and reset pending events (in case their handlers write new ones)
-    const PuglEvent configure = view->impl->pendingConfigure;
-    const PuglEvent expose    = view->impl->pendingExpose;
-
-    view->impl->pendingConfigure.type = PUGL_NOTHING;
-    view->impl->pendingExpose.type    = PUGL_NOTHING;
-
-    if (expose.type || configure.type) {
-      if (!(st0 = view->backend->enter(view, &expose.expose))) {
-        if (configure.type) {
-          st0 = puglConfigure(view, &configure);
-        }
-
-        if (expose.type) {
-          st1 = view->eventFunc(view, &expose);
-        }
-      }
-
-      st2 = view->backend->leave(view, &expose.expose);
-    }
-  }
-
-  return st0 ? st0 : st1 ? st1 : st2;
-}
-
 static bool
 handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 {
@@ -1227,20 +1185,24 @@ puglProcessEvents(PuglView* const view)
 PuglStatus
 puglUpdate(PuglWorld* const world, const double timeout)
 {
-  const double startTime = puglGetTime(world);
-  PuglStatus   st0       = PUGL_SUCCESS;
-  PuglStatus   st1       = PUGL_SUCCESS;
+  static const double minWaitSeconds = 0.001;
+
+  PuglStatus st0 = PUGL_SUCCESS;
+  PuglStatus st1 = PUGL_SUCCESS;
+  PuglStatus st2 = PUGL_SUCCESS;
 
   world->impl->deferExposure = true;
 
+  // Dispatch pending events, blocking if requested
   if (timeout < 0.0) {
     st0 = pollX11Socket(world, timeout);
     st0 = st0 ? st0 : dispatchX11Events(world);
-  } else if (timeout <= 0.001) {
+  } else if (timeout <= minWaitSeconds) {
     st0 = dispatchX11Events(world);
   } else {
-    const double endTime = startTime + timeout - 0.001;
-    double       t       = startTime;
+    const double startTime = puglGetTime(world);
+    const double endTime   = startTime + timeout - minWaitSeconds;
+    double       t         = startTime;
     while (!st0 && t < endTime) {
       if (!(st0 = pollX11Socket(world, endTime - t))) {
         st0 = dispatchX11Events(world);
@@ -1250,11 +1212,42 @@ puglUpdate(PuglWorld* const world, const double timeout)
     }
   }
 
-  st1 = flushExposures(world);
+  // Update all views, and configure and/or blank those that will be exposed
+  for (size_t i = 0; i < world->numViews; ++i) {
+    PuglView* const view = world->views[i];
+    if (view->visible) {
+      puglDispatchSimpleEvent(view, PUGL_UPDATE);
+
+      if (view->impl->pendingConfigure.type) {
+        const PuglEvent configure = view->impl->pendingConfigure;
+        if (!(st0 = view->backend->enter(view, NULL))) {
+          view->impl->pendingConfigure.type = PUGL_NOTHING;
+          st0                               = puglConfigure(view, &configure);
+          st1                               = view->backend->leave(view, NULL);
+        }
+      }
+
+      if (view->impl->pendingExpose.type) {
+        puglDispatchSimpleEvent(view, PUGL_BLANK);
+      }
+    }
+  }
 
   world->impl->deferExposure = false;
 
-  return st0 ? st0 : st1;
+  // Dispatch any events that arrived while updating/blanking
+  st1 = dispatchX11Events(world);
+
+  for (size_t i = 0; i < world->numViews; ++i) {
+    PuglView* const view = world->views[i];
+    if (view->visible && view->impl->pendingExpose.type) {
+      st2 = puglDispatchEvent(view, &view->impl->pendingExpose);
+      view->impl->pendingExpose.type = PUGL_NOTHING;
+      view->drawState                = PUGL_IDLE;
+    }
+  }
+
+  return st0 ? st0 : st1 ? st1 : st2;
 }
 
 double

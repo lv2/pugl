@@ -27,6 +27,12 @@ typedef struct {
   size_t len;  ///< Length of data in bytes
 } PuglBlob;
 
+typedef enum {
+  PUGL_IDLE,
+  PUGL_BLANKED,
+  PUGL_EXPOSED,
+} PuglDrawState;
+
 /// Cross-platform view definition
 struct PuglViewImpl {
   PuglWorld*         world;
@@ -40,6 +46,7 @@ struct PuglViewImpl {
   uintptr_t          transientParent;
   PuglRect           frame;
   PuglConfigureEvent lastConfigure;
+  PuglDrawState      drawState;
   PuglHints          hints;
   int                defaultWidth;
   int                defaultHeight;

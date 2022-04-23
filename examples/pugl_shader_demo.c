@@ -57,8 +57,6 @@ typedef struct {
   GLuint          vbo;
   GLuint          instanceVbo;
   GLuint          ibo;
-  double          lastDrawDuration;
-  double          lastFrameEndTime;
   double          mouseX;
   double          mouseY;
   unsigned        framesDrawn;
@@ -144,9 +142,6 @@ onExpose(PuglView* view)
                           (GLsizei)((app->numRects + 2) * 4));
 
   ++app->framesDrawn;
-
-  app->lastFrameEndTime = puglGetTime(puglGetWorld(view));
-  app->lastDrawDuration = app->lastFrameEndTime - time;
 }
 
 static PuglStatus
@@ -420,41 +415,6 @@ teardownGl(PuglTestApp* app)
   deleteProgram(app->drawRect);
 }
 
-static double
-updateTimeout(const PuglTestApp* const app)
-{
-  if (!puglGetVisible(app->view)) {
-    return -1.0; // View is invisible (minimized), wait until something happens
-  }
-
-  if (!app->opts.sync) {
-    return 0.0; // VSync explicitly disabled, run as fast as possible
-  }
-
-  /* To minimize input latency and get smooth performance during window
-     resizing, we want to poll for events as long as possible before starting
-     to draw the next frame.  This ensures that as many events are consumed as
-     possible before starting to draw, or, equivalently, that the next rendered
-     frame represents the latest events possible.  This is particularly
-     important for mouse input and "live" window resizing, where many events
-     tend to pile up within a frame.
-
-     To do this, we keep track of the time when the last frame was finished
-     drawing, and how long it took to expose (and assume this is relatively
-     stable).  Then, we can calculate how much time there is from now until the
-     time when we should start drawing to not miss the deadline, and use that
-     as the timeout for puglUpdate().
-  */
-
-  const int    refreshRate      = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
-  const double now              = puglGetTime(app->world);
-  const double nextFrameEndTime = app->lastFrameEndTime + (1.0 / refreshRate);
-  const double nextExposeTime   = nextFrameEndTime - app->lastDrawDuration;
-  const double timeUntilNext    = nextExposeTime - now;
-
-  return timeUntilNext;
-}
-
 int
 main(int argc, char** argv)
 {
@@ -487,13 +447,14 @@ main(int argc, char** argv)
   printViewHints(app.view);
   puglShow(app.view);
 
-  // Grind away, drawing continuously
-  const double   startTime  = puglGetTime(app.world);
-  PuglFpsPrinter fpsPrinter = {startTime};
+  // Grind away, drawing continuously or when input arrives
+  const double   timeout    = app.opts.continuous ? 0.0 : -1.0;
+  PuglFpsPrinter fpsPrinter = {puglGetTime(app.world)};
   while (!app.quit) {
     const TrajeScope loop_scope = traje_begin(app.tracer, "loop");
 
-    puglUpdate(app.world, fmax(0.0, updateTimeout(&app)));
+    puglUpdate(app.world, timeout);
+
     puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
     traje_end(app.tracer, loop_scope);
   }

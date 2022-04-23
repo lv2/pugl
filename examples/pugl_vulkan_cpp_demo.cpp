@@ -1346,6 +1346,7 @@ public:
   View(pugl::World& world, PuglVulkanDemo& app)
     : pugl::View{world}
     , _app{app}
+    , _lastBlankTime{0.0}
   {
     setEventHandler(*this);
   }
@@ -1358,6 +1359,7 @@ public:
 
   pugl::Status onEvent(const pugl::ConfigureEvent& event);
   pugl::Status onEvent(const pugl::UpdateEvent& event);
+  pugl::Status onEvent(const pugl::BlankEvent& event);
   pugl::Status onEvent(const pugl::ExposeEvent& event);
   pugl::Status onEvent(const pugl::LoopEnterEvent& event);
   pugl::Status onEvent(const pugl::TimerEvent& event);
@@ -1366,8 +1368,11 @@ public:
   pugl::Status onEvent(const pugl::CloseEvent& event);
   pugl::Status onEvent(const pugl::MotionEvent& event);
 
+  double lastBlankTime() const { return _lastBlankTime; }
+
 private:
   PuglVulkanDemo& _app;
+  double          _lastBlankTime;
 };
 
 class PuglVulkanDemo
@@ -1390,6 +1395,7 @@ public:
   RectShaders        rectShaders;
   uint32_t           framesDrawn{0};
   VkExtent2D         extent{512u, 512u};
+  uint32_t           nextImageIndex{UINT32_MAX};
   std::vector<Rect>  rects;
   double             mouseX{0.0};
   double             mouseY{0.0};
@@ -1541,9 +1547,28 @@ beginFrame(PuglVulkanDemo& app, const sk::Device& device, uint32_t& imageIndex)
   return VK_SUCCESS;
 }
 
+pugl::Status
+View::onEvent(const pugl::BlankEvent&)
+{
+  const auto scope = _app.tracer.begin("BLANK");
+
+  assert(_app.nextImageIndex == UINT32_MAX);
+
+  // Acquire the next image, waiting and/or rebuilding if necessary
+  if (beginFrame(_app, _app.gpu.device, _app.nextImageIndex)) {
+    return pugl::Status::unknownError;
+  }
+
+  _lastBlankTime = _app.world.time();
+
+  return pugl::Status::success;
+}
+
 void
 update(PuglVulkanDemo& app, const double time)
 {
+  const auto scope = app.tracer.begin("update");
+
   // Animate rectangles (except mouse cursor)
   for (size_t i = 0; i < app.rects.size() - 2u; ++i) {
     moveRect(&app.rects[i],
@@ -1650,17 +1675,14 @@ View::onEvent(const pugl::ExposeEvent&)
   const auto& vk  = _app.vulkan.vk;
   const auto& gpu = _app.gpu;
 
-  // Acquire the next image, waiting and/or rebuilding if necessary
-  auto nextImageIndex = 0u;
-  if (beginFrame(_app, gpu.device, nextImageIndex)) {
-    return pugl::Status::unknownError;
-  }
+  assert(_app.nextImageIndex != UINT32_MAX);
 
   // Ready to go, update the data to the current time
   update(_app, world().time());
 
   // Submit the frame to the queue and present it
-  endFrame(_app, vk, gpu, _app.renderer, nextImageIndex);
+  endFrame(_app, vk, gpu, _app.renderer, _app.nextImageIndex);
+  _app.nextImageIndex = UINT32_MAX;
 
   ++_app.framesDrawn;
   ++_app.renderer.sync.currentFrame;
@@ -1712,7 +1734,7 @@ View::onEvent(const pugl::KeyPressEvent& event)
     _app.quit = true;
   }
 
-  return pugl::Status::success;
+  return _app.opts.continuous ? pugl::Status::success : postRedisplay();
 }
 
 pugl::Status
@@ -1723,7 +1745,7 @@ View::onEvent(const pugl::MotionEvent& event)
   _app.mouseX = event.x;
   _app.mouseY = event.y;
 
-  return pugl::Status::success;
+  return _app.opts.continuous ? pugl::Status::success : postRedisplay();
 }
 
 pugl::Status
@@ -1829,14 +1851,22 @@ run(const char* const      programPath,
                        app.renderer.rectPipeline,
                        app.rectData);
 
-  const int    refreshRate   = app.view.getHint(pugl::ViewHint::refreshRate);
-  const double frameDuration = 1.0 / static_cast<double>(refreshRate);
-  const double timeout       = app.opts.sync ? frameDuration : 0.0;
+  const int    refreshRate = app.view.getHint(pugl::ViewHint::refreshRate);
+  const double framePeriod = 1.0 / static_cast<double>(refreshRate);
 
   PuglFpsPrinter fpsPrinter = {app.world.time()};
   app.view.show();
+  app.view.postRedisplay();
+
   while (!app.quit) {
     const auto scope = app.tracer.begin("loop");
+
+    const double now      = app.world.time();
+    const double nextTime = app.view.lastBlankTime() + framePeriod;
+    const double timeout =
+      app.opts.continuous
+        ? (app.opts.sync ? ((now < nextTime) ? (nextTime - now) : 0.0) : 0.0)
+        : -1.0;
 
     app.world.update(timeout);
     puglPrintFps(app.world.cobj(), &fpsPrinter, &app.framesDrawn);

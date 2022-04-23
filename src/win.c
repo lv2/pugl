@@ -145,20 +145,6 @@ puglInitViewInternals(void)
   return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
 
-static PuglStatus
-puglPollWinEvents(PuglWorld* world, const double timeout)
-{
-  (void)world;
-
-  if (timeout < 0) {
-    WaitMessage();
-  } else {
-    MsgWaitForMultipleObjects(
-      0, NULL, FALSE, (DWORD)(timeout * 1e3), QS_ALLEVENTS);
-  }
-  return PUGL_SUCCESS;
-}
-
 PuglStatus
 puglRealize(PuglView* view)
 {
@@ -818,7 +804,7 @@ puglWaitForEvent(PuglView* PUGL_UNUSED(view))
 #endif
 
 static PuglStatus
-puglDispatchViewEvents(PuglView* view)
+puglDispatchViewEvents(PuglView* view, const UINT msgMin, const UINT msgMax)
 {
   /* Windows has no facility to process only currently queued messages, which
      causes the event loop to run forever in cases like mouse movement where
@@ -829,7 +815,7 @@ puglDispatchViewEvents(PuglView* view)
 
   long markTime = 0;
   MSG  msg;
-  while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
+  while (PeekMessage(&msg, view->impl->hwnd, msgMin, msgMax, PM_REMOVE)) {
     if (msg.message == PUGL_LOCAL_MARK_MSG) {
       markTime = GetMessageTime();
     } else {
@@ -845,46 +831,65 @@ puglDispatchViewEvents(PuglView* view)
 }
 
 static PuglStatus
-puglDispatchWinEvents(PuglWorld* world)
+puglDispatchWinEvents(PuglWorld* world, const UINT msgMin, const UINT msgMax)
 {
   for (size_t i = 0; i < world->numViews; ++i) {
     PostMessage(world->views[i]->impl->hwnd, PUGL_LOCAL_MARK_MSG, 0, 0);
   }
 
   for (size_t i = 0; i < world->numViews; ++i) {
-    puglDispatchViewEvents(world->views[i]);
+    puglDispatchViewEvents(world->views[i], msgMin, msgMax);
   }
 
   return PUGL_SUCCESS;
 }
 
 PuglStatus
-puglUpdate(PuglWorld* world, double timeout)
+puglUpdate(PuglWorld* world, const double timeout)
 {
-  const double startTime = puglGetTime(world);
-  PuglStatus   st        = PUGL_SUCCESS;
+  static const double minWaitSeconds = 0.002;
 
+  PuglStatus st = PUGL_SUCCESS;
   if (timeout < 0.0) {
-    st = puglPollWinEvents(world, timeout);
-    st = st ? st : puglDispatchWinEvents(world);
-  } else if (timeout == 0.0) {
-    st = puglDispatchWinEvents(world);
-  } else {
-    const double endTime = startTime + timeout - 0.001;
-    for (double t = startTime; t < endTime; t = puglGetTime(world)) {
-      if ((st = puglPollWinEvents(world, endTime - t)) ||
-          (st = puglDispatchWinEvents(world))) {
-        break;
+    // Wait indefinitely for any event
+    WaitMessage();
+
+  } else if (timeout > minWaitSeconds) {
+    // Wait and process events until time runs out
+    double       now     = puglGetTime(world);
+    const double endTime = now + timeout - minWaitSeconds;
+    do {
+      const DWORD waitMs = (DWORD)((endTime - now) * 1e3);
+      if (!MsgWaitForMultipleObjects(0, NULL, FALSE, waitMs, QS_ALLEVENTS)) {
+        st = puglDispatchWinEvents(world, 0, 0);
+      }
+
+      now = puglGetTime(world);
+    } while (!st && now < endTime);
+  }
+
+  st = puglDispatchWinEvents(world, 0, 0);
+
+  // Update all views, and configure and/or blank those that will be exposed
+  for (size_t i = 0; i < world->numViews; ++i) {
+    PuglView* const view = world->views[i];
+    if (view->visible) {
+      puglDispatchSimpleEvent(view, PUGL_UPDATE);
+      if (GetUpdateRect(view->impl->hwnd, NULL, FALSE)) {
+        puglDispatchSimpleEvent(view, PUGL_BLANK);
       }
     }
   }
 
-  for (size_t i = 0; i < world->numViews; ++i) {
-    if (world->views[i]->visible) {
-      puglDispatchSimpleEvent(world->views[i], PUGL_UPDATE);
-    }
+  // Dispatch any input events that arrived while updating/blanking
+  st = puglDispatchWinEvents(world, WM_KEYFIRST, WM_MOUSELAST);
 
-    UpdateWindow(world->views[i]->impl->hwnd);
+  for (size_t i = 0; i < world->numViews; ++i) {
+    // If a redisplay was posted, send a PUGL_EXPOSE via WM_PAINT
+    if (world->views[i]->drawState == PUGL_BLANKED) {
+      UpdateWindow(world->views[i]->impl->hwnd);
+      world->views[i]->drawState = PUGL_IDLE;
+    }
   }
 
   return st;

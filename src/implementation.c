@@ -415,6 +415,7 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
   PuglStatus st0 = PUGL_SUCCESS;
   PuglStatus st1 = PUGL_SUCCESS;
+  PuglStatus st2 = PUGL_SUCCESS;
 
   switch (event->type) {
   case PUGL_NOTHING:
@@ -446,17 +447,29 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
       st0           = view->eventFunc(view, event);
     }
     break;
+  case PUGL_BLANK:
+    if (view->drawState == PUGL_IDLE) {
+      st1             = view->eventFunc(view, event);
+      view->drawState = PUGL_BLANKED;
+    }
+    break;
   case PUGL_EXPOSE:
     if (!(st0 = view->backend->enter(view, &event->expose))) {
-      st0 = view->eventFunc(view, event);
-      st1 = view->backend->leave(view, &event->expose);
+      if (view->drawState != PUGL_BLANKED) {
+        static const PuglEvent blankEvent = {{PUGL_BLANK, 0u}};
+        st0 = puglDispatchEvent(view, &blankEvent);
+      }
+
+      st1             = view->eventFunc(view, event);
+      st2             = view->backend->leave(view, &event->expose);
+      view->drawState = PUGL_EXPOSED;
     }
     break;
   default:
     st0 = view->eventFunc(view, event);
   }
 
-  return st0 ? st0 : st1;
+  return st0 ? st0 : st1 ? st1 : st2;
 }
 
 const void*
