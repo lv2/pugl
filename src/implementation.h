@@ -51,11 +51,6 @@ PUGL_WARN_UNUSED_RESULT
 PuglStatus
 puglConfigure(PuglView* view, const PuglEvent* event);
 
-/// Process expose event while already in the graphics context
-PUGL_WARN_UNUSED_RESULT
-PuglStatus
-puglExpose(PuglView* view, const PuglEvent* event);
-
 /// Dispatch `event` to `view`, entering graphics context if necessary
 PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event);

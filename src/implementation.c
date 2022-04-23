@@ -410,14 +410,6 @@ puglConfigure(PuglView* view, const PuglEvent* event)
 }
 
 PuglStatus
-puglExpose(PuglView* view, const PuglEvent* event)
-{
-  return (event->expose.width > 0.0 && event->expose.height > 0.0)
-           ? view->eventFunc(view, event)
-           : PUGL_SUCCESS;
-}
-
-PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
   PuglStatus st0 = PUGL_SUCCESS;
@@ -455,7 +447,7 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_EXPOSE:
     if (!(st0 = view->backend->enter(view, &event->expose))) {
-      st0 = puglExpose(view, event);
+      st0 = view->eventFunc(view, event);
       st1 = view->backend->leave(view, &event->expose);
     }
     break;
