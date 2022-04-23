@@ -203,7 +203,7 @@ main(int argc, char** argv)
     puglSetViewHint(view, PUGL_RESIZABLE, opts.resizable);
     puglSetViewHint(view, PUGL_SAMPLES, opts.samples);
     puglSetViewHint(view, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
-    puglSetViewHint(view, PUGL_SWAP_INTERVAL, opts.sync);
+    puglSetViewHint(view, PUGL_SWAP_INTERVAL, i ? PUGL_FALSE : opts.sync);
     puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
     puglSetHandle(view, cube);
     puglSetEventFunc(view, onEvent);

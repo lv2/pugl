@@ -308,7 +308,7 @@ main(int argc, char** argv)
   puglSetViewHint(app.child, PUGL_USE_DEBUG_CONTEXT, opts.errorChecking);
   puglSetViewHint(app.child, PUGL_SAMPLES, opts.samples);
   puglSetViewHint(app.child, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
-  puglSetViewHint(app.child, PUGL_SWAP_INTERVAL, opts.sync);
+  puglSetViewHint(app.child, PUGL_SWAP_INTERVAL, PUGL_FALSE);
   puglSetBackend(app.child, puglGlBackend());
   puglSetViewHint(app.child, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
   puglSetHandle(app.child, &app);
