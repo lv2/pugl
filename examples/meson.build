@@ -72,6 +72,12 @@ if is_variable('cpp')
   example_cpp_args = cpp.get_supported_arguments(example_cpp_args)
 endif
 
+trace_args = [
+  '-DTRAJE_ENABLED',
+  '-D_GNU_SOURCE',
+  '-D_POSIX_C_SOURCE=200809L',
+]
+
 subdir('shaders')
 
 # Build GL examples
@@ -83,7 +89,7 @@ if opengl_dep.found()
     defines = []
 
     if target == 'pugl_shader_demo'
-      source += ['file_utils.c', 'glad/glad.c']
+      source += ['file_utils.c', 'glad/glad.c', 'traje/traje.c']
       dependencies += [dl_dep]
       defines += ['-D_POSIX_C_SOURCE=200809L']
     elif target == 'pugl_print_events'
@@ -92,8 +98,8 @@ if opengl_dep.found()
 
     executable(target, source,
                include_directories: includes,
-               c_args: example_defines + example_c_args + defines,
-               cpp_args: example_defines + example_cpp_args + defines,
+               c_args: example_defines + example_c_args + defines + trace_args,
+               cpp_args: example_defines + example_cpp_args + defines + trace_args,
                dependencies: dependencies)
   endforeach
 endif
@@ -118,14 +124,14 @@ if vulkan_dep.found()
     defines = []
 
     if target == 'pugl_vulkan_cpp_demo'
-      source += ['file_utils.c']
+      source += ['file_utils.c', 'traje/traje.c']
       defines += ['-D_POSIX_C_SOURCE=200809L']
     endif
 
     executable(target, source,
                include_directories: includes,
-               c_args: example_defines + example_c_args + defines,
-               cpp_args: example_defines + example_cpp_args + defines,
+               c_args: example_defines + example_c_args + defines + trace_args,
+               cpp_args: example_defines + example_cpp_args + defines + trace_args,
                dependencies: dependencies)
   endforeach
 endif

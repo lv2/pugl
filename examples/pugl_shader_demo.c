@@ -26,6 +26,7 @@
 #include "rects.h"
 #include "shader_utils.h"
 #include "test/test_utils.h"
+#include "traje/traje.h"
 
 #include "glad/glad.h"
 
@@ -48,6 +49,7 @@ typedef struct {
   PuglWorld*      world;
   PuglView*       view;
   PuglTestOptions opts;
+  TrajeTracer*    tracer;
   size_t          numRects;
   Rect*           rects;
   Program         drawRect;
@@ -152,6 +154,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 {
   PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
+  const TrajeScope event_scope =
+    traje_begin(app->tracer, puglEventTypeName(event->type));
+
   printEvent(event, "Event: ", app->opts.verbose);
 
   switch (event->type) {
@@ -199,6 +204,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   }
 
+  traje_end(app->tracer, event_scope);
   return PUGL_SUCCESS;
 }
 
@@ -458,6 +464,10 @@ main(int argc, char** argv)
   app.glMajorVersion = 3;
   app.glMinorVersion = 3;
 
+  app.tracer = traje_tracer_new("pugl_shader_demo.json", 4096);
+
+  const TrajeScope main_scope = traje_begin(app.tracer, "main");
+
   // Parse command line options
   if (parseOptions(&app, argc, argv)) {
     puglPrintTestUsage("pugl_shader_demo", "[NUM_RECTS] [GL_MAJOR]");
@@ -481,8 +491,11 @@ main(int argc, char** argv)
   const double   startTime  = puglGetTime(app.world);
   PuglFpsPrinter fpsPrinter = {startTime};
   while (!app.quit) {
+    const TrajeScope loop_scope = traje_begin(app.tracer, "loop");
+
     puglUpdate(app.world, fmax(0.0, updateTimeout(&app)));
     puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
+    traje_end(app.tracer, loop_scope);
   }
 
   // Destroy window (which will send a PUGL_DESTROY event)
@@ -491,6 +504,9 @@ main(int argc, char** argv)
   // Free everything else
   puglFreeWorld(app.world);
   free(app.rects);
+
+  traje_end(app.tracer, main_scope);
+  traje_tracer_free(app.tracer);
 
   return 0;
 }

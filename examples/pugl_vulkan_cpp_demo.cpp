@@ -18,6 +18,7 @@
 #include "file_utils.h"
 #include "rects.h"
 #include "test/test_utils.h"
+#include "traje/traje.hpp"
 
 #include "sybok.hpp"
 
@@ -1380,6 +1381,7 @@ public:
   PuglTestOptions    opts;
   pugl::World        world;
   pugl::VulkanLoader loader;
+  traje::Tracer      tracer;
   View               view;
   VulkanContext      vulkan;
   GraphicsDevice     gpu;
@@ -1413,6 +1415,7 @@ PuglVulkanDemo::PuglVulkanDemo(const char* const      executablePath,
   , opts{o}
   , world{pugl::WorldType::program, pugl::WorldFlag::threads}
   , loader{world}
+  , tracer{"pugl_vulkan_cpp_demo.json", 4096}
   , view{world, *this}
   , rects{makeRects(numRects + 2u, extent.width)}
 {}
@@ -1425,6 +1428,8 @@ recreateRenderer(PuglVulkanDemo&       app,
                  const RectData&       rectData,
                  const RectShaders&    rectShaders)
 {
+  const auto scope = app.tracer.begin("recreateRenderer");
+
   VkResult                 r            = VK_SUCCESS;
   VkSurfaceCapabilitiesKHR capabilities = {};
   if ((r = vk.getPhysicalDeviceSurfaceCapabilitiesKHR(
@@ -1465,6 +1470,8 @@ recreateRenderer(PuglVulkanDemo&       app,
 pugl::Status
 View::onEvent(const pugl::ConfigureEvent& event)
 {
+  const auto scope = _app.tracer.begin("CONFIGURE");
+
   // We just record the size here and lazily resize the surface when exposed
   _app.extent = {static_cast<uint32_t>(event.width),
                  static_cast<uint32_t>(event.height)};
@@ -1475,12 +1482,16 @@ View::onEvent(const pugl::ConfigureEvent& event)
 pugl::Status
 View::onEvent(const pugl::UpdateEvent&)
 {
+  const auto scope = _app.tracer.begin("UPDATE");
+
   return postRedisplay();
 }
 
 VkResult
 beginFrame(PuglVulkanDemo& app, const sk::Device& device, uint32_t& imageIndex)
 {
+  const auto scope = app.tracer.begin("beginFrame");
+
   const auto& vk = app.vulkan.vk;
 
   VkResult r = VK_SUCCESS;
@@ -1584,11 +1595,14 @@ update(PuglVulkanDemo& app, const double time)
 }
 
 VkResult
-endFrame(const sk::VulkanApi&  vk,
+endFrame(PuglVulkanDemo&       app,
+         const sk::VulkanApi&  vk,
          const GraphicsDevice& gpu,
          const Renderer&       renderer,
          const uint32_t        imageIndex)
 {
+  const auto scope = app.tracer.begin("endFrame");
+
   const auto currentFrame = renderer.sync.currentFrame;
   VkResult   r            = VK_SUCCESS;
 
@@ -1631,6 +1645,8 @@ endFrame(const sk::VulkanApi&  vk,
 pugl::Status
 View::onEvent(const pugl::ExposeEvent&)
 {
+  const auto scope = _app.tracer.begin("EXPOSE");
+
   const auto& vk  = _app.vulkan.vk;
   const auto& gpu = _app.gpu;
 
@@ -1644,7 +1660,7 @@ View::onEvent(const pugl::ExposeEvent&)
   update(_app, world().time());
 
   // Submit the frame to the queue and present it
-  endFrame(vk, gpu, _app.renderer, nextImageIndex);
+  endFrame(_app, vk, gpu, _app.renderer, nextImageIndex);
 
   ++_app.framesDrawn;
   ++_app.renderer.sync.currentFrame;
@@ -1656,6 +1672,8 @@ View::onEvent(const pugl::ExposeEvent&)
 pugl::Status
 View::onEvent(const pugl::LoopEnterEvent&)
 {
+  const auto scope = _app.tracer.begin("LOOP_ENTER");
+
   _app.resizing = true;
   startTimer(resizeTimerId,
              1.0 / static_cast<double>(getHint(pugl::ViewHint::refreshRate)));
@@ -1666,12 +1684,16 @@ View::onEvent(const pugl::LoopEnterEvent&)
 pugl::Status
 View::onEvent(const pugl::TimerEvent&)
 {
+  const auto scope = _app.tracer.begin("TIMER");
+
   return postRedisplay();
 }
 
 pugl::Status
 View::onEvent(const pugl::LoopLeaveEvent&)
 {
+  const auto scope = _app.tracer.begin("LOOP_LEAVE");
+
   stopTimer(resizeTimerId);
 
   // Trigger a swapchain recreation with the normal present mode
@@ -1684,6 +1706,8 @@ View::onEvent(const pugl::LoopLeaveEvent&)
 pugl::Status
 View::onEvent(const pugl::KeyPressEvent& event)
 {
+  const auto scope = _app.tracer.begin("KEY_PRESS");
+
   if (event.key == PUGL_KEY_ESCAPE || event.key == 'q') {
     _app.quit = true;
   }
@@ -1694,6 +1718,8 @@ View::onEvent(const pugl::KeyPressEvent& event)
 pugl::Status
 View::onEvent(const pugl::MotionEvent& event)
 {
+  const auto scope = _app.tracer.begin("MOTION");
+
   _app.mouseX = event.x;
   _app.mouseY = event.y;
 
@@ -1703,6 +1729,8 @@ View::onEvent(const pugl::MotionEvent& event)
 pugl::Status
 View::onEvent(const pugl::CloseEvent&)
 {
+  const auto scope = _app.tracer.begin("CLOSE");
+
   _app.quit = true;
 
   return pugl::Status::success;
@@ -1808,6 +1836,8 @@ run(const char* const      programPath,
   PuglFpsPrinter fpsPrinter = {app.world.time()};
   app.view.show();
   while (!app.quit) {
+    const auto scope = app.tracer.begin("loop");
+
     app.world.update(timeout);
     puglPrintFps(app.world.cobj(), &fpsPrinter, &app.framesDrawn);
   }
