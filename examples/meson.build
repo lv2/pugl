@@ -88,6 +88,12 @@ if get_option('warning_level') == 'everything' and is_variable('cpp')
   example_cpp_args = cpp.get_supported_arguments(example_cpp_args)
 endif
 
+trace_defines = [
+  '-DTRAJE_ENABLED',
+  '-D_GNU_SOURCE',
+  '-D_POSIX_C_SOURCE=200809L',
+]
+
 subdir('shaders')
 
 if host_machine.system() == 'darwin'
@@ -142,9 +148,9 @@ else
       defines = []
 
       if target == 'pugl_shader_demo'
-        source += ['file_utils.c', 'glad/glad.c']
+        source += ['file_utils.c', 'glad/glad.c', 'traje/traje.c']
         dependencies += [dl_dep]
-        defines += ['-D_POSIX_C_SOURCE=200809L']
+        defines += trace_defines + ['-D_POSIX_C_SOURCE=200809L']
       elif target == 'pugl_print_events'
         dependencies += [pugl_stub_dep]
       elif target == 'pugl_cpp_demo'
@@ -185,8 +191,8 @@ else
       defines = []
 
       if target == 'pugl_vulkan_cpp_demo'
-        source += ['file_utils.c']
-        defines += ['-D_POSIX_C_SOURCE=200809L']
+        source += ['file_utils.c', 'traje/traje.c']
+        defines += trace_defines + ['-D_POSIX_C_SOURCE=200809L']
       endif
 
       executable(

@@ -109,4 +109,61 @@ puglPrintFps(const PuglWorld* world,
   }
 }
 
+static inline const char*
+puglEventTypeName(const PuglEventType type)
+{
+  switch (type) {
+  case PUGL_NOTHING:
+    return "NOTHING";
+  case PUGL_REALIZE:
+    return "REALIZE";
+  case PUGL_UNREALIZE:
+    return "UNREALIZE";
+  case PUGL_CONFIGURE:
+    return "CONFIGURE";
+  case PUGL_UPDATE:
+    return "UPDATE";
+  case PUGL_EXPOSE:
+    return "EXPOSE";
+  case PUGL_CLOSE:
+    return "CLOSE";
+  case PUGL_FOCUS_IN:
+    return "FOCUS_IN";
+  case PUGL_FOCUS_OUT:
+    return "FOCUS_OUT";
+  case PUGL_KEY_PRESS:
+    return "KEY_PRESS";
+  case PUGL_KEY_RELEASE:
+    return "KEY_RELEASE";
+  case PUGL_TEXT:
+    return "TEXT";
+  case PUGL_POINTER_IN:
+    return "POINTER_IN";
+  case PUGL_POINTER_OUT:
+    return "POINTER_OUT";
+  case PUGL_BUTTON_PRESS:
+    return "BUTTON_PRESS";
+  case PUGL_BUTTON_RELEASE:
+    return "BUTTON_RELEASE";
+  case PUGL_MOTION:
+    return "MOTION";
+  case PUGL_SCROLL:
+    return "SCROLL";
+  case PUGL_CLIENT:
+    return "CLIENT";
+  case PUGL_TIMER:
+    return "TIMER";
+  case PUGL_LOOP_ENTER:
+    return "LOOP_ENTER";
+  case PUGL_LOOP_LEAVE:
+    return "LOOP_LEAVE";
+  case PUGL_DATA_OFFER:
+    return "DATA_OFFER";
+  case PUGL_DATA:
+    return "DATA";
+  }
+
+  return "Unknown";
+}
+
 #endif // EXAMPLES_DEMO_UTILS_H
