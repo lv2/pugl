@@ -1231,7 +1231,7 @@ puglUpdate(PuglWorld* const world, const double timeout)
   PuglStatus   st0       = PUGL_SUCCESS;
   PuglStatus   st1       = PUGL_SUCCESS;
 
-  world->impl->dispatchingEvents = true;
+  world->impl->deferExposure = true;
 
   if (timeout < 0.0) {
     st0 = pollX11Socket(world, timeout);
@@ -1252,7 +1252,7 @@ puglUpdate(PuglWorld* const world, const double timeout)
 
   st1 = flushExposures(world);
 
-  world->impl->dispatchingEvents = false;
+  world->impl->deferExposure = false;
 
   return st0 ? st0 : st1;
 }
@@ -1280,7 +1280,7 @@ puglPostRedisplayRect(PuglView* const view, const PuglRect rect)
   const PuglExposeEvent event = {
     PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height};
 
-  if (view->world->impl->dispatchingEvents) {
+  if (view->world->impl->deferExposure) {
     // Currently dispatching events, add/expand expose for the loop end
     mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
   } else if (view->visible) {
