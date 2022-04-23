@@ -125,6 +125,9 @@ using UnmapEvent = Event<PUGL_UNMAP, PuglUnmapEvent>;
 /// @copydoc PuglUpdateEvent
 using UpdateEvent = Event<PUGL_UPDATE, PuglUpdateEvent>;
 
+/// @copydoc PuglBlankEvent
+using BlankEvent = Event<PUGL_BLANK, PuglBlankEvent>;
+
 /// @copydoc PuglExposeEvent
 using ExposeEvent = Event<PUGL_EXPOSE, PuglExposeEvent>;
 
@@ -653,6 +656,8 @@ private:
       return target.onEvent(UnmapEvent{event->any});
     case PUGL_UPDATE:
       return target.onEvent(UpdateEvent{event->any});
+    case PUGL_BLANK:
+      return target.onEvent(BlankEvent{event->any});
     case PUGL_EXPOSE:
       return target.onEvent(ExposeEvent{event->expose});
     case PUGL_CLOSE:

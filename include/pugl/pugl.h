@@ -164,7 +164,8 @@ typedef enum {
   PUGL_CONFIGURE,      ///< View moved/resized, a #PuglConfigureEvent
   PUGL_MAP,            ///< View made visible, a #PuglMapEvent
   PUGL_UNMAP,          ///< View made invisible, a #PuglUnmapEvent
-  PUGL_UPDATE,         ///< View ready to draw, a #PuglUpdateEvent
+  PUGL_UPDATE,         ///< View ready to update, a #PuglUpdateEvent
+  PUGL_BLANK,          ///< View will be exposed, a #PuglBlankEvent
   PUGL_EXPOSE,         ///< View must be drawn, a #PuglExposeEvent
   PUGL_CLOSE,          ///< View will be closed, a #PuglCloseEvent
   PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglFocusEvent
@@ -288,12 +289,29 @@ typedef PuglAnyEvent PuglUnmapEvent;
    View update event.
 
    This event is sent to every view near the end of a main loop iteration when
-   any pending exposures are about to be redrawn.  It is typically used to mark
-   regions to expose with puglPostRedisplay() or puglPostRedisplayRect().  For
-   example, to continuously animate, a view calls puglPostRedisplay() when an
-   update event is received, and it will then shortly receive an expose event.
+   all pending input and window management events have been processed.  It is
+   typically used to mark regions to expose with puglPostRedisplay() or
+   puglPostRedisplayRect().
+
+   For example, a view can continuously animate by calling puglPostRedisplay()
+   when handling an update event.  Pugl will ensure that the region is exposed
+   before the update is finished.
 */
 typedef PuglAnyEvent PuglUpdateEvent;
+
+/**
+   View blank event.
+
+   This event is sent to a view during an update if it will be exposed.  The
+   application may wait while handling this event to synchronize with the
+   display.  After it is handled, further input events may be dispatched, and
+   the view will finally be exposed.  An expose event is guaranteed to follow,
+   so, for example, a Vulkan application can acquire the image to render here,
+   then present to it while handling the following expose.  This will
+   synchronize the Pugl main loop with the vertical blank, while processing
+   events up until the last possible moment to minimize input latency.
+*/
+typedef PuglAnyEvent PuglBlankEvent;
 
 /**
    Expose event for when a region must be redrawn.

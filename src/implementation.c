@@ -382,8 +382,9 @@ PuglStatus
 puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 {
   assert(type == PUGL_CREATE || type == PUGL_DESTROY || type == PUGL_MAP ||
-         type == PUGL_UNMAP || type == PUGL_UPDATE || type == PUGL_CLOSE ||
-         type == PUGL_LOOP_ENTER || type == PUGL_LOOP_LEAVE);
+         type == PUGL_UNMAP || type == PUGL_UPDATE || type == PUGL_BLANK ||
+         type == PUGL_CLOSE || type == PUGL_LOOP_ENTER ||
+         type == PUGL_LOOP_LEAVE);
 
   const PuglEvent event = {{type, 0}};
   return puglDispatchEvent(view, &event);
