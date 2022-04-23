@@ -1363,6 +1363,7 @@ public:
   pugl::Status onEvent(const pugl::LoopLeaveEvent& event);
   pugl::Status onEvent(const pugl::KeyPressEvent& event);
   pugl::Status onEvent(const pugl::CloseEvent& event);
+  pugl::Status onEvent(const pugl::MotionEvent& event);
 
 private:
   PuglVulkanDemo& _app;
@@ -1388,6 +1389,8 @@ public:
   uint32_t           framesDrawn{0};
   VkExtent2D         extent{512u, 512u};
   std::vector<Rect>  rects;
+  double             mouseX{0.0};
+  double             mouseY{0.0};
   bool               resizing{false};
   bool               quit{false};
 };
@@ -1411,7 +1414,7 @@ PuglVulkanDemo::PuglVulkanDemo(const char* const      executablePath,
   , world{pugl::WorldType::program, pugl::WorldFlag::threads}
   , loader{world}
   , view{world, *this}
-  , rects{makeRects(numRects, extent.width)}
+  , rects{makeRects(numRects + 2u, extent.width)}
 {}
 
 VkResult
@@ -1530,8 +1533,8 @@ beginFrame(PuglVulkanDemo& app, const sk::Device& device, uint32_t& imageIndex)
 void
 update(PuglVulkanDemo& app, const double time)
 {
-  // Animate rectangles
-  for (size_t i = 0; i < app.rects.size(); ++i) {
+  // Animate rectangles (except mouse cursor)
+  for (size_t i = 0; i < app.rects.size() - 2u; ++i) {
     moveRect(&app.rects[i],
              i,
              app.rects.size(),
@@ -1539,6 +1542,28 @@ update(PuglVulkanDemo& app, const double time)
              static_cast<float>(app.extent.height),
              time);
   }
+
+  // Update horizontal mouse cursor line (last rect)
+  Rect* const mouseH   = &app.rects[app.rects.size() - 1u];
+  mouseH->pos[0]       = (float)(app.mouseX - 8.0);
+  mouseH->pos[1]       = (float)(app.mouseY - 1.0);
+  mouseH->size[0]      = 16.0f;
+  mouseH->size[1]      = 2.0f;
+  mouseH->fillColor[0] = 1.0f;
+  mouseH->fillColor[1] = 1.0f;
+  mouseH->fillColor[2] = 1.0f;
+  mouseH->fillColor[3] = 0.5f;
+
+  // Update vertical mouse cursor line (second last rect)
+  Rect* const mouseV   = &app.rects[app.rects.size() - 2u];
+  mouseV->pos[0]       = (float)(app.mouseX - 2.0);
+  mouseV->pos[1]       = (float)(app.mouseY - 8.0);
+  mouseV->size[0]      = 2.0f;
+  mouseV->size[1]      = 16.0f;
+  mouseV->fillColor[0] = 1.0f;
+  mouseV->fillColor[1] = 1.0f;
+  mouseV->fillColor[2] = 1.0f;
+  mouseV->fillColor[3] = 0.5f;
 
   // Update vertex buffer
   memcpy(app.rectData.vertexData.get(),
@@ -1662,6 +1687,15 @@ View::onEvent(const pugl::KeyPressEvent& event)
   if (event.key == PUGL_KEY_ESCAPE || event.key == 'q') {
     _app.quit = true;
   }
+
+  return pugl::Status::success;
+}
+
+pugl::Status
+View::onEvent(const pugl::MotionEvent& event)
+{
+  _app.mouseX = event.x;
+  _app.mouseY = event.y;
 
   return pugl::Status::success;
 }
