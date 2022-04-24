@@ -1152,7 +1152,9 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 @end
 
 PuglWorldInternals*
-puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
+puglInitWorldInternals(PuglWorld*     PUGL_UNUSED(world),
+                       PuglWorldType  type,
+                       PuglWorldFlags PUGL_UNUSED(flags))
 {
   PuglWorldInternals* impl =
     (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
