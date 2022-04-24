@@ -170,8 +170,12 @@ puglX11GetDisplayScaleFactor(Display* const display)
 }
 
 PuglWorldInternals*
-puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
+puglInitWorldInternals(PuglWorld* const     world,
+                       const PuglWorldType  type,
+                       const PuglWorldFlags flags)
 {
+  (void)world; // FIXME
+
   if (type == PUGL_PROGRAM && (flags & PUGL_WORLD_THREADS)) {
     XInitThreads();
   }

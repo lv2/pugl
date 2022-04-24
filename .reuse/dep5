@@ -22,6 +22,15 @@ Files: examples/glad/khrplatform.h
 Copyright: 2008-2018 The Khronos Group Inc.
 License: MIT
 
+Files: src/xdg-shell.h src/xdg-shell.c
+Copyright: 2008-2013 Kristian Høgsberg
+           2013 Rafael Antognolli
+           2013 Jasper St. Pierre
+           2010-2013 Intel Corporation
+           2015-2017 Samsung Electronics Co., Ltd
+           2015-2017 Red Hat Inc.
+License: MIT
+
 Files: doc/*.rst resources/pugl.ipe resources/pugl.png resources/pugl.svg
 Copyright: 2021-2025 David Robillard <d@drobilla.net>
 Comment: Documentation

@@ -16,6 +16,7 @@ if cc.get_id() == 'clang'
       '-Wno-bad-function-cast',
       '-Wno-cast-function-type-strict',
       '-Wno-declaration-after-statement',
+      '-Wno-missing-variable-declarations', # Wayland
       '-Wno-padded',
       '-Wno-switch-default',
       '-Wno-switch-enum',

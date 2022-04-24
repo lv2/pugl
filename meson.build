@@ -173,46 +173,73 @@ elif host_machine.system() == 'windows'
   soversion = ''
 
 else
-  # X11
-  x11_dep = cc.find_library('X11')
+  # POSIX
+
   core_args += '-D_POSIX_C_SOURCE=200809L'
 
-  xcursor_dep = cc.find_library('Xcursor', required: get_option('xcursor'))
-  core_args += ['-DUSE_XCURSOR=@0@'.format(xcursor_dep.found().to_int())]
-
-  xrandr_dep = cc.find_library('Xrandr', required: get_option('xrandr'))
-  core_args += ['-DUSE_XRANDR=@0@'.format(xrandr_dep.found().to_int())]
-
-  with_timers = false
-  use_xsync = false
-  xext_dep = cc.find_library('Xext', required: get_option('xsync'))
-  if xext_dep.found()
-    xsync_fragment = '''#include <X11/Xlib.h>
-      #include <X11/extensions/sync.h>
-      int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }'''
-    if cc.compiles(xsync_fragment, name: 'Xsync')
-      with_timers = true
-      use_xsync = true
-    elif get_option('xsync') == 'enabled'
-      error('C header <X11/extensions/sync.h> not found')
-    endif
-  endif
-  core_args += ['-DUSE_XSYNC=@0@'.format(use_xsync.to_int())]
-
-  x11_args = []
-  if cc.get_id() == 'clang'
-    x11_args += [
-      '-Wno-reserved-identifier', # FD_ZERO
-    ]
-  endif
-
-  core_args += cc.get_supported_arguments(x11_args)
-
-  platform = 'x11'
-  platform_sources = files('src/x11.c')
-  core_deps = [x11_dep, xcursor_dep, xext_dep, xrandr_dep]
   extension = '.c'
   soversion = meson.project_version().split('.')[0]
+
+  wayland_client_dep = dependency(
+    'wayland-client',
+    required: get_option('wayland'),
+  )
+
+  wayland_cursor_dep = dependency(
+    'wayland-cursor',
+    required: get_option('wayland'),
+  )
+
+  x11_dep = cc.find_library('X11', required: get_option('x11'))
+  xkbcommon_dep = dependency('xkbcommon', required: get_option('wayland'))
+  egl_dep = dependency('egl', required: false)
+  wayland_egl_dep = dependency('wayland-egl', required: false)
+
+  if (
+    wayland_client_dep.found()
+    and wayland_cursor_dep.found()
+    and xkbcommon_dep.found()
+  )
+    # Wayland
+    platform = 'wayland'
+    platform_sources = files('src/wayland.c', 'src/xdg-shell.c')
+    core_deps = [wayland_client_dep, wayland_cursor_dep, xkbcommon_dep]
+    core_args += ['-Wno-cast-qual'] # FIXME
+
+  elif x11_dep.found()
+    # X11
+
+    x11_args = []
+    if cc.get_id() == 'clang'
+      x11_args += ['-Wno-reserved-identifier'] # FD_ZERO
+    endif
+
+    core_args += cc.get_supported_arguments(x11_args)
+
+    xcursor_dep = cc.find_library('Xcursor', required: get_option('xcursor'))
+    core_args += ['-DUSE_XCURSOR=@0@'.format(xcursor_dep.found().to_int())]
+
+    xrandr_dep = cc.find_library('Xrandr', required: get_option('xrandr'))
+    core_args += ['-DUSE_XRANDR=@0@'.format(xrandr_dep.found().to_int())]
+
+    use_xsync = false
+    xext_dep = cc.find_library('Xext', required: get_option('xsync'))
+    if xext_dep.found()
+      xsync_fragment = '''#include <X11/Xlib.h>
+      #include <X11/extensions/sync.h>
+      int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }'''
+      if cc.compiles(xsync_fragment, name: 'Xsync')
+        use_xsync = true
+      elif get_option('xsync') == 'enabled'
+        error('C header <X11/extensions/sync.h> not found')
+      endif
+    endif
+    core_args += ['-DUSE_XSYNC=@0@'.format(use_xsync.to_int())]
+
+    platform = 'x11'
+    platform_sources = files('src/x11.c')
+    core_deps = [x11_dep, xcursor_dep, xext_dep, xrandr_dep]
+  endif
 endif
 
 ################
@@ -317,7 +344,7 @@ opengl_dep = dependency(
   include_type: 'system',
   required: get_option('opengl'),
 )
-if opengl_dep.found()
+if opengl_dep.found() # FIXME
   name = 'pugl_' + platform + '_gl' + version_suffix
   sources = files('src/' + platform + '_gl' + extension)
 
@@ -325,7 +352,7 @@ if opengl_dep.found()
     name,
     sources,
     c_args: library_args,
-    dependencies: [pugl_dep, opengl_dep],
+    dependencies: [pugl_dep, opengl_dep, egl_dep, wayland_egl_dep], # FIXME
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
@@ -337,7 +364,7 @@ if opengl_dep.found()
   pugl_gl_dep = declare_dependency(
     compile_args: extra_c_args,
     link_with: gl_backend,
-    dependencies: [pugl_dep, opengl_dep],
+    dependencies: [pugl_dep, opengl_dep, wayland_egl_dep], # FIXME
   )
 
   gl_pkg_name = 'pugl-gl-@0@'.format(major_version)

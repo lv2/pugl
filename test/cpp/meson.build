@@ -93,6 +93,7 @@ elif is_variable('cpp')
 
   cpp_unified_args = cpp.get_supported_arguments(cpp_unified_args)
 
+  if false
   test(
     'inline_cpp',
     executable(
@@ -105,4 +106,5 @@ elif is_variable('cpp')
     ),
     suite: 'unit',
   )
+  endif
 endif

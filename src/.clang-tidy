@@ -7,5 +7,6 @@ Checks: >
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
+  -misc-misplaced-const,
   -readability-function-cognitive-complexity,
 InheritParentConfig: true

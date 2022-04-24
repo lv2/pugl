@@ -43,7 +43,7 @@ PuglWorld*
 puglNewWorld(PuglWorldType type, PuglWorldFlags flags)
 {
   PuglWorld* world = (PuglWorld*)calloc(1, sizeof(PuglWorld));
-  if (!world || !(world->impl = puglInitWorldInternals(type, flags))) {
+  if (!world || !(world->impl = puglInitWorldInternals(world, type, flags))) {
     free(world);
     return NULL;
   }
