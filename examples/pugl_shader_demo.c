@@ -466,13 +466,29 @@ updateTimeout(const PuglTestApp* const app)
      as the timeout for puglUpdate().
   */
 
-  const int    refreshRate      = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
-  const double now              = puglGetTime(app->world);
-  const double nextFrameEndTime = app->lastFrameEndTime + (1.0 / refreshRate);
-  const double neededTime       = 1.5 * app->lastDrawDuration;
-  const double nextExposeTime   = nextFrameEndTime - neededTime;
-  const double timeUntilNext    = nextExposeTime - now;
+  if (app->lastFrameEndTime <= 0.0) {
+    return 0.0;
+  }
 
+  const int    refreshRate = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
+  const double now         = puglGetTime(app->world);
+  const double lastEnd =
+    app->lastFrameEndTime > 0 ? app->lastFrameEndTime : now;
+  const double nextEnd = lastEnd + (1.0 / refreshRate);
+
+  const double neededTime     = 1.5 * app->lastDrawDuration;
+  const double nextExposeTime = nextEnd - neededTime;
+  const double timeUntilNext  = nextExposeTime - now;
+
+  /* fprintf( */
+  /*   stderr, */
+  /*   "rate %d now %f last end %f next end %f last draw %f timeUntilNext %f\n", */
+  /*   refreshRate, */
+  /*   now, */
+  /*   app->lastFrameEndTime, */
+  /*   nextEnd, */
+  /*   app->lastDrawDuration, */
+  /*   timeUntilNext); */
   return fmax(0.0, (timeUntilNext * 0.9) - 0.001);
 }
 
