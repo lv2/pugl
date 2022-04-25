@@ -252,7 +252,8 @@ PuglStatus
 puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 {
   assert(type == PUGL_REALIZE || type == PUGL_UNREALIZE ||
-         type == PUGL_UPDATE || type == PUGL_CLOSE || type == PUGL_LOOP_ENTER ||
+         type == PUGL_UPDATE || type == PUGL_BLANK || type == PUGL_FLUSH ||
+         type == PUGL_CLOSE || type == PUGL_LOOP_ENTER ||
          type == PUGL_LOOP_LEAVE);
 
   const PuglEvent event = {{type, 0U}};
@@ -278,6 +279,31 @@ puglExpandExposure(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
 }
 
 PuglStatus
+puglSetDrawState(PuglView* view, const PuglDrawState state)
+{
+#define N_STATES 4
+
+  // Transition validity table from row to column: valid if table[from][to]
+  static const bool table[N_STATES][N_STATES] = {
+    /*       A  C  B  E */
+    /* A */ {1, 1, 0, 0},
+    /* C */ {0, 1, 1, 0},
+    /* B */ {0, 0, 1, 1},
+    /* E */ {0, 1, 0, 1},
+  };
+
+  if (!table[view->drawState][state]) {
+    assert(false);
+    return PUGL_BAD_CALL;
+  }
+
+  view->drawState = state;
+  return PUGL_SUCCESS;
+
+#undef N_STATES
+}
+
+PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
   PuglStatus st0 = PUGL_SUCCESS;
@@ -289,18 +315,18 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 
   case PUGL_REALIZE:
     assert(view->stage == PUGL_VIEW_STAGE_ALLOCATED);
-    if (!(st0 = view->backend->enter(view, NULL))) {
+    if ((st0 = view->backend->enter(view, false)) < PUGL_FAILURE) {
       st0 = view->eventFunc(view, event);
-      st1 = view->backend->leave(view, NULL);
+      st1 = view->backend->leave(view, false);
     }
     view->stage = PUGL_VIEW_STAGE_REALIZED;
     break;
 
   case PUGL_UNREALIZE:
     assert(view->stage >= PUGL_VIEW_STAGE_REALIZED);
-    if (!(st0 = view->backend->enter(view, NULL))) {
+    if ((st0 = view->backend->enter(view, false)) < PUGL_FAILURE) {
       st0 = view->eventFunc(view, event);
-      st1 = view->backend->leave(view, NULL);
+      st1 = view->backend->leave(view, false);
     }
     view->stage = PUGL_VIEW_STAGE_ALLOCATED;
     break;
@@ -313,16 +339,29 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     }
     break;
 
+  case PUGL_BLANK:
+    if (view->drawState < PUGL_BLANKED) {
+      st0 = view->eventFunc(view, event);
+      puglSetDrawState(view, PUGL_BLANKED);
+    }
+    break;
+
   case PUGL_EXPOSE:
     assert(view->stage == PUGL_VIEW_STAGE_CONFIGURED);
-    if (!(st0 = view->backend->enter(view, &event->expose))) {
+    if (!(st0 = view->eventFunc(view, event))) {
       const PuglWorldState old_state = view->world->state;
 
       view->world->state = PUGL_WORLD_EXPOSING;
-      st0                = view->eventFunc(view, event);
+      st0                = view->backend->handle(view, event);
       view->world->state = old_state;
-      st1                = view->backend->leave(view, &event->expose);
+      puglSetDrawState(view, PUGL_EXPOSED);
     }
+    break;
+
+  case PUGL_FLUSH:
+    assert(view->drawState >= PUGL_BLANKED);
+    st0 = view->eventFunc(view, event);
+    puglSetDrawState(view, PUGL_CREATED);
     break;
 
   default:
@@ -330,4 +369,13 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
   }
 
   return st0 ? st0 : st1;
+}
+
+PuglStatus
+puglMaybeDispatchEvent(PuglView* const view, const PuglEventType type)
+{
+  const PuglEvent  event = {{type, 0U}};
+  const PuglStatus st    = view->backend->handle(view, &event);
+
+  return !st ? puglDispatchEvent(view, &event) : PUGL_SUCCESS;
 }

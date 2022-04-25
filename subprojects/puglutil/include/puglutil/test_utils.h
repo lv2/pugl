@@ -389,6 +389,8 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
       return 0;
     case PUGL_UPDATE:
       return fprintf(stderr, "%sUpdate\n", prefix);
+    case PUGL_BLANK:
+      return fprintf(stderr, "%sBlank\n", prefix);
     case PUGL_EXPOSE:
       return PRINT("%sExpose    " PIFMT " " PUFMT "\n",
                    prefix,
@@ -396,6 +398,8 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
                    event->expose.y,
                    event->expose.width,
                    event->expose.height);
+    case PUGL_FLUSH:
+      return fprintf(stderr, "%sFlush\n", prefix);
     case PUGL_CLOSE:
       return PRINT("%sClose\n", prefix);
     case PUGL_MOTION:

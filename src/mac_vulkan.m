@@ -160,6 +160,7 @@ puglVulkanBackend(void)
                                       puglMacVulkanCreate,
                                       puglMacVulkanDestroy,
                                       puglStubEnter,
+                                      puglStubExpose,
                                       puglStubLeave,
                                       puglStubGetContext};
 

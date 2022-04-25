@@ -76,6 +76,10 @@ puglFilterMods(PuglMods state, PuglKey key);
 PuglStatus
 puglPreRealize(PuglView* view);
 
+/// Transition the view to a new draw state if possible given the current state
+PuglStatus
+puglSetDrawState(PuglView* view, PuglDrawState state);
+
 /// Dispatch an event with a simple `type` to `view`
 PuglStatus
 puglDispatchSimpleEvent(PuglView* view, PuglEventType type);
@@ -83,6 +87,10 @@ puglDispatchSimpleEvent(PuglView* view, PuglEventType type);
 /// Expand a pending exposure to include a new region
 void
 puglExpandExposure(PuglExposeEvent* dst, const PuglExposeEvent* src);
+
+/// Dispatch `event` to `view` if the backend says to
+PuglStatus
+puglMaybeDispatchEvent(PuglView* view, PuglEventType type);
 
 /// Dispatch `event` to `view`, entering graphics context if necessary
 PuglStatus

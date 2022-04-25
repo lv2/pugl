@@ -74,6 +74,7 @@ puglStubBackend(void)
                                       puglMacStubCreate,
                                       puglMacStubDestroy,
                                       puglStubEnter,
+                                      puglStubExpose,
                                       puglStubLeave,
                                       puglStubGetContext};
 

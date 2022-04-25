@@ -266,27 +266,39 @@ puglWinGlDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglWinGlEnter(PuglView* view, const PuglExposeEvent* expose)
+puglWinGlEnter(PuglView* view, const bool drawing)
 {
   PuglWinGlSurface* surface = (PuglWinGlSurface*)view->impl->surface;
-  if (!surface || !surface->hglrc) {
-    return PUGL_FAILURE;
-  }
 
-  const PuglStatus st = puglWinEnter(view, expose);
-  wglMakeCurrent(view->impl->hdc, surface->hglrc);
-  return st;
+  (void)drawing;
+
+  return wglMakeCurrent(view->impl->hdc, surface->hglrc) ? PUGL_SUCCESS
+                                                         : PUGL_FAILURE;
 }
 
 static PuglStatus
-puglWinGlLeave(PuglView* view, const PuglExposeEvent* expose)
+puglWinGlLeave(PuglView* view, const bool drawing)
 {
-  if (expose) {
+  if (drawing) {
     SwapBuffers(view->impl->hdc);
   }
 
-  wglMakeCurrent(NULL, NULL);
-  return puglWinLeave(view, expose);
+  return wglMakeCurrent(NULL, NULL) ? PUGL_SUCCESS : PUGL_FAILURE;
+}
+
+PUGL_WARN_UNUSED_RESULT
+static PuglStatus
+puglWinGlHandle(PuglView* PUGL_UNUSED(view), const PuglEvent* event)
+{
+  switch (event->type) {
+  case PUGL_BLANK:
+  case PUGL_FLUSH:
+    return PUGL_IGNORE;
+  default:
+    break;
+  }
+
+  return PUGL_SUCCESS;
 }
 
 PuglGlFunc
@@ -306,13 +318,13 @@ puglGetProcAddress(const char* name)
 PuglStatus
 puglEnterContext(PuglView* view)
 {
-  return view->backend->enter(view, NULL);
+  return view->backend->enter(view, false);
 }
 
 PuglStatus
 puglLeaveContext(PuglView* view)
 {
-  return view->backend->leave(view, NULL);
+  return view->backend->leave(view, false);
 }
 
 const PuglBackend*
@@ -323,6 +335,7 @@ puglGlBackend(void)
                                       puglWinGlDestroy,
                                       puglWinGlEnter,
                                       puglWinGlLeave,
+                                      puglWinGlHandle,
                                       puglStubGetContext};
 
   return &backend;
