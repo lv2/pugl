@@ -142,7 +142,7 @@ puglCairoBackend(void)
                                       puglMacCairoDestroy,
                                       puglMacCairoEnter,
                                       puglMacCairoLeave,
-                                      puglStubExpose,
+                                      puglStubHandle,
                                       puglMacCairoGetContext};
 
   return &backend;

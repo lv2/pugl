@@ -7,6 +7,7 @@
 #include <pugl/attributes.h>
 #include <pugl/pugl.h>
 
+#include <stdbool.h>
 #include <stddef.h>
 
 PUGL_BEGIN_DECLS
@@ -36,7 +37,7 @@ puglStubEnter(PuglView* const view, const bool drawing)
 {
   (void)view;
   (void)drawing;
-  return PUGL_SUCCESS;
+  return PUGL_IGNORE;
 }
 
 static inline PuglStatus
@@ -44,6 +45,14 @@ puglStubLeave(PuglView* const view, const bool drawing)
 {
   (void)view;
   (void)drawing;
+  return PUGL_IGNORE;
+}
+
+static inline PuglStatus
+puglStubHandle(PuglView* const view, const PuglEvent* const event)
+{
+  (void)view;
+  (void)event;
   return PUGL_SUCCESS;
 }
 

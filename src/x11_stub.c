@@ -18,7 +18,7 @@ puglStubBackend(void)
     puglStubDestroy,
     puglStubEnter,
     puglStubLeave,
-    puglStubExpose,
+    puglStubHandle,
     puglStubGetContext,
   };
 

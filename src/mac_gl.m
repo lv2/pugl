@@ -136,9 +136,6 @@ static PuglStatus
 puglMacGlEnter(PuglView* view, const bool PUGL_UNUSED(drawing))
 {
   PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
-  if (!drawView) {
-    return PUGL_FAILURE;
-  }
 
   [[drawView openGLContext] makeCurrentContext];
   return PUGL_SUCCESS;
@@ -195,7 +192,7 @@ puglGlBackend(void)
                                       puglMacGlDestroy,
                                       puglMacGlEnter,
                                       puglMacGlLeave,
-                                      puglStubExpose,
+                                      puglStubHandle,,
                                       puglStubGetContext};
 
   return &backend;

@@ -46,10 +46,4 @@ puglWinCreateWindow(PuglView* view, const char* title, HWND* hwnd, HDC* hdc);
 PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
 puglWinConfigure(PuglView* view);
 
-PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
-puglWinEnter(PuglView* view, bool drawing);
-
-PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
-puglWinLeave(PuglView* view, bool drawing);
-
 #endif // PUGL_SRC_WIN_H

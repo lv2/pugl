@@ -158,8 +158,14 @@ using ConfigureEvent = Event<PUGL_CONFIGURE, PuglConfigureEvent>;
 /// @copydoc PuglUpdateEvent
 using UpdateEvent = Event<PUGL_UPDATE, PuglUpdateEvent>;
 
+/// @copydoc PuglBlankEvent
+using BlankEvent = Event<PUGL_BLANK, PuglBlankEvent>;
+
 /// @copydoc PuglExposeEvent
 using ExposeEvent = Event<PUGL_EXPOSE, PuglExposeEvent>;
+
+/// @copydoc PuglFlushEvent
+using FlushEvent = Event<PUGL_FLUSH, PuglFlushEvent>;
 
 /// @copydoc PuglCloseEvent
 using CloseEvent = Event<PUGL_CLOSE, PuglCloseEvent>;
@@ -224,6 +230,7 @@ using DataEvent = Event<PUGL_DATA, PuglDataEvent>;
 /// @copydoc PuglStatus
 enum class Status {
   success,             ///< @copydoc PUGL_SUCCESS
+  ignore,              ///< @copydoc PUGL_IGNORE
   failure,             ///< @copydoc PUGL_FAILURE
   unknownError,        ///< @copydoc PUGL_UNKNOWN_ERROR
   badBackend,          ///< @copydoc PUGL_BAD_BACKEND
@@ -825,8 +832,12 @@ private:
       return target.onEvent(ConfigureEvent{event->configure});
     case PUGL_UPDATE:
       return target.onEvent(UpdateEvent{event->any});
+    case PUGL_BLANK:
+      return target.onEvent(BlankEvent{event->any});
     case PUGL_EXPOSE:
       return target.onEvent(ExposeEvent{event->expose});
+    case PUGL_FLUSH:
+      return target.onEvent(FlushEvent{event->any});
     case PUGL_CLOSE:
       return target.onEvent(CloseEvent{event->any});
     case PUGL_FOCUS_IN:

@@ -104,8 +104,8 @@ puglX11GlConfigure(PuglView* view)
 PUGL_WARN_UNUSED_RESULT static PuglStatus
 puglX11GlEnter(PuglView* view, const bool PUGL_UNUSED(drawing))
 {
-  Display* const    display = view->world->impl->display;
   PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
+  Display* const    display = view->world->impl->display;
 
   return glXMakeCurrent(display, view->impl->win, surface->ctx) ? PUGL_SUCCESS
                                                                 : PUGL_FAILURE;
@@ -114,15 +114,21 @@ puglX11GlEnter(PuglView* view, const bool PUGL_UNUSED(drawing))
 PUGL_WARN_UNUSED_RESULT static PuglStatus
 puglX11GlLeave(PuglView* view, const bool drawing)
 {
-  Display* const    display = view->world->impl->display;
-  PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
+  Display* const display = view->world->impl->display;
 
   if (drawing && view->hints[PUGL_DOUBLE_BUFFER]) {
     glXSwapBuffers(display, view->impl->win);
   }
 
-  return glXMakeCurrent(display, view->impl->win, surface->ctx) ? PUGL_SUCCESS
-                                                                : PUGL_FAILURE;
+  return glXMakeCurrent(display, None, NULL) ? PUGL_SUCCESS : PUGL_FAILURE;
+}
+
+PUGL_WARN_UNUSED_RESULT static PuglStatus
+puglX11GlHandle(PuglView* PUGL_UNUSED(view), const PuglEvent* event)
+{
+  return (event->type == PUGL_BLANK || event->type == PUGL_FLUSH)
+           ? PUGL_IGNORE
+           : PUGL_SUCCESS;
 }
 
 static PuglStatus
@@ -246,7 +252,7 @@ puglGlBackend(void)
                                       puglX11GlDestroy,
                                       puglX11GlEnter,
                                       puglX11GlLeave,
-                                      puglStubExpose,
+                                      puglX11GlHandle,
                                       puglStubGetContext};
 
   return &backend;

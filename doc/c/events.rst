@@ -49,13 +49,20 @@ Using the Graphics Context
 Drawing
 -------
 
-Note that Pugl uses a different drawing model than many libraries,
+Note that Pugl uses a different drawing model than many otherwise similar libraries,
 particularly those designed for game-style main loops like `SDL <https://libsdl.org/>`_ and `GLFW <https://www.glfw.org/>`_.
-
 In that style of code, drawing is performed imperatively in the main loop,
-but with Pugl, the application must draw only while handling an expose event.
-This is because Pugl supports event-driven applications that only draw the damaged region when necessary,
-and handles exposure internally to provide optimized and consistent behavior across platforms.
+but with Pugl, the application draws by request when an expose event is received.
+This allows Pugl to optimize performance and provide consistent behavior across platforms and graphics APIs.
+
+Accordingly, there is no API in Pugl for imperatively entering the graphics context for rendering.
+Pugl guarantees that the graphics context is set up appropriately
+(for example, that the view's OpenGL context is active)
+when the expose event is received.
+
+Some graphics APIs, however, require entering or accessing a context for configuration or drawing.
+Portable access to such contexts is provided by :func:`puglGetContext`,
+which returns an opaque pointer whose type is determined by the active backend.
 
 Cairo Context
 -------------
@@ -67,7 +74,7 @@ Null is returned by :func:`puglGetContext` at any other time.
 OpenGL Context
 --------------
 
-The OpenGL context is only active while handling realization (:enumerator:`PUGL_REALIZE`, :enumerator:`PUGL_UNREALIZE`) and exposure (:enumerator:`PUGL_EXPOSE`),
+The OpenGL context is only active while handling realization (:enumerator:`PUGL_REALIZE`, :enumerator:`PUGL_UNREALIZE`) and exposure (:enumerator:`PUGL_BLANK`, :enumerator:`PUGL_EXPOSE`, :enumerator:`PUGL_FLUSH`),
 and can only be used for rendering during exposure.
 
 Note that the OpenGL context is *not* active while handling configuration.

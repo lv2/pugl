@@ -1,4 +1,4 @@
-// Copyright 2012-2023 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_PUGL_H
@@ -106,7 +106,9 @@ typedef enum {
   PUGL_UNREALIZE,      ///< View unrealizeed, a #PuglUnrealizeEvent
   PUGL_CONFIGURE,      ///< View configured, a #PuglConfigureEvent
   PUGL_UPDATE,         ///< View ready to draw, a #PuglUpdateEvent
+  PUGL_BLANK,          ///< View exposure started, a #PuglBlankEvent
   PUGL_EXPOSE,         ///< View must be drawn, a #PuglExposeEvent
+  PUGL_FLUSH,          ///< View exposure finished, a #PuglFlushEvent
   PUGL_CLOSE,          ///< View will be closed, a #PuglCloseEvent
   PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglFocusEvent
   PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglFocusEvent
@@ -292,19 +294,37 @@ typedef PuglAnyEvent PuglCloseEvent;
    View update event.
 
    This event is sent to every view near the end of a main loop iteration when
-   any pending exposures are about to be redrawn.  It is typically used to mark
-   regions to expose with puglObscureView() or puglObscureRegion().  For
-   example, to continuously animate, obscure the view when an update event is
-   received, and it will receive an expose event shortly afterwards.
+   all pending input and window management events have been processed.  It is
+   typically used to mark regions to expose with puglPostRedisplay() or
+   puglPostRedisplayRect().
+
+   For example, to continuously animate, obscure the view when an update event
+   is received, and it will receive an expose event shortly afterwards.
 */
 typedef PuglAnyEvent PuglUpdateEvent;
 
 /**
-   Expose event for when a region must be redrawn.
+   View blank event.
 
-   When an expose event is received, the graphics context is active, and the
-   view must draw the entire specified region.  The contents of the region are
-   undefined, there is no preservation of anything drawn previously.
+   This event is sent to a view if it is about to be exposed.  A blank will
+   always arrive before an expose, although other events can occur after the
+   blank and before the first expose.  A blank will always be eventually
+   followed by a flush.
+
+   The application may use this to prepare for rendering, and may block while
+   handling it to acquire any resources (for example, a free image the graphics
+   card can render to).
+*/
+typedef PuglAnyEvent PuglBlankEvent;
+
+/**
+   View expose event.
+
+   This event is sent to a view when a region must be redrawn.  The contents of
+   the region are undefined, so the entire region must be redrawn when this
+   event is received.
+
+   An expose is always preceded by a blank, and always followed by a flush.
 */
 typedef struct {
   PuglEventType  type;   ///< #PUGL_EXPOSE
@@ -314,6 +334,13 @@ typedef struct {
   PuglSpan       width;  ///< Width of exposed region
   PuglSpan       height; ///< Height of exposed region
 } PuglExposeEvent;
+
+/**
+   View flush event.
+
+   This event is sent to a view during an update after it has been exposed.
+*/
+typedef PuglAnyEvent PuglFlushEvent;
 
 /**
    @}
@@ -711,6 +738,7 @@ typedef union {
 /// Return status code
 typedef enum {
   PUGL_SUCCESS,               ///< Success
+  PUGL_IGNORE,                ///< Operation ignored
   PUGL_FAILURE,               ///< Non-fatal failure
   PUGL_UNKNOWN_ERROR,         ///< Unknown system error
   PUGL_BAD_BACKEND,           ///< Invalid or missing backend

@@ -73,9 +73,9 @@ puglVulkanBackend(void)
   static const PuglBackend backend = {puglWinConfigure,
                                       puglStubCreate,
                                       puglStubDestroy,
-                                      puglWinEnter,
-                                      puglWinLeave,
-                                      puglStubExpose,
+                                      puglStubEnter,
+                                      puglStubLeave,
+                                      puglStubHandle,
                                       puglStubGetContext};
 
   return &backend;

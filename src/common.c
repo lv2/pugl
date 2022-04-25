@@ -20,6 +20,7 @@ puglStrerror(const PuglStatus status)
   // clang-format off
   switch (status) {
   case PUGL_SUCCESS:               return "Success";
+  case PUGL_IGNORE:                return "Operation ignored";
   case PUGL_FAILURE:               return "Non-fatal failure";
   case PUGL_UNKNOWN_ERROR:         return "Unknown system error";
   case PUGL_BAD_BACKEND:           return "Invalid or missing backend";

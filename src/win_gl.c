@@ -269,13 +269,11 @@ static PuglStatus
 puglWinGlEnter(PuglView* view, const bool drawing)
 {
   PuglWinGlSurface* surface = (PuglWinGlSurface*)view->impl->surface;
-  if (!surface || !surface->hglrc) {
-    return PUGL_FAILURE;
-  }
 
-  const PuglStatus st = puglWinEnter(view, drawing);
-  wglMakeCurrent(view->impl->hdc, surface->hglrc);
-  return st;
+  (void)drawing;
+
+  return wglMakeCurrent(view->impl->hdc, surface->hglrc) ? PUGL_SUCCESS
+                                                         : PUGL_FAILURE;
 }
 
 static PuglStatus
@@ -285,8 +283,15 @@ puglWinGlLeave(PuglView* view, const bool drawing)
     SwapBuffers(view->impl->hdc);
   }
 
-  wglMakeCurrent(NULL, NULL);
-  return puglWinLeave(view, drawing);
+  return wglMakeCurrent(NULL, NULL) ? PUGL_SUCCESS : PUGL_FAILURE;
+}
+
+PUGL_WARN_UNUSED_RESULT static PuglStatus
+puglWinGlHandle(PuglView* PUGL_UNUSED(view), const PuglEvent* event)
+{
+  return (event->type == PUGL_BLANK || event->type == PUGL_FLUSH)
+           ? PUGL_IGNORE
+           : PUGL_SUCCESS;
 }
 
 PuglGlFunc
@@ -323,7 +328,7 @@ puglGlBackend(void)
                                       puglWinGlDestroy,
                                       puglWinGlEnter,
                                       puglWinGlLeave,
-                                      puglStubExpose,
+                                      puglWinGlHandle,
                                       puglStubGetContext};
 
   return &backend;

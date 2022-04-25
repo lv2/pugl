@@ -42,6 +42,14 @@ typedef enum {
   PUGL_VIEW_STAGE_CONFIGURED,
 } PuglViewStage;
 
+/// Drawing state of a view during an update
+typedef enum {
+  PUGL_ALLOCATED, ///< Allocated but not yet realized
+  PUGL_CREATED,   ///< Realized (and PUGL_CREATE has been handled)
+  PUGL_BLANKED,   ///< Blanked in preparation of exposure
+  PUGL_EXPOSED,   ///< Exposed at least once after blanking
+} PuglDrawState;
+
 /// Cross-platform view definition
 struct PuglViewImpl {
   PuglWorld*         world;
@@ -58,6 +66,7 @@ struct PuglViewImpl {
   PuglArea           sizeHints[PUGL_NUM_SIZE_HINTS];
   char*              strings[PUGL_NUM_STRING_HINTS];
   PuglViewStage      stage;
+  PuglDrawState      drawState;
   bool               resizing;
 };
 
@@ -87,17 +96,54 @@ struct PuglBackendImpl {
   /// Destroy surface and drawing context
   void (*destroy)(PuglView*);
 
-  /// Enter graphics context, for drawing if parameter is true
+  /**
+     Enter context, for drawing if parameter is true.
+
+     @return #PUGL_SUCCESS if the context was successfully entered,
+     #PUGL_IGNORE if a blank event should NOT be dispatched to the client, or
+     an error.
+  */
   PUGL_WARN_UNUSED_RESULT PuglStatus (*enter)(PuglView*, bool);
 
-  /// Leave graphics context, after drawing if parameter is true
+  /**
+     Leave context, after drawing if parameter is true.
+
+     @return #PUGL_SUCCESS if the context was successfully left/flushed,
+     #PUGL_IGNORE if a flush event should NOT be dispatched to the client, or
+     an error.
+  */
   PUGL_WARN_UNUSED_RESULT PuglStatus (*leave)(PuglView*, bool);
 
-  /// Expose a region while in a drawing context
-  PUGL_WARN_UNUSED_RESULT PuglStatus (*expose)(PuglView*,
-                                               const PuglExposeEvent*);
+  /**
+     Handle an event for a view.
 
-  /// Return the puglGetContext() handle for the application, if any
+     This is a hook that can be used by the backend to implement
+     rendering-related events, and control (to a limited degree) how they are
+     communicated to clients.
+
+     For every update that renders a frame:
+
+     1. The backend receives a blank event.
+     2. The context is entered for exposure.
+     3. The backend receives any number of expose events.
+     4. The context is left.
+     5. The backend receives a flush event.
+
+     To account for different APIs, the backend can control whether blank and
+     flush events are dispatched in steps 1 and 5, or 2 and 4.  The latter
+     scheme is used by backends where entering and leaving the context is
+     expensive, such as OpenGL.  Where this is not the case, it is better to
+     dispatch them as early and late as possible (in steps 1 and 5) to allow
+     more fine-grained control over synchronization (potentially reducing input
+     latency).
+
+     @return #PUGL_SUCCESS if handling the event was successful and should
+     continue, #PUGL_IGNORE if the event should not be dispatched to the view,
+     or an error.
+  */
+  PUGL_WARN_UNUSED_RESULT PuglStatus (*handle)(PuglView*, const PuglEvent*);
+
+  /// Return the puglGetContext() handle for the application if it is entered
   void* (*getContext)(PuglView*);
 };
 

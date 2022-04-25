@@ -19,7 +19,6 @@ typedef struct {
   cairo_region_t*  region;
   HDC              drawDc;
   HBITMAP          drawBitmap;
-  PAINTSTRUCT      ps;
 } PuglWinCairoSurface;
 
 static PuglStatus
@@ -112,9 +111,7 @@ puglWinCairoDestroy(PuglView* view)
 static PuglStatus
 puglWinCairoEnter(PuglView* view, const bool drawing)
 {
-  PuglInternals* const       impl    = view->impl;
-  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
-  PuglStatus                 st      = PUGL_SUCCESS;
+  PuglStatus st = PUGL_SUCCESS;
 
   if (drawing && !(st = puglWinCairoCreateDrawContext(view))) {
     st = puglWinCairoOpen(view);
@@ -138,8 +135,6 @@ puglWinCairoLeave(PuglView* view, const bool drawing)
       cairo_rectangle_int_t rect = {0, 0, 0, 0};
       cairo_region_get_rectangle(surface->region, i, &rect);
 
-      cairo_save(surface->cr);
-
       BitBlt(impl->hdc,
              rect.x,
              rect.y,
@@ -149,14 +144,13 @@ puglWinCairoLeave(PuglView* view, const bool drawing)
              0,
              0,
              SRCCOPY);
-
-      puglWinCairoClose(view);
-      puglWinCairoDestroyDrawContext(view);
-      cairo_restore(surface->cr);
     }
+
+    puglWinCairoClose(view);
+    puglWinCairoDestroyDrawContext(view);
   }
 
-  return puglWinLeave(view, expose);
+  return PUGL_IGNORE;
 }
 
 static PuglStatus
@@ -175,6 +169,13 @@ puglWinCairoExpose(PuglView* view, const PuglExposeEvent* expose)
   return PUGL_SUCCESS;
 }
 
+static PuglStatus
+puglWinCairoHandle(PuglView* view, const PuglEvent* const event)
+{
+  return event->type == PUGL_EXPOSE ? puglWinCairoExpose(view, &event->expose)
+                                    : PUGL_SUCCESS;
+}
+
 static void*
 puglWinCairoGetContext(PuglView* view)
 {
@@ -189,7 +190,7 @@ puglCairoBackend(void)
                                       puglWinCairoDestroy,
                                       puglWinCairoEnter,
                                       puglWinCairoLeave,
-                                      puglWinCairoExpose,
+                                      puglWinCairoHandle,
                                       puglWinCairoGetContext};
 
   return &backend;

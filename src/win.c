@@ -1,4 +1,4 @@
-// Copyright 2012-2023 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "win.h"
@@ -333,7 +333,9 @@ puglRealize(PuglView* view)
 
   SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
-  return puglDispatchSimpleEvent(view, PUGL_REALIZE);
+  st = puglDispatchSimpleEvent(view, PUGL_REALIZE);
+  puglSetDrawState(view, PUGL_CREATED);
+  return st > PUGL_IGNORE ? st : PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -734,6 +736,39 @@ constrainAspect(const PuglView* const view,
   }
 }
 
+static PuglStatus
+exposeView(PuglView* const view, const PuglEvent* const expose)
+{
+  if (!expose->type) {
+    return PUGL_SUCCESS; // No exposure is good exposure
+  }
+
+  // Enter the backend context and dispatch a blank if the backend says to
+  PuglStatus st0 = view->backend->enter(view, true);
+  if (st0 == PUGL_SUCCESS) {
+    puglDispatchSimpleEvent(view, PUGL_BLANK);
+  } else if (st0 != PUGL_IGNORE) {
+    return st0;
+  }
+
+  {
+    // Expose the view, and inform Windows about the paint
+    PAINTSTRUCT ps;
+    if (BeginPaint(view->impl->hwnd, &ps)) {
+      st0 = puglDispatchEvent(view, expose);
+      EndPaint(view->impl->hwnd, &ps);
+    }
+  }
+
+  // Leave context and dispatch a low-level flush if the backend says to
+  const PuglStatus st1 = view->backend->leave(view, true);
+  if (!st1) {
+    puglDispatchSimpleEvent(view, PUGL_FLUSH);
+  }
+
+  return st0 ? st0 : st1;
+}
+
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -796,6 +831,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     break;
   case WM_ENTERMENULOOP:
     puglDispatchSimpleEvent(view, PUGL_LOOP_ENTER);
+    view->world->state = PUGL_WORLD_RECURSING;
     break;
   case WM_TIMER:
     if (wParam >= PUGL_USER_TIMER_MIN) {
@@ -811,6 +847,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     break;
   case WM_EXITMENULOOP:
     puglDispatchSimpleEvent(view, PUGL_LOOP_LEAVE);
+    view->world->state = PUGL_WORLD_UPDATING;
     break;
   case WM_GETMINMAXINFO:
     mmi                   = (MINMAXINFO*)lParam;
@@ -822,12 +859,37 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     }
     break;
   case WM_PAINT:
-    GetUpdateRect(view->impl->hwnd, &rect, false);
+    /* Unusual WM_PAINT (which is not a part of the usual Pugl render loop).
+       This happens on initial display and resizing, and possibly in other rare
+       situations.  In general, Windows freaks out if WM_PAINT is not responded
+       to properly, so paint the view immediately regardless of the situation.
+       If this happens regularly during the normal render loop, all is lost.
+    */
+    GetUpdateRect(view->impl->hwnd, &rect, TRUE);
     event.expose.type   = PUGL_EXPOSE;
     event.expose.x      = (PuglCoord)rect.left;
     event.expose.y      = (PuglCoord)rect.top;
     event.expose.width  = (PuglSpan)(rect.right - rect.left);
     event.expose.height = (PuglSpan)(rect.bottom - rect.top);
+
+    puglExpandExposure(&view->pendingExpose.expose, &event.expose);
+
+    {
+      bool blanked = false;
+      if (view->drawState < PUGL_BLANKED) {
+        puglMaybeDispatchEvent(view, PUGL_BLANK);
+        blanked = true;
+      }
+
+      exposeView(view, &view->pendingExpose);
+      view->pendingExpose.type = PUGL_NOTHING;
+
+      if (blanked) {
+        puglMaybeDispatchEvent(view, PUGL_FLUSH);
+      }
+    }
+
+    event.type = PUGL_NOTHING;
     break;
   case WM_ERASEBKGND:
     return true;
@@ -1137,6 +1199,7 @@ puglUpdate(PuglWorld* world, double timeout)
     return PUGL_BAD_CALL;
   }
 
+  // Process incoming input events while there's time left
   if (timeout < 0.0) {
     WaitMessage();
     st = puglDispatchWinEvents(world);
@@ -1147,18 +1210,41 @@ puglUpdate(PuglWorld* world, double timeout)
     double       t       = startTime;
     while (!st && t < endTime) {
       const DWORD timeoutMs = (DWORD)((endTime - t) * 1e3);
-      MsgWaitForMultipleObjects(0, NULL, FALSE, timeoutMs, QS_ALLEVENTS);
+      MsgWaitForMultipleObjects(0, NULL, FALSE, timeoutMs, QS_ALLINPUT);
       st = puglDispatchWinEvents(world);
       t  = puglGetTime(world);
     }
   }
 
+  // Update and blank views if necessary
   for (size_t i = 0; i < world->numViews; ++i) {
-    if (puglGetVisible(world->views[i])) {
-      puglDispatchSimpleEvent(world->views[i], PUGL_UPDATE);
+    PuglView* const view = world->views[i];
+    if (puglGetVisible(view)) {
+      puglDispatchSimpleEvent(view, PUGL_UPDATE);
+      if (view->pendingExpose.type) {
+        puglMaybeDispatchEvent(view, PUGL_BLANK);
+      }
     }
+  }
 
-    UpdateWindow(world->views[i]->impl->hwnd);
+  // Dispatch any events that arrived while updating or blanking
+  st = puglDispatchWinEvents(world);
+
+  // Expose views as necessary
+  world->state = PUGL_WORLD_EXPOSING;
+  for (size_t i = 0; i < world->numViews; ++i) {
+    PuglView* const view     = world->views[i];
+    const PuglEvent expose   = view->pendingExpose;
+    view->pendingExpose.type = PUGL_NOTHING;
+    exposeView(view, &expose);
+  }
+
+  // Flush any views that were blanked/exposed
+  for (size_t i = 0; i < world->numViews; ++i) {
+    PuglView* const view = world->views[i];
+    if (view->drawState >= PUGL_BLANKED) {
+      puglMaybeDispatchEvent(view, PUGL_FLUSH);
+    }
   }
 
   world->state = startState;
@@ -1200,9 +1286,26 @@ puglGetTime(const PuglWorld* world)
 PuglStatus
 puglObscureView(PuglView* view)
 {
-  return view->world->state == PUGL_WORLD_EXPOSING
-           ? PUGL_BAD_CALL
-           : puglWinStatus(InvalidateRect(view->impl->hwnd, NULL, false));
+  PuglStatus st = PUGL_SUCCESS;
+
+  if (view->world->state == PUGL_WORLD_UPDATING) {
+    // Currently dispatching events, add/expand expose for the loop end
+    const PuglExposeEvent event = {PUGL_EXPOSE,
+                                   0,
+                                   0,
+                                   0,
+                                   view->lastConfigure.width,
+                                   view->lastConfigure.height};
+
+    puglExpandExposure(&view->pendingExpose.expose, &event);
+  } else if (view->world->state == PUGL_WORLD_EXPOSING) {
+    st = PUGL_BAD_CALL;
+  } else if (puglGetVisible(view)) {
+    // Not dispatching events, invalidate the window to be redrawn next time
+    st = puglWinStatus(InvalidateRect(view->impl->hwnd, NULL, false));
+  }
+
+  return st;
 }
 
 PuglStatus
@@ -1220,13 +1323,22 @@ puglObscureRegion(PuglView* const view,
     return PUGL_BAD_PARAMETER;
   }
 
-  const int      cx = MAX(0, x);
-  const int      cy = MAX(0, y);
-  const unsigned cw = MIN(view->lastConfigure.width, width);
-  const unsigned ch = MIN(view->lastConfigure.height, height);
+  if (view->world->state == PUGL_WORLD_UPDATING) {
+    // Currently dispatching events, expand pending expose for the loop end
+    const PuglExposeEvent event = {PUGL_EXPOSE,
+                                   0U,
+                                   (PuglCoord)x,
+                                   (PuglCoord)y,
+                                   (PuglSpan)width,
+                                   (PuglSpan)height};
 
-  const RECT r = {cx, cy, cx + (long)cw, cy + (long)ch};
-  return puglWinStatus(InvalidateRect(view->impl->hwnd, &r, false));
+    puglExpandExposure(&view->pendingExpose.expose, &event);
+  } else if (view->impl->hwnd) {
+    const RECT r = {x, y, x + (long)width, y + (long)height};
+    return puglWinStatus(InvalidateRect(view->impl->hwnd, &r, false));
+  }
+
+  return PUGL_SUCCESS;
 }
 
 PuglNativeView
@@ -1630,24 +1742,4 @@ puglWinConfigure(PuglView* view)
   }
 
   return st;
-}
-
-PuglStatus
-puglWinEnter(PuglView* view, const bool drawing)
-{
-  if (drawing) {
-    return puglWinStatus(!!BeginPaint(view->impl->hwnd, &view->impl->paint));
-  }
-
-  return PUGL_SUCCESS;
-}
-
-PuglStatus
-puglWinLeave(PuglView* view, const bool drawing)
-{
-  if (drawing) {
-    EndPaint(view->impl->hwnd, &view->impl->paint);
-  }
-
-  return PUGL_SUCCESS;
 }
