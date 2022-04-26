@@ -63,8 +63,7 @@ typedef struct {
   GLuint          vbo;
   GLuint          instanceVbo;
   GLuint          ibo;
-  double          lastDrawDuration;
-  double          lastFrameEndTime;
+  double          lastBlankTime;
   double          mouseX;
   double          mouseY;
   PuglArea        size;
@@ -79,15 +78,24 @@ static void
 teardownGl(PuglTestApp* app);
 
 static void
-beginFrame(PuglView* view, PuglSpan width, PuglSpan height)
+onBlank(PuglView* view, PuglSpan width, PuglSpan height)
 {
-  (void)view;
+  PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
+  app->lastBlankTime = puglGetTime(puglGetWorld(view));
+
+  // Clear surface and set up GL for drawing
   glEnable(GL_BLEND);
   glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ZERO);
   glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glViewport(0, 0, width, height);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  // Update projection matrix for 2D pixel-based window surface
+  mat4 proj;
+  mat4Ortho(proj, 0.0f, width, 0.0f, height, -1.0f, 1.0f);
+  glBufferData(GL_UNIFORM_BUFFER, sizeof(proj), &proj, GL_STREAM_DRAW);
 }
 
 static void
@@ -97,14 +105,6 @@ onExpose(PuglView* view)
   const PuglArea size = app->size;
   const double   time = puglGetTime(puglGetWorld(view));
 
-  beginFrame(view, size.width, size.height);
-
-  // Construct projection matrix for 2D window surface (in pixels)
-  mat4 proj;
-  mat4Ortho(proj, 0.0f, size.width, 0.0f, size.height, -1.0f, 1.0f);
-
-  // Clear and bind everything that is the same for every rect
-  glClear(GL_COLOR_BUFFER_BIT);
   glUseProgram(app->drawRect.program);
   glBindVertexArray(app->vao);
 
@@ -134,8 +134,6 @@ onExpose(PuglView* view)
     moveRect(&app->rects[i], i, app->numRects, size.width, size.height, time);
   }
 
-  glBufferData(GL_UNIFORM_BUFFER, sizeof(proj), &proj, GL_STREAM_DRAW);
-
   glBufferSubData(GL_ARRAY_BUFFER,
                   0,
                   (GLsizeiptr)((app->numRects + 2) * sizeof(Rect)),
@@ -146,11 +144,14 @@ onExpose(PuglView* view)
                           GL_UNSIGNED_INT,
                           NULL,
                           (GLsizei)((app->numRects + 2) * 4));
+}
+
+static void
+onFlush(PuglView* view)
+{
+  PuglTestApp* const app = (PuglTestApp*)puglGetHandle(view);
 
   ++app->framesDrawn;
-
-  app->lastFrameEndTime = puglGetTime(puglGetWorld(view));
-  app->lastDrawDuration = app->lastFrameEndTime - time;
 }
 
 static PuglStatus
@@ -174,8 +175,14 @@ onEvent(PuglView* view, const PuglEvent* event)
   case PUGL_UPDATE:
     puglObscureView(view);
     break;
+  case PUGL_BLANK:
+    onBlank(view, app->size.width, app->size.height);
+    break;
   case PUGL_EXPOSE:
     onExpose(view);
+    break;
+  case PUGL_FLUSH:
+    onFlush(view);
     break;
   case PUGL_CLOSE:
     app->quit = 1;
@@ -471,12 +478,10 @@ updateTimeout(const PuglTestApp* const app)
      as the timeout for puglUpdate().
   */
 
-  const int    refreshRate      = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
-  const double now              = puglGetTime(app->world);
-  const double nextFrameEndTime = app->lastFrameEndTime + (1.0 / refreshRate);
-  const double neededTime       = 1.5 * app->lastDrawDuration;
-  const double nextExposeTime   = nextFrameEndTime - neededTime;
-  const double timeUntilNext    = nextExposeTime - now;
+  const int    refreshRate   = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
+  const double now           = puglGetTime(app->world);
+  const double nextBlankTime = app->lastBlankTime + (1.0 / refreshRate);
+  const double timeUntilNext = nextBlankTime - now;
 
   return fmax(0.0, (timeUntilNext * 0.9) - 0.001);
 }

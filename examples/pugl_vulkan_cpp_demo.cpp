@@ -1429,7 +1429,9 @@ public:
 
   pugl::Status onEvent(const pugl::ConfigureEvent& event);
   pugl::Status onEvent(const pugl::UpdateEvent& event);
+  pugl::Status onEvent(const pugl::BlankEvent& event);
   pugl::Status onEvent(const pugl::ExposeEvent& event);
+  pugl::Status onEvent(const pugl::FlushEvent& event);
   pugl::Status onEvent(const pugl::LoopEnterEvent& event);
   pugl::Status onEvent(const pugl::TimerEvent& event);
   pugl::Status onEvent(const pugl::LoopLeaveEvent& event);
@@ -1437,8 +1439,11 @@ public:
   pugl::Status onEvent(const pugl::CloseEvent& event);
   pugl::Status onEvent(const pugl::MotionEvent& event);
 
+  double lastBlankTime() const { return _lastBlankTime; }
+
 private:
   PuglVulkanDemo& _app;
+  double          _lastBlankTime{};
 };
 
 class PuglVulkanDemo
@@ -1460,6 +1465,7 @@ public:
   RectShaders        rectShaders;
   uint32_t           framesDrawn{0};
   VkExtent2D         extent{512U, 512U};
+  uint32_t           nextImageIndex{UINT32_MAX};
   std::vector<Rect>  rects;
   double             mouseX{0.0};
   double             mouseY{0.0};
@@ -1576,24 +1582,44 @@ beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
   return VK_SUCCESS;
 }
 
-void
-update(PuglVulkanDemo& app, const double time)
+pugl::Status
+View::onEvent(const pugl::BlankEvent&)
 {
+  const double time = _app.world.time();
+
   // Animate rectangles (except mouse cursor)
-  for (size_t i = 0; i < app.rects.size() - 2U; ++i) {
-    moveRect(&app.rects[i],
+  for (size_t i = 0; i < _app.rects.size() - 2U; ++i) {
+    moveRect(&_app.rects[i],
              i,
-             app.rects.size(),
-             static_cast<float>(app.extent.width),
-             static_cast<float>(app.extent.height),
+             _app.rects.size(),
+             static_cast<float>(_app.extent.width),
+             static_cast<float>(_app.extent.height),
              time);
   }
 
-  const auto mouseX = static_cast<float>(app.mouseX);
-  const auto mouseY = static_cast<float>(app.mouseY);
+  // Acquire the next image, waiting and/or rebuilding if necessary
+  assert(_app.nextImageIndex == UINT32_MAX);
+  if (beginFrame(_app, _app.nextImageIndex)) {
+    return pugl::Status::unknownError;
+  }
+
+  _lastBlankTime = time;
+
+  // Animate rectangles (except mouse cursor)
+  for (size_t i = 0; i < _app.rects.size() - 2U; ++i) {
+    moveRect(&_app.rects[i],
+             i,
+             _app.rects.size(),
+             static_cast<float>(_app.extent.width),
+             static_cast<float>(_app.extent.height),
+             _lastBlankTime);
+  }
+
+  const auto mouseX = static_cast<float>(_app.mouseX);
+  const auto mouseY = static_cast<float>(_app.mouseY);
 
   // Update horizontal mouse cursor line (last rect)
-  Rect* const mouseH   = &app.rects[app.rects.size() - 1U];
+  Rect* const mouseH   = &_app.rects[_app.rects.size() - 1U];
   mouseH->pos[0]       = mouseX - 8.0f;
   mouseH->pos[1]       = mouseY - 1.0f;
   mouseH->size[0]      = 16.0f;
@@ -1604,7 +1630,7 @@ update(PuglVulkanDemo& app, const double time)
   mouseH->fillColor[3] = 0.5f;
 
   // Update vertical mouse cursor line (second last rect)
-  Rect* const mouseV   = &app.rects[app.rects.size() - 2U];
+  Rect* const mouseV   = &_app.rects[_app.rects.size() - 2U];
   mouseV->pos[0]       = mouseX - 2.0f;
   mouseV->pos[1]       = mouseY - 8.0f;
   mouseV->size[0]      = 2.0f;
@@ -1614,22 +1640,7 @@ update(PuglVulkanDemo& app, const double time)
   mouseV->fillColor[2] = 1.0f;
   mouseV->fillColor[3] = 0.5f;
 
-  // Update vertex buffer
-  memcpy(app.rectData.vertexData.get(),
-         app.rects.data(),
-         sizeof(Rect) * app.rects.size());
-
-  // Update uniform buffer
-  UniformBufferObject ubo = {{}};
-  mat4Ortho(ubo.projection,
-            0.0f,
-            static_cast<float>(app.renderer.swapchain.extent.width),
-            0.0f,
-            static_cast<float>(app.renderer.swapchain.extent.height),
-            -1.0f,
-            1.0f);
-
-  memcpy(app.rectData.uniformData.get(), &ubo, sizeof(ubo));
+  return pugl::Status::success;
 }
 
 VkResult
@@ -1682,17 +1693,36 @@ endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
 pugl::Status
 View::onEvent(const pugl::ExposeEvent&)
 {
-  // Acquire the next image, waiting and/or rebuilding if necessary
-  auto nextImageIndex = 0U;
-  if (beginFrame(_app, nextImageIndex)) {
-    return pugl::Status::unknownError;
-  }
+  assert(_app.nextImageIndex != UINT32_MAX);
 
-  // Ready to go, update the data to the current time
-  update(_app, world().time());
+  // Update vertex buffer
+  memcpy(_app.rectData.vertexData.get(),
+         _app.rects.data(),
+         sizeof(Rect) * _app.rects.size());
+
+  // Update uniform buffer
+  UniformBufferObject ubo = {{}};
+  mat4Ortho(ubo.projection,
+            0.0f,
+            float(_app.renderer.swapchain.extent.width),
+            0.0f,
+            float(_app.renderer.swapchain.extent.height),
+            -1.0f,
+            1.0f);
+
+  memcpy(_app.rectData.uniformData.get(), &ubo, sizeof(ubo));
+
+  return pugl::Status::success;
+}
+
+pugl::Status
+View::onEvent(const pugl::FlushEvent&)
+{
+  assert(_app.nextImageIndex != UINT32_MAX);
 
   // Submit the frame to the queue and present it
-  endFrame(_app, nextImageIndex);
+  endFrame(_app, _app.nextImageIndex);
+  _app.nextImageIndex = UINT32_MAX;
 
   // Update frame counters
   ++_app.framesDrawn;
@@ -1735,7 +1765,7 @@ View::onEvent(const pugl::KeyPressEvent& event)
     _app.quit = true;
   }
 
-  return pugl::Status::success;
+  return _app.opts.continuous ? pugl::Status::success : obscure();
 }
 
 pugl::Status
@@ -1744,7 +1774,7 @@ View::onEvent(const pugl::MotionEvent& event)
   _app.mouseX = event.x;
   _app.mouseY = event.y;
 
-  return pugl::Status::success;
+  return _app.opts.continuous ? pugl::Status::success : obscure();
 }
 
 pugl::Status
@@ -1847,13 +1877,21 @@ run(const char* const      programPath,
                        app.renderer.rectPipeline,
                        app.rectData);
 
-  const int    refreshRate   = app.view.getHint(pugl::ViewHint::refreshRate);
-  const double frameDuration = 1.0 / static_cast<double>(refreshRate);
-  const double timeout       = app.opts.sync ? frameDuration * 0.8 : 0.0;
+  const int    refreshRate = app.view.getHint(pugl::ViewHint::refreshRate);
+  const double framePeriod = 1.0 / static_cast<double>(refreshRate);
 
   PuglFpsPrinter fpsPrinter = {app.world.time()};
   app.view.show(pugl::ShowCommand::passive);
+  app.view.obscure();
+
   while (!app.quit) {
+    const double now      = app.world.time();
+    const double nextTime = app.view.lastBlankTime() + framePeriod;
+    const double timeout =
+      app.opts.continuous
+        ? (app.opts.sync ? ((now < nextTime) ? (nextTime - now) : 0.0) : 0.0)
+        : -1.0;
+
     app.world.update(timeout);
     puglPrintFps(app.world.cobj(), &fpsPrinter, &app.framesDrawn);
   }
