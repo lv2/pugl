@@ -3,6 +3,7 @@
 
 #include "internal.h"
 
+#include "macros.h"
 #include "types.h"
 
 #include <pugl/pugl.h>
@@ -256,6 +257,24 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 
   const PuglEvent event = {{type, 0U}};
   return puglDispatchEvent(view, &event);
+}
+
+void
+puglExpandExposure(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
+{
+  if (!dst->type) {
+    if (src->width > 0.0 && src->height > 0.0) {
+      *dst = *src;
+    }
+  } else {
+    const int max_x = MAX(dst->x + dst->width, src->x + src->width);
+    const int max_y = MAX(dst->y + dst->height, src->y + src->height);
+
+    dst->x      = MIN(dst->x, src->x);
+    dst->y      = MIN(dst->y, src->y);
+    dst->width  = (PuglSpan)(max_x - dst->x);
+    dst->height = (PuglSpan)(max_y - dst->y);
+  }
 }
 
 PuglStatus

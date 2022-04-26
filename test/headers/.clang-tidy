@@ -5,6 +5,7 @@ Checks: >
   *,
   -*-magic-numbers,
   -altera-*,
+  -bugprone-tagged-union-member-count,
   -llvmlibc-*,
 CheckOptions:
   - key:   readability-function-cognitive-complexity.Threshold

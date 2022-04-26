@@ -80,6 +80,10 @@ puglPreRealize(PuglView* view);
 PuglStatus
 puglDispatchSimpleEvent(PuglView* view, PuglEventType type);
 
+/// Expand a pending exposure to include a new region
+void
+puglExpandExposure(PuglExposeEvent* dst, const PuglExposeEvent* src);
+
 /// Dispatch `event` to `view`, entering graphics context if necessary
 PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event);

@@ -7,6 +7,7 @@ Checks: >
   -altera*,
   -bugprone-assignment-in-if-condition,
   -bugprone-switch-missing-default-case,
+  -bugprone-tagged-union-member-count,
   -clang-diagnostic-unused-function,
   -clang-diagnostic-unused-macros,
   -llvmlibc-*,

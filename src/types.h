@@ -52,6 +52,7 @@ struct PuglViewImpl {
   PuglNativeView     parent;
   uintptr_t          transientParent;
   PuglConfigureEvent lastConfigure;
+  PuglEvent          pendingExpose;
   PuglHints          hints;
   PuglPoint          positionHints[PUGL_NUM_POSITION_HINTS];
   PuglArea           sizeHints[PUGL_NUM_SIZE_HINTS];
