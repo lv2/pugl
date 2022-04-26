@@ -1,4 +1,4 @@
-// Copyright 2019-2023 David Robillard <d@drobilla.net>
+// Copyright 2019-2025 David Robillard <d@drobilla.net>
 // Copyright 2019 Jordan Halase <jordan@halase.me>
 // SPDX-License-Identifier: ISC
 
@@ -19,6 +19,7 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -75,6 +76,7 @@ typedef struct {
   VkCommandPool              commandPool;
   Swapchain*                 swapchain;
   Sync                       sync;
+  uint32_t                   imageIndex;
 } VulkanState;
 
 /// Complete application
@@ -923,12 +925,11 @@ recreateSwapchain(VulkanState* const vk,
 }
 
 static PuglStatus
-onExpose(PuglView* const view)
+onBlank(PuglView* const view)
 {
-  VulkanApp*   app        = (VulkanApp*)puglGetHandle(view);
-  VulkanState* vk         = &app->vk;
-  uint32_t     imageIndex = 0;
-  VkResult     result     = VK_SUCCESS;
+  VulkanApp* const   app    = (VulkanApp*)puglGetHandle(view);
+  VulkanState* const vk     = &app->vk;
+  VkResult           result = VK_SUCCESS;
 
   // Recreate swapchain if the window size has changed
   const Swapchain* swapchain = vk->swapchain;
@@ -943,7 +944,7 @@ onExpose(PuglView* const view)
                                          UINT64_MAX,
                                          vk->sync.presentComplete,
                                          VK_NULL_HANDLE,
-                                         &imageIndex))) {
+                                         &vk->imageIndex))) {
     switch (result) {
     case VK_SUCCESS:
       break;
@@ -959,10 +960,23 @@ onExpose(PuglView* const view)
 
   // Wait until we can start rendering this frame
   vkWaitForFences(vk->device,
-                  COUNTED(1, &vk->swapchain->fences[imageIndex]),
+                  COUNTED(1, &vk->swapchain->fences[vk->imageIndex]),
                   VK_TRUE,
                   UINT64_MAX);
-  vkResetFences(vk->device, 1, &vk->swapchain->fences[imageIndex]);
+  vkResetFences(vk->device, 1, &vk->swapchain->fences[vk->imageIndex]);
+
+  return result ? PUGL_UNKNOWN_ERROR : PUGL_SUCCESS;
+}
+
+static PuglStatus
+onExpose(PuglView* const view)
+{
+  VulkanApp*     app        = (VulkanApp*)puglGetHandle(view);
+  VulkanState*   vk         = &app->vk;
+  const uint32_t imageIndex = vk->imageIndex;
+  VkResult       result     = VK_SUCCESS;
+
+  assert(imageIndex != UINT32_MAX);
 
   const VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 
@@ -982,6 +996,19 @@ onExpose(PuglView* const view)
     return PUGL_FAILURE;
   }
 
+  return PUGL_SUCCESS;
+}
+
+static PuglStatus
+onFlush(PuglView* const view)
+{
+  VulkanApp*     app        = (VulkanApp*)puglGetHandle(view);
+  VulkanState*   vk         = &app->vk;
+  const uint32_t imageIndex = vk->imageIndex;
+  VkResult       result     = VK_SUCCESS;
+
+  assert(imageIndex != UINT32_MAX);
+
   // Present this frame
   const VkPresentInfoKHR presentInfo = {
     VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
@@ -997,6 +1024,7 @@ onExpose(PuglView* const view)
     ++app->framesDrawn;
   }
 
+  vk->imageIndex = UINT32_MAX;
   return PUGL_SUCCESS;
 }
 
@@ -1010,8 +1038,12 @@ onEvent(PuglView* const view, const PuglEvent* const e)
   switch (e->type) {
   case PUGL_UPDATE:
     return app->opts.continuous ? puglObscureView(view) : PUGL_SUCCESS;
+  case PUGL_BLANK:
+    return onBlank(view);
   case PUGL_EXPOSE:
     return onExpose(view);
+  case PUGL_FLUSH:
+    return onFlush(view);
   case PUGL_CONFIGURE:
     return onConfigure(view, e->configure.width, e->configure.height);
   case PUGL_CLOSE:
