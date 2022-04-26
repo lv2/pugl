@@ -729,7 +729,7 @@ puglUnrealize(PuglView* const view)
   impl->vi = NULL;
 
   memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
-  memset(&view->impl->pendingExpose, 0, sizeof(PuglEvent));
+  memset(&view->pendingExpose, 0, sizeof(PuglEvent));
   return PUGL_SUCCESS;
 }
 
@@ -1506,28 +1506,6 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
   return PUGL_UNSUPPORTED;
 }
 
-static void
-mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
-{
-  if (!dst->type) {
-    if (src->width && src->height) {
-      *dst = *src;
-    }
-  } else {
-    const int dst_r = dst->x + dst->width;
-    const int src_r = src->x + src->width;
-    const int max_x = MAX(dst_r, src_r);
-    const int dst_b = dst->y + dst->height;
-    const int src_b = src->y + src->height;
-    const int max_y = MAX(dst_b, src_b);
-
-    dst->x      = (PuglCoord)MIN(dst->x, src->x);
-    dst->y      = (PuglCoord)MIN(dst->y, src->y);
-    dst->width  = (PuglSpan)(max_x - dst->x);
-    dst->height = (PuglSpan)(max_y - dst->y);
-  }
-}
-
 static PuglStatus
 retrieveSelection(const PuglWorld* const world,
                   PuglView* const        view,
@@ -1680,11 +1658,11 @@ flushExposures(PuglWorld* const world)
     PuglView* const view = world->views[i];
 
     if (puglGetVisible(view)) {
-      const PuglEvent expose = view->impl->pendingExpose;
+      const PuglEvent expose = view->pendingExpose;
       if (expose.type && !(st0 = view->backend->enter(view, &expose.expose))) {
-        st0 = view->eventFunc(view, &expose);
-        st1 = view->backend->leave(view, &expose.expose);
-        view->impl->pendingExpose.type = PUGL_NOTHING;
+        st0                      = view->eventFunc(view, &expose);
+        st1                      = view->backend->leave(view, &expose.expose);
+        view->pendingExpose.type = PUGL_NOTHING;
       }
     }
   }
@@ -1772,7 +1750,7 @@ dispatchX11Events(PuglWorld* const world)
     switch (event.type) {
     case PUGL_EXPOSE:
       // Expand expose event to be dispatched after loop
-      mergeExposeEvents(&view->impl->pendingExpose.expose, &event.expose);
+      puglExpandExposure(&view->pendingExpose.expose, &event.expose);
       break;
     case PUGL_FOCUS_IN:
       // Set the input context focus
@@ -1873,7 +1851,7 @@ puglObscureRegion(PuglView* const view,
   PuglStatus st = PUGL_SUCCESS;
   if (view->world->state == PUGL_WORLD_UPDATING) {
     // Currently dispatching events, add/expand expose for the loop end
-    mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
+    puglExpandExposure(&view->pendingExpose.expose, &event);
   } else if (view->world->state == PUGL_WORLD_EXPOSING) {
     st = PUGL_BAD_CALL;
   } else if (view->impl->win) {
