@@ -135,6 +135,9 @@ static PuglStatus
 puglMacGlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 {
   PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
+  if (!drawView) {
+    return PUGL_FAILURE;
+  }
 
   [[drawView openGLContext] makeCurrentContext];
   return PUGL_SUCCESS;

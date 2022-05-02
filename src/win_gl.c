@@ -258,6 +258,9 @@ static PuglStatus
 puglWinGlEnter(PuglView* view, const PuglExposeEvent* expose)
 {
   PuglWinGlSurface* surface = (PuglWinGlSurface*)view->impl->surface;
+  if (!surface || !surface->hglrc) {
+    return PUGL_FAILURE;
+  }
 
   wglMakeCurrent(view->impl->hdc, surface->hglrc);
 
