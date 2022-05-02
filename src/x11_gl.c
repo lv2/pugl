@@ -103,6 +103,9 @@ static PuglStatus
 puglX11GlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 {
   PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
+  if (!surface || !surface->ctx) {
+    return PUGL_FAILURE;
+  }
 
   return glXMakeCurrent(view->impl->display, view->impl->win, surface->ctx)
            ? PUGL_SUCCESS
