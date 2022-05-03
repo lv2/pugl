@@ -65,7 +65,8 @@ cairo_tests = [
 
 gl_tests = [
   'gl',
-  'gl_hints'
+  'gl_free_unrealized',
+  'gl_hints',
 ]
 
 vulkan_tests = [
