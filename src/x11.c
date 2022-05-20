@@ -989,7 +989,7 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
              : PUGL_UNKNOWN_ERROR;
   }
 
-  return PUGL_UNSUPPORTED_TYPE;
+  return PUGL_UNSUPPORTED;
 }
 
 #ifndef PUGL_DISABLE_DEPRECATED

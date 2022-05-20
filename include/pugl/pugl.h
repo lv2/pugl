@@ -585,7 +585,7 @@ typedef enum {
   PUGL_REALIZE_FAILED,        ///< System view realization failed
   PUGL_SET_FORMAT_FAILED,     ///< Failed to set pixel format
   PUGL_CREATE_CONTEXT_FAILED, ///< Failed to create drawing context
-  PUGL_UNSUPPORTED_TYPE,      ///< Unsupported data type
+  PUGL_UNSUPPORTED,           ///< Unsupported operation
 } PuglStatus;
 
 /// Return a string describing a status code
@@ -1302,8 +1302,8 @@ puglStopTimer(PuglView* view, uintptr_t id);
    puglPostRedisplayRect(), but will always send a message to the X server,
    even when called in an event handler.
 
-   @return #PUGL_UNSUPPORTED_TYPE if sending events of this type is not
-   supported, #PUGL_UNKNOWN_ERROR if sending the event failed.
+   @return #PUGL_UNSUPPORTED if sending events of this type is not supported,
+   #PUGL_UNKNOWN_ERROR if sending the event failed.
 */
 PUGL_API
 PuglStatus

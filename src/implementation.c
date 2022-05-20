@@ -28,7 +28,7 @@ puglStrerror(const PuglStatus status)
   case PUGL_REALIZE_FAILED:        return "View creation failed";
   case PUGL_SET_FORMAT_FAILED:     return "Failed to set pixel format";
   case PUGL_CREATE_CONTEXT_FAILED: return "Failed to create drawing context";
-  case PUGL_UNSUPPORTED_TYPE:      return "Unsupported data type";
+  case PUGL_UNSUPPORTED:      return "Unsupported operation";
   }
   // clang-format on
 
@@ -489,7 +489,7 @@ puglSetInternalClipboard(PuglView* const   view,
                          const size_t      len)
 {
   if (type && !!strcmp(type, "text/plain")) {
-    return PUGL_UNSUPPORTED_TYPE;
+    return PUGL_UNSUPPORTED;
   }
 
   puglSetBlob(&view->clipboard, data, len);

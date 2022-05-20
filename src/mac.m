@@ -1204,7 +1204,7 @@ puglSendEvent(PuglView* view, const PuglEvent* event)
     return PUGL_SUCCESS;
   }
 
-  return PUGL_UNSUPPORTED_TYPE;
+  return PUGL_UNSUPPORTED;
 }
 
 #ifndef PUGL_DISABLE_DEPRECATED

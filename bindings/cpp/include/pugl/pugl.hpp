@@ -195,10 +195,10 @@ enum class Status {
   realizeFailed,       ///< @copydoc PUGL_REALIZE_FAILED
   setFormatFailed,     ///< @copydoc PUGL_SET_FORMAT_FAILED
   createContextFailed, ///< @copydoc PUGL_CREATE_CONTEXT_FAILED
-  unsupportedType,     ///< @copydoc PUGL_UNSUPPORTED_TYPE
+  unsupported,         ///< @copydoc PUGL_UNSUPPORTED
 };
 
-static_assert(Status(PUGL_UNSUPPORTED_TYPE) == Status::unsupportedType, "");
+static_assert(Status(PUGL_UNSUPPORTED) == Status::unsupported, "");
 
 /// @copydoc puglStrerror
 inline const char*
