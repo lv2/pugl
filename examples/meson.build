@@ -4,10 +4,14 @@
 data_dir = get_option('prefix') / get_option('datadir') / 'pugl-0'
 example_defines = ['-DPUGL_DATA_DIR="@0@"'.format(data_dir)]
 
+stub_examples = [
+  'pugl_print_events.c',
+]
+
 gl_examples = [
   'pugl_cpp_demo.cpp',
+  'pugl_cursor_demo.c',
   'pugl_embed_demo.c',
-  'pugl_print_events.c',
   'pugl_shader_demo.c',
   'pugl_window_demo.c',
 ]
@@ -77,7 +81,6 @@ subdir('shaders')
 if host_machine.system() == 'darwin'
   # On Darwin, build examples as application bundles (required to work properly)
 
-  subdir('pugl_cursor_demo.app')
 
   if cairo_dep.found()
     subdir('pugl_cairo_demo.app')
@@ -85,6 +88,7 @@ if host_machine.system() == 'darwin'
 
   if opengl_dep.found()
     subdir('pugl_cpp_demo.app')
+    subdir('pugl_cursor_demo.app')
     subdir('pugl_embed_demo.app')
     subdir('pugl_shader_demo.app')
     subdir('pugl_window_demo.app')
@@ -98,12 +102,26 @@ if host_machine.system() == 'darwin'
 else
   # On all other platforms, build examples as simple programs
 
+  # Build stub examples
+  foreach example : stub_examples
+    source = [example]
+    target = example.split('.')[0]
+    dependencies = [pugl_dep, stub_backend_dep]
+    defines = []
+
+    executable(target, source,
+               include_directories: includes,
+               c_args: example_defines + example_c_args + defines,
+               cpp_args: example_defines + example_cpp_args + defines,
+               dependencies: dependencies)
+  endforeach
+
   # Build GL examples
   if opengl_dep.found()
     foreach example : gl_examples
       source = [example]
       target = example.split('.')[0]
-      dependencies = [gl_backend_dep]
+      dependencies = [pugl_dep, gl_backend_dep]
       defines = []
 
       if target == 'pugl_shader_demo'
