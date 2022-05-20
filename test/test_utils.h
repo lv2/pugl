@@ -92,8 +92,10 @@ scrollDirectionString(const PuglScrollDirection direction)
 static inline int
 printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 {
-#define FFMT "%6.1f"
-#define PFMT FFMT " " FFMT
+#define PFFMT "%6.1f %6.1f"
+#define PIFMT "%5d %5d"
+#define PUFMT "%5u %5u"
+
 #define PRINT(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
 
   switch (event->type) {
@@ -125,7 +127,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
                  event->text.string);
   case PUGL_BUTTON_PRESS:
   case PUGL_BUTTON_RELEASE:
-    return (PRINT("%sMouse %u %s at " PFMT " ",
+    return (PRINT("%sMouse %u %s at " PFFMT " ",
                   prefix,
                   event->button.button,
                   (event->type == PUGL_BUTTON_PRESS) ? "down" : "up  ",
@@ -133,7 +135,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
                   event->button.y) +
             printModifiers(event->scroll.state));
   case PUGL_SCROLL:
-    return (PRINT("%sScroll %5.1f %5.1f (%s) at " PFMT " ",
+    return (PRINT("%sScroll %5.1f %5.1f (%s) at " PFFMT " ",
                   prefix,
                   event->scroll.dx,
                   event->scroll.dy,
@@ -142,13 +144,13 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
                   event->scroll.y) +
             printModifiers(event->scroll.state));
   case PUGL_POINTER_IN:
-    return PRINT("%sMouse enter  at " PFMT " (%s)\n",
+    return PRINT("%sMouse enter  at " PFFMT " (%s)\n",
                  prefix,
                  event->crossing.x,
                  event->crossing.y,
                  crossingModeString(event->crossing.mode));
   case PUGL_POINTER_OUT:
-    return PRINT("%sMouse leave  at " PFMT " (%s)\n",
+    return PRINT("%sMouse leave  at " PFFMT " (%s)\n",
                  prefix,
                  event->crossing.x,
                  event->crossing.y,
@@ -177,14 +179,14 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     case PUGL_UPDATE:
       return fprintf(stderr, "%sUpdate\n", prefix);
     case PUGL_CONFIGURE:
-      return PRINT("%sConfigure " PFMT " " PFMT "\n",
+      return PRINT("%sConfigure " PIFMT " " PUFMT "\n",
                    prefix,
                    event->configure.x,
                    event->configure.y,
                    event->configure.width,
                    event->configure.height);
     case PUGL_EXPOSE:
-      return PRINT("%sExpose    " PFMT " " PFMT "\n",
+      return PRINT("%sExpose    " PIFMT " " PUFMT "\n",
                    prefix,
                    event->expose.x,
                    event->expose.y,
@@ -193,7 +195,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     case PUGL_CLOSE:
       return PRINT("%sClose\n", prefix);
     case PUGL_MOTION:
-      return PRINT("%sMouse motion at " PFMT "\n",
+      return PRINT("%sMouse motion at " PFFMT "\n",
                    prefix,
                    event->motion.x,
                    event->motion.y);
@@ -205,8 +207,9 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
   }
 
 #undef PRINT
-#undef PFMT
-#undef FFMT
+#undef PUFMT
+#undef PIFMT
+#undef PFFMT
 
   return 0;
 }

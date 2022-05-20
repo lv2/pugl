@@ -60,6 +60,18 @@ PUGL_BEGIN_DECLS
 */
 
 /**
+   A pixel coordinate within/of a view.
+
+   This is relative to the top left corner of the view's parent, or to the top
+   left corner of the view itself, depending on the context.
+
+   There are platform-imposed limits on window positions.  For portability,
+   applications should keep coordinates between -16000 and 16000.  Note that
+   negative frame coordinates are possible, for example with multiple screens.
+*/
+typedef int16_t PuglCoord;
+
+/**
    A pixel span (width or height) within/of a view.
 
    Due to platform limits, the span of a view in either dimension should be
@@ -68,16 +80,20 @@ PUGL_BEGIN_DECLS
 typedef uint16_t PuglSpan;
 
 /**
-   A rectangle.
+   A rectangle in a view or on the screen.
 
-   This is used to describe things like view position and size.  Pugl generally
-   uses coordinates where the top left corner is 0,0.
+   This type is used to describe two things: the position and size of a view
+   (for configuring), or a rectangle within a view (for exposing).
+
+   The coordinate (0, 0) represents the top-left pixel of the parent window (or
+   display if there isn't one), or the top-left pixel of the view,
+   respectively.
 */
 typedef struct {
-  double x;
-  double y;
-  double width;
-  double height;
+  PuglCoord x;
+  PuglCoord y;
+  PuglSpan  width;
+  PuglSpan  height;
 } PuglRect;
 
 /**
@@ -267,10 +283,10 @@ typedef PuglAnyEvent PuglDestroyEvent;
 typedef struct {
   PuglEventType  type;   ///< #PUGL_CONFIGURE
   PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
-  double         x;      ///< New parent-relative X coordinate
-  double         y;      ///< New parent-relative Y coordinate
-  double         width;  ///< New width
-  double         height; ///< New height
+  PuglCoord      x;      ///< Parent-relative X coordinate of view
+  PuglCoord      y;      ///< Parent-relative Y coordinate of view
+  PuglSpan       width;  ///< Width of view
+  PuglSpan       height; ///< Height of view
 } PuglConfigureEvent;
 
 /**
@@ -313,10 +329,10 @@ typedef PuglAnyEvent PuglUpdateEvent;
 typedef struct {
   PuglEventType  type;   ///< #PUGL_EXPOSE
   PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
-  double         x;      ///< View-relative X coordinate
-  double         y;      ///< View-relative Y coordinate
-  double         width;  ///< Width of exposed region
-  double         height; ///< Height of exposed region
+  PuglCoord      x;      ///< View-relative top-left X coordinate of region
+  PuglCoord      y;      ///< View-relative top-left Y coordinate of region
+  PuglSpan       width;  ///< Width of exposed region
+  PuglSpan       height; ///< Height of exposed region
 } PuglExposeEvent;
 
 /**
@@ -1451,8 +1467,8 @@ puglInitWindowSize(PuglView* view, int width, int height)
 {
   PuglRect frame = puglGetFrame(view);
 
-  frame.width  = width;
-  frame.height = height;
+  frame.width  = (PuglSpan)width;
+  frame.height = (PuglSpan)height;
 
   puglSetFrame(view, frame);
 }

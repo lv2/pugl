@@ -97,10 +97,12 @@ updateViewRect(PuglView* view)
     const NSRect contentPx     = nsRectFromPoints(view, contentPt);
     const double screenHeight  = screenFramePx.size.height;
 
-    view->frame.x = contentPx.origin.x;
-    view->frame.y = screenHeight - contentPx.origin.y - contentPx.size.height;
-    view->frame.width  = contentPx.size.width;
-    view->frame.height = contentPx.size.height;
+    view->frame.x = (PuglCoord)contentPx.origin.x;
+    view->frame.y =
+      (PuglCoord)(screenHeight - contentPx.origin.y - contentPx.size.height);
+
+    view->frame.width  = (PuglSpan)contentPx.size.width;
+    view->frame.height = (PuglSpan)contentPx.size.height;
   }
 }
 
@@ -207,10 +209,10 @@ updateViewRect(PuglView* view)
   const PuglExposeEvent ev = {
     PUGL_EXPOSE,
     0,
-    rect.origin.x * scaleFactor,
-    rect.origin.y * scaleFactor,
-    rect.size.width * scaleFactor,
-    rect.size.height * scaleFactor,
+    (PuglCoord)(rect.origin.x * scaleFactor),
+    (PuglCoord)(rect.origin.y * scaleFactor),
+    (PuglSpan)(rect.size.width * scaleFactor),
+    (PuglSpan)(rect.size.height * scaleFactor),
   };
 
   PuglEvent exposeEvent;
@@ -985,8 +987,9 @@ puglRealize(PuglView* view)
 
     view->frame.width  = defaultSize.width;
     view->frame.height = defaultSize.height;
-    view->frame.x      = screenWidthPx / 2.0 - view->frame.width / 2.0;
-    view->frame.y      = screenHeightPx / 2.0 - view->frame.height / 2.0;
+
+    view->frame.x = (PuglCoord)((screenWidthPx - view->frame.width) / 2.0);
+    view->frame.y = (PuglCoord)((screenHeightPx - view->frame.height) / 2.0);
   }
 
   const NSRect framePx = rectToNsRect(view->frame);

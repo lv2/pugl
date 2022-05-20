@@ -339,12 +339,12 @@ puglRealize(PuglView* const view)
   }
 
   // Center top-level windows if a position has not been set
-  if (!view->parent && view->frame.x <= 0.0 && view->frame.y <= 0.0) {
+  if (!view->parent && !view->frame.x && !view->frame.y) {
     const int screenWidth  = DisplayWidth(display, screen);
     const int screenHeight = DisplayHeight(display, screen);
 
-    view->frame.x = screenWidth / 2.0 - view->frame.width / 2.0;
-    view->frame.y = screenHeight / 2.0 - view->frame.height / 2.0;
+    view->frame.x = (PuglCoord)((screenWidth - view->frame.width) / 2);
+    view->frame.y = (PuglCoord)((screenHeight - view->frame.height) / 2);
   }
 
   // Configure the backend to get the visual info
@@ -374,10 +374,10 @@ puglRealize(PuglView* const view)
   // Create the window
   impl->win = XCreateWindow(display,
                             parent,
-                            (int)view->frame.x,
-                            (int)view->frame.y,
-                            (unsigned)view->frame.width,
-                            (unsigned)view->frame.height,
+                            view->frame.x,
+                            view->frame.y,
+                            view->frame.width,
+                            view->frame.height,
                             0,
                             impl->vi->depth,
                             InputOutput,
@@ -698,17 +698,17 @@ translateEvent(PuglView* const view, XEvent xevent)
     break;
   case ConfigureNotify:
     event.type             = PUGL_CONFIGURE;
-    event.configure.x      = xevent.xconfigure.x;
-    event.configure.y      = xevent.xconfigure.y;
-    event.configure.width  = xevent.xconfigure.width;
-    event.configure.height = xevent.xconfigure.height;
+    event.configure.x      = (PuglCoord)xevent.xconfigure.x;
+    event.configure.y      = (PuglCoord)xevent.xconfigure.y;
+    event.configure.width  = (PuglSpan)xevent.xconfigure.width;
+    event.configure.height = (PuglSpan)xevent.xconfigure.height;
     break;
   case Expose:
     event.type          = PUGL_EXPOSE;
-    event.expose.x      = xevent.xexpose.x;
-    event.expose.y      = xevent.xexpose.y;
-    event.expose.width  = xevent.xexpose.width;
-    event.expose.height = xevent.xexpose.height;
+    event.expose.x      = (PuglCoord)xevent.xexpose.x;
+    event.expose.y      = (PuglCoord)xevent.xexpose.y;
+    event.expose.width  = (PuglSpan)xevent.xexpose.width;
+    event.expose.height = (PuglSpan)xevent.xexpose.height;
     break;
   case MotionNotify:
     event.type         = PUGL_MOTION;
@@ -1031,8 +1031,8 @@ mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
 
     dst->x      = MIN(dst->x, src->x);
     dst->y      = MIN(dst->y, src->y);
-    dst->width  = max_x - dst->x;
-    dst->height = max_y - dst->y;
+    dst->width  = (PuglSpan)(max_x - dst->x);
+    dst->height = (PuglSpan)(max_y - dst->y);
   }
 }
 
@@ -1240,10 +1240,10 @@ dispatchX11Events(PuglWorld* const world)
 
       // Build an initial configure event in case the WM doesn't send one
       PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
-      configureEvent.configure.x      = (double)attrs.x;
-      configureEvent.configure.y      = (double)attrs.y;
-      configureEvent.configure.width  = (double)attrs.width;
-      configureEvent.configure.height = (double)attrs.height;
+      configureEvent.configure.x      = (PuglCoord)attrs.x;
+      configureEvent.configure.y      = (PuglCoord)attrs.y;
+      configureEvent.configure.width  = (PuglSpan)attrs.width;
+      configureEvent.configure.height = (PuglSpan)attrs.height;
 
       // Dispatch an initial configure (if necessary), then the map event
       st0 = puglDispatchEvent(view, &configureEvent);
@@ -1369,10 +1369,10 @@ puglSetFrame(PuglView* const view, const PuglRect frame)
   if (view->impl->win) {
     if (!XMoveResizeWindow(view->world->impl->display,
                            view->impl->win,
-                           (int)frame.x,
-                           (int)frame.y,
-                           (unsigned)frame.width,
-                           (unsigned)frame.height)) {
+                           frame.x,
+                           frame.y,
+                           frame.width,
+                           frame.height)) {
       return PUGL_UNKNOWN_ERROR;
     }
   }

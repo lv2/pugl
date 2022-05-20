@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static const int       borderWidth    = 64;
+static const uint8_t   borderWidth    = 64u;
 static const uintptr_t reverseTimerId = 1u;
 
 typedef struct {
@@ -55,10 +55,11 @@ static const float backgroundColorVertices[] = {
 static PuglRect
 getChildFrame(const PuglRect parentFrame)
 {
-  const PuglRect childFrame = {borderWidth,
-                               borderWidth,
-                               parentFrame.width - 2 * borderWidth,
-                               parentFrame.height - 2 * borderWidth};
+  const PuglRect childFrame = {
+    borderWidth,
+    borderWidth,
+    (PuglSpan)(parentFrame.width - 2 * borderWidth),
+    (PuglSpan)(parentFrame.height - 2 * borderWidth)};
 
   return childFrame;
 }
@@ -118,26 +119,26 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event, const char* prefix)
     fprintf(stderr, "%sPaste \"%s\"\n", prefix, text);
   } else if (event->state & PUGL_MOD_SHIFT) {
     if (event->key == PUGL_KEY_UP) {
-      frame.height += 10;
+      frame.height = (PuglSpan)(frame.height + 10u);
     } else if (event->key == PUGL_KEY_DOWN) {
-      frame.height -= 10;
+      frame.height = (PuglSpan)(frame.height - 10u);
     } else if (event->key == PUGL_KEY_LEFT) {
-      frame.width -= 10;
+      frame.width = (PuglSpan)(frame.width - 10u);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      frame.width += 10;
+      frame.width = (PuglSpan)(frame.width + 10u);
     } else {
       return;
     }
     puglSetFrame(view, frame);
   } else {
     if (event->key == PUGL_KEY_UP) {
-      frame.y -= 10;
+      frame.y = (PuglCoord)(frame.y - 10);
     } else if (event->key == PUGL_KEY_DOWN) {
-      frame.y += 10;
+      frame.y = (PuglCoord)(frame.y + 10);
     } else if (event->key == PUGL_KEY_LEFT) {
-      frame.x -= 10;
+      frame.x = (PuglCoord)(frame.x - 10);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      frame.x += 10;
+      frame.x = (PuglCoord)(frame.x + 10);
     } else {
       return;
     }

@@ -89,7 +89,10 @@ puglMacCairoEnter(PuglView* view, const PuglExposeEvent* expose)
   const double scale = 1.0 / [[NSScreen mainScreen] backingScaleFactor];
   CGContextRef context =
     (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
-  const CGSize sizePx = {view->frame.width, view->frame.height};
+
+  const CGSize sizePx = {(CGFloat)view->frame.width,
+                         (CGFloat)view->frame.height};
+
   const CGSize sizePt = CGContextConvertSizeToUserSpace(context, sizePx);
 
   // Convert coordinates to standard Cairo space

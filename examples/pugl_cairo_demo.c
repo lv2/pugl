@@ -101,10 +101,10 @@ postButtonRedisplay(PuglView* view)
 
   for (const Button* b = buttons; b->label; ++b) {
     const double   span = sqrt(b->w * b->w + b->h * b->h);
-    const PuglRect rect = {(b->x - span) * scaleX,
-                           (b->y - span) * scaleY,
-                           span * 2.0 * scaleX,
-                           span * 2.0 * scaleY};
+    const PuglRect rect = {(PuglCoord)((b->x - span) * scaleX),
+                           (PuglCoord)((b->y - span) * scaleY),
+                           (PuglSpan)ceil(span * 2.0 * scaleX),
+                           (PuglSpan)ceil(span * 2.0 * scaleY)};
 
     puglPostRedisplayRect(view, rect);
   }
