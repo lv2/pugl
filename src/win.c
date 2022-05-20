@@ -984,17 +984,27 @@ puglSetWindowTitle(PuglView* view, const char* title)
   return PUGL_SUCCESS;
 }
 
+static RECT
+adjustedWindowRect(PuglView* const view,
+                   const long      x,
+                   const long      y,
+                   const long      width,
+                   const long      height)
+{
+  const unsigned flags   = puglWinGetWindowFlags(view);
+  const unsigned exFlags = puglWinGetWindowExFlags(view);
+
+  RECT rect = {(long)x, (long)y, (long)x + (long)width, (long)y + (long)height};
+  AdjustWindowRectEx(&rect, flags, FALSE, exFlags);
+  return rect;
+}
+
 PuglStatus
 puglSetFrame(PuglView* view, const PuglRect frame)
 {
   if (view->impl->hwnd) {
-    RECT rect = {(long)frame.x,
-                 (long)frame.y,
-                 (long)frame.x + (long)frame.width,
-                 (long)frame.y + (long)frame.height};
-
-    AdjustWindowRectEx(
-      &rect, puglWinGetWindowFlags(view), FALSE, puglWinGetWindowExFlags(view));
+    const RECT rect =
+      adjustedWindowRect(view, frame.x, frame.y, frame.width, frame.height);
 
     if (!SetWindowPos(view->impl->hwnd,
                       HWND_TOP,
@@ -1012,12 +1022,68 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 }
 
 PuglStatus
+puglSetPosition(PuglView* const view, const int x, const int y)
+{
+  if (x > INT16_MAX || y > INT16_MAX) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  if (view->impl->hwnd) {
+    const RECT rect =
+      adjustedWindowRect(view, x, y, view->frame.width, view->frame.height);
+
+    if (!SetWindowPos(view->impl->hwnd,
+                      HWND_TOP,
+                      rect.left,
+                      rect.top,
+                      0,
+                      0,
+                      SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER |
+                        SWP_NOSIZE)) {
+      return PUGL_UNKNOWN_ERROR;
+    }
+  }
+
+  view->frame.x = (PuglCoord)x;
+  view->frame.y = (PuglCoord)y;
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
+{
+  if (width > INT16_MAX || height > INT16_MAX) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  if (view->impl->hwnd) {
+    const RECT rect = adjustedWindowRect(
+      view, view->frame.x, view->frame.y, (long)width, (long)height);
+
+    if (!SetWindowPos(view->impl->hwnd,
+                      HWND_TOP,
+                      0,
+                      0,
+                      rect.right - rect.left,
+                      rect.bottom - rect.top,
+                      SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER |
+                        SWP_NOMOVE)) {
+      return PUGL_UNKNOWN_ERROR;
+    }
+  }
+
+  view->frame.width  = (PuglSpan)width;
+  view->frame.height = (PuglSpan)height;
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglSetSizeHint(PuglView* const    view,
                 const PuglSizeHint hint,
                 const PuglSpan     width,
                 const PuglSpan     height)
 {
-  if ((unsigned)hint > (unsigned)PUGL_MAX_ASPECT || width < 0 || height < 0) {
+  if ((unsigned)hint > (unsigned)PUGL_MAX_ASPECT) {
     return PUGL_BAD_PARAMETER;
   }
 

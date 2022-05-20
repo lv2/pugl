@@ -70,30 +70,24 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
     app->quit = 1;
   } else if (event->state & PUGL_MOD_SHIFT) {
     if (event->key == PUGL_KEY_UP) {
-      frame.height = (PuglSpan)(frame.height + 10u);
+      puglSetSize(view, frame.width, frame.height - 10u);
     } else if (event->key == PUGL_KEY_DOWN) {
-      frame.height = (PuglSpan)(frame.height - 10u);
+      puglSetSize(view, frame.width, frame.height + 10u);
     } else if (event->key == PUGL_KEY_LEFT) {
-      frame.width = (PuglSpan)(frame.width - 10u);
+      puglSetSize(view, frame.width - 10u, frame.height);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      frame.width = (PuglSpan)(frame.width + 10u);
-    } else {
-      return;
+      puglSetSize(view, frame.width + 10u, frame.height);
     }
-    puglSetFrame(view, frame);
   } else {
     if (event->key == PUGL_KEY_UP) {
-      frame.y = (PuglCoord)(frame.y - 10);
+      puglSetPosition(view, frame.x, frame.y - 10);
     } else if (event->key == PUGL_KEY_DOWN) {
-      frame.y = (PuglCoord)(frame.y + 10);
+      puglSetPosition(view, frame.x, frame.y + 10);
     } else if (event->key == PUGL_KEY_LEFT) {
-      frame.x = (PuglCoord)(frame.x - 10);
+      puglSetPosition(view, frame.x - 10, frame.y);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      frame.x = (PuglCoord)(frame.x + 10);
-    } else {
-      return;
+      puglSetPosition(view, frame.x + 10, frame.y);
     }
-    puglSetFrame(view, frame);
   }
 }
 
@@ -186,17 +180,16 @@ main(int argc, char** argv)
 
   PuglStatus st = PUGL_SUCCESS;
   for (unsigned i = 0; i < 2; ++i) {
-    CubeView*      cube  = &app.cubes[i];
-    PuglView*      view  = cube->view;
-    const PuglRect frame = {(PuglCoord)(pad + (128.0 + pad) * i),
-                            (PuglCoord)(pad + (128.0 + pad) * i),
-                            512u,
-                            512u};
+    CubeView* cube = &app.cubes[i];
+    PuglView* view = cube->view;
 
     cube->dist = 10;
 
     puglSetWindowTitle(view, "Pugl Window Demo");
-    puglSetFrame(view, frame);
+    puglSetPosition(view,
+                    (PuglCoord)(pad + (128u + pad) * i),
+                    (PuglCoord)(pad + (128u + pad) * i));
+
     puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
     puglSetSizeHint(view, PUGL_MIN_SIZE, 128, 128);
     puglSetSizeHint(view, PUGL_MAX_SIZE, 2048, 2048);

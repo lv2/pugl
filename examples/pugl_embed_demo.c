@@ -119,30 +119,24 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event, const char* prefix)
     fprintf(stderr, "%sPaste \"%s\"\n", prefix, text);
   } else if (event->state & PUGL_MOD_SHIFT) {
     if (event->key == PUGL_KEY_UP) {
-      frame.height = (PuglSpan)(frame.height + 10u);
+      puglSetSize(view, frame.width, frame.height - 10u);
     } else if (event->key == PUGL_KEY_DOWN) {
-      frame.height = (PuglSpan)(frame.height - 10u);
+      puglSetSize(view, frame.width, frame.height + 10u);
     } else if (event->key == PUGL_KEY_LEFT) {
-      frame.width = (PuglSpan)(frame.width - 10u);
+      puglSetSize(view, frame.width - 10u, frame.height);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      frame.width = (PuglSpan)(frame.width + 10u);
-    } else {
-      return;
+      puglSetSize(view, frame.width + 10u, frame.height);
     }
-    puglSetFrame(view, frame);
   } else {
     if (event->key == PUGL_KEY_UP) {
-      frame.y = (PuglCoord)(frame.y - 10);
+      puglSetPosition(view, frame.x, frame.y - 10);
     } else if (event->key == PUGL_KEY_DOWN) {
-      frame.y = (PuglCoord)(frame.y + 10);
+      puglSetPosition(view, frame.x, frame.y + 10);
     } else if (event->key == PUGL_KEY_LEFT) {
-      frame.x = (PuglCoord)(frame.x - 10);
+      puglSetPosition(view, frame.x - 10, frame.y);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      frame.x = (PuglCoord)(frame.x + 10);
-    } else {
-      return;
+      puglSetPosition(view, frame.x + 10, frame.y);
     }
-    puglSetFrame(view, frame);
   }
 }
 

@@ -1026,11 +1026,15 @@ mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
   if (!dst->type) {
     *dst = *src;
   } else {
-    const double max_x = MAX(dst->x + dst->width, src->x + src->width);
-    const double max_y = MAX(dst->y + dst->height, src->y + src->height);
+    const int dst_r = dst->x + dst->width;
+    const int src_r = src->x + src->width;
+    const int max_x = MAX(dst_r, src_r);
+    const int dst_b = dst->y + dst->height;
+    const int src_b = src->y + src->height;
+    const int max_y = MAX(dst_b, src_b);
 
-    dst->x      = MIN(dst->x, src->x);
-    dst->y      = MIN(dst->y, src->y);
+    dst->x      = (PuglCoord)MIN(dst->x, src->x);
+    dst->y      = (PuglCoord)MIN(dst->y, src->y);
     dst->width  = (PuglSpan)(max_x - dst->x);
     dst->height = (PuglSpan)(max_y - dst->y);
   }
@@ -1378,6 +1382,45 @@ puglSetFrame(PuglView* const view, const PuglRect frame)
   }
 
   view->frame = frame;
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetPosition(PuglView* const view, const int x, const int y)
+{
+  Display* const display = view->world->impl->display;
+  const Window   win     = view->impl->win;
+
+  if (x > INT16_MAX || y > INT16_MAX) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  if (win && !XMoveWindow(display, win, x, y)) {
+    return PUGL_UNKNOWN_ERROR;
+  }
+
+  view->frame.x = (PuglCoord)x;
+  view->frame.y = (PuglCoord)y;
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
+{
+  Display* const display = view->world->impl->display;
+  const Window   win     = view->impl->win;
+
+  if (width > INT16_MAX || height > INT16_MAX) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  if (win) {
+    return XResizeWindow(display, win, width, height) ? PUGL_SUCCESS
+                                                      : PUGL_UNKNOWN_ERROR;
+  }
+
+  view->frame.width  = (PuglSpan)width;
+  view->frame.height = (PuglSpan)height;
   return PUGL_SUCCESS;
 }
 

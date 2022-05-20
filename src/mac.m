@@ -1368,28 +1368,88 @@ puglSetWindowTitle(PuglView* view, const char* title)
 PuglStatus
 puglSetFrame(PuglView* view, const PuglRect frame)
 {
-  PuglInternals* const impl = view->impl;
+  PuglInternals* const impl    = view->impl;
+  const NSRect         framePx = rectToNsRect(frame);
+  const NSRect         framePt = nsRectToPoints(view, framePx);
 
-  // Update view frame to exactly the requested frame in Pugl coordinates
+  // Update view frame to exactly the requested frame
   view->frame = frame;
+
+  if (impl->window) {
+    const NSRect screenPt = rectToScreen(viewScreen(view), framePt);
+
+    // Move and resize window to fit new content rect
+    const NSRect winFrame = [impl->window frameRectForContentRect:screenPt];
+    [impl->window setFrame:winFrame display:NO];
+
+    // Resize views
+    const NSRect sizePx = NSMakeRect(0, 0, frame.width, frame.height);
+    const NSRect sizePt = [impl->drawView convertRectFromBacking:sizePx];
+    [impl->wrapperView setFrame:sizePt];
+    [impl->drawView setFrame:sizePt];
+  } else {
+    // Resize view
+    const NSRect sizePx = NSMakeRect(0, 0, frame.width, frame.height);
+    const NSRect sizePt = [impl->drawView convertRectFromBacking:sizePx];
+
+    [impl->wrapperView setFrame:framePt];
+    [impl->drawView setFrame:sizePt];
+  }
+
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetPosition(PuglView* const view, const int x, const int y)
+{
+  if (x > INT16_MAX || y > INT16_MAX) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  const PuglRect frame = {
+    (PuglCoord)x, (PuglCoord)y, view->frame.height, view->frame.height};
+
+  PuglInternals* const impl = view->impl;
+  if (impl->window) {
+    return puglSetFrame(view, frame);
+  }
 
   const NSRect framePx = rectToNsRect(frame);
   const NSRect framePt = nsRectToPoints(view, framePx);
-  if (impl->window) {
-    // Resize window to fit new content rect
-    const NSRect screenPt = rectToScreen(viewScreen(view), framePt);
-    const NSRect winFrame = [impl->window frameRectForContentRect:screenPt];
+  [impl->wrapperView setFrameOrigin:framePt.origin];
 
-    [impl->window setFrame:winFrame display:NO];
+  const NSRect drawPx = NSMakeRect(0, 0, frame.width, frame.height);
+  const NSRect drawPt = [impl->drawView convertRectFromBacking:drawPx];
+  [impl->drawView setFrameOrigin:drawPt.origin];
+
+  view->frame = frame;
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
+{
+  if (width > INT16_MAX || height > INT16_MAX) {
+    return PUGL_BAD_PARAMETER;
   }
 
-  // Resize views
-  const NSRect sizePx = NSMakeRect(0, 0, frame.width, frame.height);
-  const NSRect sizePt = [impl->drawView convertRectFromBacking:sizePx];
+  const PuglRect frame = {
+    view->frame.x, view->frame.y, (PuglSpan)width, (PuglSpan)height};
 
-  [impl->wrapperView setFrame:(impl->window ? sizePt : framePt)];
-  [impl->drawView setFrame:sizePt];
+  PuglInternals* const impl = view->impl;
+  if (impl->window) {
+    return puglSetFrame(view, frame);
+  }
 
+  const NSRect framePx = rectToNsRect(frame);
+  const NSRect framePt = nsRectToPoints(view, framePx);
+  [impl->wrapperView setFrameSize:framePt.size];
+
+  const NSRect drawPx = NSMakeRect(0, 0, frame.width, frame.height);
+  const NSRect drawPt = [impl->drawView convertRectFromBacking:drawPx];
+  [impl->drawView setFrameSize:drawPt.size];
+
+  view->frame = frame;
   return PUGL_SUCCESS;
 }
 

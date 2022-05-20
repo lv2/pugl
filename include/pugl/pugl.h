@@ -1001,13 +1001,33 @@ PuglStatus
 puglSetFrame(PuglView* view, PuglRect frame);
 
 /**
+   Set the current position of the view.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
+   unchanged.
+*/
+PUGL_API
+PuglStatus
+puglSetPosition(PuglView* view, int x, int y);
+
+/**
+   Set the current size of the view.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
+   unchanged.
+*/
+PUGL_API
+PuglStatus
+puglSetSize(PuglView* view, unsigned width, unsigned height);
+
+/**
    Set a size hint for the view.
 
-   This can be used to set the default, minimum, and maximum size of a view, as
-   well as the supported range of aspect ratios.
+   This can be used to set the default, minimum, and maximum size of a view,
+   as well as the supported range of aspect ratios.
 
-   This should be called before puglResize() so the initial window for the view
-   can be configured correctly.
+   This should be called before puglResize() so the initial window for the
+   view can be configured correctly.
 
    @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
    not yet realized.
