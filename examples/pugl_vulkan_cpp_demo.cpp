@@ -42,6 +42,12 @@
 #include <string>
 #include <vector>
 
+#ifdef __APPLE__
+#  define SHADER_DIR "../"
+#else
+#  define SHADER_DIR "shaders/"
+#endif
+
 namespace {
 
 constexpr uintptr_t resizeTimerId = 1u;
@@ -712,9 +718,11 @@ RectShaders::init(const sk::VulkanApi&  vk,
                   const GraphicsDevice& gpu,
                   const std::string&    programPath)
 {
-  auto vertShaderCode = readFile(programPath.c_str(), "shaders/rect.vert.spv");
+  auto vertShaderCode =
+    readFile(programPath.c_str(), SHADER_DIR "rect.vert.spv");
 
-  auto fragShaderCode = readFile(programPath.c_str(), "shaders/rect.frag.spv");
+  auto fragShaderCode =
+    readFile(programPath.c_str(), SHADER_DIR "rect.frag.spv");
 
   if (vertShaderCode.empty() || fragShaderCode.empty()) {
     return VK_ERROR_INITIALIZATION_FAILED;

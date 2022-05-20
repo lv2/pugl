@@ -74,58 +74,85 @@ endif
 
 subdir('shaders')
 
-# Build GL examples
-if opengl_dep.found()
-  foreach example : gl_examples
-    source = [example]
-    target = example.split('.')[0]
-    dependencies = [gl_backend_dep]
-    defines = []
+if host_machine.system() == 'darwin'
+  # On Darwin, build examples as application bundles (required to work properly)
 
-    if target == 'pugl_shader_demo'
-      source += ['file_utils.c', 'glad/glad.c']
-      dependencies += [dl_dep]
-      defines += ['-D_POSIX_C_SOURCE=200809L']
-    elif target == 'pugl_print_events'
-      dependencies += [stub_backend_dep]
-    endif
+  subdir('pugl_cursor_demo.app')
 
-    executable(target, source,
-               include_directories: includes,
-               c_args: example_defines + example_c_args + defines,
-               cpp_args: example_defines + example_cpp_args + defines,
-               dependencies: dependencies)
-  endforeach
-endif
+  if cairo_dep.found()
+    subdir('pugl_cairo_demo.app')
+  endif
 
-# Build Cairo examples
-if cairo_dep.found()
-  foreach example : cairo_examples
-    target = example.split('.')[0]
-    executable(target, example,
-               include_directories: includes,
-               c_args: example_defines + example_c_args,
-               dependencies: [pugl_dep, cairo_backend_dep])
-  endforeach
-endif
+  if opengl_dep.found()
+    subdir('pugl_cpp_demo.app')
+    subdir('pugl_embed_demo.app')
+    subdir('pugl_shader_demo.app')
+    subdir('pugl_window_demo.app')
+  endif
 
-# Build Vulkan examples
-if vulkan_dep.found()
-  foreach example : vulkan_examples
-    source = [example]
-    target = example.split('.')[0]
-    dependencies = [dl_dep, vulkan_backend_dep]
-    defines = []
+  if vulkan_dep.found()
+    subdir('pugl_vulkan_cpp_demo.app')
+    subdir('pugl_vulkan_demo.app')
+  endif
 
-    if target == 'pugl_vulkan_cpp_demo'
-      source += ['file_utils.c']
-      defines += ['-D_POSIX_C_SOURCE=200809L']
-    endif
+else
+  # On all other platforms, build examples as simple programs
 
-    executable(target, source,
-               include_directories: includes,
-               c_args: example_defines + example_c_args + defines,
-               cpp_args: example_defines + example_cpp_args + defines,
-               dependencies: dependencies)
-  endforeach
+  # Build GL examples
+  if opengl_dep.found()
+    foreach example : gl_examples
+      source = [example]
+      target = example.split('.')[0]
+      dependencies = [gl_backend_dep]
+      defines = []
+
+      if target == 'pugl_shader_demo'
+        source += ['file_utils.c', 'glad/glad.c']
+        dependencies += [dl_dep]
+        defines += ['-D_POSIX_C_SOURCE=200809L']
+      elif target == 'pugl_print_events'
+        dependencies += [stub_backend_dep]
+      elif target == 'pugl_cpp_demo'
+        dependencies += [puglpp_dep]
+      endif
+
+      executable(target, source,
+                 include_directories: includes,
+                 c_args: example_defines + example_c_args + defines,
+                 cpp_args: example_defines + example_cpp_args + defines,
+                 dependencies: dependencies)
+    endforeach
+  endif
+
+  # Build Cairo examples
+  if cairo_dep.found()
+    foreach example : cairo_examples
+      target = example.split('.')[0]
+      executable(target, example,
+                 include_directories: includes,
+                 c_args: example_defines + example_c_args,
+                 dependencies: [pugl_dep, cairo_backend_dep])
+    endforeach
+  endif
+
+  # Build Vulkan examples
+  if vulkan_dep.found()
+    foreach example : vulkan_examples
+      source = [example]
+      target = example.split('.')[0]
+      dependencies = [dl_dep, vulkan_backend_dep]
+      defines = []
+
+      if target == 'pugl_vulkan_cpp_demo'
+        source += ['file_utils.c']
+        defines += ['-D_POSIX_C_SOURCE=200809L']
+      endif
+
+      executable(target, source,
+                 include_directories: includes,
+                 c_args: example_defines + example_c_args + defines,
+                 cpp_args: example_defines + example_cpp_args + defines,
+                 dependencies: dependencies)
+    endforeach
+  endif
 endif

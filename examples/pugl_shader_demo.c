@@ -39,6 +39,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __APPLE__
+#  define SHADER_DIR "../"
+#else
+#  define SHADER_DIR "shaders/"
+#endif
+
 static const int       defaultWidth  = 512;
 static const int       defaultHeight = 512;
 static const uintptr_t resizeTimerId = 1u;
@@ -284,16 +290,17 @@ setupGl(PuglTestApp* app)
   }
 
   const char* const headerFile =
-    (app->glMajorVersion == 3 ? "shaders/header_330.glsl"
-                              : "shaders/header_420.glsl");
+    (app->glMajorVersion == 3 ? SHADER_DIR "header_330.glsl"
+                              : SHADER_DIR "header_420.glsl");
 
   // Load shader sources
   char* const headerSource = loadShader(app->programPath, headerFile);
 
-  char* const vertexSource = loadShader(app->programPath, "shaders/rect.vert");
+  char* const vertexSource =
+    loadShader(app->programPath, SHADER_DIR "rect.vert");
 
   char* const fragmentSource =
-    loadShader(app->programPath, "shaders/rect.frag");
+    loadShader(app->programPath, SHADER_DIR "rect.frag");
 
   if (!vertexSource || !fragmentSource) {
     logError("Failed to load shader sources\n");

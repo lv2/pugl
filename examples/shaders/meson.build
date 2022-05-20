@@ -18,21 +18,31 @@ if vulkan_dep.found()
   cat = find_program('../../scripts/cat.py')
   glslang = find_program('glslangValidator')
 
-  shaders = ['rect.vert', 'rect.frag']
-  foreach shader : shaders
-    source = shader.split('.')[0] + '.vulkan.' + shader.split('.')[1]
-    shader_input = custom_target(source,
-                                 output: source,
-                                 input: ['header_420.glsl', shader],
-                                 command: [cat, '@INPUT@'],
-                                 build_by_default: true,
-                                 capture: true)
+  rect_vulkan_vert = custom_target('rect.vulkan.vert',
+                                   output: 'rect.vulkan.vert',
+                                   input: ['header_420.glsl', 'rect.vert'],
+                                   command: [cat, '@INPUT@'],
+                                   build_by_default: true,
+                                   capture: true)
 
-    mytarget = custom_target(shader,
-                             output: shader + '.spv',
-                             input: shader_input,
-                             command: [glslang, '-V', '-o', '@OUTPUT@', '@INPUT@'],
-                             build_by_default: true,
-                             install: false)
-  endforeach
+  rect_vulkan_frag = custom_target('rect.vulkan.frag',
+                                   output: 'rect.vulkan.frag',
+                                   input: ['header_420.glsl', 'rect.frag'],
+                                   command: [cat, '@INPUT@'],
+                                   build_by_default: true,
+                                   capture: true)
+
+  rect_vert_spv = custom_target('rect.vert.spv',
+                                output: 'rect.vert.spv',
+                                input: rect_vulkan_vert,
+                                command: [glslang, '-V', '-o', '@OUTPUT@', '@INPUT@'],
+                                build_by_default: true,
+                                install: false)
+
+  rect_frag_spv = custom_target('rect.frag.spv',
+                                output: 'rect.frag.spv',
+                                input: rect_vulkan_frag,
+                                command: [glslang, '-V', '-o', '@OUTPUT@', '@INPUT@'],
+                                build_by_default: true,
+                                install: false)
 endif
