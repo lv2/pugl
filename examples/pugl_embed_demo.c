@@ -274,7 +274,7 @@ main(int argc, char** argv)
   app.parent = puglNewView(app.world);
   app.child  = puglNewView(app.world);
 
-  puglSetClassName(app.world, "Pugl Test");
+  puglSetClassName(app.world, "PuglEmbedDemo");
 
   const PuglRect parentFrame = {0, 0, 512, 512};
   puglSetDefaultSize(app.parent, 512, 512);

@@ -260,8 +260,8 @@ setupPugl(PuglTestApp* app)
   app->rects = makeRects(app->numRects);
 
   // Set up world and view
-  puglSetClassName(app->world, "PuglGL3Demo");
-  puglSetWindowTitle(app->view, "Pugl OpenGL 3");
+  puglSetClassName(app->world, "PuglShaderDemo");
+  puglSetWindowTitle(app->view, "Pugl OpenGL Shader Demo");
   puglSetDefaultSize(app->view, defaultWidth, defaultHeight);
   puglSetMinSize(app->view, defaultWidth / 4, defaultHeight / 4);
   puglSetMaxSize(app->view, defaultWidth * 4, defaultHeight * 4);

@@ -89,7 +89,7 @@ main(int argc, char** argv)
 
   // Set up view
   app.view = puglNewView(app.world);
-  puglSetClassName(app.world, "Pugl Test");
+  puglSetClassName(app.world, "PuglTest");
   puglSetBackend(app.view, puglStubBackend());
   puglSetHandle(app.view, &app);
   puglSetEventFunc(app.view, onEvent);

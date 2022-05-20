@@ -48,7 +48,7 @@ main(int argc, char** argv)
                    puglParseTestOptions(&argc, &argv),
                    false};
 
-  puglSetClassName(test.world, "Pugl Test");
+  puglSetClassName(test.world, "PuglTest");
 
   // Set up views
   for (unsigned i = 0u; i < 2; ++i) {

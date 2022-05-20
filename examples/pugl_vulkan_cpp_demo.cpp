@@ -1713,8 +1713,8 @@ run(const char* const      programPath,
   const auto height = static_cast<int>(app.extent.height);
 
   // Realize window so we can set up Vulkan
-  app.world.setClassName("PuglVulkanDemo");
-  app.view.setWindowTitle("Pugl Vulkan Demo");
+  app.world.setClassName("PuglVulkanCppDemo");
+  app.view.setWindowTitle("Pugl Vulkan C++ Demo");
   app.view.setAspectRatio(1, 1, 16, 9);
   app.view.setDefaultSize(width, height);
   app.view.setMinSize(width / 4, height / 4);

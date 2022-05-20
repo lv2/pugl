@@ -1064,7 +1064,7 @@ main(int argc, char** argv)
   }
 
   // Create window
-  puglSetWindowTitle(app.view, "Pugl Vulkan");
+  puglSetWindowTitle(app.view, "Pugl Vulkan Demo");
   puglSetFrame(app.view, frame);
   puglSetHandle(app.view, &app);
   puglSetBackend(app.view, puglVulkanBackend());

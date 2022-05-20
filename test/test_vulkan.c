@@ -166,7 +166,7 @@ main(int argc, char** argv)
   assert(!createInstance(&test));
 
   // Create window
-  puglSetClassName(test.world, "Pugl Vulkan Test");
+  puglSetClassName(test.world, "PuglTest");
   puglSetHandle(test.view, &test);
   puglSetBackend(test.view, puglVulkanBackend());
   puglSetEventFunc(test.view, onEvent);

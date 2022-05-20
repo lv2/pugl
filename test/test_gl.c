@@ -79,7 +79,7 @@ main(int argc, char** argv)
   PuglTest              test  = {world, view, opts, false};
 
   // Set up and show view
-  puglSetClassName(test.world, "Pugl OpenGL Test");
+  puglSetClassName(test.world, "PuglTest");
   puglSetHandle(test.view, &test);
   puglSetBackend(test.view, puglGlBackend());
   puglSetEventFunc(test.view, onEvent);

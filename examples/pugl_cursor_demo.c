@@ -119,11 +119,11 @@ main(int argc, char** argv)
   app.world = puglNewWorld(PUGL_PROGRAM, 0);
 
   puglSetWorldHandle(app.world, &app);
-  puglSetClassName(app.world, "Pugl Test");
+  puglSetClassName(app.world, "PuglCursorDemo");
 
   PuglView* view = puglNewView(app.world);
 
-  puglSetWindowTitle(view, "Pugl Window Demo");
+  puglSetWindowTitle(view, "Pugl Cursor Demo");
   puglSetDefaultSize(view, 512, 256);
   puglSetMinSize(view, 128, 64);
   puglSetMaxSize(view, 512, 256);

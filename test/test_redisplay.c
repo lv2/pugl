@@ -108,7 +108,7 @@ main(int argc, char** argv)
 
   // Set up view
   test.view = puglNewView(test.world);
-  puglSetClassName(test.world, "Pugl Test");
+  puglSetClassName(test.world, "PuglTest");
   puglSetWindowTitle(test.view, "Pugl Redisplay Test");
   puglSetBackend(test.view, puglStubBackend());
   puglSetHandle(test.view, &test);

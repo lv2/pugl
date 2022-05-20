@@ -60,7 +60,7 @@ main(int argc, char** argv)
   PuglTest              test  = {world, view, opts, false};
 
   // Set up and show view
-  puglSetClassName(test.world, "Pugl Test");
+  puglSetClassName(test.world, "PuglTest");
   puglSetWindowTitle(test.view, "Pugl Cairo Test");
   puglSetHandle(test.view, &test);
   puglSetBackend(test.view, puglCairoBackend());

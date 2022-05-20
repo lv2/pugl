@@ -44,8 +44,8 @@ main(int argc, char** argv)
 
   // Set up view
   test.view = puglNewView(test.world);
-  puglSetClassName(test.world, "Pugl Test");
-  puglSetWindowTitle(test.view, "Pugl Free View Test");
+  puglSetClassName(test.world, "PuglTest");
+  puglSetWindowTitle(test.view, "Pugl OpenGL Free Test");
   puglSetBackend(test.view, puglGlBackend());
   puglSetHandle(test.view, &test);
   puglSetEventFunc(test.view, onEvent);

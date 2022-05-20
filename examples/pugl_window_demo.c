@@ -181,7 +181,7 @@ main(int argc, char** argv)
   app.cubes[1].view = puglNewView(app.world);
 
   puglSetWorldHandle(app.world, &app);
-  puglSetClassName(app.world, "Pugl Test");
+  puglSetClassName(app.world, "PuglWindowDemo");
 
   PuglStatus st = PUGL_SUCCESS;
   for (unsigned i = 0; i < 2; ++i) {

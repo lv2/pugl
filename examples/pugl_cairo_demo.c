@@ -211,7 +211,7 @@ main(int argc, char** argv)
   }
 
   app.world = puglNewWorld(PUGL_PROGRAM, 0);
-  puglSetClassName(app.world, "PuglCairoTest");
+  puglSetClassName(app.world, "PuglCairoDemo");
 
   PuglView* view = puglNewView(app.world);
 

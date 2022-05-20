@@ -30,7 +30,7 @@ main(void)
   PuglView* const  view  = puglNewView(world);
 
   // Set up view
-  puglSetClassName(world, "Pugl Test");
+  puglSetClassName(world, "PuglTest");
   puglSetWindowTitle(view, "Pugl Stub Hints Test");
   puglSetBackend(view, puglStubBackend());
   puglSetEventFunc(view, onEvent);
