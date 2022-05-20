@@ -36,7 +36,7 @@ puglX11CairoOpen(PuglView* view)
   PuglInternals* const       impl    = view->impl;
   PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
-  surface->back = cairo_xlib_surface_create(impl->display,
+  surface->back = cairo_xlib_surface_create(view->world->impl->display,
                                             impl->win,
                                             impl->vi->visual,
                                             (int)view->frame.width,

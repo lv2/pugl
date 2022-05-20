@@ -48,7 +48,6 @@ struct PuglWorldInternalsImpl {
 };
 
 struct PuglInternalsImpl {
-  Display*     display;
   XVisualInfo* vi;
   Window       win;
   XIC          xic;

@@ -44,7 +44,7 @@ puglX11GlConfigure(PuglView* view)
 {
   PuglInternals* const impl    = view->impl;
   const int            screen  = impl->screen;
-  Display* const       display = impl->display;
+  Display* const       display = view->world->impl->display;
 
   PuglX11GlSurface* const surface =
     (PuglX11GlSurface*)calloc(1, sizeof(PuglX11GlSurface));
@@ -75,7 +75,7 @@ puglX11GlConfigure(PuglView* view)
   }
 
   surface->fb_config = fbc[0];
-  impl->vi           = glXGetVisualFromFBConfig(impl->display, fbc[0]);
+  impl->vi           = glXGetVisualFromFBConfig(display, fbc[0]);
 
   view->hints[PUGL_RED_BITS] =
     puglX11GlGetAttrib(display, fbc[0], GLX_RED_SIZE);
@@ -103,25 +103,26 @@ static PuglStatus
 puglX11GlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 {
   PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
+  Display* const    display = view->world->impl->display;
   if (!surface || !surface->ctx) {
     return PUGL_FAILURE;
   }
 
-  return glXMakeCurrent(view->impl->display, view->impl->win, surface->ctx)
-           ? PUGL_SUCCESS
-           : PUGL_FAILURE;
+  return glXMakeCurrent(display, view->impl->win, surface->ctx) ? PUGL_SUCCESS
+                                                                : PUGL_FAILURE;
 }
 
 PUGL_WARN_UNUSED_RESULT
 static PuglStatus
 puglX11GlLeave(PuglView* view, const PuglExposeEvent* expose)
 {
+  Display* const display = view->world->impl->display;
+
   if (expose && view->hints[PUGL_DOUBLE_BUFFER]) {
-    glXSwapBuffers(view->impl->display, view->impl->win);
+    glXSwapBuffers(display, view->impl->win);
   }
 
-  return glXMakeCurrent(view->impl->display, None, NULL) ? PUGL_SUCCESS
-                                                         : PUGL_FAILURE;
+  return glXMakeCurrent(display, None, NULL) ? PUGL_SUCCESS : PUGL_FAILURE;
 }
 
 static PuglStatus
@@ -129,7 +130,7 @@ puglX11GlCreate(PuglView* view)
 {
   PuglInternals* const    impl      = view->impl;
   PuglX11GlSurface* const surface   = (PuglX11GlSurface*)impl->surface;
-  Display* const          display   = impl->display;
+  Display* const          display   = view->world->impl->display;
   GLXFBConfig             fb_config = surface->fb_config;
   PuglStatus              st        = PUGL_SUCCESS;
 
@@ -188,7 +189,7 @@ puglX11GlCreate(PuglView* view)
     }
 
     // Get the actual current swap interval
-    glXQueryDrawable(impl->display,
+    glXQueryDrawable(display,
                      impl->win,
                      GLX_SWAP_INTERVAL_EXT,
                      (unsigned int*)&view->hints[PUGL_SWAP_INTERVAL]);
@@ -198,7 +199,7 @@ puglX11GlCreate(PuglView* view)
     }
   }
 
-  return !glXGetConfig(impl->display,
+  return !glXGetConfig(display,
                        impl->vi,
                        GLX_DOUBLEBUFFER,
                        &view->hints[PUGL_DOUBLE_BUFFER])
@@ -211,7 +212,7 @@ puglX11GlDestroy(PuglView* view)
 {
   PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
   if (surface) {
-    glXDestroyContext(view->impl->display, surface->ctx);
+    glXDestroyContext(view->world->impl->display, surface->ctx);
     free(surface);
     view->impl->surface = NULL;
   }
