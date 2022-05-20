@@ -89,7 +89,7 @@ main(int argc, char** argv)
   puglSetBackend(test.view, puglStubBackend());
   puglSetHandle(test.view, &test);
   puglSetEventFunc(test.view, onEvent);
-  puglSetDefaultSize(test.view, 512, 512);
+  puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 512, 512);
 
   // Create and show window
   assert(!puglRealize(test.view));

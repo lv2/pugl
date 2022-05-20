@@ -220,12 +220,11 @@ updateViewRect(PuglView* view)
 
 - (NSSize)intrinsicContentSize
 {
-  if (puglview->defaultWidth || puglview->defaultHeight) {
-    return sizePoints(
-      puglview, puglview->defaultWidth, puglview->defaultHeight);
-  }
+  const PuglViewSize defaultSize = puglview->sizeHints[PUGL_DEFAULT_SIZE];
 
-  return NSMakeSize(NSViewNoInstrinsicMetric, NSViewNoInstrinsicMetric);
+  return (defaultSize.width && defaultSize.height)
+           ? sizePoints(puglview, defaultSize.width, defaultSize.height)
+           : NSMakeSize(NSViewNoInstrinsicMetric, NSViewNoInstrinsicMetric);
 }
 
 - (BOOL)isFlipped
@@ -889,6 +888,47 @@ puglConstraint(const id                item,
                                        constant:(CGFloat)constant];
 }
 
+static PuglStatus
+updateSizeHint(PuglView* const view, const PuglSizeHint hint)
+{
+  const PuglSpan width  = view->sizeHints[hint].width;
+  const PuglSpan height = view->sizeHints[hint].height;
+  if (!width || !height) {
+    return PUGL_FAILURE;
+  }
+
+  switch (hint) {
+  case PUGL_DEFAULT_SIZE:
+    break;
+
+  case PUGL_MIN_SIZE:
+    [view->impl->window setContentMinSize:sizePoints(view, width, height)];
+    break;
+
+  case PUGL_MAX_SIZE:
+    [view->impl->window setContentMaxSize:sizePoints(view, width, height)];
+    break;
+
+  case PUGL_FIXED_ASPECT:
+    [view->impl->window setContentAspectRatio:sizePoints(view, width, height)];
+    break;
+
+  case PUGL_MIN_ASPECT:
+  case PUGL_MAX_ASPECT:
+    break;
+  }
+
+  return PUGL_SUCCESS;
+}
+
+static void
+updateSizeHints(PuglView* const view)
+{
+  for (unsigned i = 0u; i <= PUGL_MAX_ASPECT; ++i) {
+    updateSizeHint(view, (PuglSizeHint)i);
+  }
+}
+
 PuglStatus
 puglRealize(PuglView* view)
 {
@@ -935,15 +975,16 @@ puglRealize(PuglView* view)
   }
 
   if (view->frame.width == 0.0 && view->frame.height == 0.0) {
-    if (view->defaultWidth == 0.0 && view->defaultHeight == 0.0) {
+    const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
+    if (!defaultSize.width || !defaultSize.height) {
       return PUGL_BAD_CONFIGURATION;
     }
 
     const double screenWidthPx  = [screen frame].size.width * scaleFactor;
     const double screenHeightPx = [screen frame].size.height * scaleFactor;
 
-    view->frame.width  = view->defaultWidth;
-    view->frame.height = view->defaultHeight;
+    view->frame.width  = defaultSize.width;
+    view->frame.height = defaultSize.height;
     view->frame.x      = screenWidthPx / 2.0 - view->frame.width / 2.0;
     view->frame.y      = screenHeightPx / 2.0 - view->frame.height / 2.0;
   }
@@ -966,26 +1007,27 @@ puglRealize(PuglView* view)
     addConstraint:puglConstraint(impl->wrapperView,
                                  NSLayoutAttributeWidth,
                                  NSLayoutRelationGreaterThanOrEqual,
-                                 view->minWidth)];
+                                 view->sizeHints[PUGL_MIN_SIZE].width)];
 
   [impl->wrapperView
     addConstraint:puglConstraint(impl->wrapperView,
                                  NSLayoutAttributeHeight,
                                  NSLayoutRelationGreaterThanOrEqual,
-                                 view->minHeight)];
+                                 view->sizeHints[PUGL_MIN_SIZE].height)];
 
-  if (view->maxWidth && view->maxHeight) {
+  if (view->sizeHints[PUGL_MAX_SIZE].width &&
+      view->sizeHints[PUGL_MAX_SIZE].height) {
     [impl->wrapperView
       addConstraint:puglConstraint(impl->wrapperView,
                                    NSLayoutAttributeWidth,
                                    NSLayoutRelationLessThanOrEqual,
-                                   view->maxWidth)];
+                                   view->sizeHints[PUGL_MAX_SIZE].width)];
 
     [impl->wrapperView
       addConstraint:puglConstraint(impl->wrapperView,
                                    NSLayoutAttributeHeight,
                                    NSLayoutRelationLessThanOrEqual,
-                                   view->maxHeight)];
+                                   view->sizeHints[PUGL_MAX_SIZE].height)];
   }
 
   // Create draw view to be rendered to
@@ -1028,21 +1070,12 @@ puglRealize(PuglView* view)
       [window setTitle:titleString];
     }
 
-    if (view->minWidth || view->minHeight) {
-      [window
-        setContentMinSize:sizePoints(view, view->minWidth, view->minHeight)];
-    }
-    impl->window = window;
-
     ((NSWindow*)window).delegate =
       [[PuglWindowDelegate alloc] initWithPuglWindow:window];
 
-    if (view->minAspectX && view->minAspectY) {
-      [window setContentAspectRatio:sizePoints(view,
-                                               view->minAspectX,
-                                               view->minAspectY)];
-    }
+    impl->window = window;
 
+    updateSizeHints(view);
     puglSetFrame(view, view->frame);
 
     [window setContentView:impl->wrapperView];
@@ -1358,60 +1391,19 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 }
 
 PuglStatus
-puglSetDefaultSize(PuglView* const view, const int width, const int height)
+puglSetSizeHint(PuglView* const    view,
+                const PuglSizeHint hint,
+                const PuglSpan     width,
+                const PuglSpan     height)
 {
-  view->defaultWidth  = width;
-  view->defaultHeight = height;
-  return PUGL_SUCCESS;
-}
-
-PuglStatus
-puglSetMinSize(PuglView* const view, const int width, const int height)
-{
-  view->minWidth  = width;
-  view->minHeight = height;
-
-  if (view->impl->window && (view->minWidth || view->minHeight)) {
-    [view->impl->window
-      setContentMinSize:sizePoints(view, view->minWidth, view->minHeight)];
+  if ((unsigned)hint > (unsigned)PUGL_MAX_ASPECT) {
+    return PUGL_BAD_PARAMETER;
   }
 
-  return PUGL_SUCCESS;
-}
+  view->sizeHints[hint].width  = width;
+  view->sizeHints[hint].height = height;
 
-PuglStatus
-puglSetMaxSize(PuglView* const view, const int width, const int height)
-{
-  view->maxWidth  = width;
-  view->maxHeight = height;
-
-  if (view->impl->window && (view->maxWidth || view->maxHeight)) {
-    [view->impl->window
-      setContentMaxSize:sizePoints(view, view->maxWidth, view->maxHeight)];
-  }
-
-  return PUGL_SUCCESS;
-}
-
-PuglStatus
-puglSetAspectRatio(PuglView* const view,
-                   const int       minX,
-                   const int       minY,
-                   const int       maxX,
-                   const int       maxY)
-{
-  view->minAspectX = minX;
-  view->minAspectY = minY;
-  view->maxAspectX = maxX;
-  view->maxAspectY = maxY;
-
-  if (view->impl->window && view->minAspectX && view->minAspectY) {
-    [view->impl->window setContentAspectRatio:sizePoints(view,
-                                                         view->minAspectX,
-                                                         view->minAspectY)];
-  }
-
-  return PUGL_SUCCESS;
+  return view->impl->window ? updateSizeHint(view, hint) : PUGL_SUCCESS;
 }
 
 PuglStatus

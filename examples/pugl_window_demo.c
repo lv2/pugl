@@ -194,9 +194,9 @@ main(int argc, char** argv)
 
     puglSetWindowTitle(view, "Pugl Window Demo");
     puglSetFrame(view, frame);
-    puglSetDefaultSize(view, 512, 512);
-    puglSetMinSize(view, 128, 128);
-    puglSetMaxSize(view, 2048, 2048);
+    puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
+    puglSetSizeHint(view, PUGL_MIN_SIZE, 128, 128);
+    puglSetSizeHint(view, PUGL_MAX_SIZE, 2048, 2048);
     puglSetBackend(view, puglGlBackend());
 
     puglSetViewHint(view, PUGL_USE_DEBUG_CONTEXT, opts.errorChecking);

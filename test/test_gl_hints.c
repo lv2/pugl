@@ -34,7 +34,7 @@ main(void)
   puglSetWindowTitle(view, "Pugl OpenGL Hints Test");
   puglSetBackend(view, puglGlBackend());
   puglSetEventFunc(view, onEvent);
-  puglSetDefaultSize(view, 512, 512);
+  puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
 
   // Check invalid cases
   assert(puglSetViewHint(view, PUGL_USE_COMPAT_PROFILE, PUGL_DONT_CARE) ==

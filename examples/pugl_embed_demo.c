@@ -277,10 +277,11 @@ main(int argc, char** argv)
   puglSetClassName(app.world, "PuglEmbedDemo");
 
   const PuglRect parentFrame = {0, 0, 512, 512};
-  puglSetDefaultSize(app.parent, 512, 512);
-  puglSetMinSize(app.parent, borderWidth * 3, borderWidth * 3);
-  puglSetMaxSize(app.parent, 1024, 1024);
-  puglSetAspectRatio(app.parent, 1, 1, 16, 9);
+  puglSetSizeHint(app.parent, PUGL_DEFAULT_SIZE, 512, 512);
+  puglSetSizeHint(app.parent, PUGL_MIN_SIZE, 192, 192);
+  puglSetSizeHint(app.parent, PUGL_MAX_SIZE, 1024, 1024);
+  puglSetSizeHint(app.parent, PUGL_MIN_ASPECT, 1, 1);
+  puglSetSizeHint(app.parent, PUGL_MAX_ASPECT, 16, 9);
   puglSetBackend(app.parent, puglGlBackend());
 
   puglSetViewHint(app.parent, PUGL_USE_DEBUG_CONTEXT, opts.errorChecking);

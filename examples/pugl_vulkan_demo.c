@@ -1036,9 +1036,8 @@ main(int argc, char** argv)
   memset(&app, 0, sizeof(app));
 
   VulkanState*   vk            = &app.vk;
-  const uint32_t defaultWidth  = 640;
-  const uint32_t defaultHeight = 360;
-  const PuglRect frame         = {0, 0, defaultWidth, defaultHeight};
+  const PuglSpan defaultWidth  = 640;
+  const PuglSpan defaultHeight = 360;
 
   // Parse command line options
   app.opts = puglParseTestOptions(&argc, &argv);
@@ -1065,7 +1064,7 @@ main(int argc, char** argv)
 
   // Create window
   puglSetWindowTitle(app.view, "Pugl Vulkan Demo");
-  puglSetFrame(app.view, frame);
+  puglSetSizeHint(app.view, PUGL_DEFAULT_SIZE, defaultWidth, defaultHeight);
   puglSetHandle(app.view, &app);
   puglSetBackend(app.view, puglVulkanBackend());
   puglSetViewHint(app.view, PUGL_RESIZABLE, app.opts.resizable);

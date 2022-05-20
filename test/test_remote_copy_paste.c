@@ -131,7 +131,7 @@ main(int argc, char** argv)
   puglSetBackend(app.copierView, puglStubBackend());
   puglSetHandle(app.copierView, &app);
   puglSetEventFunc(app.copierView, onCopierEvent);
-  puglSetDefaultSize(app.copierView, 256, 256);
+  puglSetSizeHint(app.copierView, PUGL_DEFAULT_SIZE, 256, 256);
 
   // Set up paster view
   app.pasterView = puglNewView(app.world);
@@ -140,7 +140,7 @@ main(int argc, char** argv)
   puglSetBackend(app.pasterView, puglStubBackend());
   puglSetHandle(app.pasterView, &app);
   puglSetEventFunc(app.pasterView, onPasterEvent);
-  puglSetDefaultSize(app.pasterView, 256, 256);
+  puglSetSizeHint(app.pasterView, PUGL_DEFAULT_SIZE, 256, 256);
 
   // Create and show both views
   assert(!puglShow(app.copierView));

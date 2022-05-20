@@ -1708,17 +1708,16 @@ run(const char* const      programPath,
 {
   PuglVulkanDemo app{programPath, opts, numRects};
 
-  VkResult   r      = VK_SUCCESS;
-  const auto width  = static_cast<int>(app.extent.width);
-  const auto height = static_cast<int>(app.extent.height);
+  VkResult r = VK_SUCCESS;
+  const auto width  = app.extent.width;
+  const auto height = app.extent.height;
 
   // Realize window so we can set up Vulkan
   app.world.setClassName("PuglVulkanCppDemo");
   app.view.setWindowTitle("Pugl Vulkan C++ Demo");
-  app.view.setAspectRatio(1, 1, 16, 9);
-  app.view.setDefaultSize(width, height);
-  app.view.setMinSize(width / 4, height / 4);
-  app.view.setMaxSize(width * 4, height * 4);
+  app.view.setSizeHint(pugl::SizeHint::defaultSize, width, height);
+  app.view.setSizeHint(pugl::SizeHint::minSize, width / 4, height / 4);
+  app.view.setSizeHint(pugl::SizeHint::maxSize, width * 4, height * 4);
   app.view.setBackend(pugl::vulkanBackend());
   app.view.setHint(pugl::ViewHint::resizable, opts.resizable);
   const pugl::Status st = app.view.realize();

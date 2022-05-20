@@ -60,6 +60,14 @@ PUGL_BEGIN_DECLS
 */
 
 /**
+   A pixel span (width or height) within/of a view.
+
+   Due to platform limits, the span of a view in either dimension should be
+   between 1 and 10000.
+*/
+typedef uint16_t PuglSpan;
+
+/**
    A rectangle.
 
    This is used to describe things like view position and size.  Pugl generally
@@ -813,6 +821,43 @@ typedef enum {
   PUGL_TRUE      = 1   ///< Explicitly true
 } PuglViewHintValue;
 
+/**
+   A hint for configuring/constraining the size of a view.
+
+   The system will attempt to make the view's window adhere to these, but they
+   are suggestions, not hard constraints.  Applications should handle any view
+   size gracefully.
+*/
+typedef enum {
+  PUGL_DEFAULT_SIZE, ///< Default size
+  PUGL_MIN_SIZE,     ///< Minimum size
+  PUGL_MAX_SIZE,     ///< Maximum size
+
+  /**
+     Fixed aspect ratio.
+
+     If set, the view's size should be constrained to this aspect ratio.
+     Mutually exclusive with #PUGL_MIN_ASPECT and #PUGL_MAX_ASPECT.
+  */
+  PUGL_FIXED_ASPECT,
+
+  /**
+     Minimum aspect ratio.
+
+     If set, the view's size should be constrained to an aspect ratio no lower
+     than this.  Mutually exclusive with #PUGL_FIXED_ASPECT.
+  */
+  PUGL_MIN_ASPECT,
+
+  /**
+     Maximum aspect ratio.
+
+     If set, the view's size should be constrained to an aspect ratio no higher
+     than this.  Mutually exclusive with #PUGL_FIXED_ASPECT.
+  */
+  PUGL_MAX_ASPECT
+} PuglSizeHint;
+
 /// A function called when an event occurs
 typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 
@@ -940,64 +985,23 @@ PuglStatus
 puglSetFrame(PuglView* view, PuglRect frame);
 
 /**
-   Set the default size of the view.
+   Set a size hint for the view.
 
-   This should be called before puglResize() to set the default size of the
-   view, which will be the initial size of the window if this is a top level
-   view.
+   This can be used to set the default, minimum, and maximum size of a view, as
+   well as the supported range of aspect ratios.
 
-   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
-   not yet realized.
-*/
-PUGL_API
-PuglStatus
-puglSetDefaultSize(PuglView* view, int width, int height);
-
-/**
-   Set the minimum size of the view.
-
-   If an initial minimum size is known, this should be called before
-   puglRealize() to avoid stutter, though it can be called afterwards as well.
+   This should be called before puglResize() so the initial window for the view
+   can be configured correctly.
 
    @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
    not yet realized.
 */
 PUGL_API
 PuglStatus
-puglSetMinSize(PuglView* view, int width, int height);
-
-/**
-   Set the maximum size of the view.
-
-   If an initial maximum size is known, this should be called before
-   puglRealize() to avoid stutter, though it can be called afterwards as well.
-
-   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
-   not yet realized.
-*/
-PUGL_API
-PuglStatus
-puglSetMaxSize(PuglView* view, int width, int height);
-
-/**
-   Set the view aspect ratio range.
-
-   The x and y values here represent a ratio of width to height.  To set a
-   fixed aspect ratio, set the minimum and maximum values to the same ratio.
-
-   Note that setting different minimum and maximum constraints does not
-   currently work on MacOS (the minimum is used), so only setting a fixed
-   aspect ratio works properly across all platforms.
-
-   If an initial aspect ratio is known, this should be called before
-   puglRealize() to avoid stutter, though it can be called afterwards as well.
-
-   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
-   not yet realized.
-*/
-PUGL_API
-PuglStatus
-puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY);
+puglSetSizeHint(PuglView*    view,
+                PuglSizeHint hint,
+                PuglSpan     width,
+                PuglSpan     height);
 
 /**
    @}
@@ -1460,7 +1464,7 @@ static inline PUGL_DEPRECATED_BY("puglSetMinSize")
 void
 puglInitWindowMinSize(PuglView* view, int width, int height)
 {
-  puglSetMinSize(view, width, height);
+  puglSetSizeHint(view, PUGL_MIN_SIZE, (PuglSpan)width, (PuglSpan)height);
 }
 
 /**
@@ -1481,7 +1485,8 @@ puglInitWindowAspectRatio(PuglView* view,
                           int       maxX,
                           int       maxY)
 {
-  puglSetAspectRatio(view, minX, minY, maxX, maxY);
+  puglSetSizeHint(view, PUGL_MIN_ASPECT, (PuglSpan)minX, (PuglSpan)minY);
+  puglSetSizeHint(view, PUGL_MAX_ASPECT, (PuglSpan)maxX, (PuglSpan)maxY);
 }
 
 /**
@@ -1674,6 +1679,87 @@ PUGL_API
 PUGL_DEPRECATED_BY("puglHide")
 PuglStatus
 puglHideWindow(PuglView* view);
+
+/**
+   Set the default size of the view.
+
+   This should be called before puglResize() to set the default size of the
+   view, which will be the initial size of the window if this is a top level
+   view.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
+   not yet realized.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetSizeHint")
+PuglStatus
+puglSetDefaultSize(PuglView* view, int width, int height)
+{
+  return puglSetSizeHint(
+    view, PUGL_DEFAULT_SIZE, (PuglSpan)width, (PuglSpan)height);
+}
+
+/**
+   Set the minimum size of the view.
+
+   If an initial minimum size is known, this should be called before
+   puglRealize() to avoid stutter, though it can be called afterwards as well.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
+   not yet realized.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetSizeHint")
+PuglStatus
+puglSetMinSize(PuglView* view, int width, int height)
+{
+  return puglSetSizeHint(
+    view, PUGL_MIN_SIZE, (PuglSpan)width, (PuglSpan)height);
+}
+
+/**
+   Set the maximum size of the view.
+
+   If an initial maximum size is known, this should be called before
+   puglRealize() to avoid stutter, though it can be called afterwards as well.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
+   not yet realized.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetSizeHint")
+PuglStatus
+puglSetMaxSize(PuglView* view, int width, int height)
+{
+  return puglSetSizeHint(
+    view, PUGL_MAX_SIZE, (PuglSpan)width, (PuglSpan)height);
+}
+
+/**
+   Set the view aspect ratio range.
+
+   The x and y values here represent a ratio of width to height.  To set a
+   fixed aspect ratio, set the minimum and maximum values to the same ratio.
+
+   Note that setting different minimum and maximum constraints does not
+   currently work on MacOS (the minimum is used), so only setting a fixed
+   aspect ratio works properly across all platforms.
+
+   If an initial aspect ratio is known, this should be called before
+   puglRealize() to avoid stutter, though it can be called afterwards as well.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
+   not yet realized.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetSizeHint")
+PuglStatus
+puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY)
+{
+  const PuglStatus st0 =
+    puglSetSizeHint(view, PUGL_MIN_ASPECT, (PuglSpan)minX, (PuglSpan)minY);
+
+  const PuglStatus st1 =
+    puglSetSizeHint(view, PUGL_MAX_ASPECT, (PuglSpan)maxX, (PuglSpan)maxY);
+
+  return st0 ? st0 : st1;
+}
 
 #endif // PUGL_DISABLE_DEPRECATED
 

@@ -224,30 +224,45 @@ updateSizeHints(const PuglView* const view)
     sizeHints.max_width   = (int)view->frame.width;
     sizeHints.max_height  = (int)view->frame.height;
   } else {
-    if (view->defaultWidth || view->defaultHeight) {
+    const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
+    if (defaultSize.width && defaultSize.height) {
       sizeHints.flags |= PBaseSize;
-      sizeHints.base_width  = view->defaultWidth;
-      sizeHints.base_height = view->defaultHeight;
+      sizeHints.base_width  = defaultSize.width;
+      sizeHints.base_height = defaultSize.height;
     }
 
-    if (view->minWidth || view->minHeight) {
+    const PuglViewSize minSize = view->sizeHints[PUGL_MIN_SIZE];
+    if (minSize.width && minSize.height) {
       sizeHints.flags |= PMinSize;
-      sizeHints.min_width  = view->minWidth;
-      sizeHints.min_height = view->minHeight;
+      sizeHints.min_width  = minSize.width;
+      sizeHints.min_height = minSize.height;
     }
 
-    if (view->maxWidth || view->maxHeight) {
+    const PuglViewSize maxSize = view->sizeHints[PUGL_MAX_SIZE];
+    if (maxSize.width && maxSize.height) {
       sizeHints.flags |= PMaxSize;
-      sizeHints.max_width  = view->maxWidth;
-      sizeHints.max_height = view->maxHeight;
+      sizeHints.max_width  = maxSize.width;
+      sizeHints.max_height = maxSize.height;
     }
 
-    if (view->minAspectX) {
+    const PuglViewSize minAspect = view->sizeHints[PUGL_MIN_ASPECT];
+    const PuglViewSize maxAspect = view->sizeHints[PUGL_MAX_ASPECT];
+    if (minAspect.width && minAspect.height && maxAspect.width &&
+        maxAspect.height) {
       sizeHints.flags |= PAspect;
-      sizeHints.min_aspect.x = view->minAspectX;
-      sizeHints.min_aspect.y = view->minAspectY;
-      sizeHints.max_aspect.x = view->maxAspectX;
-      sizeHints.max_aspect.y = view->maxAspectY;
+      sizeHints.min_aspect.x = minAspect.width;
+      sizeHints.min_aspect.y = minAspect.height;
+      sizeHints.max_aspect.x = maxAspect.width;
+      sizeHints.max_aspect.y = maxAspect.height;
+    }
+
+    const PuglViewSize fixedAspect = view->sizeHints[PUGL_FIXED_ASPECT];
+    if (fixedAspect.width && fixedAspect.height) {
+      sizeHints.flags |= PAspect;
+      sizeHints.min_aspect.x = fixedAspect.width;
+      sizeHints.min_aspect.y = fixedAspect.height;
+      sizeHints.max_aspect.x = fixedAspect.width;
+      sizeHints.max_aspect.y = fixedAspect.height;
     }
   }
 
@@ -314,12 +329,13 @@ puglRealize(PuglView* const view)
 
   // Set the size to the default if it has not already been set
   if (view->frame.width <= 0.0 && view->frame.height <= 0.0) {
-    if (view->defaultWidth <= 0.0 || view->defaultHeight <= 0.0) {
+    const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
+    if (!defaultSize.width || !defaultSize.height) {
       return PUGL_BAD_CONFIGURATION;
     }
 
-    view->frame.width  = view->defaultWidth;
-    view->frame.height = view->defaultHeight;
+    view->frame.width  = defaultSize.width;
+    view->frame.height = defaultSize.height;
   }
 
   // Center top-level windows if a position has not been set
@@ -1366,40 +1382,17 @@ puglSetFrame(PuglView* const view, const PuglRect frame)
 }
 
 PuglStatus
-puglSetDefaultSize(PuglView* const view, const int width, const int height)
+puglSetSizeHint(PuglView* const    view,
+                const PuglSizeHint hint,
+                const PuglSpan     width,
+                const PuglSpan     height)
 {
-  view->defaultWidth  = width;
-  view->defaultHeight = height;
-  return updateSizeHints(view);
-}
+  if ((unsigned)hint > (unsigned)PUGL_MAX_ASPECT) {
+    return PUGL_BAD_PARAMETER;
+  }
 
-PuglStatus
-puglSetMinSize(PuglView* const view, const int width, const int height)
-{
-  view->minWidth  = width;
-  view->minHeight = height;
-  return updateSizeHints(view);
-}
-
-PuglStatus
-puglSetMaxSize(PuglView* const view, const int width, const int height)
-{
-  view->maxWidth  = width;
-  view->maxHeight = height;
-  return updateSizeHints(view);
-}
-
-PuglStatus
-puglSetAspectRatio(PuglView* const view,
-                   const int       minX,
-                   const int       minY,
-                   const int       maxX,
-                   const int       maxY)
-{
-  view->minAspectX = minX;
-  view->minAspectY = minY;
-  view->maxAspectX = maxX;
-  view->maxAspectY = maxY;
+  view->sizeHints[hint].width  = width;
+  view->sizeHints[hint].height = height;
   return updateSizeHints(view);
 }
 

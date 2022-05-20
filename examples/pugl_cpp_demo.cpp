@@ -115,10 +115,11 @@ main(int argc, char** argv)
   world.setClassName("PuglCppDemo");
 
   view.setWindowTitle("Pugl C++ Demo");
-  view.setDefaultSize(512, 512);
-  view.setMinSize(64, 64);
-  view.setMaxSize(256, 256);
-  view.setAspectRatio(1, 1, 16, 9);
+  view.setSizeHint(pugl::SizeHint::defaultSize, 512, 512);
+  view.setSizeHint(pugl::SizeHint::minSize, 64, 64);
+  view.setSizeHint(pugl::SizeHint::maxSize, 1024, 1024);
+  view.setSizeHint(pugl::SizeHint::minAspect, 1, 1);
+  view.setSizeHint(pugl::SizeHint::maxAspect, 16, 9);
   view.setBackend(pugl::glBackend());
   view.setHint(pugl::ViewHint::resizable, opts.resizable);
   view.setHint(pugl::ViewHint::samples, opts.samples);

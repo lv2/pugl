@@ -522,8 +522,11 @@ constrainAspect(const PuglView* const view,
                 RECT* const           size,
                 const WPARAM          wParam)
 {
-  const float minA = (float)view->minAspectX / (float)view->minAspectY;
-  const float maxA = (float)view->maxAspectX / (float)view->maxAspectY;
+  const PuglViewSize minAspect = view->sizeHints[PUGL_MIN_ASPECT];
+  const PuglViewSize maxAspect = view->sizeHints[PUGL_MAX_ASPECT];
+
+  const float minA = (float)minAspect.width / (float)minAspect.height;
+  const float maxA = (float)maxAspect.width / (float)maxAspect.height;
   const float w    = (float)(size->right - size->left);
   const float h    = (float)(size->bottom - size->top);
   const float a    = w / h;
@@ -602,7 +605,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     }
     break;
   case WM_SIZING:
-    if (view->minAspectX) {
+    if (view->sizeHints[PUGL_MIN_ASPECT].width) {
       constrainAspect(view, (RECT*)lParam, wParam);
       return TRUE;
     }
@@ -624,11 +627,12 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     break;
   case WM_GETMINMAXINFO:
     mmi                   = (MINMAXINFO*)lParam;
-    mmi->ptMinTrackSize.x = view->minWidth;
-    mmi->ptMinTrackSize.y = view->minHeight;
-    if (view->maxWidth > 0 && view->maxHeight > 0) {
-      mmi->ptMaxTrackSize.x = view->maxWidth;
-      mmi->ptMaxTrackSize.y = view->maxHeight;
+    mmi->ptMinTrackSize.x = view->sizeHints[PUGL_MIN_SIZE].width;
+    mmi->ptMinTrackSize.y = view->sizeHints[PUGL_MIN_SIZE].height;
+    if (view->sizeHints[PUGL_MAX_SIZE].width &&
+        view->sizeHints[PUGL_MAX_SIZE].height) {
+      mmi->ptMaxTrackSize.x = view->sizeHints[PUGL_MAX_SIZE].width;
+      mmi->ptMaxTrackSize.y = view->sizeHints[PUGL_MAX_SIZE].height;
     }
     break;
   case WM_PAINT:
@@ -1008,40 +1012,17 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 }
 
 PuglStatus
-puglSetDefaultSize(PuglView* const view, const int width, const int height)
+puglSetSizeHint(PuglView* const    view,
+                const PuglSizeHint hint,
+                const PuglSpan     width,
+                const PuglSpan     height)
 {
-  view->defaultWidth  = width;
-  view->defaultHeight = height;
-  return PUGL_SUCCESS;
-}
+  if ((unsigned)hint > (unsigned)PUGL_MAX_ASPECT || width < 0 || height < 0) {
+    return PUGL_BAD_PARAMETER;
+  }
 
-PuglStatus
-puglSetMinSize(PuglView* const view, const int width, const int height)
-{
-  view->minWidth  = width;
-  view->minHeight = height;
-  return PUGL_SUCCESS;
-}
-
-PuglStatus
-puglSetMaxSize(PuglView* const view, const int width, const int height)
-{
-  view->maxWidth  = width;
-  view->maxHeight = height;
-  return PUGL_SUCCESS;
-}
-
-PuglStatus
-puglSetAspectRatio(PuglView* const view,
-                   const int       minX,
-                   const int       minY,
-                   const int       maxX,
-                   const int       maxY)
-{
-  view->minAspectX = minX;
-  view->minAspectY = minY;
-  view->maxAspectX = maxX;
-  view->maxAspectY = maxY;
+  view->sizeHints[hint].width  = width;
+  view->sizeHints[hint].height = height;
   return PUGL_SUCCESS;
 }
 
@@ -1206,7 +1187,8 @@ puglWinCreateWindow(PuglView* const   view,
   const unsigned winExFlags = puglWinGetWindowExFlags(view);
 
   if (view->frame.width <= 0.0 && view->frame.height <= 0.0) {
-    if (view->defaultWidth <= 0.0 && view->defaultHeight <= 0.0) {
+    const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
+    if (!defaultSize.width || !defaultSize.height) {
       return PUGL_BAD_CONFIGURATION;
     }
 
@@ -1216,10 +1198,10 @@ puglWinCreateWindow(PuglView* const   view,
     const int screenWidth  = desktopRect.right - desktopRect.left;
     const int screenHeight = desktopRect.bottom - desktopRect.top;
 
-    view->frame.width  = view->defaultWidth;
-    view->frame.height = view->defaultHeight;
-    view->frame.x      = screenWidth / 2.0 - view->frame.width / 2.0;
-    view->frame.y      = screenHeight / 2.0 - view->frame.height / 2.0;
+    view->frame.width  = defaultSize.width;
+    view->frame.height = defaultSize.height;
+    view->frame.x      = (screenWidth - view->frame.width) / 2.0;
+    view->frame.y      = (screenHeight - view->frame.height) / 2.0;
   }
 
   // The meaning of "parent" depends on the window type (WS_CHILD)

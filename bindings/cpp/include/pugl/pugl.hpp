@@ -327,6 +327,15 @@ public:
 using Backend    = PuglBackend;    ///< @copydoc PuglBackend
 using NativeView = PuglNativeView; ///< @copydoc PuglNativeView
 
+/// @copydoc PuglSizeHint
+enum class SizeHint {
+  defaultSize, ///< @copydoc PUGL_DEFAULT_SIZE
+  minSize,     ///< @copydoc PUGL_MIN_SIZE
+  maxSize,     ///< @copydoc PUGL_MAX_SIZE
+  minAspect,   ///< @copydoc PUGL_MIN_ASPECT
+  maxAspect,   ///< @copydoc PUGL_MAX_ASPECT
+};
+
 /// @copydoc PuglViewHint
 enum class ViewHint {
   useCompatProfile,    ///< @copydoc PUGL_USE_COMPAT_PROFILE
@@ -458,29 +467,11 @@ public:
     return static_cast<Status>(puglSetFrame(cobj(), frame));
   }
 
-  /// @copydoc puglSetDefaultSize
-  Status setDefaultSize(int width, int height) noexcept
-  {
-    return static_cast<Status>(puglSetDefaultSize(cobj(), width, height));
-  }
-
-  /// @copydoc puglSetMinSize
-  Status setMinSize(int width, int height) noexcept
-  {
-    return static_cast<Status>(puglSetMinSize(cobj(), width, height));
-  }
-
-  /// @copydoc puglSetMaxSize
-  Status setMaxSize(int width, int height) noexcept
-  {
-    return static_cast<Status>(puglSetMaxSize(cobj(), width, height));
-  }
-
-  /// @copydoc puglSetAspectRatio
-  Status setAspectRatio(int minX, int minY, int maxX, int maxY) noexcept
+  /// @copydoc puglSetSizeHint
+  Status setSizeHint(SizeHint hint, PuglSpan width, PuglSpan height) noexcept
   {
     return static_cast<Status>(
-      puglSetAspectRatio(cobj(), minX, minY, maxX, maxY));
+      puglSetSizeHint(cobj(), static_cast<PuglSizeHint>(hint), width, height));
   }
 
   /**

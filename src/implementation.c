@@ -139,9 +139,9 @@ puglNewView(PuglWorld* const world)
     return NULL;
   }
 
-  view->world     = world;
-  view->minWidth  = 1;
-  view->minHeight = 1;
+  view->world                           = world;
+  view->sizeHints[PUGL_MIN_SIZE].width  = 1;
+  view->sizeHints[PUGL_MIN_SIZE].height = 1;
 
   puglSetDefaultHints(view->hints);
 

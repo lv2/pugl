@@ -34,7 +34,7 @@ main(void)
   puglSetWindowTitle(view, "Pugl Stub Hints Test");
   puglSetBackend(view, puglStubBackend());
   puglSetEventFunc(view, onEvent);
-  puglSetDefaultSize(view, 512, 512);
+  puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
 
   // Check invalid cases
   assert(puglSetViewHint(view, (PuglViewHint)9999, 0) == PUGL_BAD_PARAMETER);

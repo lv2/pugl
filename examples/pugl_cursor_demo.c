@@ -124,9 +124,9 @@ main(int argc, char** argv)
   PuglView* view = puglNewView(app.world);
 
   puglSetWindowTitle(view, "Pugl Cursor Demo");
-  puglSetDefaultSize(view, 512, 256);
-  puglSetMinSize(view, 128, 64);
-  puglSetMaxSize(view, 512, 256);
+  puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 256);
+  puglSetSizeHint(view, PUGL_MIN_SIZE, 128, 64);
+  puglSetSizeHint(view, PUGL_MAX_SIZE, 512, 256);
   puglSetBackend(view, puglGlBackend());
 
   puglSetViewHint(view, PUGL_USE_DEBUG_CONTEXT, app.opts.errorChecking);

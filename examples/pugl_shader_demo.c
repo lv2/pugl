@@ -45,8 +45,7 @@
 #  define SHADER_DIR "shaders/"
 #endif
 
-static const int       defaultWidth  = 512;
-static const int       defaultHeight = 512;
+static const PuglSpan  defaultSpan   = 512;
 static const uintptr_t resizeTimerId = 1u;
 
 typedef struct {
@@ -180,7 +179,7 @@ makeRects(const size_t numRects)
 {
   Rect* rects = (Rect*)calloc(numRects, sizeof(Rect));
   for (size_t i = 0; i < numRects; ++i) {
-    rects[i] = makeRect(i, (float)defaultWidth);
+    rects[i] = makeRect(i, defaultSpan);
   }
 
   return rects;
@@ -262,10 +261,11 @@ setupPugl(PuglTestApp* app)
   // Set up world and view
   puglSetClassName(app->world, "PuglShaderDemo");
   puglSetWindowTitle(app->view, "Pugl OpenGL Shader Demo");
-  puglSetDefaultSize(app->view, defaultWidth, defaultHeight);
-  puglSetMinSize(app->view, defaultWidth / 4, defaultHeight / 4);
-  puglSetMaxSize(app->view, defaultWidth * 4, defaultHeight * 4);
-  puglSetAspectRatio(app->view, 1, 1, 16, 9);
+  puglSetSizeHint(app->view, PUGL_DEFAULT_SIZE, defaultSpan, defaultSpan);
+  puglSetSizeHint(app->view, PUGL_MIN_SIZE, 128, 128);
+  puglSetSizeHint(app->view, PUGL_MAX_SIZE, 2048, 2048);
+  puglSetSizeHint(app->view, PUGL_MIN_ASPECT, 1, 1);
+  puglSetSizeHint(app->view, PUGL_MAX_ASPECT, 16, 9);
   puglSetBackend(app->view, puglGlBackend());
   puglSetViewHint(app->view, PUGL_USE_COMPAT_PROFILE, PUGL_FALSE);
   puglSetViewHint(app->view, PUGL_USE_DEBUG_CONTEXT, app->opts.errorChecking);

@@ -25,6 +25,7 @@ _opaque = [
     "VkResult",
     "VkSurfaceKHR",
     "size_t",
+    "uint16_t",
     "uint32_t",
     "uintptr_t",
 ]

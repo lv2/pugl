@@ -21,6 +21,12 @@ typedef struct PuglInternalsImpl PuglInternals;
 /// View hints
 typedef int PuglHints[PUGL_NUM_VIEW_HINTS];
 
+/// View size (both X and Y coordinates)
+typedef struct {
+  PuglSpan width;
+  PuglSpan height;
+} PuglViewSize;
+
 /// Blob of arbitrary data
 typedef struct {
   void*  data; ///< Dynamically allocated data
@@ -41,16 +47,7 @@ struct PuglViewImpl {
   PuglRect           frame;
   PuglConfigureEvent lastConfigure;
   PuglHints          hints;
-  int                defaultWidth;
-  int                defaultHeight;
-  int                minWidth;
-  int                minHeight;
-  int                maxWidth;
-  int                maxHeight;
-  int                minAspectX;
-  int                minAspectY;
-  int                maxAspectX;
-  int                maxAspectY;
+  PuglViewSize       sizeHints[(unsigned)PUGL_MAX_ASPECT + 1u];
   bool               visible;
 };
 
