@@ -875,16 +875,18 @@ puglInitViewInternals(void)
 }
 
 static NSLayoutConstraint*
-puglConstraint(id item, NSLayoutAttribute attribute, float constant)
+puglConstraint(const id                item,
+               const NSLayoutAttribute attribute,
+               const NSLayoutRelation  relation,
+               const float             constant)
 {
-  return
-    [NSLayoutConstraint constraintWithItem:item
-                                 attribute:attribute
-                                 relatedBy:NSLayoutRelationGreaterThanOrEqual
-                                    toItem:nil
-                                 attribute:NSLayoutAttributeNotAnAttribute
-                                multiplier:1.0
-                                  constant:(CGFloat)constant];
+  return [NSLayoutConstraint constraintWithItem:item
+                                      attribute:attribute
+                                      relatedBy:relation
+                                         toItem:nil
+                                      attribute:NSLayoutAttributeNotAnAttribute
+                                     multiplier:1.0
+                                       constant:(CGFloat)constant];
 }
 
 PuglStatus
@@ -959,12 +961,32 @@ puglRealize(PuglView* view)
   impl->wrapperView->markedText = [[NSMutableAttributedString alloc] init];
   [impl->wrapperView setAutoresizesSubviews:YES];
   [impl->wrapperView initWithFrame:framePt];
-  [impl->wrapperView addConstraint:puglConstraint(impl->wrapperView,
-                                                  NSLayoutAttributeWidth,
-                                                  view->minWidth)];
-  [impl->wrapperView addConstraint:puglConstraint(impl->wrapperView,
-                                                  NSLayoutAttributeHeight,
-                                                  view->minHeight)];
+
+  [impl->wrapperView
+    addConstraint:puglConstraint(impl->wrapperView,
+                                 NSLayoutAttributeWidth,
+                                 NSLayoutRelationGreaterThanOrEqual,
+                                 view->minWidth)];
+
+  [impl->wrapperView
+    addConstraint:puglConstraint(impl->wrapperView,
+                                 NSLayoutAttributeHeight,
+                                 NSLayoutRelationGreaterThanOrEqual,
+                                 view->minHeight)];
+
+  if (view->maxWidth && view->maxHeight) {
+    [impl->wrapperView
+      addConstraint:puglConstraint(impl->wrapperView,
+                                   NSLayoutAttributeWidth,
+                                   NSLayoutRelationLessThanOrEqual,
+                                   view->maxWidth)];
+
+    [impl->wrapperView
+      addConstraint:puglConstraint(impl->wrapperView,
+                                   NSLayoutAttributeHeight,
+                                   NSLayoutRelationLessThanOrEqual,
+                                   view->maxHeight)];
+  }
 
   // Create draw view to be rendered to
   PuglStatus st = PUGL_SUCCESS;
