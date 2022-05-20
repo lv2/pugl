@@ -3,7 +3,7 @@ Upstream-Name: pugl
 Upstream-Contact: David Robillard <d@drobilla.net>
 Source: https://gitlab.com/lv2/pugl
 
-Files: *.md */.clang* .clang* .clant.json .editorconfig .git* .includes.imp AUTHORS doc/*.in meson_options.txt resources/Info.plist.in
+Files: **/meson.build *.md */.clang* .clang* .clant.json .editorconfig .git* .includes.imp AUTHORS doc/*.in meson_options.txt resources/Info.plist.in
 Copyright: 2021 David Robillard <d@drobilla.net>
 License: CC0-1.0 OR ISC
 
