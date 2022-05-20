@@ -127,6 +127,7 @@ main(int argc, char** argv)
   // Set up copier view
   app.copierView = puglNewView(app.world);
   puglSetClassName(app.world, "PuglTest");
+  puglSetWindowTitle(app.copierView, "Pugl Copy Test");
   puglSetBackend(app.copierView, puglStubBackend());
   puglSetHandle(app.copierView, &app);
   puglSetEventFunc(app.copierView, onCopierEvent);
@@ -135,6 +136,7 @@ main(int argc, char** argv)
   // Set up paster view
   app.pasterView = puglNewView(app.world);
   puglSetClassName(app.world, "PuglTest");
+  puglSetWindowTitle(app.pasterView, "Pugl Paste Test");
   puglSetBackend(app.pasterView, puglStubBackend());
   puglSetHandle(app.pasterView, &app);
   puglSetEventFunc(app.pasterView, onPasterEvent);
