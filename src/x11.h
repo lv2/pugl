@@ -56,9 +56,7 @@ struct PuglInternalsImpl {
   PuglEvent    pendingConfigure;
   PuglEvent    pendingExpose;
   int          screen;
-#ifdef HAVE_XCURSOR
-  unsigned cursorShape;
-#endif
+  const char*  cursorName;
 };
 
 PUGL_WARN_UNUSED_RESULT
