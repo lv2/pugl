@@ -69,15 +69,23 @@ puglWideCharToUtf8(const wchar_t* const wstr, size_t* len)
 static bool
 puglRegisterWindowClass(const char* name)
 {
+  HMODULE module = NULL;
+  if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                           GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                         (LPCTSTR)puglRegisterWindowClass,
+                         &module)) {
+    module = GetModuleHandle(NULL);
+  }
+
   WNDCLASSEX wc = {0};
-  if (GetClassInfoEx(GetModuleHandle(NULL), name, &wc)) {
+  if (GetClassInfoEx(module, name, &wc)) {
     return true; // Already registered
   }
 
   wc.cbSize        = sizeof(wc);
   wc.style         = CS_OWNDC;
   wc.lpfnWndProc   = wndProc;
-  wc.hInstance     = GetModuleHandle(NULL);
+  wc.hInstance     = module;
   wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
   wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
   wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
