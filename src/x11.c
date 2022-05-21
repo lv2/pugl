@@ -387,10 +387,6 @@ puglRealize(PuglView* const view)
                         impl->win,
                         (XIM)0);
 
-#ifdef HAVE_XCURSOR
-  defineCursorShape(view, impl->cursorShape);
-#endif
-
   puglDispatchSimpleEvent(view, PUGL_CREATE);
 
   return PUGL_SUCCESS;
