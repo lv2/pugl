@@ -604,6 +604,9 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
       InvalidateRect(view->impl->hwnd, NULL, false);
     }
     break;
+  case WM_WINDOWPOSCHANGED:
+    handleConfigure(view, &event);
+    break;
   case WM_SIZING:
     if (view->sizeHints[PUGL_MIN_ASPECT].width) {
       constrainAspect(view, (RECT*)lParam, wParam);
