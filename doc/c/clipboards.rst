@@ -5,54 +5,45 @@
 Using Clipboards
 ################
 
-Clipboards provide a way to transfer data between different views,
+Clipboards provide a way to transfer information between different views,
 including views in different processes.
-A clipboard transfer is a multi-step event-driven process,
-where the sender and receiver can negotiate a mutually supported data format.
 
-*******
-Copying
-*******
+In Pugl, both "copy and paste" and "drag and drop" interactions are supported by the same clipboard mechanism.
+Several functions are used for both,
+and take a :enum:`PuglClipboard` enumerator to distinguish which clipboard the operation applies to.
 
-Data can be copied to the general clipboard with :func:`puglSetClipboard`.
-The `MIME type <https://www.iana.org/assignments/media-types/media-types.xhtml>`_ of the data must be specified.
-Commonly supported types are ``text/plain`` for plain text,
-and `text/uri-list <http://amundsen.com/hypermedia/urilist/>`_ for lists of URIs (including local files).
+Because these interactions support transfer of data between processes and negotiation of the data type,
+each is a multi-step process.
+As with everything, events are used to notify the application about relevant changes.
 
-For example, a string can be copied to the clipboard by setting the general clipboard to ``text/plain`` data:
+*************
+Drag and Drop
+*************
 
-.. code-block:: c
-
-   const char* someString = "Copied string";
-
-   puglSetClipboard(view,
-                    "text/plain",
-                    someString,
-                    strlen(someString));
-
-*******
-Pasting
-*******
-
-Data from a clipboard can be pasted to a view using :func:`puglPaste`:
+To enable support for receiving a particular type of dragged data,
+:func:`puglRegisterDragType` must be called during setup to register a MIME type.
+For example, the common case of accepting a list of files is supported by the `text/uri-list <http://amundsen.com/hypermedia/urilist/>`_ type.
 
 .. code-block:: c
 
-   puglPaste(view);
+   puglRegisterDragType(view, "text/uri-list");
 
-This initiates a data transfer from the clipboard to the view if possible.
-If data is available,
-the view will be sent a :enumerator:`PUGL_DATA_OFFER` event to begin the transfer.
-
-**************
-Receiving Data
-**************
-
-A data transfer from a clipboard to a view begins with the view receiving a :enumerator:`PUGL_DATA_OFFER` event.
-This indicates that data (possibly in several formats) is being offered to a view,
-which can either "accept" or "reject" it:
+On Windows, this is the only type that is currently supported.
+On MacOS and X11, other data types can be used,
+such as ``text/plain`` (which is implicitly UTF-8 encoded),
+or ``application/zip``:
 
 .. code-block:: c
+
+   puglRegisterDragType(view, "text/plain");
+   puglRegisterDragType(view, "application/zip");
+
+Receiving dropped data begins by receiving a :enumerator:`PUGL_DATA_OFFER` event.
+This event signals that data is being "offered" by being dragged (but not yet dropped) over the view:
+
+.. code-block:: c
+
+   // ...
 
    case PUGL_DATA_OFFER:
      onDataOffer(view, &event->offer);
@@ -69,18 +60,18 @@ When handling this event,
      PuglClipboard clipboard = event->clipboard;
      size_t        numTypes  = puglGetNumClipboardTypes(view, clipboard);
 
-     for (uint32_t t = 0; t < numTypes; ++t) {
+     for (size_t t = 0; t < numTypes; ++t) {
        const char* type = puglGetClipboardType(view, clipboard, t);
        printf("Offered type: %s\n", type);
      }
    }
 
-If the view supports one of the data types,
-it can accept the offer with :func:`puglAcceptOffer`:
+If the view supports dropping one of the data types at the specified cursor location,
+it can accept the drop with :func:`puglAcceptOffer`:
 
 .. code-block:: c
 
-   for (uint32_t t = 0; t < numTypes; ++t) {
+   for (size_t t = 0; t < numTypes; ++t) {
      const char* type = puglGetClipboardType(view, clipboard, t);
      if (!strcmp(type, "text/uri-list")) {
        puglAcceptOffer(view,
@@ -90,16 +81,20 @@ it can accept the offer with :func:`puglAcceptOffer`:
      }
    }
 
-An :enum:`action <PuglAction>` and view region must be given,
-which the window system may use to optimize the process and/or provide user feedback.
+This process will happen repeatedly while the user drags the item around the view.
+Different actions may be given which may affect how the drag is presented to the user,
+for example by changing the mouse cursor.
+The last argument specifies the region of the view which this response applies to,
+which may be used as an optimization to send fewer events.
+It is safe, though possibly sub-optimal, to simply specify the entire frame as is done above.
 
-When an offer is accepted,
-the data will be transferred and converted if necessary,
-then the view will be sent a :enumerator:`PUGL_DATA` event.
-When the data event is received,
-the data can be fetched with :func:`puglGetClipboard`:
+When the item is dropped,
+Pugl will transfer the data in the appropriate datatype behind the scenes,
+and send a :enumerator:`PUGL_DATA` event to signal that the data is ready to be fetched with :func:`puglGetClipboard`:
 
 .. code-block:: c
+
+   // ...
 
    case PUGL_DATA:
      onData(view, &event->data);
@@ -124,3 +119,37 @@ the data can be fetched with :func:`puglGetClipboard`:
        printf("Dropped: %s\n", (const char*)data);
      }
    }
+
+**************
+Copy and Paste
+**************
+
+Data can be copied to the "general" clipboard with :func:`puglSetClipboard`:
+
+.. code-block:: c
+
+   // ...
+
+   if ((event->state & PUGL_MOD_CTRL) && event->key == 'c') {
+     const char* someString = /* ... */;
+
+     puglSetClipboard(view,
+                      PUGL_CLIPBOARD_GENERAL,
+                      "text/plain",
+                      someString,
+                      strlen(someString) + 1);
+   }
+
+Pasting data works nearly the same way as receiving dropped data,
+except the events use :enumerator:`PUGL_CLIPBOARD_GENERAL` instead of :enumerator:`PUGL_CLIPBOARD_DRAG`.
+Unlike dropping, however, the receiving application must itself initiate the transfer,
+using :func:`puglPaste`:
+
+.. code-block:: c
+
+   if ((event->state & PUGL_MOD_CTRL) && event->key == 'v') {
+     puglPaste(view);
+   }
+
+This will result in a :enumerator:`PUGL_DATA_OFFER` event being sent as above,
+which must be accepted to ultimately receive the data in the desired data type.
