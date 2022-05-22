@@ -44,6 +44,19 @@ typedef struct {
   Atom NET_WM_WINDOW_TYPE_NORMAL;
   Atom NET_WM_WINDOW_TYPE_UTILITY;
   Atom TARGETS;
+  Atom XdndActionCopy;
+  Atom XdndActionLink;
+  Atom XdndActionMove;
+  Atom XdndActionPrivate;
+  Atom XdndAware;
+  Atom XdndDrop;
+  Atom XdndEnter;
+  Atom XdndFinished;
+  Atom XdndLeave;
+  Atom XdndPosition;
+  Atom XdndSelection;
+  Atom XdndStatus;
+  Atom XdndTypeList;
   Atom text_uri_list;
 } PuglX11Atoms;
 
@@ -89,6 +102,7 @@ struct PuglInternalsImpl {
   PuglX11Clipboard clipboard;
   long             frameExtentLeft;
   long             frameExtentTop;
+  PuglX11Clipboard drag;
   int              screen;
   const char*      cursorName;
   bool             mapped;

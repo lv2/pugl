@@ -76,6 +76,8 @@
 #  define PUGL_INIT_STRUCT {0}
 #endif
 
+static const Atom PUGL_DND_PROTOCOL_VERSION = 5;
+
 enum WmClientStateMessageAction {
   WM_STATE_REMOVE,
   WM_STATE_ADD,
@@ -227,8 +229,21 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
   impl->atoms.NET_WM_WINDOW_TYPE_UTILITY =
     XInternAtom(display, "_NET_WM_WINDOW_TYPE_UTILITY", 0);
 
-  impl->atoms.TARGETS       = XInternAtom(display, "TARGETS", 0);
-  impl->atoms.text_uri_list = XInternAtom(display, "text/uri-list", 0);
+  impl->atoms.TARGETS           = XInternAtom(display, "TARGETS", 0);
+  impl->atoms.XdndActionCopy    = XInternAtom(display, "XdndActionCopy", 0);
+  impl->atoms.XdndActionLink    = XInternAtom(display, "XdndActionLink", 0);
+  impl->atoms.XdndActionMove    = XInternAtom(display, "XdndActionMove", 0);
+  impl->atoms.XdndActionPrivate = XInternAtom(display, "XdndActionPrivate", 0);
+  impl->atoms.XdndAware         = XInternAtom(display, "XdndAware", 0);
+  impl->atoms.XdndDrop          = XInternAtom(display, "XdndDrop", 0);
+  impl->atoms.XdndEnter         = XInternAtom(display, "XdndEnter", 0);
+  impl->atoms.XdndFinished      = XInternAtom(display, "XdndFinished", 0);
+  impl->atoms.XdndLeave         = XInternAtom(display, "XdndLeave", 0);
+  impl->atoms.XdndPosition      = XInternAtom(display, "XdndPosition", 0);
+  impl->atoms.XdndSelection     = XInternAtom(display, "XdndSelection", 0);
+  impl->atoms.XdndStatus        = XInternAtom(display, "XdndStatus", 0);
+  impl->atoms.XdndTypeList      = XInternAtom(display, "XdndTypeList", 0);
+  impl->atoms.text_uri_list     = XInternAtom(display, "text/uri-list", 0);
 
   // Open input method
   XSetLocaleModifiers("");
@@ -258,6 +273,9 @@ puglInitViewInternals(PuglWorld* const world)
   impl->clipboard.clipboard = PUGL_CLIPBOARD_GENERAL;
   impl->clipboard.selection = world->impl->atoms.CLIPBOARD;
   impl->clipboard.property  = XA_PRIMARY;
+  impl->drag.clipboard      = PUGL_CLIPBOARD_DRAG;
+  impl->drag.selection      = world->impl->atoms.XdndSelection;
+  impl->drag.property       = world->impl->atoms.XdndSelection;
 
 #if USE_XCURSOR
   impl->cursorName = cursorNames[PUGL_CURSOR_ARROW];
@@ -690,6 +708,16 @@ puglRealize(PuglView* const view)
                           (XIM)0);
   }
 
+  // DnD Step 0: Set XdndAware property to announce that we support DnD
+  XChangeProperty(display,
+                  impl->win,
+                  world->impl->atoms.XdndAware,
+                  XA_ATOM,
+                  32,
+                  PropModeReplace,
+                  (const unsigned char*)&PUGL_DND_PROTOCOL_VERSION,
+                  1);
+
   st = puglDispatchSimpleEvent(view, PUGL_REALIZE);
 
   /* Flush before returning for two reasons: so that hints are available to the
@@ -948,21 +976,46 @@ getAtomProperty(PuglView* const view,
 static PuglX11Clipboard*
 getX11Clipboard(PuglView* const view, const PuglClipboard clipboard)
 {
-  return clipboard == PUGL_CLIPBOARD_GENERAL ? &view->impl->clipboard : NULL;
+  return clipboard == PUGL_CLIPBOARD_DRAG ? &view->impl->drag
+                                          : &view->impl->clipboard;
 }
 
 static const PuglX11Clipboard*
 getConstX11Clipboard(const PuglView* const view, const PuglClipboard clipboard)
 {
-  return clipboard == PUGL_CLIPBOARD_GENERAL ? &view->impl->clipboard : NULL;
+  return clipboard == PUGL_CLIPBOARD_DRAG ? &view->impl->drag
+                                          : &view->impl->clipboard;
 }
 
 static PuglX11Clipboard*
 getX11SelectionClipboard(PuglView* const view, const Atom selection)
 {
-  return (selection == view->world->impl->atoms.CLIPBOARD)
-           ? getX11Clipboard(view, PUGL_CLIPBOARD_GENERAL)
-           : NULL;
+  if (selection == view->world->impl->atoms.CLIPBOARD) {
+    return getX11Clipboard(view, PUGL_CLIPBOARD_GENERAL);
+  }
+
+  if (selection == view->world->impl->atoms.XdndSelection) {
+    return getX11Clipboard(view, PUGL_CLIPBOARD_DRAG);
+  }
+
+  return NULL;
+}
+
+static Atom
+getX11ActionAtom(const PuglView* const view, const PuglDataAction action)
+{
+  switch (action) {
+  case PUGL_DATA_ACTION_COPY:
+    return view->world->impl->atoms.XdndActionCopy;
+  case PUGL_DATA_ACTION_LINK:
+    return view->world->impl->atoms.XdndActionLink;
+  case PUGL_DATA_ACTION_MOVE:
+    return view->world->impl->atoms.XdndActionMove;
+  case PUGL_DATA_ACTION_PRIVATE:
+    break;
+  }
+
+  return view->world->impl->atoms.XdndActionPrivate;
 }
 
 static PuglStatus
@@ -1029,6 +1082,7 @@ setClipboardFormats(PuglView* const         view,
 static PuglEvent
 translateClientMessage(PuglView* const view, XClientMessageEvent message)
 {
+  PuglInternals* const      impl    = view->impl;
   Display* const            display = view->world->impl->display;
   const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
   PuglEvent                 event   = {{PUGL_NOTHING, 0U}};
@@ -1048,10 +1102,102 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
                  SubstructureNotifyMask | SubstructureRedirectMask,
                  &reply);
     }
+
   } else if (message.message_type == atoms->PUGL_CLIENT_MSG) {
     event.type         = PUGL_CLIENT;
     event.client.data1 = (uintptr_t)message.data.l[0];
     event.client.data2 = (uintptr_t)message.data.l[1];
+
+  } else if (message.message_type == atoms->XdndEnter) {
+    // DnD Step 2: Target receives XdndEnter (drag entered target window)
+    // int version = (int)(message.data.l[1] >> 24);
+    impl->drag.source = (Window)message.data.l[0];
+
+    unsigned long numFormats = 0;
+    Atom*         formats    = NULL;
+    const bool    isList     = message.data.l[1] & 1;
+    if (!isList) {
+      // Up to three formats can be inlined in the event itself
+      numFormats = 3;
+      formats    = (Atom*)message.data.l + 2;
+    } else {
+      // Longer lists must be retrieved from a property on the source
+      if (getAtomProperty(view,
+                          impl->drag.source,
+                          atoms->XdndTypeList,
+                          &numFormats,
+                          &formats)) {
+        return event;
+      }
+    }
+
+    // Set the available formats on the drag board
+    setClipboardFormats(view, &view->impl->drag, numFormats, formats);
+    if (isList && formats) {
+      XFree(formats);
+    }
+
+    // The offer to the application will be made when the XdndPosition comes
+
+  } else if (message.message_type == atoms->XdndPosition) {
+    // DnD Step 4: Target receives XdndPosition (drag moves in target window)
+    const Time time   = (Time)message.data.l[3];
+    const int  root_x = (uint16_t)((message.data.l[2] >> 16) & 0xFFFF);
+    const int  root_y = (uint16_t)((message.data.l[2]) & 0xFFFF);
+
+    // Translate root coordinates from message to window coordinates
+    Window child = 0;
+    int    win_x = 0;
+    int    win_y = 0;
+    XTranslateCoordinates(display,
+                          RootWindow(display, impl->screen),
+                          impl->win,
+                          root_x,
+                          root_y,
+                          &win_x,
+                          &win_y,
+                          &child);
+
+    // DnD Step 5: Target tells the source whether it will accept
+    XEvent reply               = {ClientMessage};
+    reply.xclient.display      = display;
+    reply.xclient.window       = impl->drag.source;
+    reply.xclient.message_type = atoms->XdndStatus;
+    reply.xclient.format       = 32;
+    reply.xclient.data.l[0]    = (long)impl->win; // Target window
+    reply.xclient.data.l[1]    = 0;               // Flags
+    reply.xclient.data.l[2]    = 0;               // Accepting rectangle X,Y
+    reply.xclient.data.l[3]    = 0;               // Accepting rectangle W,H
+
+    if (view->impl->drag.acceptedFormat) {
+      reply.xclient.data.l[1] = 1; // Set bit 0: target will accept drop
+      reply.xclient.data.l[4] =
+        (long)getX11ActionAtom(view, impl->drag.acceptedAction);
+    }
+
+    XSendEvent(display, impl->drag.source, False, NoEventMask, &reply);
+
+    // Send data offer event to the application
+    event.type            = PUGL_DATA_OFFER;
+    event.offer.time      = (double)time / 1e3;
+    event.offer.x         = win_x;
+    event.offer.y         = win_y;
+    event.offer.clipboard = PUGL_CLIPBOARD_DRAG;
+  } else if (message.message_type == atoms->XdndLeave) {
+    // Step 8a: Target receives XdndLeave (drag aborted)
+    clearX11Clipboard(&impl->drag);
+  } else if (message.message_type == atoms->XdndDrop) {
+    // Step 8b: Target receives XdndDrop (data dropped in target window)
+    if (impl->drag.acceptedFormat) {
+      // Request the data with the desired format at the given time
+      // The drag will be finished by the SelectionNotify response
+      XConvertSelection(display,
+                        atoms->XdndSelection,
+                        impl->drag.acceptedFormat,
+                        atoms->XdndSelection,
+                        impl->win,
+                        (Time)message.data.l[2]);
+    }
   }
 
   return event;
@@ -1607,11 +1753,15 @@ handleSelectionNotify(const PuglWorld* const       world,
 {
   const PuglX11Atoms* const atoms = &world->impl->atoms;
 
-  Display* const          display   = view->world->impl->display;
   const Atom              selection = event->selection;
   PuglX11Clipboard* const board     = getX11SelectionClipboard(view, selection);
-  PuglEvent               puglEvent = {{PUGL_NOTHING, 0U}};
+  if (!board) {
+    return PUGL_SUCCESS; // Ignore unknown selection
+  }
 
+  PuglInternals* const impl      = view->impl;
+  Display* const       display   = view->world->impl->display;
+  PuglEvent            puglEvent = {{PUGL_NOTHING, 0U}};
   if (event->target == atoms->TARGETS) {
     // Notification of available datatypes
     unsigned long numFormats = 0;
@@ -1641,6 +1791,37 @@ handleSelectionNotify(const PuglWorld* const       world,
           world, view, event->property, event->target, &board->data)) {
       board->source = XGetSelectionOwner(display, board->selection);
 
+      const PuglDataEvent data = {PUGL_DATA,
+                                  0U,
+                                  (double)event->time / 1e3,
+                                  0.0,
+                                  0.0,
+                                  board->clipboard,
+                                  board->acceptedFormatIndex};
+
+      puglEvent.data = data;
+    }
+
+  } else if (event->selection == atoms->XdndSelection) {
+    if (!retrieveSelection(world,
+                           view,
+                           event->property,
+                           impl->drag.acceptedFormat,
+                           &board->data)) {
+      board->source = impl->drag.source;
+
+      // Notify the drag source that the operation is finished
+      XEvent reply               = {ClientMessage};
+      reply.xclient.window       = impl->win;
+      reply.xclient.message_type = atoms->XdndFinished;
+      reply.xclient.format       = 32;
+      reply.xclient.data.l[0]    = (long)impl->win; // Target
+      reply.xclient.data.l[1]    = 1;               // Accepted (TODO)
+      reply.xclient.data.l[2]    = None;            // Action (TODO)
+
+      XSendEvent(display, impl->drag.source, False, NoEventMask, &reply);
+
+      // Send a data event to the application so it can retrieve the data
       const PuglDataEvent data = {PUGL_DATA,
                                   0U,
                                   (double)event->time / 1e3,
@@ -1858,6 +2039,9 @@ dispatchX11Events(PuglWorld* const world)
     }
   }
 
+  // Flush any events we may have sent in this frame to reduce latency
+  XFlush(display);
+
   return st;
 }
 
@@ -2058,6 +2242,32 @@ puglGetClipboard(PuglView* const     view,
   return board->data.data;
 }
 
+static XRectangle
+rootRectangle(const PuglView* const view,
+              const int             rectX,
+              const int             rectY,
+              const unsigned        rectW,
+              const unsigned        rectH)
+{
+  Display* const display = view->world->impl->display;
+  const Window   root    = RootWindow(display, view->impl->screen);
+
+  Window child = 0;
+  int    rootX = 0;
+  int    rootY = 0;
+  XTranslateCoordinates(
+    display, view->impl->win, root, rectX, rectY, &rootX, &rootY, &child);
+
+  const XRectangle result = {
+    (short)rootX,
+    (short)rootY,
+    (unsigned short)rectW,
+    (unsigned short)rectH,
+  };
+
+  return result;
+}
+
 PuglStatus
 puglAcceptOffer(PuglView* const                 view,
                 const PuglDataOfferEvent* const offer,
@@ -2068,14 +2278,10 @@ puglAcceptOffer(PuglView* const                 view,
                 const unsigned                  regionWidth,
                 const unsigned                  regionHeight)
 {
-  (void)regionX;
-  (void)regionY;
-  (void)regionWidth;
-  (void)regionHeight;
-
-  PuglInternals* const    impl    = view->impl;
-  Display* const          display = view->world->impl->display;
-  PuglX11Clipboard* const board   = getX11Clipboard(view, offer->clipboard);
+  PuglInternals* const      impl    = view->impl;
+  Display* const            display = view->world->impl->display;
+  const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
+  PuglX11Clipboard* const   board   = getX11Clipboard(view, offer->clipboard);
 
   board->acceptedAction      = action;
   board->acceptedFormatIndex = typeIndex;
@@ -2091,6 +2297,75 @@ puglAcceptOffer(PuglView* const                 view,
                       CurrentTime);
 
     return PUGL_SUCCESS;
+  }
+
+  // DnD Step 5a: Target tells the source it will accept the drop
+
+  if (!board->source) {
+    return PUGL_FAILURE;
+  }
+
+  const XRectangle rootRegion =
+    rootRectangle(view, regionX, regionY, regionWidth, regionHeight);
+
+  const long rootPos  = (rootRegion.x << 16) | rootRegion.y;
+  const long rootSize = (rootRegion.width << 16) | rootRegion.height;
+  XEvent     reply    = {ClientMessage};
+
+  reply.xclient.display      = display;
+  reply.xclient.window       = impl->drag.source;
+  reply.xclient.message_type = atoms->XdndStatus;
+  reply.xclient.format       = 32;
+  reply.xclient.data.l[0]    = (long)impl->win;
+  reply.xclient.data.l[1]    = 1;
+  reply.xclient.data.l[2]    = rootPos;
+  reply.xclient.data.l[3]    = rootSize;
+  reply.xclient.data.l[4] =
+    (long)getX11ActionAtom(view, impl->drag.acceptedAction);
+
+  return XSendEvent(display, impl->drag.source, False, NoEventMask, &reply)
+           ? PUGL_SUCCESS
+           : PUGL_FAILURE;
+}
+
+PuglStatus
+puglRejectOffer(PuglView* const                 view,
+                const PuglDataOfferEvent* const offer,
+                const int                       regionX,
+                const int                       regionY,
+                const unsigned                  regionWidth,
+                const unsigned                  regionHeight)
+{
+  PuglInternals* const      impl    = view->impl;
+  Display* const            display = view->world->impl->display;
+  const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
+  PuglX11Clipboard* const   board   = getX11Clipboard(view, offer->clipboard);
+  if (!board->source) {
+    return PUGL_FAILURE;
+  }
+
+  if (offer->clipboard == PUGL_CLIPBOARD_DRAG) {
+    // DnD Step 5b: Target tells the source it will refuse the drop
+
+    const XRectangle rootRegion =
+      rootRectangle(view, regionX, regionY, regionWidth, regionHeight);
+
+    const long rootPos  = (rootRegion.x << 16) | rootRegion.y;
+    const long rootSize = (rootRegion.width << 16) | rootRegion.height;
+    XEvent     reply    = {ClientMessage};
+
+    reply.xclient.display      = display;
+    reply.xclient.window       = impl->drag.source;
+    reply.xclient.message_type = atoms->XdndStatus;
+    reply.xclient.format       = 32;
+    reply.xclient.data.l[0]    = (long)impl->win;
+    reply.xclient.data.l[1]    = 0;
+    reply.xclient.data.l[2]    = rootPos;
+    reply.xclient.data.l[3]    = rootSize;
+
+    return XSendEvent(display, impl->drag.source, False, NoEventMask, &reply)
+             ? PUGL_SUCCESS
+             : PUGL_FAILURE;
   }
 
   return PUGL_FAILURE;
@@ -2111,6 +2386,17 @@ puglPaste(PuglView* const view)
                     view->impl->win,
                     CurrentTime);
 
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglRegisterDragType(PuglView* const view, const char* const type)
+{
+  /* There is the XdndTypeList property for sources to declare more than three
+     types, but no need to register as a target for types ahead of time. */
+
+  (void)view;
+  (void)type;
   return PUGL_SUCCESS;
 }
 

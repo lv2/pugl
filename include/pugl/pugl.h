@@ -147,10 +147,12 @@ typedef enum {
    A system clipboard.
 
    A clipboard provides a mechanism for transferring data between views,
-   including views in different processes.
+   including views in different processes.  Clipboards are used for both "copy
+   and paste" and "drag and drop" interactions.
 */
 typedef enum {
   PUGL_CLIPBOARD_GENERAL, ///< General clipboard for copy/pasted data
+  PUGL_CLIPBOARD_DRAG,    ///< Drag clipboard for drag and drop data
 } PuglClipboard;
 
 /**
@@ -975,10 +977,11 @@ typedef enum {
   PUGL_REFRESH_RATE,          ///< Refresh rate in Hz
   PUGL_VIEW_TYPE,             ///< View type (a #PuglViewType)
   PUGL_DARK_FRAME,            ///< True if window frame should be dark
+  PUGL_ACCEPT_DROP,           ///< True if view accepts dropped data
 } PuglViewHint;
 
 /// The number of #PuglViewHint values
-#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_DARK_FRAME + 1U)
+#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_ACCEPT_DROP + 1U)
 
 /// A special view hint value
 typedef enum {
@@ -1230,6 +1233,15 @@ puglGetViewString(const PuglView* view, PuglStringHint key);
 */
 PUGL_API double
 puglGetScaleFactor(const PuglView* view);
+
+/**
+   Register a type as supported for drag and drop.
+
+   Before realizing the view, this function should be called for every type the
+   view may accept as a drop target.
+*/
+PUGL_API PuglStatus
+puglRegisterDragType(PuglView* view, const char* type);
 
 /**
    @}
@@ -1612,6 +1624,37 @@ puglAcceptOffer(PuglView*                 view,
                 const PuglDataOfferEvent* offer,
                 uint32_t                  typeIndex,
                 PuglDataAction            action,
+                int                       regionX,
+                int                       regionY,
+                unsigned                  regionWidth,
+                unsigned                  regionHeight);
+
+/**
+   Reject data offered from a clipboard.
+
+   This can be called instead of puglAcceptOffer() to explicitly reject the
+   offer.  Note that drag-and-drop will still work if this isn't called, but
+   applications should always explicitly accept or reject each data offer for
+   optimal behaviour.
+
+   The region parameters specify a region of the view that will refuse the
+   data, which may be used by the system to avoid sending redundant events.
+
+   @param view The view.
+
+   @param offer The data offer event.
+
+   @param regionX The top-left X coordinate of the rejecting region.
+
+   @param regionY The top-left Y coordinate of the rejecting region.
+
+   @param regionWidth The width of the rejecting region.
+
+   @param regionHeight The height of the rejecting region.
+*/
+PUGL_API PuglStatus
+puglRejectOffer(PuglView*                 view,
+                const PuglDataOfferEvent* offer,
                 int                       regionX,
                 int                       regionY,
                 unsigned                  regionWidth,

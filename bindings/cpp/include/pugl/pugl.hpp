@@ -682,8 +682,14 @@ public:
       puglSetCursor(cobj(), static_cast<PuglCursor>(cursor)));
   }
 
+  /// @copydoc puglRegisterDragType
+  Status registerDragType(const char* const type)
+  {
+    return static_cast<Status>(puglRegisterDragType(cobj(), type));
+  }
+
   /// @copydoc puglGetNumClipboardTypes
-  uint32_t numClipboardTypes(const Clipboard clipboard) const
+  size_t numClipboardTypes(const Clipboard clipboard) const
   {
     return puglGetNumClipboardTypes(cobj(), clipboard);
   }
@@ -743,6 +749,38 @@ public:
   Status setViewStyle(const PuglViewStyleFlags flags)
   {
     return static_cast<Status>(puglSetViewStyle(cobj(), flags));
+  }
+
+  /**
+     Reject data offered from a clipboard.
+
+     This can be called instead of puglAcceptOffer() to explicitly reject the
+     offer.  Note that drag-and-drop will still work if this isn't called, but
+     applications should always explicitly accept or reject each data offer for
+     optimal behaviour.
+
+     The region parameters specify a region of the view that will refuse the
+     data, which may be used by the system to avoid sending redundant events.
+
+     @param offer The data offer event.
+
+     @param regionX The top-left X coordinate of the rejecting region.
+
+     @param regionY The top-left Y coordinate of the rejecting region.
+
+     @param regionWidth The width of the rejecting region.
+
+     @param regionHeight The height of the rejecting region.
+  */
+  Status rejectOffer(const DataOfferEvent& offer,
+                     const int             regionX,
+                     const int             regionY,
+                     const unsigned        regionWidth,
+                     const unsigned        regionHeight)
+
+  {
+    return static_cast<Status>(puglRejectOffer(
+      cobj(), &offer, regionX, regionY, regionWidth, regionHeight));
   }
 
   /**

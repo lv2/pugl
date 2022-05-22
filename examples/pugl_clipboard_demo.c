@@ -83,10 +83,10 @@ static void
 onDataOffer(PuglView* view, const PuglDataOfferEvent* event)
 {
   const PuglClipboard clipboard = event->clipboard;
-  const uint32_t      numTypes  = puglGetNumClipboardTypes(view, clipboard);
+  const size_t        numTypes  = puglGetNumClipboardTypes(view, clipboard);
 
   // Print all offered types to be useful as a testing program
-  fprintf(stderr, "Offered %u types:\n", numTypes);
+  fprintf(stderr, "Offered %zu types:\n", numTypes);
   for (uint32_t t = 0; t < numTypes; ++t) {
     const char* type = puglGetClipboardType(view, clipboard, t);
     fprintf(stderr, "\t%s\n", type);
@@ -233,12 +233,16 @@ main(int argc, char** argv)
   puglSetSizeHint(view, PUGL_MIN_SIZE, 128, 128);
   puglSetBackend(view, puglGlBackend());
 
+  puglRegisterDragType(view, "text/plain");
+  puglRegisterDragType(view, "text/uri-list");
+
   puglSetViewHint(view, PUGL_CONTEXT_DEBUG, opts.errorChecking);
   puglSetViewHint(view, PUGL_RESIZABLE, opts.resizable);
   puglSetViewHint(view, PUGL_SAMPLES, opts.samples);
   puglSetViewHint(view, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
   puglSetViewHint(view, PUGL_SWAP_INTERVAL, opts.sync);
   puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
+  puglSetViewHint(view, PUGL_ACCEPT_DROP, true);
   puglSetHandle(view, &app.cube);
   puglSetEventFunc(view, onEvent);
 
