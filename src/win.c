@@ -1393,6 +1393,7 @@ PuglStatus
 puglAcceptOffer(PuglView* const                 view,
                 const PuglDataOfferEvent* const PUGL_UNUSED(offer),
                 const uint32_t                  typeIndex,
+                PuglAction                      PUGL_UNUSED(action),
                 const PuglRect                  region)
 {
   if (typeIndex != 0) {

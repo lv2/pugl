@@ -108,7 +108,8 @@ onPasterEvent(PuglView* const view, const PuglEvent* const event)
     if (test->state == PASTED) {
       test->state = RECEIVED_OFFER;
 
-      assert(!puglAcceptOffer(view, &event->offer, 0, puglGetFrame(view)));
+      assert(!puglAcceptOffer(
+        view, &event->offer, 0, PUGL_ACTION_COPY, puglGetFrame(view)));
     }
     break;
 

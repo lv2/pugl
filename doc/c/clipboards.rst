@@ -90,7 +90,7 @@ it can accept the offer with :func:`puglAcceptOffer`:
      }
    }
 
-A view region must be given,
+An :enum:`action <PuglAction>` and view region must be given,
 which the window system may use to optimize the process and/or provide user feedback.
 
 When an offer is accepted,
