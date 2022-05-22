@@ -255,6 +255,7 @@ puglInitViewInternals(PuglWorld* const world)
 {
   PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
 
+  impl->clipboard.clipboard = PUGL_CLIPBOARD_GENERAL;
   impl->clipboard.selection = world->impl->atoms.CLIPBOARD;
   impl->clipboard.property  = XA_PRIMARY;
 
@@ -944,10 +945,22 @@ getAtomProperty(PuglView* const view,
 }
 
 static PuglX11Clipboard*
+getX11Clipboard(PuglView* const view, const PuglClipboard clipboard)
+{
+  return clipboard == PUGL_CLIPBOARD_GENERAL ? &view->impl->clipboard : NULL;
+}
+
+static const PuglX11Clipboard*
+getConstX11Clipboard(const PuglView* const view, const PuglClipboard clipboard)
+{
+  return clipboard == PUGL_CLIPBOARD_GENERAL ? &view->impl->clipboard : NULL;
+}
+
+static PuglX11Clipboard*
 getX11SelectionClipboard(PuglView* const view, const Atom selection)
 {
   return (selection == view->world->impl->atoms.CLIPBOARD)
-           ? &view->impl->clipboard
+           ? getX11Clipboard(view, PUGL_CLIPBOARD_GENERAL)
            : NULL;
 }
 
@@ -1605,8 +1618,12 @@ handleSelectionNotify(const PuglWorld* const       world,
     if (!getAtomProperty(
           view, event->requestor, event->property, &numFormats, &formats) &&
         !setClipboardFormats(view, board, numFormats, formats)) {
-      const PuglDataOfferEvent offer = {
-        PUGL_DATA_OFFER, 0U, (double)event->time / 1e3, 0.0, 0.0};
+      const PuglDataOfferEvent offer = {PUGL_DATA_OFFER,
+                                        0U,
+                                        (double)event->time / 1e3,
+                                        0.0,
+                                        0.0,
+                                        board->clipboard};
 
       puglEvent.offer            = offer;
       board->acceptedFormatIndex = UINT32_MAX;
@@ -1628,6 +1645,7 @@ handleSelectionNotify(const PuglWorld* const       world,
                                   (double)event->time / 1e3,
                                   0.0,
                                   0.0,
+                                  board->clipboard,
                                   board->acceptedFormatIndex};
 
       puglEvent.data = data;
@@ -2017,12 +2035,13 @@ puglSetTransientParent(PuglView* const view, const PuglNativeView parent)
 }
 
 const void*
-puglGetClipboard(PuglView* const view,
-                 const uint32_t  typeIndex,
-                 size_t* const   len)
+puglGetClipboard(PuglView* const     view,
+                 const PuglClipboard clipboard,
+                 const uint32_t      typeIndex,
+                 size_t* const       len)
 {
   Display* const          display = view->world->impl->display;
-  PuglX11Clipboard* const board   = &view->impl->clipboard;
+  PuglX11Clipboard* const board   = getX11Clipboard(view, clipboard);
 
   if (typeIndex != board->acceptedFormatIndex) {
     return NULL;
@@ -2047,7 +2066,6 @@ puglAcceptOffer(PuglView* const                 view,
                 const unsigned                  regionWidth,
                 const unsigned                  regionHeight)
 {
-  (void)offer;
   (void)regionX;
   (void)regionY;
   (void)regionWidth;
@@ -2055,20 +2073,24 @@ puglAcceptOffer(PuglView* const                 view,
 
   PuglInternals* const    impl    = view->impl;
   Display* const          display = view->world->impl->display;
-  PuglX11Clipboard* const board   = &view->impl->clipboard;
+  PuglX11Clipboard* const board   = getX11Clipboard(view, offer->clipboard);
 
   board->acceptedFormatIndex = typeIndex;
   board->acceptedFormat      = board->formats[typeIndex];
 
-  // Request the data in the specified type from the general clipboard
-  XConvertSelection(display,
-                    board->selection,
-                    board->acceptedFormat,
-                    board->property,
-                    impl->win,
-                    CurrentTime);
+  if (offer->clipboard == PUGL_CLIPBOARD_GENERAL) {
+    // Request the data in the specified type from the general clipboard
+    XConvertSelection(display,
+                      board->selection,
+                      board->acceptedFormat,
+                      board->property,
+                      impl->win,
+                      CurrentTime);
 
-  return PUGL_SUCCESS;
+    return PUGL_SUCCESS;
+  }
+
+  return PUGL_FAILURE;
 }
 
 PuglStatus
@@ -2076,7 +2098,7 @@ puglPaste(PuglView* const view)
 {
   Display* const          display = view->world->impl->display;
   const PuglX11Atoms*     atoms   = &view->world->impl->atoms;
-  const PuglX11Clipboard* board   = &view->impl->clipboard;
+  const PuglX11Clipboard* board = getX11Clipboard(view, PUGL_CLIPBOARD_GENERAL);
 
   // Request a SelectionNotify for TARGETS (available datatypes)
   XConvertSelection(display,
@@ -2090,28 +2112,32 @@ puglPaste(PuglView* const view)
 }
 
 uint32_t
-puglGetNumClipboardTypes(const PuglView* const view)
+puglGetNumClipboardTypes(const PuglView* const view,
+                         const PuglClipboard   clipboard)
 {
-  return (uint32_t)view->impl->clipboard.numFormats;
+  return (uint32_t)getConstX11Clipboard(view, clipboard)->numFormats;
 }
 
 const char*
-puglGetClipboardType(const PuglView* const view, const uint32_t typeIndex)
+puglGetClipboardType(const PuglView* const view,
+                     const PuglClipboard   clipboard,
+                     const uint32_t        typeIndex)
 {
-  const PuglX11Clipboard* const board = &view->impl->clipboard;
+  const PuglX11Clipboard* const board = getConstX11Clipboard(view, clipboard);
 
   return typeIndex < board->numFormats ? board->formatStrings[typeIndex] : NULL;
 }
 
 PuglStatus
-puglSetClipboard(PuglView* const   view,
-                 const char* const type,
-                 const void* const data,
-                 const size_t      len)
+puglSetClipboard(PuglView* const     view,
+                 const PuglClipboard clipboard,
+                 const char* const   type,
+                 const void* const   data,
+                 const size_t        len)
 {
   PuglInternals* const    impl    = view->impl;
   Display* const          display = view->world->impl->display;
-  PuglX11Clipboard* const board   = &view->impl->clipboard;
+  PuglX11Clipboard* const board   = getX11Clipboard(view, clipboard);
   PuglStatus              st      = puglSetBlob(&board->data, data, len);
 
   if (!st) {

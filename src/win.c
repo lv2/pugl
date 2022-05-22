@@ -1330,23 +1330,29 @@ puglSetTransientParent(PuglView* view, PuglNativeView parent)
 }
 
 uint32_t
-puglGetNumClipboardTypes(const PuglView* const PUGL_UNUSED(view))
+puglGetNumClipboardTypes(const PuglView* const PUGL_UNUSED(view),
+                         const PuglClipboard   clipboard)
 {
-  return IsClipboardFormatAvailable(CF_UNICODETEXT) ? 1U : 0U;
+  return (clipboard == PUGL_CLIPBOARD_GENERAL &&
+          IsClipboardFormatAvailable(CF_UNICODETEXT))
+           ? 1U
+           : 0U;
 }
 
 const char*
 puglGetClipboardType(const PuglView* const PUGL_UNUSED(view),
+                     const PuglClipboard   clipboard,
                      const uint32_t        typeIndex)
 {
-  return (typeIndex == 0 && IsClipboardFormatAvailable(CF_UNICODETEXT))
+  return (clipboard == PUGL_CLIPBOARD_GENERAL && typeIndex == 0 &&
+          IsClipboardFormatAvailable(CF_UNICODETEXT))
            ? "text/plain"
            : NULL;
 }
 
 PuglStatus
 puglAcceptOffer(PuglView* const                 view,
-                const PuglDataOfferEvent* const PUGL_UNUSED(offer),
+                const PuglDataOfferEvent* const offer,
                 const uint32_t                  typeIndex,
                 const int                       regionX,
                 const int                       regionY,
@@ -1366,6 +1372,7 @@ puglAcceptOffer(PuglView* const                 view,
     GetMessageTime() / 1e3,
     (double)regionX,
     (double)regionY,
+    offer->clipboard,
     0,
   };
 
@@ -1375,11 +1382,16 @@ puglAcceptOffer(PuglView* const                 view,
 }
 
 const void*
-puglGetClipboard(PuglView* const view,
-                 const uint32_t  typeIndex,
-                 size_t* const   len)
+puglGetClipboard(PuglView* const     view,
+                 const PuglClipboard clipboard,
+                 const uint32_t      typeIndex,
+                 size_t* const       len)
 {
   PuglInternals* const impl = view->impl;
+
+  if (clipboard != PUGL_CLIPBOARD_GENERAL) {
+    return NULL;
+  }
 
   if (typeIndex > 0U || !IsClipboardFormatAvailable(CF_UNICODETEXT)) {
     return NULL;
@@ -1417,12 +1429,17 @@ puglGetClipboard(PuglView* const view,
 }
 
 PuglStatus
-puglSetClipboard(PuglView* const   view,
-                 const char* const type,
-                 const void* const data,
-                 const size_t      len)
+puglSetClipboard(PuglView* const     view,
+                 const PuglClipboard clipboard,
+                 const char* const   type,
+                 const void* const   data,
+                 const size_t        len)
 {
   PuglInternals* const impl = view->impl;
+
+  if (clipboard != PUGL_CLIPBOARD_GENERAL) {
+    return PUGL_FAILURE;
+  }
 
   PuglStatus st = puglSetBlob(&impl->clipboard, data, len);
   if (st) {
@@ -1473,6 +1490,7 @@ puglPaste(PuglView* const view)
     GetMessageTime() / 1e3,
     0.0,
     0.0,
+    PUGL_CLIPBOARD_GENERAL,
   };
 
   PuglEvent offerEvent;

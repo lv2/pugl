@@ -147,6 +147,9 @@ using ViewStyleFlag = PuglViewStyleFlag;
 /// @copydoc PuglViewStyleFlags
 using ViewStyleFlags = PuglViewStyleFlags;
 
+/// @copydoc PuglClipboard
+using Clipboard = PuglClipboard;
+
 /// @copydoc PuglRealizeEvent
 using RealizeEvent = Event<PUGL_REALIZE, PuglRealizeEvent>;
 
@@ -677,15 +680,16 @@ public:
   }
 
   /// @copydoc puglGetNumClipboardTypes
-  uint32_t numClipboardTypes() const
+  uint32_t numClipboardTypes(const Clipboard clipboard) const
   {
-    return puglGetNumClipboardTypes(cobj());
+    return puglGetNumClipboardTypes(cobj(), clipboard);
   }
 
   /// @copydoc puglGetClipboardType
-  const char* clipboardType(const uint32_t typeIndex) const
+  const char* clipboardType(const Clipboard clipboard,
+                            const uint32_t  typeIndex) const
   {
-    return puglGetClipboardType(cobj(), typeIndex);
+    return puglGetClipboardType(cobj(), clipboard, typeIndex);
   }
 
   /**

@@ -61,8 +61,11 @@ onCopierEvent(PuglView* const view, const PuglEvent* const event)
     assert(event->timer.id == copierTimerId);
 
     if (test->state < COPIED) {
-      puglSetClipboard(
-        view, "text/plain", "Copied Text", strlen("Copied Text") + 1);
+      puglSetClipboard(view,
+                       PUGL_CLIPBOARD_GENERAL,
+                       "text/plain",
+                       "Copied Text",
+                       strlen("Copied Text") + 1);
 
       test->state = COPIED;
     }
@@ -113,8 +116,9 @@ onPasterEvent(PuglView* const view, const PuglEvent* const event)
 
   case PUGL_DATA:
     if (test->state == RECEIVED_OFFER) {
-      size_t      len  = 0;
-      const char* text = (const char*)puglGetClipboard(view, 0, &len);
+      size_t      len = 0;
+      const char* text =
+        (const char*)puglGetClipboard(view, PUGL_CLIPBOARD_GENERAL, 0, &len);
 
       // Check that the offered data is what we copied earlier
       assert(text);
