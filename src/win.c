@@ -1348,16 +1348,22 @@ puglSetTransientParent(PuglView* view, PuglNativeView parent)
 }
 
 uint32_t
-puglGetNumClipboardTypes(const PuglView* const PUGL_UNUSED(view))
+puglGetNumClipboardTypes(const PuglView* const PUGL_UNUSED(view),
+                         const PuglClipboard   clipboard)
 {
-  return IsClipboardFormatAvailable(CF_UNICODETEXT) ? 1U : 0U;
+  return (clipboard == PUGL_CLIPBOARD_GENERAL &&
+          IsClipboardFormatAvailable(CF_UNICODETEXT))
+           ? 1U
+           : 0U;
 }
 
 const char*
 puglGetClipboardType(const PuglView* const PUGL_UNUSED(view),
-                     const uint32_t        typeIndex)
+                     const PuglClipboard   clipboard,
+                     const uint32_t        PUGL_UNUSED(typeIndex))
 {
-  return (typeIndex == 0 && IsClipboardFormatAvailable(CF_UNICODETEXT))
+  return (clipboard == PUGL_CLIPBOARD_GENERAL && typeIndex == 0 &&
+          IsClipboardFormatAvailable(CF_UNICODETEXT))
            ? "text/plain"
            : NULL;
 }
@@ -1388,11 +1394,16 @@ puglAcceptOffer(PuglView* const                 view,
 }
 
 const void*
-puglGetClipboard(PuglView* const view,
-                 const uint32_t  typeIndex,
-                 size_t* const   len)
+puglGetClipboard(PuglView* const     view,
+                 const PuglClipboard clipboard,
+                 const uint32_t      typeIndex,
+                 size_t* const       len)
 {
   PuglInternals* const impl = view->impl;
+
+  if (clipboard != PUGL_CLIPBOARD_GENERAL) {
+    return NULL;
+  }
 
   if (typeIndex > 0U || !IsClipboardFormatAvailable(CF_UNICODETEXT) ||
       !OpenClipboard(impl->hwnd)) {
@@ -1418,12 +1429,17 @@ puglGetClipboard(PuglView* const view,
 }
 
 PuglStatus
-puglSetClipboard(PuglView* const   view,
-                 const char* const type,
-                 const void* const data,
-                 const size_t      len)
+puglSetClipboard(PuglView* const     view,
+                 const PuglClipboard clipboard,
+                 const char* const   type,
+                 const void* const   data,
+                 const size_t        len)
 {
   PuglInternals* const impl = view->impl;
+
+  if (clipboard != PUGL_CLIPBOARD_GENERAL) {
+    return PUGL_FAILURE;
+  }
 
   PuglStatus st = puglSetBlob(&view->impl->clipboard, data, len);
   if (st) {

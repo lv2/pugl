@@ -65,7 +65,11 @@ onKeyPress(PuglView* const view, const PuglKeyEvent* const event)
   if (event->key == 'q' || event->key == PUGL_KEY_ESCAPE) {
     app->quit = 1;
   } else if ((event->state & PUGL_MOD_CTRL) && event->key == 'c') {
-    puglSetClipboard(view, "text/plain", copyString, strlen(copyString));
+    puglSetClipboard(view,
+                     PUGL_CLIPBOARD_GENERAL,
+                     "text/plain",
+                     copyString,
+                     strlen(copyString));
 
     fprintf(stderr, "Copy \"%s\"\n", copyString);
   } else if ((event->state & PUGL_MOD_CTRL) && event->key == 'v') {
@@ -76,18 +80,19 @@ onKeyPress(PuglView* const view, const PuglKeyEvent* const event)
 static void
 onDataOffer(PuglView* view, const PuglDataOfferEvent* event)
 {
-  const uint32_t numTypes = puglGetNumClipboardTypes(view);
+  const PuglClipboard clipboard = event->clipboard;
+  const uint32_t      numTypes  = puglGetNumClipboardTypes(view, clipboard);
 
   // Print all offered types to be useful as a testing program
   fprintf(stderr, "Offered %u types:\n", numTypes);
   for (uint32_t t = 0; t < numTypes; ++t) {
-    const char* type = puglGetClipboardType(view, t);
+    const char* type = puglGetClipboardType(view, clipboard, t);
     fprintf(stderr, "\t%s\n", type);
   }
 
   // Accept the first type found that we support (namely text)
   for (uint32_t t = 0; t < numTypes; ++t) {
-    const char* type = puglGetClipboardType(view, t);
+    const char* type = puglGetClipboardType(view, clipboard, t);
     if (!strncmp(type, "text/", 5)) {
       puglAcceptOffer(view, event, t, puglGetFrame(view));
       return;
@@ -98,15 +103,16 @@ onDataOffer(PuglView* view, const PuglDataOfferEvent* event)
 static void
 onData(PuglView* view, const PuglDataEvent* event)
 {
-  const uint32_t typeIndex = event->typeIndex;
+  const PuglClipboard clipboard = event->clipboard;
+  const uint32_t      typeIndex = event->typeIndex;
 
-  const char* const type = puglGetClipboardType(view, typeIndex);
+  const char* const type = puglGetClipboardType(view, clipboard, typeIndex);
 
   fprintf(stderr, "Received data type: %s\n", type);
   if (!strncmp(type, "text/", 5)) {
     // Accept any text type
     size_t      len  = 0;
-    const void* data = puglGetClipboard(view, typeIndex, &len);
+    const void* data = puglGetClipboard(view, clipboard, typeIndex, &len);
 
     fprintf(stderr, "Data:\n%s\n", (const char*)data);
   }
