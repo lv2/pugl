@@ -1,4 +1,4 @@
-# Copyright 2021 David Robillard <d@drobilla.net>
+# Copyright 2021-2022 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: CC0-1.0 OR ISC
 
 config = configuration_data()
@@ -18,6 +18,7 @@ c_rst_files = files(
   'view.rst',
   'events.rst',
   'event-loop.rst',
+  'clipboards.rst',
   'shutting-down.rst'
 )
 

@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_PUGL_H
@@ -206,6 +206,8 @@ typedef enum {
   PUGL_TIMER,          ///< Timer triggered, a #PuglTimerEvent
   PUGL_LOOP_ENTER,     ///< Recursive loop entered, a #PuglLoopEnterEvent
   PUGL_LOOP_LEAVE,     ///< Recursive loop left, a #PuglLoopLeaveEvent
+  PUGL_DATA_OFFER,     ///< Data offered from clipboard, a #PuglDataOfferEvent
+  PUGL_DATA,           ///< Data available from clipboard, a #PuglDataEvent
 } PuglEventType;
 
 /// Common flags for all event types
@@ -529,6 +531,34 @@ typedef struct {
 } PuglTimerEvent;
 
 /**
+   Clipboard data offer event.
+
+   This event is sent when a clipboard has data present, possibly with several
+   datatypes.  While handling this event, the types can be investigated with
+   puglGetClipboardType() to decide whether to accept the offer with
+   puglAcceptOffer().
+*/
+typedef struct {
+  PuglEventType  type;  ///< #PUGL_DATA_OFFER
+  PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
+  double         time;  ///< Time in seconds
+} PuglDataOfferEvent;
+
+/**
+   Clipboard data event.
+
+   This event is sent after accepting a data offer when the data has been
+   retrieved and converted.  While handling this event, the data can be
+   accessed with puglGetClipboard().
+*/
+typedef struct {
+  PuglEventType  type;      ///< #PUGL_DATA
+  PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
+  double         time;      ///< Time in seconds
+  uint32_t       typeIndex; ///< Index of datatype
+} PuglDataEvent;
+
+/**
    Recursive loop enter event.
 
    This event is sent when the window system enters a recursive loop.  The main
@@ -585,6 +615,8 @@ typedef union {
   PuglFocusEvent     focus;     ///< #PUGL_FOCUS_IN, #PUGL_FOCUS_OUT
   PuglClientEvent    client;    ///< #PUGL_CLIENT
   PuglTimerEvent     timer;     ///< #PUGL_TIMER
+  PuglDataOfferEvent offer;     ///< #PUGL_DATA_OFFER
+  PuglDataEvent      data;      ///< #PUGL_DATA
 } PuglEvent;
 
 /**
@@ -610,6 +642,7 @@ typedef enum {
   PUGL_SET_FORMAT_FAILED,     ///< Failed to set pixel format
   PUGL_CREATE_CONTEXT_FAILED, ///< Failed to create drawing context
   PUGL_UNSUPPORTED,           ///< Unsupported operation
+  PUGL_NO_MEMORY,             ///< Failed to allocate memory
 } PuglStatus;
 
 /// Return a string describing a status code
@@ -1245,6 +1278,59 @@ bool
 puglHasFocus(const PuglView* view);
 
 /**
+   Request data from the general copy/paste clipboard.
+
+   A #PUGL_DATA_OFFER event will be sent if data is available.
+*/
+PUGL_API
+PuglStatus
+puglPaste(PuglView* view);
+
+/**
+   Return the number of types available for the data in a clipboard.
+
+   Returns zero if the clipboard is empty.
+*/
+PUGL_API
+uint32_t
+puglGetNumClipboardTypes(const PuglView* view);
+
+/**
+   Return the identifier of a type available in a clipboard.
+
+   This is usually a MIME type, but may also be another platform-specific type
+   identifier.  Applications must ignore any type they do not recognize.
+
+   Returns null if `typeIndex` is out of bounds according to
+   puglGetNumClipboardTypes().
+*/
+PUGL_API
+const char*
+puglGetClipboardType(const PuglView* view, uint32_t typeIndex);
+
+/**
+   Accept data offered from a clipboard.
+
+   To accept data, this must be called while handling a #PUGL_DATA_OFFER event.
+   Doing so will request the data from the source as the specified type.  When
+   the data is available, a #PUGL_DATA event will be sent to the view which can
+   then retrieve the data with puglGetClipboard().
+
+   @param view The view.
+
+   @param offer The data offer event.
+
+   @param typeIndex The index of the type that the view will accept.  This is
+   the `typeIndex` argument to the call of puglGetClipboardType() that returned
+   the accepted type.
+*/
+PUGL_API
+PuglStatus
+puglAcceptOffer(PuglView*                 view,
+                const PuglDataOfferEvent* offer,
+                uint32_t                  typeIndex);
+
+/**
    Set the clipboard contents.
 
    This sets the system clipboard contents, which can be retrieved with
@@ -1269,13 +1355,13 @@ puglSetClipboard(PuglView*   view,
    puglSetClipboard() or copied from another application.
 
    @param view The view.
-   @param[out] type Set to the MIME type of the data.
+   @param typeIndex Index of the data type to get the item as.
    @param[out] len Set to the length of the data in bytes.
    @return The clipboard contents, or null.
 */
 PUGL_API
 const void*
-puglGetClipboard(PuglView* view, const char** type, size_t* len);
+puglGetClipboard(PuglView* view, uint32_t typeIndex, size_t* len);
 
 /**
    Set the mouse cursor.

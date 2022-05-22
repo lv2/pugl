@@ -12,6 +12,8 @@
 	<string>10.6</string>
 	<key>CFBundleDisplayName</key>
 	<string>@NAME@</string>
+    <key>CFBundleExecutable</key>
+    <string>@NAME@</string>
 	<key>CFBundleName</key>
 	<string>@NAME@</string>
     <key>NSHighResolutionCapable</key>

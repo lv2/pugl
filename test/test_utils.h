@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef TEST_TEST_UTILS_H
@@ -170,6 +170,10 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     return PRINT("%sLoop enter\n", prefix);
   case PUGL_LOOP_LEAVE:
     return PRINT("%sLoop leave\n", prefix);
+  case PUGL_DATA_OFFER:
+    return PRINT("%sData offer\n", prefix);
+  case PUGL_DATA:
+    return PRINT("%sData\n", prefix);
   default:
     break;
   }

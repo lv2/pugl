@@ -27,6 +27,8 @@ typedef struct {
   Atom NET_WM_STATE;
   Atom NET_WM_STATE_DEMANDS_ATTENTION;
   Atom NET_WM_STATE_HIDDEN;
+  Atom TARGETS;
+  Atom text_uri_list;
 } PuglX11Atoms;
 
 typedef struct {
@@ -34,6 +36,18 @@ typedef struct {
   PuglView* view;
   uintptr_t id;
 } PuglTimer;
+
+typedef struct {
+  Atom          selection;
+  Atom          property;
+  Window        source;
+  Atom*         formats;
+  char**        formatStrings;
+  unsigned long numFormats;
+  uint32_t      acceptedFormatIndex;
+  Atom          acceptedFormat;
+  PuglBlob      data;
+} PuglX11Clipboard;
 
 struct PuglWorldInternalsImpl {
   Display*     display;
@@ -49,14 +63,15 @@ struct PuglWorldInternalsImpl {
 };
 
 struct PuglInternalsImpl {
-  XVisualInfo* vi;
-  Window       win;
-  XIC          xic;
-  PuglSurface* surface;
-  PuglEvent    pendingConfigure;
-  PuglEvent    pendingExpose;
-  int          screen;
-  const char*  cursorName;
+  XVisualInfo*     vi;
+  Window           win;
+  XIC              xic;
+  PuglSurface*     surface;
+  PuglEvent        pendingConfigure;
+  PuglEvent        pendingExpose;
+  PuglX11Clipboard clipboard;
+  int              screen;
+  const char*      cursorName;
 };
 
 PUGL_WARN_UNUSED_RESULT

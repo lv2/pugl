@@ -1,4 +1,4 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "win.h"
@@ -61,7 +61,7 @@ puglWideCharToUtf8(const wchar_t* const wstr, size_t* len)
   if (n > 0) {
     char* result = (char*)calloc((size_t)n, sizeof(char));
     WideCharToMultiByte(CP_UTF8, 0, wstr, -1, result, n, NULL, NULL);
-    *len = (size_t)n;
+    *len = (size_t)n - 1;
     return result;
   }
 
@@ -179,7 +179,7 @@ puglGetNativeWorld(PuglWorld* PUGL_UNUSED(world))
 }
 
 PuglInternals*
-puglInitViewInternals(void)
+puglInitViewInternals(PuglWorld* PUGL_UNUSED(world))
 {
   return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
@@ -1153,14 +1153,51 @@ puglSetTransientParent(PuglView* view, PuglNativeView parent)
   return PUGL_SUCCESS;
 }
 
+uint32_t
+puglGetNumClipboardTypes(const PuglView* const PUGL_UNUSED(view))
+{
+  return IsClipboardFormatAvailable(CF_UNICODETEXT) ? 1u : 0u;
+}
+
+const char*
+puglGetClipboardType(const PuglView* const PUGL_UNUSED(view),
+                     const uint32_t        typeIndex)
+{
+  return (typeIndex == 0 && IsClipboardFormatAvailable(CF_UNICODETEXT))
+           ? "text/plain"
+           : NULL;
+}
+
+PuglStatus
+puglAcceptOffer(PuglView* const                 view,
+                const PuglDataOfferEvent* const PUGL_UNUSED(offer),
+                const uint32_t                  typeIndex)
+{
+  if (typeIndex != 0) {
+    return PUGL_UNSUPPORTED;
+  }
+
+  const PuglDataEvent data = {
+    PUGL_DATA,
+    0,
+    GetMessageTime() / 1e3,
+    0,
+  };
+
+  PuglEvent dataEvent;
+  dataEvent.data = data;
+  puglDispatchEvent(view, &dataEvent);
+  return PUGL_SUCCESS;
+}
+
 const void*
-puglGetClipboard(PuglView* const    view,
-                 const char** const type,
-                 size_t* const      len)
+puglGetClipboard(PuglView* const view,
+                 const uint32_t  typeIndex,
+                 size_t* const   len)
 {
   PuglInternals* const impl = view->impl;
 
-  if (!IsClipboardFormatAvailable(CF_UNICODETEXT) ||
+  if (typeIndex > 0u || !IsClipboardFormatAvailable(CF_UNICODETEXT) ||
       !OpenClipboard(impl->hwnd)) {
     return NULL;
   }
@@ -1172,12 +1209,15 @@ puglGetClipboard(PuglView* const    view,
     return NULL;
   }
 
-  free(view->clipboard.data);
-  view->clipboard.data = puglWideCharToUtf8(wstr, &view->clipboard.len);
+  free(view->impl->clipboard.data);
+  view->impl->clipboard.data =
+    puglWideCharToUtf8(wstr, &view->impl->clipboard.len);
+
   GlobalUnlock(mem);
   CloseClipboard();
 
-  return puglGetInternalClipboard(view, type, len);
+  *len = view->impl->clipboard.len;
+  return view->impl->clipboard.data;
 }
 
 PuglStatus
@@ -1188,9 +1228,13 @@ puglSetClipboard(PuglView* const   view,
 {
   PuglInternals* const impl = view->impl;
 
-  PuglStatus st = puglSetInternalClipboard(view, type, data, len);
+  PuglStatus st = puglSetBlob(&view->impl->clipboard, data, len);
   if (st) {
     return st;
+  }
+
+  if (!!strcmp(type, "text/plain")) {
+    return PUGL_UNSUPPORTED;
   }
 
   if (!OpenClipboard(impl->hwnd)) {
@@ -1221,6 +1265,21 @@ puglSetClipboard(PuglView* const   view,
   GlobalUnlock(mem);
   SetClipboardData(CF_UNICODETEXT, mem);
   CloseClipboard();
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglPaste(PuglView* const view)
+{
+  const PuglDataOfferEvent offer = {
+    PUGL_DATA_OFFER,
+    0,
+    GetMessageTime() / 1e3,
+  };
+
+  PuglEvent offerEvent;
+  offerEvent.offer = offer;
+  puglDispatchEvent(view, &offerEvent);
   return PUGL_SUCCESS;
 }
 

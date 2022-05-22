@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // Copyright 2017 Hanspeter Portner <dev@open-music-kontrollers.ch>
 // SPDX-License-Identifier: ISC
 
@@ -24,6 +24,70 @@ typedef NSUInteger NSEventSubtype;
 #ifndef __MAC_10_12
 typedef NSUInteger NSWindowStyleMask;
 #endif
+
+typedef struct {
+  const char* uti;
+  const char* mimeType;
+} Datatype;
+
+#define NUM_DATATYPES 16
+
+static const Datatype datatypes[NUM_DATATYPES + 1] = {
+  {"com.apple.pasteboard.promised-file-url", "text/uri-list"},
+  {"org.7-zip.7-zip-archive", "application/x-7z-compressed"},
+  {"org.gnu.gnu-zip-tar-archive", "application/tar+gzip"},
+  {"public.7z-archive", "application/x-7z-compressed"},
+  {"public.cpio-archive", "application/x-cpio"},
+  {"public.deb-archive", "application/vnd.debian.binary-package"},
+  {"public.file-url", "text/uri-list"},
+  {"public.html", "text/html"},
+  {"public.png", "image/png"},
+  {"public.rar-archive", "application/x-rar-compressed"},
+  {"public.rpm-archive", "application/x-rpm"},
+  {"public.rtf", "text/rtf"},
+  {"public.url", "text/uri-list"},
+  {"public.utf8-plain-text", "text/plain"},
+  {"public.utf8-tab-separated-values-text", "text/tab-separated-values"},
+  {"public.xz-archive", "application/x-xz"},
+  {NULL, NULL},
+};
+
+static NSString*
+mimeTypeForUti(const NSString* const uti)
+{
+  const char* const utiString = [uti UTF8String];
+
+  // First try internal map to override types the system won't convert sensibly
+  for (const Datatype* datatype = datatypes; datatype->uti; ++datatype) {
+    if (!strcmp(utiString, datatype->uti)) {
+      return [NSString stringWithUTF8String:datatype->mimeType];
+    }
+  }
+
+  // Try to get the MIME type from the system
+  return (NSString*)CFBridgingRelease(UTTypeCopyPreferredTagWithClass(
+    (__bridge CFStringRef)uti, kUTTagClassMIMEType));
+}
+
+static NSString*
+utiForMimeType(const NSString* const mimeType)
+{
+  const char* const mimeTypeString = [mimeType UTF8String];
+
+  // First try internal map to override types the system won't convert sensibly
+  for (const Datatype* datatype = datatypes; datatype->mimeType; ++datatype) {
+    if (!strcmp(mimeTypeString, datatype->mimeType)) {
+      return [NSString stringWithUTF8String:datatype->uti];
+    }
+  }
+
+  // Try to get the UTI from the system
+  CFStringRef uti = UTTypeCreatePreferredIdentifierForTag(
+    kUTTagClassMIMEType, (__bridge CFStringRef)mimeType, NULL);
+
+  return (uti && UTTypeIsDynamic(uti)) ? (NSString*)CFBridgingRelease(uti)
+                                       : NULL;
+}
 
 static NSRect
 rectToScreen(NSScreen* screen, NSRect rect)
@@ -179,6 +243,10 @@ updateViewRect(PuglView* view)
   NSTrackingArea*            trackingArea;
   NSMutableAttributedString* markedText;
   NSMutableDictionary*       userTimers;
+  id<NSDraggingInfo>         dragSource;
+  NSDragOperation            dragOperation;
+  size_t                     dragTypeIndex;
+  NSString*                  droppedUriList;
   bool                       reshaped;
 }
 
@@ -846,6 +914,8 @@ puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
 
   if (type == PUGL_PROGRAM) {
     impl->autoreleasePool = [NSAutoreleasePool new];
+
+    [impl->app setActivationPolicy:NSApplicationActivationPolicyRegular];
   }
 
   return impl;
@@ -868,7 +938,7 @@ puglGetNativeWorld(PuglWorld* world)
 }
 
 PuglInternals*
-puglInitViewInternals(void)
+puglInitViewInternals(PuglWorld* PUGL_UNUSED(world))
 {
   PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
 
@@ -1493,21 +1563,106 @@ puglSetTransientParent(PuglView* view, PuglNativeView parent)
   return PUGL_FAILURE;
 }
 
-const void*
-puglGetClipboard(PuglView* const    view,
-                 const char** const type,
-                 size_t* const      len)
+PuglStatus
+puglPaste(PuglView* const view)
+{
+  const PuglDataOfferEvent offer = {
+    PUGL_DATA_OFFER,
+    0,
+    mach_absolute_time() / 1e9,
+  };
+
+  PuglEvent offerEvent;
+  offerEvent.offer = offer;
+  puglDispatchEvent(view, &offerEvent);
+  return PUGL_SUCCESS;
+}
+
+uint32_t
+puglGetNumClipboardTypes(const PuglView* PUGL_UNUSED(view))
 {
   NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
 
-  if ([[pasteboard types] containsObject:NSStringPboardType]) {
-    const NSString* str  = [pasteboard stringForType:NSStringPboardType];
-    const char*     utf8 = [str UTF8String];
+  return pasteboard ? (uint32_t)[[pasteboard types] count] : 0;
+}
 
-    puglSetBlob(&view->clipboard, utf8, strlen(utf8) + 1);
+const char*
+puglGetClipboardType(const PuglView* PUGL_UNUSED(view),
+                     const uint32_t  typeIndex)
+{
+  NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
+  if (!pasteboard) {
+    return NULL;
   }
 
-  return puglGetInternalClipboard(view, type, len);
+  const NSArray<NSPasteboardType>* const types = [pasteboard types];
+  if (typeIndex >= [types count]) {
+    return NULL;
+  }
+
+  NSString* const uti      = [types objectAtIndex:typeIndex];
+  NSString* const mimeType = mimeTypeForUti(uti);
+
+  // FIXME: lifetime?
+  return mimeType ? [mimeType UTF8String] : [uti UTF8String];
+}
+
+PuglStatus
+puglAcceptOffer(PuglView* const                 view,
+                const PuglDataOfferEvent* const PUGL_UNUSED(offer),
+                const uint32_t                  typeIndex)
+{
+  PuglWrapperView* const wrapper    = view->impl->wrapperView;
+  NSPasteboard* const    pasteboard = [NSPasteboard generalPasteboard];
+  if (!pasteboard) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  const NSArray<NSPasteboardType>* const types = [pasteboard types];
+  if (typeIndex >= [types count]) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  wrapper->dragOperation = NSDragOperationCopy;
+  wrapper->dragTypeIndex = typeIndex;
+
+  const PuglDataEvent data = {
+    PUGL_DATA, 0u, mach_absolute_time() / 1e9, (uint32_t)typeIndex};
+
+  PuglEvent dataEvent;
+  dataEvent.data = data;
+  puglDispatchEvent(view, &dataEvent);
+  return PUGL_SUCCESS;
+}
+
+const void*
+puglGetClipboard(PuglView* const view,
+                 const uint32_t  typeIndex,
+                 size_t* const   len)
+{
+  *len = 0;
+
+  NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
+  if (!pasteboard) {
+    return NULL;
+  }
+
+  const NSArray<NSPasteboardType>* const types = [pasteboard types];
+  if (typeIndex >= [types count]) {
+    return NULL;
+  }
+
+  NSString* const uti = [types objectAtIndex:typeIndex];
+  if ([uti isEqualToString:@"public.file-url"] ||
+      [uti isEqualToString:@"com.apple.pasteboard.promised-file-url"]) {
+    *len = [view->impl->wrapperView->droppedUriList length];
+    return [view->impl->wrapperView->droppedUriList UTF8String];
+  }
+
+  const NSData* const data = [pasteboard dataForType:uti];
+
+  *len = [data length];
+  return [data bytes];
 }
 
 static NSCursor*
@@ -1552,28 +1707,21 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
 }
 
 PuglStatus
-puglSetClipboard(PuglView* const   view,
+puglSetClipboard(PuglView*         PUGL_UNUSED(view),
                  const char* const type,
                  const void* const data,
                  const size_t      len)
 {
   NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
-  const char* const   str        = (const char*)data;
+  NSString* const     mimeType   = [NSString stringWithUTF8String:type];
+  NSString* const     uti        = utiForMimeType(mimeType);
+  NSData* const       blob       = [NSData dataWithBytes:data length:len];
 
-  PuglStatus st = puglSetInternalClipboard(view, type, data, len);
-  if (st) {
-    return st;
-  }
+  [pasteboard declareTypes:[NSArray arrayWithObjects:uti, nil] owner:nil];
 
-  NSString* nsString = [NSString stringWithUTF8String:str];
-  if (nsString) {
-    [pasteboard declareTypes:[NSArray arrayWithObjects:NSStringPboardType, nil]
-                       owner:nil];
-
-    [pasteboard setString:nsString forType:NSStringPboardType];
-
+  if ([pasteboard setData:blob forType:uti]) {
     return PUGL_SUCCESS;
   }
 
-  return PUGL_UNKNOWN_ERROR;
+  return PUGL_FAILURE;
 }

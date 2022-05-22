@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_PUGL_HPP
@@ -6,6 +6,7 @@
 
 #include "pugl/pugl.h"
 
+#include <cstddef> // IWYU pragma: keep
 #include <cstdint> // IWYU pragma: keep
 
 #if defined(PUGL_HPP_THROW_FAILED_CONSTRUCTION)
@@ -175,6 +176,12 @@ using LoopEnterEvent = Event<PUGL_LOOP_ENTER, PuglLoopEnterEvent>;
 
 /// @copydoc PuglLoopLeaveEvent
 using LoopLeaveEvent = Event<PUGL_LOOP_LEAVE, PuglLoopLeaveEvent>;
+
+/// @copydoc PuglDataOfferEvent
+using DataOfferEvent = Event<PUGL_DATA_OFFER, PuglDataOfferEvent>;
+
+/// @copydoc PuglDataEvent
+using DataEvent = Event<PUGL_DATA, PuglDataEvent>;
 
 /**
    @}
@@ -560,6 +567,37 @@ public:
       puglSetCursor(cobj(), static_cast<PuglCursor>(cursor)));
   }
 
+  /// @copydoc puglGetNumClipboardTypes
+  uint32_t numClipboardTypes() const
+  {
+    return puglGetNumClipboardTypes(cobj());
+  }
+
+  /// @copydoc puglGetClipboardType
+  const char* clipboardType(const uint32_t typeIndex) const
+  {
+    return puglGetClipboardType(cobj(), typeIndex);
+  }
+
+  /**
+     Accept data offered from a clipboard.
+
+     To accept data, this must be called while handling a #PUGL_DATA_OFFER
+     event. Doing so will request the data from the source as the specified
+     type.  When the data is available, a #PUGL_DATA event will be sent to the
+     view which can then retrieve the data with puglGetClipboard().
+
+     @param offer The data offer event.
+
+     @param typeIndex The index of the type that the view will accept.  This is
+     the `typeIndex` argument to the call of puglGetClipboardType() that
+     returned the accepted type.
+  */
+  Status acceptOffer(const DataOfferEvent& offer, const size_t typeIndex)
+  {
+    return static_cast<Status>(puglAcceptOffer(cobj(), &offer, typeIndex));
+  }
+
   /// @copydoc puglRequestAttention
   Status requestAttention() noexcept
   {
@@ -678,6 +716,10 @@ private:
       return target.onEvent(LoopEnterEvent{event->any});
     case PUGL_LOOP_LEAVE:
       return target.onEvent(LoopLeaveEvent{event->any});
+    case PUGL_DATA_OFFER:
+      return target.onEvent(DataOfferEvent{event->offer});
+    case PUGL_DATA:
+      return target.onEvent(DataEvent{event->data});
     }
 
     return Status::failure;

@@ -1,4 +1,4 @@
-// Copyright 2020-2021 David Robillard <d@drobilla.net>
+// Copyright 2020-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // Tests copy and paste within the same view
@@ -21,6 +21,9 @@ static const uintptr_t timerId = 1u;
 typedef enum {
   START,
   EXPOSED,
+  PASTED,
+  RECEIVED_OFFER,
+  RECEIVED_DATA,
   FINISHED,
 } State;
 
@@ -57,18 +60,53 @@ onEvent(PuglView* view, const PuglEvent* event)
       puglSetClipboard(
         view, "text/plain", "Copied Text", strlen("Copied Text") + 1);
 
-    } else if (test->iteration == 1) {
-      const char* type = NULL;
-      size_t      len  = 0;
-      const char* text = (const char*)puglGetClipboard(view, &type, &len);
+      // Check that the new type is available immediately
+      assert(puglGetNumClipboardTypes(view) >= 1);
+      assert(!strcmp(puglGetClipboardType(view, 0), "text/plain"));
 
-      assert(!strcmp(type, "text/plain"));
+      size_t      len  = 0;
+      const char* text = (const char*)puglGetClipboard(view, 0, &len);
+
+      // Check that the new contents are available immediately
+      assert(text);
+      assert(!strcmp(text, "Copied Text"));
+
+    } else if (test->iteration == 1) {
+      size_t      len  = 0;
+      const char* text = (const char*)puglGetClipboard(view, 0, &len);
+
+      // Check that the contents we pasted last iteration are still there
+      assert(text);
+      assert(!strcmp(text, "Copied Text"));
+
+    } else if (test->iteration == 2) {
+      // Start a "proper" paste
+      test->state = PASTED;
+      assert(!puglPaste(view));
+    }
+
+    ++test->iteration;
+    break;
+
+  case PUGL_DATA_OFFER:
+    if (test->state == PASTED) {
+      test->state = RECEIVED_OFFER;
+
+      assert(!puglAcceptOffer(view, &event->offer, 0));
+    }
+    break;
+
+  case PUGL_DATA:
+    if (test->state == RECEIVED_OFFER) {
+      size_t      len  = 0;
+      const char* text = (const char*)puglGetClipboard(view, 0, &len);
+
+      // Check that the offered data is what we copied earlier
+      assert(text);
       assert(!strcmp(text, "Copied Text"));
 
       test->state = FINISHED;
     }
-
-    ++test->iteration;
     break;
 
   default:

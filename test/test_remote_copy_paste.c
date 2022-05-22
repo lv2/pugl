@@ -1,4 +1,4 @@
-// Copyright 2020-2021 David Robillard <d@drobilla.net>
+// Copyright 2020-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // Tests copy and paste from one view to another
@@ -23,6 +23,8 @@ typedef enum {
   START,
   EXPOSED,
   COPIED,
+  PASTED,
+  RECEIVED_OFFER,
   FINISHED,
 } State;
 
@@ -60,6 +62,7 @@ onCopierEvent(PuglView* const view, const PuglEvent* const event)
     if (test->state < COPIED) {
       puglSetClipboard(
         view, "text/plain", "Copied Text", strlen("Copied Text") + 1);
+
       test->state = COPIED;
     }
 
@@ -92,18 +95,31 @@ onPasterEvent(PuglView* const view, const PuglEvent* const event)
 
   case PUGL_TIMER:
     assert(event->timer.id == pasterTimerId);
-
     if (test->state == COPIED) {
-      const char* type = NULL;
-      size_t      len  = 0;
-      const char* text = (const char*)puglGetClipboard(view, &type, &len);
+      test->state = PASTED;
+      assert(!puglPaste(view));
+    }
+    break;
 
-      assert(!strcmp(type, "text/plain"));
+  case PUGL_DATA_OFFER:
+    if (test->state == PASTED) {
+      test->state = RECEIVED_OFFER;
+
+      assert(!puglAcceptOffer(view, &event->offer, 0));
+    }
+    break;
+
+  case PUGL_DATA:
+    if (test->state == RECEIVED_OFFER) {
+      size_t      len  = 0;
+      const char* text = (const char*)puglGetClipboard(view, 0, &len);
+
+      // Check that the offered data is what we copied earlier
+      assert(text);
       assert(!strcmp(text, "Copied Text"));
 
       test->state = FINISHED;
     }
-
     break;
 
   default:

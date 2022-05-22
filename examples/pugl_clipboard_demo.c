@@ -11,6 +11,7 @@
 
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -64,15 +65,50 @@ onKeyPress(PuglView* const view, const PuglKeyEvent* const event)
   if (event->key == 'q' || event->key == PUGL_KEY_ESCAPE) {
     app->quit = 1;
   } else if ((event->state & PUGL_MOD_CTRL) && event->key == 'c') {
-    puglSetClipboard(view, NULL, copyString, strlen(copyString) + 1);
+    puglSetClipboard(view, "text/plain", copyString, strlen(copyString));
 
     fprintf(stderr, "Copy \"%s\"\n", copyString);
   } else if ((event->state & PUGL_MOD_CTRL) && event->key == 'v') {
-    const char* type = NULL;
-    size_t      len  = 0;
-    const char* text = (const char*)puglGetClipboard(view, &type, &len);
+    puglPaste(view);
+  }
+}
 
-    fprintf(stderr, "Paste \"%s\"\n", text);
+static void
+onDataOffer(PuglView* view, const PuglDataOfferEvent* event)
+{
+  const uint32_t numTypes = puglGetNumClipboardTypes(view);
+
+  // Print all offered types to be useful as a testing program
+  fprintf(stderr, "Offered %u types:\n", numTypes);
+  for (uint32_t t = 0; t < numTypes; ++t) {
+    const char* type = puglGetClipboardType(view, t);
+    fprintf(stderr, "\t%s\n", type);
+  }
+
+  // Accept the first type found that we support (namely text)
+  for (uint32_t t = 0; t < numTypes; ++t) {
+    const char* type = puglGetClipboardType(view, t);
+    if (!strncmp(type, "text/", 5)) {
+      puglAcceptOffer(view, event, t);
+      return;
+    }
+  }
+}
+
+static void
+onData(PuglView* view, const PuglDataEvent* event)
+{
+  const uint32_t typeIndex = event->typeIndex;
+
+  const char* const type = puglGetClipboardType(view, typeIndex);
+
+  fprintf(stderr, "Received data type: %s\n", type);
+  if (!strncmp(type, "text/", 5)) {
+    // Accept any text type
+    size_t      len  = 0;
+    const void* data = puglGetClipboard(view, typeIndex, &len);
+
+    fprintf(stderr, "Data:\n%s\n", (const char*)data);
   }
 }
 
@@ -142,6 +178,12 @@ onEvent(PuglView* view, const PuglEvent* event)
   case PUGL_FOCUS_IN:
   case PUGL_FOCUS_OUT:
     redisplayView(app, view);
+    break;
+  case PUGL_DATA_OFFER:
+    onDataOffer(view, &event->offer);
+    break;
+  case PUGL_DATA:
+    onData(view, &event->data);
     break;
   default:
     break;

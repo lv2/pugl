@@ -24,6 +24,7 @@ struct PuglInternalsImpl {
   HWND         hwnd;
   HCURSOR      cursor;
   HDC          hdc;
+  PuglBlob     clipboard;
   PuglSurface* surface;
   double       scaleFactor;
   bool         flashing;
