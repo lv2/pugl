@@ -57,23 +57,29 @@ onEvent(PuglView* view, const PuglEvent* event)
     assert(event->timer.id == timerId);
 
     if (test->iteration == 0) {
-      puglSetClipboard(
-        view, "text/plain", "Copied Text", strlen("Copied Text") + 1);
+      puglSetClipboard(view,
+                       PUGL_CLIPBOARD_GENERAL,
+                       "text/plain",
+                       "Copied Text",
+                       strlen("Copied Text") + 1);
 
       // Check that the new type is available immediately
-      assert(puglGetNumClipboardTypes(view) >= 1);
-      assert(!strcmp(puglGetClipboardType(view, 0), "text/plain"));
+      assert(puglGetNumClipboardTypes(view, PUGL_CLIPBOARD_GENERAL) == 1);
+      assert(!strcmp(puglGetClipboardType(view, PUGL_CLIPBOARD_GENERAL, 0),
+                     "text/plain"));
 
-      size_t      len  = 0;
-      const char* text = (const char*)puglGetClipboard(view, 0, &len);
+      size_t      len = 0;
+      const char* text =
+        (const char*)puglGetClipboard(view, PUGL_CLIPBOARD_GENERAL, 0, &len);
 
       // Check that the new contents are available immediately
       assert(text);
       assert(!strcmp(text, "Copied Text"));
 
     } else if (test->iteration == 1) {
-      size_t      len  = 0;
-      const char* text = (const char*)puglGetClipboard(view, 0, &len);
+      size_t      len = 0;
+      const char* text =
+        (const char*)puglGetClipboard(view, PUGL_CLIPBOARD_GENERAL, 0, &len);
 
       // Check that the contents we pasted last iteration are still there
       assert(text);
@@ -98,8 +104,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 
   case PUGL_DATA:
     if (test->state == RECEIVED_OFFER) {
-      size_t      len  = 0;
-      const char* text = (const char*)puglGetClipboard(view, 0, &len);
+      size_t      len = 0;
+      const char* text =
+        (const char*)puglGetClipboard(view, PUGL_CLIPBOARD_GENERAL, 0, &len);
 
       // Check that the offered data is what we copied earlier
       assert(text);

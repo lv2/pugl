@@ -66,10 +66,11 @@ When handling this event,
    static void
    onDataOffer(PuglView* view, const PuglEventDataOffer* event)
    {
-     size_t numTypes = puglGetNumClipboardTypes(view, clipboard);
+     PuglClipboard clipboard = event->clipboard;
+     size_t        numTypes  = puglGetNumClipboardTypes(view, clipboard);
 
      for (uint32_t t = 0; t < numTypes; ++t) {
-       const char* type = puglGetClipboardType(view, t);
+       const char* type = puglGetClipboardType(view, clipboard, t);
        printf("Offered type: %s\n", type);
      }
    }
@@ -80,7 +81,7 @@ it can accept the offer with :func:`puglAcceptOffer`:
 .. code-block:: c
 
    for (uint32_t t = 0; t < numTypes; ++t) {
-     const char* type = puglGetClipboardType(view, t);
+     const char* type = puglGetClipboardType(view, clipboard, t);
      if (!strcmp(type, "text/uri-list")) {
        puglAcceptOffer(view,
                        event,
@@ -109,15 +110,16 @@ the data can be fetched with :func:`puglGetClipboard`:
    static void
    onData(PuglView* view, const PuglEventData* event)
    {
-     uint32_t typeIndex = event->typeIndex;
+     PuglClipboard clipboard = event->clipboard;
+     uint32_t      typeIndex = event->typeIndex;
 
-     const char* type = puglGetClipboardType(view, typeIndex);
+     const char* type = puglGetClipboardType(view, clipboard, typeIndex);
 
      fprintf(stderr, "Received data type: %s\n", type);
 
      if (!strcmp(type, "text/plain")) {
        size_t      len  = 0;
-       const void* data = puglGetClipboard(view, typeIndex, &len);
+       const void* data = puglGetClipboard(view, clipboard, typeIndex, &len);
 
        printf("Dropped: %s\n", (const char*)data);
      }

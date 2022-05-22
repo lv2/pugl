@@ -54,6 +54,7 @@ typedef struct {
 } PuglTimer;
 
 typedef struct {
+  PuglClipboard clipboard;
   Atom          selection;
   Atom          property;
   Window        source;
