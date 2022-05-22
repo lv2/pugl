@@ -39,6 +39,7 @@ struct PuglWorldInternalsImpl {
   Display*     display;
   PuglX11Atoms atoms;
   XIM          xim;
+  double       scaleFactor;
   PuglTimer*   timers;
   size_t       numTimers;
   XID          serverTimeCounter;

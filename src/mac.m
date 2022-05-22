@@ -35,10 +35,12 @@ rectToScreen(NSScreen* screen, NSRect rect)
 }
 
 static NSScreen*
-viewScreen(PuglView* view)
+viewScreen(const PuglView* view)
 {
   return view->impl->window ? [view->impl->window screen]
-                            : [NSScreen mainScreen];
+         : [view->impl->wrapperView window]
+           ? [[view->impl->wrapperView window] screen]
+           : [NSScreen mainScreen];
 }
 
 static NSRect
@@ -1363,6 +1365,12 @@ puglSetWindowTitle(PuglView* view, const char* title)
   }
 
   return PUGL_SUCCESS;
+}
+
+double
+puglGetScaleFactor(const PuglView* const view)
+{
+  return [viewScreen(view) backingScaleFactor];
 }
 
 PuglStatus

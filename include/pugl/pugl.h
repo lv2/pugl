@@ -973,6 +973,22 @@ int
 puglGetViewHint(const PuglView* view, PuglViewHint hint);
 
 /**
+   Return the scale factor of the view.
+
+   This factor describe how large UI elements (especially text) should be
+   compared to "normal".  For example, 2.0 means the UI should be drawn twice
+   as large.
+
+   "Normal" is loosely defined, but means a good size on a "standard DPI"
+   display (around 96 DPI).  In other words, the scale 1.0 should have text
+   that is reasonably sized on a 96 DPI display, and the scale 2.0 should have
+   text twice that large.
+*/
+PUGL_API
+double
+puglGetScaleFactor(const PuglView* view);
+
+/**
    @}
    @defgroup frame Frame
    Functions for working with the position and size of a view.

@@ -25,6 +25,7 @@ struct PuglInternalsImpl {
   HCURSOR      cursor;
   HDC          hdc;
   PuglSurface* surface;
+  double       scaleFactor;
   bool         flashing;
   bool         mouseTracked;
 };

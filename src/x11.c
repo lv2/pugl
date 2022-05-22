@@ -14,6 +14,7 @@
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
+#include <X11/Xresource.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
@@ -106,6 +107,33 @@ initXSync(PuglWorldInternals* const impl)
   return false;
 }
 
+static double
+puglX11GetDisplayScaleFactor(Display* const display)
+{
+  double            dpi = 96.0;
+  const char* const rms = XResourceManagerString(display);
+  if (rms) {
+    XrmDatabase db = XrmGetStringDatabase(rms);
+    if (db) {
+      XrmValue value = {0u, NULL};
+      char*    type  = NULL;
+      if (XrmGetResource(db, "Xft.dpi", "Xft.Dpi", &type, &value)) {
+        if (!type || !strcmp(type, "String")) {
+          char*        end    = NULL;
+          const double xftDpi = strtod(value.addr, &end);
+          if (xftDpi > 0.0 && xftDpi < HUGE_VAL) {
+            dpi = xftDpi;
+          }
+        }
+      }
+
+      XrmDestroyDatabase(db);
+    }
+  }
+
+  return dpi / 96.0;
+}
+
 PuglWorldInternals*
 puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
 {
@@ -121,7 +149,8 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
   PuglWorldInternals* impl =
     (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
 
-  impl->display = display;
+  impl->display     = display;
+  impl->scaleFactor = puglX11GetDisplayScaleFactor(display);
 
   // Intern the various atoms we will need
   impl->atoms.CLIPBOARD        = XInternAtom(display, "CLIPBOARD", 0);
@@ -1365,6 +1394,12 @@ puglSetWindowTitle(PuglView* const view, const char* const title)
   }
 
   return PUGL_SUCCESS;
+}
+
+double
+puglGetScaleFactor(const PuglView* const view)
+{
+  return view->world->impl->scaleFactor;
 }
 
 PuglStatus
