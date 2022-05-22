@@ -127,6 +127,7 @@ puglSetDefaultHints(PuglHints hints)
   hints[PUGL_IGNORE_KEY_REPEAT]     = PUGL_FALSE;
   hints[PUGL_REFRESH_RATE]          = PUGL_DONT_CARE;
   hints[PUGL_VIEW_TYPE]             = PUGL_DONT_CARE;
+  hints[PUGL_ACCEPT_DROP]           = PUGL_DONT_CARE;
 }
 
 PuglView*

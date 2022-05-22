@@ -9,6 +9,8 @@
 #include "pugl/pugl.h"
 
 #include <dwmapi.h>
+#include <shellapi.h>
+#include <shlwapi.h>
 #include <windows.h>
 #include <windowsx.h>
 
@@ -295,6 +297,10 @@ puglRealize(PuglView* view)
 
   // Set basic window hints and attributes
 
+  if (view->title) {
+    puglSetWindowTitle(view, view->title);
+  }
+
   puglSetViewString(view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
   puglSetTransientParent(view, view->transientParent);
 
@@ -314,6 +320,7 @@ puglRealize(PuglView* view)
     }
   }
 
+  DragAcceptFiles(impl->hwnd, view->hints[PUGL_ACCEPT_DROP] == PUGL_TRUE);
   SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
   return puglDispatchSimpleEvent(view, PUGL_REALIZE);
@@ -712,6 +719,7 @@ constrainAspect(const PuglView* const view,
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
+  PuglInternals*  impl      = view->impl;
   PuglEvent       event     = {{PUGL_NOTHING, 0}};
   RECT            rect      = {0, 0, 0, 0};
   POINT           pt        = {0, 0};
@@ -762,6 +770,43 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
         puglIsValidSize(view->sizeHints[PUGL_MAX_ASPECT])) {
       constrainAspect(view, (RECT*)lParam, wParam);
       return TRUE;
+    }
+    break;
+  case WM_DROPFILES:
+    if (DragQueryPoint((HDROP)wParam, &pt)) {
+      const HDROP drop           = (HDROP)wParam;
+      const UINT  numFiles       = DragQueryFile(drop, 0xFFFFFFFF, NULL, 0);
+      TCHAR       path[MAX_PATH] = {0};
+      TCHAR       url[2048]      = {0};
+
+      impl->droppedUrisLen = 0;
+      for (UINT i = 0; i < numFiles; ++i) {
+        const UINT pathLen = sizeof(path) / sizeof(TCHAR);
+        if (DragQueryFile(drop, i, path, pathLen)) {
+          DWORD         urlLen = sizeof(url) / sizeof(TCHAR);
+          const HRESULT hres   = UrlCreateFromPath(path, url, &urlLen, 0);
+          if (!FAILED(hres)) {
+            impl->droppedUris = (char*)realloc(
+              impl->droppedUris, impl->droppedUrisLen + urlLen + 2);
+
+            memcpy(impl->droppedUris + impl->droppedUrisLen, url, urlLen + 1);
+
+            impl->droppedUrisLen += urlLen;
+            impl->droppedUris[impl->droppedUrisLen++] = '\n';
+            impl->droppedUris[impl->droppedUrisLen]   = 0;
+          }
+        }
+      }
+      DragFinish(drop);
+
+      POINT rpt = pt;
+      ClientToScreen(view->impl->hwnd, &rpt);
+
+      event.data.type      = PUGL_DATA;
+      event.data.time      = GetMessageTime() / 1e3;
+      event.data.x         = pt.x;
+      event.data.y         = pt.y;
+      event.data.clipboard = PUGL_CLIPBOARD_DRAG;
     }
     break;
   case WM_ENTERSIZEMOVE:
@@ -1347,30 +1392,48 @@ puglSetTransientParent(PuglView* view, PuglNativeView parent)
   return PUGL_SUCCESS;
 }
 
+PuglStatus
+puglRegisterDragType(PuglView* const PUGL_UNUSED(view), const char* const type)
+{
+  return !strcmp(type, "text/uri-list") ? PUGL_SUCCESS : PUGL_UNSUPPORTED;
+}
+
 uint32_t
-puglGetNumClipboardTypes(const PuglView* const PUGL_UNUSED(view),
+puglGetNumClipboardTypes(const PuglView* const view,
                          const PuglClipboard   clipboard)
 {
-  return (clipboard == PUGL_CLIPBOARD_GENERAL &&
-          IsClipboardFormatAvailable(CF_UNICODETEXT))
-           ? 1U
-           : 0U;
+  switch (clipboard) {
+  case PUGL_CLIPBOARD_GENERAL:
+    return IsClipboardFormatAvailable(CF_UNICODETEXT) ? 1U : 0U;
+  case PUGL_CLIPBOARD_DRAG:
+    return view->impl->droppedUrisLen ? 1U : 0U;
+  default:
+    break;
+  }
+
+  return 0U;
 }
 
 const char*
-puglGetClipboardType(const PuglView* const PUGL_UNUSED(view),
+puglGetClipboardType(const PuglView* const view,
                      const PuglClipboard   clipboard,
-                     const uint32_t        PUGL_UNUSED(typeIndex))
+                     const size_t          typeIndex)
 {
-  return (clipboard == PUGL_CLIPBOARD_GENERAL && typeIndex == 0 &&
-          IsClipboardFormatAvailable(CF_UNICODETEXT))
-           ? "text/plain"
-           : NULL;
+  switch (clipboard) {
+  case PUGL_CLIPBOARD_GENERAL:
+    return IsClipboardFormatAvailable(CF_UNICODETEXT) ? "text/plain" : NULL;
+  case PUGL_CLIPBOARD_DRAG:
+    return (view->impl->droppedUrisLen && !typeIndex) ? "text/uri-list" : NULL;
+  default:
+    break;
+  }
+
+  return NULL;
 }
 
 PuglStatus
 puglAcceptOffer(PuglView* const                 view,
-                const PuglDataOfferEvent* const PUGL_UNUSED(offer),
+                const PuglDataOfferEvent* const offer,
                 const uint32_t                  typeIndex,
                 PuglAction                      PUGL_UNUSED(action),
                 const PuglRect                  region)
@@ -1381,11 +1444,12 @@ puglAcceptOffer(PuglView* const                 view,
 
   const PuglDataEvent data = {
     PUGL_DATA,
-    0,
+    0u,
     GetMessageTime() / 1e3,
     (double)region.x,
     (double)region.y,
-    0,
+    offer->clipboard,
+    typeIndex,
   };
 
   PuglEvent dataEvent;
@@ -1402,8 +1466,9 @@ puglGetClipboard(PuglView* const     view,
 {
   PuglInternals* const impl = view->impl;
 
-  if (clipboard != PUGL_CLIPBOARD_GENERAL) {
-    return NULL;
+  if (clipboard == PUGL_CLIPBOARD_DRAG) {
+    *len = impl->droppedUrisLen;
+    return impl->droppedUris;
   }
 
   if (typeIndex > 0U || !IsClipboardFormatAvailable(CF_UNICODETEXT) ||
@@ -1438,7 +1503,7 @@ puglSetClipboard(PuglView* const     view,
 {
   PuglInternals* const impl = view->impl;
 
-  if (clipboard != PUGL_CLIPBOARD_GENERAL) {
+  if (clipboard == PUGL_CLIPBOARD_DRAG) {
     return PUGL_FAILURE;
   }
 
