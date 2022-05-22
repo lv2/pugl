@@ -94,7 +94,7 @@ onDataOffer(PuglView* view, const PuglDataOfferEvent* event)
   for (uint32_t t = 0; t < numTypes; ++t) {
     const char* type = puglGetClipboardType(view, clipboard, t);
     if (!strncmp(type, "text/", 5)) {
-      puglAcceptOffer(view, event, t, puglGetFrame(view));
+      puglAcceptOffer(view, event, t, PUGL_ACTION_LINK, puglGetFrame(view));
       return;
     }
   }

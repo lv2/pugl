@@ -508,6 +508,7 @@ clearX11Clipboard(PuglX11Clipboard* const board)
 
   board->source              = None;
   board->numFormats          = 0;
+  board->acceptedAction      = PUGL_ACTION_PRIVATE;
   board->acceptedFormatIndex = UINT32_MAX;
   board->acceptedFormat      = None;
   board->data.len            = 0;
@@ -2116,6 +2117,7 @@ PuglStatus
 puglAcceptOffer(PuglView* const                 view,
                 const PuglDataOfferEvent* const offer,
                 const uint32_t                  typeIndex,
+                PuglAction                      action,
                 const PuglRect                  region)
 {
   (void)region;
@@ -2124,6 +2126,7 @@ puglAcceptOffer(PuglView* const                 view,
   Display* const          display = view->world->impl->display;
   PuglX11Clipboard* const board   = getX11Clipboard(view, offer->clipboard);
 
+  board->acceptedAction      = action;
   board->acceptedFormatIndex = typeIndex;
   board->acceptedFormat      = board->formats[typeIndex];
 

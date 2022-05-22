@@ -61,6 +61,7 @@ typedef struct {
   Atom*         formats;
   char**        formatStrings;
   unsigned long numFormats;
+  PuglAction    acceptedAction;
   uint32_t      acceptedFormatIndex;
   Atom          acceptedFormat;
   PuglBlob      data;

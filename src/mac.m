@@ -1926,10 +1926,28 @@ puglGetClipboardType(const PuglView* const view,
   return mimeType ? [mimeType UTF8String] : [uti UTF8String];
 }
 
+static NSDragOperation
+getDragOperation(const PuglAction action)
+{
+  switch (action) {
+  case PUGL_ACTION_COPY:
+    return NSDragOperationCopy;
+  case PUGL_ACTION_LINK:
+    return NSDragOperationLink;
+  case PUGL_ACTION_MOVE:
+    return NSDragOperationMove;
+  case PUGL_ACTION_PRIVATE:
+    break;
+  }
+
+  return NSDragOperationPrivate;
+}
+
 PuglStatus
 puglAcceptOffer(PuglView* const                 view,
                 const PuglDataOfferEvent* const offer,
                 const uint32_t                  typeIndex,
+                const PuglAction                action,
                 const PuglRect                  region)
 {
   PuglWrapperView* const wrapper    = view->impl->wrapperView;
@@ -1943,7 +1961,7 @@ puglAcceptOffer(PuglView* const                 view,
     return PUGL_BAD_PARAMETER;
   }
 
-  wrapper->dragOperation = NSDragOperationCopy;
+  wrapper->dragOperation = getDragOperation(action);
   wrapper->dragTypeIndex = typeIndex;
 
   const PuglDataEvent data = {PUGL_DATA,
