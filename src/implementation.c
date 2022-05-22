@@ -28,7 +28,7 @@ puglStrerror(const PuglStatus status)
   case PUGL_REALIZE_FAILED:        return "View creation failed";
   case PUGL_SET_FORMAT_FAILED:     return "Failed to set pixel format";
   case PUGL_CREATE_CONTEXT_FAILED: return "Failed to create drawing context";
-  case PUGL_UNSUPPORTED:      return "Unsupported operation";
+  case PUGL_UNSUPPORTED:           return "Unsupported operation";
   }
   // clang-format on
 
