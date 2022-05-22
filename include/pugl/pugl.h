@@ -153,6 +153,19 @@ typedef enum {
   PUGL_CLIPBOARD_GENERAL, ///< General clipboard for copy/pasted data
 } PuglClipboard;
 
+/**
+   An action that can be performed on data from a clipboard.
+
+   This is given when accepting a data offer, so the system can provide user
+   feedback, for example by changing the cursor or showing an animation.
+*/
+typedef enum {
+  PUGL_DATA_ACTION_COPY,    ///< Data will be copied
+  PUGL_DATA_ACTION_LINK,    ///< Data will be linked to
+  PUGL_DATA_ACTION_MOVE,    ///< Data will be moved
+  PUGL_DATA_ACTION_PRIVATE, ///< Unspecified private action
+} PuglDataAction;
+
 /// Common header for all event structs
 typedef struct {
   PuglEventType  type;  ///< Event type
@@ -1582,6 +1595,10 @@ puglGetClipboardType(const PuglView* view,
    the `typeIndex` argument to the call of puglGetClipboardType() that returned
    the accepted type.
 
+   @param action The action that will be performed on the data.  This may be
+   used to provide visual feedback to the user, for example by changing the
+   cursor.
+
    @param regionX The top-left X coordinate of the accepting region.
 
    @param regionY The top-left Y coordinate of the accepting region.
@@ -1594,6 +1611,7 @@ PUGL_API PuglStatus
 puglAcceptOffer(PuglView*                 view,
                 const PuglDataOfferEvent* offer,
                 uint32_t                  typeIndex,
+                PuglDataAction            action,
                 int                       regionX,
                 int                       regionY,
                 unsigned                  regionWidth,

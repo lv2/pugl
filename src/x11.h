@@ -54,16 +54,17 @@ typedef struct {
 } PuglTimer;
 
 typedef struct {
-  PuglClipboard clipboard;
-  Atom          selection;
-  Atom          property;
-  Window        source;
-  Atom*         formats;
-  char**        formatStrings;
-  unsigned long numFormats;
-  uint32_t      acceptedFormatIndex;
-  Atom          acceptedFormat;
-  PuglBlob      data;
+  PuglClipboard  clipboard;
+  Atom           selection;
+  Atom           property;
+  Window         source;
+  Atom*          formats;
+  char**         formatStrings;
+  unsigned long  numFormats;
+  PuglDataAction acceptedAction;
+  uint32_t       acceptedFormatIndex;
+  Atom           acceptedFormat;
+  PuglBlob       data;
 } PuglX11Clipboard;
 
 struct PuglWorldInternalsImpl {

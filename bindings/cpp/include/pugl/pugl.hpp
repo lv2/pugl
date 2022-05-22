@@ -150,6 +150,9 @@ using ViewStyleFlags = PuglViewStyleFlags;
 /// @copydoc PuglClipboard
 using Clipboard = PuglClipboard;
 
+/// @copydoc PuglDataAction
+using Action = PuglDataAction;
+
 /// @copydoc PuglRealizeEvent
 using RealizeEvent = Event<PUGL_REALIZE, PuglRealizeEvent>;
 
@@ -706,6 +709,10 @@ public:
      the `typeIndex` argument to the call of puglGetClipboardType() that
      returned the accepted type.
 
+     @param action The action that will be performed when the data is dropped.
+     This may be used to provide visual feedback to the user, for example by
+     having the drag source change the cursor.
+
      @param regionX The top-left X coordinate of the accepting region.
 
      @param regionY The top-left Y coordinate of the accepting region.
@@ -716,13 +723,20 @@ public:
   */
   Status acceptOffer(const DataOfferEvent& offer,
                      const uint32_t        typeIndex,
+                     const Action          action,
                      const int             regionX,
                      const int             regionY,
                      const unsigned        regionWidth,
                      const unsigned        regionHeight)
   {
-    return static_cast<Status>(puglAcceptOffer(
-      cobj(), &offer, typeIndex, regionX, regionY, regionWidth, regionHeight));
+    return static_cast<Status>(puglAcceptOffer(cobj(),
+                                               &offer,
+                                               typeIndex,
+                                               action,
+                                               regionX,
+                                               regionY,
+                                               regionWidth,
+                                               regionHeight));
   }
 
   /// @copydoc puglSetViewStyle
