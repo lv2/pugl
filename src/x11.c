@@ -1618,7 +1618,7 @@ handleSelectionNotify(const PuglWorld* const       world,
           view, event->requestor, event->property, &numFormats, &formats) &&
         !setClipboardFormats(view, board, numFormats, formats)) {
       const PuglDataOfferEvent offer = {
-        PUGL_DATA_OFFER, 0, (double)event->time / 1e3};
+        PUGL_DATA_OFFER, 0, (double)event->time / 1e3, 0.0, 0.0};
 
       puglEvent.offer            = offer;
       board->acceptedFormatIndex = UINT32_MAX;
@@ -1635,8 +1635,12 @@ handleSelectionNotify(const PuglWorld* const       world,
           world, view, event->property, event->target, &board->data)) {
       board->source = XGetSelectionOwner(display, board->selection);
 
-      const PuglDataEvent data = {
-        PUGL_DATA, 0U, (double)event->time / 1e3, board->acceptedFormatIndex};
+      const PuglDataEvent data = {PUGL_DATA,
+                                  0U,
+                                  (double)event->time / 1e3,
+                                  0.0,
+                                  0.0,
+                                  board->acceptedFormatIndex};
 
       puglEvent.data = data;
     }
@@ -2092,9 +2096,11 @@ puglGetClipboard(PuglView* const view,
 PuglStatus
 puglAcceptOffer(PuglView* const                 view,
                 const PuglDataOfferEvent* const offer,
-                const uint32_t                  typeIndex)
+                const uint32_t                  typeIndex,
+                const PuglRect                  region)
 {
   (void)offer;
+  (void)region;
 
   PuglInternals* const    impl    = view->impl;
   Display* const          display = view->world->impl->display;

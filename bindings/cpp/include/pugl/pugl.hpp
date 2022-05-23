@@ -660,10 +660,16 @@ public:
      @param typeIndex The index of the type that the view will accept.  This is
      the `typeIndex` argument to the call of puglGetClipboardType() that
      returned the accepted type.
+
+     @param region The region of the view that will accept the data.  This may
+     be used by the system to avoid sending redundant events.
   */
-  Status acceptOffer(const DataOfferEvent& offer, const uint32_t typeIndex)
+  Status acceptOffer(const DataOfferEvent& offer,
+                     const uint32_t        typeIndex,
+                     const Rect&           region)
   {
-    return static_cast<Status>(puglAcceptOffer(cobj(), &offer, typeIndex));
+    return static_cast<Status>(
+      puglAcceptOffer(cobj(), &offer, typeIndex, region));
   }
 
   /// @copydoc puglSetViewStyle
