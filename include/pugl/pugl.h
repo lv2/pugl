@@ -656,6 +656,8 @@ typedef struct {
   PuglEventType  type;  ///< #PUGL_DATA_OFFER
   PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
   double         time;  ///< Time in seconds
+  double         x;     ///< View-relative X coordinate
+  double         y;     ///< View-relative Y coordinate
 } PuglDataOfferEvent;
 
 /**
@@ -669,6 +671,8 @@ typedef struct {
   PuglEventType  type;      ///< #PUGL_DATA
   PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
   double         time;      ///< Time in seconds
+  double         x;         ///< View-relative X coordinate
+  double         y;         ///< View-relative Y coordinate
   uint32_t       typeIndex; ///< Index of datatype
 } PuglDataEvent;
 
@@ -1525,12 +1529,16 @@ puglGetClipboardType(const PuglView* view, uint32_t typeIndex);
    @param typeIndex The index of the type that the view will accept.  This is
    the `typeIndex` argument to the call of puglGetClipboardType() that returned
    the accepted type.
+
+   @param region The region of the view that will accept the data.  This may be
+   used by the system to avoid sending redundant events.
 */
 PUGL_API
 PuglStatus
 puglAcceptOffer(PuglView*                 view,
                 const PuglDataOfferEvent* offer,
-                uint32_t                  typeIndex);
+                uint32_t                  typeIndex,
+                PuglRect                  region);
 
 /**
    Set the clipboard contents.

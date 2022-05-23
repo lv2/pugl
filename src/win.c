@@ -1386,7 +1386,8 @@ puglGetClipboardType(const PuglView* const PUGL_UNUSED(view),
 PuglStatus
 puglAcceptOffer(PuglView* const                 view,
                 const PuglDataOfferEvent* const PUGL_UNUSED(offer),
-                const uint32_t                  typeIndex)
+                const uint32_t                  typeIndex,
+                const PuglRect                  region)
 {
   if (typeIndex != 0) {
     return PUGL_UNSUPPORTED;
@@ -1396,6 +1397,8 @@ puglAcceptOffer(PuglView* const                 view,
     PUGL_DATA,
     0,
     GetMessageTime() / 1e3,
+    (double)region.x,
+    (double)region.y,
     0,
   };
 
@@ -1490,6 +1493,8 @@ puglPaste(PuglView* const view)
     PUGL_DATA_OFFER,
     0,
     GetMessageTime() / 1e3,
+    0.0,
+    0.0,
   };
 
   PuglEvent offerEvent;

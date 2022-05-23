@@ -1928,8 +1928,9 @@ puglGetClipboardType(const PuglView* PUGL_UNUSED(view),
 
 PuglStatus
 puglAcceptOffer(PuglView* const                 view,
-                const PuglDataOfferEvent* const PUGL_UNUSED(offer),
-                const uint32_t                  typeIndex)
+                const PuglDataOfferEvent* const offer,
+                const uint32_t                  typeIndex,
+                const PuglRect                  region)
 {
   PuglWrapperView* const wrapper    = view->impl->wrapperView;
   NSPasteboard* const    pasteboard = [NSPasteboard generalPasteboard];
@@ -1945,8 +1946,12 @@ puglAcceptOffer(PuglView* const                 view,
   wrapper->dragOperation = NSDragOperationCopy;
   wrapper->dragTypeIndex = typeIndex;
 
-  const PuglDataEvent data = {
-    PUGL_DATA, 0U, puglGetTime(view->world), (uint32_t)typeIndex};
+  const PuglDataEvent data = {PUGL_DATA,
+                              0U,
+                              puglGetTime(view->world),
+                              (double)region.x,
+                              (double)region.y,
+                              (uint32_t)typeIndex};
 
   PuglEvent dataEvent;
   dataEvent.data = data;
