@@ -652,6 +652,8 @@ typedef struct {
   PuglEventType  type;  ///< #PUGL_DATA_OFFER
   PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
   double         time;  ///< Time in seconds
+  double         x;     ///< View-relative X coordinate
+  double         y;     ///< View-relative Y coordinate
 } PuglDataOfferEvent;
 
 /**
@@ -665,6 +667,8 @@ typedef struct {
   PuglEventType  type;      ///< #PUGL_DATA
   PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
   double         time;      ///< Time in seconds
+  double         x;         ///< View-relative X coordinate
+  double         y;         ///< View-relative Y coordinate
   uint32_t       typeIndex; ///< Index of datatype
 } PuglDataEvent;
 
@@ -1553,6 +1557,9 @@ puglGetClipboardType(const PuglView* view, uint32_t typeIndex);
    the data is available, a #PUGL_DATA event will be sent to the view which can
    then retrieve the data with puglGetClipboard().
 
+   The region parameters specify a region of the view that will accept the
+   data, which may be used by the system to avoid sending redundant events.
+
    @param view The view.
 
    @param offer The data offer event.
@@ -1560,11 +1567,23 @@ puglGetClipboardType(const PuglView* view, uint32_t typeIndex);
    @param typeIndex The index of the type that the view will accept.  This is
    the `typeIndex` argument to the call of puglGetClipboardType() that returned
    the accepted type.
+
+   @param regionX The top-left X coordinate of the accepting region.
+
+   @param regionY The top-left Y coordinate of the accepting region.
+
+   @param regionWidth The width of the accepting region.
+
+   @param regionHeight The height of the accepting region.
 */
 PUGL_API PuglStatus
 puglAcceptOffer(PuglView*                 view,
                 const PuglDataOfferEvent* offer,
-                uint32_t                  typeIndex);
+                uint32_t                  typeIndex,
+                int                       regionX,
+                int                       regionY,
+                unsigned                  regionWidth,
+                unsigned                  regionHeight);
 
 /**
    Set the clipboard contents.

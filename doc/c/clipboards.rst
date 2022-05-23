@@ -82,9 +82,18 @@ it can accept the offer with :func:`puglAcceptOffer`:
    for (uint32_t t = 0; t < numTypes; ++t) {
      const char* type = puglGetClipboardType(view, t);
      if (!strcmp(type, "text/uri-list")) {
-       puglAcceptOffer(view, event, t);
+       puglAcceptOffer(view,
+                       event,
+                       t,
+                       0,
+                       0,
+                       UINT_MAX,
+                       UINT_MAX);
      }
    }
+
+A view region must be given,
+which the window system may use to optimize the process and/or provide user feedback.
 
 When an offer is accepted,
 the data will be transferred and converted if necessary,

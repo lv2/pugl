@@ -11,6 +11,7 @@
 #include <pugl/stub.h>
 
 #include <assert.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -105,7 +106,8 @@ onPasterEvent(PuglView* const view, const PuglEvent* const event)
     if (test->state == PASTED) {
       test->state = RECEIVED_OFFER;
 
-      assert(!puglAcceptOffer(view, &event->offer, 0));
+      assert(
+        !puglAcceptOffer(view, &event->offer, 0, 0, 0, UINT_MAX, UINT_MAX));
     }
     break;
 
