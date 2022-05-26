@@ -1672,6 +1672,19 @@ puglGetClipboard(PuglView* const view,
 }
 
 static NSCursor*
+extendedCursor(const SEL cursorSelector)
+{
+  if (cursorSelector && [NSCursor respondsToSelector:cursorSelector]) {
+    const id object = [NSCursor performSelector:cursorSelector];
+    if ([object isKindOfClass:[NSCursor class]]) {
+      return (NSCursor*)object;
+    }
+  }
+
+  return NULL;
+}
+
+static NSCursor*
 puglGetNsCursor(const PuglCursor cursor)
 {
   switch (cursor) {
@@ -1689,6 +1702,10 @@ puglGetNsCursor(const PuglCursor cursor)
     return [NSCursor resizeLeftRightCursor];
   case PUGL_CURSOR_UP_DOWN:
     return [NSCursor resizeUpDownCursor];
+  case PUGL_CURSOR_UP_LEFT_DOWN_RIGHT:
+    return extendedCursor(@selector(_windowResizeNorthWestSouthEastCursor));
+  case PUGL_CURSOR_UP_RIGHT_DOWN_LEFT:
+    return extendedCursor(@selector(_windowResizeNorthEastSouthWestCursor));
   }
 
   return NULL;

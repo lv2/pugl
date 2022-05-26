@@ -8,9 +8,9 @@
 
 #include <stdbool.h>
 
-static const int N_CURSORS = 7;
+static const int N_CURSORS = 9;
 static const int N_ROWS    = 2;
-static const int N_COLS    = 4;
+static const int N_COLS    = 5;
 
 typedef struct {
   PuglWorld*      world;

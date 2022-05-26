@@ -1295,13 +1295,15 @@ puglPaste(PuglView* const view)
 }
 
 static const char* const cursor_ids[] = {
-  IDC_ARROW,  // ARROW
-  IDC_IBEAM,  // CARET
-  IDC_CROSS,  // CROSSHAIR
-  IDC_HAND,   // HAND
-  IDC_NO,     // NO
-  IDC_SIZEWE, // LEFT_RIGHT
-  IDC_SIZENS, // UP_DOWN
+  IDC_ARROW,    // ARROW
+  IDC_IBEAM,    // CARET
+  IDC_CROSS,    // CROSSHAIR
+  IDC_HAND,     // HAND
+  IDC_NO,       // NO
+  IDC_SIZEWE,   // LEFT_RIGHT
+  IDC_SIZENS,   // UP_DOWN
+  IDC_SIZENWSE, // UP_LEFT_DOWN_RIGHT
+  IDC_SIZENESW, // UP_RIGHT_DOWN_LEFT
 };
 
 PuglStatus
