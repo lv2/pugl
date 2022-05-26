@@ -1251,13 +1251,15 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect);
    Windows.
 */
 typedef enum {
-  PUGL_CURSOR_ARROW,      ///< Default pointing arrow
-  PUGL_CURSOR_CARET,      ///< Caret (I-Beam) for text entry
-  PUGL_CURSOR_CROSSHAIR,  ///< Cross-hair
-  PUGL_CURSOR_HAND,       ///< Hand with a pointing finger
-  PUGL_CURSOR_NO,         ///< Operation not allowed
-  PUGL_CURSOR_LEFT_RIGHT, ///< Left/right arrow for horizontal resize
-  PUGL_CURSOR_UP_DOWN,    ///< Up/down arrow for vertical resize
+  PUGL_CURSOR_ARROW,         ///< Default pointing arrow
+  PUGL_CURSOR_CARET,         ///< Caret (I-Beam) for text entry
+  PUGL_CURSOR_CROSSHAIR,     ///< Cross-hair
+  PUGL_CURSOR_HAND,          ///< Hand with a pointing finger
+  PUGL_CURSOR_NO,            ///< Operation not allowed
+  PUGL_CURSOR_LEFT_RIGHT,    ///< Left/right arrow for horizontal resize
+  PUGL_CURSOR_UP_DOWN,       ///< Up/down arrow for vertical resize
+  PUGL_CURSOR_DIAGONAL,      ///< Top-left to bottom-right arrow for diagonal resize
+  PUGL_CURSOR_ANTI_DIAGONAL, ///< Bottom-left to top-right arrow for diagonal resize
 } PuglCursor;
 
 /**

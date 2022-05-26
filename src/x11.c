@@ -65,7 +65,7 @@ enum WmClientStateMessageAction {
   WM_STATE_TOGGLE
 };
 
-#define NUM_CURSORS ((unsigned)PUGL_CURSOR_UP_DOWN + 1u)
+#define NUM_CURSORS ((unsigned)PUGL_CURSOR_ANTI_DIAGONAL + 1u)
 
 static const char* const cursor_names[NUM_CURSORS] = {
   "default",           // ARROW
@@ -74,7 +74,9 @@ static const char* const cursor_names[NUM_CURSORS] = {
   "pointer",           // HAND
   "not-allowed",       // NO
   "sb_h_double_arrow", // LEFT_RIGHT
-  "sb_v_double_arrow"  // UP_DOWN
+  "sb_v_double_arrow", // UP_DOWN
+  "size_fdiag",        // DIAGONAL
+  "size_bdiag"         // ANTI_DIAGONAL
 };
 
 static bool
