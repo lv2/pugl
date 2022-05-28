@@ -593,7 +593,7 @@ public:
      the `typeIndex` argument to the call of puglGetClipboardType() that
      returned the accepted type.
   */
-  Status acceptOffer(const DataOfferEvent& offer, const size_t typeIndex)
+  Status acceptOffer(const DataOfferEvent& offer, const uint32_t typeIndex)
   {
     return static_cast<Status>(puglAcceptOffer(cobj(), &offer, typeIndex));
   }
