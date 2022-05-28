@@ -67,6 +67,7 @@ enum WmClientStateMessageAction {
 
 #define NUM_CURSORS ((unsigned)PUGL_CURSOR_UP_DOWN + 1u)
 
+#ifdef HAVE_XCURSOR
 static const char* const cursor_names[NUM_CURSORS] = {
   "default",           // ARROW
   "text",              // CARET
@@ -76,6 +77,7 @@ static const char* const cursor_names[NUM_CURSORS] = {
   "sb_h_double_arrow", // LEFT_RIGHT
   "sb_v_double_arrow"  // UP_DOWN
 };
+#endif
 
 static bool
 initXSync(PuglWorldInternals* const impl)
