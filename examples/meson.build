@@ -38,13 +38,12 @@ if get_option('strict')
   if cc.get_id() == 'clang'
     example_c_args += [
       '-Wno-float-equal',
-      '-Wno-padded',
       '-Wno-reserved-id-macro',
+      '-Wno-reserved-identifier',
     ]
   elif cc.get_id() == 'gcc'
     example_c_args += [
       '-Wno-float-equal',
-      '-Wno-padded',
     ]
   endif
 
@@ -53,24 +52,28 @@ endif
 
 # Suppress some additional C++ warnings in examples
 example_cpp_args = []
-if is_variable('cpp')
+if get_option('strict') and is_variable('cpp')
   if cpp.get_id() == 'clang'
     example_cpp_args += [
       '-Wno-documentation', # Cairo
       '-Wno-documentation-unknown-command', # Cairo
       '-Wno-old-style-cast',
-      '-Wno-padded',
       '-Wno-switch-enum',
     ]
   elif cpp.get_id() == 'gcc'
     example_cpp_args += [
       '-Wno-effc++',
       '-Wno-old-style-cast',
-      '-Wno-padded',
       '-Wno-switch-default',
       '-Wno-switch-enum',
       '-Wno-unused-const-variable',
       '-Wno-useless-cast',
+    ]
+  elif cpp.get_id() == 'msvc'
+    example_cpp_args += [
+        '/wd4355', # 'this' used in base member initializer list
+        '/wd4868', # may not enforce left-to-right evaluation order
+        '/wd5246', # subobject initialization should be wrapped in braces
     ]
   endif
 
@@ -150,7 +153,7 @@ else
       target = example.split('.')[0]
       executable(target, example,
                  include_directories: includes,
-                 c_args: example_defines + example_c_args,
+                 c_args: example_defines + example_c_args + cairo_args,
                  dependencies: [pugl_dep, cairo_backend_dep])
     endforeach
   endif

@@ -32,17 +32,19 @@ if vulkan_dep.found()
                                    build_by_default: true,
                                    capture: true)
 
+  glslang_command = [glslang, '-V', '-o', '@OUTPUT@', '@INPUT@']
+
   rect_vert_spv = custom_target('rect.vert.spv',
                                 output: 'rect.vert.spv',
                                 input: rect_vulkan_vert,
-                                command: [glslang, '-V', '-o', '@OUTPUT@', '@INPUT@'],
+                                command: glslang_command,
                                 build_by_default: true,
                                 install: false)
 
   rect_frag_spv = custom_target('rect.frag.spv',
                                 output: 'rect.frag.spv',
                                 input: rect_vulkan_frag,
-                                command: [glslang, '-V', '-o', '@OUTPUT@', '@INPUT@'],
+                                command: glslang_command,
                                 build_by_default: true,
                                 install: false)
 endif

@@ -27,11 +27,6 @@ if get_option('strict') and is_variable('cpp')
       '-Wno-documentation', # Cairo
       '-Wno-documentation-unknown-command', # Cairo
       '-Wno-old-style-cast',
-      '-Wno-padded',
-    ]
-  elif cpp.get_id() == 'gcc'
-    test_cpp_args += [
-      '-Wno-padded',
     ]
   endif
 
@@ -102,7 +97,7 @@ if cairo_dep.found()
   foreach test : cairo_tests
     test(test,
          executable('test_' + test, 'test_@0@.c'.format(test),
-                    c_args: test_c_args,
+                    c_args: test_c_args + cairo_args,
                     include_directories: include_directories(includes),
                     dependencies: [pugl_dep, cairo_backend_dep]),
          suite: 'unit')
@@ -181,7 +176,7 @@ elif is_variable('cpp')
     ]
   elif cpp.get_id() == 'msvc'
     unified_args += [
-      '/wd4464' # relative include path contains '..'
+      '/wd4464', # relative include path contains '..'
     ]
   endif
 

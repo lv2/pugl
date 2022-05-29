@@ -1716,7 +1716,7 @@ run(const char* const      programPath,
   app.world.setClassName("PuglVulkanCppDemo");
   app.view.setWindowTitle("Pugl Vulkan C++ Demo");
   app.view.setSizeHint(pugl::SizeHint::defaultSize, width, height);
-  app.view.setSizeHint(pugl::SizeHint::minSize, width / 4, height / 4);
+  app.view.setSizeHint(pugl::SizeHint::minSize, width / 4u, height / 4u);
   app.view.setBackend(pugl::vulkanBackend());
   app.view.setHint(pugl::ViewHint::resizable, opts.resizable);
   const pugl::Status st = app.view.realize();

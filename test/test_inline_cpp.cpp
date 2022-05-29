@@ -7,10 +7,19 @@
 
 #if defined(__clang__)
 #  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#  pragma clang diagnostic ignored "-Wmissing-field-initializers"
 #  pragma clang diagnostic ignored "-Wold-style-cast"
+#  pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
+#  if __has_warning("-Wreserved-identifier")
+#    pragma clang diagnostic ignored "-Wreserved-identifier"
+#  endif
 #elif defined(__GNUC__)
 #  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wconversion"
+#  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#  pragma GCC diagnostic ignored "-Wredundant-tags"
+#  pragma GCC diagnostic ignored "-Wsuggest-attribute=const"
+#  pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
 #  pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #endif
 
@@ -44,14 +53,14 @@
 #  endif
 #endif
 
-#if defined(__clang__)
-#  pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#  pragma GCC diagnostic pop
-#endif
-
 int
 main()
 {
   return 0;
 }
+
+#if defined(__clang__)
+#  pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#  pragma GCC diagnostic pop
+#endif

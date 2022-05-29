@@ -6,9 +6,10 @@ project('pugl', ['c'],
         license: 'ISC',
         meson_version: '>= 0.49.2',
         default_options: [
+          'b_ndebug=if-release',
+          'buildtype=release',
           'c_std=c99',
           'cpp_std=c++14',
-          'default_library=shared'
         ])
 
 pugl_src_root = meson.current_source_dir()
@@ -16,7 +17,11 @@ major_version = meson.project_version().split('.')[0]
 version_suffix = '-@0@'.format(major_version)
 versioned_name = 'pugl' + version_suffix
 
-# Load build tools
+#######################
+# Compilers and Flags #
+#######################
+
+# Required tools
 pkg = import('pkgconfig')
 cc = meson.get_compiler('c')
 
@@ -35,17 +40,16 @@ endif
 
 # Set ultra strict warnings for developers, if requested
 # These are for the implementation, tests and examples add more suppressions
+c_warnings = []
 if get_option('strict')
   subdir('meson')
 
+  # C warnings
   c_warnings = all_c_warnings
   if cc.get_id() == 'clang'
     c_warnings += [
       '-Wno-bad-function-cast',
-      '-Wno-documentation', # Cairo
-      '-Wno-documentation-unknown-command', # Cairo
       '-Wno-padded',
-      '-Wno-reserved-identifier', # Cairo, FD_ZERO
       '-Wno-switch-default',
       '-Wno-switch-enum',
     ]
@@ -68,6 +72,7 @@ if get_option('strict')
       '-Wno-float-equal',
       '-Wno-inline',
       '-Wno-padded',
+      '-Wno-pedantic',
       '-Wno-suggest-attribute=const',
       '-Wno-suggest-attribute=malloc',
       '-Wno-suggest-attribute=pure',
@@ -78,34 +83,80 @@ if get_option('strict')
 
     if host_machine.system() == 'windows'
       c_warnings += [
+        '-Wno-cast-function-type',
         '-Wno-suggest-attribute=format',
       ]
     endif
   elif cc.get_id() == 'msvc'
     c_warnings += [
-      '/wd4061',  # enumerator in switch is not explicitly handled
-      '/wd4191',  # unsafe conversion from type to type
-      '/wd4514',  # unreferenced inline function has been removed
-      '/wd4706',  # assignment within conditional expression
-      '/wd4710',  # function not inlined
-      '/wd4711',  # function selected for automatic inline expansion
-      '/wd4820',  # padding added after construct
-      '/wd4996',  # POSIX name for this item is deprecated
-      '/wd5045',  # will insert Spectre mitigation for memory load
+      '/wd4061', # enumerator in switch is not explicitly handled
+      '/wd4191', # unsafe conversion from type to type
+      '/wd4514', # unreferenced inline function has been removed
+      '/wd4706', # assignment within conditional expression
+      '/wd4710', # function not inlined
+      '/wd4711', # function selected for automatic inline expansion
+      '/wd4820', # padding added after construct
+      '/wd4996', # POSIX name for this item is deprecated
+      '/wd5045', # will insert Spectre mitigation for memory load
+      '/wd5246', # subobject initialization should be wrapped in braces
     ]
   endif
 
   add_project_arguments(cc.get_supported_arguments(c_warnings),
-                        language: ['c', 'objc'])
+                        language: ['c'])
+
+  # C++ warnings
+  if is_variable('cpp')
+    cpp_warnings = all_cpp_warnings
+
+    if cpp.get_id() == 'clang'
+      cpp_warnings += [
+        '-Wno-inline',
+        '-Wno-padded',
+      ]
+
+      if host_machine.system() == 'darwin'
+        cpp_warnings += [
+          '-Wno-poison-system-directories',
+        ]
+      endif
+
+    elif cpp.get_id() == 'gcc'
+      cpp_warnings += [
+        '-Wno-inline',
+        '-Wno-padded',
+      ]
+    elif cpp.get_id() == 'msvc'
+      cpp_warnings += [
+        '/wd4061', # enumerator in switch is not explicitly handled
+        '/wd4191', # unsafe conversion from type to type
+        '/wd4514', # unreferenced inline function has been removed
+        '/wd4625', # copy constructor implicitly deleted
+        '/wd4626', # copy assignment operator implicitly deleted
+        '/wd4706', # assignment within conditional expression
+        '/wd4710', # function not inlined
+        '/wd4711', # function selected for automatic inline expansion
+        '/wd4800', # implicit conversion to bool
+        '/wd4820', # padding added after construct
+        '/wd5026', # move constructor implicitly deleted
+        '/wd5027', # move assignment operator implicitly deleted
+        '/wd5039', # pointer to potentially throwing function passed to C
+        '/wd5045', # will insert Spectre mitigation for memory load
+      ]
+    endif
+
+    add_project_arguments(cpp.get_supported_arguments(cpp_warnings),
+                          language: ['cpp'])
+  endif
 
   # Objective C warnings
   if is_variable('objcc')
-    objc_warnings = all_objc_warnings
-
-    objc_warnings += [
-      '-Wno-deprecated-declarations',
+    objc_warnings = all_objc_warnings +  [
+      '-Wno-bad-function-cast',
       '-Wno-direct-ivar-access',
+      '-Wno-padded',
       '-Wno-pedantic',
+      '-Wno-poison-system-directories',
     ]
 
     add_project_arguments(objcc.get_supported_arguments(objc_warnings),
@@ -117,24 +168,12 @@ endif
 add_project_arguments(['-DPUGL_DISABLE_DEPRECATED'],
                       language: ['c', 'cpp', 'objc'])
 
-# System libraries
-m_dep = cc.find_library('m', required: false)
-dl_dep = cc.find_library('dl', required: false)
-thread_dep = dependency('threads')
-
-# Cairo (optional backend)
-cairo_dep = dependency('cairo',
-                       required: get_option('cairo'))
-
-# OpenGL (optional backend)
-opengl_dep = dependency('GL',
-                        required: get_option('opengl'))
-
-# Vulkan (optional backend)
-vulkan_dep = dependency('vulkan',
-                        required: get_option('vulkan'))
+#############
+# Platforms #
+#############
 
 core_args = []
+dl_dep = cc.find_library('dl', required: false)
 
 # MacOS
 if host_machine.system() == 'darwin'
@@ -146,11 +185,9 @@ if host_machine.system() == 'darwin'
   core_deps = [cocoa_dep, corevideo_dep]
   extension = '.m'
 
-  add_project_arguments(['-DGL_SILENCE_DEPRECATION'],
-                        language: ['c', 'objc'])
-
-  add_project_link_arguments(['-Wl,-framework,Cocoa'],
-                             language: ['c', 'objc'])
+  add_project_arguments(['-Wno-deprecated-declarations'], language: ['c', 'objc'])
+  add_project_arguments(['-DGL_SILENCE_DEPRECATION'], language: ['c', 'objc'])
+  add_project_link_arguments(['-Wl,-framework,Cocoa'], language: ['c', 'objc'])
 
 # Windows
 elif host_machine.system() == 'windows'
@@ -204,16 +241,28 @@ else # X11
     endif
   endif
 
+  x11_args = []
+  if cc.get_id() == 'clang'
+    x11_args += [
+      '-Wno-reserved-identifier', # FD_ZERO
+    ]
+  endif
+
+  core_args += cc.get_supported_arguments(x11_args)
+
   platform = 'x11'
   platform_sources = files('src/x11.c')
   core_deps = [x11_dep, xcursor_dep, xrandr_dep, xext_dep]
   extension = '.c'
 endif
 
-# Build core library
+################
+# Core Library #
+################
 
-core_deps += [m_dep]
+core_deps += [cc.find_library('m', required: false)]
 core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
+includes = include_directories(['include'])
 
 # Determine library type and set up defines for building them
 library_args = ['-DPUGL_INTERNAL']
@@ -230,12 +279,11 @@ else
   add_project_arguments(['-DPUGL_STATIC'], language: ['c', 'cpp', 'objc'])
 endif
 
-# Build core library
 libpugl = build_target(
   core_name,
   files('src/implementation.c') + platform_sources,
   version: meson.project_version(),
-  include_directories: include_directories(['include']),
+  include_directories: includes,
   c_args: library_args + core_args,
   dependencies: core_deps,
   gnu_symbol_visibility: 'hidden',
@@ -244,7 +292,6 @@ libpugl = build_target(
 
 pugl_dep = declare_dependency(link_with: libpugl, dependencies: core_deps)
 
-# Build pkg-config file
 pkg.generate(libpugl,
              name: 'Pugl',
              filebase: versioned_name,
@@ -252,44 +299,49 @@ pkg.generate(libpugl,
              version: meson.project_version(),
              description: 'Pugl GUI library core')
 
-# Build stub backend
+############
+# Backends #
+############
 
-name = 'pugl_' + platform + '_stub' + version_suffix
-sources = files('src/' + platform + '_stub' + extension)
+# Stub
+if get_option('stub')
+  name = 'pugl_' + platform + '_stub' + version_suffix
+  sources = files('src/' + platform + '_stub' + extension)
 
-stub_backend = build_target(
-  name, sources,
-  version: meson.project_version(),
-  include_directories: include_directories(['include']),
-  c_args: library_args,
-  dependencies: [pugl_dep],
-  gnu_symbol_visibility: 'hidden',
-  install: true,
-  target_type: library_type)
+  stub_backend = build_target(name, sources,
+                              version: meson.project_version(),
+                              include_directories: includes,
+                              c_args: library_args,
+                              dependencies: [pugl_dep],
+                              gnu_symbol_visibility: 'hidden',
+                              install: true,
+                              target_type: library_type)
 
-stub_backend_dep = declare_dependency(link_with: stub_backend)
+  stub_backend_dep = declare_dependency(link_with: stub_backend,
+                                        dependencies: [pugl_dep])
 
-pkg.generate(stub_backend,
-             name: 'Pugl Stub',
-             filebase: 'pugl-stub-@0@'.format(major_version),
-             subdirs: [versioned_name],
-             version: meson.project_version(),
-             description: 'Native window pugl graphics backend')
+  pkg.generate(stub_backend,
+               name: 'Pugl Stub',
+               filebase: 'pugl-stub-@0@'.format(major_version),
+               subdirs: [versioned_name],
+               version: meson.project_version(),
+               description: 'Native window pugl graphics backend')
+endif
 
-# Build GL backend
+# OpenGL
+opengl_dep = dependency('GL', required: get_option('opengl'))
 if opengl_dep.found()
   name = 'pugl_' + platform + '_gl' + version_suffix
   sources = files('src/' + platform + '_gl' + extension)
 
-  gl_backend = build_target(
-    name, sources,
-    version: meson.project_version(),
-    include_directories: include_directories(['include']),
-    c_args: library_args,
-    dependencies: [pugl_dep, opengl_dep],
-    gnu_symbol_visibility: 'hidden',
-    install: true,
-    target_type: library_type)
+  gl_backend = build_target(name, sources,
+                            version: meson.project_version(),
+                            include_directories: includes,
+                            c_args: library_args,
+                            dependencies: [pugl_dep, opengl_dep],
+                            gnu_symbol_visibility: 'hidden',
+                            install: true,
+                            target_type: library_type)
 
   gl_backend_dep = declare_dependency(link_with: gl_backend,
                                       dependencies: [pugl_dep, opengl_dep])
@@ -302,24 +354,34 @@ if opengl_dep.found()
                description: 'Pugl GUI library with OpenGL backend')
 endif
 
-# Build Cairo backend
+# Cairo
+cairo_dep = dependency('cairo', required: get_option('cairo'))
 if cairo_dep.found()
   name = 'pugl_' + platform + '_cairo' + version_suffix
   sources = files('src/' + platform + '_cairo' + extension)
 
-  cairo_backend = build_target(
-    name, sources,
-    version: meson.project_version(),
-    include_directories: include_directories(['include']),
-    c_args: library_args,
-    dependencies: [pugl_dep, cairo_dep],
-    gnu_symbol_visibility: 'hidden',
-    install: true,
-    target_type: library_type)
+  cairo_args = []
+  if cc.get_id() == 'clang'
+    cairo_args += [
+      '-Wno-documentation',
+      '-Wno-documentation-unknown-command',
+      '-Wno-reserved-identifier',
+    ]
+  endif
 
-  cairo_backend_dep = declare_dependency(
-    link_with: cairo_backend,
-    dependencies: [pugl_dep, cairo_dep])
+  cairo_args = cc.get_supported_arguments(cairo_args)
+
+  cairo_backend = build_target(name, sources,
+                               version: meson.project_version(),
+                               include_directories: includes,
+                               c_args: library_args + cairo_args,
+                               dependencies: [pugl_dep, cairo_dep],
+                               gnu_symbol_visibility: 'hidden',
+                               install: true,
+                               target_type: library_type)
+
+  cairo_backend_dep = declare_dependency(link_with: cairo_backend,
+                                         dependencies: [pugl_dep, cairo_dep])
 
   pkg.generate(cairo_backend,
                name: 'Pugl Cairo',
@@ -329,30 +391,32 @@ if cairo_dep.found()
                description: 'Pugl GUI library with Cairo backend')
 endif
 
-# Build Vulkan backend
+# Vulkan
+vulkan_dep = dependency('vulkan', required: get_option('vulkan'))
 if vulkan_dep.found()
   name = 'pugl_' + platform + '_vulkan' + version_suffix
   sources = files('src/' + platform + '_vulkan' + extension)
+
+  thread_dep = dependency('threads')
 
   vulkan_deps = [pugl_dep, vulkan_dep, dl_dep]
   vulkan_c_args = library_args
   vulkan_link_args = []
   if platform == 'mac'
-    metal_dep = dependency('Metal', modules: 'foundation')
-    quartzcore_dep = dependency('QuartzCore', modules: 'foundation')
-
-    vulkan_deps += [metal_dep, quartzcore_dep]
+    vulkan_deps += [
+      dependency('Metal', modules: 'foundation'),
+      dependency('QuartzCore', modules: 'foundation'),
+    ]
   endif
 
-  vulkan_backend = build_target(
-    name, sources,
-    version: meson.project_version(),
-    include_directories: include_directories(['include']),
-    c_args: library_args,
-    dependencies: vulkan_deps,
-    gnu_symbol_visibility: 'hidden',
-    install: true,
-    target_type: library_type)
+  vulkan_backend = build_target(name, sources,
+                                version: meson.project_version(),
+                                include_directories: includes,
+                                c_args: library_args,
+                                dependencies: vulkan_deps,
+                                gnu_symbol_visibility: 'hidden',
+                                install: true,
+                                target_type: library_type)
 
   vulkan_backend_dep = declare_dependency(
     link_with: vulkan_backend,
@@ -366,9 +430,28 @@ if vulkan_dep.found()
                description: 'Pugl GUI library with Vulkan backend')
 endif
 
-# Process all headers first so they are available for building documentation
+###############################
+# Public Headers and Bindings #
+###############################
+
 subdir('include')
 subdir('bindings/cpp')
+
+######################
+# Tests and Examples #
+######################
+
+if get_option('tests')
+  subdir('test')
+endif
+
+if get_option('examples')
+  subdir('examples')
+endif
+
+#################
+# Documentation #
+#################
 
 if not get_option('docs').disabled()
   subdir('doc')
@@ -376,28 +459,23 @@ else
   build_docs = false
 endif
 
-if get_option('examples')
-  subdir('examples')
-endif
-
-if get_option('tests')
-  subdir('test')
-endif
-
 if meson.version().version_compare('>=0.53.0')
   summary('Platform', platform)
-  summary('Cairo backend', cairo_dep.found(), bool_yn: true)
-  summary('OpenGL backend', opengl_dep.found(), bool_yn: true)
-  summary('Vulkan backend', vulkan_dep.found(), bool_yn: true)
+
+  summary('Cairo', cairo_dep.found(), section: 'Backends', bool_yn: true)
+  summary('OpenGL', opengl_dep.found(), section: 'Backends', bool_yn: true)
+  summary('Stub', get_option('stub'), section: 'Backends', bool_yn: true)
+  summary('Vulkan', vulkan_dep.found(), section: 'Backends', bool_yn: true)
+
   summary('Tests', get_option('tests'), bool_yn: true)
   summary('Examples', get_option('examples'), bool_yn: true)
   summary('Documentation', build_docs, bool_yn: true)
 
-  summary('Install prefix', get_option('prefix'))
-  summary('Headers', get_option('prefix') / get_option('includedir'))
-  summary('Libraries', get_option('prefix') / get_option('libdir'))
+  summary('Prefix', get_option('prefix'), section: 'Paths')
+  summary('Headers', get_option('prefix') / get_option('includedir'), section: 'Paths')
+  summary('Libraries', get_option('prefix') / get_option('libdir'), section: 'Paths')
 
   if get_option('examples')
-    summary('Executables', get_option('prefix') / get_option('bindir'))
+    summary('Executables', get_option('prefix') / get_option('bindir'), section: 'Paths')
   endif
 endif

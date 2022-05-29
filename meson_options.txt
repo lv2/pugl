@@ -11,7 +11,10 @@ option('opengl', type: 'feature', value: 'auto',
        description : 'Enable support for the OpenGL graphics API')
 
 option('strict', type: 'boolean', value: false,
-       description: 'Enable ultra-strict warnings')
+       description: 'Enable ultra-strict warnings for developers')
+
+option('stub', type: 'boolean', value: true,
+       description: 'Build stub backend')
 
 option('tests', type: 'boolean', value: true,
        description: 'Build tests')
