@@ -1,12 +1,12 @@
 Pugl
 ====
 
-Pugl (PlUgin Graphics Library) is a minimal portable API for GUIs which is
-suitable for use in plugins.  It works on X11, MacOS, and Windows, and
-includes optional support for drawing with Vulkan, OpenGL, and Cairo.
+Pugl (PlUgin Graphics Library) is a minimal portability layer for GUIs which is
+suitable for use in plugins.  It works on X11, MacOS, and Windows, and includes
+optional support for drawing with Vulkan, OpenGL, and Cairo.
 
-Pugl is vaguely similar to libraries like GLUT and GLFW, but with some
-distinguishing features:
+Pugl is vaguely similar to libraries like GLUT and GLFW, but has different
+goals and priorities:
 
  * Minimal in scope, providing only a thin interface to isolate
    platform-specific details from applications.
@@ -16,18 +16,18 @@ distinguishing features:
  * Support for embedding in native windows, for example as a plugin or
    component within a larger application that is not based on Pugl.
 
- * Simple and consistent event-based API that makes dispatching in application
-   or toolkit code easy with minimal boilerplate.
+ * Explicit context and no static data, so that several instances can be used
+   within a single program at once.
 
- * Suitable not only for continuously rendering applications like games, but
-   also event-driven applications that only draw when necessary.
+ * Consistent event-based API that makes dispatching in application or toolkit
+   code easy with minimal boilerplate.
 
- * Explicit context and no static data whatsoever, so that several instances
-   can be used within a single program at once.
+ * Suitable for both continuously rendering applications like games, and
+   event-driven applications that only draw when necessary.
 
- * Small, liberally licensed Free Software implementation that is suitable for
-   vendoring and/or static linking.  Pugl can be installed as a library, or
-   used by simply copying the implementation into a project.
+ * Small, liberally licensed implementation that is suitable for vendoring
+   and/or static linking.  Pugl can be installed as a library, or used by
+   simply copying the implementation into a project.
 
 Stability
 ---------
@@ -66,37 +66,7 @@ all the tests at once via ninja:
     cd build
     ninja test
 
-The `examples` directory contains several programs that serve as both manual
-tests and demonstrations:
-
- * `pugl_embed_demo` shows a view embedded in another, and also tests
-   requesting attention (which happens after 5 seconds), keyboard focus
-   (switched by pressing tab), view moving (with the arrow keys), and view
-   resizing (with the arrow keys while shift is held).  This program uses only
-   very old OpenGL and should work on any system.
-
- * `pugl_window_demo` demonstrates multiple top-level windows.
-
- * `pugl_shader_demo` demonstrates using more modern OpenGL (version 3 or 4)
-   where dynamic loading and shaders are required.  It can also be used to test
-   performance by passing the number of rectangles to draw on the command line.
-
- * `pugl_cairo_demo` demonstrates using Cairo on top of the native windowing
-   system (without OpenGL), and partial redrawing.
-
- * `pugl_print_events` is a utility that prints all received events to the
-   console in a human readable format.
-
- * `pugl_cpp_demo` is a simple cube demo that uses the C++ API.
-
- * `pugl_vulkan_demo` is a simple example of using Vulkan in C that simply
-   clears the window.
-
- * `pugl_vulkan_cpp_demo` is a more advanced Vulkan demo in C++ that draws many
-   animated rectangles like `pugl_shader_demo`.
-
-All example programs support several command line options to control various
-behaviours, see the output of `--help` for details.  Please file an issue if
-any of these programs do not work as expected on your system.
+The [examples](examples) directory contains several demonstration programs that
+can be used for manual testing.
 
  -- David Robillard <d@drobilla.net>

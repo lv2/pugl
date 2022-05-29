@@ -28,13 +28,14 @@ For example:
 
 .. code-block:: c
 
-   const double defaultWidth  = 1920.0;
-   const double defaultHeight = 1080.0;
+   const PuglSpan defaultWidth  = 1920;
+   const PuglSpan defaultHeight = 1080;
 
    puglSetWindowTitle(view, "My Window");
-   puglSetDefaultSize(view, defaultWidth, defaultHeight);
-   puglSetMinSize(view, defaultWidth / 4.0, defaultHeight / 4.0);
-   puglSetAspectRatio(view, 1, 1, 16, 9);
+   puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 1920, 1080);
+   puglSetSizeHint(view, PUGL_MIN_SIZE, 640, 480);
+   puglSetSizeHint(view, PUGL_MIN_ASPECT, 1, 1);
+   puglSetSizeHint(view, PUGL_MAX_ASPECT, 16, 9);
 
 There are also several :enum:`hints <PuglViewHint>` for basic attributes that can be set:
 
