@@ -1,8 +1,6 @@
 # Copyright 2021 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: CC0-1.0 OR ISC
 
-doxygen = find_program('doxygen')
-
 c_doxygen_input = []
 foreach h : c_headers
   c_doxygen_input += ['..' / h]
