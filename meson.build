@@ -38,130 +38,11 @@ if host_machine.system() == 'darwin'
   objcc = meson.get_compiler('objc')
 endif
 
-# Set ultra strict warnings for developers, if requested
-# These are for the implementation, tests and examples add more suppressions
+# Set global ultra-strict warnings for developers if enabled
 c_warnings = []
 if get_option('strict')
-  subdir('meson')
-
-  # C warnings
-  c_warnings = all_c_warnings
-  if cc.get_id() == 'clang'
-    c_warnings += [
-      '-Wno-bad-function-cast',
-      '-Wno-padded',
-      '-Wno-switch-default',
-      '-Wno-switch-enum',
-    ]
-
-    if host_machine.system() == 'darwin'
-      c_warnings += [
-        '-Wno-poison-system-directories',
-      ]
-    elif host_machine.system() == 'windows'
-      c_warnings += [
-        '-Wno-deprecated-declarations',
-        '-Wno-format-nonliteral',
-        '-Wno-nonportable-system-include-path',
-        '-Wno-unused-macros',
-      ]
-    endif
-  elif cc.get_id() == 'gcc'
-    c_warnings += [
-      '-Wno-bad-function-cast',
-      '-Wno-float-equal',
-      '-Wno-inline',
-      '-Wno-padded',
-      '-Wno-pedantic',
-      '-Wno-suggest-attribute=const',
-      '-Wno-suggest-attribute=malloc',
-      '-Wno-suggest-attribute=pure',
-      '-Wno-switch-default',
-      '-Wno-switch-enum',
-      '-Wno-unsuffixed-float-constants',
-    ]
-
-    if host_machine.system() == 'windows'
-      c_warnings += [
-        '-Wno-cast-function-type',
-        '-Wno-suggest-attribute=format',
-      ]
-    endif
-  elif cc.get_id() == 'msvc'
-    c_warnings += [
-      '/wd4061', # enumerator in switch is not explicitly handled
-      '/wd4191', # unsafe conversion from type to type
-      '/wd4514', # unreferenced inline function has been removed
-      '/wd4706', # assignment within conditional expression
-      '/wd4710', # function not inlined
-      '/wd4711', # function selected for automatic inline expansion
-      '/wd4820', # padding added after construct
-      '/wd4996', # POSIX name for this item is deprecated
-      '/wd5045', # will insert Spectre mitigation for memory load
-      '/wd5246', # subobject initialization should be wrapped in braces
-    ]
-  endif
-
-  add_project_arguments(cc.get_supported_arguments(c_warnings),
-                        language: ['c'])
-
-  # C++ warnings
-  if is_variable('cpp')
-    cpp_warnings = all_cpp_warnings
-
-    if cpp.get_id() == 'clang'
-      cpp_warnings += [
-        '-Wno-inline',
-        '-Wno-padded',
-      ]
-
-      if host_machine.system() == 'darwin'
-        cpp_warnings += [
-          '-Wno-poison-system-directories',
-        ]
-      endif
-
-    elif cpp.get_id() == 'gcc'
-      cpp_warnings += [
-        '-Wno-inline',
-        '-Wno-padded',
-      ]
-    elif cpp.get_id() == 'msvc'
-      cpp_warnings += [
-        '/wd4061', # enumerator in switch is not explicitly handled
-        '/wd4191', # unsafe conversion from type to type
-        '/wd4514', # unreferenced inline function has been removed
-        '/wd4625', # copy constructor implicitly deleted
-        '/wd4626', # copy assignment operator implicitly deleted
-        '/wd4706', # assignment within conditional expression
-        '/wd4710', # function not inlined
-        '/wd4711', # function selected for automatic inline expansion
-        '/wd4800', # implicit conversion to bool
-        '/wd4820', # padding added after construct
-        '/wd5026', # move constructor implicitly deleted
-        '/wd5027', # move assignment operator implicitly deleted
-        '/wd5039', # pointer to potentially throwing function passed to C
-        '/wd5045', # will insert Spectre mitigation for memory load
-      ]
-    endif
-
-    add_project_arguments(cpp.get_supported_arguments(cpp_warnings),
-                          language: ['cpp'])
-  endif
-
-  # Objective C warnings
-  if is_variable('objcc')
-    objc_warnings = all_objc_warnings +  [
-      '-Wno-bad-function-cast',
-      '-Wno-direct-ivar-access',
-      '-Wno-padded',
-      '-Wno-pedantic',
-      '-Wno-poison-system-directories',
-    ]
-
-    add_project_arguments(objcc.get_supported_arguments(objc_warnings),
-                          language: ['objc'])
-  endif
+  subdir('meson/warnings')
+  subdir('meson/suppressions')
 endif
 
 # Disable deprecated API which is not used by tests or examples
@@ -263,19 +144,10 @@ endif
 core_deps += [cc.find_library('m', required: false)]
 core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
 includes = include_directories(['include'])
-
-# Determine library type and set up defines for building them
 library_args = ['-DPUGL_INTERNAL']
-if get_option('default_library') == 'both'
-  if host_machine.system() == 'windows'
-    error('default_library=both is not supported on Windows')
-  endif
 
-  library_type = 'both_libraries'
-elif get_option('default_library') == 'shared'
-  library_type = 'shared_library'
-else
-  library_type = 'static_library'
+subdir('meson/library')
+if library_type == 'static_library'
   add_project_arguments(['-DPUGL_STATIC'], language: ['c', 'cpp', 'objc'])
 endif
 
