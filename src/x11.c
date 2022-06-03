@@ -457,14 +457,16 @@ puglRealize(PuglView* const view)
   }
 
   // Create input context
-  impl->xic = XCreateIC(world->impl->xim,
-                        XNInputStyle,
-                        XIMPreeditNothing | XIMStatusNothing,
-                        XNClientWindow,
-                        impl->win,
-                        XNFocusWindow,
-                        impl->win,
-                        (XIM)0);
+  if (world->impl->xim) {
+    impl->xic = XCreateIC(world->impl->xim,
+                          XNInputStyle,
+                          XIMPreeditNothing | XIMStatusNothing,
+                          XNClientWindow,
+                          impl->win,
+                          XNFocusWindow,
+                          impl->win,
+                          (XIM)0);
+  }
 
   puglDispatchSimpleEvent(view, PUGL_CREATE);
 
@@ -619,7 +621,7 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
   event->key.key =
     ((special || ufound <= 0) ? special : puglDecodeUTF8((const uint8_t*)ustr));
 
-  if (xevent->type == KeyPress && !filter && !special) {
+  if (xevent->type == KeyPress && !filter && !special && view->impl->xic) {
     // Lookup shifted key for possible text event
     xevent->xkey.state = state;
 
@@ -1393,9 +1395,13 @@ dispatchX11Events(PuglWorld* const world)
         continue;
       }
     } else if (xevent.type == FocusIn) {
-      XSetICFocus(impl->xic);
+      if (impl->xic) {
+        XSetICFocus(impl->xic);
+      }
     } else if (xevent.type == FocusOut) {
-      XUnsetICFocus(impl->xic);
+      if (impl->xic) {
+        XUnsetICFocus(impl->xic);
+      }
     } else if (xevent.type == SelectionClear) {
       PuglX11Clipboard* const board =
         getX11SelectionClipboard(view, xevent.xselectionclear.selection);
