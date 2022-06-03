@@ -460,13 +460,13 @@ puglRealize(PuglView* const view)
   // Create input context
   if (world->impl->xim) {
     impl->xic = XCreateIC(world->impl->xim,
-			  XNInputStyle,
-			  XIMPreeditNothing | XIMStatusNothing,
-			  XNClientWindow,
-			  impl->win,
-			  XNFocusWindow,
-			  impl->win,
-			  (XIM)0);
+                          XNInputStyle,
+                          XIMPreeditNothing | XIMStatusNothing,
+                          XNClientWindow,
+                          impl->win,
+                          XNFocusWindow,
+                          impl->win,
+                          (XIM)0);
   }
 
   puglDispatchSimpleEvent(view, PUGL_CREATE);
@@ -1397,10 +1397,10 @@ dispatchX11Events(PuglWorld* const world)
       }
     } else if (xevent.type == FocusIn) {
       if (impl->xic)
-	XSetICFocus(impl->xic);
+        XSetICFocus(impl->xic);
     } else if (xevent.type == FocusOut) {
       if (impl->xic)
-	XUnsetICFocus(impl->xic);
+        XUnsetICFocus(impl->xic);
     } else if (xevent.type == SelectionClear) {
       PuglX11Clipboard* const board =
         getX11SelectionClipboard(view, xevent.xselectionclear.selection);
