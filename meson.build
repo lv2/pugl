@@ -247,6 +247,7 @@ if cairo_dep.found()
                                version: meson.project_version(),
                                include_directories: includes,
                                c_args: library_args + cairo_args,
+                               objc_args: library_args + cairo_args,
                                dependencies: [pugl_dep, cairo_dep],
                                gnu_symbol_visibility: 'hidden',
                                install: true,
