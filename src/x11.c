@@ -470,6 +470,14 @@ puglRealize(PuglView* const view)
 
   puglDispatchSimpleEvent(view, PUGL_CREATE);
 
+  /* Flush before returning for two reasons: so that hints are available to the
+     view's parent via the X server during embedding, and so that the X server
+     has a chance to create the window (and make its actual position and size
+     known) before any children are created.  Potential bugs aside, this
+     increases the chances that an application will be cleanly configured once
+     on startup with the correct position and size. */
+  XFlush(display);
+
   return PUGL_SUCCESS;
 }
 
