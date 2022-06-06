@@ -9,10 +9,11 @@
 #  pragma clang diagnostic ignored "-Wold-style-cast"
 #endif
 
-#include "../src/implementation.c" // IWYU pragma: keep
-#include "../src/mac.h"            // IWYU pragma: keep
-#include "../src/mac.m"            // IWYU pragma: keep
-#include "../src/mac_stub.m"       // IWYU pragma: keep
+#include "../src/common.c"   // IWYU pragma: keep
+#include "../src/internal.c" // IWYU pragma: keep
+#include "../src/mac.h"      // IWYU pragma: keep
+#include "../src/mac.m"      // IWYU pragma: keep
+#include "../src/mac_stub.m" // IWYU pragma: keep
 
 #if defined(WITH_CAIRO)
 #  include "../src/mac_cairo.m" // IWYU pragma: keep

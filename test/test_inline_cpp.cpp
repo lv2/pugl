@@ -23,7 +23,8 @@
 #  pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #endif
 
-#include "../src/implementation.c" // IWYU pragma: keep
+#include "../src/common.c"   // IWYU pragma: keep
+#include "../src/internal.c" // IWYU pragma: keep
 
 #if defined(_WIN32)
 #  include "../src/win.c"      // IWYU pragma: keep

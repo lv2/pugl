@@ -3,7 +3,7 @@
 
 #define VK_NO_PROTOTYPES 1
 
-#include "implementation.h"
+#include "internal.h"
 #include "mac.h"
 #include "stub.h"
 #include "types.h"

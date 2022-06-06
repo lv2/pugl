@@ -6,7 +6,7 @@
 #include "x11.h"
 
 #include "attributes.h"
-#include "implementation.h"
+#include "internal.h"
 #include "types.h"
 
 #include "pugl/pugl.h"

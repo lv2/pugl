@@ -4,7 +4,7 @@
 #ifndef PUGL_SRC_WIN_H
 #define PUGL_SRC_WIN_H
 
-#include "implementation.h"
+#include "internal.h"
 
 #include "pugl/pugl.h"
 

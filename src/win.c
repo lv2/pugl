@@ -3,7 +3,7 @@
 
 #include "win.h"
 
-#include "implementation.h"
+#include "internal.h"
 
 #include "pugl/pugl.h"
 

@@ -1,8 +1,8 @@
 // Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#ifndef PUGL_IMPLEMENTATION_H
-#define PUGL_IMPLEMENTATION_H
+#ifndef PUGL_INTERNAL_H
+#define PUGL_INTERNAL_H
 
 #include "attributes.h"
 #include "types.h"
@@ -62,4 +62,4 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event);
 
 PUGL_END_DECLS
 
-#endif // PUGL_IMPLEMENTATION_H
+#endif // PUGL_INTERNAL_H

@@ -1,7 +1,7 @@
 // Copyright 2019-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#include "implementation.h"
+#include "internal.h"
 #include "mac.h"
 #include "stub.h"
 

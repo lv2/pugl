@@ -151,9 +151,14 @@ if library_type == 'static_library'
   add_project_arguments(['-DPUGL_STATIC'], language: ['c', 'cpp', 'objc'])
 endif
 
+common_sources = files(
+  'src/common.c',
+  'src/internal.c',
+)
+
 libpugl = build_target(
   core_name,
-  files('src/implementation.c') + platform_sources,
+  common_sources + platform_sources,
   version: meson.project_version(),
   include_directories: includes,
   c_args: library_args + core_args,
