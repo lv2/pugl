@@ -1157,7 +1157,7 @@ puglGetTransientParent(const PuglView* view);
    Realize a view by creating a corresponding system view or window.
 
    After this call, the (initially invisible) underlying system view exists and
-   can be accessed with puglGetNativeWindow().  There is currently no
+   can be accessed with puglGetNativeView().  There is currently no
    corresponding unrealize function, the system view will be destroyed along
    with the view when puglFreeView() is called.
 
@@ -1194,7 +1194,7 @@ puglGetVisible(const PuglView* view);
 /// Return the native window handle
 PUGL_API
 PuglNativeView
-puglGetNativeWindow(PuglView* view);
+puglGetNativeView(PuglView* view);
 
 /**
    @}
@@ -1536,6 +1536,7 @@ typedef PuglLoopLeaveEvent PuglEventLoopLeave;
 
    Windows: This is a `HWND`.
 */
+PUGL_DEPRECATED_BY("PuglNativeView")
 typedef uintptr_t PuglNativeWindow;
 
 /**
@@ -1912,6 +1913,14 @@ puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY)
     puglSetSizeHint(view, PUGL_MAX_ASPECT, (PuglSpan)maxX, (PuglSpan)maxY);
 
   return st0 ? st0 : st1;
+}
+
+/// Return the native window handle
+static inline PUGL_DEPRECATED_BY("puglGetNativeView")
+PuglNativeView
+puglGetNativeWindow(PuglView* view)
+{
+  return puglGetNativeView(view);
 }
 
 #endif // PUGL_DISABLE_DEPRECATED

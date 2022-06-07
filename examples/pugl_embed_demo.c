@@ -289,7 +289,7 @@ main(int argc, char** argv)
   }
 
   puglSetFrame(app.child, getChildFrame(parentFrame));
-  puglSetParentWindow(app.child, puglGetNativeWindow(app.parent));
+  puglSetParentWindow(app.child, puglGetNativeView(app.parent));
 
   puglSetViewHint(app.child, PUGL_USE_DEBUG_CONTEXT, opts.errorChecking);
   puglSetViewHint(app.child, PUGL_SAMPLES, opts.samples);

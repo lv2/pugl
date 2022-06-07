@@ -79,8 +79,8 @@ main(int argc, char** argv)
     assert(!puglUpdate(test.world, -1.0));
   }
 
-  // Check that puglGetNativeWindow() returns something
-  assert(puglGetNativeWindow(test.view));
+  // Check that puglGetNativeView() returns something
+  assert(puglGetNativeView(test.view));
 
   // Tear down
   puglFreeView(test.view);

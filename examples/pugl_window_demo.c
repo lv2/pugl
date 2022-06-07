@@ -206,7 +206,7 @@ main(int argc, char** argv)
 
     if (i == 1) {
       puglSetTransientParent(app.cubes[1].view,
-                             puglGetNativeWindow(app.cubes[0].view));
+                             puglGetNativeView(app.cubes[0].view));
     }
 
     if ((st = puglRealize(view))) {

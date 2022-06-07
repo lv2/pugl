@@ -518,8 +518,8 @@ public:
   /// @copydoc puglGetVisible
   bool visible() const noexcept { return puglGetVisible(cobj()); }
 
-  /// @copydoc puglGetNativeWindow
-  NativeView nativeWindow() noexcept { return puglGetNativeWindow(cobj()); }
+  /// @copydoc puglGetNativeView
+  NativeView nativeView() noexcept { return puglGetNativeView(cobj()); }
 
   /**
      @}

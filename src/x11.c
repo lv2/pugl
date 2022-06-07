@@ -1547,7 +1547,7 @@ puglPostRedisplayRect(PuglView* const view, const PuglRect rect)
 }
 
 PuglNativeView
-puglGetNativeWindow(PuglView* const view)
+puglGetNativeView(PuglView* const view)
 {
   return (PuglNativeView)view->impl->win;
 }
