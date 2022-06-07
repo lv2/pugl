@@ -7,6 +7,7 @@
 #include "mac.h"
 
 #include "internal.h"
+#include "platform.h"
 
 #include "pugl/pugl.h"
 

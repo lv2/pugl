@@ -12,17 +12,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-void
-puglSetString(char** dest, const char* string)
-{
-  if (*dest != string) {
-    const size_t len = strlen(string);
-
-    *dest = (char*)realloc(*dest, len + 1);
-    strncpy(*dest, string, len + 1);
-  }
-}
-
 PuglStatus
 puglSetBlob(PuglBlob* const dest, const void* const data, const size_t len)
 {
@@ -47,7 +36,17 @@ puglSetBlob(PuglBlob* const dest, const void* const data, const size_t len)
   return PUGL_SUCCESS;
 }
 
-/// Return the code point for buf, or the replacement character on error
+void
+puglSetString(char** dest, const char* string)
+{
+  if (*dest != string) {
+    const size_t len = strlen(string);
+
+    *dest = (char*)realloc(*dest, len + 1);
+    strncpy(*dest, string, len + 1);
+  }
+}
+
 uint32_t
 puglDecodeUTF8(const uint8_t* buf)
 {
@@ -96,12 +95,6 @@ puglDecodeUTF8(const uint8_t* buf)
   return 0xFFFD;
 }
 
-static inline bool
-puglMustConfigure(PuglView* view, const PuglConfigureEvent* configure)
-{
-  return !!memcmp(configure, &view->lastConfigure, sizeof(PuglConfigureEvent));
-}
-
 PuglStatus
 puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 {
@@ -111,6 +104,12 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 
   const PuglEvent event = {{type, 0}};
   return puglDispatchEvent(view, &event);
+}
+
+static inline bool
+puglMustConfigure(PuglView* view, const PuglConfigureEvent* configure)
+{
+  return !!memcmp(configure, &view->lastConfigure, sizeof(PuglConfigureEvent));
 }
 
 PuglStatus

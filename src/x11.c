@@ -7,6 +7,7 @@
 
 #include "attributes.h"
 #include "internal.h"
+#include "platform.h"
 #include "types.h"
 
 #include "pugl/pugl.h"

@@ -1,8 +1,11 @@
 // Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
+// Common implementations of public API functions in the core library
+
 #include "internal.h"
 
+#include "platform.h"
 #include "types.h"
 
 #include "pugl/pugl.h"

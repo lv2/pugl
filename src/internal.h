@@ -1,6 +1,8 @@
 // Copyright 2012-2022 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
+// Internal utilities available to platform implementations
+
 #ifndef PUGL_INTERNAL_H
 #define PUGL_INTERNAL_H
 
@@ -21,22 +23,6 @@ puglSetBlob(PuglBlob* dest, const void* data, size_t len);
 /// Reallocate and set `*dest` to `string`
 void
 puglSetString(char** dest, const char* string);
-
-/// Allocate and initialise world internals (implemented once per platform)
-PuglWorldInternals*
-puglInitWorldInternals(PuglWorldType type, PuglWorldFlags flags);
-
-/// Destroy and free world internals (implemented once per platform)
-void
-puglFreeWorldInternals(PuglWorld* world);
-
-/// Allocate and initialise view internals (implemented once per platform)
-PuglInternals*
-puglInitViewInternals(PuglWorld* world);
-
-/// Destroy and free view internals (implemented once per platform)
-void
-puglFreeViewInternals(PuglView* view);
 
 /// Return the Unicode code point for `buf` or the replacement character
 uint32_t
