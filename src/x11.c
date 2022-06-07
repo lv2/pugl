@@ -808,11 +808,9 @@ translateEvent(PuglView* const view, XEvent xevent)
     event = translatePropertyNotify(view, xevent.xproperty);
     break;
   case VisibilityNotify:
-    if (xevent.xvisibility.state == VisibilityFullyObscured) {
-      event.type = PUGL_UNMAP;
-    } else {
-      event.type = PUGL_MAP;
-    }
+    event.type = (xevent.xvisibility.state == VisibilityFullyObscured)
+                   ? PUGL_UNMAP
+                   : PUGL_MAP;
     break;
   case MapNotify:
     event.type = PUGL_MAP;
@@ -1370,6 +1368,23 @@ handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 }
 
 static PuglStatus
+dispatchCurrentConfiguration(PuglView* const view)
+{
+  // Get initial window position and size
+  XWindowAttributes attrs;
+  XGetWindowAttributes(view->world->impl->display, view->impl->win, &attrs);
+
+  // Build an initial configure event in case the WM doesn't send one
+  PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
+  configureEvent.configure.x      = (PuglCoord)attrs.x;
+  configureEvent.configure.y      = (PuglCoord)attrs.y;
+  configureEvent.configure.width  = (PuglSpan)attrs.width;
+  configureEvent.configure.height = (PuglSpan)attrs.height;
+
+  return puglDispatchEvent(view, &configureEvent);
+}
+
+static PuglStatus
 dispatchX11Events(PuglWorld* const world)
 {
   PuglStatus st0 = PUGL_SUCCESS;
@@ -1402,14 +1417,6 @@ dispatchX11Events(PuglWorld* const world)
           next.xkey.keycode == xevent.xkey.keycode) {
         continue;
       }
-    } else if (xevent.type == FocusIn) {
-      if (impl->xic) {
-        XSetICFocus(impl->xic);
-      }
-    } else if (xevent.type == FocusOut) {
-      if (impl->xic) {
-        XUnsetICFocus(impl->xic);
-      }
     } else if (xevent.type == SelectionClear) {
       PuglX11Clipboard* const board =
         getX11SelectionClipboard(view, xevent.xselectionclear.selection);
@@ -1425,30 +1432,36 @@ dispatchX11Events(PuglWorld* const world)
     // Translate X11 event to Pugl event
     const PuglEvent event = translateEvent(view, xevent);
 
-    if (event.type == PUGL_EXPOSE) {
-      // Expand expose event to be dispatched after loop
-      mergeExposeEvents(&view->impl->pendingExpose.expose, &event.expose);
-    } else if (event.type == PUGL_CONFIGURE) {
+    switch (event.type) {
+    case PUGL_CONFIGURE:
       // Update configure event to be dispatched after loop
       view->impl->pendingConfigure = event;
-    } else if (event.type == PUGL_MAP) {
-      // Get initial window position and size
-      XWindowAttributes attrs;
-      XGetWindowAttributes(view->world->impl->display, view->impl->win, &attrs);
-
-      // Build an initial configure event in case the WM doesn't send one
-      PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
-      configureEvent.configure.x      = (PuglCoord)attrs.x;
-      configureEvent.configure.y      = (PuglCoord)attrs.y;
-      configureEvent.configure.width  = (PuglSpan)attrs.width;
-      configureEvent.configure.height = (PuglSpan)attrs.height;
-
+      break;
+    case PUGL_MAP:
       // Dispatch an initial configure (if necessary), then the map event
-      st0 = puglDispatchEvent(view, &configureEvent);
+      st0 = dispatchCurrentConfiguration(view);
       st1 = puglDispatchEvent(view, &event);
-    } else {
+      break;
+    case PUGL_EXPOSE:
+      // Expand expose event to be dispatched after loop
+      mergeExposeEvents(&view->impl->pendingExpose.expose, &event.expose);
+      break;
+    case PUGL_FOCUS_IN:
+      // Set the input context focus
+      if (impl->xic) {
+        XSetICFocus(impl->xic);
+      }
+      break;
+    case PUGL_FOCUS_OUT:
+      // Unset the input context focus
+      if (impl->xic) {
+        XUnsetICFocus(impl->xic);
+      }
+      break;
+    default:
       // Dispatch event to application immediately
       st0 = puglDispatchEvent(view, &event);
+      break;
     }
   }
 
