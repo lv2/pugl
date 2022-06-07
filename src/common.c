@@ -267,31 +267,3 @@ puglGetContext(PuglView* view)
 {
   return view->backend->getContext(view);
 }
-
-#ifndef PUGL_DISABLE_DEPRECATED
-
-PuglStatus
-puglPollEvents(PuglWorld* world, double timeout)
-{
-  return puglUpdate(world, timeout);
-}
-
-PuglStatus
-puglDispatchEvents(PuglWorld* world)
-{
-  return puglUpdate(world, 0.0);
-}
-
-PuglStatus
-puglShowWindow(PuglView* view)
-{
-  return puglShow(view);
-}
-
-PuglStatus
-puglHideWindow(PuglView* view)
-{
-  return puglHide(view);
-}
-
-#endif

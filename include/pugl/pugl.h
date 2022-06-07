@@ -1795,10 +1795,12 @@ puglProcessEvents(PuglView* view);
 
    @deprecated Use puglUpdate().
 */
-PUGL_API
-PUGL_DEPRECATED_BY("puglUpdate")
+static inline PUGL_DEPRECATED_BY("puglUpdate")
 PuglStatus
-puglPollEvents(PuglWorld* world, double timeout);
+puglPollEvents(PuglWorld* world, double timeout)
+{
+  return puglUpdate(world, timeout);
+}
 
 /**
    Dispatch any pending events to views.
@@ -1810,20 +1812,26 @@ puglPollEvents(PuglWorld* world, double timeout);
 
    @deprecated Use puglUpdate().
 */
-PUGL_API
-PUGL_DEPRECATED_BY("puglUpdate")
+static inline PUGL_DEPRECATED_BY("puglUpdate")
 PuglStatus
-puglDispatchEvents(PuglWorld* world);
+puglDispatchEvents(PuglWorld* world)
+{
+  return puglUpdate(world, 0.0);
+}
 
-PUGL_API
-PUGL_DEPRECATED_BY("puglShow")
+static inline PUGL_DEPRECATED_BY("puglShow")
 PuglStatus
-puglShowWindow(PuglView* view);
+puglShowWindow(PuglView* view)
+{
+  return puglShow(view);
+}
 
-PUGL_API
-PUGL_DEPRECATED_BY("puglHide")
+static inline PUGL_DEPRECATED_BY("puglHide")
 PuglStatus
-puglHideWindow(PuglView* view);
+puglHideWindow(PuglView* view)
+{
+  return puglHide(view);
+}
 
 /**
    Set the default size of the view.
