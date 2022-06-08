@@ -36,10 +36,6 @@ main(void)
   puglSetEventFunc(view, onEvent);
   puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
 
-  // Check invalid cases
-  assert(puglSetViewHint(view, (PuglViewHint)9999, 0) == PUGL_BAD_PARAMETER);
-  assert(puglGetViewHint(view, (PuglViewHint)9999) == PUGL_DONT_CARE);
-
   // Set all relevant hints that support it to PUGL_DONT_CARE
   assert(!puglSetViewHint(view, PUGL_RED_BITS, PUGL_DONT_CARE));
   assert(!puglSetViewHint(view, PUGL_GREEN_BITS, PUGL_DONT_CARE));
@@ -59,9 +55,6 @@ main(void)
   assert(puglSetViewHint(view, PUGL_SWAP_INTERVAL, PUGL_DONT_CARE) ==
          PUGL_BAD_PARAMETER);
 
-  // Check failure to set out of range hints
-  assert(puglSetViewHint(view, (PuglViewHint)999, 1) == PUGL_BAD_PARAMETER);
-
   // Realize view and print all hints for debugging convenience
   assert(!puglRealize(view));
   printViewHints(view);
@@ -78,9 +71,6 @@ main(void)
   assert(puglGetViewHint(view, PUGL_RESIZABLE) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_IGNORE_KEY_REPEAT) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_REFRESH_RATE) != PUGL_DONT_CARE);
-
-  // Check failure to get out of range hints
-  assert(puglGetViewHint(view, (PuglViewHint)999) == PUGL_DONT_CARE);
 
   // Tear down
   puglFreeView(view);

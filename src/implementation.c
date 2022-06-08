@@ -216,18 +216,14 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
     }
   }
 
-  if (hint < PUGL_NUM_VIEW_HINTS) {
-    view->hints[hint] = value;
-    return PUGL_SUCCESS;
-  }
-
-  return PUGL_BAD_PARAMETER;
+  view->hints[hint] = value;
+  return PUGL_SUCCESS;
 }
 
 int
 puglGetViewHint(const PuglView* view, PuglViewHint hint)
 {
-  return (hint < PUGL_NUM_VIEW_HINTS) ? view->hints[hint] : PUGL_DONT_CARE;
+  return view->hints[hint];
 }
 
 const char*
