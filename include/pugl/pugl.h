@@ -688,7 +688,7 @@ typedef enum {
   /**
      Set up support for threads if necessary.
 
-     - X11: Calls XInitThreads() which is required for some drivers.
+     X11: Calls XInitThreads() which is required for some drivers.
   */
   PUGL_WORLD_THREADS = 1u << 0u
 } PuglWorldFlag;
