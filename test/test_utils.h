@@ -254,8 +254,6 @@ puglViewHintString(const PuglViewHint hint)
     return "Ignore key repeat";
   case PUGL_REFRESH_RATE:
     return "Refresh rate";
-  case PUGL_NUM_VIEW_HINTS:
-    break;
   }
 
   return "Unknown";
@@ -264,7 +262,7 @@ puglViewHintString(const PuglViewHint hint)
 static inline void
 printViewHints(const PuglView* view)
 {
-  for (int i = 0; i < PUGL_NUM_VIEW_HINTS; ++i) {
+  for (unsigned i = 0; i < PUGL_NUM_VIEW_HINTS; ++i) {
     const PuglViewHint hint = (PuglViewHint)i;
     fprintf(stderr,
             "%s: %d\n",

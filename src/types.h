@@ -46,7 +46,7 @@ struct PuglViewImpl {
   PuglRect           frame;
   PuglConfigureEvent lastConfigure;
   PuglHints          hints;
-  PuglViewSize       sizeHints[(unsigned)PUGL_MAX_ASPECT + 1u];
+  PuglViewSize       sizeHints[PUGL_NUM_SIZE_HINTS];
   bool               visible;
 };
 

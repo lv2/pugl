@@ -998,7 +998,7 @@ updateSizeHint(PuglView* const view, const PuglSizeHint hint)
 static void
 updateSizeHints(PuglView* const view)
 {
-  for (unsigned i = 0u; i <= PUGL_MAX_ASPECT; ++i) {
+  for (unsigned i = 0u; i < PUGL_NUM_SIZE_HINTS; ++i) {
     updateSizeHint(view, (PuglSizeHint)i);
   }
 }
@@ -1542,7 +1542,7 @@ puglSetSizeHint(PuglView* const    view,
                 const PuglSpan     width,
                 const PuglSpan     height)
 {
-  if ((unsigned)hint > (unsigned)PUGL_MAX_ASPECT) {
+  if ((unsigned)hint >= PUGL_NUM_SIZE_HINTS) {
     return PUGL_BAD_PARAMETER;
   }
 

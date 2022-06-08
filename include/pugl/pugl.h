@@ -859,9 +859,10 @@ typedef enum {
   PUGL_RESIZABLE,             ///< True if view should be resizable
   PUGL_IGNORE_KEY_REPEAT,     ///< True if key repeat events are ignored
   PUGL_REFRESH_RATE,          ///< Refresh rate in Hz
-
-  PUGL_NUM_VIEW_HINTS
 } PuglViewHint;
+
+/// The number of #PuglViewHint values
+#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_REFRESH_RATE + 1u)
 
 /// A special view hint value
 typedef enum {
@@ -906,6 +907,9 @@ typedef enum {
   */
   PUGL_MAX_ASPECT
 } PuglSizeHint;
+
+/// The number of #PuglSizeHint values
+#define PUGL_NUM_SIZE_HINTS ((unsigned)PUGL_MAX_ASPECT + 1u)
 
 /// A function called when an event occurs
 typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
@@ -1259,6 +1263,9 @@ typedef enum {
   PUGL_CURSOR_LEFT_RIGHT, ///< Left/right arrow for horizontal resize
   PUGL_CURSOR_UP_DOWN,    ///< Up/down arrow for vertical resize
 } PuglCursor;
+
+/// The number of #PuglCursor values
+#define PUGL_NUM_CURSORS ((unsigned)PUGL_CURSOR_UP_DOWN + 1u)
 
 /**
    Grab the keyboard input focus.
