@@ -65,9 +65,13 @@ main(int argc, char** argv)
   test.view = puglNewView(test.world);
   puglSetClassName(test.world, "PuglTest");
   puglSetWindowTitle(test.view, "Pugl Realize Test");
-  puglSetBackend(test.view, puglStubBackend());
   puglSetHandle(test.view, &test);
   puglSetEventFunc(test.view, onEvent);
+  assert(puglRealize(test.view) == PUGL_BAD_BACKEND);
+
+  puglSetBackend(test.view, puglStubBackend());
+  assert(puglRealize(test.view) == PUGL_BAD_CONFIGURATION);
+
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 512, 512);
 
   // Create initially invisible window

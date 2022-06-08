@@ -1007,8 +1007,13 @@ PuglStatus
 puglRealize(PuglView* view)
 {
   PuglInternals* impl = view->impl;
+
   if (impl->wrapperView) {
     return PUGL_FAILURE;
+  }
+
+  if (!view->backend || !view->backend->configure) {
+    return PUGL_BAD_BACKEND;
   }
 
   const NSScreen* const screen      = [NSScreen mainScreen];
