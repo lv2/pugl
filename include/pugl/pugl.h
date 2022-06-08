@@ -1075,7 +1075,7 @@ puglSetSize(PuglView* view, unsigned width, unsigned height);
    This can be used to set the default, minimum, and maximum size of a view,
    as well as the supported range of aspect ratios.
 
-   This should be called before puglResize() so the initial window for the
+   This should be called before puglRealize() so the initial window for the
    view can be configured correctly.
 
    @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
@@ -1821,7 +1821,7 @@ puglHideWindow(PuglView* view);
 /**
    Set the default size of the view.
 
-   This should be called before puglResize() to set the default size of the
+   This should be called before puglRealize() to set the default size of the
    view, which will be the initial size of the window if this is a top level
    view.
 
