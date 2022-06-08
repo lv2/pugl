@@ -1403,7 +1403,7 @@ dispatchX11Events(PuglWorld* const world)
       continue;
     }
 
-    PuglView* view = findView(world, xevent.xany.window);
+    PuglView* const view = findView(world, xevent.xany.window);
     if (!view) {
       continue;
     }
@@ -1448,14 +1448,14 @@ dispatchX11Events(PuglWorld* const world)
       break;
     case PUGL_FOCUS_IN:
       // Set the input context focus
-      if (impl->xic) {
-        XSetICFocus(impl->xic);
+      if (view->impl->xic) {
+        XSetICFocus(view->impl->xic);
       }
       break;
     case PUGL_FOCUS_OUT:
       // Unset the input context focus
-      if (impl->xic) {
-        XUnsetICFocus(impl->xic);
+      if (view->impl->xic) {
+        XUnsetICFocus(view->impl->xic);
       }
       break;
     default:
