@@ -178,6 +178,7 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
     impl->xim = XOpenIM(display, NULL, NULL, NULL);
   }
 
+  XrmInitialize();
   initXSync(impl);
   XFlush(display);
 
