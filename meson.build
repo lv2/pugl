@@ -39,7 +39,6 @@ if host_machine.system() == 'darwin'
 endif
 
 # Set global ultra-strict warnings for developers if enabled
-c_warnings = []
 if get_option('strict')
   subdir('meson/warnings')
   subdir('meson/suppressions')
