@@ -35,7 +35,6 @@ if cc.get_id() == 'clang'
 elif cc.get_id() == 'gcc'
   c_warnings += [
     '-Wno-bad-function-cast',
-    '-Wno-float-equal',
     '-Wno-inline',
     '-Wno-padded',
     '-Wno-pedantic',
