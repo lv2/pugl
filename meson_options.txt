@@ -1,7 +1,7 @@
 option('cairo', type: 'feature', value: 'auto',
        description : 'Enable support for the Cairo graphics API')
 
-option('examples', type: 'boolean', value: true,
+option('examples', type: 'feature', value: 'auto', yield: true,
        description: 'Build example programs')
 
 option('docs', type: 'feature', value: 'auto',
@@ -16,7 +16,7 @@ option('strict', type: 'boolean', value: false,
 option('stub', type: 'boolean', value: true,
        description: 'Build stub backend')
 
-option('tests', type: 'boolean', value: true,
+option('tests', type: 'feature', value: 'auto', yield: true,
        description: 'Build tests')
 
 option('vulkan', type: 'feature', value: 'auto',

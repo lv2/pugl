@@ -29,6 +29,10 @@
 # Wtrampolines
 # Wvla-larger-than=BYTES
 #
+# Build specific:
+#
+# Wpoison-system-directories
+#
 # C Specific:
 #
 # Wc11-c2x-compat
@@ -121,11 +125,16 @@ gcc_common_warnings = [
   '-Wwrite-strings',
 ]
 
-# Set all_c_warnings for the current C compiler
+#####
+# C #
+#####
+
 if is_variable('cc') and not is_variable('all_c_warnings')
   all_c_warnings = []
+
   if cc.get_id() == 'clang'
     all_c_warnings += ['-Weverything']
+
   elif cc.get_id() == 'gcc'
     all_c_warnings += gcc_common_warnings + [
       '-Wabsolute-value',
@@ -143,20 +152,28 @@ if is_variable('cc') and not is_variable('all_c_warnings')
       '-Wstrict-prototypes',
       '-Wunsuffixed-float-constants',
     ]
+
   elif cc.get_id() == 'msvc'
     all_c_warnings += ['/Wall']
   endif
+
+  all_c_warnings = cc.get_supported_arguments(all_c_warnings)
 endif
 
-# Set all_cpp_warnings for the current C++ compiler
-if is_variable('cpp') and not is_variable('all_cpp_warnings')
+#######
+# C++ #
+#######
+
+if is_variable('cpp')
   all_cpp_warnings = []
+
   if cpp.get_id() == 'clang'
     all_cpp_warnings += [
       '-Weverything',
       '-Wno-c++98-compat',
       '-Wno-c++98-compat-pedantic'
     ]
+
   elif cpp.get_id() == 'gcc'
     all_cpp_warnings += gcc_common_warnings + [
       '-Wabi-tag',
@@ -199,19 +216,26 @@ if is_variable('cpp') and not is_variable('all_cpp_warnings')
       '-Wvolatile',
       '-Wzero-as-null-pointer-constant',
     ]
+
   elif cpp.get_id() == 'msvc'
     all_cpp_warnings += ['/Wall']
   endif
+
+  all_cpp_warnings = cpp.get_supported_arguments(all_cpp_warnings)
 endif
 
 # Set all_objc_warnings for the current Objective C compiler
-if is_variable('objcc') and not is_variable('all_objc_warnings')
+if is_variable('objcc')
   all_objc_warnings = []
+
   if objcc.get_id() == 'clang'
     all_objc_warnings += ['-Weverything']
+
   elif objc.get_id() == 'gcc'
     all_objc_warnings += gcc_common_warnings + [
       '-Wno-direct-ivar-access',
     ]
   endif
+
+  all_objc_warnings = objcc.get_supported_arguments(all_objc_warnings)
 endif

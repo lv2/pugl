@@ -26,7 +26,7 @@ pkg = import('pkgconfig')
 cc = meson.get_compiler('c')
 
 # Enable C++ support if we're building the examples
-if get_option('examples') or get_option('tests')
+if not get_option('examples').disabled() or not get_option('tests').disabled()
   if add_languages(['cpp'], required: false)
     cpp = meson.get_compiler('cpp')
   endif
@@ -318,11 +318,11 @@ subdir('bindings/cpp')
 # Tests and Examples #
 ######################
 
-if get_option('tests')
+if not get_option('tests').disabled()
   subdir('test')
 endif
 
-if get_option('examples')
+if not get_option('examples').disabled()
   subdir('examples')
 endif
 
@@ -344,15 +344,15 @@ if meson.version().version_compare('>=0.53.0')
   summary('Stub', get_option('stub'), section: 'Backends', bool_yn: true)
   summary('Vulkan', vulkan_dep.found(), section: 'Backends', bool_yn: true)
 
-  summary('Tests', get_option('tests'), bool_yn: true)
-  summary('Examples', get_option('examples'), bool_yn: true)
+  summary('Tests', not get_option('tests').disabled(), bool_yn: true)
+  summary('Examples', not get_option('examples').disabled(), bool_yn: true)
   summary('Documentation', build_docs, bool_yn: true)
 
   summary('Prefix', get_option('prefix'), section: 'Paths')
   summary('Headers', get_option('prefix') / get_option('includedir'), section: 'Paths')
   summary('Libraries', get_option('prefix') / get_option('libdir'), section: 'Paths')
 
-  if get_option('examples')
+  if not get_option('examples').disabled()
     summary('Executables', get_option('prefix') / get_option('bindir'), section: 'Paths')
   endif
 endif
