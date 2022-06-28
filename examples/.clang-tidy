@@ -1,5 +1,6 @@
 Checks: >
   *,
+  -*-named-parameter,
   -*-non-private-member-variables-in-classes,
   -*avoid-c-arrays,
   -*magic-numbers,
@@ -12,9 +13,6 @@ Checks: >
   -bugprone-suspicious-string-compare,
   -cert-dcl37-c,
   -cert-dcl51-cpp,
-  -cert-flp30-c,
-  -clang-analyzer-alpha.*,
-  -clang-analyzer-security.FloatLoopCounter,
   -concurrency-mt-unsafe,
   -cppcoreguidelines-avoid-non-const-global-variables,
   -cppcoreguidelines-macro-usage,
@@ -28,7 +26,6 @@ Checks: >
   -fuchsia-overloaded-operator,
   -google-runtime-references,
   -hicpp-multiway-paths-covered,
-  -hicpp-named-parameter,
   -hicpp-no-array-decay,
   -hicpp-signed-bitwise,
   -hicpp-vararg,
@@ -39,6 +36,5 @@ Checks: >
   -performance-no-int-to-ptr,
   -readability-function-cognitive-complexity,
   -readability-implicit-bool-conversion,
-  -readability-named-parameter,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*|test/.*|examples/.*'

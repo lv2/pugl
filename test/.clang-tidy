@@ -4,8 +4,6 @@ Checks: >
   -*-uppercase-literal-suffix,
   -altera*,
   -bugprone-suspicious-include,
-  -cert-dcl37-c,
-  -cert-dcl51-cpp,
   -google-runtime-references,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
