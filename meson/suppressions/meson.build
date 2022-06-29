@@ -49,6 +49,7 @@ elif cc.get_id() == 'gcc'
   if host_machine.system() == 'windows'
     c_warnings += [
       '-Wno-cast-function-type',
+      '-Wno-float-equal',
       '-Wno-suggest-attribute=format',
     ]
   endif
