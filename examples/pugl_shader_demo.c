@@ -204,7 +204,11 @@ loadShader(const char* const programPath, const char* const name)
   fseek(file, 0, SEEK_SET);
   char* source = (char*)calloc(1, fileSize + 1u);
 
-  fread(source, 1, fileSize, file);
+  if (fread(source, 1, fileSize, file) != fileSize) {
+    free(source);
+    source = NULL;
+  }
+
   fclose(file);
 
   return source;

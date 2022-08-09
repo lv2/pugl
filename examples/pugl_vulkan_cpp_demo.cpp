@@ -692,7 +692,10 @@ readFile(const char* const programPath, const std::string& filename)
   const auto            numWords = fileSize / sizeof(uint32_t);
   std::vector<uint32_t> buffer(numWords);
 
-  fread(buffer.data(), sizeof(uint32_t), numWords, file.get());
+  if (fread(buffer.data(), sizeof(uint32_t), numWords, file.get()) !=
+      numWords) {
+    buffer.clear();
+  }
 
   return buffer;
 }
