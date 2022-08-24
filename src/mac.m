@@ -1400,7 +1400,7 @@ puglProcessEvents(PuglView* view)
 double
 puglGetTime(const PuglWorld* world)
 {
-  return (mach_absolute_time() / 1e9) - world->startTime;
+  return (clock_gettime_nsec_np(CLOCK_UPTIME_RAW) / 1e9) - world->startTime;
 }
 
 PuglStatus
