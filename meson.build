@@ -166,7 +166,9 @@ libpugl = build_target(
   install: true,
   target_type: library_type)
 
-pugl_dep = declare_dependency(link_with: libpugl, dependencies: core_deps)
+pugl_dep = declare_dependency(link_with: libpugl, 
+                              dependencies: core_deps,
+                              include_directories: [ 'include' ])
 
 pkg.generate(libpugl,
              name: 'Pugl',

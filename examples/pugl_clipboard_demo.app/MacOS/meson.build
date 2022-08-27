@@ -4,6 +4,6 @@
 executable(
   'pugl_clipboard_demo',
   '../../pugl_clipboard_demo.c',
-  include_directories: include_directories('../../../../include', '../../..'),
+  include_directories: include_directories('../../..'),
   c_args: example_defines + example_c_args,
   dependencies: [pugl_dep, gl_backend_dep])
