@@ -1,11 +1,7 @@
 Checks: >
-  *,
   -*-named-parameter,
   -*-non-private-member-variables-in-classes,
   -*avoid-c-arrays,
-  -*magic-numbers,
-  -*uppercase-literal-suffix,
-  -altera*,
   -android-cloexec-fopen,
   -bugprone-easily-swappable-parameters,
   -bugprone-macro-parentheses,
@@ -32,12 +28,9 @@ Checks: >
   -hicpp-signed-bitwise,
   -hicpp-vararg,
   -llvm-header-guard,
-  -llvmlibc-*,
   -misc-misplaced-const,
   -modernize-use-trailing-return-type,
   -performance-no-int-to-ptr,
   -readability-function-cognitive-complexity,
-  -readability-identifier-length,
   -readability-implicit-bool-conversion,
-FormatStyle: file
-HeaderFilterRegex: 'pugl/.*|test/.*|examples/.*'
+InheritParentConfig: true

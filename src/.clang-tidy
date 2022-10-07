@@ -1,14 +1,7 @@
 Checks: >
-  *,
-  -*-uppercase-literal-suffix,
-  -*magic-numbers,
-  -altera*,
   -bugprone-easily-swappable-parameters,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
-  -llvmlibc-*,
   -readability-function-cognitive-complexity,
-  -readability-identifier-length,
-FormatStyle: file
-HeaderFilterRegex: 'pugl/.*'
+InheritParentConfig: true
