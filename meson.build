@@ -27,7 +27,7 @@ cc = meson.get_compiler('c')
 
 # Enable C++ support if we're building the examples
 if not get_option('examples').disabled() or not get_option('tests').disabled()
-  if add_languages(['cpp'], required: false)
+  if add_languages(['cpp'], native: false, required: false)
     cpp = meson.get_compiler('cpp')
   endif
 endif
