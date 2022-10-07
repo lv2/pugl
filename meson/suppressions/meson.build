@@ -15,6 +15,7 @@ c_warnings = all_c_warnings
 if cc.get_id() == 'clang'
   c_warnings += [
     '-Wno-bad-function-cast',
+    '-Wno-declaration-after-statement',
     '-Wno-padded',
     '-Wno-switch-default',
     '-Wno-switch-enum',
