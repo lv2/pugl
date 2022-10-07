@@ -4,9 +4,11 @@
 config = configuration_data()
 config.set('PUGL_VERSION', meson.project_version())
 
-conf_py = configure_file(configuration: config,
-                         input: '../conf.py.in',
-                         output: 'conf.py')
+conf_py = configure_file(
+  configuration: config,
+  input: '../conf.py.in',
+  output: 'conf.py',
+)
 
 configure_file(copy: true, input: '../deployment.rst', output: 'deployment.rst')
 configure_file(copy: true, input: '../summary.rst', output: 'summary.rst')
@@ -31,20 +33,22 @@ subdir('api')
 
 docs = custom_target(
   'singlehtml',
+  build_by_default: true,
   command: [sphinx_build, '-M', 'singlehtml', '@OUTDIR@', '@OUTDIR@',
             '-E', '-q', '-t', 'singlehtml'],
   input: [c_rst_files, c_pugl_rst, c_index_xml],
-  output: 'singlehtml',
-  build_by_default: true,
   install: true,
-  install_dir: docdir / 'pugl-0')
+  install_dir: docdir / 'pugl-0',
+  output: 'singlehtml',
+)
 
 docs = custom_target(
   'html',
+  build_by_default: true,
   command: [sphinx_build, '-M', 'html', '@OUTDIR@', '@OUTDIR@',
             '-E', '-q', '-t', 'html'],
   input: [c_rst_files, c_pugl_rst, c_index_xml],
-  output: 'html',
-  build_by_default: true,
   install: true,
-  install_dir: docdir / 'pugl-0')
+  install_dir: docdir / 'pugl-0',
+  output: 'html',
+)

@@ -4,12 +4,15 @@
 subdir('include')
 
 puglpp_dep = declare_dependency(
+  dependencies: core_deps + [pugl_dep],
   include_directories: include_directories('include'),
   link_with: libpugl,
-  dependencies: core_deps + [pugl_dep])
+)
 
-pkg.generate(name: 'Pugl++',
-             filebase: 'puglpp-@0@'.format(major_version),
-             subdirs: ['puglpp-@0@'.format(major_version)],
-             version: meson.project_version(),
-             description: 'Pugl GUI library C++ bindings')
+pkg.generate(
+  description: 'Pugl GUI library C++ bindings',
+  filebase: 'puglpp-@0@'.format(major_version),
+  name: 'Pugl++',
+  subdirs: ['puglpp-@0@'.format(major_version)],
+  version: meson.project_version(),
+)

@@ -65,9 +65,13 @@ if host_machine.system() == 'darwin'
   core_deps = [cocoa_dep, corevideo_dep]
   extension = '.m'
 
-  add_project_arguments(['-Wno-deprecated-declarations'], language: ['c', 'objc'])
-  add_project_arguments(['-DGL_SILENCE_DEPRECATION'], language: ['c', 'objc'])
-  add_project_link_arguments(['-Wl,-framework,Cocoa'], language: ['c', 'objc'])
+  platform_suppressions = [
+    '-DGL_SILENCE_DEPRECATION',
+    '-Wl,-framework,Cocoa',
+    '-Wno-deprecated-declarations',
+  ]
+
+  add_project_arguments(platform_suppressions, language: ['c', 'objc'])
 
 # Windows
 elif host_machine.system() == 'windows'
@@ -158,24 +162,29 @@ common_sources = files(
 libpugl = build_target(
   core_name,
   common_sources + platform_sources,
-  version: meson.project_version(),
-  include_directories: includes,
   c_args: library_args + core_args,
   dependencies: core_deps,
   gnu_symbol_visibility: 'hidden',
+  include_directories: includes,
   install: true,
-  target_type: library_type)
+  target_type: library_type,
+  version: meson.project_version(),
+)
 
-pugl_dep = declare_dependency(link_with: libpugl,
-                              dependencies: core_deps,
-                              include_directories: ['include'])
+pugl_dep = declare_dependency(
+  dependencies: core_deps,
+  include_directories: ['include'],
+  link_with: libpugl,
+)
 
-pkg.generate(libpugl,
-             name: 'Pugl',
-             filebase: versioned_name,
-             subdirs: [versioned_name],
-             version: meson.project_version(),
-             description: 'Pugl GUI library core')
+pkg.generate(
+  libpugl,
+  description: 'Pugl GUI library core',
+  filebase: versioned_name,
+  name: 'Pugl',
+  subdirs: [versioned_name],
+  version: meson.project_version(),
+)
 
 ############
 # Backends #
@@ -186,24 +195,31 @@ if get_option('stub')
   name = 'pugl_' + platform + '_stub' + version_suffix
   sources = files('src/' + platform + '_stub' + extension)
 
-  stub_backend = build_target(name, sources,
-                              version: meson.project_version(),
-                              include_directories: includes,
-                              c_args: library_args,
-                              dependencies: [pugl_dep],
-                              gnu_symbol_visibility: 'hidden',
-                              install: true,
-                              target_type: library_type)
+  stub_backend = build_target(
+    name,
+    sources,
+    c_args: library_args,
+    dependencies: [pugl_dep],
+    gnu_symbol_visibility: 'hidden',
+    include_directories: includes,
+    install: true,
+    target_type: library_type,
+    version: meson.project_version(),
+  )
 
-  stub_backend_dep = declare_dependency(link_with: stub_backend,
-                                        dependencies: [pugl_dep])
+  stub_backend_dep = declare_dependency(
+    link_with: stub_backend,
+    dependencies: [pugl_dep],
+  )
 
-  pkg.generate(stub_backend,
-               name: 'Pugl Stub',
-               filebase: 'pugl-stub-@0@'.format(major_version),
-               subdirs: [versioned_name],
-               version: meson.project_version(),
-               description: 'Native window pugl graphics backend')
+  pkg.generate(
+    stub_backend,
+    description: 'Native window pugl graphics backend',
+    filebase: 'pugl-stub-@0@'.format(major_version),
+    name: 'Pugl Stub',
+    subdirs: [versioned_name],
+    version: meson.project_version(),
+  )
 endif
 
 # OpenGL
@@ -212,24 +228,31 @@ if opengl_dep.found()
   name = 'pugl_' + platform + '_gl' + version_suffix
   sources = files('src/' + platform + '_gl' + extension)
 
-  gl_backend = build_target(name, sources,
-                            version: meson.project_version(),
-                            include_directories: includes,
-                            c_args: library_args,
-                            dependencies: [pugl_dep, opengl_dep],
-                            gnu_symbol_visibility: 'hidden',
-                            install: true,
-                            target_type: library_type)
+  gl_backend = build_target(
+    name,
+    sources,
+    c_args: library_args,
+    dependencies: [pugl_dep, opengl_dep],
+    gnu_symbol_visibility: 'hidden',
+    include_directories: includes,
+    install: true,
+    target_type: library_type,
+    version: meson.project_version(),
+  )
 
-  gl_backend_dep = declare_dependency(link_with: gl_backend,
-                                      dependencies: [pugl_dep, opengl_dep])
+  gl_backend_dep = declare_dependency(
+    link_with: gl_backend,
+    dependencies: [pugl_dep, opengl_dep],
+  )
 
-  pkg.generate(gl_backend,
-               name: 'Pugl OpenGL',
-               filebase: 'pugl-gl-@0@'.format(major_version),
-               subdirs: [versioned_name],
-               version: meson.project_version(),
-               description: 'Pugl GUI library with OpenGL backend')
+  pkg.generate(
+    gl_backend,
+    description: 'Pugl GUI library with OpenGL backend',
+    filebase: 'pugl-gl-@0@'.format(major_version),
+    name: 'Pugl OpenGL',
+    subdirs: [versioned_name],
+    version: meson.project_version(),
+  )
 endif
 
 # Cairo
@@ -249,25 +272,32 @@ if cairo_dep.found()
 
   cairo_args = cc.get_supported_arguments(cairo_args)
 
-  cairo_backend = build_target(name, sources,
-                               version: meson.project_version(),
-                               include_directories: includes,
-                               c_args: library_args + cairo_args,
-                               objc_args: library_args + cairo_args,
-                               dependencies: [pugl_dep, cairo_dep],
-                               gnu_symbol_visibility: 'hidden',
-                               install: true,
-                               target_type: library_type)
+  cairo_backend = build_target(
+    name,
+    sources,
+    c_args: library_args + cairo_args,
+    dependencies: [pugl_dep, cairo_dep],
+    gnu_symbol_visibility: 'hidden',
+    include_directories: includes,
+    install: true,
+    objc_args: library_args + cairo_args,
+    target_type: library_type,
+    version: meson.project_version(),
+  )
 
-  cairo_backend_dep = declare_dependency(link_with: cairo_backend,
-                                         dependencies: [pugl_dep, cairo_dep])
+  cairo_backend_dep = declare_dependency(
+    dependencies: [pugl_dep, cairo_dep],
+    link_with: cairo_backend,
+  )
 
-  pkg.generate(cairo_backend,
-               name: 'Pugl Cairo',
-               filebase: 'pugl-cairo-@0@'.format(major_version),
-               subdirs: [versioned_name],
-               version: meson.project_version(),
-               description: 'Pugl GUI library with Cairo backend')
+  pkg.generate(
+    cairo_backend,
+    description: 'Pugl GUI library with Cairo backend',
+    filebase: 'pugl-cairo-@0@'.format(major_version),
+    name: 'Pugl Cairo',
+    subdirs: [versioned_name],
+    version: meson.project_version(),
+  )
 endif
 
 # Vulkan
@@ -288,25 +318,31 @@ if vulkan_dep.found()
     ]
   endif
 
-  vulkan_backend = build_target(name, sources,
-                                version: meson.project_version(),
-                                include_directories: includes,
-                                c_args: library_args,
-                                dependencies: vulkan_deps,
-                                gnu_symbol_visibility: 'hidden',
-                                install: true,
-                                target_type: library_type)
+  vulkan_backend = build_target(
+    name,
+    sources,
+    c_args: library_args,
+    dependencies: vulkan_deps,
+    gnu_symbol_visibility: 'hidden',
+    include_directories: includes,
+    install: true,
+    target_type: library_type,
+    version: meson.project_version(),
+  )
 
   vulkan_backend_dep = declare_dependency(
+    dependencies: [pugl_dep, vulkan_dep, thread_dep],
     link_with: vulkan_backend,
-    dependencies: [pugl_dep, vulkan_dep, thread_dep])
+  )
 
-  pkg.generate(vulkan_backend,
-               name: 'Pugl Vulkan',
-               filebase: 'pugl-vulkan-@0@'.format(major_version),
-               subdirs: [versioned_name],
-               version: meson.project_version(),
-               description: 'Pugl GUI library with Vulkan backend')
+  pkg.generate(
+    vulkan_backend,
+    description: 'Pugl GUI library with Vulkan backend',
+    filebase: 'pugl-vulkan-@0@'.format(major_version),
+    name: 'Pugl Vulkan',
+    subdirs: [versioned_name],
+    version: meson.project_version(),
+  )
 endif
 
 ###############################

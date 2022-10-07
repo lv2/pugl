@@ -114,11 +114,14 @@ else
     dependencies = [pugl_dep, stub_backend_dep]
     defines = []
 
-    executable(target, source,
-               include_directories: includes,
-               c_args: example_defines + example_c_args + defines,
-               cpp_args: example_defines + example_cpp_args + defines,
-               dependencies: dependencies)
+    executable(
+      target,
+      source,
+      c_args: example_defines + example_c_args + defines,
+      cpp_args: example_defines + example_cpp_args + defines,
+      dependencies: dependencies,
+      include_directories: includes,
+    )
   endforeach
 
   # Build GL examples
@@ -139,11 +142,14 @@ else
         dependencies += [puglpp_dep]
       endif
 
-      executable(target, source,
-                 include_directories: includes,
-                 c_args: example_defines + example_c_args + defines,
-                 cpp_args: example_defines + example_cpp_args + defines,
-                 dependencies: dependencies)
+      executable(
+        target,
+        source,
+        c_args: example_defines + example_c_args + defines,
+        cpp_args: example_defines + example_cpp_args + defines,
+        dependencies: dependencies,
+        include_directories: includes,
+      )
     endforeach
   endif
 
@@ -151,10 +157,13 @@ else
   if cairo_dep.found()
     foreach example : cairo_examples
       target = example.split('.')[0]
-      executable(target, example,
-                 include_directories: includes,
-                 c_args: example_defines + example_c_args + cairo_args,
-                 dependencies: [pugl_dep, cairo_backend_dep])
+      executable(
+        target,
+        example,
+        c_args: example_defines + example_c_args + cairo_args,
+        dependencies: [pugl_dep, cairo_backend_dep],
+        include_directories: includes,
+      )
     endforeach
   endif
 
@@ -171,11 +180,14 @@ else
         defines += ['-D_POSIX_C_SOURCE=200809L']
       endif
 
-      executable(target, source,
-                 include_directories: includes,
-                 c_args: example_defines + example_c_args + defines,
-                 cpp_args: example_defines + example_cpp_args + defines,
-                 dependencies: dependencies)
+      executable(
+        target,
+        source,
+        c_args: example_defines + example_c_args + defines,
+        cpp_args: example_defines + example_cpp_args + defines,
+        dependencies: dependencies,
+        include_directories: includes,
+      )
     endforeach
   endif
 endif

@@ -74,45 +74,65 @@ includes = [
 ]
 
 foreach test : basic_tests
-  test(test,
-       executable('test_' + test, 'test_@0@.c'.format(test),
-                  c_args: test_c_args,
-                  include_directories: include_directories(includes),
-                  dependencies: [pugl_dep, stub_backend_dep]),
-      suite: 'unit')
+  test(
+    test,
+    executable(
+      'test_' + test,
+      'test_@0@.c'.format(test),
+      c_args: test_c_args,
+      dependencies: [pugl_dep, stub_backend_dep],
+      include_directories: include_directories(includes),
+    ),
+    suite: 'unit',
+  )
 endforeach
 
 if opengl_dep.found()
   foreach test : gl_tests
-    test(test,
-         executable('test_' + test, 'test_@0@.c'.format(test),
-                    c_args: test_c_args,
-                    include_directories: include_directories(includes),
-                    dependencies: [pugl_dep, gl_backend_dep]),
-         suite: 'unit')
+    test(
+      test,
+      executable(
+        'test_' + test,
+        'test_@0@.c'.format(test),
+        c_args: test_c_args,
+        dependencies: [pugl_dep, gl_backend_dep],
+        include_directories: include_directories(includes),
+      ),
+      suite: 'unit',
+    )
   endforeach
 endif
 
 if cairo_dep.found()
   foreach test : cairo_tests
-    test(test,
-         executable('test_' + test, 'test_@0@.c'.format(test),
-                    c_args: test_c_args + cairo_args,
-                    include_directories: include_directories(includes),
-                    dependencies: [pugl_dep, cairo_backend_dep]),
-         suite: 'unit')
+    test(
+      test,
+      executable(
+        'test_' + test,
+        'test_@0@.c'.format(test),
+        c_args: test_c_args + cairo_args,
+        dependencies: [pugl_dep, cairo_backend_dep],
+        include_directories: include_directories(includes),
+      ),
+      suite: 'unit',
+    )
   endforeach
 endif
 
 if vulkan_dep.found()
   foreach test : vulkan_tests
-    test(test,
-         executable('test_' + test, 'test_@0@.c'.format(test),
-                    c_args: test_c_args,
-                    cpp_args: test_cpp_args,
-                    include_directories: include_directories(includes),
-                    dependencies: [pugl_dep, vulkan_backend_dep]),
-         suite: 'unit')
+    test(
+      test,
+      executable(
+        'test_' + test,
+        'test_@0@.c'.format(test),
+        c_args: test_c_args,
+        cpp_args: test_cpp_args,
+        dependencies: [pugl_dep, vulkan_backend_dep],
+        include_directories: include_directories(includes),
+      ),
+      suite: 'unit',
+    )
   endforeach
 endif
 
@@ -151,10 +171,13 @@ if host_machine.system() == 'darwin'
   unified_args += objcpp.get_supported_arguments(
     test_cpp_args + objcpp_args)
 
-  executable('inline_objcpp', 'test_inline_objcpp.mm',
-             include_directories: include_directories(includes),
-             dependencies: unified_deps,
-             objcpp_args: unified_args)
+  executable(
+    'inline_objcpp',
+    'test_inline_objcpp.mm',
+    dependencies: unified_deps,
+    include_directories: include_directories(includes),
+    objcpp_args: unified_args,
+  )
 
 elif is_variable('cpp')
   unified_args = []
@@ -180,8 +203,11 @@ elif is_variable('cpp')
     ]
   endif
 
-  executable('inline_cpp', 'test_inline_cpp.cpp',
-             include_directories: include_directories(includes),
-             dependencies: unified_deps,
-             cpp_args: test_cpp_args + unified_args)
+  executable(
+    'inline_cpp',
+    'test_inline_cpp.cpp',
+    cpp_args: test_cpp_args + unified_args,
+    dependencies: unified_deps,
+    include_directories: include_directories(includes),
+  )
 endif
