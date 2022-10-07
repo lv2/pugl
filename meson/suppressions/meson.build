@@ -96,6 +96,14 @@ if is_variable('cpp')
       '-Wno-inline',
       '-Wno-padded',
     ]
+
+    if host_machine.system() == 'windows'
+      cpp_warnings += [
+        '-Wno-cast-function-type',
+        '-Wno-suggest-attribute=format',
+      ]
+    endif
+    
   elif cpp.get_id() == 'msvc'
     cpp_warnings += [
       '/wd4061', # enumerator in switch is not explicitly handled

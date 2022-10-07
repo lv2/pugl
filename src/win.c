@@ -918,7 +918,7 @@ puglUpdate(PuglWorld* world, double timeout)
   if (timeout < 0.0) {
     st = puglPollWinEvents(world, timeout);
     st = st ? st : puglDispatchWinEvents(world);
-  } else if (timeout == 0.0) {
+  } else if (timeout <= 0.001) {
     st = puglDispatchWinEvents(world);
   } else {
     const double endTime = startTime + timeout - 0.001;
