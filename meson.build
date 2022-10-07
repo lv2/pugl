@@ -77,11 +77,11 @@ if host_machine.system() == 'darwin'
 
   platform_suppressions = [
     '-DGL_SILENCE_DEPRECATION',
-    '-Wl,-framework,Cocoa',
     '-Wno-deprecated-declarations',
   ]
 
   add_project_arguments(platform_suppressions, language: ['c', 'objc'])
+  add_project_link_arguments(['-Wl,-framework,Cocoa'], language: ['c', 'objc'])
 
 # Windows
 elif host_machine.system() == 'windows'
