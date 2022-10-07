@@ -36,7 +36,7 @@ typedef struct {
   bool       verbose;
 } PuglTestApp;
 
-static const uint8_t pad = 64u;
+static const uint8_t pad = 64U;
 
 static void
 onDisplay(PuglView* view)
@@ -70,13 +70,13 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
     app->quit = 1;
   } else if (event->state & PUGL_MOD_SHIFT) {
     if (event->key == PUGL_KEY_UP) {
-      puglSetSize(view, frame.width, frame.height - 10u);
+      puglSetSize(view, frame.width, frame.height - 10U);
     } else if (event->key == PUGL_KEY_DOWN) {
-      puglSetSize(view, frame.width, frame.height + 10u);
+      puglSetSize(view, frame.width, frame.height + 10U);
     } else if (event->key == PUGL_KEY_LEFT) {
-      puglSetSize(view, frame.width - 10u, frame.height);
+      puglSetSize(view, frame.width - 10U, frame.height);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      puglSetSize(view, frame.width + 10u, frame.height);
+      puglSetSize(view, frame.width + 10U, frame.height);
     }
   } else {
     if (event->key == PUGL_KEY_UP) {
@@ -187,8 +187,8 @@ main(int argc, char** argv)
 
     puglSetWindowTitle(view, "Pugl Window Demo");
     puglSetPosition(view,
-                    (PuglCoord)(pad + (128u + pad) * i),
-                    (PuglCoord)(pad + (128u + pad) * i));
+                    (PuglCoord)(pad + (128U + pad) * i),
+                    (PuglCoord)(pad + (128U + pad) * i));
 
     puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
     puglSetSizeHint(view, PUGL_MIN_SIZE, 128, 128);

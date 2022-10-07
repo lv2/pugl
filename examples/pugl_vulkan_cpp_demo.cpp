@@ -50,7 +50,7 @@
 
 namespace {
 
-constexpr uintptr_t resizeTimerId = 1u;
+constexpr uintptr_t resizeTimerId = 1U;
 
 struct PhysicalDeviceSelection {
   sk::PhysicalDevice physicalDevice;
@@ -295,17 +295,17 @@ openDevice(const sk::VulkanApi&      vk,
   const VkDeviceQueueCreateInfo queueCreateInfo{
     VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
     nullptr,
-    0u,
+    0U,
     graphicsFamilyIndex,
-    SK_COUNTED(1u, &graphicsQueuePriority),
+    SK_COUNTED(1U, &graphicsQueuePriority),
   };
 
   const VkDeviceCreateInfo createInfo{VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
                                       nullptr,
-                                      0u,
-                                      SK_COUNTED(1u, &queueCreateInfo),
-                                      SK_COUNTED(0u, nullptr), // Deprecated
-                                      SK_COUNTED(1u, &swapchainName),
+                                      0U,
+                                      SK_COUNTED(1U, &queueCreateInfo),
+                                      SK_COUNTED(0U, nullptr), // Deprecated
+                                      SK_COUNTED(1U, &swapchainName),
                                       nullptr};
 
   return vk.createDevice(physicalDevice, createInfo, device);
@@ -346,7 +346,7 @@ findGraphicsQueue(const sk::VulkanApi&      vk,
     return r;
   }
 
-  for (uint32_t q = 0u; q < queueProps.size(); ++q) {
+  for (uint32_t q = 0U; q < queueProps.size(); ++q) {
     if (queueProps[q].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
       bool supported = false;
       if ((r = vk.getPhysicalDeviceSurfaceSupportKHR(
@@ -385,7 +385,7 @@ selectPhysicalDevice(const sk::VulkanApi&     vk,
     }
 
     if (supported) {
-      auto queueIndex = 0u;
+      auto queueIndex = 0U;
       if ((r = findGraphicsQueue(vk, surface, device, queueIndex))) {
         return r;
       }
@@ -529,8 +529,8 @@ Swapchain::init(const sk::VulkanApi&           vk,
   extent       = surfaceExtent;
 
   const auto minNumImages =
-    (!capabilities.maxImageCount || capabilities.maxImageCount >= 3u)
-      ? 3u
+    (!capabilities.maxImageCount || capabilities.maxImageCount >= 3U)
+      ? 3U
       : capabilities.maxImageCount;
 
   const VkSwapchainCreateInfoKHR swapchainCreateInfo{
@@ -611,7 +611,7 @@ RenderPass::init(const sk::VulkanApi&  vk,
     VK_PIPELINE_BIND_POINT_GRAPHICS,
     SK_COUNTED(0, nullptr),
     SK_COUNTED(1, &colorAttachmentRef, nullptr, nullptr),
-    SK_COUNTED(0u, nullptr)};
+    SK_COUNTED(0U, nullptr)};
 
   static constexpr VkSubpassDependency dependency{
     VK_SUBPASS_EXTERNAL,
@@ -767,7 +767,7 @@ RectPipeline::init(const sk::VulkanApi&  vk,
       nullptr,
       VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
       numImages,
-      1u,
+      1U,
       &poolSize};
     if ((r = vk.createDescriptorPool(
            gpu.device, descriptorPoolCreateInfo, descriptorPool))) {
@@ -811,19 +811,19 @@ RectPipeline::init(const sk::VulkanApi&  vk,
   static constexpr std::array<VkVertexInputAttributeDescription, 4>
     vertexAttributeDescriptions{
       {// Model
-       {0u, 0u, VK_FORMAT_R32G32_SFLOAT, 0},
+       {0U, 0U, VK_FORMAT_R32G32_SFLOAT, 0},
 
        // Rect instance attributes
-       {1u, 1u, VK_FORMAT_R32G32_SFLOAT, offsetof(Rect, pos)},
-       {2u, 1u, VK_FORMAT_R32G32_SFLOAT, offsetof(Rect, size)},
-       {3u, 1u, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Rect, fillColor)}}};
+       {1U, 1U, VK_FORMAT_R32G32_SFLOAT, offsetof(Rect, pos)},
+       {2U, 1U, VK_FORMAT_R32G32_SFLOAT, offsetof(Rect, size)},
+       {3U, 1U, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Rect, fillColor)}}};
 
   static constexpr std::array<VkVertexInputBindingDescription, 2>
     vertexBindingDescriptions{
       VkVertexInputBindingDescription{
         0, sizeof(vec2), VK_VERTEX_INPUT_RATE_VERTEX},
       VkVertexInputBindingDescription{
-        1u, sizeof(Rect), VK_VERTEX_INPUT_RATE_INSTANCE}};
+        1U, sizeof(Rect), VK_VERTEX_INPUT_RATE_INSTANCE}};
 
   static constexpr VkPipelineInputAssemblyStateCreateInfo inputAssembly{
     VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
@@ -946,7 +946,7 @@ RectPipeline::init(const sk::VulkanApi&  vk,
       nullptr,
       pipelineLayout,
       renderPass.renderPass,
-      0u,
+      0U,
       {},
       0}}};
 
@@ -1049,7 +1049,7 @@ RenderSync::init(const sk::VulkanApi& vk,
                  const sk::Device&    device,
                  const uint32_t       numImages)
 {
-  const auto maxInFlight = std::max(1u, numImages - 1u);
+  const auto maxInFlight = std::max(1U, numImages - 1U);
   VkResult   r           = VK_SUCCESS;
 
   imageAvailable = std::vector<sk::Semaphore>(numImages);
@@ -1301,19 +1301,19 @@ recordCommandBuffer(sk::CommandScope&   cmd,
 
   const std::array<VkDeviceSize, 1> offsets{0};
   pass.bindVertexBuffers(
-    0u, SK_COUNTED(1u, &rectData.modelBuffer.buffer.get(), offsets.data()));
+    0U, SK_COUNTED(1U, &rectData.modelBuffer.buffer.get(), offsets.data()));
 
   pass.bindVertexBuffers(
-    1u, SK_COUNTED(1u, &rectData.instanceBuffer.buffer.get(), offsets.data()));
+    1U, SK_COUNTED(1U, &rectData.instanceBuffer.buffer.get(), offsets.data()));
 
   pass.bindDescriptorSets(VK_PIPELINE_BIND_POINT_GRAPHICS,
                           rectPipeline.pipelineLayout,
-                          0u,
-                          SK_COUNTED(1u, rectPipeline.descriptorSets.get()),
-                          0u,
+                          0U,
+                          SK_COUNTED(1U, rectPipeline.descriptorSets.get()),
+                          0U,
                           nullptr);
 
-  pass.draw(4u, static_cast<uint32_t>(rectData.numRects), 0u, 0u);
+  pass.draw(4U, static_cast<uint32_t>(rectData.numRects), 0U, 0U);
 }
 
 VkResult
@@ -1397,7 +1397,7 @@ public:
   RectData           rectData;
   RectShaders        rectShaders;
   uint32_t           framesDrawn{0};
-  VkExtent2D         extent{512u, 512u};
+  VkExtent2D         extent{512U, 512U};
   std::vector<Rect>  rects;
   bool               resizing{false};
   bool               quit{false};
@@ -1621,7 +1621,7 @@ View::onEvent(const pugl::ExposeEvent&)
   const auto& gpu = _app.gpu;
 
   // Acquire the next image, waiting and/or rebuilding if necessary
-  auto nextImageIndex = 0u;
+  auto nextImageIndex = 0U;
   if (beginFrame(_app, gpu.device, nextImageIndex)) {
     return pugl::Status::unknownError;
   }
@@ -1719,7 +1719,7 @@ run(const char* const      programPath,
   app.world.setClassName("PuglVulkanCppDemo");
   app.view.setWindowTitle("Pugl Vulkan C++ Demo");
   app.view.setSizeHint(pugl::SizeHint::defaultSize, width, height);
-  app.view.setSizeHint(pugl::SizeHint::minSize, width / 4u, height / 4u);
+  app.view.setSizeHint(pugl::SizeHint::minSize, width / 4U, height / 4U);
   app.view.setBackend(pugl::vulkanBackend());
   app.view.setHint(pugl::ViewHint::resizable, opts.resizable);
   const pugl::Status st = app.view.realize();

@@ -12,8 +12,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-static const uint8_t   borderWidth    = 64u;
-static const uintptr_t reverseTimerId = 1u;
+static const uint8_t   borderWidth    = 64U;
+static const uintptr_t reverseTimerId = 1U;
 
 typedef struct {
   PuglWorld* world;
@@ -109,13 +109,13 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
     app->quit = 1;
   } else if (event->state & PUGL_MOD_SHIFT) {
     if (event->key == PUGL_KEY_UP) {
-      puglSetSize(view, frame.width, frame.height - 10u);
+      puglSetSize(view, frame.width, frame.height - 10U);
     } else if (event->key == PUGL_KEY_DOWN) {
-      puglSetSize(view, frame.width, frame.height + 10u);
+      puglSetSize(view, frame.width, frame.height + 10U);
     } else if (event->key == PUGL_KEY_LEFT) {
-      puglSetSize(view, frame.width - 10u, frame.height);
+      puglSetSize(view, frame.width - 10U, frame.height);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      puglSetSize(view, frame.width + 10u, frame.height);
+      puglSetSize(view, frame.width + 10U, frame.height);
     }
   } else {
     if (event->key == PUGL_KEY_UP) {

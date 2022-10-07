@@ -109,10 +109,10 @@ typedef struct {
 
 /// Keyboard modifier flags
 typedef enum {
-  PUGL_MOD_SHIFT = 1u << 0u, ///< Shift key
-  PUGL_MOD_CTRL  = 1u << 1u, ///< Control key
-  PUGL_MOD_ALT   = 1u << 2u, ///< Alt/Option key
-  PUGL_MOD_SUPER = 1u << 3u  ///< Mod4/Command/Windows key
+  PUGL_MOD_SHIFT = 1U << 0U, ///< Shift key
+  PUGL_MOD_CTRL  = 1U << 1U, ///< Control key
+  PUGL_MOD_ALT   = 1U << 2U, ///< Alt/Option key
+  PUGL_MOD_SUPER = 1U << 3U  ///< Mod4/Command/Windows key
 } PuglMod;
 
 /// Bitwise OR of #PuglMod values
@@ -690,7 +690,7 @@ typedef enum {
 
      X11: Calls XInitThreads() which is required for some drivers.
   */
-  PUGL_WORLD_THREADS = 1u << 0u
+  PUGL_WORLD_THREADS = 1U << 0U
 } PuglWorldFlag;
 
 /// Bitwise OR of #PuglWorldFlag values
@@ -862,7 +862,7 @@ typedef enum {
 } PuglViewHint;
 
 /// The number of #PuglViewHint values
-#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_REFRESH_RATE + 1u)
+#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_REFRESH_RATE + 1U)
 
 /// A special view hint value
 typedef enum {
@@ -909,7 +909,7 @@ typedef enum {
 } PuglSizeHint;
 
 /// The number of #PuglSizeHint values
-#define PUGL_NUM_SIZE_HINTS ((unsigned)PUGL_MAX_ASPECT + 1u)
+#define PUGL_NUM_SIZE_HINTS ((unsigned)PUGL_MAX_ASPECT + 1U)
 
 /// A function called when an event occurs
 typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
@@ -1265,7 +1265,7 @@ typedef enum {
 } PuglCursor;
 
 /// The number of #PuglCursor values
-#define PUGL_NUM_CURSORS ((unsigned)PUGL_CURSOR_UP_DOWN + 1u)
+#define PUGL_NUM_CURSORS ((unsigned)PUGL_CURSOR_UP_DOWN + 1U)
 
 /**
    Grab the keyboard input focus.

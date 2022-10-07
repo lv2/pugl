@@ -66,7 +66,7 @@ enum WmClientStateMessageAction {
   WM_STATE_TOGGLE
 };
 
-#define NUM_CURSORS ((unsigned)PUGL_CURSOR_UP_DOWN + 1u)
+#define NUM_CURSORS ((unsigned)PUGL_CURSOR_UP_DOWN + 1U)
 
 #ifdef HAVE_XCURSOR
 static const char* const cursor_names[NUM_CURSORS] = {
@@ -118,7 +118,7 @@ puglX11GetDisplayScaleFactor(Display* const display)
   if (rms) {
     XrmDatabase db = XrmGetStringDatabase(rms);
     if (db) {
-      XrmValue value = {0u, NULL};
+      XrmValue value = {0U, NULL};
       char*    type  = NULL;
       if (XrmGetResource(db, "Xft.dpi", "Xft.Dpi", &type, &value)) {
         if (!type || !strcmp(type, "String")) {
@@ -652,10 +652,10 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
 static uint32_t
 translateModifiers(const unsigned xstate)
 {
-  return (((xstate & ShiftMask) ? PUGL_MOD_SHIFT : 0u) |
-          ((xstate & ControlMask) ? PUGL_MOD_CTRL : 0u) |
-          ((xstate & Mod1Mask) ? PUGL_MOD_ALT : 0u) |
-          ((xstate & Mod4Mask) ? PUGL_MOD_SUPER : 0u));
+  return (((xstate & ShiftMask) ? PUGL_MOD_SHIFT : 0U) |
+          ((xstate & ControlMask) ? PUGL_MOD_CTRL : 0U) |
+          ((xstate & Mod1Mask) ? PUGL_MOD_ALT : 0U) |
+          ((xstate & Mod4Mask) ? PUGL_MOD_SUPER : 0U));
 }
 
 static PuglStatus
@@ -1172,10 +1172,10 @@ retrieveSelection(const PuglWorld* const world,
                   PuglBlob* const        result)
 {
   uint8_t*      value          = NULL;
-  Atom          actualType     = 0u;
+  Atom          actualType     = 0U;
   int           actualFormat   = 0;
-  unsigned long actualNumItems = 0u;
-  unsigned long bytesAfter     = 0u;
+  unsigned long actualNumItems = 0U;
+  unsigned long bytesAfter     = 0U;
 
   if (XGetWindowProperty(world->impl->display,
                          view->impl->win,
@@ -1239,7 +1239,7 @@ handleSelectionNotify(const PuglWorld* const       world,
       board->source = XGetSelectionOwner(display, board->selection);
 
       const PuglDataEvent data = {
-        PUGL_DATA, 0u, (double)event->time / 1e3, board->acceptedFormatIndex};
+        PUGL_DATA, 0U, (double)event->time / 1e3, board->acceptedFormatIndex};
 
       puglEvent.data = data;
     }

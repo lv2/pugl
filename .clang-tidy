@@ -1,11 +1,15 @@
 Checks: >
   *,
   -*-magic-numbers,
-  -*-uppercase-literal-suffix,
   -altera*,
   -clang-diagnostic-unused-function,
   -clang-diagnostic-unused-macros,
   -llvmlibc-*,
   -readability-identifier-length,
+CheckOptions:
+  - key: hicpp-uppercase-literal-suffix.NewSuffixes
+    value: L;U;f
+  - key: readability-uppercase-literal-suffix.NewSuffixes
+    value: L;U;f
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'

@@ -46,7 +46,7 @@
 #endif
 
 static const PuglSpan  defaultSpan   = 512;
-static const uintptr_t resizeTimerId = 1u;
+static const uintptr_t resizeTimerId = 1U;
 
 typedef struct {
   const char*     programPath;
@@ -202,7 +202,7 @@ loadShader(const char* const programPath, const char* const name)
   const size_t fileSize = (size_t)ftell(file);
 
   fseek(file, 0, SEEK_SET);
-  char* source = (char*)calloc(1, fileSize + 1u);
+  char* source = (char*)calloc(1, fileSize + 1U);
 
   if (fread(source, 1, fileSize, file) != fileSize) {
     free(source);

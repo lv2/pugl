@@ -77,7 +77,7 @@ main(int argc, char** argv)
                    NULL,
                    puglParseTestOptions(&argc, &argv),
                    START,
-                   {0, 0, 0u, 0u}};
+                   {0, 0, 0U, 0U}};
 
   // Set up view with size bounds and an aspect ratio
   test.view = puglNewView(test.world);

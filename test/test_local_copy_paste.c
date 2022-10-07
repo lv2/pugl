@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <string.h>
 
-static const uintptr_t timerId = 1u;
+static const uintptr_t timerId = 1U;
 
 typedef enum {
   START,

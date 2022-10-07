@@ -113,7 +113,7 @@ main(int argc, char** argv)
   }
 
   // Show and hide window a couple of times
-  for (unsigned i = 0u; i < 2u; ++i) {
+  for (unsigned i = 0U; i < 2U; ++i) {
     assert(!puglShow(test.view));
     while (test.state != EXPOSED) {
       tick(test.world);

@@ -101,7 +101,7 @@ static unsigned
 puglWinGetWindowFlags(const PuglView* const view)
 {
   const bool     resizable = !!view->hints[PUGL_RESIZABLE];
-  const unsigned sizeFlags = resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0u;
+  const unsigned sizeFlags = resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0U;
 
   return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
           (view->parent
@@ -112,7 +112,7 @@ puglWinGetWindowFlags(const PuglView* const view)
 static unsigned
 puglWinGetWindowExFlags(const PuglView* const view)
 {
-  return WS_EX_NOINHERITLAYOUT | (view->parent ? 0u : WS_EX_APPWINDOW);
+  return WS_EX_NOINHERITLAYOUT | (view->parent ? 0U : WS_EX_APPWINDOW);
 }
 
 static double
@@ -358,11 +358,11 @@ static uint32_t
 getModifiers(void)
 {
   // clang-format off
-  return (((GetKeyState(VK_SHIFT)   < 0) ? PUGL_MOD_SHIFT  : 0u) |
-          ((GetKeyState(VK_CONTROL) < 0) ? PUGL_MOD_CTRL   : 0u) |
-          ((GetKeyState(VK_MENU)    < 0) ? PUGL_MOD_ALT    : 0u) |
-          ((GetKeyState(VK_LWIN)    < 0) ? PUGL_MOD_SUPER  : 0u) |
-          ((GetKeyState(VK_RWIN)    < 0) ? PUGL_MOD_SUPER  : 0u));
+  return (((GetKeyState(VK_SHIFT)   < 0) ? PUGL_MOD_SHIFT  : 0U) |
+          ((GetKeyState(VK_CONTROL) < 0) ? PUGL_MOD_CTRL   : 0U) |
+          ((GetKeyState(VK_MENU)    < 0) ? PUGL_MOD_ALT    : 0U) |
+          ((GetKeyState(VK_LWIN)    < 0) ? PUGL_MOD_SUPER  : 0U) |
+          ((GetKeyState(VK_RWIN)    < 0) ? PUGL_MOD_SUPER  : 0U));
   // clang-format on
 }
 
@@ -415,13 +415,13 @@ puglDecodeUTF16(const wchar_t* buf, const int len)
 {
   const uint32_t c0 = buf[0];
   const uint32_t c1 = buf[0];
-  if (c0 >= 0xD800u && c0 < 0xDC00u) {
+  if (c0 >= 0xD800U && c0 < 0xDC00U) {
     if (len < 2) {
       return 0xFFFD; // Surrogate, but length is only 1
     }
 
-    if (c1 >= 0xDC00u && c1 <= 0xDFFFu) {
-      return ((c0 & 0x03FFu) << 10u) + (c1 & 0x03FFu) + 0x10000u;
+    if (c1 >= 0xDC00U && c1 <= 0xDFFFU) {
+      return ((c0 & 0x03FFU) << 10U) + (c1 & 0x03FFU) + 0x10000U;
     }
 
     return 0xFFFD; // Unpaired surrogates
@@ -450,7 +450,7 @@ initKeyEvent(PuglKeyEvent* event,
 
   const unsigned vcode = MapVirtualKey(vkey, MAPVK_VK_TO_VSC);
   const unsigned kchar = MapVirtualKey(vkey, MAPVK_VK_TO_CHAR);
-  const bool     dead  = kchar >> (sizeof(UINT) * 8u - 1u) & 1u;
+  const bool     dead  = kchar >> (sizeof(UINT) * 8U - 1U) & 1U;
   const bool     ext   = lParam & 0x01000000;
 
   event->type    = press ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
@@ -466,7 +466,7 @@ initKeyEvent(PuglKeyEvent* event,
   const PuglKey special = keySymToSpecial(vkey);
   if (special) {
     if (ext && (special == PUGL_KEY_CTRL || special == PUGL_KEY_ALT)) {
-      event->key = (uint32_t)special + 1u; // Right hand key
+      event->key = (uint32_t)special + 1U; // Right hand key
     } else {
       event->key = (uint32_t)special;
     }
@@ -483,8 +483,8 @@ initKeyEvent(PuglKeyEvent* event,
 static void
 initCharEvent(PuglEvent* event, PuglView* view, WPARAM wParam, LPARAM lParam)
 {
-  const wchar_t utf16[2] = {(wchar_t)(wParam & 0xFFFFu),
-                            (wchar_t)((wParam >> 16u) & 0xFFFFu)};
+  const wchar_t utf16[2] = {(wchar_t)(wParam & 0xFFFFU),
+                            (wchar_t)((wParam >> 16U) & 0xFFFFU)};
 
   initKeyEvent(&event->key, view, true, wParam, lParam);
   event->type           = PUGL_TEXT;
@@ -1157,7 +1157,7 @@ puglSetTransientParent(PuglView* view, PuglNativeView parent)
 uint32_t
 puglGetNumClipboardTypes(const PuglView* const PUGL_UNUSED(view))
 {
-  return IsClipboardFormatAvailable(CF_UNICODETEXT) ? 1u : 0u;
+  return IsClipboardFormatAvailable(CF_UNICODETEXT) ? 1U : 0U;
 }
 
 const char*
@@ -1198,7 +1198,7 @@ puglGetClipboard(PuglView* const view,
 {
   PuglInternals* const impl = view->impl;
 
-  if (typeIndex > 0u || !IsClipboardFormatAvailable(CF_UNICODETEXT) ||
+  if (typeIndex > 0U || !IsClipboardFormatAvailable(CF_UNICODETEXT) ||
       !OpenClipboard(impl->hwnd)) {
     return NULL;
   }
@@ -1327,7 +1327,7 @@ puglWinGetPixelFormatDescriptor(const PuglHints hints)
                        hints[PUGL_GREEN_BITS] + //
                        hints[PUGL_BLUE_BITS]);
 
-  const DWORD dwFlags = hints[PUGL_DOUBLE_BUFFER] ? PFD_DOUBLEBUFFER : 0u;
+  const DWORD dwFlags = hints[PUGL_DOUBLE_BUFFER] ? PFD_DOUBLEBUFFER : 0U;
 
   PuglWinPFD pfd;
   ZeroMemory(&pfd, sizeof(pfd));

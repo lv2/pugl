@@ -16,8 +16,8 @@
 #include <stdint.h>
 #include <string.h>
 
-static const uintptr_t copierTimerId = 1u;
-static const uintptr_t pasterTimerId = 2u;
+static const uintptr_t copierTimerId = 1U;
+static const uintptr_t pasterTimerId = 2U;
 
 typedef enum {
   START,

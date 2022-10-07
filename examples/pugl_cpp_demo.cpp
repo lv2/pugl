@@ -58,7 +58,7 @@ CubeView::onEvent(const pugl::UpdateEvent&) noexcept
 
   // But for testing, use sendEvent() instead:
   return sendEvent(pugl::ExposeEvent{
-    0u, PuglCoord{0}, PuglCoord{0}, frame().width, frame().height});
+    0U, PuglCoord{0}, PuglCoord{0}, frame().width, frame().height});
 }
 
 pugl::Status

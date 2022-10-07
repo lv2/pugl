@@ -1,6 +1,5 @@
 Checks: >
   *,
-  -*-uppercase-literal-suffix,
   -altera*,
   -clang-diagnostic-unused-macros,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,

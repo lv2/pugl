@@ -29,7 +29,7 @@ static const double timeout = -1.0;
 // Windows SetTimer has a maximum resolution of 10ms
 static const double tolerance = 0.012;
 
-static const uintptr_t timerId     = 1u;
+static const uintptr_t timerId     = 1U;
 static const double    timerPeriod = 1 / 60.0;
 
 typedef enum {

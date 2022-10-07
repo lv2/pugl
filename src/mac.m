@@ -999,7 +999,7 @@ updateSizeHint(PuglView* const view, const PuglSizeHint hint)
 static void
 updateSizeHints(PuglView* const view)
 {
-  for (unsigned i = 0u; i < PUGL_NUM_SIZE_HINTS; ++i) {
+  for (unsigned i = 0U; i < PUGL_NUM_SIZE_HINTS; ++i) {
     updateSizeHint(view, (PuglSizeHint)i);
   }
 }
@@ -1633,7 +1633,7 @@ puglAcceptOffer(PuglView* const                 view,
   wrapper->dragTypeIndex = typeIndex;
 
   const PuglDataEvent data = {
-    PUGL_DATA, 0u, mach_absolute_time() / 1e9, (uint32_t)typeIndex};
+    PUGL_DATA, 0U, mach_absolute_time() / 1e9, (uint32_t)typeIndex};
 
   PuglEvent dataEvent;
   dataEvent.data = data;

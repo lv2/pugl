@@ -655,7 +655,7 @@ template<class Value, class Vector, class Func, class... Args>
 inline VkResult
 wrapVectorAccessor(Vector& vector, Func func, Args... args) noexcept
 {
-  uint32_t count = 0u;
+  uint32_t count = 0U;
   VkResult r     = func(args..., &count, nullptr);
   if (r > VK_INCOMPLETE) {
     vector.clear();
@@ -1310,7 +1310,7 @@ public:
   VkResult enumeratePhysicalDevices(const Instance& instance,
                                     Vector& physicalDevices) const noexcept
   {
-    uint32_t count = 0u;
+    uint32_t count = 0U;
     VkResult r     = vkEnumeratePhysicalDevices(instance, &count, nullptr);
     if (r > VK_INCOMPLETE) {
       return r;
@@ -1355,7 +1355,7 @@ public:
     const PhysicalDevice& physicalDevice,
     Vector&               queueFamilyProperties) const noexcept
   {
-    uint32_t count = 0u;
+    uint32_t count = 0U;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, nullptr);
 
     queueFamilyProperties = Vector(count);
@@ -1420,7 +1420,7 @@ public:
                        const VkSubmitInfo& submit,
                        const Fence&        fence) const noexcept
   {
-    return vkQueueSubmit(queue, 1u, &submit, fence);
+    return vkQueueSubmit(queue, 1U, &submit, fence);
   }
 
   template<size_t descriptorWriteCount, size_t descriptorCopyCount>
@@ -1440,7 +1440,7 @@ public:
   VkResult resetFence(const Device& device, const Fence& fence) const noexcept
   {
     VkFence h = fence;
-    return vkResetFences(device, 1u, &h);
+    return vkResetFences(device, 1U, &h);
   }
 
   VkResult waitForFence(const Device& device,
@@ -1448,13 +1448,13 @@ public:
                         uint64_t      timeout) const noexcept
   {
     VkFence h = fence;
-    return vkWaitForFences(device, 1u, &h, VK_TRUE, timeout);
+    return vkWaitForFences(device, 1U, &h, VK_TRUE, timeout);
   }
 
   VkResult waitForFence(const Device& device, const Fence& fence) const noexcept
   {
     VkFence h = fence;
-    return vkWaitForFences(device, 1u, &h, VK_TRUE, UINT64_MAX);
+    return vkWaitForFences(device, 1U, &h, VK_TRUE, UINT64_MAX);
   }
 
   // Scoped command buffer interface

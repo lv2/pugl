@@ -51,7 +51,7 @@ main(int argc, char** argv)
   puglSetClassName(test.world, "PuglTest");
 
   // Set up views
-  for (unsigned i = 0u; i < 2; ++i) {
+  for (unsigned i = 0U; i < 2; ++i) {
     test.views[i] = puglNewView(test.world);
     puglSetWindowTitle(test.world, "Pugl Clipboard Test");
     puglSetBackend(test.views[i], puglStubBackend());

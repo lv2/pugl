@@ -75,6 +75,15 @@ x64_sanitize:
     LDFLAGS: "-fno-sanitize-recover=all -fsanitize=address -fsanitize=undefined -fsanitize=float-divide-by-zero -fsanitize=unsigned-integer-overflow -fsanitize=implicit-conversion -fsanitize=local-bounds -fsanitize=nullability"
 
 
+fedora:
+  image: lv2plugin/fedora-big
+  script:
+    - meson setup build -Dbuildtype=plain -Dstrict=true -Dwerror=true
+    - ninja -C build
+  variables:
+    CFLAGS: -O2 -D_FORTIFY_SOURCE=2
+
+
 mingw32_dbg:
   <<: *build_definition
   image: lv2plugin/debian-mingw32

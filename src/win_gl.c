@@ -164,7 +164,7 @@ puglWinGlConfigure(PuglView* view)
     // Choose pixel format based on attributes
     UINT numFormats = 0;
     if (!surface->procs.wglChoosePixelFormat(
-          fakeWin.hdc, pixelAttrs, NULL, 1u, &impl->pfId, &numFormats)) {
+          fakeWin.hdc, pixelAttrs, NULL, 1U, &impl->pfId, &numFormats)) {
       return puglWinError(&fakeWin, PUGL_SET_FORMAT_FAILED);
     }
 
