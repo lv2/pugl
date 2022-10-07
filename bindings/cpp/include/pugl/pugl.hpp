@@ -205,7 +205,7 @@ enum class Status {
   unsupported,         ///< @copydoc PUGL_UNSUPPORTED
 };
 
-static_assert(Status(PUGL_UNSUPPORTED) == Status::unsupported, "");
+static_assert(static_cast<Status>(PUGL_UNSUPPORTED) == Status::unsupported, "");
 
 /// @copydoc puglStrerror
 inline const char*
@@ -226,14 +226,15 @@ enum class WorldType {
   module,  ///< @copydoc PUGL_MODULE
 };
 
-static_assert(WorldType(PUGL_MODULE) == WorldType::module, "");
+static_assert(static_cast<WorldType>(PUGL_MODULE) == WorldType::module, "");
 
 /// @copydoc PuglWorldFlag
 enum class WorldFlag {
   threads = PUGL_WORLD_THREADS, ///< @copydoc PUGL_WORLD_THREADS
 };
 
-static_assert(WorldFlag(PUGL_WORLD_THREADS) == WorldFlag::threads, "");
+static_assert(static_cast<WorldFlag>(PUGL_WORLD_THREADS) == WorldFlag::threads,
+              "");
 
 using WorldFlags = PuglWorldFlags; ///< @copydoc PuglWorldFlags
 
@@ -363,7 +364,8 @@ enum class ViewHint {
   refreshRate,         ///< @copydoc PUGL_REFRESH_RATE
 };
 
-static_assert(ViewHint(PUGL_REFRESH_RATE) == ViewHint::refreshRate, "");
+static_assert(static_cast<ViewHint>(PUGL_REFRESH_RATE) == ViewHint::refreshRate,
+              "");
 
 using ViewHintValue = PuglViewHintValue; ///< @copydoc PuglViewHintValue
 
@@ -378,7 +380,7 @@ enum class Cursor {
   upDown,    ///< @copydoc PUGL_CURSOR_UP_DOWN
 };
 
-static_assert(Cursor(PUGL_CURSOR_UP_DOWN) == Cursor::upDown, "");
+static_assert(static_cast<Cursor>(PUGL_CURSOR_UP_DOWN) == Cursor::upDown, "");
 
 /// @copydoc PuglView
 class View : protected detail::Wrapper<PuglView, puglFreeView>

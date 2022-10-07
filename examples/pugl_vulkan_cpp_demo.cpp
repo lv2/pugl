@@ -272,7 +272,7 @@ selectPresentMode(const sk::VulkanApi&      vk,
     return r;
   }
 
-  const auto& tryModes = priorities[bool(multiBuffer)][bool(sync)];
+  const auto& tryModes = priorities[multiBuffer][sync];
   for (const auto m : tryModes) {
     if (std::find(modes.begin(), modes.end(), m) != modes.end()) {
       presentMode = m;
@@ -896,8 +896,8 @@ RectPipeline::init(const sk::VulkanApi&  vk,
 
   const VkViewport viewport{0.0f,
                             0.0f,
-                            float(swapchain.extent.width),
-                            float(swapchain.extent.height),
+                            static_cast<float>(swapchain.extent.width),
+                            static_cast<float>(swapchain.extent.height),
                             0.0f,
                             1.0f};
 
@@ -1560,9 +1560,9 @@ update(PuglVulkanDemo& app, const double time)
   UniformBufferObject ubo = {{}};
   mat4Ortho(ubo.projection,
             0.0f,
-            float(app.renderer.swapchain.extent.width),
+            static_cast<float>(app.renderer.swapchain.extent.width),
             0.0f,
-            float(app.renderer.swapchain.extent.height),
+            static_cast<float>(app.renderer.swapchain.extent.height),
             -1.0f,
             1.0f);
 

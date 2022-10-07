@@ -777,7 +777,7 @@ public:
     }
 
     if (!vkDestroyInstance) {
-      vkDestroyInstance = PFN_vkDestroyInstance(
+      vkDestroyInstance = reinterpret_cast<PFN_vkDestroyInstance>(
         getInstanceProcAddr(instance, "vkDestroyInstance"));
     }
 

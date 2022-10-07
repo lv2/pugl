@@ -21,7 +21,6 @@ Checks: >
   -fuchsia-default-arguments,
   -fuchsia-default-arguments-calls,
   -fuchsia-overloaded-operator,
-  -google-readability-casting,
   -google-runtime-references,
   -hicpp-multiway-paths-covered,
   -hicpp-no-array-decay,
