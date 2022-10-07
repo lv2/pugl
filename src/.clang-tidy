@@ -9,5 +9,6 @@ Checks: >
   -llvm-header-guard,
   -llvmlibc-*,
   -readability-function-cognitive-complexity,
+  -readability-identifier-length,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'

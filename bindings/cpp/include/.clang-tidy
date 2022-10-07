@@ -9,6 +9,7 @@ Checks: >
   -hicpp-named-parameter,
   -llvmlibc-*,
   -modernize-use-trailing-return-type,
+  -readability-identifier-length,
   -readability-implicit-bool-conversion,
   -readability-named-parameter,
 FormatStyle: file

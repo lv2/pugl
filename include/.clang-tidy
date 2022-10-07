@@ -6,5 +6,6 @@ Checks: >
   -clang-diagnostic-unused-function,
   -clang-diagnostic-unused-macros,
   -llvmlibc-*,
+  -readability-identifier-length,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'

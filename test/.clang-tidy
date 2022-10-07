@@ -4,6 +4,7 @@ Checks: >
   -*-uppercase-literal-suffix,
   -altera*,
   -bugprone-suspicious-include,
+  -cert-err33-c,
   -google-runtime-references,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
@@ -11,5 +12,6 @@ Checks: >
   -llvmlibc-*,
   -modernize-use-trailing-return-type,
   -readability-function-cognitive-complexity,
+  -readability-identifier-length,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*|test/.*'

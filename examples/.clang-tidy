@@ -13,6 +13,7 @@ Checks: >
   -bugprone-suspicious-string-compare,
   -cert-dcl37-c,
   -cert-dcl51-cpp,
+  -cert-err33-c,
   -concurrency-mt-unsafe,
   -cppcoreguidelines-avoid-non-const-global-variables,
   -cppcoreguidelines-macro-usage,
@@ -24,6 +25,7 @@ Checks: >
   -fuchsia-default-arguments,
   -fuchsia-default-arguments-calls,
   -fuchsia-overloaded-operator,
+  -google-readability-casting,
   -google-runtime-references,
   -hicpp-multiway-paths-covered,
   -hicpp-no-array-decay,
@@ -35,6 +37,7 @@ Checks: >
   -modernize-use-trailing-return-type,
   -performance-no-int-to-ptr,
   -readability-function-cognitive-complexity,
+  -readability-identifier-length,
   -readability-implicit-bool-conversion,
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*|test/.*|examples/.*'
