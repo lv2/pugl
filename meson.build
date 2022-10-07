@@ -57,8 +57,18 @@ dl_dep = cc.find_library('dl', required: false)
 
 # MacOS
 if host_machine.system() == 'darwin'
-  cocoa_dep = dependency('Cocoa', required: false, modules: 'foundation')
-  corevideo_dep = dependency('CoreVideo', required: false)
+  cocoa_dep = dependency(
+    'Cocoa',
+    include_type: 'system',
+    modules: 'foundation',
+    required: false,
+  )
+
+  corevideo_dep = dependency(
+    'CoreVideo',
+    include_type: 'system',
+    required: false,
+  )
 
   platform = 'mac'
   platform_sources = files('src/mac.m')
@@ -229,7 +239,11 @@ if get_option('stub')
 endif
 
 # OpenGL
-opengl_dep = dependency('GL', required: get_option('opengl'))
+opengl_dep = dependency(
+  'GL',
+  include_type: 'system',
+  required: get_option('opengl'),
+)
 if opengl_dep.found()
   name = 'pugl_' + platform + '_gl' + version_suffix
   sources = files('src/' + platform + '_gl' + extension)
@@ -266,7 +280,11 @@ if opengl_dep.found()
 endif
 
 # Cairo
-cairo_dep = dependency('cairo', required: get_option('cairo'))
+cairo_dep = dependency(
+  'cairo',
+  include_type: 'system',
+  required: get_option('cairo'),
+)
 if cairo_dep.found()
   name = 'pugl_' + platform + '_cairo' + version_suffix
   sources = files('src/' + platform + '_cairo' + extension)
@@ -315,20 +333,24 @@ if cairo_dep.found()
 endif
 
 # Vulkan
-vulkan_dep = dependency('vulkan', required: get_option('vulkan'))
+vulkan_dep = dependency(
+  'vulkan',
+  include_type: 'system',
+  required: get_option('vulkan'),
+)
 if vulkan_dep.found()
   name = 'pugl_' + platform + '_vulkan' + version_suffix
   sources = files('src/' + platform + '_vulkan' + extension)
 
-  thread_dep = dependency('threads')
+  thread_dep = dependency('threads', include_type: 'system')
 
   vulkan_deps = [pugl_dep, vulkan_dep, dl_dep]
   vulkan_c_args = library_args
   vulkan_link_args = []
   if platform == 'mac'
     vulkan_deps += [
-      dependency('Metal', modules: 'foundation'),
-      dependency('QuartzCore', modules: 'foundation'),
+      dependency('Metal', include_type: 'system', modules: 'foundation'),
+      dependency('QuartzCore', include_type: 'system', modules: 'foundation'),
     ]
   endif
 
