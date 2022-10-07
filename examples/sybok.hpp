@@ -227,7 +227,7 @@ public:
     : _destroyFunc{destroyFunc}
   {}
 
-  GlobalDeleter(const GlobalDeleter&) = delete;
+  GlobalDeleter(const GlobalDeleter&)            = delete;
   GlobalDeleter& operator=(const GlobalDeleter&) = delete;
 
   GlobalDeleter(GlobalDeleter&& other) noexcept
@@ -266,7 +266,7 @@ public:
     , _destroyFunc{destroyFunc}
   {}
 
-  DependantDeleter(const DependantDeleter&) = delete;
+  DependantDeleter(const DependantDeleter&)            = delete;
   DependantDeleter& operator=(const DependantDeleter&) = delete;
 
   DependantDeleter(DependantDeleter&& other) noexcept { swap(other); }
@@ -314,7 +314,7 @@ public:
     , _freeFunc{freeFunc}
   {}
 
-  PoolDeleter(const PoolDeleter&) = delete;
+  PoolDeleter(const PoolDeleter&)            = delete;
   PoolDeleter& operator=(const PoolDeleter&) = delete;
 
   PoolDeleter(PoolDeleter&& other) noexcept { swap(other); }
@@ -371,7 +371,7 @@ public:
   }
 
   UniqueDispatchableHandle(const UniqueDispatchableHandle&) noexcept = delete;
-  UniqueDispatchableHandle& operator                                 =(
+  UniqueDispatchableHandle& operator=(
     const UniqueDispatchableHandle&) noexcept = delete;
 
   UniqueDispatchableHandle(UniqueDispatchableHandle&& other) noexcept
@@ -436,7 +436,7 @@ public:
 
   UniqueNonDispatchableHandle(const UniqueNonDispatchableHandle&) noexcept =
     delete;
-  UniqueNonDispatchableHandle& operator          =(
+  UniqueNonDispatchableHandle& operator=(
     const UniqueNonDispatchableHandle&) noexcept = delete;
 
   UniqueNonDispatchableHandle(UniqueNonDispatchableHandle&& other) noexcept
@@ -491,7 +491,7 @@ public:
     }
   }
 
-  UniqueArrayHandle(const UniqueArrayHandle&) noexcept = delete;
+  UniqueArrayHandle(const UniqueArrayHandle&) noexcept            = delete;
   UniqueArrayHandle& operator=(const UniqueArrayHandle&) noexcept = delete;
 
   UniqueArrayHandle(UniqueArrayHandle&& other) noexcept { swap(other); }
@@ -539,10 +539,10 @@ public:
   OptionalParameter() noexcept  = default;
   ~OptionalParameter() noexcept = default;
 
-  OptionalParameter(const OptionalParameter&) = delete;
+  OptionalParameter(const OptionalParameter&)            = delete;
   OptionalParameter& operator=(const OptionalParameter&) = delete;
 
-  OptionalParameter(OptionalParameter&&) = delete;
+  OptionalParameter(OptionalParameter&&)            = delete;
   OptionalParameter& operator=(OptionalParameter&&) = delete;
 
   Handle get() const noexcept { return _handle; }
@@ -688,7 +688,7 @@ struct MappedMemory {
     , _data{data}
   {}
 
-  MappedMemory(const MappedMemory&) = delete;
+  MappedMemory(const MappedMemory&)            = delete;
   MappedMemory& operator=(const MappedMemory&) = delete;
 
   MappedMemory(MappedMemory&& mappedMemory) noexcept
@@ -1781,7 +1781,7 @@ public:
     , _result{result}
   {}
 
-  CommonCommandScope(const CommonCommandScope&) noexcept = delete;
+  CommonCommandScope(const CommonCommandScope&) noexcept            = delete;
   CommonCommandScope& operator=(const CommonCommandScope&) noexcept = delete;
 
   CommonCommandScope(CommonCommandScope&& scope) noexcept
@@ -1998,7 +1998,7 @@ public:
     : CommonCommandScope{api, commandBuffer, result}
   {}
 
-  CommandScope(const CommandScope&) = delete;
+  CommandScope(const CommandScope&)            = delete;
   CommandScope& operator=(const CommandScope&) = delete;
 
   CommandScope(CommandScope&& scope) noexcept
@@ -2209,7 +2209,7 @@ public:
     : CommonCommandScope{api, commandBuffer, VK_SUCCESS}
   {}
 
-  RenderCommandScope(const RenderCommandScope&) = delete;
+  RenderCommandScope(const RenderCommandScope&)            = delete;
   RenderCommandScope& operator=(const RenderCommandScope&) = delete;
 
   RenderCommandScope(RenderCommandScope&& scope) noexcept

@@ -34,7 +34,7 @@ template<class T, FreeFunc<T> Free>
 class Wrapper
 {
 public:
-  Wrapper(const Wrapper&) = delete;
+  Wrapper(const Wrapper&)            = delete;
   Wrapper& operator=(const Wrapper&) = delete;
 
   Wrapper(Wrapper&& wrapper) noexcept
@@ -281,10 +281,10 @@ private:
 class World : public detail::Wrapper<PuglWorld, puglFreeWorld>
 {
 public:
-  World(const World&) = delete;
+  World(const World&)            = delete;
   World& operator=(const World&) = delete;
 
-  World(World&&) = delete;
+  World(World&&)            = delete;
   World& operator=(World&&) = delete;
 
   ~World() = default;
