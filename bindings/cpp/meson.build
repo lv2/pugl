@@ -9,10 +9,14 @@ puglpp_dep = declare_dependency(
   link_with: libpugl,
 )
 
+puglpp_versioned_name = 'puglpp-@0@'.format(major_version)
+
 pkg.generate(
   description: 'Pugl GUI library C++ bindings',
-  filebase: 'puglpp-@0@'.format(major_version),
+  filebase: puglpp_versioned_name,
   name: 'Pugl++',
-  subdirs: ['puglpp-@0@'.format(major_version)],
+  subdirs: [puglpp_versioned_name],
   version: meson.project_version(),
 )
+
+meson.override_dependency(puglpp_versioned_name, puglpp_dep)

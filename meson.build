@@ -4,7 +4,7 @@
 project('pugl', ['c'],
         version: '0.4.0',
         license: 'ISC',
-        meson_version: '>= 0.49.2',
+        meson_version: '>= 0.54.0',
         default_options: [
           'b_ndebug=if-release',
           'buildtype=release',
@@ -186,6 +186,8 @@ pkg.generate(
   version: meson.project_version(),
 )
 
+meson.override_dependency(versioned_name, pugl_dep)
+
 ############
 # Backends #
 ############
@@ -212,14 +214,18 @@ if get_option('stub')
     dependencies: [pugl_dep],
   )
 
+  stub_pkg_name = 'pugl-stub-@0@'.format(major_version)
+
   pkg.generate(
     stub_backend,
     description: 'Native window pugl graphics backend',
-    filebase: 'pugl-stub-@0@'.format(major_version),
+    filebase: stub_pkg_name,
     name: 'Pugl Stub',
     subdirs: [versioned_name],
     version: meson.project_version(),
   )
+
+  meson.override_dependency(stub_pkg_name, stub_backend_dep)
 endif
 
 # OpenGL
@@ -245,14 +251,18 @@ if opengl_dep.found()
     dependencies: [pugl_dep, opengl_dep],
   )
 
+  gl_pkg_name = 'pugl-gl-@0@'.format(major_version)
+
   pkg.generate(
     gl_backend,
     description: 'Pugl GUI library with OpenGL backend',
-    filebase: 'pugl-gl-@0@'.format(major_version),
+    filebase: gl_pkg_name,
     name: 'Pugl OpenGL',
     subdirs: [versioned_name],
     version: meson.project_version(),
   )
+
+  meson.override_dependency(gl_pkg_name, gl_backend_dep)
 endif
 
 # Cairo
@@ -290,14 +300,18 @@ if cairo_dep.found()
     link_with: cairo_backend,
   )
 
+  cairo_pkg_name = 'pugl-cairo-@0@'.format(major_version)
+
   pkg.generate(
     cairo_backend,
     description: 'Pugl GUI library with Cairo backend',
-    filebase: 'pugl-cairo-@0@'.format(major_version),
+    filebase: cairo_pkg_name,
     name: 'Pugl Cairo',
     subdirs: [versioned_name],
     version: meson.project_version(),
   )
+
+  meson.override_dependency(cairo_pkg_name, cairo_backend_dep)
 endif
 
 # Vulkan
@@ -335,14 +349,18 @@ if vulkan_dep.found()
     link_with: vulkan_backend,
   )
 
+  vulkan_pkg_name = 'pugl-vulkan-@0@'.format(major_version)
+
   pkg.generate(
     vulkan_backend,
     description: 'Pugl GUI library with Vulkan backend',
-    filebase: 'pugl-vulkan-@0@'.format(major_version),
+    filebase: vulkan_pkg_name,
     name: 'Pugl Vulkan',
     subdirs: [versioned_name],
     version: meson.project_version(),
   )
+
+  meson.override_dependency(vulkan_pkg_name, vulkan_backend_dep)
 endif
 
 ###############################
