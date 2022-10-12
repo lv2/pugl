@@ -57,22 +57,15 @@ dl_dep = cc.find_library('dl', required: false)
 
 # MacOS
 if host_machine.system() == 'darwin'
-  cocoa_dep = dependency(
-    'Cocoa',
-    include_type: 'system',
-    modules: 'foundation',
-    required: false,
-  )
-
-  corevideo_dep = dependency(
-    'CoreVideo',
-    include_type: 'system',
+  framework_deps = dependency(
+    'appleframeworks',
+    modules: ['foundation', 'corevideo'],
     required: false,
   )
 
   platform = 'mac'
   platform_sources = files('src/mac.m')
-  core_deps = [cocoa_dep, corevideo_dep]
+  core_deps = [framework_deps]
   extension = '.m'
 
   platform_suppressions = [
@@ -80,8 +73,9 @@ if host_machine.system() == 'darwin'
     '-Wno-deprecated-declarations',
   ]
 
-  add_project_arguments(platform_suppressions, language: ['c', 'objc'])
-  add_project_link_arguments(['-Wl,-framework,Cocoa'], language: ['c', 'objc'])
+  mac_languages = ['c', 'objc', 'objcpp']
+  add_project_arguments(platform_suppressions, language: mac_languages)
+  add_project_link_arguments(['-Wl,-framework,Cocoa'], language: mac_languages)
 
 # Windows
 elif host_machine.system() == 'windows'
