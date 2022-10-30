@@ -35,6 +35,16 @@
 #define PUGL_LOCAL_CLIENT_MSG (WM_USER + 52)
 #define PUGL_USER_TIMER_MIN 9470
 
+#ifdef __cplusplus
+#  define PUGL_INIT_STRUCT \
+    {}
+#else
+#  define PUGL_INIT_STRUCT \
+    {                      \
+      0                    \
+    }
+#endif
+
 typedef BOOL(WINAPI* PFN_SetProcessDPIAware)(void);
 typedef HRESULT(WINAPI* PFN_GetProcessDpiAwareness)(HANDLE, DWORD*);
 typedef HRESULT(WINAPI* PFN_GetScaleFactorForMonitor)(HMONITOR, DWORD*);
@@ -80,7 +90,7 @@ puglRegisterWindowClass(const char* name)
     module = GetModuleHandle(NULL);
   }
 
-  WNDCLASSEX wc = {0};
+  WNDCLASSEX wc = PUGL_INIT_STRUCT;
   if (GetClassInfoEx(module, name, &wc)) {
     return true; // Already registered
   }
@@ -472,8 +482,8 @@ initKeyEvent(PuglKeyEvent* event,
     }
   } else if (!dead) {
     // Translate unshifted key
-    BYTE    keyboardState[256] = {0};
-    wchar_t buf[5]             = {0};
+    BYTE    keyboardState[256] = PUGL_INIT_STRUCT;
+    wchar_t buf[5]             = PUGL_INIT_STRUCT;
 
     event->key = puglDecodeUTF16(
       buf, ToUnicode(vkey, vcode, keyboardState, buf, 4, 1 << 2));
@@ -689,7 +699,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     pt.y = GET_Y_LPARAM(lParam);
 
     if (!view->impl->mouseTracked) {
-      TRACKMOUSEEVENT tme = {0};
+      TRACKMOUSEEVENT tme = PUGL_INIT_STRUCT;
 
       tme.cbSize    = sizeof(tme);
       tme.dwFlags   = TME_LEAVE;
