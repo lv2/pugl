@@ -40,7 +40,6 @@ elif cc.get_id() == 'gcc'
     '-Wno-padded',
     '-Wno-pedantic',
     '-Wno-suggest-attribute=const',
-    '-Wno-suggest-attribute=malloc',
     '-Wno-suggest-attribute=pure',
     '-Wno-switch-default',
     '-Wno-switch-enum',

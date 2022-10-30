@@ -35,13 +35,19 @@
 
 #if defined(__GNUC__)
 #  define PUGL_CONST_FUNC __attribute__((const))
+#  define PUGL_MALLOC_FUNC __attribute__((malloc))
 #else
 #  define PUGL_CONST_FUNC
+#  define PUGL_MALLOC_FUNC
 #endif
 
 #define PUGL_CONST_API \
   PUGL_API             \
   PUGL_CONST_FUNC
+
+#define PUGL_MALLOC_API \
+  PUGL_API              \
+  PUGL_MALLOC_FUNC
 
 #ifdef __cplusplus
 #  define PUGL_BEGIN_DECLS extern "C" {
@@ -703,7 +709,7 @@ typedef uint32_t PuglWorldFlags;
    @param flags Flags to control world features.
    @return A new world, which must be later freed with puglFreeWorld().
 */
-PUGL_API
+PUGL_MALLOC_API
 PuglWorld*
 puglNewWorld(PuglWorldType type, PuglWorldFlags flags);
 
@@ -927,7 +933,7 @@ typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
    It must first be configured, then the system view can be created with
    puglRealize().
 */
-PUGL_API
+PUGL_MALLOC_API
 PuglView*
 puglNewView(PuglWorld* world);
 
