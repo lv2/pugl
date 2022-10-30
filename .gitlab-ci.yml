@@ -76,6 +76,7 @@ x64_sanitize:
 
 
 fedora:
+  <<: *build_definition
   image: lv2plugin/fedora-big
   script:
     - meson setup build -Dbuildtype=plain -Dstrict=true -Dwerror=true
