@@ -154,7 +154,7 @@ if vulkan_dep.found()
 endif
 
 if host_machine.system() == 'darwin'
-  add_languages(['objcpp'])
+  add_languages(['objcpp'], native: false)
 
   objcpp = meson.get_compiler('objcpp')
 

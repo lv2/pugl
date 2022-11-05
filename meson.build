@@ -34,7 +34,7 @@ endif
 
 # Enable Objective C support if we're building for MacOS
 if host_machine.system() == 'darwin'
-  add_languages(['objc'])
+  add_languages(['objc'], native: false)
   objcc = meson.get_compiler('objc')
 endif
 
