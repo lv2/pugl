@@ -5,7 +5,7 @@ Source: https://gitlab.com/lv2/pugl
 
 Files: **/meson.build *.md */.clang* .clang* .clant.json .editorconfig .git* .includes.imp AUTHORS doc/*.in meson_options.txt resources/Info.plist.in
 Copyright: 2021 David Robillard <d@drobilla.net>
-License: CC0-1.0 OR ISC
+License: 0BSD OR ISC
 
 Files: doc/*.rst examples/glad/glad.c examples/glad/glad.h resources/pugl.ipe resources/pugl.png resources/pugl.svg
 Copyright: 2021 David Robillard <d@drobilla.net>

@@ -1,5 +1,5 @@
 # Copyright 2021-2022 David Robillard <d@drobilla.net>
-# SPDX-License-Identifier: CC0-1.0 OR ISC
+# SPDX-License-Identifier: 0BSD OR ISC
 
 config = configuration_data()
 config.set('PUGL_VERSION', meson.project_version())

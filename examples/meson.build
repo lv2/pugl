@@ -1,5 +1,5 @@
 # Copyright 2021 David Robillard <d@drobilla.net>
-# SPDX-License-Identifier: CC0-1.0 OR ISC
+# SPDX-License-Identifier: 0BSD OR ISC
 
 data_dir = get_option('prefix') / get_option('datadir') / 'pugl-0'
 example_defines = ['-DPUGL_DATA_DIR="@0@"'.format(data_dir)]
