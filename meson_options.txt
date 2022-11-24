@@ -7,6 +7,9 @@ option('examples', type: 'feature', value: 'auto', yield: true,
 option('docs', type: 'feature', value: 'auto',
        description: 'Build documentation')
 
+option('docs_cpp', type: 'feature', value: 'disabled',
+       description: 'Build C++ wrapper documentation')
+
 option('opengl', type: 'feature', value: 'auto',
        description : 'Enable support for the OpenGL graphics API')
 

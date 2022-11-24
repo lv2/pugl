@@ -12,5 +12,8 @@ build_docs = doxygen.found() and sphinx_build.found()
 if build_docs
   subdir('_static')
   subdir('c')
-  subdir('cpp')
+
+  if not get_option('docs_cpp').disabled()
+    subdir('cpp')
+  endif
 endif
