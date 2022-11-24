@@ -11,9 +11,9 @@
 # C #
 #####
 
-c_warnings = all_c_warnings
+c_suppressions = []
 if cc.get_id() == 'clang'
-  c_warnings += [
+  c_suppressions += [
     '-Wno-bad-function-cast',
     '-Wno-declaration-after-statement',
     '-Wno-padded',
@@ -22,11 +22,11 @@ if cc.get_id() == 'clang'
   ]
 
   if host_machine.system() == 'darwin'
-    c_warnings += [
+    c_suppressions += [
       '-Wno-poison-system-directories',
     ]
   elif host_machine.system() == 'windows'
-    c_warnings += [
+    c_suppressions += [
       '-Wno-deprecated-declarations',
       '-Wno-format-nonliteral',
       '-Wno-nonportable-system-include-path',
@@ -34,7 +34,7 @@ if cc.get_id() == 'clang'
     ]
   endif
 elif cc.get_id() == 'gcc'
-  c_warnings += [
+  c_suppressions += [
     '-Wno-bad-function-cast',
     '-Wno-inline',
     '-Wno-padded',
@@ -47,14 +47,14 @@ elif cc.get_id() == 'gcc'
   ]
 
   if host_machine.system() == 'windows'
-    c_warnings += [
+    c_suppressions += [
       '-Wno-cast-function-type',
       '-Wno-float-equal',
       '-Wno-suggest-attribute=format',
     ]
   endif
 elif cc.get_id() == 'msvc'
-  c_warnings += [
+  c_suppressions += [
     '/wd4061', # enumerator in switch is not explicitly handled
     '/wd4191', # unsafe conversion from type to type
     '/wd4514', # unreferenced inline function has been removed
@@ -68,7 +68,7 @@ elif cc.get_id() == 'msvc'
   ]
 endif
 
-add_project_arguments(cc.get_supported_arguments(c_warnings),
+add_project_arguments(cc.get_supported_arguments(c_suppressions),
                       language: ['c'])
 
 #######
@@ -76,35 +76,35 @@ add_project_arguments(cc.get_supported_arguments(c_warnings),
 #######
 
 if is_variable('cpp')
-  cpp_warnings = all_cpp_warnings
+  cpp_suppressions = []
 
   if cpp.get_id() == 'clang'
-    cpp_warnings += [
+    cpp_suppressions += [
       '-Wno-inline',
       '-Wno-padded',
     ]
 
     if host_machine.system() == 'darwin'
-      cpp_warnings += [
+      cpp_suppressions += [
         '-Wno-poison-system-directories',
       ]
     endif
 
   elif cpp.get_id() == 'gcc'
-    cpp_warnings += [
+    cpp_suppressions += [
       '-Wno-inline',
       '-Wno-padded',
     ]
 
     if host_machine.system() == 'windows'
-      cpp_warnings += [
+      cpp_suppressions += [
         '-Wno-cast-function-type',
         '-Wno-suggest-attribute=format',
       ]
     endif
-    
+
   elif cpp.get_id() == 'msvc'
-    cpp_warnings += [
+    cpp_suppressions += [
       '/wd4061', # enumerator in switch is not explicitly handled
       '/wd4191', # unsafe conversion from type to type
       '/wd4514', # unreferenced inline function has been removed
@@ -122,7 +122,7 @@ if is_variable('cpp')
     ]
   endif
 
-  add_project_arguments(cpp.get_supported_arguments(cpp_warnings),
+  add_project_arguments(cpp.get_supported_arguments(cpp_suppressions),
                         language: ['cpp'])
 endif
 
@@ -131,7 +131,7 @@ endif
 ###############
 
 if is_variable('objcc')
-  objc_warnings = all_objc_warnings +  [
+  objc_suppressions = [
     '-Wno-bad-function-cast',
     '-Wno-direct-ivar-access',
     '-Wno-padded',
@@ -139,6 +139,6 @@ if is_variable('objcc')
     '-Wno-poison-system-directories',
   ]
 
-  add_project_arguments(objcc.get_supported_arguments(objc_warnings),
+  add_project_arguments(objcc.get_supported_arguments(objc_suppressions),
                         language: ['objc'])
 endif
