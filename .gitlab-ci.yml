@@ -14,7 +14,7 @@ dev:
   stage: build
   image: lv2plugin/debian-x64
   script:
-    - meson setup build -Dbuildtype=debug -Ddocs=enabled -Dstrict=true -Dwerror=true
+    - meson setup build -Dbuildtype=debug -Ddocs=enabled -Ddocs_cpp=enabled -Dstrict=true -Dwerror=true
     - ninja -C build
     - meson configure -Dbuildtype=release build
     - ninja -C build
