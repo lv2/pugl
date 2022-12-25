@@ -72,6 +72,8 @@ mingw32:
     - ninja -C build
     - meson configure -Dbuildtype=release build
     - ninja -C build
+  variables:
+    WINEPATH: "Z:\\usr\\lib\\gcc\\i686-w64-mingw32\\10-win32"
 
 mingw64:
   stage: build
