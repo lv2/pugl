@@ -1631,9 +1631,8 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
     return PUGL_BAD_PARAMETER;
   }
 
-  if (win) {
-    return XResizeWindow(display, win, width, height) ? PUGL_SUCCESS
-                                                      : PUGL_UNKNOWN_ERROR;
+  if (win && !XResizeWindow(display, win, width, height)) {
+    return PUGL_UNKNOWN_ERROR;
   }
 
   view->frame.width  = (PuglSpan)width;
