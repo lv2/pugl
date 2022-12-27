@@ -9,6 +9,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#include <mach/mach_time.h>
+
 #include <stdint.h>
 
 @interface PuglWrapperView : NSView<NSTextInputClient>
@@ -25,8 +27,9 @@
 @end
 
 struct PuglWorldInternalsImpl {
-  NSApplication*     app;
-  NSAutoreleasePool* autoreleasePool;
+  NSApplication*            app;
+  NSAutoreleasePool*        autoreleasePool;
+  struct mach_timebase_info timebaseInfo;
 };
 
 struct PuglInternalsImpl {

@@ -913,6 +913,10 @@ puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
 
   impl->app = [NSApplication sharedApplication];
 
+  if (mach_timebase_info(&impl->timebaseInfo)) {
+    return NULL;
+  }
+
   if (type == PUGL_PROGRAM) {
     impl->autoreleasePool = [NSAutoreleasePool new];
 
@@ -1400,7 +1404,9 @@ puglProcessEvents(PuglView* view)
 double
 puglGetTime(const PuglWorld* world)
 {
-  return (mach_absolute_time() / 1e9) - world->startTime;
+  return ((double)mach_absolute_time() * world->impl->timebaseInfo.denom /
+          world->impl->timebaseInfo.numer / 1e9) -
+         world->startTime;
 }
 
 PuglStatus
@@ -1575,7 +1581,7 @@ puglPaste(PuglView* const view)
   const PuglDataOfferEvent offer = {
     PUGL_DATA_OFFER,
     0,
-    mach_absolute_time() / 1e9,
+    puglGetTime(view->world),
   };
 
   PuglEvent offerEvent;
@@ -1633,7 +1639,7 @@ puglAcceptOffer(PuglView* const                 view,
   wrapper->dragTypeIndex = typeIndex;
 
   const PuglDataEvent data = {
-    PUGL_DATA, 0U, mach_absolute_time() / 1e9, (uint32_t)typeIndex};
+    PUGL_DATA, 0U, puglGetTime(view->world), (uint32_t)typeIndex};
 
   PuglEvent dataEvent;
   dataEvent.data = data;
