@@ -457,7 +457,7 @@ puglRealize(PuglView* const view)
   }
 
   if (view->transientParent) {
-    XSetTransientForHint(display, impl->win, (Window)view->transientParent);
+    puglSetTransientParent(view, view->transientParent);
   }
 
   // Create input context

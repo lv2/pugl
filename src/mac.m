@@ -1162,6 +1162,9 @@ puglRealize(PuglView* view)
 
     updateSizeHints(view);
     puglSetFrame(view, view->frame);
+    if (view->transientParent) {
+      puglSetTransientParent(view, view->transientParent);
+    }
 
     [window setContentView:impl->wrapperView];
     [view->world->impl->app activateIgnoringOtherApps:YES];
