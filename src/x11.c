@@ -1656,6 +1656,10 @@ puglSetTransientParent(PuglView* const view, const PuglNativeView parent)
 {
   Display* display = view->world->impl->display;
 
+  if (view->parent) {
+    return PUGL_FAILURE;
+  }
+
   view->transientParent = parent;
 
   if (view->impl->win) {

@@ -1562,6 +1562,10 @@ puglSetSizeHint(PuglView* const    view,
 PuglStatus
 puglSetTransientParent(PuglView* view, PuglNativeView parent)
 {
+  if (view->parent) {
+    return PUGL_FAILURE;
+  }
+
   view->transientParent = parent;
 
   if (view->impl->window) {
