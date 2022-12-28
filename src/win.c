@@ -1372,20 +1372,24 @@ puglWinCreateWindow(PuglView* const   view,
   const unsigned winFlags   = puglWinGetWindowFlags(view);
   const unsigned winExFlags = puglWinGetWindowExFlags(view);
 
-  if (view->frame.width <= 0.0 && view->frame.height <= 0.0) {
+  // Set the size to the default if it has not already been set
+  if (view->frame.width <= 0.0 || view->frame.height <= 0.0) {
     const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
     if (!defaultSize.width || !defaultSize.height) {
       return PUGL_BAD_CONFIGURATION;
     }
 
+    view->frame.width  = defaultSize.width;
+    view->frame.height = defaultSize.height;
+  }
+
+  // Center top-level windows if a position has not been set
+  if (!view->parent && !view->frame.x && !view->frame.y) {
     RECT desktopRect;
     GetClientRect(GetDesktopWindow(), &desktopRect);
 
     const int screenWidth  = desktopRect.right - desktopRect.left;
     const int screenHeight = desktopRect.bottom - desktopRect.top;
-
-    view->frame.width  = defaultSize.width;
-    view->frame.height = defaultSize.height;
 
     view->frame.x = (PuglCoord)((screenWidth - view->frame.width) / 2);
     view->frame.y = (PuglCoord)((screenHeight - view->frame.height) / 2);

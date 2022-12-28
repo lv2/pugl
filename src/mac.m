@@ -1058,17 +1058,21 @@ puglRealize(PuglView* view)
     CVDisplayLinkRelease(link);
   }
 
-  if (view->frame.width == 0.0 && view->frame.height == 0.0) {
+  // Set the size to the default if it has not already been set
+  if (view->frame.width <= 0.0 || view->frame.height <= 0.0) {
     const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
     if (!defaultSize.width || !defaultSize.height) {
       return PUGL_BAD_CONFIGURATION;
     }
 
-    const double screenWidthPx  = [screen frame].size.width * scaleFactor;
-    const double screenHeightPx = [screen frame].size.height * scaleFactor;
-
     view->frame.width  = defaultSize.width;
     view->frame.height = defaultSize.height;
+  }
+
+  // Center top-level windows if a position has not been set
+  if (!view->parent && !view->frame.x && !view->frame.y) {
+    const double screenWidthPx  = [screen frame].size.width * scaleFactor;
+    const double screenHeightPx = [screen frame].size.height * scaleFactor;
 
     view->frame.x = (PuglCoord)((screenWidthPx - view->frame.width) / 2.0);
     view->frame.y = (PuglCoord)((screenHeightPx - view->frame.height) / 2.0);
