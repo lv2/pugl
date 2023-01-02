@@ -22,6 +22,11 @@ PUGL_BEGIN_DECLS
 */
 
 /**
+   @defgroup geometry_types Geometry Types
+   @{
+*/
+
+/**
    A pixel coordinate within/of a view.
 
    This is relative to the top left corner of the view's parent, or to the top
@@ -59,88 +64,15 @@ typedef struct {
 } PuglRect;
 
 /**
+   @}
    @defgroup events Events
 
    All updates to the view happen via events, which are dispatched to the
-   view's event function.  Most events map directly to one from the underlying
-   window system, but some are constructed by Pugl itself so there is not
-   necessarily a direct correspondence.
+   view's event function.  An event is a tagged union with a type, and a set of
+   more specific fields depending on the type.
 
    @{
 */
-
-/// Keyboard modifier flags
-typedef enum {
-  PUGL_MOD_SHIFT = 1U << 0U, ///< Shift key
-  PUGL_MOD_CTRL  = 1U << 1U, ///< Control key
-  PUGL_MOD_ALT   = 1U << 2U, ///< Alt/Option key
-  PUGL_MOD_SUPER = 1U << 3U  ///< Mod4/Command/Windows key
-} PuglMod;
-
-/// Bitwise OR of #PuglMod values
-typedef uint32_t PuglMods;
-
-/**
-   Keyboard key codepoints.
-
-   All keys are identified by a Unicode code point in PuglKeyEvent::key.  This
-   enumeration defines constants for special keys that do not have a standard
-   code point, and some convenience constants for control characters.  Note
-   that all keys are handled in the same way, this enumeration is just for
-   convenience when writing hard-coded key bindings.
-
-   Keys that do not have a standard code point use values in the Private Use
-   Area in the Basic Multilingual Plane (`U+E000` to `U+F8FF`).  Applications
-   must take care to not interpret these values beyond key detection, the
-   mapping used here is arbitrary and specific to Pugl.
-*/
-typedef enum {
-  // ASCII control codes
-  PUGL_KEY_BACKSPACE = 0x08,
-  PUGL_KEY_ESCAPE    = 0x1B,
-  PUGL_KEY_DELETE    = 0x7F,
-
-  // Unicode Private Use Area
-  PUGL_KEY_F1 = 0xE000,
-  PUGL_KEY_F2,
-  PUGL_KEY_F3,
-  PUGL_KEY_F4,
-  PUGL_KEY_F5,
-  PUGL_KEY_F6,
-  PUGL_KEY_F7,
-  PUGL_KEY_F8,
-  PUGL_KEY_F9,
-  PUGL_KEY_F10,
-  PUGL_KEY_F11,
-  PUGL_KEY_F12,
-  PUGL_KEY_LEFT,
-  PUGL_KEY_UP,
-  PUGL_KEY_RIGHT,
-  PUGL_KEY_DOWN,
-  PUGL_KEY_PAGE_UP,
-  PUGL_KEY_PAGE_DOWN,
-  PUGL_KEY_HOME,
-  PUGL_KEY_END,
-  PUGL_KEY_INSERT,
-  PUGL_KEY_SHIFT,
-  PUGL_KEY_SHIFT_L = PUGL_KEY_SHIFT,
-  PUGL_KEY_SHIFT_R,
-  PUGL_KEY_CTRL,
-  PUGL_KEY_CTRL_L = PUGL_KEY_CTRL,
-  PUGL_KEY_CTRL_R,
-  PUGL_KEY_ALT,
-  PUGL_KEY_ALT_L = PUGL_KEY_ALT,
-  PUGL_KEY_ALT_R,
-  PUGL_KEY_SUPER,
-  PUGL_KEY_SUPER_L = PUGL_KEY_SUPER,
-  PUGL_KEY_SUPER_R,
-  PUGL_KEY_MENU,
-  PUGL_KEY_CAPS_LOCK,
-  PUGL_KEY_SCROLL_LOCK,
-  PUGL_KEY_NUM_LOCK,
-  PUGL_KEY_PRINT_SCREEN,
-  PUGL_KEY_PAUSE
-} PuglKey;
 
 /// The type of a PuglEvent
 typedef enum {
@@ -188,27 +120,16 @@ typedef enum {
   PUGL_CROSSING_UNGRAB  ///< Crossing due to a grab release
 } PuglCrossingMode;
 
-/**
-   Scroll direction.
-
-   Describes the direction of a #PuglScrollEvent along with whether the scroll
-   is a "smooth" scroll.  The discrete directions are for devices like mouse
-   wheels with constrained axes, while a smooth scroll is for those with
-   arbitrary scroll direction freedom, like some touchpads.
-*/
-typedef enum {
-  PUGL_SCROLL_UP,    ///< Scroll up
-  PUGL_SCROLL_DOWN,  ///< Scroll down
-  PUGL_SCROLL_LEFT,  ///< Scroll left
-  PUGL_SCROLL_RIGHT, ///< Scroll right
-  PUGL_SCROLL_SMOOTH ///< Smooth scroll in any direction
-} PuglScrollDirection;
-
 /// Common header for all event structs
 typedef struct {
   PuglEventType  type;  ///< Event type
   PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
 } PuglAnyEvent;
+
+/**
+   @defgroup management_events Management Events
+   @{
+*/
 
 /**
    View create event.
@@ -273,6 +194,54 @@ typedef PuglAnyEvent PuglMapEvent;
 typedef PuglAnyEvent PuglUnmapEvent;
 
 /**
+   Recursive loop enter event.
+
+   This event is sent when the window system enters a recursive loop.  The main
+   loop will be stalled and no expose events will be received while in the
+   recursive loop.  To give the application full control, Pugl does not do any
+   special handling of this situation, but this event can be used to install a
+   timer to perform continuous actions (such as drawing) on platforms that do
+   this.
+
+   - MacOS: A recursive loop is entered while the window is being live resized.
+
+   - Windows: A recursive loop is entered while the window is being live
+     resized or the menu is shown.
+
+   - X11: A recursive loop is never entered and the event loop runs as usual
+     while the view is being resized.
+
+   This event type has no extra fields.
+*/
+typedef PuglAnyEvent PuglLoopEnterEvent;
+
+/**
+   Recursive loop leave event.
+
+   This event is sent after a loop enter event when the recursive loop is
+   finished and normal iteration will continue.
+
+   This event type has no extra fields.
+*/
+typedef PuglAnyEvent PuglLoopLeaveEvent;
+
+/**
+   View close event.
+
+   This event is sent when the view is to be closed, for example when the user
+   clicks the close button.
+
+   This event type has no extra fields.
+*/
+typedef PuglAnyEvent PuglCloseEvent;
+
+/**
+   @}
+   @defgroup update_events Update Events
+   @{
+*/
+
+/**
    View update event.
 
    This event is sent to every view near the end of a main loop iteration when
@@ -300,14 +269,83 @@ typedef struct {
 } PuglExposeEvent;
 
 /**
-   View close event.
-
-   This event is sent when the view is to be closed, for example when the user
-   clicks the close button.
-
-   This event type has no extra fields.
+   @}
+   @defgroup keyboard_events Keyboard Events
+   @{
 */
-typedef PuglAnyEvent PuglCloseEvent;
+
+/**
+   Keyboard key codepoints.
+
+   All keys are identified by a Unicode code point in PuglKeyEvent::key.  This
+   enumeration defines constants for special keys that do not have a standard
+   code point, and some convenience constants for control characters.  Note
+   that all keys are handled in the same way, this enumeration is just for
+   convenience when writing hard-coded key bindings.
+
+   Keys that do not have a standard code point use values in the Private Use
+   Area in the Basic Multilingual Plane (`U+E000` to `U+F8FF`).  Applications
+   must take care to not interpret these values beyond key detection, the
+   mapping used here is arbitrary and specific to Pugl.
+*/
+typedef enum {
+  // ASCII control codes
+  PUGL_KEY_BACKSPACE = 0x08,
+  PUGL_KEY_ESCAPE    = 0x1B,
+  PUGL_KEY_DELETE    = 0x7F,
+
+  // Unicode Private Use Area
+  PUGL_KEY_F1 = 0xE000,
+  PUGL_KEY_F2,
+  PUGL_KEY_F3,
+  PUGL_KEY_F4,
+  PUGL_KEY_F5,
+  PUGL_KEY_F6,
+  PUGL_KEY_F7,
+  PUGL_KEY_F8,
+  PUGL_KEY_F9,
+  PUGL_KEY_F10,
+  PUGL_KEY_F11,
+  PUGL_KEY_F12,
+  PUGL_KEY_LEFT,
+  PUGL_KEY_UP,
+  PUGL_KEY_RIGHT,
+  PUGL_KEY_DOWN,
+  PUGL_KEY_PAGE_UP,
+  PUGL_KEY_PAGE_DOWN,
+  PUGL_KEY_HOME,
+  PUGL_KEY_END,
+  PUGL_KEY_INSERT,
+  PUGL_KEY_SHIFT,
+  PUGL_KEY_SHIFT_L = PUGL_KEY_SHIFT,
+  PUGL_KEY_SHIFT_R,
+  PUGL_KEY_CTRL,
+  PUGL_KEY_CTRL_L = PUGL_KEY_CTRL,
+  PUGL_KEY_CTRL_R,
+  PUGL_KEY_ALT,
+  PUGL_KEY_ALT_L = PUGL_KEY_ALT,
+  PUGL_KEY_ALT_R,
+  PUGL_KEY_SUPER,
+  PUGL_KEY_SUPER_L = PUGL_KEY_SUPER,
+  PUGL_KEY_SUPER_R,
+  PUGL_KEY_MENU,
+  PUGL_KEY_CAPS_LOCK,
+  PUGL_KEY_SCROLL_LOCK,
+  PUGL_KEY_NUM_LOCK,
+  PUGL_KEY_PRINT_SCREEN,
+  PUGL_KEY_PAUSE
+} PuglKey;
+
+/// Keyboard modifier flags
+typedef enum {
+  PUGL_MOD_SHIFT = 1U << 0U, ///< Shift key
+  PUGL_MOD_CTRL  = 1U << 1U, ///< Control key
+  PUGL_MOD_ALT   = 1U << 2U, ///< Alt/Option key
+  PUGL_MOD_SUPER = 1U << 3U  ///< Mod4/Command/Windows key
+} PuglMod;
+
+/// Bitwise OR of #PuglMod values
+typedef uint32_t PuglMods;
 
 /**
    Keyboard focus event.
@@ -375,6 +413,28 @@ typedef struct {
   uint32_t       character; ///< Unicode character code
   char           string[8]; ///< UTF-8 string
 } PuglTextEvent;
+
+/**
+   @}
+   @defgroup pointer_events Pointer Events
+   @{
+*/
+
+/**
+   Scroll direction.
+
+   Describes the direction of a #PuglScrollEvent along with whether the scroll
+   is a "smooth" scroll.  The discrete directions are for devices like mouse
+   wheels with constrained axes, while a smooth scroll is for those with
+   arbitrary scroll direction freedom, like some touchpads.
+*/
+typedef enum {
+  PUGL_SCROLL_UP,    ///< Scroll up
+  PUGL_SCROLL_DOWN,  ///< Scroll down
+  PUGL_SCROLL_LEFT,  ///< Scroll left
+  PUGL_SCROLL_RIGHT, ///< Scroll right
+  PUGL_SCROLL_SMOOTH ///< Smooth scroll in any direction
+} PuglScrollDirection;
 
 /**
    Pointer enter or leave event.
@@ -463,6 +523,12 @@ typedef struct {
 } PuglScrollEvent;
 
 /**
+   @}
+   @defgroup custom_events Custom Events
+   @{
+*/
+
+/**
    Custom client message event.
 
    This can be used to send a custom message to a view, which is delivered via
@@ -493,6 +559,12 @@ typedef struct {
 } PuglTimerEvent;
 
 /**
+   @}
+   @defgroup clipboard_events Clipboard Events
+   @{
+*/
+
+/**
    Clipboard data offer event.
 
    This event is sent when a clipboard has data present, possibly with several
@@ -521,36 +593,8 @@ typedef struct {
 } PuglDataEvent;
 
 /**
-   Recursive loop enter event.
-
-   This event is sent when the window system enters a recursive loop.  The main
-   loop will be stalled and no expose events will be received while in the
-   recursive loop.  To give the application full control, Pugl does not do any
-   special handling of this situation, but this event can be used to install a
-   timer to perform continuous actions (such as drawing) on platforms that do
-   this.
-
-   - MacOS: A recursive loop is entered while the window is being live resized.
-
-   - Windows: A recursive loop is entered while the window is being live
-     resized or the menu is shown.
-
-   - X11: A recursive loop is never entered and the event loop runs as usual
-     while the view is being resized.
-
-   This event type has no extra fields.
+   @}
 */
-typedef PuglAnyEvent PuglLoopEnterEvent;
-
-/**
-   Recursive loop leave event.
-
-   This event is sent after a loop enter event when the recursive loop is
-   finished and normal iteration will continue.
-
-   This event type has no extra fields.
-*/
-typedef PuglAnyEvent PuglLoopLeaveEvent;
 
 /**
    View event.
