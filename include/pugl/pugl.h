@@ -4,57 +4,13 @@
 #ifndef PUGL_PUGL_H
 #define PUGL_PUGL_H
 
+#include "pugl/attributes.h"
+
 #include <stddef.h>
 #include <stdint.h>
 
 #ifndef __cplusplus
 #  include <stdbool.h>
-#endif
-
-#ifndef PUGL_API
-#  if defined(_WIN32) && !defined(PUGL_STATIC) && defined(PUGL_INTERNAL)
-#    define PUGL_API __declspec(dllexport)
-#  elif defined(_WIN32) && !defined(PUGL_STATIC)
-#    define PUGL_API __declspec(dllimport)
-#  elif defined(__GNUC__)
-#    define PUGL_API __attribute__((visibility("default")))
-#  else
-#    define PUGL_API
-#  endif
-#endif
-
-#ifndef PUGL_DISABLE_DEPRECATED
-#  if defined(__clang__)
-#    define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("", rep)))
-#  elif defined(__GNUC__)
-#    define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("Use " rep)))
-#  else
-#    define PUGL_DEPRECATED_BY(rep)
-#  endif
-#endif
-
-#if defined(__GNUC__)
-#  define PUGL_CONST_FUNC __attribute__((const))
-#  define PUGL_MALLOC_FUNC __attribute__((malloc))
-#else
-#  define PUGL_CONST_FUNC
-#  define PUGL_MALLOC_FUNC
-#endif
-
-#define PUGL_CONST_API \
-  PUGL_API             \
-  PUGL_CONST_FUNC
-
-#define PUGL_MALLOC_API \
-  PUGL_API              \
-  PUGL_MALLOC_FUNC
-
-#ifdef __cplusplus
-#  define PUGL_BEGIN_DECLS extern "C" {
-#  define PUGL_END_DECLS }
-#else
-#  define PUGL_BEGIN_DECLS
-#  define PUGL_END_DECLS
 #endif
 
 PUGL_BEGIN_DECLS
