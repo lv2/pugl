@@ -251,12 +251,10 @@ selectPresentMode(const sk::VulkanApi&      vk,
     },
     {
       // Double buffer, no sync
-      {
-        VK_PRESENT_MODE_MAILBOX_KHR,
-        VK_PRESENT_MODE_IMMEDIATE_KHR,
-        VK_PRESENT_MODE_FIFO_RELAXED_KHR,
-        VK_PRESENT_MODE_FIFO_KHR,
-      },
+      {VK_PRESENT_MODE_MAILBOX_KHR,
+       VK_PRESENT_MODE_IMMEDIATE_KHR,
+       VK_PRESENT_MODE_FIFO_RELAXED_KHR,
+       VK_PRESENT_MODE_FIFO_KHR},
 
       // Double buffer, sync
       {VK_PRESENT_MODE_FIFO_KHR,
