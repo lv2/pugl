@@ -11,6 +11,7 @@
 #include <cairo-xlib.h>
 #include <cairo.h>
 
+#include <math.h>
 #include <stdlib.h>
 
 typedef struct {
@@ -31,22 +32,20 @@ puglX11CairoClose(PuglView* view)
 }
 
 static PuglStatus
-puglX11CairoOpen(PuglView* view)
+puglX11CairoOpen(PuglView*    view,
+                 const double expose_width,
+                 const double expose_height)
 {
   PuglInternals* const       impl    = view->impl;
   PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
+  const int                  width   = (int)ceil(expose_width);
+  const int                  height  = (int)ceil(expose_height);
 
-  surface->back = cairo_xlib_surface_create(view->world->impl->display,
-                                            impl->win,
-                                            impl->vi->visual,
-                                            (int)view->frame.width,
-                                            (int)view->frame.height);
+  surface->back = cairo_xlib_surface_create(
+    view->world->impl->display, impl->win, impl->vi->visual, width, height);
 
-  surface->front =
-    cairo_surface_create_similar(surface->back,
-                                 cairo_surface_get_content(surface->back),
-                                 (int)view->frame.width,
-                                 (int)view->frame.height);
+  surface->front = cairo_surface_create_similar(
+    surface->back, cairo_surface_get_content(surface->back), width, height);
 
   if (cairo_surface_status(surface->back) ||
       cairo_surface_status(surface->front)) {
@@ -84,7 +83,7 @@ puglX11CairoEnter(PuglView* view, const PuglExposeEvent* expose)
   PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
   PuglStatus                 st      = PUGL_SUCCESS;
 
-  if (expose && !(st = puglX11CairoOpen(view))) {
+  if (expose && !(st = puglX11CairoOpen(view, expose->width, expose->height))) {
     surface->cr = cairo_create(surface->front);
     st = cairo_status(surface->cr) ? PUGL_CREATE_CONTEXT_FAILED : PUGL_SUCCESS;
   }
