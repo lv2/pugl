@@ -754,6 +754,23 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
 }
 
 static PuglEvent
+getCurrentConfiguration(PuglView* const view)
+{
+  // Get initial window position and size
+  XWindowAttributes attrs;
+  XGetWindowAttributes(view->world->impl->display, view->impl->win, &attrs);
+
+  // Build a configure event with the current position and size
+  PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
+  configureEvent.configure.x      = (PuglCoord)attrs.x;
+  configureEvent.configure.y      = (PuglCoord)attrs.y;
+  configureEvent.configure.width  = (PuglSpan)attrs.width;
+  configureEvent.configure.height = (PuglSpan)attrs.height;
+
+  return configureEvent;
+}
+
+static PuglEvent
 translatePropertyNotify(PuglView* const view, XPropertyEvent message)
 {
   const PuglX11Atoms* const atoms = &view->world->impl->atoms;
@@ -1362,17 +1379,7 @@ handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 static PuglStatus
 dispatchCurrentConfiguration(PuglView* const view)
 {
-  // Get initial window position and size
-  XWindowAttributes attrs;
-  XGetWindowAttributes(view->world->impl->display, view->impl->win, &attrs);
-
-  // Build an initial configure event in case the WM doesn't send one
-  PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
-  configureEvent.configure.x      = (PuglCoord)attrs.x;
-  configureEvent.configure.y      = (PuglCoord)attrs.y;
-  configureEvent.configure.width  = (PuglSpan)attrs.width;
-  configureEvent.configure.height = (PuglSpan)attrs.height;
-
+  const PuglEvent configureEvent = getCurrentConfiguration(view);
   return puglDispatchEvent(view, &configureEvent);
 }
 
