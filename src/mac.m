@@ -829,11 +829,6 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   [super viewWillDraw];
 }
 
-- (void)resizeTick
-{
-  puglPostRedisplay(puglview);
-}
-
 - (void)timerTick:(NSTimer*)userTimer
 {
   const NSNumber*      userInfo = userTimer.userInfo;
