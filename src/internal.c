@@ -109,6 +109,11 @@ puglPreRealize(PuglView* const view)
     return PUGL_BAD_BACKEND;
   }
 
+  // Ensure that the view has an event handler
+  if (!view->eventFunc) {
+    return PUGL_BAD_CONFIGURATION;
+  }
+
   // Set the size to the default if it hasn't already been set
   if (!isValidSize(view->frame.width, view->frame.height)) {
     const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
