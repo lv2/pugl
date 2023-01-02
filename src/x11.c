@@ -66,10 +66,8 @@ enum WmClientStateMessageAction {
   WM_STATE_TOGGLE
 };
 
-#define NUM_CURSORS ((unsigned)PUGL_CURSOR_UP_RIGHT_DOWN_LEFT + 1U)
-
 #ifdef HAVE_XCURSOR
-static const char* const cursor_names[NUM_CURSORS] = {
+static const char* const cursor_names[PUGL_NUM_CURSORS] = {
   "default",           // ARROW
   "text",              // CARET
   "crosshair",         // CROSSHAIR
