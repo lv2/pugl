@@ -95,6 +95,34 @@ puglDecodeUTF8(const uint8_t* buf)
   return 0xFFFD;
 }
 
+static inline bool
+isValidSize(const double width, const double height)
+{
+  return width > 0.0 && height > 0.0;
+}
+
+PuglStatus
+puglPreRealize(PuglView* const view)
+{
+  // Ensure that a backend with at least a configure method has been set
+  if (!view->backend || !view->backend->configure) {
+    return PUGL_BAD_BACKEND;
+  }
+
+  // Set the size to the default if it hasn't already been set
+  if (!isValidSize(view->frame.width, view->frame.height)) {
+    const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
+    if (!isValidSize(defaultSize.width, defaultSize.height)) {
+      return PUGL_BAD_CONFIGURATION;
+    }
+
+    view->frame.width  = defaultSize.width;
+    view->frame.height = defaultSize.height;
+  }
+
+  return PUGL_SUCCESS;
+}
+
 PuglStatus
 puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 {

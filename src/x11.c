@@ -357,24 +357,14 @@ puglRealize(PuglView* const view)
   XSetWindowAttributes attr    = PUGL_INIT_STRUCT;
   PuglStatus           st      = PUGL_SUCCESS;
 
-  // Ensure that we're unrealized and that a reasonable backend has been set
+  // Ensure that we're unrealized
   if (impl->win) {
     return PUGL_FAILURE;
   }
 
-  if (!view->backend || !view->backend->configure) {
-    return PUGL_BAD_BACKEND;
-  }
-
-  // Set the size to the default if it has not already been set
-  if (view->frame.width <= 0.0 || view->frame.height <= 0.0) {
-    const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
-    if (!defaultSize.width || !defaultSize.height) {
-      return PUGL_BAD_CONFIGURATION;
-    }
-
-    view->frame.width  = defaultSize.width;
-    view->frame.height = defaultSize.height;
+  // Check that the basic required configuration has been done
+  if ((st = puglPreRealize(view))) {
+    return st;
   }
 
   // Center top-level windows if a position has not been set

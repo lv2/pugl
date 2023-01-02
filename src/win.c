@@ -213,8 +213,16 @@ PuglStatus
 puglRealize(PuglView* view)
 {
   PuglInternals* impl = view->impl;
+  PuglStatus     st   = PUGL_SUCCESS;
+
+  // Ensure that we're unrealized
   if (impl->hwnd) {
     return PUGL_FAILURE;
+  }
+
+  // Check that the basic required configuration has been done
+  if ((st = puglPreRealize(view))) {
+    return st;
   }
 
   // Getting depth from the display mode seems tedious, just set usual values
@@ -242,11 +250,6 @@ puglRealize(PuglView* view)
     return PUGL_REGISTRATION_FAILED;
   }
 
-  if (!view->backend || !view->backend->configure) {
-    return PUGL_BAD_BACKEND;
-  }
-
-  PuglStatus st = PUGL_SUCCESS;
   if ((st = view->backend->configure(view)) ||
       (st = view->backend->create(view))) {
     return st;
@@ -1371,17 +1374,6 @@ puglWinCreateWindow(PuglView* const   view,
   const char*    className  = (const char*)view->world->className;
   const unsigned winFlags   = puglWinGetWindowFlags(view);
   const unsigned winExFlags = puglWinGetWindowExFlags(view);
-
-  // Set the size to the default if it has not already been set
-  if (view->frame.width <= 0.0 || view->frame.height <= 0.0) {
-    const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
-    if (!defaultSize.width || !defaultSize.height) {
-      return PUGL_BAD_CONFIGURATION;
-    }
-
-    view->frame.width  = defaultSize.width;
-    view->frame.height = defaultSize.height;
-  }
 
   // Center top-level windows if a position has not been set
   if (!view->parent && !view->frame.x && !view->frame.y) {

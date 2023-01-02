@@ -28,6 +28,10 @@ puglSetString(char** dest, const char* string);
 uint32_t
 puglDecodeUTF8(const uint8_t* buf);
 
+/// Prepare a view to be realized by the platform implementation if possible
+PuglStatus
+puglPreRealize(PuglView* view);
+
 /// Dispatch an event with a simple `type` to `view`
 PuglStatus
 puglDispatchSimpleEvent(PuglView* view, PuglEventType type);
