@@ -60,7 +60,7 @@ Configuring the Frame
 *********************
 
 Before display,
-the necessary :doc:`frame <api/frame>` and :doc:`window <api/window>` attributes should be set.
+the necessary :doc:`frame <api/puglpp_frame>` and :doc:`window <api/puglpp_window>` attributes should be set.
 These allow the window system (or plugin host) to arrange the view properly.
 
 Derived classes can configure themselves during construction,

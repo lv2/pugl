@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_CAIRO_HPP
@@ -10,7 +10,7 @@
 namespace pugl {
 
 /**
-   @defgroup cairopp Cairo
+   @defgroup puglpp_cairo Cairo
    Cairo graphics support.
    @ingroup puglpp
    @{

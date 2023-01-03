@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_STUB_HPP
@@ -10,7 +10,7 @@
 namespace pugl {
 
 /**
-   @defgroup stubpp Stub
+   @defgroup puglpp_stub Stub
    Stub graphics support.
    @ingroup puglpp
    @{

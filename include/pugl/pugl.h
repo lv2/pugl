@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_PUGL_H
@@ -22,7 +22,7 @@ PUGL_BEGIN_DECLS
 */
 
 /**
-   @defgroup geometry_types Geometry Types
+   @defgroup pugl_geometry_types Geometry Types
    @{
 */
 
@@ -65,7 +65,7 @@ typedef struct {
 
 /**
    @}
-   @defgroup events Events
+   @defgroup pugl_events Events
 
    All updates to the view happen via events, which are dispatched to the
    view's event function.  An event is a tagged union with a type, and a set of
@@ -127,7 +127,7 @@ typedef struct {
 } PuglAnyEvent;
 
 /**
-   @defgroup management_events Management Events
+   @defgroup pugl_management_events Management Events
    @{
 */
 
@@ -237,7 +237,7 @@ typedef PuglAnyEvent PuglCloseEvent;
 
 /**
    @}
-   @defgroup update_events Update Events
+   @defgroup pugl_update_events Update Events
    @{
 */
 
@@ -270,7 +270,7 @@ typedef struct {
 
 /**
    @}
-   @defgroup keyboard_events Keyboard Events
+   @defgroup pugl_keyboard_events Keyboard Events
    @{
 */
 
@@ -416,7 +416,7 @@ typedef struct {
 
 /**
    @}
-   @defgroup pointer_events Pointer Events
+   @defgroup pugl_pointer_events Pointer Events
    @{
 */
 
@@ -524,7 +524,7 @@ typedef struct {
 
 /**
    @}
-   @defgroup custom_events Custom Events
+   @defgroup pugl_custom_events Custom Events
    @{
 */
 
@@ -560,7 +560,7 @@ typedef struct {
 
 /**
    @}
-   @defgroup clipboard_events Clipboard Events
+   @defgroup pugl_clipboard_events Clipboard Events
    @{
 */
 
@@ -627,7 +627,7 @@ typedef union {
 
 /**
    @}
-   @defgroup status Status
+   @defgroup pugl_status Status
 
    Most functions return a status code which can be used to check for errors.
 
@@ -658,7 +658,7 @@ puglStrerror(PuglStatus status);
 
 /**
    @}
-   @defgroup world World
+   @defgroup pugl_world World
 
    The top-level context of a Pugl application or plugin.
 
@@ -805,7 +805,7 @@ puglUpdate(PuglWorld* world, double timeout);
 
 /**
    @}
-   @defgroup view View
+   @defgroup pugl_view View
 
    A drawable region that receives events.
 
@@ -921,7 +921,7 @@ typedef enum {
 typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
 
 /**
-   @defgroup setup Setup
+   @defgroup pugl_setup Setup
    Functions for creating and destroying a view.
    @{
 */
@@ -1033,7 +1033,7 @@ puglGetScaleFactor(const PuglView* view);
 
 /**
    @}
-   @defgroup frame Frame
+   @defgroup pugl_frame Frame
    Functions for working with the position and size of a view.
    @{
 */
@@ -1100,7 +1100,7 @@ puglSetSizeHint(PuglView*    view,
 
 /**
    @}
-   @defgroup window Window
+   @defgroup pugl_window Window
    Functions to control the top-level window of a view.
    @{
 */
@@ -1204,7 +1204,7 @@ puglGetNativeView(PuglView* view);
 
 /**
    @}
-   @defgroup graphics Graphics
+   @defgroup pugl_graphics Graphics
    Functions for working with the graphics context and scheduling redisplays.
    @{
 */
@@ -1249,7 +1249,7 @@ puglPostRedisplayRect(PuglView* view, PuglRect rect);
 
 /**
    @}
-   @defgroup interaction Interaction
+   @defgroup pugl_interaction Interaction
    Functions for interacting with the user and window system.
    @{
 */
@@ -1474,7 +1474,7 @@ puglSendEvent(PuglView* view, const PuglEvent* event);
 
 /**
    @}
-   @defgroup deprecated Deprecated API
+   @defgroup pugl_deprecated Deprecated API
    @{
 */
 

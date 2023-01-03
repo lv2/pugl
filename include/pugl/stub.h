@@ -1,4 +1,4 @@
-// Copyright 2019-2020 David Robillard <d@drobilla.net>
+// Copyright 2019-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_STUB_H
@@ -9,7 +9,7 @@
 PUGL_BEGIN_DECLS
 
 /**
-   @defgroup stub Stub
+   @defgroup pugl_stub Stub
    Native graphics support.
    @ingroup pugl
    @{

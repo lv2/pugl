@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_CAIRO_H
@@ -9,7 +9,7 @@
 PUGL_BEGIN_DECLS
 
 /**
-   @defgroup cairo Cairo
+   @defgroup pugl_cairo Cairo
    Cairo graphics support.
    @ingroup pugl
    @{

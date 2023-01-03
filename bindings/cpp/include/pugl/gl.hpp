@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_GL_HPP
@@ -11,7 +11,7 @@
 namespace pugl {
 
 /**
-   @defgroup glpp OpenGL
+   @defgroup puglpp_gl OpenGL
    OpenGL graphics support.
    @ingroup puglpp
    @{

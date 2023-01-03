@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_GL_H
@@ -38,7 +38,7 @@
 PUGL_BEGIN_DECLS
 
 /**
-   @defgroup gl OpenGL
+   @defgroup pugl_gl OpenGL
    OpenGL graphics support.
    @ingroup pugl
    @{

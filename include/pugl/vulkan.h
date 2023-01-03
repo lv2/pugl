@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 /*
@@ -19,7 +19,7 @@
 PUGL_BEGIN_DECLS
 
 /**
-   @defgroup vulkan Vulkan
+   @defgroup pugl_vulkan Vulkan
    Vulkan graphics support.
 
    Vulkan support differs from OpenGL because almost all most configuration is

@@ -22,7 +22,7 @@ Configuring the Frame
 *********************
 
 Before display,
-the necessary :doc:`frame <api/frame>` and :doc:`window <api/window>` attributes should be set.
+the necessary :doc:`frame <api/pugl_frame>` and :doc:`window <api/pugl_window>` attributes should be set.
 These allow the window system (or plugin host) to arrange the view properly.
 For example:
 
@@ -114,7 +114,7 @@ Before being realized, the view must have a backend set with :func:`puglSetBacke
 
 The backend manages the graphics API that will be used for drawing.
 Pugl includes backends and supporting API for
-:doc:`Cairo <api/cairo>`, :doc:`OpenGL <api/gl>`, and :doc:`Vulkan <api/vulkan>`.
+:doc:`Cairo <api/pugl_cairo>`, :doc:`OpenGL <api/pugl_gl>`, and :doc:`Vulkan <api/pugl_vulkan>`.
 
 Using Cairo
 ===========

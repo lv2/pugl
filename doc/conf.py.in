@@ -1,7 +1,7 @@
 # Project information
 
 project = "Pugl"
-copyright = "2020, David Robillard"
+copyright = "2023, David Robillard"
 author = "David Robillard"
 release = "@PUGL_VERSION@"
 

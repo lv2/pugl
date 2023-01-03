@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_PUGL_HPP
@@ -69,7 +69,7 @@ private:
 using Rect = PuglRect; ///< @copydoc PuglRect
 
 /**
-   @defgroup eventspp Events
+   @defgroup puglpp_events Events
    @{
 */
 
@@ -185,7 +185,7 @@ using DataEvent = Event<PUGL_DATA, PuglDataEvent>;
 
 /**
    @}
-   @defgroup statuspp Status
+   @defgroup puglpp_status Status
    @{
 */
 
@@ -216,7 +216,7 @@ strerror(const Status status) noexcept
 
 /**
    @}
-   @defgroup worldpp World
+   @defgroup puglpp_world World
    @{
 */
 
@@ -328,7 +328,7 @@ public:
 
 /**
    @}
-   @defgroup viewpp View
+   @defgroup puglpp_view View
    @{
 */
 
