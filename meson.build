@@ -1,8 +1,8 @@
-# Copyright 2021-2022 David Robillard <d@drobilla.net>
+# Copyright 2021-2023 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 project('pugl', ['c'],
-        version: '0.4.0',
+        version: '0.5.0',
         license: 'ISC',
         meson_version: '>= 0.54.0',
         default_options: [

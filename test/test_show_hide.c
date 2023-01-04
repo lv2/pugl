@@ -1,4 +1,4 @@
-// Copyright 2020 David Robillard <d@drobilla.net>
+// Copyright 2020-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 /*
@@ -88,6 +88,24 @@ tick(PuglWorld* world)
 #endif
 }
 
+static void
+showHide(PuglTest* const test)
+{
+  // Show and hide window a couple of times
+  for (unsigned i = 0U; i < 2U; ++i) {
+    assert(!puglShow(test->view));
+    while (test->state != EXPOSED) {
+      tick(test->world);
+    }
+
+    assert(puglGetVisible(test->view));
+    assert(!puglHide(test->view));
+    while (test->state != UNMAPPED) {
+      tick(test->world);
+    }
+  }
+}
+
 int
 main(int argc, char** argv)
 {
@@ -113,21 +131,20 @@ main(int argc, char** argv)
   }
 
   // Show and hide window a couple of times
-  for (unsigned i = 0U; i < 2U; ++i) {
-    assert(!puglShow(test.view));
-    while (test.state != EXPOSED) {
-      tick(test.world);
-    }
+  showHide(&test);
 
-    assert(puglGetVisible(test.view));
-    assert(!puglHide(test.view));
-    while (test.state != UNMAPPED) {
-      tick(test.world);
-    }
-  }
+  // Unrealize view
+  assert(!puglGetVisible(test.view));
+  assert(!puglUnrealize(test.view));
+  assert(test.state == DESTROYED);
+
+  // Realize and show again
+  test.state = START;
+  assert(!puglRealize(test.view));
+  showHide(&test);
+  assert(!puglUnrealize(test.view));
 
   // Tear down
-  assert(!puglGetVisible(test.view));
   puglFreeView(test.view);
   assert(test.state == DESTROYED);
   puglFreeWorld(test.world);

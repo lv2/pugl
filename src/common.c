@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // Common implementations of public API functions in the core library
@@ -136,10 +136,6 @@ puglNewView(PuglWorld* const world)
 void
 puglFreeView(PuglView* view)
 {
-  if (view->eventFunc && view->backend) {
-    puglDispatchSimpleEvent(view, PUGL_DESTROY);
-  }
-
   // Remove from world view list
   PuglWorld* world = view->world;
   for (size_t i = 0; i < world->numViews; ++i) {

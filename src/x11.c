@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // Copyright 2013 Robin Gareus <robin@gareus.org>
 // Copyright 2011-2012 Ben Loftis, Harrison Consoles
 // SPDX-License-Identifier: ISC
@@ -344,6 +344,21 @@ defineCursorName(PuglView* const view, const char* const name)
 }
 #endif
 
+static void
+clearX11Clipboard(PuglX11Clipboard* const board)
+{
+  for (unsigned long i = 0; i < board->numFormats; ++i) {
+    free(board->formatStrings[i]);
+    board->formatStrings[i] = NULL;
+  }
+
+  board->source              = None;
+  board->numFormats          = 0;
+  board->acceptedFormatIndex = UINT32_MAX;
+  board->acceptedFormat      = None;
+  board->data.len            = 0;
+}
+
 PuglStatus
 puglRealize(PuglView* const view)
 {
@@ -474,6 +489,40 @@ puglRealize(PuglView* const view)
 }
 
 PuglStatus
+puglUnrealize(PuglView* const view)
+{
+  PuglInternals* const impl = view->impl;
+  if (!impl || !impl->win) {
+    return PUGL_FAILURE;
+  }
+
+  puglDispatchSimpleEvent(view, PUGL_DESTROY);
+  clearX11Clipboard(&impl->clipboard);
+
+  if (impl->xic) {
+    XDestroyIC(impl->xic);
+    impl->xic = None;
+  }
+
+  if (view->backend) {
+    view->backend->destroy(view);
+  }
+
+  if (view->world->impl->display && impl->win) {
+    XDestroyWindow(view->world->impl->display, impl->win);
+    impl->win = None;
+  }
+
+  XFree(impl->vi);
+  impl->vi = NULL;
+
+  memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
+  memset(&view->impl->pendingConfigure, 0, sizeof(PuglEvent));
+  memset(&view->impl->pendingExpose, 0, sizeof(PuglEvent));
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglShow(PuglView* const view)
 {
   PuglStatus st = view->impl->win ? PUGL_SUCCESS : puglRealize(view);
@@ -491,21 +540,6 @@ puglHide(PuglView* const view)
 {
   XUnmapWindow(view->world->impl->display, view->impl->win);
   return PUGL_SUCCESS;
-}
-
-static void
-clearX11Clipboard(PuglX11Clipboard* const board)
-{
-  for (unsigned long i = 0; i < board->numFormats; ++i) {
-    free(board->formatStrings[i]);
-    board->formatStrings[i] = NULL;
-  }
-
-  board->source              = None;
-  board->numFormats          = 0;
-  board->acceptedFormatIndex = UINT32_MAX;
-  board->acceptedFormat      = None;
-  board->data.len            = 0;
 }
 
 void

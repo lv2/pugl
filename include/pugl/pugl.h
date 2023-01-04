@@ -1163,9 +1163,7 @@ puglGetTransientParent(const PuglView* view);
    Realize a view by creating a corresponding system view or window.
 
    After this call, the (initially invisible) underlying system view exists and
-   can be accessed with puglGetNativeView().  There is currently no
-   corresponding unrealize function, the system view will be destroyed along
-   with the view when puglFreeView() is called.
+   can be accessed with puglGetNativeView().
 
    The view should be fully configured using the above functions before this is
    called.  This function may only be called once per view.
@@ -1173,6 +1171,16 @@ puglGetTransientParent(const PuglView* view);
 PUGL_API
 PuglStatus
 puglRealize(PuglView* view);
+
+/**
+   Unrealize a view by destroying the corresponding system view or window.
+
+   This is the inverse of puglRealize().  After this call, the view no longer
+   corresponds to a real system view, and can be realized again later.
+*/
+PUGL_API
+PuglStatus
+puglUnrealize(PuglView* view);
 
 /**
    Show the view.

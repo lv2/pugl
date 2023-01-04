@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "win.h"
@@ -271,6 +271,30 @@ puglRealize(PuglView* view)
 
   puglDispatchSimpleEvent(view, PUGL_CREATE);
 
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglUnrealize(PuglView* const view)
+{
+  PuglInternals* const impl = view->impl;
+  if (!impl || !impl->hwnd) {
+    return PUGL_FAILURE;
+  }
+
+  puglDispatchSimpleEvent(view, PUGL_DESTROY);
+
+  if (view->backend) {
+    view->backend->destroy(view);
+  }
+
+  ReleaseDC(view->impl->hwnd, view->impl->hdc);
+  view->impl->hdc = NULL;
+
+  DestroyWindow(view->impl->hwnd);
+  view->impl->hwnd = NULL;
+
+  memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
   return PUGL_SUCCESS;
 }
 

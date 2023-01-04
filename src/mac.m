@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // Copyright 2017 Hanspeter Portner <dev@open-music-kontrollers.ch>
 // SPDX-License-Identifier: ISC
 
@@ -1167,6 +1167,43 @@ puglRealize(PuglView* view)
 
   puglDispatchSimpleEvent(view, PUGL_CREATE);
 
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglUnrealize(PuglView* const view)
+{
+  PuglInternals* const impl = view->impl;
+  if (!impl || !impl->wrapperView) {
+    return PUGL_FAILURE;
+  }
+
+  puglDispatchSimpleEvent(view, PUGL_DESTROY);
+
+  if (view->backend) {
+    view->backend->destroy(view);
+  }
+
+  if (impl->wrapperView) {
+    [impl->wrapperView removeFromSuperview];
+    impl->wrapperView->puglview = NULL;
+  }
+
+  if (impl->window) {
+    [impl->window close];
+  }
+
+  if (impl->wrapperView) {
+    [impl->wrapperView release];
+    impl->wrapperView = NULL;
+  }
+
+  if (impl->window) {
+    [impl->window release];
+    impl->window = NULL;
+  }
+
+  memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
   return PUGL_SUCCESS;
 }
 
