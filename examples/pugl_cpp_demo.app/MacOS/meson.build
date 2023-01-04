@@ -1,3 +1,6 @@
+# Copyright 2021-2022 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
 executable(
   'pugl_cpp_demo',
   '../../pugl_cpp_demo.cpp',
