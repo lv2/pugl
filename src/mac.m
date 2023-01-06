@@ -1186,7 +1186,6 @@ puglUnrealize(PuglView* const view)
 
   if (impl->wrapperView) {
     [impl->wrapperView removeFromSuperview];
-    impl->wrapperView->puglview = NULL;
   }
 
   if (impl->window) {
