@@ -139,6 +139,7 @@ if is_variable('objcc')
     '-Wno-poison-system-directories',
   ]
 
-  add_project_arguments(objcc.get_supported_arguments(objc_suppressions),
-                        language: ['objc'])
+  objc_suppressions = objcc.get_supported_arguments(objc_suppressions)
+  add_project_arguments(objc_suppressions, language: ['objc'])
+  add_project_arguments(objc_suppressions, language: ['objcpp'])
 endif

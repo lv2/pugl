@@ -34,7 +34,7 @@ endif
 
 # Enable Objective C support if we're building for MacOS
 if host_machine.system() == 'darwin'
-  add_languages(['objc'], native: false)
+  add_languages(['objc', 'objcpp'], native: false)
   objcc = meson.get_compiler('objc')
 endif
 
@@ -46,7 +46,7 @@ endif
 
 # Disable deprecated API which is not used by tests or examples
 add_project_arguments(['-DPUGL_DISABLE_DEPRECATED'],
-                      language: ['c', 'cpp', 'objc'])
+                      language: ['c', 'cpp', 'objc', 'objcpp'])
 
 #############
 # Platforms #
@@ -155,7 +155,10 @@ library_args = ['-DPUGL_INTERNAL']
 
 subdir('meson/library')
 if library_type == 'static_library'
-  add_project_arguments(['-DPUGL_STATIC'], language: ['c', 'cpp', 'objc'])
+  add_project_arguments(
+    ['-DPUGL_STATIC'],
+    language: ['c', 'cpp', 'objc', 'objcpp'],
+  )
 endif
 
 common_sources = files(

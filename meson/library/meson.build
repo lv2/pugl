@@ -21,5 +21,8 @@ elif get_option('default_library') == 'shared'
   library_type = 'shared_library'
 else
   library_type = 'static_library'
-  add_project_arguments(['-DPUGL_STATIC'], language: ['c', 'cpp', 'objc'])
+  add_project_arguments(
+    ['-DPUGL_STATIC'],
+    language: ['c', 'cpp', 'objc', 'objcpp'],
+  )
 endif
