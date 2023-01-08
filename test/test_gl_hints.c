@@ -55,6 +55,7 @@ main(void)
   assert(!puglSetViewHint(view, PUGL_ALPHA_BITS, PUGL_DONT_CARE));
   assert(!puglSetViewHint(view, PUGL_DEPTH_BITS, PUGL_DONT_CARE));
   assert(!puglSetViewHint(view, PUGL_STENCIL_BITS, PUGL_DONT_CARE));
+  assert(!puglSetViewHint(view, PUGL_SAMPLE_BUFFERS, PUGL_DONT_CARE));
   assert(!puglSetViewHint(view, PUGL_SAMPLES, PUGL_DONT_CARE));
   assert(!puglSetViewHint(view, PUGL_DOUBLE_BUFFER, PUGL_DONT_CARE));
   assert(!puglSetViewHint(view, PUGL_REFRESH_RATE, PUGL_DONT_CARE));
@@ -74,6 +75,7 @@ main(void)
   assert(puglGetViewHint(view, PUGL_ALPHA_BITS) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_DEPTH_BITS) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_STENCIL_BITS) != PUGL_DONT_CARE);
+  assert(puglGetViewHint(view, PUGL_SAMPLE_BUFFERS) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_SAMPLES) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_DOUBLE_BUFFER) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_SWAP_INTERVAL) != PUGL_DONT_CARE);

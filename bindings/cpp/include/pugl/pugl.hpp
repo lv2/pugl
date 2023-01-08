@@ -352,6 +352,7 @@ enum class ViewHint {
   alphaBits,           ///< @copydoc PUGL_ALPHA_BITS
   depthBits,           ///< @copydoc PUGL_DEPTH_BITS
   stencilBits,         ///< @copydoc PUGL_STENCIL_BITS
+  sampleBuffers,       ///< @copydoc PUGL_SAMPLE_BUFFERS
   samples,             ///< @copydoc PUGL_SAMPLES
   doubleBuffer,        ///< @copydoc PUGL_DOUBLE_BUFFER
   swapInterval,        ///< @copydoc PUGL_SWAP_INTERVAL

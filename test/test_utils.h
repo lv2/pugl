@@ -275,6 +275,8 @@ puglViewHintString(const PuglViewHint hint)
     return "Depth bits";
   case PUGL_STENCIL_BITS:
     return "Stencil bits";
+  case PUGL_SAMPLE_BUFFERS:
+    return "Sample buffers";
   case PUGL_SAMPLES:
     return "Samples";
   case PUGL_DOUBLE_BUFFER:

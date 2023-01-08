@@ -40,6 +40,9 @@
   if (puglview->hints[PUGL_SAMPLES] == PUGL_DONT_CARE) {
     puglview->hints[PUGL_SAMPLES] = 1;
   }
+  if (puglview->hints[PUGL_SAMPLE_BUFFERS] == PUGL_DONT_CARE) {
+    puglview->hints[PUGL_SAMPLE_BUFFERS] = puglview->hints[PUGL_SAMPLES] > 0;
+  }
   if (puglview->hints[PUGL_DOUBLE_BUFFER] == PUGL_DONT_CARE) {
     puglview->hints[PUGL_DOUBLE_BUFFER] = 1;
   }

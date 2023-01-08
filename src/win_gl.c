@@ -103,7 +103,10 @@ puglWinGlConfigure(PuglView* view)
     view->hints[PUGL_STENCIL_BITS] = 0;
   }
   if (view->hints[PUGL_SAMPLES] == PUGL_DONT_CARE) {
-    view->hints[PUGL_SAMPLES] = 1;
+    view->hints[PUGL_SAMPLES] = 0;
+  }
+  if (view->hints[PUGL_SAMPLE_BUFFERS] == PUGL_DONT_CARE) {
+    view->hints[PUGL_SAMPLE_BUFFERS] = view->hints[PUGL_SAMPLES] > 0;
   }
   if (view->hints[PUGL_DOUBLE_BUFFER] == PUGL_DONT_CARE) {
     view->hints[PUGL_DOUBLE_BUFFER] = 1;
@@ -119,7 +122,7 @@ puglWinGlConfigure(PuglView* view)
     WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
     WGL_DOUBLE_BUFFER_ARB,  view->hints[PUGL_DOUBLE_BUFFER],
     WGL_PIXEL_TYPE_ARB,     WGL_TYPE_RGBA_ARB,
-    WGL_SAMPLE_BUFFERS_ARB, view->hints[PUGL_SAMPLES] ? 1 : 0,
+    WGL_SAMPLE_BUFFERS_ARB, view->hints[PUGL_SAMPLE_BUFFERS],
     WGL_SAMPLES_ARB,        view->hints[PUGL_SAMPLES],
     WGL_RED_BITS_ARB,       view->hints[PUGL_RED_BITS],
     WGL_GREEN_BITS_ARB,     view->hints[PUGL_GREEN_BITS],

@@ -882,6 +882,7 @@ typedef enum {
   PUGL_ALPHA_BITS,            ///< Number of bits for alpha channel
   PUGL_DEPTH_BITS,            ///< Number of bits for depth buffer
   PUGL_STENCIL_BITS,          ///< Number of bits for stencil buffer
+  PUGL_SAMPLE_BUFFERS,        ///< Number of sample buffers (AA)
   PUGL_SAMPLES,               ///< Number of samples per pixel (AA)
   PUGL_DOUBLE_BUFFER,         ///< True if double buffering should be used
   PUGL_SWAP_INTERVAL,         ///< Number of frames between buffer swaps

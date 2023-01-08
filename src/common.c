@@ -101,6 +101,7 @@ puglSetDefaultHints(PuglHints hints)
   hints[PUGL_ALPHA_BITS]            = 8;
   hints[PUGL_DEPTH_BITS]            = 0;
   hints[PUGL_STENCIL_BITS]          = 0;
+  hints[PUGL_SAMPLE_BUFFERS]        = PUGL_DONT_CARE;
   hints[PUGL_SAMPLES]               = 0;
   hints[PUGL_DOUBLE_BUFFER]         = PUGL_TRUE;
   hints[PUGL_SWAP_INTERVAL]         = PUGL_DONT_CARE;

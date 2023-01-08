@@ -52,18 +52,19 @@ puglX11GlConfigure(PuglView* view)
 
   // clang-format off
   const int attrs[] = {
-    GLX_X_RENDERABLE,  True,
-    GLX_X_VISUAL_TYPE, GLX_TRUE_COLOR,
-    GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
-    GLX_RENDER_TYPE,   GLX_RGBA_BIT,
-    GLX_SAMPLES,       puglX11GlHintValue(view->hints[PUGL_SAMPLES]),
-    GLX_RED_SIZE,      puglX11GlHintValue(view->hints[PUGL_RED_BITS]),
-    GLX_GREEN_SIZE,    puglX11GlHintValue(view->hints[PUGL_GREEN_BITS]),
-    GLX_BLUE_SIZE,     puglX11GlHintValue(view->hints[PUGL_BLUE_BITS]),
-    GLX_ALPHA_SIZE,    puglX11GlHintValue(view->hints[PUGL_ALPHA_BITS]),
-    GLX_DEPTH_SIZE,    puglX11GlHintValue(view->hints[PUGL_DEPTH_BITS]),
-    GLX_STENCIL_SIZE,  puglX11GlHintValue(view->hints[PUGL_STENCIL_BITS]),
-    GLX_DOUBLEBUFFER,  puglX11GlHintValue(view->hints[PUGL_DOUBLE_BUFFER]),
+    GLX_X_RENDERABLE,   True,
+    GLX_X_VISUAL_TYPE,  GLX_TRUE_COLOR,
+    GLX_DRAWABLE_TYPE,  GLX_WINDOW_BIT,
+    GLX_RENDER_TYPE,    GLX_RGBA_BIT,
+    GLX_SAMPLE_BUFFERS, puglX11GlHintValue(view->hints[PUGL_SAMPLE_BUFFERS]),
+    GLX_SAMPLES,        puglX11GlHintValue(view->hints[PUGL_SAMPLES]),
+    GLX_RED_SIZE,       puglX11GlHintValue(view->hints[PUGL_RED_BITS]),
+    GLX_GREEN_SIZE,     puglX11GlHintValue(view->hints[PUGL_GREEN_BITS]),
+    GLX_BLUE_SIZE,      puglX11GlHintValue(view->hints[PUGL_BLUE_BITS]),
+    GLX_ALPHA_SIZE,     puglX11GlHintValue(view->hints[PUGL_ALPHA_BITS]),
+    GLX_DEPTH_SIZE,     puglX11GlHintValue(view->hints[PUGL_DEPTH_BITS]),
+    GLX_STENCIL_SIZE,   puglX11GlHintValue(view->hints[PUGL_STENCIL_BITS]),
+    GLX_DOUBLEBUFFER,   puglX11GlHintValue(view->hints[PUGL_DOUBLE_BUFFER]),
     None
   };
   // clang-format on
@@ -89,6 +90,8 @@ puglX11GlConfigure(PuglView* view)
     puglX11GlGetAttrib(display, fbc[0], GLX_DEPTH_SIZE);
   view->hints[PUGL_STENCIL_BITS] =
     puglX11GlGetAttrib(display, fbc[0], GLX_STENCIL_SIZE);
+  view->hints[PUGL_SAMPLE_BUFFERS] =
+    puglX11GlGetAttrib(display, fbc[0], GLX_SAMPLE_BUFFERS);
   view->hints[PUGL_SAMPLES] = puglX11GlGetAttrib(display, fbc[0], GLX_SAMPLES);
   view->hints[PUGL_DOUBLE_BUFFER] =
     puglX11GlGetAttrib(display, fbc[0], GLX_DOUBLEBUFFER);
