@@ -693,8 +693,6 @@ puglShow(PuglView* const view, const PuglShowCommand command)
       XMapWindow(view->world->impl->display, view->impl->win);
       break;
     case PUGL_SHOW_RAISE:
-      XMapRaised(view->world->impl->display, view->impl->win);
-      break;
     case PUGL_SHOW_FORCE_RAISE:
       XMapRaised(view->world->impl->display, view->impl->win);
       break;
