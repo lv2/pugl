@@ -92,6 +92,7 @@ static void
 puglSetDefaultHints(PuglHints hints)
 {
   hints[PUGL_USE_COMPAT_PROFILE]    = PUGL_TRUE;
+  hints[PUGL_USE_DEBUG_CONTEXT]     = PUGL_FALSE;
   hints[PUGL_CONTEXT_VERSION_MAJOR] = 2;
   hints[PUGL_CONTEXT_VERSION_MINOR] = 0;
   hints[PUGL_RED_BITS]              = 8;
