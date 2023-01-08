@@ -33,6 +33,14 @@ typedef struct {
   size_t len;  ///< Length of data in bytes
 } PuglBlob;
 
+/// Stage of a view along its lifespan
+typedef enum {
+  PUGL_VIEW_STAGE_ALLOCATED,
+  PUGL_VIEW_STAGE_CREATED,
+  PUGL_VIEW_STAGE_CONFIGURED,
+  PUGL_VIEW_STAGE_MAPPED,
+} PuglViewStage;
+
 /// Cross-platform view definition
 struct PuglViewImpl {
   PuglWorld*         world;
@@ -47,7 +55,7 @@ struct PuglViewImpl {
   PuglConfigureEvent lastConfigure;
   PuglHints          hints;
   PuglViewSize       sizeHints[PUGL_NUM_SIZE_HINTS];
-  bool               visible;
+  PuglViewStage      stage;
 };
 
 /// Cross-platform world definition

@@ -182,39 +182,60 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
   switch (event->type) {
   case PUGL_NOTHING:
     break;
+
   case PUGL_CREATE:
-  case PUGL_DESTROY:
+    assert(view->stage == PUGL_VIEW_STAGE_ALLOCATED);
     if (!(st0 = view->backend->enter(view, NULL))) {
       st0 = view->eventFunc(view, event);
       st1 = view->backend->leave(view, NULL);
     }
+    view->stage = PUGL_VIEW_STAGE_CREATED;
     break;
+
+  case PUGL_DESTROY:
+    assert(view->stage >= PUGL_VIEW_STAGE_CREATED);
+    if (!(st0 = view->backend->enter(view, NULL))) {
+      st0 = view->eventFunc(view, event);
+      st1 = view->backend->leave(view, NULL);
+    }
+    view->stage = PUGL_VIEW_STAGE_ALLOCATED;
+    break;
+
   case PUGL_CONFIGURE:
+    assert(view->stage >= PUGL_VIEW_STAGE_CREATED);
     if (puglMustConfigure(view, &event->configure)) {
       if (!(st0 = view->backend->enter(view, NULL))) {
         st0 = puglConfigure(view, event);
         st1 = view->backend->leave(view, NULL);
       }
     }
+    if (view->stage == PUGL_VIEW_STAGE_CREATED) {
+      view->stage = PUGL_VIEW_STAGE_CONFIGURED;
+    }
     break;
+
   case PUGL_MAP:
-    if (!view->visible) {
-      view->visible = true;
-      st0           = view->eventFunc(view, event);
+    assert(view->stage >= PUGL_VIEW_STAGE_CONFIGURED);
+    if (view->stage != PUGL_VIEW_STAGE_MAPPED) {
+      st0         = view->eventFunc(view, event);
+      view->stage = PUGL_VIEW_STAGE_MAPPED;
     }
     break;
+
   case PUGL_UNMAP:
-    if (view->visible) {
-      view->visible = false;
-      st0           = view->eventFunc(view, event);
-    }
+    assert(view->stage == PUGL_VIEW_STAGE_MAPPED);
+    st0         = view->eventFunc(view, event);
+    view->stage = PUGL_VIEW_STAGE_CONFIGURED;
     break;
+
   case PUGL_EXPOSE:
+    assert(view->stage == PUGL_VIEW_STAGE_MAPPED);
     if (!(st0 = view->backend->enter(view, &event->expose))) {
       st0 = puglExpose(view, event);
       st1 = view->backend->leave(view, &event->expose);
     }
     break;
+
   default:
     st0 = view->eventFunc(view, event);
   }

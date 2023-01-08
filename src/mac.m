@@ -213,7 +213,9 @@ updateViewRect(PuglView* view)
 
 - (void)setIsVisible:(BOOL)flag
 {
-  if (flag && !puglview->visible) {
+  [super setIsVisible:flag];
+
+  if (flag && puglview->stage < PUGL_VIEW_STAGE_MAPPED) {
     const PuglConfigureEvent ev = {
       PUGL_CONFIGURE,
       0,
@@ -227,13 +229,9 @@ updateViewRect(PuglView* view)
     configureEvent.configure = ev;
     puglDispatchEvent(puglview, &configureEvent);
     puglDispatchSimpleEvent(puglview, PUGL_MAP);
-  } else if (!flag && puglview->visible) {
+  } else if (!flag && puglview->stage == PUGL_VIEW_STAGE_MAPPED) {
     puglDispatchSimpleEvent(puglview, PUGL_UNMAP);
   }
-
-  puglview->visible = flag;
-
-  [super setIsVisible:flag];
 }
 
 @end

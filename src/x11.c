@@ -825,9 +825,9 @@ translatePropertyNotify(PuglView* const view, XPropertyEvent message)
       }
     }
 
-    if (hidden && view->visible) {
+    if (hidden && view->stage == PUGL_VIEW_STAGE_MAPPED) {
       event.type = PUGL_UNMAP;
-    } else if (!hidden && !view->visible) {
+    } else if (!hidden && view->stage == PUGL_VIEW_STAGE_CONFIGURED) {
       event.type = PUGL_MAP;
     }
 
@@ -1353,7 +1353,7 @@ flushExposures(PuglWorld* const world)
     PuglView* const view = world->views[i];
 
     // Send update event so the application can trigger redraws
-    if (view->visible) {
+    if (view->stage == PUGL_VIEW_STAGE_MAPPED) {
       puglDispatchSimpleEvent(view, PUGL_UPDATE);
     }
 
@@ -1568,7 +1568,7 @@ puglPostRedisplayRect(PuglView* const view, const PuglRect rect)
   if (view->world->impl->dispatchingEvents) {
     // Currently dispatching events, add/expand expose for the loop end
     mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
-  } else if (view->visible) {
+  } else if (view->stage == PUGL_VIEW_STAGE_MAPPED) {
     // Not dispatching events, send an X expose so we wake up next time
     PuglEvent exposeEvent = {{PUGL_EXPOSE, 0}};
     exposeEvent.expose    = event;

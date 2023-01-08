@@ -255,7 +255,7 @@ puglGetTransientParent(const PuglView* const view)
 bool
 puglGetVisible(const PuglView* view)
 {
-  return view->visible;
+  return view->stage == PUGL_VIEW_STAGE_MAPPED;
 }
 
 void*
