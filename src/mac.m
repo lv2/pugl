@@ -1347,6 +1347,11 @@ puglSendEvent(PuglView* view, const PuglEvent* event)
     return PUGL_SUCCESS;
   }
 
+  if (event->type == PUGL_CLOSE) {
+    [view->impl->window close];
+    return PUGL_SUCCESS;
+  }
+
   return PUGL_UNSUPPORTED;
 }
 

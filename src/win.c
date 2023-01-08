@@ -887,6 +887,11 @@ puglStopTimer(PuglView* view, uintptr_t id)
 PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event)
 {
+  if (event->type == PUGL_CLOSE) {
+    PostMessage(view->impl->hwnd, WM_CLOSE, 0, 0);
+    return PUGL_SUCCESS;
+  }
+
   if (event->type == PUGL_CLIENT) {
     PostMessage(view->impl->hwnd,
                 PUGL_LOCAL_CLIENT_MSG,

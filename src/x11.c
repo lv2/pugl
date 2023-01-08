@@ -161,6 +161,7 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
   impl->atoms.WM_PROTOCOLS     = XInternAtom(display, "WM_PROTOCOLS", 0);
   impl->atoms.WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", 0);
   impl->atoms.PUGL_CLIENT_MSG  = XInternAtom(display, "_PUGL_CLIENT_MSG", 0);
+  impl->atoms.NET_CLOSE_WINDOW = XInternAtom(display, "_NET_CLOSE_WINDOW", 0);
   impl->atoms.NET_WM_NAME      = XInternAtom(display, "_NET_WM_NAME", 0);
   impl->atoms.NET_WM_STATE     = XInternAtom(display, "_NET_WM_STATE", 0);
   impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION =
@@ -1162,13 +1163,34 @@ eventToX(PuglView* const view, const PuglEvent* const event)
 PuglStatus
 puglSendEvent(PuglView* const view, const PuglEvent* const event)
 {
-  XEvent xev = eventToX(view, event);
+  PuglInternals* const impl    = view->impl;
+  Display* const       display = view->world->impl->display;
+  XEvent               xev     = PUGL_INIT_STRUCT;
 
-  if (xev.type) {
-    return XSendEvent(
-             view->world->impl->display, view->impl->win, False, 0, &xev)
+  if (event->type == PUGL_CLOSE) {
+    xev.xclient.type         = ClientMessage;
+    xev.xclient.serial       = 0;
+    xev.xclient.send_event   = True;
+    xev.xclient.display      = display;
+    xev.xclient.window       = impl->win;
+    xev.xclient.message_type = view->world->impl->atoms.NET_CLOSE_WINDOW;
+    xev.xclient.format       = 32;
+    xev.xclient.data.l[0]    = CurrentTime;
+    xev.xclient.data.l[1]    = 1;
+
+    return XSendEvent(display,
+                      RootWindow(display, impl->screen),
+                      False,
+                      SubstructureNotifyMask | SubstructureRedirectMask,
+                      &xev)
              ? PUGL_SUCCESS
              : PUGL_UNKNOWN_ERROR;
+  }
+
+  xev = eventToX(view, event);
+  if (xev.type) {
+    return XSendEvent(display, impl->win, False, 0, &xev) ? PUGL_SUCCESS
+                                                          : PUGL_UNKNOWN_ERROR;
   }
 
   return PUGL_UNSUPPORTED;
