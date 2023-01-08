@@ -36,7 +36,7 @@ typedef struct {
 /// Stage of a view along its lifespan
 typedef enum {
   PUGL_VIEW_STAGE_ALLOCATED,
-  PUGL_VIEW_STAGE_CREATED,
+  PUGL_VIEW_STAGE_REALIZED,
   PUGL_VIEW_STAGE_CONFIGURED,
   PUGL_VIEW_STAGE_MAPPED,
 } PuglViewStage;

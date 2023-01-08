@@ -167,8 +167,8 @@ If you need to perform some setup using the OpenGL API,
 there are two ways to do so.
 
 The OpenGL context is active when
-:enumerator:`PUGL_CREATE <PuglEventType.PUGL_CREATE>` and
-:enumerator:`PUGL_DESTROY <PuglEventType.PUGL_DESTROY>`
+:enumerator:`PUGL_REALIZE <PuglEventType.PUGL_REALIZE>` and
+:enumerator:`PUGL_UNREALIZE <PuglEventType.PUGL_UNREALIZE>`
 events are dispatched,
 so things like creating and destroying shaders and textures can be done then.
 

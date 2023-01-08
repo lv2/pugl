@@ -131,10 +131,10 @@ onEvent(PuglView* view, const PuglEvent* event)
   printEvent(event, "Event: ", app->opts.verbose);
 
   switch (event->type) {
-  case PUGL_CREATE:
+  case PUGL_REALIZE:
     setupGl(app);
     break;
-  case PUGL_DESTROY:
+  case PUGL_UNREALIZE:
     teardownGl(app);
     break;
   case PUGL_CONFIGURE:
@@ -445,7 +445,7 @@ main(int argc, char** argv)
   // Create and configure world and view
   setupPugl(&app);
 
-  // Create window (which will send a PUGL_CREATE event)
+  // Realize window (which will send a PUGL_REALIZE event)
   const PuglStatus st = puglRealize(app.view);
   if (st) {
     return logError("Failed to create window (%s)\n", puglStrerror(st));
@@ -463,7 +463,7 @@ main(int argc, char** argv)
     puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
   }
 
-  // Destroy window (which will send a PUGL_DESTROY event)
+  // Destroy window (which will send a PUGL_UNREALIZE event)
   puglFreeView(app.view);
 
   // Free everything else

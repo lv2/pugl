@@ -24,9 +24,9 @@ For example, a basic event handler might look something like this:
      MyApp* app = (MyApp*)puglGetHandle(view);
 
      switch (event->type) {
-     case PUGL_CREATE:
+     case PUGL_REALIZE:
        return setupGraphics(app);
-     case PUGL_DESTROY:
+     case PUGL_UNREALIZE:
        return teardownGraphics(app);
      case PUGL_CONFIGURE:
        return resize(app, event->configure.width, event->configure.height);
@@ -69,8 +69,8 @@ OpenGL Context
 
 The OpenGL context is only active during the handling of these events:
 
-- :struct:`PuglCreateEvent`
-- :struct:`PuglDestroyEvent`
+- :struct:`PuglRealizeEvent`
+- :struct:`PuglUnrealizeEvent`
 - :struct:`PuglConfigureEvent`
 - :struct:`PuglExposeEvent`
 

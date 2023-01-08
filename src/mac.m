@@ -1163,9 +1163,7 @@ puglRealize(PuglView* view)
 
   [impl->wrapperView updateTrackingAreas];
 
-  puglDispatchSimpleEvent(view, PUGL_CREATE);
-
-  return PUGL_SUCCESS;
+  return puglDispatchSimpleEvent(view, PUGL_REALIZE);
 }
 
 PuglStatus
@@ -1176,7 +1174,7 @@ puglUnrealize(PuglView* const view)
     return PUGL_FAILURE;
   }
 
-  puglDispatchSimpleEvent(view, PUGL_DESTROY);
+  puglDispatchSimpleEvent(view, PUGL_UNREALIZE);
 
   if (view->backend) {
     view->backend->destroy(view);

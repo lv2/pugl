@@ -101,10 +101,10 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
   switch (event->type) {
   case PUGL_NOTHING:
     return 0;
-  case PUGL_CREATE:
-    return fprintf(stderr, "%sCreate\n", prefix);
-  case PUGL_DESTROY:
-    return fprintf(stderr, "%sDestroy\n", prefix);
+  case PUGL_REALIZE:
+    return fprintf(stderr, "%sRealize\n", prefix);
+  case PUGL_UNREALIZE:
+    return fprintf(stderr, "%sUnrealize\n", prefix);
   case PUGL_MAP:
     return fprintf(stderr, "%sMap\n", prefix);
   case PUGL_UNMAP:

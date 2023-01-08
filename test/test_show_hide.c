@@ -19,12 +19,12 @@
 
 typedef enum {
   START,
-  CREATED,
+  REALIZED,
   CONFIGURED,
   MAPPED,
   EXPOSED,
   UNMAPPED,
-  DESTROYED,
+  UNREALIZED,
 } State;
 
 typedef struct {
@@ -44,12 +44,12 @@ onEvent(PuglView* view, const PuglEvent* event)
   }
 
   switch (event->type) {
-  case PUGL_CREATE:
+  case PUGL_REALIZE:
     assert(test->state == START);
-    test->state = CREATED;
+    test->state = REALIZED;
     break;
   case PUGL_CONFIGURE:
-    if (test->state == CREATED) {
+    if (test->state == REALIZED) {
       test->state = CONFIGURED;
     }
     break;
@@ -65,9 +65,9 @@ onEvent(PuglView* view, const PuglEvent* event)
     assert(test->state == MAPPED || test->state == EXPOSED);
     test->state = UNMAPPED;
     break;
-  case PUGL_DESTROY:
+  case PUGL_UNREALIZE:
     assert(test->state == UNMAPPED);
-    test->state = DESTROYED;
+    test->state = UNREALIZED;
     break;
   default:
     break;
@@ -126,7 +126,7 @@ main(int argc, char** argv)
   // Create initially invisible window
   assert(!puglRealize(test.view));
   assert(!puglGetVisible(test.view));
-  while (test.state < CREATED) {
+  while (test.state < REALIZED) {
     tick(test.world);
   }
 
@@ -136,7 +136,7 @@ main(int argc, char** argv)
   // Unrealize view
   assert(!puglGetVisible(test.view));
   assert(!puglUnrealize(test.view));
-  assert(test.state == DESTROYED);
+  assert(test.state == UNREALIZED);
 
   // Realize and show again
   test.state = START;
@@ -146,7 +146,7 @@ main(int argc, char** argv)
 
   // Tear down
   puglFreeView(test.view);
-  assert(test.state == DESTROYED);
+  assert(test.state == UNREALIZED);
   puglFreeWorld(test.world);
 
   return 0;

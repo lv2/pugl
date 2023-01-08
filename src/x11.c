@@ -475,7 +475,7 @@ puglRealize(PuglView* const view)
                           (XIM)0);
   }
 
-  puglDispatchSimpleEvent(view, PUGL_CREATE);
+  st = puglDispatchSimpleEvent(view, PUGL_REALIZE);
 
   /* Flush before returning for two reasons: so that hints are available to the
      view's parent via the X server during embedding, and so that the X server
@@ -484,8 +484,7 @@ puglRealize(PuglView* const view)
      increases the chances that an application will be cleanly configured once
      on startup with the correct position and size. */
   XFlush(display);
-
-  return PUGL_SUCCESS;
+  return st;
 }
 
 PuglStatus
@@ -496,7 +495,7 @@ puglUnrealize(PuglView* const view)
     return PUGL_FAILURE;
   }
 
-  puglDispatchSimpleEvent(view, PUGL_DESTROY);
+  puglDispatchSimpleEvent(view, PUGL_UNREALIZE);
   clearX11Clipboard(&impl->clipboard);
 
   if (impl->xic) {

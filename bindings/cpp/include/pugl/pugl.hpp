@@ -108,11 +108,11 @@ using EventFlag    = PuglEventFlag;    ///< @copydoc PuglEventFlag
 using EventFlags   = PuglEventFlags;   ///< @copydoc PuglEventFlags
 using CrossingMode = PuglCrossingMode; ///< @copydoc PuglCrossingMode
 
-/// @copydoc PuglCreateEvent
-using CreateEvent = Event<PUGL_CREATE, PuglCreateEvent>;
+/// @copydoc PuglRealizeEvent
+using RealizeEvent = Event<PUGL_REALIZE, PuglRealizeEvent>;
 
-/// @copydoc PuglDestroyEvent
-using DestroyEvent = Event<PUGL_DESTROY, PuglDestroyEvent>;
+/// @copydoc PuglUnrealizeEvent
+using UnrealizeEvent = Event<PUGL_UNREALIZE, PuglUnrealizeEvent>;
 
 /// @copydoc PuglConfigureEvent
 using ConfigureEvent = Event<PUGL_CONFIGURE, PuglConfigureEvent>;
@@ -672,10 +672,10 @@ private:
     switch (event->type) {
     case PUGL_NOTHING:
       return Status::success;
-    case PUGL_CREATE:
-      return target.onEvent(CreateEvent{event->any});
-    case PUGL_DESTROY:
-      return target.onEvent(DestroyEvent{event->any});
+    case PUGL_REALIZE:
+      return target.onEvent(RealizeEvent{event->any});
+    case PUGL_UNREALIZE:
+      return target.onEvent(UnrealizeEvent{event->any});
     case PUGL_CONFIGURE:
       return target.onEvent(ConfigureEvent{event->configure});
     case PUGL_MAP:

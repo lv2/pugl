@@ -16,10 +16,10 @@
 
 typedef enum {
   START,
-  CREATED,
+  REALIZED,
   CONFIGURED,
   MAPPED,
-  DESTROYED,
+  UNREALIZED,
 } State;
 
 typedef struct {
@@ -40,12 +40,12 @@ onEvent(PuglView* view, const PuglEvent* event)
   }
 
   switch (event->type) {
-  case PUGL_CREATE:
+  case PUGL_REALIZE:
     assert(test->state == START);
-    test->state = CREATED;
+    test->state = REALIZED;
     break;
   case PUGL_CONFIGURE:
-    if (test->state == CREATED) {
+    if (test->state == REALIZED) {
       test->state = CONFIGURED;
     }
     test->configuredFrame.x      = event->configure.x;
@@ -56,8 +56,8 @@ onEvent(PuglView* view, const PuglEvent* event)
   case PUGL_MAP:
     test->state = MAPPED;
     break;
-  case PUGL_DESTROY:
-    test->state = DESTROYED;
+  case PUGL_UNREALIZE:
+    test->state = UNREALIZED;
     break;
   default:
     break;

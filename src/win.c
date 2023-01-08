@@ -209,6 +209,14 @@ puglPollWinEvents(PuglWorld* world, const double timeout)
   return PUGL_SUCCESS;
 }
 
+static void
+ensureHint(PuglView* const view, const PuglViewHint hint, const int value)
+{
+  if (view->hints[hint] == PUGL_DONT_CARE) {
+    view->hints[hint] = value;
+  }
+}
+
 PuglStatus
 puglRealize(PuglView* view)
 {
@@ -225,19 +233,11 @@ puglRealize(PuglView* view)
     return st;
   }
 
-  // Getting depth from the display mode seems tedious, just set usual values
-  if (view->hints[PUGL_RED_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_RED_BITS] = 8;
-  }
-  if (view->hints[PUGL_BLUE_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_BLUE_BITS] = 8;
-  }
-  if (view->hints[PUGL_GREEN_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_GREEN_BITS] = 8;
-  }
-  if (view->hints[PUGL_ALPHA_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_ALPHA_BITS] = 8;
-  }
+  // Set default depth hints if the user hasn't specified any
+  ensureHint(view, PUGL_RED_BITS, 8);
+  ensureHint(view, PUGL_GREEN_BITS, 8);
+  ensureHint(view, PUGL_BLUE_BITS, 8);
+  ensureHint(view, PUGL_ALPHA_BITS, 8);
 
   // Get refresh rate for resize draw timer
   DEVMODEA devMode;
@@ -250,6 +250,7 @@ puglRealize(PuglView* view)
     return PUGL_REGISTRATION_FAILED;
   }
 
+  // Configure and create window
   if ((st = view->backend->configure(view)) ||
       (st = view->backend->create(view))) {
     return st;
@@ -269,9 +270,7 @@ puglRealize(PuglView* view)
   puglSetFrame(view, view->frame);
   SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
-  puglDispatchSimpleEvent(view, PUGL_CREATE);
-
-  return PUGL_SUCCESS;
+  return puglDispatchSimpleEvent(view, PUGL_REALIZE);
 }
 
 PuglStatus
@@ -282,7 +281,7 @@ puglUnrealize(PuglView* const view)
     return PUGL_FAILURE;
   }
 
-  puglDispatchSimpleEvent(view, PUGL_DESTROY);
+  puglDispatchSimpleEvent(view, PUGL_UNREALIZE);
 
   if (view->backend) {
     view->backend->destroy(view);
@@ -972,7 +971,7 @@ puglUpdate(PuglWorld* world, double timeout)
   }
 
   for (size_t i = 0; i < world->numViews; ++i) {
-    if (world->views[i]->visible) {
+    if (puglGetVisible(world->views[i])) {
       puglDispatchSimpleEvent(world->views[i], PUGL_UPDATE);
     }
 

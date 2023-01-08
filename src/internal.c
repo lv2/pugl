@@ -131,7 +131,7 @@ puglPreRealize(PuglView* const view)
 PuglStatus
 puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 {
-  assert(type == PUGL_CREATE || type == PUGL_DESTROY || type == PUGL_MAP ||
+  assert(type == PUGL_REALIZE || type == PUGL_UNREALIZE || type == PUGL_MAP ||
          type == PUGL_UNMAP || type == PUGL_UPDATE || type == PUGL_CLOSE ||
          type == PUGL_LOOP_ENTER || type == PUGL_LOOP_LEAVE);
 
@@ -183,17 +183,17 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
   case PUGL_NOTHING:
     break;
 
-  case PUGL_CREATE:
+  case PUGL_REALIZE:
     assert(view->stage == PUGL_VIEW_STAGE_ALLOCATED);
     if (!(st0 = view->backend->enter(view, NULL))) {
       st0 = view->eventFunc(view, event);
       st1 = view->backend->leave(view, NULL);
     }
-    view->stage = PUGL_VIEW_STAGE_CREATED;
+    view->stage = PUGL_VIEW_STAGE_REALIZED;
     break;
 
-  case PUGL_DESTROY:
-    assert(view->stage >= PUGL_VIEW_STAGE_CREATED);
+  case PUGL_UNREALIZE:
+    assert(view->stage >= PUGL_VIEW_STAGE_REALIZED);
     if (!(st0 = view->backend->enter(view, NULL))) {
       st0 = view->eventFunc(view, event);
       st1 = view->backend->leave(view, NULL);
@@ -202,14 +202,13 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     break;
 
   case PUGL_CONFIGURE:
-    assert(view->stage >= PUGL_VIEW_STAGE_CREATED);
     if (puglMustConfigure(view, &event->configure)) {
       if (!(st0 = view->backend->enter(view, NULL))) {
         st0 = puglConfigure(view, event);
         st1 = view->backend->leave(view, NULL);
       }
     }
-    if (view->stage == PUGL_VIEW_STAGE_CREATED) {
+    if (view->stage == PUGL_VIEW_STAGE_REALIZED) {
       view->stage = PUGL_VIEW_STAGE_CONFIGURED;
     }
     break;

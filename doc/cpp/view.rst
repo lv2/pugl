@@ -160,8 +160,8 @@ If you need to perform some setup using the OpenGL API,
 there are two ways to do so.
 
 The OpenGL context is active when
-:type:`CreateEvent` and
-:type:`DestroyEvent`
+:type:`RealizeEvent` and
+:type:`UnrealizeEvent`
 events are dispatched,
 so things like creating and destroying shaders and textures can be done then.
 

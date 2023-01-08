@@ -77,8 +77,8 @@ typedef struct {
 /// The type of a PuglEvent
 typedef enum {
   PUGL_NOTHING,        ///< No event
-  PUGL_CREATE,         ///< View created, a #PuglCreateEvent
-  PUGL_DESTROY,        ///< View destroyed, a #PuglDestroyEvent
+  PUGL_REALIZE,        ///< View realized, a #PuglRealizeEvent
+  PUGL_UNREALIZE,      ///< View unrealizeed, a #PuglUnrealizeEvent
   PUGL_CONFIGURE,      ///< View moved/resized, a #PuglConfigureEvent
   PUGL_MAP,            ///< View made visible, a #PuglMapEvent
   PUGL_UNMAP,          ///< View made invisible, a #PuglUnmapEvent
@@ -132,7 +132,7 @@ typedef struct {
 */
 
 /**
-   View create event.
+   View realize event.
 
    This event is sent when a view is realized before it is first displayed,
    with the graphics context entered.  This is typically used for setting up
@@ -140,22 +140,19 @@ typedef struct {
 
    This event type has no extra fields.
 */
-typedef PuglAnyEvent PuglCreateEvent;
+typedef PuglAnyEvent PuglRealizeEvent;
 
 /**
-   View destroy event.
+   View unrealize event.
 
-   This event is the counterpart to #PuglCreateEvent, and it is sent when the
-   view is being destroyed.  This is typically used for tearing down the
-   graphics system, or otherwise freeing any resources allocated when the
-   create event was handled.
-
-   This is the last event sent to any view, and immediately after it is
-   processed, the view is destroyed and may no longer be used.
+   This event is the counterpart to #PuglRealizeEvent, and is sent when the
+   view will no longer be displayed.  This is typically used for tearing down
+   the graphics system, or otherwise freeing any resources allocated when the
+   realize event was handled.
 
    This event type has no extra fields.
 */
-typedef PuglAnyEvent PuglDestroyEvent;
+typedef PuglAnyEvent PuglUnrealizeEvent;
 
 /**
    View resize or move event.
@@ -604,8 +601,9 @@ typedef struct {
    to the appropriate type, or the union members used.
 
    The graphics system may only be accessed when handling certain events.  The
-   graphics context is active for #PUGL_CREATE, #PUGL_DESTROY, #PUGL_CONFIGURE,
-   and #PUGL_EXPOSE, but only enabled for drawing for #PUGL_EXPOSE.
+   graphics context is active for #PUGL_REALIZE, #PUGL_UNREALIZE,
+   #PUGL_CONFIGURE, and #PUGL_EXPOSE, but only enabled for drawing for
+   #PUGL_EXPOSE.
 */
 typedef union {
   PuglAnyEvent       any;       ///< Valid for all event types
@@ -1486,10 +1484,16 @@ puglSendEvent(PuglView* view, const PuglEvent* event);
    @{
 */
 
-PUGL_DEPRECATED_BY("PuglCreateEvent")
+PUGL_DEPRECATED_BY("PuglRealizeEvent")
+typedef PuglRealizeEvent PuglCreateEvent;
+
+PUGL_DEPRECATED_BY("PuglUnrealizeEvent")
+typedef PuglUnrealizeEvent PuglDestroyEvent;
+
+PUGL_DEPRECATED_BY("PuglRealizeEvent")
 typedef PuglCreateEvent PuglEventCreate;
 
-PUGL_DEPRECATED_BY("PuglDestroyEvent")
+PUGL_DEPRECATED_BY("PuglUnrealizeEvent")
 typedef PuglDestroyEvent PuglEventDestroy;
 
 PUGL_DEPRECATED_BY("PuglConfigureEvent")

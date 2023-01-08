@@ -22,7 +22,7 @@
 
 typedef enum {
   START,
-  CREATED,
+  REALIZED,
 } State;
 
 typedef struct {
@@ -42,9 +42,9 @@ onEvent(PuglView* view, const PuglEvent* event)
   }
 
   switch (event->type) {
-  case PUGL_CREATE:
+  case PUGL_REALIZE:
     assert(test->state == START);
-    test->state = CREATED;
+    test->state = REALIZED;
     break;
   default:
     break;
@@ -77,7 +77,7 @@ main(int argc, char** argv)
   // Create initially invisible window
   assert(!puglRealize(test.view));
   assert(!puglGetVisible(test.view));
-  while (test.state < CREATED) {
+  while (test.state < REALIZED) {
     assert(!puglUpdate(test.world, -1.0));
   }
 
