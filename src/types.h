@@ -38,7 +38,6 @@ typedef enum {
   PUGL_VIEW_STAGE_ALLOCATED,
   PUGL_VIEW_STAGE_REALIZED,
   PUGL_VIEW_STAGE_CONFIGURED,
-  PUGL_VIEW_STAGE_MAPPED,
 } PuglViewStage;
 
 /// Cross-platform view definition

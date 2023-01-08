@@ -79,9 +79,7 @@ typedef enum {
   PUGL_NOTHING,        ///< No event
   PUGL_REALIZE,        ///< View realized, a #PuglRealizeEvent
   PUGL_UNREALIZE,      ///< View unrealizeed, a #PuglUnrealizeEvent
-  PUGL_CONFIGURE,      ///< View moved/resized, a #PuglConfigureEvent
-  PUGL_MAP,            ///< View made visible, a #PuglMapEvent
-  PUGL_UNMAP,          ///< View made invisible, a #PuglUnmapEvent
+  PUGL_CONFIGURE,      ///< View configured, a #PuglConfigureEvent
   PUGL_UPDATE,         ///< View ready to draw, a #PuglUpdateEvent
   PUGL_EXPOSE,         ///< View must be drawn, a #PuglExposeEvent
   PUGL_CLOSE,          ///< View will be closed, a #PuglCloseEvent
@@ -216,25 +214,6 @@ typedef struct {
   PuglSpan           height; ///< Height of view
   PuglViewStyleFlags style;  ///< Bitwise OR of #PuglViewStyleFlag flags
 } PuglConfigureEvent;
-
-/**
-   View show event.
-
-   This event is sent when a view is mapped to the screen and made visible.
-
-   This event type has no extra fields.
-*/
-typedef PuglAnyEvent PuglMapEvent;
-
-/**
-   View hide event.
-
-   This event is sent when a view is unmapped from the screen and made
-   invisible.
-
-   This event type has no extra fields.
-*/
-typedef PuglAnyEvent PuglUnmapEvent;
 
 /**
    Recursive loop enter event.
@@ -1565,12 +1544,6 @@ typedef PuglDestroyEvent PuglEventDestroy;
 
 PUGL_DEPRECATED_BY("PuglConfigureEvent")
 typedef PuglConfigureEvent PuglEventConfigure;
-
-PUGL_DEPRECATED_BY("PuglMapEvent")
-typedef PuglMapEvent PuglEventMap;
-
-PUGL_DEPRECATED_BY("PuglUnmapEvent")
-typedef PuglUnmapEvent PuglEventUnmap;
 
 PUGL_DEPRECATED_BY("PuglUpdateEvent")
 typedef PuglUpdateEvent PuglEventUpdate;

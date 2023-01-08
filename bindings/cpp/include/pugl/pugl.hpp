@@ -119,12 +119,6 @@ using UnrealizeEvent = Event<PUGL_UNREALIZE, PuglUnrealizeEvent>;
 /// @copydoc PuglConfigureEvent
 using ConfigureEvent = Event<PUGL_CONFIGURE, PuglConfigureEvent>;
 
-/// @copydoc PuglMapEvent
-using MapEvent = Event<PUGL_MAP, PuglMapEvent>;
-
-/// @copydoc PuglUnmapEvent
-using UnmapEvent = Event<PUGL_UNMAP, PuglUnmapEvent>;
-
 /// @copydoc PuglUpdateEvent
 using UpdateEvent = Event<PUGL_UPDATE, PuglUpdateEvent>;
 
@@ -680,10 +674,6 @@ private:
       return target.onEvent(UnrealizeEvent{event->any});
     case PUGL_CONFIGURE:
       return target.onEvent(ConfigureEvent{event->configure});
-    case PUGL_MAP:
-      return target.onEvent(MapEvent{event->any});
-    case PUGL_UNMAP:
-      return target.onEvent(UnmapEvent{event->any});
     case PUGL_UPDATE:
       return target.onEvent(UpdateEvent{event->any});
     case PUGL_EXPOSE:

@@ -131,9 +131,9 @@ puglPreRealize(PuglView* const view)
 PuglStatus
 puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 {
-  assert(type == PUGL_REALIZE || type == PUGL_UNREALIZE || type == PUGL_MAP ||
-         type == PUGL_UNMAP || type == PUGL_UPDATE || type == PUGL_CLOSE ||
-         type == PUGL_LOOP_ENTER || type == PUGL_LOOP_LEAVE);
+  assert(type == PUGL_REALIZE || type == PUGL_UNREALIZE ||
+         type == PUGL_UPDATE || type == PUGL_CLOSE || type == PUGL_LOOP_ENTER ||
+         type == PUGL_LOOP_LEAVE);
 
   const PuglEvent event = {{type, 0}};
   return puglDispatchEvent(view, &event);
@@ -213,22 +213,8 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     }
     break;
 
-  case PUGL_MAP:
-    assert(view->stage >= PUGL_VIEW_STAGE_CONFIGURED);
-    if (view->stage != PUGL_VIEW_STAGE_MAPPED) {
-      st0         = view->eventFunc(view, event);
-      view->stage = PUGL_VIEW_STAGE_MAPPED;
-    }
-    break;
-
-  case PUGL_UNMAP:
-    assert(view->stage == PUGL_VIEW_STAGE_MAPPED);
-    st0         = view->eventFunc(view, event);
-    view->stage = PUGL_VIEW_STAGE_CONFIGURED;
-    break;
-
   case PUGL_EXPOSE:
-    assert(view->stage == PUGL_VIEW_STAGE_MAPPED);
+    assert(view->stage == PUGL_VIEW_STAGE_CONFIGURED);
     if (!(st0 = view->backend->enter(view, &event->expose))) {
       st0 = puglExpose(view, event);
       st1 = view->backend->leave(view, &event->expose);

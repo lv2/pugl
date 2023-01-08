@@ -18,7 +18,6 @@ typedef enum {
   START,
   REALIZED,
   CONFIGURED,
-  MAPPED,
   UNREALIZED,
 } State;
 
@@ -52,9 +51,6 @@ onEvent(PuglView* view, const PuglEvent* event)
     test->configuredFrame.y      = event->configure.y;
     test->configuredFrame.width  = event->configure.width;
     test->configuredFrame.height = event->configure.height;
-    break;
-  case PUGL_MAP:
-    test->state = MAPPED;
     break;
   case PUGL_UNREALIZE:
     test->state = UNREALIZED;
@@ -96,7 +92,7 @@ main(int argc, char** argv)
   // Create and show window
   assert(!puglRealize(test.view));
   assert(!puglShow(test.view));
-  while (test.state < MAPPED) {
+  while (test.state < CONFIGURED) {
     assert(!puglUpdate(test.world, -1.0));
   }
 

@@ -111,6 +111,8 @@ viewStyleFlagString(const PuglViewStyleFlag state)
     return "demanding";
   case PUGL_VIEW_STYLE_RESIZING:
     return "resizing";
+  case PUGL_VIEW_STYLE_MAPPED:
+    return "mapped";
   }
 
   return "unknown";
@@ -132,10 +134,6 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     return fprintf(stderr, "%sRealize\n", prefix);
   case PUGL_UNREALIZE:
     return fprintf(stderr, "%sUnrealize\n", prefix);
-  case PUGL_MAP:
-    return fprintf(stderr, "%sMap\n", prefix);
-  case PUGL_UNMAP:
-    return fprintf(stderr, "%sUnmap\n", prefix);
   case PUGL_KEY_PRESS:
     return PRINT("%sKey press   code %3u key  U+%04X\n",
                  prefix,

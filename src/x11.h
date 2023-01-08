@@ -84,6 +84,7 @@ struct PuglInternalsImpl {
   PuglX11Clipboard clipboard;
   int              screen;
   const char*      cursorName;
+  bool             mapped;
 };
 
 PUGL_WARN_UNUSED_RESULT

@@ -20,7 +20,6 @@
 typedef enum {
   START,
   REALIZED,
-  CONFIGURED,
   MAPPED,
   EXPOSED,
   UNMAPPED,
@@ -49,21 +48,15 @@ onEvent(PuglView* view, const PuglEvent* event)
     test->state = REALIZED;
     break;
   case PUGL_CONFIGURE:
-    if (test->state == REALIZED) {
-      test->state = CONFIGURED;
+    if (event->configure.style & PUGL_VIEW_STYLE_MAPPED) {
+      test->state = MAPPED;
+    } else {
+      test->state = UNMAPPED;
     }
-    break;
-  case PUGL_MAP:
-    assert(test->state == CONFIGURED || test->state == UNMAPPED);
-    test->state = MAPPED;
     break;
   case PUGL_EXPOSE:
     assert(test->state == MAPPED || test->state == EXPOSED);
     test->state = EXPOSED;
-    break;
-  case PUGL_UNMAP:
-    assert(test->state == MAPPED || test->state == EXPOSED);
-    test->state = UNMAPPED;
     break;
   case PUGL_UNREALIZE:
     assert(test->state == UNMAPPED);

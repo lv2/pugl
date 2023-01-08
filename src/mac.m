@@ -187,8 +187,10 @@ getCurrentViewStyleFlags(PuglView* const view)
   const bool isFullScreen   = styleMask & NSWindowStyleMaskFullScreen;
   const bool isMiniaturized = [view->impl->window isMiniaturized];
   const bool isZoomed       = [view->impl->window isZoomed];
+  const bool isVisible      = [view->impl->window isVisible];
 
-  return (isFullScreen ? PUGL_VIEW_STYLE_FULLSCREEN : 0U) |
+  return (isVisible ? PUGL_VIEW_STYLE_MAPPED : 0U) |
+         (isFullScreen ? PUGL_VIEW_STYLE_FULLSCREEN : 0U) |
          (isMiniaturized ? PUGL_VIEW_STYLE_HIDDEN : 0U) |
          (isZoomed ? (PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE) : 0U) |
          (isResizing ? PUGL_VIEW_STYLE_RESIZING : 0U);
@@ -254,11 +256,8 @@ getCurrentViewStyleFlags(PuglView* const view)
 {
   [super setIsVisible:flag];
 
-  if (flag && puglview->stage < PUGL_VIEW_STAGE_MAPPED) {
+  if (flag != (puglview->lastConfigure.style & PUGL_VIEW_STYLE_MAPPED)) {
     [self dispatchCurrentConfiguration];
-    puglDispatchSimpleEvent(puglview, PUGL_MAP);
-  } else if (!flag && puglview->stage == PUGL_VIEW_STAGE_MAPPED) {
-    puglDispatchSimpleEvent(puglview, PUGL_UNMAP);
   }
 }
 

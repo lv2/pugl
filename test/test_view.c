@@ -16,8 +16,8 @@
 
 typedef enum {
   START,
-  CREATED,
-  MAPPED,
+  REALIZED,
+  CONFIGURED,
   UNREALIZED,
 } State;
 
@@ -40,10 +40,11 @@ onEvent(PuglView* view, const PuglEvent* event)
   switch (event->type) {
   case PUGL_REALIZE:
     assert(test->state == START);
-    test->state = CREATED;
+    test->state = REALIZED;
     break;
-  case PUGL_MAP:
-    test->state = MAPPED;
+  case PUGL_CONFIGURE:
+    assert(test->state == REALIZED);
+    test->state = CONFIGURED;
     break;
   case PUGL_UNREALIZE:
     test->state = UNREALIZED;
@@ -75,7 +76,7 @@ main(int argc, char** argv)
   // Create and show window
   assert(!puglRealize(test.view));
   assert(!puglShow(test.view));
-  while (test.state < MAPPED) {
+  while (test.state < CONFIGURED) {
     assert(!puglUpdate(test.world, -1.0));
   }
 

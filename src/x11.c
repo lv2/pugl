@@ -252,6 +252,7 @@ styleFlagToAtom(PuglWorld* const world, const PuglViewStyleFlag flag)
   case PUGL_VIEW_STYLE_DEMANDING:
     return atoms->NET_WM_STATE_DEMANDS_ATTENTION;
   case PUGL_VIEW_STYLE_RESIZING:
+  case PUGL_VIEW_STYLE_MAPPED:
     break;
   }
 
@@ -645,6 +646,11 @@ puglUnrealize(PuglView* const view)
   memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
   memset(&view->impl->pendingConfigure, 0, sizeof(PuglEvent));
   memset(&view->impl->pendingExpose, 0, sizeof(PuglEvent));
+
+  if (impl->mapped) {
+    view->impl->pendingConfigure.configure.style |= PUGL_VIEW_STYLE_MAPPED;
+  }
+
   return PUGL_SUCCESS;
 }
 
@@ -944,6 +950,10 @@ getCurrentViewStyleFlags(PuglView* const view)
     }
   }
 
+  if (view->impl->mapped) {
+    state |= PUGL_VIEW_STYLE_MAPPED;
+  }
+
   return state;
 }
 
@@ -972,6 +982,10 @@ makeConfigureEvent(PuglView* const view)
 
   if (event.type != PUGL_CONFIGURE) {
     event = getCurrentConfiguration(view);
+  } else if (view->impl->mapped) {
+    event.configure.style |= PUGL_VIEW_STYLE_MAPPED;
+  } else {
+    event.configure.style &= ~PUGL_VIEW_STYLE_MAPPED;
   }
 
   return event;
@@ -994,7 +1008,7 @@ translatePropertyNotify(PuglView* const view, XPropertyEvent message)
 
     // Make a configure event based on the current configuration to update
     event                 = makeConfigureEvent(view);
-    event.configure.style = getCurrentViewStyleFlags(view);
+    event.configure.style = getCurrentViewStyleFlags(view); // FIXME: necessary?
 
     XFree(hints);
   }
@@ -1019,10 +1033,12 @@ translateEvent(PuglView* const view, XEvent xevent)
     event = makeConfigureEvent(view);
     break;
   case MapNotify:
-    event.type = PUGL_MAP;
+    view->impl->mapped = true;
+    event              = makeConfigureEvent(view);
     break;
   case UnmapNotify:
-    event.type = PUGL_UNMAP;
+    view->impl->mapped = false;
+    event              = makeConfigureEvent(view);
     break;
   case ConfigureNotify:
     event                  = makeConfigureEvent(view);
@@ -1508,7 +1524,7 @@ flushExposures(PuglWorld* const world)
     PuglView* const view = world->views[i];
 
     // Send update event so the application can trigger redraws
-    if (view->stage == PUGL_VIEW_STAGE_MAPPED) {
+    if (puglGetVisible(view)) {
       puglDispatchSimpleEvent(view, PUGL_UPDATE);
     }
 
@@ -1566,13 +1582,6 @@ handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 }
 
 static PuglStatus
-dispatchCurrentConfiguration(PuglView* const view)
-{
-  const PuglEvent configureEvent = getCurrentConfiguration(view);
-  return puglDispatchEvent(view, &configureEvent);
-}
-
-static PuglStatus
 dispatchX11Events(PuglWorld* const world)
 {
   PuglStatus st0 = PUGL_SUCCESS;
@@ -1624,11 +1633,6 @@ dispatchX11Events(PuglWorld* const world)
     case PUGL_CONFIGURE:
       // Update configure event to be dispatched after loop
       view->impl->pendingConfigure = event;
-      break;
-    case PUGL_MAP:
-      // Dispatch an initial configure (if necessary), then the map event
-      st0 = dispatchCurrentConfiguration(view);
-      st1 = puglDispatchEvent(view, &event);
       break;
     case PUGL_EXPOSE:
       // Expand expose event to be dispatched after loop
@@ -1723,7 +1727,7 @@ puglPostRedisplayRect(PuglView* const view, const PuglRect rect)
   if (view->world->impl->dispatchingEvents) {
     // Currently dispatching events, add/expand expose for the loop end
     mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
-  } else if (view->stage == PUGL_VIEW_STAGE_MAPPED) {
+  } else if (view->stage == PUGL_VIEW_STAGE_CONFIGURED) {
     // Not dispatching events, send an X expose so we wake up next time
     PuglEvent exposeEvent = {{PUGL_EXPOSE, 0}};
     exposeEvent.expose    = event;

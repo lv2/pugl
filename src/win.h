@@ -28,6 +28,7 @@ struct PuglInternalsImpl {
   PuglBlob        clipboard;
   PuglSurface*    surface;
   double          scaleFactor;
+  bool            mapped;
   bool            flashing;
   bool            mouseTracked;
   bool            minimized;

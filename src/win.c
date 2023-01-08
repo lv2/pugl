@@ -576,7 +576,8 @@ handleConfigure(PuglView* view, PuglEvent* event)
   event->configure.height = (PuglSpan)height;
 
   event->configure.style =
-    ((view->resizing ? PUGL_VIEW_STYLE_RESIZING : 0U) |
+    ((view->impl->mapped ? PUGL_VIEW_STYLE_MAPPED : 0U) |
+     (view->resizing ? PUGL_VIEW_STYLE_RESIZING : 0U) |
      (view->impl->fullscreen ? PUGL_VIEW_STYLE_FULLSCREEN : 0U) |
      (view->impl->minimized ? PUGL_VIEW_STYLE_HIDDEN : 0U) |
      (view->impl->maximized ? (PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE)
@@ -674,17 +675,14 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     break;
   case WM_SHOWWINDOW:
     if (wParam) {
-      handleConfigure(view, &event);
-      puglDispatchEvent(view, &event);
-      event.type = PUGL_NOTHING;
-
       RedrawWindow(view->impl->hwnd,
                    NULL,
                    NULL,
                    RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_INTERNALPAINT);
     }
 
-    event.any.type = wParam ? PUGL_MAP : PUGL_UNMAP;
+    view->impl->mapped = wParam;
+    handleConfigure(view, &event);
     break;
   case WM_DISPLAYCHANGE:
     view->impl->scaleFactor = puglWinGetViewScaleFactor(view);
