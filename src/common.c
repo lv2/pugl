@@ -212,14 +212,22 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
     }
   }
 
-  view->hints[hint] = value;
-  return PUGL_SUCCESS;
+  if (hint >= 0 && hint < PUGL_NUM_VIEW_HINTS) {
+    view->hints[hint] = value;
+    return PUGL_SUCCESS;
+  }
+
+  return PUGL_BAD_PARAMETER;
 }
 
 int
 puglGetViewHint(const PuglView* view, PuglViewHint hint)
 {
-  return view->hints[hint];
+  if (hint >= 0 && hint < PUGL_NUM_VIEW_HINTS) {
+    return view->hints[hint];
+  }
+
+  return PUGL_DONT_CARE;
 }
 
 PuglRect
