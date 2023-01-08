@@ -106,6 +106,7 @@ puglSetDefaultHints(PuglHints hints)
   hints[PUGL_RESIZABLE]             = PUGL_FALSE;
   hints[PUGL_IGNORE_KEY_REPEAT]     = PUGL_FALSE;
   hints[PUGL_REFRESH_RATE]          = PUGL_DONT_CARE;
+  hints[PUGL_VIEW_TYPE]             = PUGL_DONT_CARE;
 }
 
 PuglView*
@@ -255,11 +256,18 @@ puglGetTransientParent(const PuglView* const view)
 bool
 puglGetVisible(const PuglView* view)
 {
-  return view->stage == PUGL_VIEW_STAGE_MAPPED;
+  return view->stage == PUGL_VIEW_STAGE_MAPPED &&
+         !(view->lastConfigure.style & PUGL_VIEW_STYLE_HIDDEN);
 }
 
 void*
-puglGetContext(PuglView* view)
+puglGetContext(PuglView* const view)
 {
   return view->backend->getContext(view);
+}
+
+PuglViewStyleFlags
+puglGetViewStyle(const PuglView* const view)
+{
+  return view->lastConfigure.style;
 }

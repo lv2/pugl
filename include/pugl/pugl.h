@@ -132,6 +132,51 @@ typedef struct {
 */
 
 /**
+   View style flags.
+
+   Style flags reflect special modes and states supported by the window system.
+   Applications should ideally use a single main view, but can monitor or
+   manipulate style flags to better integrate with the window system.
+*/
+typedef enum {
+  /// View is mapped to a real window and potentially visible
+  PUGL_VIEW_STYLE_MAPPED = 1U << 0U,
+
+  /// View is modal, typically a dialog box of its transient parent
+  PUGL_VIEW_STYLE_MODAL = 1U << 1U,
+
+  /// View should be above most others
+  PUGL_VIEW_STYLE_ABOVE = 1U << 2U,
+
+  /// View should be below most others
+  PUGL_VIEW_STYLE_BELOW = 1U << 3U,
+
+  /// View is minimized, shaded, or otherwise invisible
+  PUGL_VIEW_STYLE_HIDDEN = 1U << 4U,
+
+  /// View is maximized to fill the screen vertically
+  PUGL_VIEW_STYLE_TALL = 1U << 5U,
+
+  /// View is maximized to fill the screen horizontally
+  PUGL_VIEW_STYLE_WIDE = 1U << 6U,
+
+  /// View is enlarged to fill the entire screen with no decorations
+  PUGL_VIEW_STYLE_FULLSCREEN = 1U << 7U,
+
+  /// View is being resized
+  PUGL_VIEW_STYLE_RESIZING = 1U << 8U,
+
+  /// View is ready for input or otherwise demanding attention
+  PUGL_VIEW_STYLE_DEMANDING = 1U << 9U,
+} PuglViewStyleFlag;
+
+/// The maximum #PuglViewStyleFlag value
+#define PUGL_MAX_VIEW_STYLE_FLAG PUGL_VIEW_STYLE_DEMANDING
+
+/// Bitwise OR of #PuglViewStyleFlag values
+typedef uint32_t PuglViewStyleFlags;
+
+/**
    View realize event.
 
    This event is sent when a view is realized before it is first displayed,
@@ -163,12 +208,13 @@ typedef PuglAnyEvent PuglUnrealizeEvent;
    otherwise configure the context, but not to draw anything.
 */
 typedef struct {
-  PuglEventType  type;   ///< #PUGL_CONFIGURE
-  PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
-  PuglCoord      x;      ///< Parent-relative X coordinate of view
-  PuglCoord      y;      ///< Parent-relative Y coordinate of view
-  PuglSpan       width;  ///< Width of view
-  PuglSpan       height; ///< Height of view
+  PuglEventType      type;   ///< #PUGL_CONFIGURE
+  PuglEventFlags     flags;  ///< Bitwise OR of #PuglEventFlag values
+  PuglCoord          x;      ///< Parent-relative X coordinate of view
+  PuglCoord          y;      ///< Parent-relative Y coordinate of view
+  PuglSpan           width;  ///< Width of view
+  PuglSpan           height; ///< Height of view
+  PuglViewStyleFlags style;  ///< Bitwise OR of #PuglViewStyleFlag flags
 } PuglConfigureEvent;
 
 /**
@@ -863,10 +909,11 @@ typedef enum {
   PUGL_RESIZABLE,             ///< True if view should be resizable
   PUGL_IGNORE_KEY_REPEAT,     ///< True if key repeat events are ignored
   PUGL_REFRESH_RATE,          ///< Refresh rate in Hz
+  PUGL_VIEW_TYPE,             ///< View type (a #PuglViewType)
 } PuglViewHint;
 
 /// The number of #PuglViewHint values
-#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_REFRESH_RATE + 1U)
+#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_VIEW_TYPE + 1U)
 
 /// A special view hint value
 typedef enum {
@@ -874,6 +921,13 @@ typedef enum {
   PUGL_FALSE     = 0,  ///< Explicitly false
   PUGL_TRUE      = 1   ///< Explicitly true
 } PuglViewHintValue;
+
+/// View type
+typedef enum {
+  PUGL_VIEW_TYPE_NORMAL,  ///< A normal top-level window
+  PUGL_VIEW_TYPE_UTILITY, ///< A utility window like a palette or toolbox
+  PUGL_VIEW_TYPE_DIALOG,  ///< A dialog window
+} PuglViewType;
 
 /**
    A hint for configuring/constraining the size of a view.
@@ -1198,6 +1252,30 @@ PUGL_API
 PuglStatus
 puglHide(PuglView* view);
 
+/**
+   Set a view state, if supported by the system.
+
+   This can be used to manipulate the window into various special states, but
+   note that not all states are supported on all systems.  This function may
+   return failure or an error if the platform implementation doesn't
+   "understand" how to set the given style, but the return value here can't be
+   used to determine if the state has actually been set.  Any changes to the
+   actual state of the view will arrive in later configure events.
+*/
+PUGL_API
+PuglStatus
+puglSetViewStyle(PuglView* view, PuglViewStyleFlags flags);
+
+/**
+   Return true if the view currently has a state flag set.
+
+   The result is determined based on the state announced in the last configure
+   event.
+*/
+PUGL_API
+PuglViewStyleFlags
+puglGetViewStyle(const PuglView* view);
+
 /// Return true iff the view is currently visible
 PUGL_API
 bool
@@ -1397,17 +1475,6 @@ puglGetClipboard(PuglView* view, uint32_t typeIndex, size_t* len);
 PUGL_API
 PuglStatus
 puglSetCursor(PuglView* view, PuglCursor cursor);
-
-/**
-   Request user attention.
-
-   This hints to the system that the window or application requires attention
-   from the user.  The exact effect depends on the platform, but is usually
-   something like a flashing task bar entry or bouncing application icon.
-*/
-PUGL_API
-PuglStatus
-puglRequestAttention(PuglView* view);
 
 /**
    Activate a repeating timer event.
@@ -1941,6 +2008,21 @@ PuglNativeView
 puglGetNativeWindow(PuglView* view)
 {
   return puglGetNativeView(view);
+}
+
+/**
+   Request user attention.
+
+   This hints to the system that the window or application requires attention
+   from the user.  The exact effect depends on the platform, but is usually
+   something like a flashing task bar entry or bouncing application icon.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetViewStyle")
+PuglStatus
+puglRequestAttention(PuglView* view)
+{
+  return puglSetViewStyle(view,
+                          puglGetViewStyle(view) | PUGL_VIEW_STYLE_DEMANDING);
 }
 
 #endif // PUGL_DISABLE_DEPRECATED

@@ -1475,6 +1475,7 @@ View::onEvent(const pugl::ConfigureEvent& event)
   _app.extent = {static_cast<uint32_t>(event.width),
                  static_cast<uint32_t>(event.height)};
 
+  _app.resizing = event.style & PUGL_VIEW_STYLE_RESIZING;
   return pugl::Status::success;
 }
 
@@ -1640,7 +1641,6 @@ View::onEvent(const pugl::ExposeEvent&)
 pugl::Status
 View::onEvent(const pugl::LoopEnterEvent&)
 {
-  _app.resizing = true;
   startTimer(resizeTimerId,
              1.0 / static_cast<double>(getHint(pugl::ViewHint::refreshRate)));
 
@@ -1660,7 +1660,6 @@ View::onEvent(const pugl::LoopLeaveEvent&)
 
   // Trigger a swapchain recreation with the normal present mode
   _app.renderer.swapchain.extent = {};
-  _app.resizing                  = false;
 
   return pugl::Status::success;
 }

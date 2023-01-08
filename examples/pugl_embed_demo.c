@@ -319,7 +319,8 @@ main(int argc, char** argv)
     ++framesDrawn;
 
     if (!requestedAttention && thisTime > 5.0) {
-      puglRequestAttention(app.parent);
+      puglSetViewStyle(
+        app.parent, puglGetViewStyle(app.parent) | PUGL_VIEW_STYLE_DEMANDING);
       requestedAttention = true;
     }
 

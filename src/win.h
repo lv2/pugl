@@ -19,16 +19,20 @@ struct PuglWorldInternalsImpl {
 };
 
 struct PuglInternalsImpl {
-  PuglWinPFD   pfd;
-  int          pfId;
-  HWND         hwnd;
-  HCURSOR      cursor;
-  HDC          hdc;
-  PuglBlob     clipboard;
-  PuglSurface* surface;
-  double       scaleFactor;
-  bool         flashing;
-  bool         mouseTracked;
+  PuglWinPFD      pfd;
+  int             pfId;
+  HWND            hwnd;
+  HCURSOR         cursor;
+  HDC             hdc;
+  WINDOWPLACEMENT oldPlacement;
+  PuglBlob        clipboard;
+  PuglSurface*    surface;
+  double          scaleFactor;
+  bool            flashing;
+  bool            mouseTracked;
+  bool            minimized;
+  bool            maximized;
+  bool            fullscreen;
 };
 
 PUGL_API

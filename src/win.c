@@ -110,13 +110,24 @@ puglRegisterWindowClass(const char* name)
 static unsigned
 puglWinGetWindowFlags(const PuglView* const view)
 {
+  const unsigned commonFlags = WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+  if (view->parent) {
+    return commonFlags | WS_CHILD;
+  }
+
+  if (view->impl->fullscreen) {
+    return commonFlags | WS_POPUPWINDOW;
+  }
+
+  const unsigned typeFlags =
+    (view->hints[PUGL_VIEW_TYPE] == PUGL_VIEW_TYPE_DIALOG)
+      ? (WS_DLGFRAME | WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU)
+      : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX);
+
   const bool     resizable = !!view->hints[PUGL_RESIZABLE];
   const unsigned sizeFlags = resizable ? (WS_SIZEBOX | WS_MAXIMIZEBOX) : 0U;
 
-  return (WS_CLIPCHILDREN | WS_CLIPSIBLINGS |
-          (view->parent
-             ? WS_CHILD
-             : (WS_POPUPWINDOW | WS_CAPTION | WS_MINIMIZEBOX | sizeFlags)));
+  return commonFlags | typeFlags | sizeFlags;
 }
 
 static unsigned
@@ -564,6 +575,13 @@ handleConfigure(PuglView* view, PuglEvent* event)
   event->configure.width  = (PuglSpan)width;
   event->configure.height = (PuglSpan)height;
 
+  event->configure.style =
+    ((view->resizing ? PUGL_VIEW_STYLE_RESIZING : 0U) |
+     (view->impl->fullscreen ? PUGL_VIEW_STYLE_FULLSCREEN : 0U) |
+     (view->impl->minimized ? PUGL_VIEW_STYLE_HIDDEN : 0U) |
+     (view->impl->maximized ? (PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE)
+                            : 0U));
+
   return rect;
 }
 
@@ -635,11 +653,12 @@ constrainAspect(const PuglView* const view,
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  PuglEvent   event     = {{PUGL_NOTHING, 0}};
-  RECT        rect      = {0, 0, 0, 0};
-  POINT       pt        = {0, 0};
-  MINMAXINFO* mmi       = NULL;
-  void*       dummy_ptr = NULL;
+  PuglEvent       event     = {{PUGL_NOTHING, 0}};
+  RECT            rect      = {0, 0, 0, 0};
+  POINT           pt        = {0, 0};
+  MINMAXINFO*     mmi       = NULL;
+  void*           dummy_ptr = NULL;
+  WINDOWPLACEMENT placement = {sizeof(WINDOWPLACEMENT), 0, 0, pt, pt};
 
   if (InSendMessageEx(dummy_ptr)) {
     event.any.flags |= PUGL_IS_SEND_EVENT;
@@ -667,20 +686,19 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 
     event.any.type = wParam ? PUGL_MAP : PUGL_UNMAP;
     break;
-  case WM_SIZE:
-    if (wParam == SIZE_MINIMIZED) {
-      event.type = PUGL_UNMAP;
-    } else if (!view->visible) {
-      event.type = PUGL_MAP;
-    } else {
-      handleConfigure(view, &event);
-      InvalidateRect(view->impl->hwnd, NULL, false);
-    }
-    break;
   case WM_DISPLAYCHANGE:
     view->impl->scaleFactor = puglWinGetViewScaleFactor(view);
     break;
   case WM_WINDOWPOSCHANGED:
+    view->impl->minimized = false;
+    view->impl->maximized = false;
+    if (GetWindowPlacement(view->impl->hwnd, &placement)) {
+      if (placement.showCmd == SW_SHOWMINIMIZED) {
+        view->impl->minimized = true;
+      } else if (placement.showCmd == SW_SHOWMAXIMIZED) {
+        view->impl->maximized = true;
+      }
+    }
     handleConfigure(view, &event);
     break;
   case WM_SIZING:
@@ -690,6 +708,10 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     }
     break;
   case WM_ENTERSIZEMOVE:
+    view->resizing = true;
+    puglDispatchSimpleEvent(view, PUGL_LOOP_ENTER);
+    handleConfigure(view, &event);
+    break;
   case WM_ENTERMENULOOP:
     puglDispatchSimpleEvent(view, PUGL_LOOP_ENTER);
     break;
@@ -701,6 +723,10 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     }
     break;
   case WM_EXITSIZEMOVE:
+    view->resizing = false;
+    puglDispatchSimpleEvent(view, PUGL_LOOP_LEAVE);
+    handleConfigure(view, &event);
+    break;
   case WM_EXITMENULOOP:
     puglDispatchSimpleEvent(view, PUGL_LOOP_LEAVE);
     break;
@@ -855,13 +881,73 @@ puglHasFocus(const PuglView* view)
   return GetFocus() == view->impl->hwnd;
 }
 
-PuglStatus
-puglRequestAttention(PuglView* view)
+static bool
+styleIsMaximized(const PuglViewStyleFlags flags)
 {
-  FLASHWINFO info = {
-    sizeof(FLASHWINFO), view->impl->hwnd, FLASHW_ALL | FLASHW_TIMERNOFG, 1, 0};
+  return (flags & PUGL_VIEW_STYLE_TALL) && (flags & PUGL_VIEW_STYLE_WIDE);
+}
 
-  FlashWindowEx(&info);
+PuglStatus
+puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
+{
+  PuglInternals* const     impl     = view->impl;
+  const PuglViewStyleFlags oldFlags = puglGetViewStyle(view);
+
+  for (uint32_t mask = 1U; mask <= PUGL_MAX_VIEW_STYLE_FLAG; mask <<= 1U) {
+    const bool oldValue = oldFlags & mask;
+    const bool newValue = flags & mask;
+    if (oldValue == newValue) {
+      continue;
+    }
+
+    switch (mask) {
+    case PUGL_VIEW_STYLE_MODAL:
+    case PUGL_VIEW_STYLE_TALL:
+    case PUGL_VIEW_STYLE_WIDE:
+      break;
+
+    case PUGL_VIEW_STYLE_HIDDEN:
+      ShowWindow(impl->hwnd, newValue ? SW_SHOWMINIMIZED : SW_RESTORE);
+      break;
+
+    case PUGL_VIEW_STYLE_FULLSCREEN:
+      impl->fullscreen = newValue;
+      SetWindowLong(impl->hwnd, GWL_STYLE, (LONG)puglWinGetWindowFlags(view));
+      SetWindowLong(
+        impl->hwnd, GWL_EXSTYLE, (LONG)puglWinGetWindowExFlags(view));
+      if (newValue) {
+        GetWindowPlacement(impl->hwnd, &impl->oldPlacement);
+        ShowWindow(impl->hwnd, SW_SHOWMAXIMIZED);
+      } else {
+        impl->oldPlacement.showCmd = SW_RESTORE;
+        SetWindowPlacement(impl->hwnd, &impl->oldPlacement);
+      }
+      break;
+
+    case PUGL_VIEW_STYLE_ABOVE:
+    case PUGL_VIEW_STYLE_BELOW:
+      break;
+
+    case PUGL_VIEW_STYLE_DEMANDING: {
+      FLASHWINFO info = {
+        sizeof(FLASHWINFO), impl->hwnd, FLASHW_ALL | FLASHW_TIMERNOFG, 1, 0};
+
+      FlashWindowEx(&info);
+      break;
+    }
+
+    case PUGL_VIEW_STYLE_RESIZING:
+      break;
+    }
+  }
+
+  // Handle maximization (Windows doesn't have tall/wide styles)
+  const bool oldMaximized = styleIsMaximized(oldFlags);
+  const bool newMaximized = styleIsMaximized(flags);
+  if (oldMaximized != newMaximized) {
+    ShowWindow(impl->hwnd, newMaximized ? SW_SHOWMAXIMIZED : SW_RESTORE);
+    puglPostRedisplay(view);
+  }
 
   return PUGL_SUCCESS;
 }

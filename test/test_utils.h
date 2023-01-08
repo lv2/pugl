@@ -89,6 +89,33 @@ scrollDirectionString(const PuglScrollDirection direction)
   return "unknown";
 }
 
+static inline const char*
+viewStyleFlagString(const PuglViewStyleFlag state)
+{
+  switch (state) {
+  case PUGL_VIEW_STYLE_MODAL:
+    return "modal";
+  case PUGL_VIEW_STYLE_TALL:
+    return "tall";
+  case PUGL_VIEW_STYLE_WIDE:
+    return "wide";
+  case PUGL_VIEW_STYLE_HIDDEN:
+    return "hidden";
+  case PUGL_VIEW_STYLE_FULLSCREEN:
+    return "fullscreen";
+  case PUGL_VIEW_STYLE_ABOVE:
+    return "above";
+  case PUGL_VIEW_STYLE_BELOW:
+    return "below";
+  case PUGL_VIEW_STYLE_DEMANDING:
+    return "demanding";
+  case PUGL_VIEW_STYLE_RESIZING:
+    return "resizing";
+  }
+
+  return "unknown";
+}
+
 static inline int
 printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 {
@@ -183,12 +210,20 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     case PUGL_UPDATE:
       return fprintf(stderr, "%sUpdate\n", prefix);
     case PUGL_CONFIGURE:
-      return PRINT("%sConfigure " PIFMT " " PUFMT "\n",
-                   prefix,
-                   event->configure.x,
-                   event->configure.y,
-                   event->configure.width,
-                   event->configure.height);
+      PRINT("%sConfigure " PIFMT " " PUFMT " (",
+            prefix,
+            event->configure.x,
+            event->configure.y,
+            event->configure.width,
+            event->configure.height);
+      for (PuglViewStyleFlags mask = 1U; mask <= PUGL_MAX_VIEW_STYLE_FLAG;
+           mask <<= 1U) {
+        if (event->configure.style & mask) {
+          PRINT(" %s", viewStyleFlagString((PuglViewStyleFlag)mask));
+        }
+      }
+      PRINT("%s\n", " )");
+      return 0;
     case PUGL_EXPOSE:
       return PRINT("%sExpose    " PIFMT " " PUFMT "\n",
                    prefix,
@@ -254,6 +289,8 @@ puglViewHintString(const PuglViewHint hint)
     return "Ignore key repeat";
   case PUGL_REFRESH_RATE:
     return "Refresh rate";
+  case PUGL_VIEW_TYPE:
+    return "View type";
   }
 
   return "Unknown";

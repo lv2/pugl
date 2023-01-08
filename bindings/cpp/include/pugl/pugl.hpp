@@ -100,13 +100,15 @@ struct Event final : Base {
   {}
 };
 
-using Mod          = PuglMod;          ///< @copydoc PuglMod
-using Mods         = PuglMods;         ///< @copydoc PuglMods
-using Key          = PuglKey;          ///< @copydoc PuglKey
-using EventType    = PuglEventType;    ///< @copydoc PuglEventType
-using EventFlag    = PuglEventFlag;    ///< @copydoc PuglEventFlag
-using EventFlags   = PuglEventFlags;   ///< @copydoc PuglEventFlags
-using CrossingMode = PuglCrossingMode; ///< @copydoc PuglCrossingMode
+using Mod            = PuglMod;            ///< @copydoc PuglMod
+using Mods           = PuglMods;           ///< @copydoc PuglMods
+using Key            = PuglKey;            ///< @copydoc PuglKey
+using EventType      = PuglEventType;      ///< @copydoc PuglEventType
+using EventFlag      = PuglEventFlag;      ///< @copydoc PuglEventFlag
+using EventFlags     = PuglEventFlags;     ///< @copydoc PuglEventFlags
+using CrossingMode   = PuglCrossingMode;   ///< @copydoc PuglCrossingMode
+using ViewStyleFlag  = PuglViewStyleFlag;  ///< @copydoc PuglViewStyleFlag
+using ViewStyleFlags = PuglViewStyleFlags; ///< @copydoc PuglViewStyleFlags
 
 /// @copydoc PuglRealizeEvent
 using RealizeEvent = Event<PUGL_REALIZE, PuglRealizeEvent>;
@@ -600,10 +602,10 @@ public:
     return static_cast<Status>(puglAcceptOffer(cobj(), &offer, typeIndex));
   }
 
-  /// @copydoc puglRequestAttention
-  Status requestAttention() noexcept
+  /// @copydoc puglSetViewStyle
+  Status setViewStyle(const PuglViewStyleFlags flags)
   {
-    return static_cast<Status>(puglRequestAttention(cobj()));
+    return static_cast<Status>(puglSetViewStyle(cobj(), flags));
   }
 
   /**

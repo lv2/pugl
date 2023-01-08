@@ -56,6 +56,7 @@ struct PuglViewImpl {
   PuglHints          hints;
   PuglViewSize       sizeHints[PUGL_NUM_SIZE_HINTS];
   PuglViewStage      stage;
+  bool               resizing;
 };
 
 /// Cross-platform world definition

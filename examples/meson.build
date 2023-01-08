@@ -18,7 +18,8 @@ gl_examples = [
 ]
 
 cairo_examples = [
-  'pugl_cairo_demo.c'
+  'pugl_cairo_demo.c',
+  'pugl_management_demo.c',
 ]
 
 vulkan_examples = [
@@ -89,6 +90,7 @@ if host_machine.system() == 'darwin'
 
   if cairo_dep.found()
     subdir('pugl_cairo_demo.app')
+    subdir('pugl_management_demo.app')
   endif
 
   if opengl_dep.found()

@@ -173,6 +173,27 @@ updateViewRect(PuglView* view)
   }
 }
 
+static PuglViewStyleFlags
+getCurrentViewStyleFlags(PuglView* const view)
+{
+  const bool isResizing = view->resizing;
+
+  if (!view->impl->window) {
+    return (isResizing ? PUGL_VIEW_STYLE_RESIZING : 0U);
+  }
+
+  const NSWindowStyleMask styleMask = [view->impl->window styleMask];
+
+  const bool isFullScreen   = styleMask & NSWindowStyleMaskFullScreen;
+  const bool isMiniaturized = [view->impl->window isMiniaturized];
+  const bool isZoomed       = [view->impl->window isZoomed];
+
+  return (isFullScreen ? PUGL_VIEW_STYLE_FULLSCREEN : 0U) |
+         (isMiniaturized ? PUGL_VIEW_STYLE_HIDDEN : 0U) |
+         (isZoomed ? (PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE) : 0U) |
+         (isResizing ? PUGL_VIEW_STYLE_RESIZING : 0U);
+}
+
 @implementation PuglWindow {
 @public
   PuglView* puglview;
@@ -201,6 +222,24 @@ updateViewRect(PuglView* view)
   [self setContentSize:sizePoints(view, view->frame.width, view->frame.height)];
 }
 
+- (PuglStatus)dispatchCurrentConfiguration
+{
+  const PuglConfigureEvent ev = {
+    PUGL_CONFIGURE,
+    0,
+    puglview->frame.x,
+    puglview->frame.y,
+    puglview->frame.width,
+    puglview->frame.height,
+    getCurrentViewStyleFlags(puglview),
+  };
+
+  PuglEvent configureEvent;
+  configureEvent.configure = ev;
+
+  return puglDispatchEvent(puglview, &configureEvent);
+}
+
 - (BOOL)canBecomeKeyWindow
 {
   return YES;
@@ -216,21 +255,22 @@ updateViewRect(PuglView* view)
   [super setIsVisible:flag];
 
   if (flag && puglview->stage < PUGL_VIEW_STAGE_MAPPED) {
-    const PuglConfigureEvent ev = {
-      PUGL_CONFIGURE,
-      0,
-      puglview->frame.x,
-      puglview->frame.y,
-      puglview->frame.width,
-      puglview->frame.height,
-    };
-
-    PuglEvent configureEvent;
-    configureEvent.configure = ev;
-    puglDispatchEvent(puglview, &configureEvent);
+    [self dispatchCurrentConfiguration];
     puglDispatchSimpleEvent(puglview, PUGL_MAP);
   } else if (!flag && puglview->stage == PUGL_VIEW_STAGE_MAPPED) {
     puglDispatchSimpleEvent(puglview, PUGL_UNMAP);
+  }
+}
+
+- (void)setIsZoomed:(BOOL)flag
+{
+  [super setIsZoomed:flag];
+
+  const bool wasZoomed = (puglview->lastConfigure.style &
+                          (PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE));
+
+  if (flag != wasZoomed) {
+    [self dispatchCurrentConfiguration];
   }
 }
 
@@ -263,6 +303,7 @@ updateViewRect(PuglView* view)
       puglview->frame.y,
       puglview->frame.width,
       puglview->frame.height,
+      getCurrentViewStyleFlags(puglview),
     };
 
     PuglEvent configureEvent;
@@ -821,6 +862,11 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   puglDispatchSimpleEvent(puglview, PUGL_LOOP_ENTER);
 }
 
+- (void)viewDidEndLiveResize
+{
+  puglDispatchSimpleEvent(puglview, PUGL_LOOP_LEAVE);
+}
+
 - (void)viewWillDraw
 {
   puglDispatchSimpleEvent(puglview, PUGL_UPDATE);
@@ -837,16 +883,13 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   puglDispatchEvent(puglview, &timerEvent);
 }
 
-- (void)viewDidEndLiveResize
-{
-  puglDispatchSimpleEvent(puglview, PUGL_LOOP_LEAVE);
-}
-
 @end
 
 @interface PuglWindowDelegate : NSObject<NSWindowDelegate>
 
 - (instancetype)initWithPuglWindow:(PuglWindow*)window;
+- (void)beginLiveResize:(NSNotification*)notification;
+- (void)endLiveResize:(NSNotification*)notification;
 
 @end
 
@@ -861,6 +904,22 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   }
 
   return self;
+}
+
+- (void)beginLiveResize:(NSNotification*)notification
+{
+  (void)notification;
+
+  window->puglview->resizing = true;
+  [window dispatchCurrentConfiguration];
+}
+
+- (void)endLiveResize:(NSNotification*)notification
+{
+  (void)notification;
+
+  window->puglview->resizing = false;
+  [window dispatchCurrentConfiguration];
 }
 
 - (BOOL)windowShouldClose:(id)sender
@@ -894,6 +953,56 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   PuglEvent ev  = {{PUGL_FOCUS_OUT, 0}};
   ev.focus.mode = PUGL_CROSSING_NORMAL;
   puglDispatchEvent(window->puglview, &ev);
+}
+
+- (void)windowWillStartLiveResize:(NSNotification*)notification
+{
+  [self beginLiveResize:notification];
+}
+
+- (void)windowDidEndLiveResize:(NSNotification*)notification
+{
+  [self endLiveResize:notification];
+}
+
+- (void)windowWillMiniaturize:(NSNotification*)notification
+{
+  [self beginLiveResize:notification];
+}
+
+- (void)windowDidMiniaturize:(NSNotification*)notification
+{
+  [self endLiveResize:notification];
+}
+
+- (void)windowWillDeminiaturize:(NSNotification*)notification
+{
+  [self beginLiveResize:notification];
+}
+
+- (void)windowDidDeminiaturize:(NSNotification*)notification
+{
+  [self endLiveResize:notification];
+}
+
+- (void)windowWillEnterFullScreen:(NSNotification*)notification
+{
+  [self beginLiveResize:notification];
+}
+
+- (void)windowDidEnterFullScreen:(NSNotification*)notification
+{
+  [self endLiveResize:notification];
+}
+
+- (void)windowWillExitFullScreen:(NSNotification*)notification
+{
+  [self beginLiveResize:notification];
+}
+
+- (void)windowDidExitFullScreen:(NSNotification*)notification
+{
+  [self endLiveResize:notification];
 }
 
 @end
@@ -1278,11 +1387,69 @@ puglHasFocus(const PuglView* view)
           [[impl->wrapperView window] firstResponder] == impl->wrapperView);
 }
 
-PuglStatus
-puglRequestAttention(PuglView* view)
+static bool
+styleIsMaximized(const PuglViewStyleFlags flags)
 {
-  if (![view->impl->window isKeyWindow]) {
-    [view->world->impl->app requestUserAttention:NSInformationalRequest];
+  return (flags & PUGL_VIEW_STYLE_TALL) && (flags & PUGL_VIEW_STYLE_WIDE);
+}
+
+PuglStatus
+puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
+{
+  NSWindow* const          window   = view->impl->window;
+  const PuglViewStyleFlags oldFlags = puglGetViewStyle(view);
+  if (!window) {
+    return PUGL_FAILURE;
+  }
+
+  for (uint32_t mask = 1U; mask <= PUGL_MAX_VIEW_STYLE_FLAG; mask <<= 1U) {
+    const bool oldValue = oldFlags & mask;
+    const bool newValue = flags & mask;
+    if (oldValue == newValue) {
+      continue;
+    }
+
+    switch (mask) {
+    case PUGL_VIEW_STYLE_MODAL:
+    case PUGL_VIEW_STYLE_TALL:
+    case PUGL_VIEW_STYLE_WIDE:
+      break;
+
+    case PUGL_VIEW_STYLE_HIDDEN:
+      if (newValue) {
+        [window miniaturize:window];
+      } else {
+        [window deminiaturize:window];
+      }
+      break;
+
+    case PUGL_VIEW_STYLE_FULLSCREEN:
+      if (newValue != ([window styleMask] & NSFullScreenWindowMask)) {
+        [window toggleFullScreen:nil];
+      }
+      break;
+
+    case PUGL_VIEW_STYLE_ABOVE:
+    case PUGL_VIEW_STYLE_BELOW:
+      break;
+
+    case PUGL_VIEW_STYLE_DEMANDING:
+      if (![window isKeyWindow]) {
+        [view->world->impl->app requestUserAttention:NSInformationalRequest];
+      }
+      break;
+
+    case PUGL_VIEW_STYLE_RESIZING:
+    case PUGL_VIEW_STYLE_MAPPED:
+      break;
+    }
+  }
+
+  // Handle maximization (MacOS doesn't have tall/wide styles)
+  const bool oldMaximized = styleIsMaximized(oldFlags);
+  const bool newMaximized = styleIsMaximized(flags);
+  if (oldMaximized != newMaximized) {
+    [window zoom:window];
   }
 
   return PUGL_SUCCESS;

@@ -155,7 +155,8 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
   impl->display     = display;
   impl->scaleFactor = puglX11GetDisplayScaleFactor(display);
 
-  // Intern the various atoms we will need
+  // Intern the various atoms we'll need
+
   impl->atoms.CLIPBOARD        = XInternAtom(display, "CLIPBOARD", 0);
   impl->atoms.UTF8_STRING      = XInternAtom(display, "UTF8_STRING", 0);
   impl->atoms.WM_PROTOCOLS     = XInternAtom(display, "WM_PROTOCOLS", 0);
@@ -164,10 +165,31 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
   impl->atoms.NET_CLOSE_WINDOW = XInternAtom(display, "_NET_CLOSE_WINDOW", 0);
   impl->atoms.NET_WM_NAME      = XInternAtom(display, "_NET_WM_NAME", 0);
   impl->atoms.NET_WM_STATE     = XInternAtom(display, "_NET_WM_STATE", 0);
+
+  impl->atoms.NET_WM_STATE_ABOVE =
+    XInternAtom(display, "_NET_WM_STATE_ABOVE", 0);
+  impl->atoms.NET_WM_STATE_BELOW =
+    XInternAtom(display, "_NET_WM_STATE_BELOW", 0);
   impl->atoms.NET_WM_STATE_DEMANDS_ATTENTION =
     XInternAtom(display, "_NET_WM_STATE_DEMANDS_ATTENTION", 0);
+  impl->atoms.NET_WM_STATE_FULLSCREEN =
+    XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", 0);
   impl->atoms.NET_WM_STATE_HIDDEN =
     XInternAtom(display, "_NET_WM_STATE_HIDDEN", 0);
+  impl->atoms.NET_WM_STATE_MAXIMIZED_HORZ =
+    XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_HORZ", 0);
+  impl->atoms.NET_WM_STATE_MAXIMIZED_VERT =
+    XInternAtom(display, "_NET_WM_STATE_MAXIMIZED_VERT", 0);
+  impl->atoms.NET_WM_STATE_MODAL =
+    XInternAtom(display, "_NET_WM_STATE_MODAL", 0);
+  impl->atoms.NET_WM_WINDOW_TYPE =
+    XInternAtom(display, "_NET_WM_WINDOW_TYPE", 0);
+  impl->atoms.NET_WM_WINDOW_TYPE_DIALOG =
+    XInternAtom(display, "_NET_WM_WINDOW_TYPE_DIALOG", 0);
+  impl->atoms.NET_WM_WINDOW_TYPE_NORMAL =
+    XInternAtom(display, "_NET_WM_WINDOW_TYPE_NORMAL", 0);
+  impl->atoms.NET_WM_WINDOW_TYPE_UTILITY =
+    XInternAtom(display, "_NET_WM_WINDOW_TYPE_UTILITY", 0);
 
   impl->atoms.TARGETS       = XInternAtom(display, "TARGETS", 0);
   impl->atoms.text_uri_list = XInternAtom(display, "text/uri-list", 0);
@@ -205,6 +227,96 @@ puglInitViewInternals(PuglWorld* const world)
 #endif
 
   return impl;
+}
+
+static Atom
+styleFlagToAtom(PuglWorld* const world, const PuglViewStyleFlag flag)
+{
+  const PuglX11Atoms* const atoms = &world->impl->atoms;
+
+  switch (flag) {
+  case PUGL_VIEW_STYLE_MODAL:
+    return atoms->NET_WM_STATE_MODAL;
+  case PUGL_VIEW_STYLE_TALL:
+    return atoms->NET_WM_STATE_MAXIMIZED_VERT;
+  case PUGL_VIEW_STYLE_WIDE:
+    return atoms->NET_WM_STATE_MAXIMIZED_HORZ;
+  case PUGL_VIEW_STYLE_HIDDEN:
+    return atoms->NET_WM_STATE_HIDDEN;
+  case PUGL_VIEW_STYLE_FULLSCREEN:
+    return atoms->NET_WM_STATE_FULLSCREEN;
+  case PUGL_VIEW_STYLE_ABOVE:
+    return atoms->NET_WM_STATE_ABOVE;
+  case PUGL_VIEW_STYLE_BELOW:
+    return atoms->NET_WM_STATE_BELOW;
+  case PUGL_VIEW_STYLE_DEMANDING:
+    return atoms->NET_WM_STATE_DEMANDS_ATTENTION;
+  case PUGL_VIEW_STYLE_RESIZING:
+    break;
+  }
+
+  return 0;
+}
+
+static Atom
+viewTypeToAtom(PuglWorld* const world, const PuglViewType type)
+{
+  const PuglX11Atoms* const atoms = &world->impl->atoms;
+
+  switch (type) {
+  case PUGL_VIEW_TYPE_NORMAL:
+    return atoms->NET_WM_WINDOW_TYPE_NORMAL;
+  case PUGL_VIEW_TYPE_UTILITY:
+    return atoms->NET_WM_WINDOW_TYPE_UTILITY;
+  case PUGL_VIEW_TYPE_DIALOG:
+    return atoms->NET_WM_WINDOW_TYPE_DIALOG;
+  }
+
+  return 0;
+}
+
+PuglStatus
+puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
+{
+  PuglWorld* const          world    = view->world;
+  PuglInternals* const      impl     = view->impl;
+  Display* const            display  = view->world->impl->display;
+  const PuglX11Atoms* const atoms    = &view->world->impl->atoms;
+  const PuglViewStyleFlags  oldFlags = puglGetViewStyle(view);
+
+  for (uint32_t mask = 1U; mask <= PUGL_MAX_VIEW_STYLE_FLAG; mask <<= 1U) {
+    const Atom stateAtom = styleFlagToAtom(world, (PuglViewStyleFlag)mask);
+    const bool oldValue  = oldFlags & mask;
+    const bool newValue  = flags & mask;
+    if (!stateAtom || oldValue == newValue) {
+      continue;
+    }
+
+    if (stateAtom == atoms->NET_WM_STATE_HIDDEN) {
+      // KDE annoyingly doesn't support clients setting the hidden hint
+      XIconifyWindow(display, impl->win, impl->screen);
+    } else {
+      XEvent event               = {ClientMessage};
+      event.xclient.window       = impl->win;
+      event.xclient.format       = 32;
+      event.xclient.message_type = atoms->NET_WM_STATE;
+      event.xclient.data.l[0]    = newValue ? WM_STATE_ADD : WM_STATE_REMOVE;
+      event.xclient.data.l[1]    = (long)stateAtom;
+      event.xclient.data.l[2]    = 0;
+      event.xclient.data.l[3]    = 1;
+      event.xclient.data.l[4]    = 0;
+
+      if (!XSendEvent(display,
+                      RootWindow(display, impl->screen),
+                      False,
+                      SubstructureNotifyMask | SubstructureRedirectMask,
+                      &event)) {
+        return PUGL_UNKNOWN_ERROR;
+      }
+    }
+  }
+
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
@@ -433,6 +545,20 @@ puglRealize(PuglView* const view)
   // Create the backend drawing context/surface
   if ((st = view->backend->create(view))) {
     return st;
+  }
+
+  // Set window type
+  if (view->hints[PUGL_VIEW_TYPE] != PUGL_DONT_CARE) {
+    const PuglViewType viewType   = (PuglViewType)view->hints[PUGL_VIEW_TYPE];
+    const Atom         windowType = viewTypeToAtom(world, viewType);
+    XChangeProperty(display,
+                    impl->win,
+                    atoms->NET_WM_WINDOW_TYPE,
+                    XA_ATOM,
+                    32,
+                    PropModeReplace,
+                    (const unsigned char*)&windowType,
+                    1);
   }
 
 #ifdef HAVE_XRANDR
@@ -787,6 +913,40 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
   return event;
 }
 
+static PuglViewStyleFlags
+getCurrentViewStyleFlags(PuglView* const view)
+{
+  const PuglX11Atoms* const atoms = &view->world->impl->atoms;
+
+  unsigned long      numHints = 0;
+  Atom*              hints    = NULL;
+  PuglViewStyleFlags state    = 0U;
+  if (!getAtomProperty(
+        view, view->impl->win, atoms->NET_WM_STATE, &numHints, &hints)) {
+    for (unsigned long i = 0; i < numHints; ++i) {
+      if (hints[i] == atoms->NET_WM_STATE_MAXIMIZED_VERT) {
+        state |= PUGL_VIEW_STYLE_TALL;
+      } else if (hints[i] == atoms->NET_WM_STATE_MAXIMIZED_HORZ) {
+        state |= PUGL_VIEW_STYLE_WIDE;
+      } else if (hints[i] == atoms->NET_WM_STATE_HIDDEN) {
+        state |= PUGL_VIEW_STYLE_HIDDEN;
+      } else if (hints[i] == atoms->NET_WM_STATE_FULLSCREEN) {
+        state |= PUGL_VIEW_STYLE_FULLSCREEN;
+      } else if (hints[i] == atoms->NET_WM_STATE_MODAL) {
+        state |= PUGL_VIEW_STYLE_MODAL;
+      } else if (hints[i] == atoms->NET_WM_STATE_ABOVE) {
+        state |= PUGL_VIEW_STYLE_ABOVE;
+      } else if (hints[i] == atoms->NET_WM_STATE_BELOW) {
+        state |= PUGL_VIEW_STYLE_BELOW;
+      } else if (hints[i] == atoms->NET_WM_STATE_DEMANDS_ATTENTION) {
+        state |= PUGL_VIEW_STYLE_DEMANDING;
+      }
+    }
+  }
+
+  return state;
+}
+
 static PuglEvent
 getCurrentConfiguration(PuglView* const view)
 {
@@ -794,42 +954,47 @@ getCurrentConfiguration(PuglView* const view)
   XWindowAttributes attrs;
   XGetWindowAttributes(view->world->impl->display, view->impl->win, &attrs);
 
-  // Build a configure event with the current position and size
+  // Build a configure event based on the current window configuration
   PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
   configureEvent.configure.x      = (PuglCoord)attrs.x;
   configureEvent.configure.y      = (PuglCoord)attrs.y;
   configureEvent.configure.width  = (PuglSpan)attrs.width;
   configureEvent.configure.height = (PuglSpan)attrs.height;
+  configureEvent.configure.style  = getCurrentViewStyleFlags(view);
 
   return configureEvent;
 }
 
 static PuglEvent
+makeConfigureEvent(PuglView* const view)
+{
+  PuglEvent event = view->impl->pendingConfigure;
+
+  if (event.type != PUGL_CONFIGURE) {
+    event = getCurrentConfiguration(view);
+  }
+
+  return event;
+}
+
+static PuglEvent
 translatePropertyNotify(PuglView* const view, XPropertyEvent message)
 {
-  const PuglX11Atoms* const atoms = &view->world->impl->atoms;
+  const PuglInternals* const impl  = view->impl;
+  const PuglX11Atoms* const  atoms = &view->world->impl->atoms;
+  PuglEvent                  event = {{PUGL_NOTHING, 0}};
 
-  PuglEvent event = {{PUGL_NOTHING, 0}};
   if (message.atom == atoms->NET_WM_STATE) {
+    // Get all the current states set in the window hints
     unsigned long numHints = 0;
     Atom*         hints    = NULL;
-    if (getAtomProperty(
-          view, view->impl->win, message.atom, &numHints, &hints)) {
+    if (getAtomProperty(view, impl->win, message.atom, &numHints, &hints)) {
       return event;
     }
 
-    bool hidden = false;
-    for (unsigned long i = 0; i < numHints; ++i) {
-      if (hints[i] == atoms->NET_WM_STATE_HIDDEN) {
-        hidden = true;
-      }
-    }
-
-    if (hidden && view->stage == PUGL_VIEW_STAGE_MAPPED) {
-      event.type = PUGL_UNMAP;
-    } else if (!hidden && view->stage == PUGL_VIEW_STAGE_CONFIGURED) {
-      event.type = PUGL_MAP;
-    }
+    // Make a configure event based on the current configuration to update
+    event                 = makeConfigureEvent(view);
+    event.configure.style = getCurrentViewStyleFlags(view);
 
     XFree(hints);
   }
@@ -851,9 +1016,7 @@ translateEvent(PuglView* const view, XEvent xevent)
     event = translatePropertyNotify(view, xevent.xproperty);
     break;
   case VisibilityNotify:
-    event.type = (xevent.xvisibility.state == VisibilityFullyObscured)
-                   ? PUGL_UNMAP
-                   : PUGL_MAP;
+    event = makeConfigureEvent(view);
     break;
   case MapNotify:
     event.type = PUGL_MAP;
@@ -862,7 +1025,7 @@ translateEvent(PuglView* const view, XEvent xevent)
     event.type = PUGL_UNMAP;
     break;
   case ConfigureNotify:
-    event.type             = PUGL_CONFIGURE;
+    event                  = makeConfigureEvent(view);
     event.configure.x      = (PuglCoord)xevent.xconfigure.x;
     event.configure.y      = (PuglCoord)xevent.xconfigure.y;
     event.configure.width  = (PuglSpan)xevent.xconfigure.width;
@@ -1011,35 +1174,6 @@ puglHasFocus(const PuglView* const view)
   Window focusedWindow = 0;
   XGetInputFocus(view->world->impl->display, &focusedWindow, &revertTo);
   return focusedWindow == view->impl->win;
-}
-
-PuglStatus
-puglRequestAttention(PuglView* const view)
-{
-  PuglInternals* const      impl    = view->impl;
-  Display* const            display = view->world->impl->display;
-  const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
-  XEvent                    event   = PUGL_INIT_STRUCT;
-
-  event.type                 = ClientMessage;
-  event.xclient.window       = impl->win;
-  event.xclient.format       = 32;
-  event.xclient.message_type = atoms->NET_WM_STATE;
-  event.xclient.data.l[0]    = WM_STATE_ADD;
-  event.xclient.data.l[1]    = (long)atoms->NET_WM_STATE_DEMANDS_ATTENTION;
-  event.xclient.data.l[2]    = 0;
-  event.xclient.data.l[3]    = 1;
-  event.xclient.data.l[4]    = 0;
-
-  const Window root = RootWindow(display, impl->screen);
-
-  return XSendEvent(display,
-                    root,
-                    False,
-                    SubstructureNotifyMask | SubstructureRedirectMask,
-                    &event)
-           ? PUGL_SUCCESS
-           : PUGL_UNKNOWN_ERROR;
 }
 
 PuglStatus
