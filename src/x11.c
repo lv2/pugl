@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #ifndef MIN
 #  define MIN(a, b) (((a) < (b)) ? (a) : (b))
@@ -157,14 +158,17 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
 
   // Intern the various atoms we'll need
 
-  impl->atoms.CLIPBOARD        = XInternAtom(display, "CLIPBOARD", 0);
-  impl->atoms.UTF8_STRING      = XInternAtom(display, "UTF8_STRING", 0);
-  impl->atoms.WM_PROTOCOLS     = XInternAtom(display, "WM_PROTOCOLS", 0);
-  impl->atoms.WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", 0);
-  impl->atoms.PUGL_CLIENT_MSG  = XInternAtom(display, "_PUGL_CLIENT_MSG", 0);
-  impl->atoms.NET_CLOSE_WINDOW = XInternAtom(display, "_NET_CLOSE_WINDOW", 0);
-  impl->atoms.NET_WM_NAME      = XInternAtom(display, "_NET_WM_NAME", 0);
-  impl->atoms.NET_WM_STATE     = XInternAtom(display, "_NET_WM_STATE", 0);
+  impl->atoms.CLIPBOARD         = XInternAtom(display, "CLIPBOARD", 0);
+  impl->atoms.UTF8_STRING       = XInternAtom(display, "UTF8_STRING", 0);
+  impl->atoms.WM_CLIENT_MACHINE = XInternAtom(display, "WM_CLIENT_MACHINE", 0);
+  impl->atoms.WM_PROTOCOLS      = XInternAtom(display, "WM_PROTOCOLS", 0);
+  impl->atoms.WM_DELETE_WINDOW  = XInternAtom(display, "WM_DELETE_WINDOW", 0);
+  impl->atoms.PUGL_CLIENT_MSG   = XInternAtom(display, "_PUGL_CLIENT_MSG", 0);
+  impl->atoms.NET_CLOSE_WINDOW  = XInternAtom(display, "_NET_CLOSE_WINDOW", 0);
+  impl->atoms.NET_WM_NAME       = XInternAtom(display, "_NET_WM_NAME", 0);
+  impl->atoms.NET_WM_PID        = XInternAtom(display, "_NET_WM_PID", 0);
+  impl->atoms.NET_WM_PING       = XInternAtom(display, "_NET_WM_PING", 0);
+  impl->atoms.NET_WM_STATE      = XInternAtom(display, "_NET_WM_STATE", 0);
 
   impl->atoms.NET_WM_STATE_ABOVE =
     XInternAtom(display, "_NET_WM_STATE_ABOVE", 0);
@@ -583,13 +587,37 @@ puglRealize(PuglView* const view)
     puglSetWindowTitle(view, view->title);
   }
 
-  if (parent == root) {
-    XSetWMProtocols(display, impl->win, &atoms->WM_DELETE_WINDOW, 1);
-  }
-
   if (view->transientParent) {
     puglSetTransientParent(view, view->transientParent);
   }
+
+  // Set PID and hostname so the window manager can access our process
+  char       hostname[256] = {0};
+  const long pid           = (long)getpid();
+  if (pid > 0 && !gethostname(hostname, sizeof(hostname))) {
+    hostname[sizeof(hostname) - 1] = '\0';
+    XChangeProperty(display,
+                    impl->win,
+                    atoms->WM_CLIENT_MACHINE,
+                    XA_STRING,
+                    8,
+                    PropModeReplace,
+                    (const uint8_t*)hostname,
+                    (int)strlen(hostname));
+
+    XChangeProperty(display,
+                    impl->win,
+                    atoms->NET_WM_PID,
+                    XA_CARDINAL,
+                    32,
+                    PropModeReplace,
+                    (const uint8_t*)&pid,
+                    1);
+  }
+
+  // Set supported WM protocols
+  Atom protocols[] = {atoms->NET_WM_PING, atoms->WM_DELETE_WINDOW};
+  XSetWMProtocols(display, impl->win, protocols, (parent == root) ? 2 : 1);
 
   // Create input context
   if (world->impl->xim) {
@@ -913,13 +941,24 @@ setClipboardFormats(PuglView* const         view,
 static PuglEvent
 translateClientMessage(PuglView* const view, XClientMessageEvent message)
 {
-  const PuglX11Atoms* const atoms = &view->world->impl->atoms;
-  PuglEvent                 event = {{PUGL_NOTHING, 0}};
+  Display* const            display = view->world->impl->display;
+  const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
+  PuglEvent                 event   = {{PUGL_NOTHING, 0}};
 
   if (message.message_type == atoms->WM_PROTOCOLS) {
     const Atom protocol = (Atom)message.data.l[0];
     if (protocol == atoms->WM_DELETE_WINDOW) {
       event.type = PUGL_CLOSE;
+    } else if (protocol == atoms->NET_WM_PING) {
+      const Window root    = RootWindow(display, view->impl->screen);
+      XEvent       reply   = {ClientMessage};
+      reply.xclient        = message;
+      reply.xclient.window = root;
+      XSendEvent(display,
+                 root,
+                 False,
+                 SubstructureNotifyMask | SubstructureRedirectMask,
+                 &reply);
     }
   } else if (message.message_type == atoms->PUGL_CLIENT_MSG) {
     event.type         = PUGL_CLIENT;
