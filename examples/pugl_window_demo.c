@@ -213,7 +213,7 @@ main(int argc, char** argv)
       return logError("Failed to create window (%s)\n", puglStrerror(st));
     }
 
-    puglShow(view);
+    puglShow(view, PUGL_SHOW_PASSIVE);
   }
 
   PuglFpsPrinter fpsPrinter  = {puglGetTime(app.world)};

@@ -453,7 +453,7 @@ main(int argc, char** argv)
 
   // Show window
   printViewHints(app.view);
-  puglShow(app.view);
+  puglShow(app.view, PUGL_SHOW_PASSIVE);
 
   // Grind away, drawing continuously
   const double   startTime  = puglGetTime(app.world);

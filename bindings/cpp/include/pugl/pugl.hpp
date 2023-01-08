@@ -378,6 +378,17 @@ enum class Cursor {
 
 static_assert(static_cast<Cursor>(PUGL_CURSOR_UP_DOWN) == Cursor::upDown, "");
 
+/// @copydoc PuglShowCommand
+enum class ShowCommand {
+  passive,    ///< @copydoc PUGL_SHOW_PASSIVE,
+  raise,      ///< @copydoc PUGL_SHOW_RAISE,
+  forceRaise, ///< @copydoc PUGL_SHOW_FORCE_RAISE,
+};
+
+static_assert(static_cast<ShowCommand>(PUGL_SHOW_FORCE_RAISE) ==
+                ShowCommand::forceRaise,
+              "");
+
 /// @copydoc PuglView
 class View : protected detail::Wrapper<PuglView, puglFreeView>
 {
@@ -508,7 +519,11 @@ public:
   Status realize() noexcept { return static_cast<Status>(puglRealize(cobj())); }
 
   /// @copydoc puglShow
-  Status show() noexcept { return static_cast<Status>(puglShow(cobj())); }
+  Status show(const ShowCommand command) noexcept
+  {
+    return static_cast<Status>(
+      puglShow(cobj(), static_cast<PuglShowCommand>(command)));
+  }
 
   /// @copydoc puglHide
   Status hide() noexcept { return static_cast<Status>(puglHide(cobj())); }

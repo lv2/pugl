@@ -1213,6 +1213,38 @@ PUGL_API
 PuglStatus
 puglUnrealize(PuglView* view);
 
+/// A command to control the behaviour of puglShow()
+typedef enum {
+  /**
+     Realize and show the window without intentionally raising it.
+
+     This will weakly "show" the window but without making any effort to raise
+     it.  Depending on the platform or system configuration, the window may be
+     raised above some others regardless.
+  */
+  PUGL_SHOW_PASSIVE,
+
+  /**
+     Raise the window to the top of the application's stack.
+
+     This is the normal "well-behaved" way to show and raise the window, which
+     should be used in most cases.
+  */
+  PUGL_SHOW_RAISE,
+
+  /**
+     Aggressively force the window to be raised to the top.
+
+     This will attempt to raise the window to the top, even if this isn't the
+     active application, or if doing so would otherwise go against the
+     platform's guidelines.  This generally shouldn't be used, and isn't
+     guaranteed to work.  On modern Windows systems, the active application
+     must explicitly grant permission for others to steal the foreground from
+     it.
+  */
+  PUGL_SHOW_FORCE_RAISE,
+} PuglShowCommand;
+
 /**
    Show the view.
 
@@ -1224,7 +1256,7 @@ puglUnrealize(PuglView* view);
 */
 PUGL_API
 PuglStatus
-puglShow(PuglView* view);
+puglShow(PuglView* view, PuglShowCommand command);
 
 /// Hide the current window
 PUGL_API

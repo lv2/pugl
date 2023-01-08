@@ -53,7 +53,7 @@ main(void)
     return logError("Failed to create window (%s)\n", puglStrerror(st));
   }
 
-  puglShow(app.view);
+  puglShow(app.view, PUGL_SHOW_PASSIVE);
 
   while (!app.quit) {
     puglUpdate(app.world, -1.0);

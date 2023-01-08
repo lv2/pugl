@@ -117,7 +117,7 @@ main(int argc, char** argv)
 
   // Create and show window
   assert(!puglRealize(test.view));
-  assert(!puglShow(test.view));
+  assert(!puglShow(test.view, PUGL_SHOW_PASSIVE));
   while (test.state != EXPOSED) {
     assert(!puglUpdate(test.world, timeout));
   }

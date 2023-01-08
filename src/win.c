@@ -309,7 +309,7 @@ puglUnrealize(PuglView* const view)
 }
 
 PuglStatus
-puglShow(PuglView* view)
+puglShow(PuglView* view, const PuglShowCommand command)
 {
   PuglInternals* impl = view->impl;
 
@@ -320,8 +320,20 @@ puglShow(PuglView* view)
     }
   }
 
-  ShowWindow(impl->hwnd, SW_SHOWNORMAL);
-  SetFocus(impl->hwnd);
+  switch (command) {
+  case PUGL_SHOW_PASSIVE:
+    ShowWindow(impl->hwnd, SW_SHOWNOACTIVATE);
+    break;
+  case PUGL_SHOW_RAISE:
+    ShowWindow(impl->hwnd, SW_SHOWNORMAL);
+    SetActiveWindow(impl->hwnd);
+    break;
+  case PUGL_SHOW_FORCE_RAISE:
+    ShowWindow(impl->hwnd, SW_SHOWNORMAL);
+    SetForegroundWindow(impl->hwnd);
+    break;
+  }
+
   return PUGL_SUCCESS;
 }
 

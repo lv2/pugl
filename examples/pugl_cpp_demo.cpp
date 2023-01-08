@@ -127,7 +127,7 @@ main(int argc, char** argv)
   view.setHint(pugl::ViewHint::swapInterval, opts.sync);
   view.setHint(pugl::ViewHint::ignoreKeyRepeat, opts.ignoreKeyRepeat);
   view.realize();
-  view.show();
+  view.show(pugl::ShowCommand::passive);
 
   unsigned framesDrawn = 0;
   while (!view.quit()) {

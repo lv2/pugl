@@ -655,12 +655,23 @@ puglUnrealize(PuglView* const view)
 }
 
 PuglStatus
-puglShow(PuglView* const view)
+puglShow(PuglView* const view, const PuglShowCommand command)
 {
   PuglStatus st = view->impl->win ? PUGL_SUCCESS : puglRealize(view);
 
   if (!st) {
-    XMapRaised(view->world->impl->display, view->impl->win);
+    switch (command) {
+    case PUGL_SHOW_PASSIVE:
+      XMapWindow(view->world->impl->display, view->impl->win);
+      break;
+    case PUGL_SHOW_RAISE:
+      XMapRaised(view->world->impl->display, view->impl->win);
+      break;
+    case PUGL_SHOW_FORCE_RAISE:
+      XMapRaised(view->world->impl->display, view->impl->win);
+      break;
+    }
+
     st = puglPostRedisplay(view);
   }
 

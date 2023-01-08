@@ -136,7 +136,7 @@ main(int argc, char** argv)
 
   // Create and show window
   assert(!puglRealize(app.view));
-  assert(!puglShow(app.view));
+  assert(!puglShow(app.view, PUGL_SHOW_PASSIVE));
 
   // Run until the test is finished
   while (app.state != FINISHED) {

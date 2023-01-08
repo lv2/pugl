@@ -1311,7 +1311,7 @@ puglUnrealize(PuglView* const view)
 }
 
 PuglStatus
-puglShow(PuglView* view)
+puglShow(PuglView* view, const PuglShowCommand command)
 {
   if (!view->impl->wrapperView) {
     const PuglStatus st = puglRealize(view);
@@ -1320,10 +1320,22 @@ puglShow(PuglView* view)
     }
   }
 
-  if (![view->impl->window isVisible]) {
-    [view->impl->window setIsVisible:YES];
+  NSWindow* const window = [view->impl->wrapperView window];
+  if (![window isVisible]) {
+    [window setIsVisible:YES];
     [view->impl->drawView setNeedsDisplay:YES];
     updateViewRect(view);
+  }
+
+  switch (command) {
+  case PUGL_SHOW_PASSIVE:
+    break;
+  case PUGL_SHOW_RAISE:
+    [window orderFront:view->impl->wrapperView];
+    break;
+  case PUGL_SHOW_FORCE_RAISE:
+    [window orderFrontRegardless];
+    break;
   }
 
   return PUGL_SUCCESS;
