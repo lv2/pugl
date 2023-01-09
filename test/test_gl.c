@@ -85,7 +85,7 @@ main(int argc, char** argv)
   puglSetBackend(test.view, puglGlBackend());
   puglSetEventFunc(test.view, onEvent);
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 512, 512);
-  puglShow(test.view, PUGL_SHOW_PASSIVE);
+  puglShow(test.view, PUGL_SHOW_RAISE);
 
   // Enter OpenGL context as if setting things up
   puglEnterContext(test.view);

@@ -186,7 +186,7 @@ main(int argc, char** argv)
   assert(puglGetDeviceProcAddrFunc(loader));
 
   // Show view and drive event loop until the view gets exposed
-  puglShow(test.view, PUGL_SHOW_PASSIVE);
+  puglShow(test.view, PUGL_SHOW_RAISE);
   while (!test.exposed) {
     puglUpdate(test.world, -1.0);
   }
