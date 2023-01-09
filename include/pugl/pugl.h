@@ -872,10 +872,11 @@ typedef void* PuglHandle;
 
 /// A hint for configuring a view
 typedef enum {
-  PUGL_USE_COMPAT_PROFILE,    ///< Use compatible (not core) OpenGL profile
-  PUGL_USE_DEBUG_CONTEXT,     ///< True to use a debug OpenGL context
+  PUGL_CONTEXT_API,           ///< OpenGL render API (GL/GLES)
   PUGL_CONTEXT_VERSION_MAJOR, ///< OpenGL context major version
   PUGL_CONTEXT_VERSION_MINOR, ///< OpenGL context minor version
+  PUGL_CONTEXT_PROFILE,       ///< OpenGL context profile (core/compatibility)
+  PUGL_CONTEXT_DEBUG,         ///< OpenGL context debugging enabled
   PUGL_RED_BITS,              ///< Number of bits for red channel
   PUGL_GREEN_BITS,            ///< Number of bits for green channel
   PUGL_BLUE_BITS,             ///< Number of bits for blue channel
@@ -897,9 +898,13 @@ typedef enum {
 
 /// A special view hint value
 typedef enum {
-  PUGL_DONT_CARE = -1, ///< Use best available value
-  PUGL_FALSE     = 0,  ///< Explicitly false
-  PUGL_TRUE      = 1   ///< Explicitly true
+  PUGL_DONT_CARE                    = -1, ///< Generic trinary: Use best default
+  PUGL_FALSE                        = 0,  ///< Generic trinary: Explicitly false
+  PUGL_TRUE                         = 1,  ///< Generic trinary: Explicitly true
+  PUGL_OPENGL_API                   = 2,  ///< For #PUGL_CONTEXT_API
+  PUGL_OPENGL_ES_API                = 3,  ///< For #PUGL_CONTEXT_API
+  PUGL_OPENGL_CORE_PROFILE          = 4,  ///< For #PUGL_CONTEXT_PROFILE
+  PUGL_OPENGL_COMPATIBILITY_PROFILE = 5,  ///< For #PUGL_CONTEXT_PROFILE
 } PuglViewHintValue;
 
 /// View type

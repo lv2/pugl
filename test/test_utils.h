@@ -255,14 +255,16 @@ static inline const char*
 puglViewHintString(const PuglViewHint hint)
 {
   switch (hint) {
-  case PUGL_USE_COMPAT_PROFILE:
-    return "Use compatible profile";
-  case PUGL_USE_DEBUG_CONTEXT:
-    return "Use debug context";
+  case PUGL_CONTEXT_API:
+    return "Context API";
   case PUGL_CONTEXT_VERSION_MAJOR:
     return "Context major version";
   case PUGL_CONTEXT_VERSION_MINOR:
     return "Context minor version";
+  case PUGL_CONTEXT_PROFILE:
+    return "Context profile";
+  case PUGL_CONTEXT_DEBUG:
+    return "Context debug";
   case PUGL_RED_BITS:
     return "Red bits";
   case PUGL_GREEN_BITS:

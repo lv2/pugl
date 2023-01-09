@@ -37,13 +37,15 @@ main(void)
   puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
 
   // Check invalid cases
-  assert(puglSetViewHint(view, PUGL_USE_COMPAT_PROFILE, PUGL_DONT_CARE) ==
-         PUGL_BAD_PARAMETER);
-  assert(puglSetViewHint(view, PUGL_USE_DEBUG_CONTEXT, PUGL_DONT_CARE) ==
+  assert(puglSetViewHint(view, PUGL_CONTEXT_API, PUGL_DONT_CARE) ==
          PUGL_BAD_PARAMETER);
   assert(puglSetViewHint(view, PUGL_CONTEXT_VERSION_MAJOR, PUGL_DONT_CARE) ==
          PUGL_BAD_PARAMETER);
   assert(puglSetViewHint(view, PUGL_CONTEXT_VERSION_MINOR, PUGL_DONT_CARE) ==
+         PUGL_BAD_PARAMETER);
+  assert(puglSetViewHint(view, PUGL_CONTEXT_PROFILE, PUGL_DONT_CARE) ==
+         PUGL_BAD_PARAMETER);
+  assert(puglSetViewHint(view, PUGL_CONTEXT_DEBUG, PUGL_DONT_CARE) ==
          PUGL_BAD_PARAMETER);
   assert(puglSetViewHint(view, PUGL_SWAP_INTERVAL, PUGL_DONT_CARE) ==
          PUGL_BAD_PARAMETER);
@@ -65,10 +67,11 @@ main(void)
   printViewHints(view);
 
   // Check that no hints are set to PUGL_DONT_CARE
-  assert(puglGetViewHint(view, PUGL_USE_COMPAT_PROFILE) != PUGL_DONT_CARE);
-  assert(puglGetViewHint(view, PUGL_USE_DEBUG_CONTEXT) != PUGL_DONT_CARE);
+  assert(puglGetViewHint(view, PUGL_CONTEXT_API) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_CONTEXT_VERSION_MAJOR) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_CONTEXT_VERSION_MINOR) != PUGL_DONT_CARE);
+  assert(puglGetViewHint(view, PUGL_CONTEXT_PROFILE) != PUGL_DONT_CARE);
+  assert(puglGetViewHint(view, PUGL_CONTEXT_DEBUG) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_RED_BITS) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_GREEN_BITS) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_BLUE_BITS) != PUGL_DONT_CARE);

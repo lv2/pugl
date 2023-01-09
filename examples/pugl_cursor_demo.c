@@ -129,7 +129,7 @@ main(int argc, char** argv)
   puglSetSizeHint(view, PUGL_MAX_SIZE, 512, 256);
   puglSetBackend(view, puglGlBackend());
 
-  puglSetViewHint(view, PUGL_USE_DEBUG_CONTEXT, app.opts.errorChecking);
+  puglSetViewHint(view, PUGL_CONTEXT_DEBUG, app.opts.errorChecking);
   puglSetViewHint(view, PUGL_RESIZABLE, app.opts.resizable);
   puglSetViewHint(view, PUGL_SAMPLES, app.opts.samples);
   puglSetViewHint(view, PUGL_DOUBLE_BUFFER, app.opts.doubleBuffer);

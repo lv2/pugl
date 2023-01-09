@@ -91,10 +91,11 @@ puglGetClassName(const PuglWorld* world)
 static void
 puglSetDefaultHints(PuglHints hints)
 {
-  hints[PUGL_USE_COMPAT_PROFILE]    = PUGL_TRUE;
-  hints[PUGL_USE_DEBUG_CONTEXT]     = PUGL_FALSE;
+  hints[PUGL_CONTEXT_API]           = PUGL_OPENGL_API;
   hints[PUGL_CONTEXT_VERSION_MAJOR] = 2;
   hints[PUGL_CONTEXT_VERSION_MINOR] = 0;
+  hints[PUGL_CONTEXT_PROFILE]       = PUGL_OPENGL_CORE_PROFILE;
+  hints[PUGL_CONTEXT_DEBUG]         = PUGL_FALSE;
   hints[PUGL_RED_BITS]              = 8;
   hints[PUGL_GREEN_BITS]            = 8;
   hints[PUGL_BLUE_BITS]             = 8;
@@ -203,10 +204,11 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
 {
   if (value == PUGL_DONT_CARE) {
     switch (hint) {
-    case PUGL_USE_COMPAT_PROFILE:
-    case PUGL_USE_DEBUG_CONTEXT:
+    case PUGL_CONTEXT_API:
     case PUGL_CONTEXT_VERSION_MAJOR:
     case PUGL_CONTEXT_VERSION_MINOR:
+    case PUGL_CONTEXT_PROFILE:
+    case PUGL_CONTEXT_DEBUG:
     case PUGL_SWAP_INTERVAL:
       return PUGL_BAD_PARAMETER;
     default:

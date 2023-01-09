@@ -159,9 +159,11 @@ For example, to use OpenGL 3.3 Core Profile:
 
 .. code-block:: c
 
-   puglSetViewHint(view, PUGL_USE_COMPAT_PROFILE, PUGL_FALSE);
    puglSetViewHint(view, PUGL_CONTEXT_VERSION_MAJOR, 3);
    puglSetViewHint(view, PUGL_CONTEXT_VERSION_MINOR, 3);
+   puglSetViewHint(view,
+                   PUGL_CONTEXT_PROFILE,
+                   PUGL_OPENGL_COMPATIBILITY_PROFILE);
 
 If you need to perform some setup using the OpenGL API,
 there are two ways to do so.

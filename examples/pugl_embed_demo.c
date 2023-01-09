@@ -269,7 +269,7 @@ main(int argc, char** argv)
   puglSetSizeHint(app.parent, PUGL_MAX_ASPECT, 16, 9);
   puglSetBackend(app.parent, puglGlBackend());
 
-  puglSetViewHint(app.parent, PUGL_USE_DEBUG_CONTEXT, opts.errorChecking);
+  puglSetViewHint(app.parent, PUGL_CONTEXT_DEBUG, opts.errorChecking);
   puglSetViewHint(app.parent, PUGL_RESIZABLE, opts.resizable);
   puglSetViewHint(app.parent, PUGL_SAMPLES, opts.samples);
   puglSetViewHint(app.parent, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
@@ -291,7 +291,7 @@ main(int argc, char** argv)
   puglSetFrame(app.child, getChildFrame(parentFrame));
   puglSetParentWindow(app.child, puglGetNativeView(app.parent));
 
-  puglSetViewHint(app.child, PUGL_USE_DEBUG_CONTEXT, opts.errorChecking);
+  puglSetViewHint(app.child, PUGL_CONTEXT_DEBUG, opts.errorChecking);
   puglSetViewHint(app.child, PUGL_SAMPLES, opts.samples);
   puglSetViewHint(app.child, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
   puglSetViewHint(app.child, PUGL_SWAP_INTERVAL, opts.sync);

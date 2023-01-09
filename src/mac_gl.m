@@ -29,7 +29,9 @@ ensureHint(PuglView* const view, const PuglViewHint hint, const int value)
 
 - (id)initWithFrame:(NSRect)frame
 {
-  const bool     compat  = puglview->hints[PUGL_USE_COMPAT_PROFILE];
+  const bool compat =
+    puglview->hints[PUGL_CONTEXT_PROFILE] == PUGL_OPENGL_COMPATIBILITY_PROFILE;
+
   const unsigned samples = (unsigned)puglview->hints[PUGL_SAMPLES];
   const int      major   = puglview->hints[PUGL_CONTEXT_VERSION_MAJOR];
   const unsigned profile =

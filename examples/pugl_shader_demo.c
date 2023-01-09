@@ -271,10 +271,11 @@ setupPugl(PuglTestApp* app)
   puglSetSizeHint(app->view, PUGL_MIN_ASPECT, 1, 1);
   puglSetSizeHint(app->view, PUGL_MAX_ASPECT, 16, 9);
   puglSetBackend(app->view, puglGlBackend());
-  puglSetViewHint(app->view, PUGL_USE_COMPAT_PROFILE, PUGL_FALSE);
-  puglSetViewHint(app->view, PUGL_USE_DEBUG_CONTEXT, app->opts.errorChecking);
+  puglSetViewHint(app->view, PUGL_CONTEXT_API, PUGL_OPENGL_API);
   puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MAJOR, app->glMajorVersion);
   puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MINOR, app->glMinorVersion);
+  puglSetViewHint(app->view, PUGL_CONTEXT_PROFILE, PUGL_OPENGL_CORE_PROFILE);
+  puglSetViewHint(app->view, PUGL_CONTEXT_DEBUG, app->opts.errorChecking);
   puglSetViewHint(app->view, PUGL_RESIZABLE, app->opts.resizable);
   puglSetViewHint(app->view, PUGL_SAMPLES, app->opts.samples);
   puglSetViewHint(app->view, PUGL_DOUBLE_BUFFER, app->opts.doubleBuffer);

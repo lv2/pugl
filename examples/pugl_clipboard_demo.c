@@ -224,7 +224,7 @@ main(int argc, char** argv)
   puglSetSizeHint(view, PUGL_MIN_SIZE, 128, 128);
   puglSetBackend(view, puglGlBackend());
 
-  puglSetViewHint(view, PUGL_USE_DEBUG_CONTEXT, opts.errorChecking);
+  puglSetViewHint(view, PUGL_CONTEXT_DEBUG, opts.errorChecking);
   puglSetViewHint(view, PUGL_RESIZABLE, opts.resizable);
   puglSetViewHint(view, PUGL_SAMPLES, opts.samples);
   puglSetViewHint(view, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);

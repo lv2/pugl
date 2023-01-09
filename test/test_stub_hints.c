@@ -50,9 +50,9 @@ main(void)
   assert(!puglSetViewHint(view, PUGL_REFRESH_RATE, PUGL_DONT_CARE));
 
   // Check failure to set PUGL_DONT_CARE for hints that don't support it
-  assert(puglSetViewHint(view, PUGL_USE_COMPAT_PROFILE, PUGL_DONT_CARE) ==
+  assert(puglSetViewHint(view, PUGL_CONTEXT_PROFILE, PUGL_DONT_CARE) ==
          PUGL_BAD_PARAMETER);
-  assert(puglSetViewHint(view, PUGL_USE_DEBUG_CONTEXT, PUGL_DONT_CARE) ==
+  assert(puglSetViewHint(view, PUGL_CONTEXT_DEBUG, PUGL_DONT_CARE) ==
          PUGL_BAD_PARAMETER);
   assert(puglSetViewHint(view, PUGL_CONTEXT_VERSION_MAJOR, PUGL_DONT_CARE) ==
          PUGL_BAD_PARAMETER);
@@ -66,8 +66,8 @@ main(void)
   printViewHints(view);
 
   // Check that no relevant hints are set to PUGL_DONT_CARE
-  assert(puglGetViewHint(view, PUGL_USE_COMPAT_PROFILE) != PUGL_DONT_CARE);
-  assert(puglGetViewHint(view, PUGL_USE_DEBUG_CONTEXT) != PUGL_DONT_CARE);
+  assert(puglGetViewHint(view, PUGL_CONTEXT_PROFILE) != PUGL_DONT_CARE);
+  assert(puglGetViewHint(view, PUGL_CONTEXT_DEBUG) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_CONTEXT_VERSION_MAJOR) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_CONTEXT_VERSION_MINOR) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_RED_BITS) != PUGL_DONT_CARE);

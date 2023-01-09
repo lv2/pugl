@@ -342,10 +342,11 @@ enum class SizeHint {
 
 /// @copydoc PuglViewHint
 enum class ViewHint {
-  useCompatProfile,    ///< @copydoc PUGL_USE_COMPAT_PROFILE
-  useDebugContext,     ///< @copydoc PUGL_USE_DEBUG_CONTEXT
+  contextAPI,          ///< @copydoc PUGL_CONTEXT_API
   contextVersionMajor, ///< @copydoc PUGL_CONTEXT_VERSION_MAJOR
   contextVersionMinor, ///< @copydoc PUGL_CONTEXT_VERSION_MINOR
+  contextProfile,      ///< @copydoc PUGL_CONTEXT_PROFILE
+  contextDebug,        ///< @copydoc PUGL_CONTEXT_DEBUG
   redBits,             ///< @copydoc PUGL_RED_BITS
   greenBits,           ///< @copydoc PUGL_GREEN_BITS
   blueBits,            ///< @copydoc PUGL_BLUE_BITS
