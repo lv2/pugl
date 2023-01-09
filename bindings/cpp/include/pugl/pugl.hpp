@@ -382,9 +382,9 @@ static_assert(static_cast<Cursor>(PUGL_CURSOR_UP_DOWN) == Cursor::upDown, "");
 
 /// @copydoc PuglShowCommand
 enum class ShowCommand {
-  passive,    ///< @copydoc PUGL_SHOW_PASSIVE,
-  raise,      ///< @copydoc PUGL_SHOW_RAISE,
-  forceRaise, ///< @copydoc PUGL_SHOW_FORCE_RAISE,
+  passive,    ///< @copydoc PUGL_SHOW_PASSIVE
+  raise,      ///< @copydoc PUGL_SHOW_RAISE
+  forceRaise, ///< @copydoc PUGL_SHOW_FORCE_RAISE
 };
 
 static_assert(static_cast<ShowCommand>(PUGL_SHOW_FORCE_RAISE) ==

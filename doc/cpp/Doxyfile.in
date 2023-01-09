@@ -28,9 +28,11 @@ SHOW_FILES             = NO
 
 MACRO_EXPANSION        = YES
 PREDEFINED             = PUGL_API \
-                         PUGL_DISABLE_DEPRECATED \
                          PUGL_CONST_API= \
-                         PUGL_CONST_FUNC=
+                         PUGL_CONST_FUNC= \
+                         PUGL_DISABLE_DEPRECATED \
+                         PUGL_MALLOC_API= \
+                         PUGL_MALLOC_FUNC=
 
 RECURSIVE              = YES
 STRIP_FROM_PATH        = @PUGL_SRCDIR@
