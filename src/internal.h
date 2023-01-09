@@ -17,6 +17,10 @@
 
 PUGL_BEGIN_DECLS
 
+/// Set hint to a default value if it is unset (PUGL_DONT_CARE)
+void
+puglEnsureHint(PuglView* view, PuglViewHint hint, int value);
+
 /// Set `blob` to `data` with length `len`, reallocating if necessary
 PuglStatus
 puglSetBlob(PuglBlob* dest, const void* data, size_t len);

@@ -11,6 +11,14 @@
 #  define NSOpenGLProfileVersion4_1Core NSOpenGLProfileVersion3_2Core
 #endif
 
+static void
+ensureHint(PuglView* const view, const PuglViewHint hint, const int value)
+{
+  if (view->hints[hint] == PUGL_DONT_CARE) {
+    view->hints[hint] = value;
+  }
+}
+
 @interface PuglOpenGLView : NSOpenGLView
 @end
 
@@ -31,24 +39,12 @@
 
   // Set attributes to default if they are unset
   // (There is no GLX_DONT_CARE equivalent on MacOS)
-  if (puglview->hints[PUGL_DEPTH_BITS] == PUGL_DONT_CARE) {
-    puglview->hints[PUGL_DEPTH_BITS] = 0;
-  }
-  if (puglview->hints[PUGL_STENCIL_BITS] == PUGL_DONT_CARE) {
-    puglview->hints[PUGL_STENCIL_BITS] = 0;
-  }
-  if (puglview->hints[PUGL_SAMPLES] == PUGL_DONT_CARE) {
-    puglview->hints[PUGL_SAMPLES] = 1;
-  }
-  if (puglview->hints[PUGL_SAMPLE_BUFFERS] == PUGL_DONT_CARE) {
-    puglview->hints[PUGL_SAMPLE_BUFFERS] = puglview->hints[PUGL_SAMPLES] > 0;
-  }
-  if (puglview->hints[PUGL_DOUBLE_BUFFER] == PUGL_DONT_CARE) {
-    puglview->hints[PUGL_DOUBLE_BUFFER] = 1;
-  }
-  if (puglview->hints[PUGL_SWAP_INTERVAL] == PUGL_DONT_CARE) {
-    puglview->hints[PUGL_SWAP_INTERVAL] = 1;
-  }
+  ensureHint(puglview, PUGL_DEPTH_BITS, 0);
+  ensureHint(puglview, PUGL_STENCIL_BITS, 0);
+  ensureHint(puglview, PUGL_SAMPLES, 1);
+  ensureHint(puglview, PUGL_SAMPLE_BUFFERS, puglview->hints[PUGL_SAMPLES] > 0);
+  ensureHint(puglview, PUGL_DOUBLE_BUFFER, 1);
+  ensureHint(puglview, PUGL_SWAP_INTERVAL, 1);
 
   const unsigned colorSize = (unsigned)(puglview->hints[PUGL_RED_BITS] +
                                         puglview->hints[PUGL_BLUE_BITS] +

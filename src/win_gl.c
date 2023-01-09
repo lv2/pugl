@@ -89,6 +89,14 @@ puglWinGlGetProcs(void)
   return procs;
 }
 
+static void
+ensureHint(PuglView* const view, const PuglViewHint hint, const int value)
+{
+  if (view->hints[hint] == PUGL_DONT_CARE) {
+    view->hints[hint] = value;
+  }
+}
+
 static PuglStatus
 puglWinGlConfigure(PuglView* view)
 {
@@ -96,24 +104,12 @@ puglWinGlConfigure(PuglView* view)
 
   // Set attributes to default if they are unset
   // (There is no GLX_DONT_CARE equivalent on Windows)
-  if (view->hints[PUGL_DEPTH_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_DEPTH_BITS] = 0;
-  }
-  if (view->hints[PUGL_STENCIL_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_STENCIL_BITS] = 0;
-  }
-  if (view->hints[PUGL_SAMPLES] == PUGL_DONT_CARE) {
-    view->hints[PUGL_SAMPLES] = 0;
-  }
-  if (view->hints[PUGL_SAMPLE_BUFFERS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_SAMPLE_BUFFERS] = view->hints[PUGL_SAMPLES] > 0;
-  }
-  if (view->hints[PUGL_DOUBLE_BUFFER] == PUGL_DONT_CARE) {
-    view->hints[PUGL_DOUBLE_BUFFER] = 1;
-  }
-  if (view->hints[PUGL_SWAP_INTERVAL] == PUGL_DONT_CARE) {
-    view->hints[PUGL_SWAP_INTERVAL] = 1;
-  }
+  ensureHint(view, PUGL_DEPTH_BITS, 0);
+  ensureHint(view, PUGL_STENCIL_BITS, 0);
+  ensureHint(view, PUGL_SAMPLES, 0);
+  ensureHint(view, PUGL_SAMPLE_BUFFERS, view->hints[PUGL_SAMPLES] > 0);
+  ensureHint(view, PUGL_DOUBLE_BUFFER, 1);
+  ensureHint(view, PUGL_SWAP_INTERVAL, 1);
 
   // clang-format off
   const int pixelAttrs[] = {

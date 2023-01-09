@@ -12,6 +12,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+void
+puglEnsureHint(PuglView* const view, const PuglViewHint hint, const int value)
+{
+  if (view->hints[hint] == PUGL_DONT_CARE) {
+    view->hints[hint] = value;
+  }
+}
+
 PuglStatus
 puglSetBlob(PuglBlob* const dest, const void* const data, const size_t len)
 {

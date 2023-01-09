@@ -220,14 +220,6 @@ puglPollWinEvents(PuglWorld* world, const double timeout)
   return PUGL_SUCCESS;
 }
 
-static void
-ensureHint(PuglView* const view, const PuglViewHint hint, const int value)
-{
-  if (view->hints[hint] == PUGL_DONT_CARE) {
-    view->hints[hint] = value;
-  }
-}
-
 PuglStatus
 puglRealize(PuglView* view)
 {
@@ -245,10 +237,10 @@ puglRealize(PuglView* view)
   }
 
   // Set default depth hints if the user hasn't specified any
-  ensureHint(view, PUGL_RED_BITS, 8);
-  ensureHint(view, PUGL_GREEN_BITS, 8);
-  ensureHint(view, PUGL_BLUE_BITS, 8);
-  ensureHint(view, PUGL_ALPHA_BITS, 8);
+  puglEnsureHint(view, PUGL_RED_BITS, 8);
+  puglEnsureHint(view, PUGL_GREEN_BITS, 8);
+  puglEnsureHint(view, PUGL_BLUE_BITS, 8);
+  puglEnsureHint(view, PUGL_ALPHA_BITS, 8);
 
   // Get refresh rate for resize draw timer
   DEVMODEA devMode;

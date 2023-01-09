@@ -1129,18 +1129,10 @@ puglRealize(PuglView* view)
   const double          scaleFactor = [screen backingScaleFactor];
 
   // Getting depth from the display mode seems tedious, just set usual values
-  if (view->hints[PUGL_RED_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_RED_BITS] = 8;
-  }
-  if (view->hints[PUGL_BLUE_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_BLUE_BITS] = 8;
-  }
-  if (view->hints[PUGL_GREEN_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_GREEN_BITS] = 8;
-  }
-  if (view->hints[PUGL_ALPHA_BITS] == PUGL_DONT_CARE) {
-    view->hints[PUGL_ALPHA_BITS] = 8;
-  }
+  puglEnsureHint(view, PUGL_RED_BITS, 8);
+  puglEnsureHint(view, PUGL_GREEN_BITS, 8);
+  puglEnsureHint(view, PUGL_BLUE_BITS, 8);
+  puglEnsureHint(view, PUGL_ALPHA_BITS, 8);
 
   CGDirectDisplayID displayId = CGMainDisplayID();
   CGDisplayModeRef  mode      = CGDisplayCopyDisplayMode(displayId);
