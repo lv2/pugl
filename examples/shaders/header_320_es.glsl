@@ -1,7 +1,7 @@
 // Copyright 2020-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#version 330 core
+#version 320 es
 
 #define NOPERSPECTIVE
 #define INTER(qualifiers)

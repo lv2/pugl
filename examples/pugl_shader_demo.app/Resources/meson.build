@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: 0BSD OR ISC
 
 shaders = [
+  'header_320_es.glsl',
   'header_330.glsl',
   'header_420.glsl',
   'rect.vert',

@@ -11,9 +11,11 @@
    specified precisely in pixels to draw sharp lines.  The border width is just
    hardcoded, but could be made a uniform or vertex attribute easily enough. */
 
-INTER(location = 0) noperspective in vec2 f_uv;
-INTER(location = 1) noperspective in vec2 f_size;
-INTER(location = 2) noperspective in vec4 f_fillColor;
+precision mediump float;
+
+INTER(location = 0) NOPERSPECTIVE in vec2 f_uv;
+INTER(location = 1) NOPERSPECTIVE in vec2 f_size;
+INTER(location = 2) NOPERSPECTIVE in vec4 f_fillColor;
 
 layout(location = 0) out vec4 FragColor;
 

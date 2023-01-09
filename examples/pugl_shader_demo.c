@@ -63,8 +63,6 @@ typedef struct {
   double          lastDrawDuration;
   double          lastFrameEndTime;
   unsigned        framesDrawn;
-  int             glMajorVersion;
-  int             glMinorVersion;
   int             quit;
 } PuglTestApp;
 
@@ -235,22 +233,6 @@ parseOptions(PuglTestApp* app, int argc, char** argv)
     }
   }
 
-  // Parse OpenGL major version argument, if given
-  if (argc >= 2) {
-    app->glMajorVersion = (int)strtol(argv[1], &endptr, 10);
-    if (endptr != argv[1] + strlen(argv[1])) {
-      logError("Invalid GL major version: %s\n", argv[1]);
-      return 1;
-    }
-
-    if (app->glMajorVersion == 4) {
-      app->glMinorVersion = 2;
-    } else if (app->glMajorVersion != 3) {
-      logError("Unsupported GL major version %d\n", app->glMajorVersion);
-      return 1;
-    }
-  }
-
   return 0;
 }
 
@@ -271,9 +253,11 @@ setupPugl(PuglTestApp* app)
   puglSetSizeHint(app->view, PUGL_MIN_ASPECT, 1, 1);
   puglSetSizeHint(app->view, PUGL_MAX_ASPECT, 16, 9);
   puglSetBackend(app->view, puglGlBackend());
-  puglSetViewHint(app->view, PUGL_CONTEXT_API, PUGL_OPENGL_API);
-  puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MAJOR, app->glMajorVersion);
-  puglSetViewHint(app->view, PUGL_CONTEXT_VERSION_MINOR, app->glMinorVersion);
+  puglSetViewHint(app->view, PUGL_CONTEXT_API, app->opts.glApi);
+  puglSetViewHint(
+    app->view, PUGL_CONTEXT_VERSION_MAJOR, app->opts.glMajorVersion);
+  puglSetViewHint(
+    app->view, PUGL_CONTEXT_VERSION_MINOR, app->opts.glMinorVersion);
   puglSetViewHint(app->view, PUGL_CONTEXT_PROFILE, PUGL_OPENGL_CORE_PROFILE);
   puglSetViewHint(app->view, PUGL_CONTEXT_DEBUG, app->opts.errorChecking);
   puglSetViewHint(app->view, PUGL_RESIZABLE, app->opts.resizable);
@@ -288,15 +272,41 @@ setupPugl(PuglTestApp* app)
 static PuglStatus
 setupGl(PuglTestApp* app)
 {
-  // Load GL functions via GLAD
-  if (!gladLoadGLLoader((GLADloadproc)&puglGetProcAddress)) {
-    logError("Failed to load GL\n");
+  // Load GL and determine the shader header to load
+  const char* headerFile = NULL;
+  if (app->opts.glApi == PUGL_OPENGL_API) {
+    if (!gladLoadGLLoader((GLADloadproc)&puglGetProcAddress)) {
+      logError("Failed to load OpenGL\n");
+      return PUGL_FAILURE;
+    }
+
+    headerFile =
+      (app->opts.glMajorVersion == 3 && app->opts.glMinorVersion == 3)
+        ? (SHADER_DIR "header_330.glsl")
+      : (app->opts.glMajorVersion == 4 && app->opts.glMinorVersion == 2)
+        ? (SHADER_DIR "header_420.glsl")
+        : NULL;
+
+  } else if (app->opts.glApi == PUGL_OPENGL_ES_API) {
+    if (!gladLoadGLES2Loader((GLADloadproc)&puglGetProcAddress)) {
+      logError("Failed to load OpenGL ES\n");
+      return PUGL_FAILURE;
+    }
+
+    headerFile =
+      (app->opts.glMajorVersion == 3 && app->opts.glMinorVersion == 2)
+        ? (SHADER_DIR "header_320_es.glsl")
+        : NULL;
+
+  } else {
+    logError("Unsupported API\n");
     return PUGL_FAILURE;
   }
 
-  const char* const headerFile =
-    (app->glMajorVersion == 3 ? SHADER_DIR "header_330.glsl"
-                              : SHADER_DIR "header_420.glsl");
+  if (!headerFile) {
+    logError("Unsupported OpenGL version\n");
+    return PUGL_FAILURE;
+  }
 
   // Load shader sources
   char* const headerSource = loadShader(app->programPath, headerFile);
@@ -433,9 +443,9 @@ main(int argc, char** argv)
 {
   PuglTestApp app = {0};
 
-  app.programPath    = argv[0];
-  app.glMajorVersion = 3;
-  app.glMinorVersion = 3;
+  app.programPath         = argv[0];
+  app.opts.glMajorVersion = 3;
+  app.opts.glMinorVersion = 3;
 
   // Parse command line options
   if (parseOptions(&app, argc, argv)) {

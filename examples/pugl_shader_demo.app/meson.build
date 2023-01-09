@@ -9,6 +9,7 @@ info_plist = configure_file(configuration: config,
                             output: 'Info.plist')
 
 shaders = [
+  'header_320_es.glsl',
   'header_330.glsl',
   'header_420.glsl',
   'rect.vert',

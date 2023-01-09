@@ -4,6 +4,8 @@
 /* The vertex shader is trivial, but forwards scaled UV coordinates (in pixels)
    to the fragment shader for drawing the border. */
 
+precision mediump float;
+
 UBO(binding = 0) uniform UniformBufferObject
 {
   mat4 projection;
@@ -15,9 +17,9 @@ layout(location = 1) in vec2 v_origin;
 layout(location = 2) in vec2 v_size;
 layout(location = 3) in vec4 v_fillColor;
 
-INTER(location = 0) noperspective out vec2 f_uv;
-INTER(location = 1) noperspective out vec2 f_size;
-INTER(location = 2) noperspective out vec4 f_fillColor;
+INTER(location = 0) NOPERSPECTIVE out vec2 f_uv;
+INTER(location = 1) NOPERSPECTIVE out vec2 f_size;
+INTER(location = 2) NOPERSPECTIVE out vec4 f_fillColor;
 
 void
 main()

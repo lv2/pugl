@@ -22,6 +22,9 @@ typedef struct {
   int  samples;
   int  doubleBuffer;
   int  sync;
+  int  glApi;
+  int  glMajorVersion;
+  int  glMinorVersion;
   bool continuous;
   bool help;
   bool ignoreKeyRepeat;
@@ -314,6 +317,8 @@ static inline void
 puglPrintTestUsage(const char* prog, const char* posHelp)
 {
   printf("Usage: %s [OPTION]... %s\n\n"
+         "  -E  Use OpenGL ES\n"
+         "  -G  OpenGL context version\n"
          "  -a  Enable anti-aliasing\n"
          "  -c  Continuously animate and draw\n"
          "  -d  Directly draw to window (no double-buffering)\n"
@@ -335,6 +340,9 @@ puglParseTestOptions(int* pargc, char*** pargv)
     0,
     PUGL_TRUE,
     PUGL_DONT_CARE,
+    PUGL_OPENGL_API,
+    3,
+    3,
     false,
     false,
     false,
@@ -346,7 +354,21 @@ puglParseTestOptions(int* pargc, char*** pargv)
   char** const argv = *pargv;
   int          i    = 1;
   for (; i < *pargc; ++i) {
-    if (!strcmp(argv[i], "-a")) {
+    if (!strcmp(argv[i], "-E")) {
+      opts.glApi = PUGL_OPENGL_ES_API;
+    } else if (!strcmp(argv[i], "-G")) {
+      if (++i == *pargc) {
+        fprintf(stderr, "error: Missing OpenGL version argument\n");
+        return opts;
+      }
+
+      const int matches =
+        sscanf(argv[i], "%u.%u", &opts.glMajorVersion, &opts.glMinorVersion);
+      if (matches != 2) {
+        fprintf(stderr, "error: Invalid OpenGL version argument\n");
+        return opts;
+      }
+    } else if (!strcmp(argv[i], "-a")) {
       opts.samples = 4;
     } else if (!strcmp(argv[i], "-c")) {
       opts.continuous = true;
