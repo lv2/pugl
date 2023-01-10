@@ -1502,6 +1502,21 @@ puglWinGetPixelFormatDescriptor(const PuglHints hints)
   return pfd;
 }
 
+static void
+puglWinSetDefaultPosition(PuglView* const view)
+{
+  // Get a bounding rect from the "nearest" parent or parent-like window
+  const HWND hwnd = puglWinGetWindow(view);
+  RECT       rect = {0, 0, 0, 0};
+  GetWindowRect(hwnd ? hwnd : GetDesktopWindow(), &rect);
+
+  // Center the frame around the center of the bounding rectangle
+  const LONG centerX = rect.left + (rect.right - rect.left) / 2;
+  const LONG centerY = rect.top + (rect.bottom - rect.top) / 2;
+  view->frame.x      = (PuglCoord)(centerX - (view->frame.width / 2U));
+  view->frame.y      = (PuglCoord)(centerY - (view->frame.height / 2U));
+}
+
 PuglStatus
 puglWinCreateWindow(PuglView* const   view,
                     const char* const title,
@@ -1514,14 +1529,7 @@ puglWinCreateWindow(PuglView* const   view,
 
   // Center top-level windows if a position has not been set
   if (!view->parent && !view->frame.x && !view->frame.y) {
-    RECT desktopRect;
-    GetClientRect(GetDesktopWindow(), &desktopRect);
-
-    const int screenWidth  = desktopRect.right - desktopRect.left;
-    const int screenHeight = desktopRect.bottom - desktopRect.top;
-
-    view->frame.x = (PuglCoord)((screenWidth - view->frame.width) / 2);
-    view->frame.y = (PuglCoord)((screenHeight - view->frame.height) / 2);
+    puglWinSetDefaultPosition(view);
   }
 
   // The meaning of "parent" depends on the window type (WS_CHILD)
@@ -1539,8 +1547,8 @@ puglWinCreateWindow(PuglView* const   view,
                                className,
                                title,
                                winFlags,
-                               CW_USEDEFAULT,
-                               CW_USEDEFAULT,
+                               wr.left,
+                               wr.right,
                                wr.right - wr.left,
                                wr.bottom - wr.top,
                                (HWND)parent,

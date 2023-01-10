@@ -21,6 +21,12 @@ typedef struct PuglInternalsImpl PuglInternals;
 /// View hints
 typedef int PuglHints[PUGL_NUM_VIEW_HINTS];
 
+/// View position (both X and Y coordinates) or general point
+typedef struct {
+  PuglCoord x;
+  PuglCoord y;
+} PuglPoint;
+
 /// View size (both X and Y coordinates)
 typedef struct {
   PuglSpan width;

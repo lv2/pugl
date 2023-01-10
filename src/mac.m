@@ -91,12 +91,23 @@ utiForMimeType(const NSString* const mimeType)
 }
 
 static NSRect
-rectToScreen(NSScreen* screen, NSRect rect)
+rectToScreen(const NSScreen* screen, NSRect rect)
 {
   const double screenHeight = [screen frame].size.height;
 
   rect.origin.y = screenHeight - rect.origin.y - rect.size.height;
   return rect;
+}
+
+static NSRect
+rectFromScreen(const NSScreen* screen, NSRect rect)
+{
+  /* The math happens to work out to the same expression because this is just
+     an inversion of the Y axis based on the screen height.  This function is
+     preserved to make the code clearer and more future-proof since the use
+     cases are distinctly either a "from" or "to" conversion. */
+
+  return rectToScreen(screen, rect);
 }
 
 static NSScreen*
@@ -1109,6 +1120,25 @@ updateSizeHints(PuglView* const view)
   }
 }
 
+static void
+puglMacSetDefaultPosition(PuglView* const view)
+{
+  // Get a bounding rect from the transient parent or the screen
+  const NSScreen* const screen = viewScreen(view);
+  const NSRect          boundsPt =
+    rectFromScreen(screen,
+                   view->transientParent
+                     ? [[(const NSView*)view->transientParent window] frame]
+                     : [screen frame]);
+
+  // Center the frame around the center of the bounding rectangle
+  const NSRect boundsPx = nsRectFromPoints(view, boundsPt);
+  const double centerX  = boundsPx.origin.x + boundsPx.size.width / 2;
+  const double centerY  = boundsPx.origin.y + boundsPx.size.height / 2;
+  view->frame.x         = (PuglCoord)(centerX - (view->frame.width / 2U));
+  view->frame.y         = (PuglCoord)(centerY - (view->frame.height / 2U));
+}
+
 PuglStatus
 puglRealize(PuglView* view)
 {
@@ -1156,11 +1186,7 @@ puglRealize(PuglView* view)
 
   // Center top-level windows if a position has not been set
   if (!view->parent && !view->frame.x && !view->frame.y) {
-    const double screenWidthPx  = [screen frame].size.width * scaleFactor;
-    const double screenHeightPx = [screen frame].size.height * scaleFactor;
-
-    view->frame.x = (PuglCoord)((screenWidthPx - view->frame.width) / 2.0);
-    view->frame.y = (PuglCoord)((screenHeightPx - view->frame.height) / 2.0);
+    puglMacSetDefaultPosition(view);
   }
 
   const NSRect framePx = rectToNsRect(view->frame);
