@@ -8,7 +8,7 @@
 
 #include <stdbool.h>
 
-static const int N_CURSORS = 9;
+static const int N_CURSORS = 10;
 static const int N_ROWS    = 2;
 static const int N_COLS    = 5;
 

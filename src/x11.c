@@ -78,6 +78,7 @@ static const char* const cursorNames[PUGL_NUM_CURSORS] = {
   "sb_v_double_arrow", // UP_DOWN
   "size_fdiag",        // UP_LEFT_DOWN_RIGHT
   "size_bdiag",        // UP_RIGHT_DOWN_LEFT
+  "all-scroll",        // ALL_SCROLL
 };
 #endif
 

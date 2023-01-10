@@ -1447,6 +1447,7 @@ static const char* const cursor_ids[] = {
   IDC_SIZENS,   // UP_DOWN
   IDC_SIZENWSE, // UP_LEFT_DOWN_RIGHT
   IDC_SIZENESW, // UP_RIGHT_DOWN_LEFT
+  IDC_SIZEALL,  // ALL_SCROLL
 };
 
 PuglStatus

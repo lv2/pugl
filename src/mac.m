@@ -1916,6 +1916,8 @@ puglGetNsCursor(const PuglCursor cursor)
     return extendedCursor(@selector(_windowResizeNorthWestSouthEastCursor));
   case PUGL_CURSOR_UP_RIGHT_DOWN_LEFT:
     return extendedCursor(@selector(_windowResizeNorthEastSouthWestCursor));
+  case PUGL_CURSOR_ALL_SCROLL:
+    return [NSCursor closedHandCursor];
   }
 
   return NULL;
