@@ -136,6 +136,27 @@ puglWinGetWindowExFlags(const PuglView* const view)
   return WS_EX_NOINHERITLAYOUT | (view->parent ? 0U : WS_EX_APPWINDOW);
 }
 
+static HWND
+puglWinGetWindow(const PuglView* const view)
+{
+  return view->impl->hwnd        ? view->impl->hwnd
+         : view->parent          ? (HWND)view->parent
+         : view->transientParent ? (HWND)view->transientParent
+                                 : NULL;
+}
+
+static HMONITOR
+puglWinGetMonitor(const PuglView* const view)
+{
+  const HWND hwnd = puglWinGetWindow(view);
+  if (hwnd) {
+    return MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY);
+  }
+
+  const POINT point = {(long)view->frame.x, (long)view->frame.y};
+  return MonitorFromPoint(point, MONITOR_DEFAULTTOPRIMARY);
+}
+
 static double
 puglWinGetViewScaleFactor(const PuglView* const view)
 {
@@ -156,9 +177,7 @@ puglWinGetViewScaleFactor(const PuglView* const view)
   DWORD scaleFactor = 100;
   if (GetProcessDpiAwareness && GetScaleFactorForMonitor &&
       !GetProcessDpiAwareness(NULL, &dpiAware) && dpiAware) {
-    GetScaleFactorForMonitor(
-      MonitorFromWindow(view->impl->hwnd, MONITOR_DEFAULTTOPRIMARY),
-      &scaleFactor);
+    GetScaleFactorForMonitor(puglWinGetMonitor(view), &scaleFactor);
   }
 
   FreeLibrary(shcore);
@@ -1174,7 +1193,8 @@ adjustedWindowRect(PuglView* const view,
 double
 puglGetScaleFactor(const PuglView* const view)
 {
-  return view->impl->scaleFactor;
+  return view->impl->scaleFactor ? view->impl->scaleFactor
+                                 : puglWinGetViewScaleFactor(view);
 }
 
 PuglStatus
