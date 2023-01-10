@@ -369,16 +369,20 @@ using ViewHintValue = PuglViewHintValue; ///< @copydoc PuglViewHintValue
 
 /// @copydoc PuglCursor
 enum class Cursor {
-  arrow,     ///< @copydoc PUGL_CURSOR_ARROW
-  caret,     ///< @copydoc PUGL_CURSOR_CARET
-  crosshair, ///< @copydoc PUGL_CURSOR_CROSSHAIR
-  hand,      ///< @copydoc PUGL_CURSOR_HAND
-  no,        ///< @copydoc PUGL_CURSOR_NO
-  leftRight, ///< @copydoc PUGL_CURSOR_LEFT_RIGHT
-  upDown,    ///< @copydoc PUGL_CURSOR_UP_DOWN
+  arrow,           ///< @copydoc PUGL_CURSOR_ARROW
+  caret,           ///< @copydoc PUGL_CURSOR_CARET
+  crosshair,       ///< @copydoc PUGL_CURSOR_CROSSHAIR
+  hand,            ///< @copydoc PUGL_CURSOR_HAND
+  no,              ///< @copydoc PUGL_CURSOR_NO
+  leftRight,       ///< @copydoc PUGL_CURSOR_LEFT_RIGHT
+  upDown,          ///< @copydoc PUGL_CURSOR_UP_DOWN
+  upLeftDownRight, ///< @copydoc PUGL_CURSOR_UP_LEFT_DOWN_RIGHT
+  upRightDownLeft, ///< @copydoc PUGL_CURSOR_UP_RIGHT_DOWN_LEFT
 };
 
-static_assert(static_cast<Cursor>(PUGL_CURSOR_UP_DOWN) == Cursor::upDown, "");
+static_assert(static_cast<Cursor>(PUGL_CURSOR_UP_RIGHT_DOWN_LEFT) ==
+                Cursor::upRightDownLeft,
+              "");
 
 /// @copydoc PuglShowCommand
 enum class ShowCommand {
