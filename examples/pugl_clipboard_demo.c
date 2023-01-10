@@ -237,7 +237,7 @@ main(int argc, char** argv)
     return logError("Failed to realize view (%s)\n", puglStrerror(st));
   }
 
-  if ((st = puglShow(view, PUGL_SHOW_PASSIVE))) {
+  if ((st = puglShow(view, PUGL_SHOW_RAISE))) {
     return logError("Failed to show view (%s)\n", puglStrerror(st));
   }
 

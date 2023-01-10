@@ -304,8 +304,8 @@ main(int argc, char** argv)
     return logError("Failed to create child window (%s)\n", puglStrerror(st));
   }
 
-  puglShow(app.parent, PUGL_SHOW_PASSIVE);
-  puglShow(app.child, PUGL_SHOW_PASSIVE);
+  puglShow(app.parent, PUGL_SHOW_RAISE);
+  puglShow(app.child, PUGL_SHOW_RAISE);
 
   puglStartTimer(app.child, reverseTimerId, 3.6);
 

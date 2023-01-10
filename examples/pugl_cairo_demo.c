@@ -230,7 +230,7 @@ main(int argc, char** argv)
     return logError("Failed to create window (%s)\n", puglStrerror(st));
   }
 
-  puglShow(view, PUGL_SHOW_PASSIVE);
+  puglShow(view, PUGL_SHOW_RAISE);
 
   PuglFpsPrinter fpsPrinter = {puglGetTime(app.world)};
   const double   timeout    = app.opts.continuous ? (1 / 60.0) : -1.0;
