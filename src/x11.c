@@ -68,7 +68,7 @@ enum WmClientStateMessageAction {
 };
 
 #ifdef HAVE_XCURSOR
-static const char* const cursor_names[PUGL_NUM_CURSORS] = {
+static const char* const cursorNames[PUGL_NUM_CURSORS] = {
   "default",           // ARROW
   "text",              // CARET
   "crosshair",         // CROSSHAIR
@@ -227,7 +227,7 @@ puglInitViewInternals(PuglWorld* const world)
   impl->clipboard.property  = XA_PRIMARY;
 
 #ifdef HAVE_XCURSOR
-  impl->cursorName = cursor_names[PUGL_CURSOR_ARROW];
+  impl->cursorName = cursorNames[PUGL_CURSOR_ARROW];
 #endif
 
   return impl;
@@ -2014,17 +2014,17 @@ puglSetCursor(PuglView* const view, const PuglCursor cursor)
 #ifdef HAVE_XCURSOR
   PuglInternals* const impl  = view->impl;
   const unsigned       index = (unsigned)cursor;
-  const unsigned       count = sizeof(cursor_names) / sizeof(cursor_names[0]);
+  const unsigned       count = sizeof(cursorNames) / sizeof(cursorNames[0]);
   if (index >= count) {
     return PUGL_BAD_PARAMETER;
   }
 
-  const char* const name = cursor_names[index];
+  const char* const name = cursorNames[index];
   if (!impl->win || impl->cursorName == name) {
     return PUGL_SUCCESS;
   }
 
-  impl->cursorName = cursor_names[index];
+  impl->cursorName = cursorNames[index];
 
   return defineCursorName(view, impl->cursorName);
 #else
