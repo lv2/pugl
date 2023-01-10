@@ -1,0 +1,9 @@
+# Copyright 2021-2023 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+[wrap-git]
+directory = cairo
+url = https://gitlab.freedesktop.org/cairo/cairo.git
+push-url = ssh://git@gitlab.freedesktop.org:cairo/cairo.git
+revision = master
+depth = 1
