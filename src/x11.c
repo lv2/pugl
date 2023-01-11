@@ -166,6 +166,7 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
   impl->atoms.WM_DELETE_WINDOW  = XInternAtom(display, "WM_DELETE_WINDOW", 0);
   impl->atoms.PUGL_CLIENT_MSG   = XInternAtom(display, "_PUGL_CLIENT_MSG", 0);
   impl->atoms.NET_CLOSE_WINDOW  = XInternAtom(display, "_NET_CLOSE_WINDOW", 0);
+  impl->atoms.NET_FRAME_EXTENTS = XInternAtom(display, "_NET_FRAME_EXTENTS", 0);
   impl->atoms.NET_WM_NAME       = XInternAtom(display, "_NET_WM_NAME", 0);
   impl->atoms.NET_WM_PID        = XInternAtom(display, "_NET_WM_PID", 0);
   impl->atoms.NET_WM_PING       = XInternAtom(display, "_NET_WM_PING", 0);
@@ -1048,14 +1049,24 @@ getCurrentViewStyleFlags(PuglView* const view)
 static PuglEvent
 getCurrentConfiguration(PuglView* const view)
 {
-  // Get initial window position and size
+  Display* const display = view->world->impl->display;
+
+  // Get window size from attributes
   XWindowAttributes attrs;
-  XGetWindowAttributes(view->world->impl->display, view->impl->win, &attrs);
+  XGetWindowAttributes(display, view->impl->win, &attrs);
+
+  // Get window position relative to the root window
+  const Window root         = RootWindow(display, view->impl->screen);
+  Window       ignoredChild = 0;
+  int          rootX        = 0;
+  int          rootY        = 0;
+  XTranslateCoordinates(
+    display, view->impl->win, root, 0, 0, &rootX, &rootY, &ignoredChild);
 
   // Build a configure event based on the current window configuration
   PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
-  configureEvent.configure.x      = (PuglCoord)attrs.x;
-  configureEvent.configure.y      = (PuglCoord)attrs.y;
+  configureEvent.configure.x      = (PuglCoord)rootX;
+  configureEvent.configure.y      = (PuglCoord)rootY;
   configureEvent.configure.width  = (PuglSpan)attrs.width;
   configureEvent.configure.height = (PuglSpan)attrs.height;
   configureEvent.configure.style  = getCurrentViewStyleFlags(view);
@@ -1099,6 +1110,33 @@ translatePropertyNotify(PuglView* const view, XPropertyEvent message)
     event.configure.style = getCurrentViewStyleFlags(view); // FIXME: necessary?
 
     XFree(hints);
+  } else if (message.atom == atoms->NET_FRAME_EXTENTS) {
+    Atom          actualType     = 0;
+    int           actualFormat   = 0;
+    unsigned long actualNumItems = 0U;
+    unsigned long bytesAfter     = 0;
+    long*         extents        = NULL;
+    XGetWindowProperty(view->world->impl->display,
+                       impl->win,
+                       message.atom,
+                       0,
+                       LONG_MAX,
+                       False,
+                       XA_CARDINAL,
+                       &actualType,
+                       &actualFormat,
+                       &actualNumItems,
+                       &bytesAfter,
+                       (uint8_t**)&extents);
+
+    if (actualNumItems == 4) {
+      view->impl->frameExtentLeft = extents[0];
+      view->impl->frameExtentTop  = extents[2];
+    }
+
+    if (extents) {
+      XFree(extents);
+    }
   }
 
   return event;
@@ -1130,10 +1168,25 @@ translateEvent(PuglView* const view, XEvent xevent)
     break;
   case ConfigureNotify:
     event                  = makeConfigureEvent(view);
-    event.configure.x      = (PuglCoord)xevent.xconfigure.x;
-    event.configure.y      = (PuglCoord)xevent.xconfigure.y;
     event.configure.width  = (PuglSpan)xevent.xconfigure.width;
     event.configure.height = (PuglSpan)xevent.xconfigure.height;
+    if (view->parent) {
+      // Use window position relative to parent
+      event.configure.x = (PuglCoord)xevent.xconfigure.x;
+      event.configure.y = (PuglCoord)xevent.xconfigure.y;
+    } else {
+      // Get window position relative to the root
+      Display* const display = view->world->impl->display;
+      const Window   win     = view->impl->win;
+      const Window   root    = RootWindow(display, view->impl->screen);
+      int            x       = 0;
+      int            y       = 0;
+      Window         ignored = 0;
+      if (XTranslateCoordinates(display, win, root, 0, 0, &x, &y, &ignored)) {
+        event.configure.x = (PuglCoord)x;
+        event.configure.y = (PuglCoord)y;
+      }
+    }
     break;
   case Expose:
     event.type          = PUGL_EXPOSE;
@@ -1900,8 +1953,12 @@ puglSetPosition(PuglView* const view, const int x, const int y)
     return PUGL_SUCCESS;
   }
 
-  return XMoveWindow(display, view->impl->win, x, y) ? PUGL_SUCCESS
-                                                     : PUGL_UNKNOWN_ERROR;
+  return XMoveWindow(display,
+                     view->impl->win,
+                     (int)(x - view->impl->frameExtentLeft),
+                     (int)(y - view->impl->frameExtentTop))
+           ? PUGL_SUCCESS
+           : PUGL_UNKNOWN_ERROR;
 }
 
 PuglStatus

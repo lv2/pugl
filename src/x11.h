@@ -26,6 +26,7 @@ typedef struct {
   Atom WM_DELETE_WINDOW;
   Atom PUGL_CLIENT_MSG;
   Atom NET_CLOSE_WINDOW;
+  Atom NET_FRAME_EXTENTS;
   Atom NET_WM_NAME;
   Atom NET_WM_PID;
   Atom NET_WM_PING;
@@ -85,6 +86,8 @@ struct PuglInternalsImpl {
   PuglEvent        pendingConfigure;
   PuglEvent        pendingExpose;
   PuglX11Clipboard clipboard;
+  long             frameExtentLeft;
+  long             frameExtentTop;
   int              screen;
   const char*      cursorName;
   bool             mapped;
