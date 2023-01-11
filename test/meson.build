@@ -190,12 +190,16 @@ if host_machine.system() == 'darwin'
   unified_args += objcpp.get_supported_arguments(
     test_cpp_args + objcpp_args)
 
-  executable(
+  test(
     'inline_objcpp',
-    'test_inline_objcpp.mm',
-    dependencies: unified_deps,
-    include_directories: include_directories(includes),
-    objcpp_args: unified_args,
+    executable(
+      'test_inline_objcpp',
+      'test_inline_objcpp.mm',
+      dependencies: unified_deps,
+      include_directories: include_directories(includes),
+      objcpp_args: unified_args,
+    ),
+    suite: 'unit',
   )
 
 elif is_variable('cpp')
@@ -222,11 +226,15 @@ elif is_variable('cpp')
     ]
   endif
 
-  executable(
+  test(
     'inline_cpp',
-    'test_inline_cpp.cpp',
-    cpp_args: test_cpp_args + unified_args,
-    dependencies: unified_deps,
-    include_directories: include_directories(includes),
+    executable(
+      'test_inline_cpp',
+      'test_inline_cpp.cpp',
+      cpp_args: test_cpp_args + unified_args,
+      dependencies: unified_deps,
+      include_directories: include_directories(includes),
+    ),
+    suite: 'unit',
   )
 endif
