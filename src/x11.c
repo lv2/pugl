@@ -547,6 +547,11 @@ puglRealize(PuglView* const view)
     return st;
   }
 
+  // Ensure hints that will be used are set to sensible values
+  puglEnsureHint(view, PUGL_IGNORE_KEY_REPEAT, PUGL_FALSE);
+  puglEnsureHint(view, PUGL_RESIZABLE, PUGL_TRUE);
+  puglEnsureHint(view, PUGL_VIEW_TYPE, PUGL_VIEW_TYPE_NORMAL);
+
   // Configure the backend to get the visual info
   impl->screen = screen;
   if ((st = view->backend->configure(view)) || !impl->vi) {
