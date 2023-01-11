@@ -1024,6 +1024,7 @@ PuglStatus
 puglSetBackend(PuglView* view, const PuglBackend* backend);
 
 /// Return the graphics backend used by a view
+PUGL_API
 const PuglBackend*
 puglGetBackend(const PuglView* view);
 
