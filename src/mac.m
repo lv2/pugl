@@ -1718,7 +1718,7 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 PuglStatus
 puglSetPosition(PuglView* const view, const int x, const int y)
 {
-  if (x > INT16_MAX || y > INT16_MAX) {
+  if (x < INT16_MIN || x > INT16_MAX || y < INT16_MIN || y > INT16_MAX) {
     return PUGL_BAD_PARAMETER;
   }
 

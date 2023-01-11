@@ -1845,7 +1845,7 @@ puglSetPosition(PuglView* const view, const int x, const int y)
   Display* const display = view->world->impl->display;
   const Window   win     = view->impl->win;
 
-  if (x > INT16_MAX || y > INT16_MAX) {
+  if (x < INT16_MIN || x > INT16_MAX || y < INT16_MIN || y > INT16_MAX) {
     return PUGL_BAD_PARAMETER;
   }
 
