@@ -15,7 +15,6 @@
 #include "pugl/pugl.h"
 
 #include <assert.h>
-#include <stdbool.h>
 #include <stddef.h>
 
 typedef struct {
@@ -23,18 +22,6 @@ typedef struct {
   PuglView*       view;
   PuglTestOptions opts;
 } PuglTest;
-
-static PuglStatus
-onEvent(PuglView* const view, const PuglEvent* const event)
-{
-  PuglTest* const test = (PuglTest*)puglGetHandle(view);
-
-  if (test->opts.verbose) {
-    printEvent(event, "Event: ", true);
-  }
-
-  return PUGL_SUCCESS;
-}
 
 int
 main(int argc, char** argv)
@@ -48,7 +35,6 @@ main(int argc, char** argv)
   puglSetWindowTitle(test.view, "Pugl OpenGL Free Test");
   puglSetBackend(test.view, puglGlBackend());
   puglSetHandle(test.view, &test);
-  puglSetEventFunc(test.view, onEvent);
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
   puglSetPosition(test.view, 640, 896);
 
