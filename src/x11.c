@@ -756,20 +756,10 @@ void
 puglFreeViewInternals(PuglView* const view)
 {
   if (view && view->impl) {
-    clearX11Clipboard(&view->impl->clipboard);
+    puglUnrealize(view);
     free(view->impl->clipboard.data.data);
     free(view->impl->clipboard.formats);
     free(view->impl->clipboard.formatStrings);
-    if (view->impl->xic) {
-      XDestroyIC(view->impl->xic);
-    }
-    if (view->backend) {
-      view->backend->destroy(view);
-    }
-    if (view->world->impl->display && view->impl->win) {
-      XDestroyWindow(view->world->impl->display, view->impl->win);
-    }
-    XFree(view->impl->vi);
     free(view->impl);
   }
 }
