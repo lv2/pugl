@@ -28,19 +28,23 @@ struct PuglVulkanLoaderImpl {
 PuglVulkanLoader*
 puglNewVulkanLoader(PuglWorld* PUGL_UNUSED(world))
 {
-  PuglVulkanLoader* const loader =
-    (PuglVulkanLoader*)calloc(1, sizeof(PuglVulkanLoader));
-
-  if (!loader || !(loader->libvulkan = dlopen("libvulkan.so", RTLD_LAZY))) {
-    free(loader);
+  void* const libvulkan = dlopen("libvulkan.so", RTLD_LAZY);
+  if (!libvulkan) {
     return NULL;
   }
 
-  loader->vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(
-    loader->libvulkan, "vkGetInstanceProcAddr");
+  PuglVulkanLoader* const loader =
+    (PuglVulkanLoader*)calloc(1, sizeof(PuglVulkanLoader));
 
-  loader->vkGetDeviceProcAddr =
-    (PFN_vkGetDeviceProcAddr)dlsym(loader->libvulkan, "vkGetDeviceProcAddr");
+  if (loader) {
+    loader->libvulkan = libvulkan;
+
+    loader->vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(
+      loader->libvulkan, "vkGetInstanceProcAddr");
+
+    loader->vkGetDeviceProcAddr =
+      (PFN_vkGetDeviceProcAddr)dlsym(loader->libvulkan, "vkGetDeviceProcAddr");
+  }
 
   return loader;
 }
