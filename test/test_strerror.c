@@ -14,7 +14,7 @@
 int
 main(void)
 {
-  for (unsigned i = 0; i <= PUGL_UNSUPPORTED; ++i) {
+  for (unsigned i = 0; i <= PUGL_NO_MEMORY; ++i) {
     const char* const string = puglStrerror((PuglStatus)i);
 
     assert(isupper(string[0]));
