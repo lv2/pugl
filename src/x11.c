@@ -1447,6 +1447,9 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
   PuglInternals* const impl    = view->impl;
   Display* const       display = view->world->impl->display;
   XEvent               xev     = PUGL_INIT_STRUCT;
+  if (!impl->win) {
+    return PUGL_FAILURE;
+  }
 
   if (event->type == PUGL_CLOSE) {
     xev.xclient.type         = ClientMessage;
