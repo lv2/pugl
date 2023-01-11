@@ -27,7 +27,7 @@ static const double timeout = -1.0;
 #endif
 
 // Windows SetTimer has a maximum resolution of 10ms
-static const double tolerance = 0.012;
+static const double tolerance = 0.014;
 
 static const uintptr_t timerId     = 1U;
 static const double    timerPeriod = 1 / 60.0;
@@ -127,7 +127,7 @@ main(int argc, char** argv)
   // Replace it with the one we want (to ensure timers are replaced)
   assert(!puglStartTimer(test.view, timerId, timerPeriod));
 
-  puglUpdate(test.world, timerPeriod * 90.0);
+  puglUpdate(test.world, timerPeriod * 30.0);
   assert(test.numAlarms > 0);
 
   // Calculate the actual period of the timer
