@@ -279,13 +279,9 @@ puglRealize(PuglView* view)
     return st;
   }
 
-  if (view->title) {
-    puglSetWindowTitle(view, view->title);
-  }
-
-  if (view->transientParent) {
-    puglSetTransientParent(view, view->transientParent);
-  }
+  // Set basic window hints and attributes
+  puglSetWindowTitle(view, view->title ? view->title : "");
+  puglSetTransientParent(view, view->transientParent);
 
   view->impl->scaleFactor = puglWinGetViewScaleFactor(view);
   view->impl->cursor      = LoadCursor(NULL, IDC_ARROW);

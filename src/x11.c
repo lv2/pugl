@@ -619,18 +619,12 @@ puglRealize(PuglView* const view)
   }
 #endif
 
-  updateSizeHints(view);
-
+  // Set basic window hints and attributes
   XClassHint classHint = {world->className, world->className};
   XSetClassHint(display, impl->win, &classHint);
-
-  if (view->title) {
-    puglSetWindowTitle(view, view->title);
-  }
-
-  if (view->transientParent) {
-    puglSetTransientParent(view, view->transientParent);
-  }
+  puglSetWindowTitle(view, view->title ? view->title : "");
+  puglSetTransientParent(view, view->transientParent);
+  updateSizeHints(view);
 
   // Set PID and hostname so the window manager can access our process
   char       hostname[256] = {0};

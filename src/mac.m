@@ -1298,12 +1298,10 @@ puglRealize(PuglView* view)
     ((NSWindow*)window).delegate =
       [[PuglWindowDelegate alloc] initWithPuglWindow:window];
 
-    updateSizeHints(view);
-
+    // Set basic window hints and attributes
     puglSetFrame(view, initialFrame);
-    if (view->transientParent) {
-      puglSetTransientParent(view, view->transientParent);
-    }
+    puglSetTransientParent(view, view->transientParent);
+    updateSizeHints(view);
 
     [window setContentView:impl->wrapperView];
     [view->world->impl->app activateIgnoringOtherApps:YES];
@@ -1847,7 +1845,7 @@ puglSetTransientParent(PuglView* view, PuglNativeView parent)
 
   view->transientParent = parent;
 
-  if (view->impl->window) {
+  if (parent && view->impl->window) {
     NSWindow* parentWindow = [(NSView*)parent window];
     if (parentWindow) {
       [parentWindow addChildWindow:view->impl->window ordered:NSWindowAbove];

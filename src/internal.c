@@ -47,11 +47,14 @@ puglSetBlob(PuglBlob* const dest, const void* const data, const size_t len)
 void
 puglSetString(char** dest, const char* string)
 {
-  if (*dest != string) {
-    const size_t len = strlen(string);
+  const size_t len = string ? strlen(string) : 0U;
 
-    *dest = (char*)realloc(*dest, len + 1);
-    strncpy(*dest, string, len + 1);
+  if (!len) {
+    free(*dest);
+    *dest = NULL;
+  } else {
+    *dest = (char*)realloc(*dest, len + 1U);
+    strncpy(*dest, string, len + 1U);
   }
 }
 
