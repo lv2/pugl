@@ -36,15 +36,18 @@ puglNewVulkanLoader(PuglWorld* PUGL_UNUSED(world))
   PuglVulkanLoader* const loader =
     (PuglVulkanLoader*)calloc(1, sizeof(PuglVulkanLoader));
 
-  if (loader) {
-    loader->libvulkan = libvulkan;
-
-    loader->vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(
-      loader->libvulkan, "vkGetInstanceProcAddr");
-
-    loader->vkGetDeviceProcAddr =
-      (PFN_vkGetDeviceProcAddr)dlsym(loader->libvulkan, "vkGetDeviceProcAddr");
+  if (!loader) {
+    dlclose(libvulkan);
+    return NULL;
   }
+
+  loader->libvulkan = libvulkan;
+
+  loader->vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(
+    loader->libvulkan, "vkGetInstanceProcAddr");
+
+  loader->vkGetDeviceProcAddr =
+    (PFN_vkGetDeviceProcAddr)dlsym(loader->libvulkan, "vkGetDeviceProcAddr");
 
   return loader;
 }
