@@ -21,9 +21,6 @@
 @end
 
 @interface PuglWindow : NSWindow
-
-- (void)setPuglview:(PuglView*)view;
-
 @end
 
 struct PuglWorldInternalsImpl {

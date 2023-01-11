@@ -56,10 +56,11 @@ struct PuglViewImpl {
   char*              title;
   PuglNativeView     parent;
   uintptr_t          transientParent;
-  PuglRect           frame;
   PuglConfigureEvent lastConfigure;
   PuglHints          hints;
   PuglViewSize       sizeHints[PUGL_NUM_SIZE_HINTS];
+  int                defaultX;
+  int                defaultY;
   PuglViewStage      stage;
   bool               resizing;
 };

@@ -153,7 +153,8 @@ puglWinGetMonitor(const PuglView* const view)
     return MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY);
   }
 
-  const POINT point = {(long)view->frame.x, (long)view->frame.y};
+  const POINT point = {(long)view->lastConfigure.x,
+                       (long)view->lastConfigure.y};
   return MonitorFromPoint(point, MONITOR_DEFAULTTOPRIMARY);
 }
 
@@ -289,7 +290,6 @@ puglRealize(PuglView* view)
   view->impl->scaleFactor = puglWinGetViewScaleFactor(view);
   view->impl->cursor      = LoadCursor(NULL, IDC_ARROW);
 
-  puglSetFrame(view, view->frame);
   SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 
   return puglDispatchSimpleEvent(view, PUGL_REALIZE);
@@ -589,12 +589,9 @@ handleConfigure(PuglView* view, PuglEvent* event)
   const LONG width  = rect.right - rect.left;
   const LONG height = rect.bottom - rect.top;
 
-  view->frame.x = (PuglCoord)rect.left;
-  view->frame.y = (PuglCoord)rect.top;
-
   event->configure.type   = PUGL_CONFIGURE;
-  event->configure.x      = (PuglCoord)view->frame.x;
-  event->configure.y      = (PuglCoord)view->frame.y;
+  event->configure.x      = (PuglCoord)rect.left;
+  event->configure.y      = (PuglCoord)rect.top;
   event->configure.width  = (PuglSpan)width;
   event->configure.height = (PuglSpan)height;
 
@@ -1200,23 +1197,27 @@ puglGetScaleFactor(const PuglView* const view)
 PuglStatus
 puglSetFrame(PuglView* view, const PuglRect frame)
 {
-  if (view->impl->hwnd) {
-    const RECT rect =
-      adjustedWindowRect(view, frame.x, frame.y, frame.width, frame.height);
+  if (!view->impl->hwnd) {
+    // Set defaults to be used when realized
+    view->defaultX                            = frame.x;
+    view->defaultY                            = frame.y;
+    view->sizeHints[PUGL_DEFAULT_SIZE].width  = (PuglSpan)frame.width;
+    view->sizeHints[PUGL_DEFAULT_SIZE].height = (PuglSpan)frame.height;
+    return PUGL_SUCCESS;
+  }
 
-    if (!SetWindowPos(view->impl->hwnd,
+  const RECT rect =
+    adjustedWindowRect(view, frame.x, frame.y, frame.width, frame.height);
+
+  return SetWindowPos(view->impl->hwnd,
                       HWND_TOP,
                       rect.left,
                       rect.top,
                       rect.right - rect.left,
                       rect.bottom - rect.top,
-                      SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER)) {
-      return PUGL_UNKNOWN_ERROR;
-    }
-  }
-
-  view->frame = frame;
-  return PUGL_SUCCESS;
+                      SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER)
+           ? PUGL_SUCCESS
+           : PUGL_UNKNOWN_ERROR;
 }
 
 PuglStatus
@@ -1226,25 +1227,26 @@ puglSetPosition(PuglView* const view, const int x, const int y)
     return PUGL_BAD_PARAMETER;
   }
 
-  if (view->impl->hwnd) {
-    const RECT rect =
-      adjustedWindowRect(view, x, y, view->frame.width, view->frame.height);
+  if (!view->impl->hwnd) {
+    // Set defaults to be used when realized
+    view->defaultX = x;
+    view->defaultY = y;
+    return PUGL_SUCCESS;
+  }
 
-    if (!SetWindowPos(view->impl->hwnd,
+  const RECT rect = adjustedWindowRect(
+    view, x, y, view->lastConfigure.width, view->lastConfigure.height);
+
+  return SetWindowPos(view->impl->hwnd,
                       HWND_TOP,
                       rect.left,
                       rect.top,
                       0,
                       0,
                       SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER |
-                        SWP_NOSIZE)) {
-      return PUGL_UNKNOWN_ERROR;
-    }
-  }
-
-  view->frame.x = (PuglCoord)x;
-  view->frame.y = (PuglCoord)y;
-  return PUGL_SUCCESS;
+                        SWP_NOSIZE)
+           ? PUGL_SUCCESS
+           : PUGL_UNKNOWN_ERROR;
 }
 
 PuglStatus
@@ -1254,25 +1256,29 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
     return PUGL_BAD_PARAMETER;
   }
 
-  if (view->impl->hwnd) {
-    const RECT rect = adjustedWindowRect(
-      view, view->frame.x, view->frame.y, (long)width, (long)height);
+  if (!view->impl->hwnd) {
+    // Set defaults to be used when realized
+    view->sizeHints[PUGL_DEFAULT_SIZE].width  = (PuglSpan)width;
+    view->sizeHints[PUGL_DEFAULT_SIZE].height = (PuglSpan)height;
+    return PUGL_SUCCESS;
+  }
 
-    if (!SetWindowPos(view->impl->hwnd,
+  const RECT rect = adjustedWindowRect(view,
+                                       view->lastConfigure.x,
+                                       view->lastConfigure.y,
+                                       (long)width,
+                                       (long)height);
+
+  return SetWindowPos(view->impl->hwnd,
                       HWND_TOP,
                       0,
                       0,
                       rect.right - rect.left,
                       rect.bottom - rect.top,
                       SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER |
-                        SWP_NOMOVE)) {
-      return PUGL_UNKNOWN_ERROR;
-    }
-  }
-
-  view->frame.width  = (PuglSpan)width;
-  view->frame.height = (PuglSpan)height;
-  return PUGL_SUCCESS;
+                        SWP_NOMOVE)
+           ? PUGL_SUCCESS
+           : PUGL_UNKNOWN_ERROR;
 }
 
 PuglStatus
@@ -1502,19 +1508,42 @@ puglWinGetPixelFormatDescriptor(const PuglHints hints)
   return pfd;
 }
 
-static void
-puglWinSetDefaultPosition(PuglView* const view)
+static PuglRect
+getInitialFrame(PuglView* const view)
 {
+  if (view->lastConfigure.type == PUGL_CONFIGURE) {
+    // Use the last configured frame
+    const PuglRect frame = {view->lastConfigure.x,
+                            view->lastConfigure.y,
+                            view->lastConfigure.width,
+                            view->lastConfigure.height};
+    return frame;
+  }
+
+  const PuglSpan defaultWidth  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
+  const PuglSpan defaultHeight = view->sizeHints[PUGL_DEFAULT_SIZE].height;
+  const int      x             = view->defaultX;
+  const int      y             = view->defaultY;
+  if (x >= INT16_MIN && x <= INT16_MAX && y >= INT16_MIN && y <= INT16_MAX) {
+    // Use the default position set with puglSetPosition while unrealized
+    const PuglRect frame = {
+      (PuglCoord)x, (PuglCoord)y, defaultWidth, defaultHeight};
+    return frame;
+  }
+
   // Get a bounding rect from the "nearest" parent or parent-like window
   const HWND hwnd = puglWinGetWindow(view);
   RECT       rect = {0, 0, 0, 0};
   GetWindowRect(hwnd ? hwnd : GetDesktopWindow(), &rect);
 
   // Center the frame around the center of the bounding rectangle
-  const LONG centerX = rect.left + (rect.right - rect.left) / 2;
-  const LONG centerY = rect.top + (rect.bottom - rect.top) / 2;
-  view->frame.x      = (PuglCoord)(centerX - (view->frame.width / 2U));
-  view->frame.y      = (PuglCoord)(centerY - (view->frame.height / 2U));
+  const LONG     centerX = rect.left + (rect.right - rect.left) / 2;
+  const LONG     centerY = rect.top + (rect.bottom - rect.top) / 2;
+  const PuglRect frame   = {(PuglCoord)(centerX - (defaultWidth / 2U)),
+                            (PuglCoord)(centerY - (defaultHeight / 2U)),
+                            defaultWidth,
+                            defaultHeight};
+  return frame;
 }
 
 PuglStatus
@@ -1526,20 +1555,16 @@ puglWinCreateWindow(PuglView* const   view,
   const char*    className  = (const char*)view->world->className;
   const unsigned winFlags   = puglWinGetWindowFlags(view);
   const unsigned winExFlags = puglWinGetWindowExFlags(view);
-
-  // Center top-level windows if a position has not been set
-  if (!view->parent && !view->frame.x && !view->frame.y) {
-    puglWinSetDefaultPosition(view);
-  }
+  const PuglRect frame      = getInitialFrame(view);
 
   // The meaning of "parent" depends on the window type (WS_CHILD)
   PuglNativeView parent = view->parent ? view->parent : view->transientParent;
 
-  // Calculate total window size to accommodate requested view size
-  RECT wr = {(long)view->frame.x,
-             (long)view->frame.y,
-             (long)view->frame.width,
-             (long)view->frame.height};
+  // Calculate initial window rectangle
+  RECT wr = {(long)frame.x,
+             (long)frame.y,
+             (long)frame.x + frame.width,
+             (long)frame.y + frame.height};
   AdjustWindowRectEx(&wr, winFlags, FALSE, winExFlags);
 
   // Create window and get drawing context
@@ -1557,6 +1582,14 @@ puglWinCreateWindow(PuglView* const   view,
                                NULL))) {
     return PUGL_REALIZE_FAILED;
   }
+
+  SetWindowPos(view->impl->hwnd,
+               HWND_TOP,
+               wr.left,
+               wr.top,
+               wr.right - wr.left,
+               wr.bottom - wr.top,
+               SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER);
 
   if (!(*hdc = GetDC(*hwnd))) {
     DestroyWindow(*hwnd);

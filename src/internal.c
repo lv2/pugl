@@ -122,15 +122,10 @@ puglPreRealize(PuglView* const view)
     return PUGL_BAD_CONFIGURATION;
   }
 
-  // Set the size to the default if it hasn't already been set
-  if (!isValidSize(view->frame.width, view->frame.height)) {
-    const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
-    if (!isValidSize(defaultSize.width, defaultSize.height)) {
-      return PUGL_BAD_CONFIGURATION;
-    }
-
-    view->frame.width  = defaultSize.width;
-    view->frame.height = defaultSize.height;
+  // Ensure that the default size is set to a valid size
+  const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
+  if (!isValidSize(defaultSize.width, defaultSize.height)) {
+    return PUGL_BAD_CONFIGURATION;
   }
 
   return PUGL_SUCCESS;
@@ -159,12 +154,6 @@ puglConfigure(PuglView* view, const PuglEvent* event)
   PuglStatus st = PUGL_SUCCESS;
 
   assert(event->type == PUGL_CONFIGURE);
-
-  view->frame.x      = event->configure.x;
-  view->frame.y      = event->configure.y;
-  view->frame.width  = event->configure.width;
-  view->frame.height = event->configure.height;
-
   if (puglMustConfigure(view, &event->configure)) {
     st                  = view->eventFunc(view, event);
     view->lastConfigure = event->configure;

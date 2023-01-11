@@ -10,7 +10,9 @@
 
 #include "pugl/pugl.h"
 
+#include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -124,6 +126,8 @@ puglNewView(PuglWorld* const world)
   view->world                           = world;
   view->sizeHints[PUGL_MIN_SIZE].width  = 1;
   view->sizeHints[PUGL_MIN_SIZE].height = 1;
+  view->defaultX                        = INT_MIN;
+  view->defaultY                        = INT_MIN;
 
   puglSetDefaultHints(view->hints);
 
@@ -237,7 +241,29 @@ puglGetViewHint(const PuglView* view, PuglViewHint hint)
 PuglRect
 puglGetFrame(const PuglView* view)
 {
-  return view->frame;
+  if (view->lastConfigure.type == PUGL_CONFIGURE) {
+    // Return the last configured frame
+    const PuglRect frame = {view->lastConfigure.x,
+                            view->lastConfigure.y,
+                            view->lastConfigure.width,
+                            view->lastConfigure.height};
+    return frame;
+  }
+
+  // Get the default position if set, or fallback to (0, 0)
+  int x = view->defaultX;
+  int y = view->defaultY;
+  if (x < INT16_MIN || x > INT16_MAX || y < INT16_MIN || y > INT16_MAX) {
+    x = 0;
+    y = 0;
+  }
+
+  // Return the default frame, sanitized if necessary
+  const PuglRect frame = {(PuglCoord)x,
+                          (PuglCoord)y,
+                          view->sizeHints[PUGL_DEFAULT_SIZE].width,
+                          view->sizeHints[PUGL_DEFAULT_SIZE].height};
+  return frame;
 }
 
 const char*
