@@ -38,11 +38,14 @@ if reuse.found()
   test('REUSE', reuse, args: ['--root', pugl_src_root, 'lint'], suite: 'data')
 endif
 
-basic_tests = [
+basic_exclusive_tests = [
   'local_copy_paste',
+  'remote_copy_paste',
+]
+
+basic_tests = [
   'realize',
   'redisplay',
-  'remote_copy_paste',
   'show_hide',
   'size',
   'strerror',
@@ -83,6 +86,21 @@ foreach test : basic_tests
       dependencies: [pugl_dep, stub_backend_dep],
       include_directories: include_directories(includes),
     ),
+    suite: 'unit',
+  )
+endforeach
+
+foreach test : basic_exclusive_tests
+  test(
+    test,
+    executable(
+      'test_' + test,
+      'test_@0@.c'.format(test),
+      c_args: test_c_args,
+      dependencies: [pugl_dep, stub_backend_dep],
+      include_directories: include_directories(includes),
+    ),
+    is_parallel: false,
     suite: 'unit',
   )
 endforeach
