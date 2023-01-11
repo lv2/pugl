@@ -171,7 +171,8 @@ main(int argc, char** argv)
   puglSetHandle(test.view, &test);
   puglSetBackend(test.view, puglVulkanBackend());
   puglSetEventFunc(test.view, onEvent);
-  puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 512, 512);
+  puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
+  puglSetPosition(test.view, 640, 640);
   assert(!puglRealize(test.view));
 
   // Create Vulkan surface for window

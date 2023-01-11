@@ -114,7 +114,8 @@ main(int argc, char** argv)
   puglSetBackend(test.view, puglStubBackend());
   puglSetHandle(test.view, &test);
   puglSetEventFunc(test.view, onEvent);
-  puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 512, 512);
+  puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
+  puglSetPosition(test.view, 128, 384);
 
   // Create initially invisible window
   assert(!puglRealize(test.view));

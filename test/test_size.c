@@ -65,9 +65,9 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(int argc, char** argv)
 {
-  static const PuglSpan minSize     = 256;
-  static const PuglSpan defaultSize = 512;
-  static const PuglSpan maxSize     = 1024;
+  static const PuglSpan minSize     = 128;
+  static const PuglSpan defaultSize = 256;
+  static const PuglSpan maxSize     = 512;
 
   PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0),
                    NULL,
@@ -88,6 +88,7 @@ main(int argc, char** argv)
   puglSetSizeHint(test.view, PUGL_MAX_SIZE, maxSize, maxSize);
   puglSetSizeHint(test.view, PUGL_MIN_ASPECT, 1, 1);
   puglSetSizeHint(test.view, PUGL_MAX_ASPECT, 1, 1);
+  puglSetPosition(test.view, 384, 384);
 
   // Create and show window
   assert(!puglRealize(test.view));

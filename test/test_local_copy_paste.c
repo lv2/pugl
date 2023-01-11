@@ -132,7 +132,8 @@ main(int argc, char** argv)
   puglSetBackend(app.view, puglStubBackend());
   puglSetHandle(app.view, &app);
   puglSetEventFunc(app.view, onEvent);
-  puglSetSizeHint(app.view, PUGL_DEFAULT_SIZE, 512, 512);
+  puglSetSizeHint(app.view, PUGL_DEFAULT_SIZE, 256, 256);
+  puglSetPosition(app.view, 384, 128);
 
   // Create and show window
   assert(!puglRealize(app.view));
