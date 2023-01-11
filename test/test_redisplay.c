@@ -29,7 +29,8 @@ static const double timeout = -1.0;
   X(EXPOSED)          \
   X(SHOULD_REDISPLAY) \
   X(POSTED_REDISPLAY) \
-  X(REDISPLAYED)
+  X(REDISPLAYED)      \
+  X(REREDISPLAYED)
 
 #define X(state) state,
 
@@ -82,6 +83,8 @@ onEvent(PuglView* view, const PuglEvent* event)
                (event->expose.y + event->expose.height >=
                 redisplayRect.y + redisplayRect.height)) {
       test->state = REDISPLAYED;
+    } else if (test->state == REDISPLAYED) {
+      test->state = REREDISPLAYED;
     }
     break;
 
@@ -134,6 +137,12 @@ main(int argc, char** argv)
   while (test.state != REDISPLAYED) {
     assert(!puglUpdate(test.world, timeout));
     assert(test.state != POSTED_REDISPLAY);
+  }
+
+  // Redisplay from outside the event handler
+  puglPostRedisplay(test.view);
+  while (test.state != REREDISPLAYED) {
+    assert(!puglUpdate(test.world, timeout));
   }
 
   // Tear down
