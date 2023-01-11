@@ -44,6 +44,7 @@ basic_exclusive_tests = [
 ]
 
 basic_tests = [
+  'cursor',
   'realize',
   'redisplay',
   'show_hide',
