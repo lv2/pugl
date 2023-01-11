@@ -1,7 +1,8 @@
-# Copyright 2021 David Robillard <d@drobilla.net>
+# Copyright 2021-2023 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 c_headers = [
+  'pugl/attributes.h',
   'pugl/pugl.h',
 
   'pugl/cairo.h',
