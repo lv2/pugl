@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 
 typedef enum {
   START,
@@ -73,6 +74,11 @@ main(int argc, char** argv)
   puglSetEventFunc(test.view, onEvent);
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
   puglSetPosition(test.view, 384, 640);
+
+  // Check basic accessors
+  assert(!strcmp(puglGetClassName(test.world), "PuglTest"));
+  assert(!strcmp(puglGetWindowTitle(test.view), "Pugl View Test"));
+  assert(puglGetBackend(test.view) == puglStubBackend());
 
   // Create and show window
   assert(!puglRealize(test.view));

@@ -66,10 +66,12 @@ main(int argc, char** argv)
   puglSetClassName(test.world, "PuglTest");
   puglSetWindowTitle(test.view, "Pugl Realize Test");
   puglSetHandle(test.view, &test);
-  puglSetEventFunc(test.view, onEvent);
   assert(puglRealize(test.view) == PUGL_BAD_BACKEND);
 
   puglSetBackend(test.view, puglStubBackend());
+  assert(puglRealize(test.view) == PUGL_BAD_CONFIGURATION);
+
+  puglSetEventFunc(test.view, onEvent);
   assert(puglRealize(test.view) == PUGL_BAD_CONFIGURATION);
 
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);

@@ -86,8 +86,7 @@ main(int argc, char** argv)
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, defaultSize, defaultSize);
   puglSetSizeHint(test.view, PUGL_MIN_SIZE, minSize, minSize);
   puglSetSizeHint(test.view, PUGL_MAX_SIZE, maxSize, maxSize);
-  puglSetSizeHint(test.view, PUGL_MIN_ASPECT, 1, 1);
-  puglSetSizeHint(test.view, PUGL_MAX_ASPECT, 1, 1);
+  puglSetSizeHint(test.view, PUGL_FIXED_ASPECT, 1, 1);
   puglSetPosition(test.view, 384, 384);
 
   // Create and show window
