@@ -739,7 +739,9 @@ puglShow(PuglView* const view, const PuglShowCommand command)
       break;
     }
 
-    st = puglPostRedisplay(view);
+    if (view->stage == PUGL_VIEW_STAGE_CONFIGURED) {
+      st = puglPostRedisplay(view);
+    }
   }
 
   return st;
@@ -1863,7 +1865,7 @@ puglPostRedisplayRect(PuglView* const view, const PuglRect rect)
   if (view->world->impl->dispatchingEvents) {
     // Currently dispatching events, add/expand expose for the loop end
     mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
-  } else if (view->stage == PUGL_VIEW_STAGE_CONFIGURED) {
+  } else if (view->impl->win) {
     // Not dispatching events, send an X expose so we wake up next time
     PuglEvent exposeEvent = {{PUGL_EXPOSE, 0}};
     exposeEvent.expose    = event;
