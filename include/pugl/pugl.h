@@ -1745,7 +1745,7 @@ static inline PUGL_DEPRECATED_BY("puglSetTransientParent")
 void
 puglInitTransientFor(PuglView* view, uintptr_t parent)
 {
-  puglSetTransientParent(view, (PuglNativeWindow)parent);
+  puglSetTransientParent(view, (PuglNativeView)parent);
 }
 
 /**
@@ -1757,7 +1757,7 @@ static inline PUGL_DEPRECATED_BY("puglSetTransientParent")
 PuglStatus
 puglSetTransientFor(PuglView* view, uintptr_t parent)
 {
-  return puglSetTransientParent(view, (PuglNativeWindow)parent);
+  return puglSetTransientParent(view, (PuglNativeView)parent);
 }
 
 /**
@@ -1819,7 +1819,7 @@ puglInitWindowHint(PuglView* view, PuglViewHint hint, int value)
 */
 static inline PUGL_DEPRECATED_BY("puglSetParentWindow")
 void
-puglInitWindowParent(PuglView* view, PuglNativeWindow parent)
+puglInitWindowParent(PuglView* view, PuglNativeView parent)
 {
   puglSetParentWindow(view, parent);
 }
@@ -1924,7 +1924,7 @@ static inline PUGL_DEPRECATED_BY("puglShow")
 PuglStatus
 puglShowWindow(PuglView* view)
 {
-  return puglShow(view);
+  return puglShow(view, PUGL_SHOW_RAISE);
 }
 
 static inline PUGL_DEPRECATED_BY("puglHide")
