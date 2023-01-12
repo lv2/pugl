@@ -296,6 +296,8 @@ puglViewHintString(const PuglViewHint hint)
     return "Refresh rate";
   case PUGL_VIEW_TYPE:
     return "View type";
+  case PUGL_DARK_FRAME:
+    return "Dark frame";
   }
 
   return "Unknown";

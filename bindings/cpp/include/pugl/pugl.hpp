@@ -378,9 +378,11 @@ enum class ViewHint {
   ignoreKeyRepeat,     ///< @copydoc PUGL_IGNORE_KEY_REPEAT
   refreshRate,         ///< @copydoc PUGL_REFRESH_RATE
   viewType,            ///< @copydoc PUGL_VIEW_TYPE
+  darkFrame,           ///< @copydoc PUGL_DARK_FRAME
 };
 
-static_assert(static_cast<ViewHint>(PUGL_VIEW_TYPE) == ViewHint::viewType, "");
+static_assert(static_cast<ViewHint>(PUGL_DARK_FRAME) == ViewHint::darkFrame,
+              "");
 
 using ViewHintValue = PuglViewHintValue; ///< @copydoc PuglViewHintValue
 

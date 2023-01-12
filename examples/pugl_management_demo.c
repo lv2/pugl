@@ -50,20 +50,20 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
   cairo_clip_preserve(cr);
 
   // Draw background
-  cairo_set_source_rgb(cr, 0.2, 0.2, 0.2);
+  cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
   cairo_set_line_width(cr, 4.0);
   cairo_fill(cr);
 
   // Set up text renering
   char                 buf[128] = {0};
   cairo_text_extents_t extents  = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-  cairo_set_font_size(cr, 32.0);
+  cairo_set_font_size(cr, 30.0);
 
   // Draw time label
   snprintf(buf, sizeof(buf), "Draw time: %g", puglGetTime(world));
   cairo_text_extents(cr, buf, &extents);
   cairo_move_to(cr, cx - extents.width / 2.0, cy + extents.height / 2.0 - 48.0);
-  cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+  cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);
   cairo_show_text(cr, buf);
 
   // Draw style label
@@ -112,13 +112,15 @@ toggleDialog(DemoApp* const app)
     puglSetHandle(app->dialogView.view, &app->dialogView);
     puglSetTransientParent(app->dialogView.view,
                            puglGetNativeView(app->mainView.view));
+
+    puglSetViewString(app->dialogView.view, PUGL_WINDOW_TITLE, "Dialog");
+    puglSetViewHint(app->dialogView.view, PUGL_DARK_FRAME, PUGL_TRUE);
     puglSetSizeHint(app->dialogView.view, PUGL_DEFAULT_SIZE, 320, 240);
     puglSetSizeHint(app->dialogView.view, PUGL_MIN_SIZE, 160, 120);
     puglSetViewHint(app->dialogView.view, PUGL_IGNORE_KEY_REPEAT, true);
     puglSetViewHint(app->dialogView.view, PUGL_RESIZABLE, true);
     puglSetViewHint(
       app->dialogView.view, PUGL_VIEW_TYPE, PUGL_VIEW_TYPE_DIALOG);
-    puglSetViewString(app->dialogView.view, PUGL_WINDOW_TITLE, "Dialog");
   }
 
   return puglShow(app->dialogView.view, PUGL_SHOW_RAISE);
@@ -240,6 +242,7 @@ main(int argc, char** argv)
   puglSetHandle(app.mainView.view, &app.mainView);
   puglSetSizeHint(app.mainView.view, PUGL_DEFAULT_SIZE, 640, 480);
   puglSetSizeHint(app.mainView.view, PUGL_MIN_SIZE, 320, 240);
+  puglSetViewHint(app.mainView.view, PUGL_DARK_FRAME, PUGL_TRUE);
   puglSetViewHint(app.mainView.view, PUGL_IGNORE_KEY_REPEAT, true);
   puglSetViewHint(app.mainView.view, PUGL_RESIZABLE, true);
   puglSetViewHint(app.mainView.view, PUGL_VIEW_TYPE, PUGL_VIEW_TYPE_NORMAL);

@@ -1719,6 +1719,7 @@ run(const char* const      programPath,
   app.view.setSizeHint(pugl::SizeHint::minSize, width / 4U, height / 4U);
   app.view.setBackend(pugl::vulkanBackend());
   app.view.setHint(pugl::ViewHint::resizable, opts.resizable);
+  app.view.setHint(pugl::ViewHint::darkFrame, true);
   const pugl::Status st = app.view.realize();
   if (st != pugl::Status::success) {
     return logError("Failed to create window (%s)\n", pugl::strerror(st));

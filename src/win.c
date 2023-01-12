@@ -8,6 +8,7 @@
 
 #include "pugl/pugl.h"
 
+#include <dwmapi.h>
 #include <windows.h>
 #include <windowsx.h>
 
@@ -28,6 +29,11 @@
 #endif
 #ifndef GWLP_USERDATA
 #  define GWLP_USERDATA (-21)
+#endif
+
+#define PRE_20H1_DWMWA_USE_IMMERSIVE_DARK_MODE 19
+#ifndef DWMWA_USE_IMMERSIVE_DARK_MODE
+#  define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
 
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
@@ -280,11 +286,25 @@ puglRealize(PuglView* view)
   }
 
   // Set basic window hints and attributes
+
   puglSetViewString(view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
   puglSetTransientParent(view, view->transientParent);
 
   view->impl->scaleFactor = puglWinGetViewScaleFactor(view);
   view->impl->cursor      = LoadCursor(NULL, IDC_ARROW);
+
+  if (view->hints[PUGL_DARK_FRAME]) {
+    const BOOL useDarkMode = TRUE;
+    if ((DwmSetWindowAttribute(view->impl->hwnd,
+                               DWMWA_USE_IMMERSIVE_DARK_MODE,
+                               &useDarkMode,
+                               sizeof(useDarkMode)) != S_OK)) {
+      DwmSetWindowAttribute(view->impl->hwnd,
+                            PRE_20H1_DWMWA_USE_IMMERSIVE_DARK_MODE,
+                            &useDarkMode,
+                            sizeof(useDarkMode));
+    }
+  }
 
   SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
 

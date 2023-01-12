@@ -99,10 +99,11 @@ elif host_machine.system() == 'windows'
 
   user32_dep = cc.find_library('user32')
   shlwapi_dep = cc.find_library('shlwapi')
+  dwmapi_dep = cc.find_library('dwmapi')
 
   platform = 'win'
   platform_sources = files('src/win.c')
-  core_deps = [user32_dep, shlwapi_dep]
+  core_deps = [user32_dep, shlwapi_dep, dwmapi_dep]
   extension = '.c'
 
 else # X11

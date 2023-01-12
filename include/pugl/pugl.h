@@ -923,10 +923,11 @@ typedef enum {
   PUGL_IGNORE_KEY_REPEAT,     ///< True if key repeat events are ignored
   PUGL_REFRESH_RATE,          ///< Refresh rate in Hz
   PUGL_VIEW_TYPE,             ///< View type (a #PuglViewType)
+  PUGL_DARK_FRAME,            ///< True if window frame should be dark
 } PuglViewHint;
 
 /// The number of #PuglViewHint values
-#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_VIEW_TYPE + 1U)
+#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_DARK_FRAME + 1U)
 
 /// A special view hint value
 typedef enum {
