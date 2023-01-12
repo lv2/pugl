@@ -226,6 +226,30 @@ selectSurfaceFormat(const sk::VulkanApi&      vk,
   return VK_ERROR_FORMAT_NOT_SUPPORTED;
 }
 
+template<typename ModeArray>
+VkResult
+chooseBestPresentMode(const sk::VulkanApi&      vk,
+                      const sk::PhysicalDevice& physicalDevice,
+                      const sk::SurfaceKHR&     surface,
+                      const ModeArray&          tryModes,
+                      VkPresentModeKHR&         presentMode)
+{
+  std::vector<VkPresentModeKHR> modes;
+  if (VkResult r = vk.getPhysicalDeviceSurfacePresentModesKHR(
+        physicalDevice, surface, modes)) {
+    return r;
+  }
+
+  for (const auto m : tryModes) {
+    if (std::find(modes.begin(), modes.end(), m) != modes.end()) {
+      presentMode = m;
+      return VK_SUCCESS;
+    }
+  }
+
+  return VK_ERROR_INCOMPATIBLE_DRIVER;
+}
+
 VkResult
 selectPresentMode(const sk::VulkanApi&      vk,
                   const sk::PhysicalDevice& physicalDevice,
@@ -264,23 +288,26 @@ selectPresentMode(const sk::VulkanApi&      vk,
     },
   };
 
-  std::vector<VkPresentModeKHR> modes;
-  if (VkResult r = vk.getPhysicalDeviceSurfacePresentModesKHR(
-        physicalDevice, surface, modes)) {
-    return r;
-  }
-
-  const auto& tryModes = priorities[multiBuffer][sync];
-  for (const auto m : tryModes) {
-    if (std::find(modes.begin(), modes.end(), m) != modes.end()) {
-      presentMode = m;
-      return VK_SUCCESS;
-    }
-  }
-
-  return VK_ERROR_INCOMPATIBLE_DRIVER;
+  return chooseBestPresentMode(
+    vk, physicalDevice, surface, priorities[multiBuffer][sync], presentMode);
 }
 
+VkResult
+selectResizePresentMode(const sk::VulkanApi&      vk,
+                        const sk::PhysicalDevice& physicalDevice,
+                        const sk::SurfaceKHR&     surface,
+                        VkPresentModeKHR&         presentMode)
+{
+  static constexpr VkPresentModeKHR priorities[4] = {
+    VK_PRESENT_MODE_MAILBOX_KHR,
+    VK_PRESENT_MODE_FIFO_RELAXED_KHR,
+    VK_PRESENT_MODE_IMMEDIATE_KHR,
+    VK_PRESENT_MODE_FIFO_KHR,
+  };
+
+  return chooseBestPresentMode(
+    vk, physicalDevice, surface, priorities, presentMode);
+}
 VkResult
 openDevice(const sk::VulkanApi&      vk,
            const sk::PhysicalDevice& physicalDevice,
@@ -419,8 +446,8 @@ GraphicsDevice::init(const pugl::VulkanLoader& loader,
   surface =
     sk::SurfaceKHR{surfaceHandle, {context.instance, vk.vkDestroySurfaceKHR}};
 
-  PhysicalDeviceSelection physicalDeviceSelection = {};
   // Select a physical device to use
+  PhysicalDeviceSelection physicalDeviceSelection = {};
   if ((r = selectPhysicalDevice(
          vk, context.instance, surface, physicalDeviceSelection))) {
     return r;
@@ -436,8 +463,8 @@ GraphicsDevice::init(const pugl::VulkanLoader& loader,
                              opts.doubleBuffer,
                              opts.sync,
                              presentMode)) ||
-      (r = selectPresentMode(
-         vk, physicalDevice, surface, true, false, resizePresentMode)) ||
+      (r = selectResizePresentMode(
+         vk, physicalDevice, surface, resizePresentMode)) ||
       (r = openDevice(vk, physicalDevice, graphicsIndex, device))) {
     return r;
   }
