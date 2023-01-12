@@ -30,8 +30,8 @@ main(void)
   PuglView* const  view  = puglNewView(world);
 
   // Set up view
-  puglSetClassName(world, "PuglTest");
-  puglSetWindowTitle(view, "Pugl OpenGL Hints Test");
+  puglSetWorldString(world, PUGL_CLASS_NAME, "PuglTest");
+  puglSetViewString(view, PUGL_WINDOW_TITLE, "Pugl OpenGL Hints Test");
   puglSetBackend(view, puglGlBackend());
   puglSetEventFunc(view, onEvent);
   puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 256, 256);

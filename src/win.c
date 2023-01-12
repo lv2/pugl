@@ -269,7 +269,7 @@ puglRealize(PuglView* view)
   view->hints[PUGL_REFRESH_RATE] = (int)devMode.dmDisplayFrequency;
 
   // Register window class if necessary
-  if (!puglRegisterWindowClass(view->world->className)) {
+  if (!puglRegisterWindowClass(view->world->strings[PUGL_CLASS_NAME])) {
     return PUGL_REGISTRATION_FAILED;
   }
 
@@ -280,7 +280,7 @@ puglRealize(PuglView* view)
   }
 
   // Set basic window hints and attributes
-  puglSetWindowTitle(view, view->title ? view->title : "");
+  puglSetViewString(view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
   puglSetTransientParent(view, view->transientParent);
 
   view->impl->scaleFactor = puglWinGetViewScaleFactor(view);
@@ -370,7 +370,7 @@ puglFreeViewInternals(PuglView* view)
 void
 puglFreeWorldInternals(PuglWorld* world)
 {
-  UnregisterClass(world->className, NULL);
+  UnregisterClass(world->strings[PUGL_CLASS_NAME], NULL);
   free(world->impl);
 }
 
@@ -1153,12 +1153,16 @@ puglGetNativeView(PuglView* view)
 }
 
 PuglStatus
-puglSetWindowTitle(PuglView* view, const char* title)
+puglViewStringChanged(PuglView* const      view,
+                      const PuglStringHint key,
+                      const char* const    value)
 {
-  puglSetString(&view->title, title);
+  if (!view->impl->hwnd) {
+    return PUGL_SUCCESS;
+  }
 
-  if (view->impl->hwnd) {
-    wchar_t* wtitle = puglUtf8ToWideChar(title);
+  if (key == PUGL_WINDOW_TITLE) {
+    wchar_t* const wtitle = puglUtf8ToWideChar(value);
     if (wtitle) {
       SetWindowTextW(view->impl->hwnd, wtitle);
       free(wtitle);
@@ -1548,19 +1552,19 @@ puglWinCreateWindow(PuglView* const   view,
                     HWND* const       hwnd,
                     HDC* const        hdc)
 {
-  const char*    className  = (const char*)view->world->className;
-  const unsigned winFlags   = puglWinGetWindowFlags(view);
-  const unsigned winExFlags = puglWinGetWindowExFlags(view);
-  const PuglRect frame      = getInitialFrame(view);
+  const char* className = (const char*)view->world->strings[PUGL_CLASS_NAME];
 
   // The meaning of "parent" depends on the window type (WS_CHILD)
   PuglNativeView parent = view->parent ? view->parent : view->transientParent;
 
   // Calculate initial window rectangle
-  RECT wr = {(long)frame.x,
-             (long)frame.y,
-             (long)frame.x + frame.width,
-             (long)frame.y + frame.height};
+  const unsigned winFlags   = puglWinGetWindowFlags(view);
+  const unsigned winExFlags = puglWinGetWindowExFlags(view);
+  const PuglRect frame      = getInitialFrame(view);
+  RECT           wr         = {(long)frame.x,
+                               (long)frame.y,
+                               (long)frame.x + frame.width,
+                               (long)frame.y + frame.height};
   AdjustWindowRectEx(&wr, winFlags, FALSE, winExFlags);
 
   // Create window and get drawing context

@@ -29,6 +29,11 @@ puglSetBlob(PuglBlob* dest, const void* data, size_t len);
 void
 puglSetString(char** dest, const char* string);
 
+/// Handle a changed string property
+PUGL_API
+PuglStatus
+puglViewStringChanged(PuglView* view, PuglStringHint key, const char* value);
+
 /// Return the Unicode code point for `buf` or the replacement character
 uint32_t
 puglDecodeUTF8(const uint8_t* buf);

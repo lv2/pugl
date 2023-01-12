@@ -259,7 +259,7 @@ main(int argc, char** argv)
   app.parent = puglNewView(app.world);
   app.child  = puglNewView(app.world);
 
-  puglSetClassName(app.world, "PuglEmbedDemo");
+  puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglEmbedDemo");
 
   const PuglRect parentFrame = {0, 0, 512, 512};
   puglSetSizeHint(app.parent, PUGL_DEFAULT_SIZE, 512, 512);
@@ -282,7 +282,7 @@ main(int argc, char** argv)
   const uint8_t title[] = {
     'P', 'u', 'g', 'l', ' ', 'P', 'r', 0xC3, 0xBC, 'f', 'u', 'n', 'g', 0};
 
-  puglSetWindowTitle(app.parent, (const char*)title);
+  puglSetViewString(app.parent, PUGL_WINDOW_TITLE, (const char*)title);
 
   if ((st = puglRealize(app.parent))) {
     return logError("Failed to create parent window (%s)\n", puglStrerror(st));

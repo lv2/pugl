@@ -176,7 +176,7 @@ main(int argc, char** argv)
   app.cubes[1].view = puglNewView(app.world);
 
   puglSetWorldHandle(app.world, &app);
-  puglSetClassName(app.world, "PuglWindowDemo");
+  puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglWindowDemo");
 
   PuglStatus st = PUGL_SUCCESS;
   for (unsigned i = 0; i < 2; ++i) {
@@ -185,7 +185,7 @@ main(int argc, char** argv)
 
     cube->dist = 10;
 
-    puglSetWindowTitle(view, "Pugl Window Demo");
+    puglSetViewString(view, PUGL_WINDOW_TITLE, "Pugl Window Demo");
     puglSetPosition(view,
                     (PuglCoord)(pad + (128U + pad) * i),
                     (PuglCoord)(pad + (128U + pad) * i));

@@ -41,8 +41,8 @@ main(void)
   app.world = puglNewWorld(PUGL_PROGRAM, 0);
   app.view  = puglNewView(app.world);
 
-  puglSetClassName(app.world, "PuglPrintEvents");
-  puglSetWindowTitle(app.view, "Pugl Event Printer");
+  puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglPrintEvents");
+  puglSetViewString(app.view, PUGL_WINDOW_TITLE, "Pugl Event Printer");
   puglSetSizeHint(app.view, PUGL_DEFAULT_SIZE, 512, 512);
   puglSetBackend(app.view, puglStubBackend());
   puglSetHandle(app.view, &app);

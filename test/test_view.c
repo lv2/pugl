@@ -67,8 +67,8 @@ main(int argc, char** argv)
 
   // Set up view
   test.view = puglNewView(test.world);
-  puglSetClassName(test.world, "PuglTest");
-  puglSetWindowTitle(test.view, "Pugl View Test");
+  puglSetWorldString(test.world, PUGL_CLASS_NAME, "PuglTest");
+  puglSetViewString(test.view, PUGL_WINDOW_TITLE, "Pugl View Test");
   puglSetBackend(test.view, puglStubBackend());
   puglSetHandle(test.view, &test);
   puglSetEventFunc(test.view, onEvent);
@@ -76,9 +76,10 @@ main(int argc, char** argv)
   puglSetPosition(test.view, 384, 640);
 
   // Check basic accessors
-  assert(!strcmp(puglGetClassName(test.world), "PuglTest"));
-  assert(!strcmp(puglGetWindowTitle(test.view), "Pugl View Test"));
   assert(puglGetBackend(test.view) == puglStubBackend());
+  assert(!strcmp(puglGetWorldString(test.world, PUGL_CLASS_NAME), "PuglTest"));
+  assert(
+    !strcmp(puglGetViewString(test.view, PUGL_WINDOW_TITLE), "Pugl View Test"));
 
   // Create and show window
   assert(!puglRealize(test.view));

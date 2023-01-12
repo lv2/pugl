@@ -48,12 +48,12 @@ main(int argc, char** argv)
                    puglParseTestOptions(&argc, &argv),
                    false};
 
-  puglSetClassName(test.world, "PuglTest");
+  puglSetWorldString(test.world, PUGL_CLASS_NAME, "PuglTest");
 
   // Set up views
   for (unsigned i = 0U; i < 2; ++i) {
     test.views[i] = puglNewView(test.world);
-    puglSetWindowTitle(test.world, "Pugl Clipboard Test");
+    puglSetViewString(test.world, PUGL_WINDOW_TITLE, "Pugl Clipboard Test");
     puglSetBackend(test.views[i], puglStubBackend());
     puglSetHandle(test.views[i], &test);
     puglSetEventFunc(test.views[i], onEvent);

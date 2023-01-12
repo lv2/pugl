@@ -625,9 +625,10 @@ puglRealize(PuglView* const view)
 #endif
 
   // Set basic window hints and attributes
-  XClassHint classHint = {world->className, world->className};
+  char* const className = world->strings[PUGL_CLASS_NAME];
+  XClassHint  classHint = {className, className};
   XSetClassHint(display, impl->win, &classHint);
-  puglSetWindowTitle(view, view->title ? view->title : "");
+  puglSetViewString(view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
   puglSetTransientParent(view, view->transientParent);
   updateSizeHints(view);
 
@@ -1881,23 +1882,32 @@ puglGetNativeView(PuglView* const view)
 }
 
 PuglStatus
-puglSetWindowTitle(PuglView* const view, const char* const title)
+puglViewStringChanged(PuglView* const      view,
+                      const PuglStringHint key,
+                      const char* const    value)
 {
-  Display*                  display = view->world->impl->display;
-  const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
+  Display* const      display = view->world->impl->display;
+  const PuglX11Atoms* atoms   = &view->world->impl->atoms;
 
-  puglSetString(&view->title, title);
+  if (!view->impl->win) {
+    return PUGL_SUCCESS;
+  }
 
-  if (view->impl->win) {
-    XStoreName(display, view->impl->win, title);
+  switch (key) {
+  case PUGL_CLASS_NAME:
+    break;
+
+  case PUGL_WINDOW_TITLE:
+    XStoreName(display, view->impl->win, value);
     XChangeProperty(display,
                     view->impl->win,
                     atoms->NET_WM_NAME,
                     atoms->UTF8_STRING,
                     8,
                     PropModeReplace,
-                    (const uint8_t*)title,
-                    (int)strlen(title));
+                    (const uint8_t*)value,
+                    (int)strlen(value));
+    break;
   }
 
   return PUGL_SUCCESS;

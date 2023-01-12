@@ -53,12 +53,12 @@ struct PuglViewImpl {
   PuglInternals*     impl;
   PuglHandle         handle;
   PuglEventFunc      eventFunc;
-  char*              title;
   PuglNativeView     parent;
   uintptr_t          transientParent;
   PuglConfigureEvent lastConfigure;
   PuglHints          hints;
   PuglViewSize       sizeHints[PUGL_NUM_SIZE_HINTS];
+  char*              strings[PUGL_NUM_STRING_HINTS];
   int                defaultX;
   int                defaultY;
   PuglViewStage      stage;
@@ -69,10 +69,10 @@ struct PuglViewImpl {
 struct PuglWorldImpl {
   PuglWorldInternals* impl;
   PuglWorldHandle     handle;
-  char*               className;
   double              startTime;
   size_t              numViews;
   PuglView**          views;
+  char*               strings[PUGL_NUM_STRING_HINTS];
   PuglWorldType       type;
 };
 

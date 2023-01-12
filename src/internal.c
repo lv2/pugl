@@ -47,6 +47,10 @@ puglSetBlob(PuglBlob* const dest, const void* const data, const size_t len)
 void
 puglSetString(char** dest, const char* string)
 {
+  if (*dest == string) {
+    return;
+  }
+
   const size_t len = string ? strlen(string) : 0U;
 
   if (!len) {
@@ -56,6 +60,19 @@ puglSetString(char** dest, const char* string)
     *dest = (char*)realloc(*dest, len + 1U);
     strncpy(*dest, string, len + 1U);
   }
+}
+
+PuglStatus
+puglStoreViewString(PuglView* const      view,
+                    const PuglStringHint key,
+                    const char* const    value)
+{
+  if ((unsigned)key >= 0 && (unsigned)key < PUGL_NUM_STRING_HINTS) {
+    puglSetString(&view->strings[key], value);
+    return PUGL_SUCCESS;
+  }
+
+  return PUGL_BAD_PARAMETER;
 }
 
 uint32_t

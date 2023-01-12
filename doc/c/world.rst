@@ -31,13 +31,13 @@ For example, Vulkan requires thread support:
 
    PuglWorld* world = puglNewWorld(PUGL_MODULE, PUGL_WORLD_THREADS)
 
-It is a good idea to set a class name for your project with :func:`puglSetClassName`.
+It is a good idea to set a class name for your project with :func:`puglSetWorldString`.
 This allows the window system to distinguish different applications and,
 for example, users to set up rules to manage their windows nicely:
 
 .. code-block:: c
 
-   puglSetClassName(world, "MyAwesomeProject")
+   puglSetWorldString(world, PUGL_CLASS_NAME, "MyAwesomeProject")
 
 .. _setting-application-data:
 

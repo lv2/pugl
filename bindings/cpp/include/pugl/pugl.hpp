@@ -68,6 +68,16 @@ private:
 
 using Rect = PuglRect; ///< @copydoc PuglRect
 
+/// @copydoc PuglStringHint
+enum class StringHint {
+  className = 1, ///< @copydoc PUGL_CLASS_NAME
+  windowTitle,   ///< @copydoc PUGL_WINDOW_TITLE
+};
+
+static_assert(static_cast<StringHint>(PUGL_WINDOW_TITLE) ==
+                StringHint::windowTitle,
+              "");
+
 /**
    @defgroup puglpp_events Events
    @{
@@ -306,10 +316,17 @@ public:
   /// @copydoc puglGetNativeWorld
   void* nativeWorld() noexcept { return puglGetNativeWorld(cobj()); }
 
-  /// @copydoc puglSetClassName
-  Status setClassName(const char* const name) noexcept
+  /// @copydoc puglSetWorldString
+  Status setString(StringHint key, const char* const value) noexcept
   {
-    return static_cast<Status>(puglSetClassName(cobj(), name));
+    return static_cast<Status>(
+      puglSetWorldString(cobj(), static_cast<PuglStringHint>(key), value));
+  }
+
+  /// @copydoc puglGetWorldString
+  const char* getString(StringHint key) noexcept
+  {
+    return puglGetWorldString(cobj(), static_cast<PuglStringHint>(key));
   }
 
   /// @copydoc puglGetTime
@@ -473,6 +490,19 @@ public:
     return puglGetViewHint(cobj(), static_cast<PuglViewHint>(hint));
   }
 
+  /// @copydoc puglSetViewString
+  Status setString(StringHint key, const char* const value) noexcept
+  {
+    return static_cast<Status>(
+      puglSetViewString(cobj(), static_cast<PuglStringHint>(key), value));
+  }
+
+  /// @copydoc puglGetViewString
+  const char* getString(StringHint key) noexcept
+  {
+    return puglGetViewString(cobj(), static_cast<PuglStringHint>(key));
+  }
+
   /**
      @}
      @name Frame
@@ -502,12 +532,6 @@ public:
      Methods for working with top-level windows.
      @{
   */
-
-  /// @copydoc puglSetWindowTitle
-  Status setWindowTitle(const char* title) noexcept
-  {
-    return static_cast<Status>(puglSetWindowTitle(cobj(), title));
-  }
 
   /// @copydoc puglSetParentWindow
   Status setParentWindow(NativeView parent) noexcept

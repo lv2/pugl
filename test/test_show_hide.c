@@ -109,8 +109,8 @@ main(int argc, char** argv)
 
   // Set up view
   test.view = puglNewView(test.world);
-  puglSetClassName(test.world, "PuglTest");
-  puglSetWindowTitle(test.view, "Pugl Show/Hide Test");
+  puglSetWorldString(test.world, PUGL_CLASS_NAME, "PuglTest");
+  puglSetViewString(test.view, PUGL_WINDOW_TITLE, "Pugl Show/Hide Test");
   puglSetBackend(test.view, puglStubBackend());
   puglSetHandle(test.view, &test);
   puglSetEventFunc(test.view, onEvent);

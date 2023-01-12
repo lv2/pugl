@@ -217,9 +217,9 @@ main(int argc, char** argv)
   PuglView* const view = app.cube.view;
 
   puglSetWorldHandle(app.world, &app);
-  puglSetClassName(app.world, "Pugl Test");
+  puglSetWorldString(app.world, PUGL_CLASS_NAME, "Pugl Test");
 
-  puglSetWindowTitle(view, "Pugl Clipboard Demo");
+  puglSetViewString(view, PUGL_WINDOW_TITLE, "Pugl Clipboard Demo");
   puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
   puglSetSizeHint(view, PUGL_MIN_SIZE, 128, 128);
   puglSetBackend(view, puglGlBackend());

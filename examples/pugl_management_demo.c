@@ -118,7 +118,7 @@ toggleDialog(DemoApp* const app)
     puglSetViewHint(app->dialogView.view, PUGL_RESIZABLE, true);
     puglSetViewHint(
       app->dialogView.view, PUGL_VIEW_TYPE, PUGL_VIEW_TYPE_DIALOG);
-    puglSetWindowTitle(app->dialogView.view, "Dialog");
+    puglSetViewString(app->dialogView.view, PUGL_WINDOW_TITLE, "Dialog");
   }
 
   return puglShow(app->dialogView.view, PUGL_SHOW_RAISE);
@@ -228,7 +228,7 @@ main(int argc, char** argv)
   app.world = puglNewWorld(PUGL_PROGRAM, 0);
 
   puglSetWorldHandle(app.world, &app);
-  puglSetClassName(app.world, "PuglDemoApp");
+  puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglDemoApp");
 
   app.mainView.view    = puglNewView(app.world);
   app.mainView.label   = "Main: ";
@@ -243,7 +243,7 @@ main(int argc, char** argv)
   puglSetViewHint(app.mainView.view, PUGL_IGNORE_KEY_REPEAT, true);
   puglSetViewHint(app.mainView.view, PUGL_RESIZABLE, true);
   puglSetViewHint(app.mainView.view, PUGL_VIEW_TYPE, PUGL_VIEW_TYPE_NORMAL);
-  puglSetWindowTitle(app.mainView.view, "Main Window");
+  puglSetViewString(app.mainView.view, PUGL_WINDOW_TITLE, "Main Window");
 
   PuglStatus st = PUGL_SUCCESS;
   if ((st = puglRealize(app.mainView.view))) {

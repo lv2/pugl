@@ -1286,10 +1286,11 @@ puglRealize(PuglView* view)
     impl->window     = window;
     [window setContentSize:framePt.size];
 
-    if (view->title) {
+    const char* const title = view->strings[PUGL_WINDOW_TITLE];
+    if (title) {
       NSString* titleString =
-        [[NSString alloc] initWithBytes:view->title
-                                 length:strlen(view->title)
+        [[NSString alloc] initWithBytes:title
+                                 length:strlen(title)
                                encoding:NSUTF8StringEncoding];
 
       [window setTitle:titleString];
@@ -1656,17 +1657,28 @@ puglGetNativeView(PuglView* view)
 }
 
 PuglStatus
-puglSetWindowTitle(PuglView* view, const char* title)
+puglViewStringChanged(PuglView* const      view,
+                      const PuglStringHint key,
+                      const char* const    value)
 {
-  puglSetString(&view->title, title);
+  if (!view->impl->window) {
+    return PUGL_SUCCESS;
+  }
 
-  if (view->impl->window) {
-    NSString* titleString =
-      [[NSString alloc] initWithBytes:title
-                               length:strlen(title)
-                             encoding:NSUTF8StringEncoding];
+  switch (key) {
+  case PUGL_CLASS_NAME:
+    return PUGL_UNSUPPORTED;
 
-    [view->impl->window setTitle:titleString];
+  case PUGL_WINDOW_TITLE:
+    if (view->impl->window) {
+      NSString* const titleString =
+        [[NSString alloc] initWithBytes:value
+                                 length:strlen(value)
+                               encoding:NSUTF8StringEncoding];
+
+      [view->impl->window setTitle:titleString];
+    }
+    break;
   }
 
   return PUGL_SUCCESS;

@@ -211,11 +211,11 @@ main(int argc, char** argv)
   }
 
   app.world = puglNewWorld(PUGL_PROGRAM, 0);
-  puglSetClassName(app.world, "PuglCairoDemo");
+  puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglCairoDemo");
 
   PuglView* view = puglNewView(app.world);
 
-  puglSetWindowTitle(view, "Pugl Cairo Demo");
+  puglSetViewString(view, PUGL_WINDOW_TITLE, "Pugl Cairo Demo");
   puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
   puglSetSizeHint(view, PUGL_MIN_SIZE, 256, 256);
   puglSetSizeHint(view, PUGL_MAX_SIZE, 2048, 2048);

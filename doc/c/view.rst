@@ -31,7 +31,7 @@ For example:
    const PuglSpan defaultWidth  = 1920;
    const PuglSpan defaultHeight = 1080;
 
-   puglSetWindowTitle(view, "My Window");
+   puglSetViewString(view, PUGL_WINDOW_TITLE, "My Window");
    puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 1920, 1080);
    puglSetSizeHint(view, PUGL_MIN_SIZE, 640, 480);
    puglSetSizeHint(view, PUGL_MIN_ASPECT, 1, 1);

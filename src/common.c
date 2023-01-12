@@ -52,7 +52,7 @@ puglNewWorld(PuglWorldType type, PuglWorldFlags flags)
   world->startTime = puglGetTime(world);
   world->type      = type;
 
-  puglSetString(&world->className, "Pugl");
+  puglSetString(&world->strings[PUGL_CLASS_NAME], "Pugl");
 
   return world;
 }
@@ -61,7 +61,11 @@ void
 puglFreeWorld(PuglWorld* const world)
 {
   puglFreeWorldInternals(world);
-  free(world->className);
+
+  for (size_t i = 0; i < PUGL_NUM_STRING_HINTS; ++i) {
+    free(world->strings[i]);
+  }
+
   free(world->views);
   free(world);
 }
@@ -79,16 +83,26 @@ puglGetWorldHandle(PuglWorld* world)
 }
 
 PuglStatus
-puglSetClassName(PuglWorld* const world, const char* const name)
+puglSetWorldString(PuglWorld* const     world,
+                   const PuglStringHint key,
+                   const char* const    value)
 {
-  puglSetString(&world->className, name);
+  if ((unsigned)key < 0 || (unsigned)key >= PUGL_NUM_STRING_HINTS) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  puglSetString(&world->strings[key], value);
   return PUGL_SUCCESS;
 }
 
 const char*
-puglGetClassName(const PuglWorld* world)
+puglGetWorldString(const PuglWorld* const world, const PuglStringHint key)
 {
-  return world->className;
+  if ((unsigned)key < 0 || (unsigned)key >= PUGL_NUM_STRING_HINTS) {
+    return NULL;
+  }
+
+  return world->strings[key];
 }
 
 static void
@@ -161,7 +175,10 @@ puglFreeView(PuglView* view)
     }
   }
 
-  free(view->title);
+  for (size_t i = 0; i < PUGL_NUM_STRING_HINTS; ++i) {
+    free(view->strings[i]);
+  }
+
   puglFreeViewInternals(view);
   free(view);
 }
@@ -239,6 +256,29 @@ puglGetViewHint(const PuglView* view, PuglViewHint hint)
   return PUGL_DONT_CARE;
 }
 
+PuglStatus
+puglSetViewString(PuglView* const      view,
+                  const PuglStringHint key,
+                  const char* const    value)
+{
+  if ((unsigned)key < 0 || (unsigned)key >= PUGL_NUM_STRING_HINTS) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  puglSetString(&view->strings[key], value);
+  return puglViewStringChanged(view, key, view->strings[key]);
+}
+
+const char*
+puglGetViewString(const PuglView* const view, const PuglStringHint key)
+{
+  if ((unsigned)key < 0 || (unsigned)key >= PUGL_NUM_STRING_HINTS) {
+    return NULL;
+  }
+
+  return view->strings[key];
+}
+
 PuglRect
 puglGetFrame(const PuglView* view)
 {
@@ -265,12 +305,6 @@ puglGetFrame(const PuglView* view)
                           view->sizeHints[PUGL_DEFAULT_SIZE].width,
                           view->sizeHints[PUGL_DEFAULT_SIZE].height};
   return frame;
-}
-
-const char*
-puglGetWindowTitle(const PuglView* const view)
-{
-  return view->title;
 }
 
 PuglStatus

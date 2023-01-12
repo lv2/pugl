@@ -112,9 +112,9 @@ main(int argc, char** argv)
   CubeView       view{world};
   PuglFpsPrinter fpsPrinter{};
 
-  world.setClassName("PuglCppDemo");
+  world.setString(pugl::StringHint::className, "PuglCppDemo");
 
-  view.setWindowTitle("Pugl C++ Demo");
+  view.setString(pugl::StringHint::windowTitle, "Pugl C++ Demo");
   view.setSizeHint(pugl::SizeHint::defaultSize, 512, 512);
   view.setSizeHint(pugl::SizeHint::minSize, 64, 64);
   view.setSizeHint(pugl::SizeHint::maxSize, 1024, 1024);

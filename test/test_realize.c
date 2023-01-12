@@ -63,8 +63,8 @@ main(int argc, char** argv)
 
   // Set up view
   test.view = puglNewView(test.world);
-  puglSetClassName(test.world, "PuglTest");
-  puglSetWindowTitle(test.view, "Pugl Realize Test");
+  puglSetWorldString(test.world, PUGL_CLASS_NAME, "PuglTest");
+  puglSetViewString(test.view, PUGL_WINDOW_TITLE, "Pugl Realize Test");
   puglSetHandle(test.view, &test);
   assert(puglRealize(test.view) == PUGL_BAD_BACKEND);
 

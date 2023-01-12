@@ -127,8 +127,8 @@ main(int argc, char** argv)
 
   // Set up view
   app.view = puglNewView(app.world);
-  puglSetClassName(app.world, "PuglTest");
-  puglSetWindowTitle(app.view, "Pugl Copy/Paste Test");
+  puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglTest");
+  puglSetViewString(app.view, PUGL_WINDOW_TITLE, "Pugl Copy/Paste Test");
   puglSetBackend(app.view, puglStubBackend());
   puglSetHandle(app.view, &app);
   puglSetEventFunc(app.view, onEvent);

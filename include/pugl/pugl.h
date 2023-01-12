@@ -63,6 +63,36 @@ typedef struct {
   PuglSpan  height;
 } PuglRect;
 
+/// A string property for configuration
+typedef enum {
+  /**
+     The application class name.
+
+     This is a stable identifier for the application, which should be a short
+     camel-case name like "MyApp".  This should be the same for every instance
+     of the application, but different from any other application.  On X11 and
+     Windows, it is used to set the class name of windows (that underlie
+     realized views), which is used for things like loading configuration, or
+     custom window management rules.
+  */
+  PUGL_CLASS_NAME = 1,
+
+  /**
+     The title of the window or application.
+
+     This is used by the system to display a title for the application or
+     window, for example in title bars or window/application switchers.  It is
+     only used to display a label to the user, not as an identifier, and can
+     change over time to reflect the current state of the application.  For
+     example, it is common for programs to add the name of the current
+     document, like "myfile.txt - Fancy Editor".
+  */
+  PUGL_WINDOW_TITLE,
+} PuglStringHint;
+
+/// The number of #PuglStringHint values
+#define PUGL_NUM_STRING_HINTS ((unsigned)PUGL_WINDOW_TITLE + 1U)
+
 /**
    @}
    @defgroup pugl_events Events
@@ -772,22 +802,24 @@ void*
 puglGetNativeWorld(PuglWorld* world);
 
 /**
-   Set the class name of the application.
+   Set a string property to configure the world or application.
 
-   This is a stable identifier for the application, used as the window
-   class/instance name on X11 and Windows.  It is not displayed to the user,
-   but can be used in scripts and by window managers, so it should be the same
-   for every instance of the application, but different from other
-   applications.
+   The string value only needs to be valid for the duration of this call, it
+   will be copied if necessary.
 */
 PUGL_API
 PuglStatus
-puglSetClassName(PuglWorld* world, const char* name);
+puglSetWorldString(PuglWorld* world, PuglStringHint key, const char* value);
 
-/// Get the class name of the application, or null
+/**
+   Get a world or application string property.
+
+   The returned string should be accessed immediately, or copied.  It may
+   become invalid upon any call to any function that manipulates the same view.
+*/
 PUGL_API
 const char*
-puglGetClassName(const PuglWorld* world);
+puglGetWorldString(const PuglWorld* world, PuglStringHint key);
 
 /**
    Return the time in seconds.
@@ -870,7 +902,7 @@ typedef uintptr_t PuglNativeView;
 /// Handle for a view's opaque user data
 typedef void* PuglHandle;
 
-/// A hint for configuring a view
+/// An integer hint for configuring a view
 typedef enum {
   PUGL_CONTEXT_API,           ///< OpenGL render API (GL/GLES)
   PUGL_CONTEXT_VERSION_MAJOR, ///< OpenGL context major version
@@ -1054,6 +1086,27 @@ int
 puglGetViewHint(const PuglView* view, PuglViewHint hint);
 
 /**
+   Set a string property to configure view properties.
+
+   This is similar to puglSetViewHint() but sets hints with string values.  The
+   string value only needs to be valid for the duration of this call, it will
+   be copied if necessary.
+*/
+PUGL_API
+PuglStatus
+puglSetViewString(PuglView* view, PuglStringHint key, const char* value);
+
+/**
+   Get a view string property.
+
+   The returned string should be accessed immediately, or copied.  It may
+   become invalid upon any call to any function that manipulates the same view.
+*/
+PUGL_API
+const char*
+puglGetViewString(const PuglView* view, PuglStringHint key);
+
+/**
    Return the scale factor of the view.
 
    This factor describe how large UI elements (especially text) should be
@@ -1142,22 +1195,6 @@ puglSetSizeHint(PuglView*    view,
    Functions to control the top-level window of a view.
    @{
 */
-
-/**
-   Set the title of the window.
-
-   This only makes sense for non-embedded views that will have a corresponding
-   top-level window, and sets the title, typically displayed in the title bar
-   or in window switchers.
-*/
-PUGL_API
-PuglStatus
-puglSetWindowTitle(PuglView* view, const char* title);
-
-/// Return the title of the window, or null
-PUGL_API
-const char*
-puglGetWindowTitle(const PuglView* view);
 
 /**
    Set the parent window for embedding a view in an existing window.
@@ -1677,13 +1714,37 @@ puglDestroy(PuglView* view)
 }
 
 /**
+   Set the class name of the application.
+
+   This is a stable identifier for the application, used as the window
+   class/instance name on X11 and Windows.  It is not displayed to the user,
+   but can be used in scripts and by window managers, so it should be the same
+   for every instance of the application, but different from other
+   applications.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetWorldString")
+PuglStatus
+puglSetClassName(PuglWorld* world, const char* name)
+{
+  return puglSetWorldString(world, PUGL_CLASS_NAME, name);
+}
+
+/// Get the class name of the application, or null
+static inline PUGL_DEPRECATED_BY("puglGetWorldString")
+const char*
+puglGetClassName(const PuglWorld* world)
+{
+  return puglGetWorldString(world, PUGL_CLASS_NAME);
+}
+
+/**
    Set the window class name before creating a window.
 */
 static inline PUGL_DEPRECATED_BY("puglSetClassName")
 void
 puglInitWindowClass(PuglView* view, const char* name)
 {
-  puglSetClassName(puglGetWorld(view), name);
+  puglSetWorldString(puglGetWorld(view), PUGL_CLASS_NAME, name);
 }
 
 /**
@@ -1837,6 +1898,28 @@ puglInitBackend(PuglView* view, const PuglBackend* backend)
 }
 
 /**
+   Set the title of the window.
+
+   This only makes sense for non-embedded views that will have a corresponding
+   top-level window, and sets the title, typically displayed in the title bar
+   or in window switchers.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetViewString")
+PuglStatus
+puglSetWindowTitle(PuglView* view, const char* title)
+{
+  return puglSetViewString(view, PUGL_WINDOW_TITLE, title);
+}
+
+/// Return the title of the window, or null
+static inline PUGL_DEPRECATED_BY("puglGetViewString")
+const char*
+puglGetWindowTitle(const PuglView* view)
+{
+  return puglGetViewString(view, PUGL_WINDOW_TITLE);
+}
+
+/**
    Realize a view by creating a corresponding system view or window.
 
    The view should be fully configured using the above functions before this is
@@ -1848,7 +1931,7 @@ static inline PUGL_DEPRECATED_BY("puglRealize")
 PuglStatus
 puglCreateWindow(PuglView* view, const char* title)
 {
-  puglSetWindowTitle(view, title);
+  puglSetViewString(view, PUGL_WINDOW_TITLE, title);
   return puglRealize(view);
 }
 
