@@ -360,10 +360,10 @@ enum class ViewHint {
   resizable,           ///< @copydoc PUGL_RESIZABLE
   ignoreKeyRepeat,     ///< @copydoc PUGL_IGNORE_KEY_REPEAT
   refreshRate,         ///< @copydoc PUGL_REFRESH_RATE
+  viewType,            ///< @copydoc PUGL_VIEW_TYPE
 };
 
-static_assert(static_cast<ViewHint>(PUGL_REFRESH_RATE) == ViewHint::refreshRate,
-              "");
+static_assert(static_cast<ViewHint>(PUGL_VIEW_TYPE) == ViewHint::viewType, "");
 
 using ViewHintValue = PuglViewHintValue; ///< @copydoc PuglViewHintValue
 
