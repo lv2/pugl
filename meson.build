@@ -90,9 +90,61 @@ elif host_machine.system() == 'windows'
   endif
 
   win_args = [
+    # Set minimium target version
+    '-DWINVER=0x0500', # Windows 2000
+    '-D_WIN32_WINNT=0x0500', # Windows 2000
+
+    # Disable as many things from windows.h as possible
     '-DWIN32_LEAN_AND_MEAN',
-    '-D_CRT_SECURE_NO_WARNINGS',
+    '-DNOGDICAPMASKS', # CC_*, LC_*, PC_*, CP_*, TC_*, RC_
+    '-DNOSYSMETRICS', # SM_*
+    '-DNOKEYSTATES', # MK_*
+    '-DOEMRESOURCE', # OEM Resource values
+    '-DNOATOM', # Atom Manager routines
+    '-DNOCOLOR', # Screen colors
+    '-DNODRAWTEXT', # DrawText() and DT_*
+    '-DNOKERNEL', # All KERNEL defines and routines
+    '-DNOMB', # MB_* and MessageBox()
+    '-DNOMEMMGR', # GMEM_*, LMEM_*, GHND, LHND, associated routines
+    '-DNOMETAFILE', # typedef METAFILEPICT
+    '-DNOMINMAX', # Macros min(a,b) and max(a,b)
+    '-DNOOPENFILE', # OpenFile(), OemToAnsi, AnsiToOem, and OF_*
+    '-DNOSCROLL', # SB_* and scrolling routines
+    '-DNOSERVICE', # All Service Controller routines, SERVICE_ equates, etc.
+    '-DNOSOUND', # Sound driver routines
+    '-DNOWH', # SetWindowsHook and WH_*
+    '-DNOCOMM', # COMM driver routines
+    '-DNOKANJI', # Kanji support stuff
+    '-DNOHELP', # Help engine interface
+    '-DNOPROFILER', # Profiler interface
+    '-DNODEFERWINDOWPOS', # DeferWindowPos routines
+    '-DNOMCX', # Modem Configuration Extensions
+
+    # Needed only for Cairo
+    # '-DNORASTEROPS', # Binary and Tertiary raster ops
+
+    # Needed by Pugl
+    # '-DNOVIRTUALKEYCODES', # VK_*
+    # '-DNOWINMESSAGES', # WM_*, EM_*, LB_*, CB_*
+    # '-DNOWINSTYLES', # WS_*, CS_*, ES_*, LBS_*, SBS_*, CBS_*
+    # '-DNOMENUS', # MF_*
+    # '-DNOICONS', # IDI_*
+    # '-DNOSYSCOMMANDS', # SC_*
+    # '-DNOSHOWWINDOW', # SW_*
+    # '-DNOCLIPBOARD', # Clipboard routines
+    # '-DNOCTLMGR', # Control and Dialog routines
+    # '-DNOGDI', # All GDI defines and routines
+    # '-DNOUSER', # All USER defines and routines
+    # '-DNONLS', # All NLS defines and routines
+    # '-DNOMSG', # typedef MSG and associated routines
+    # '-DNOWINOFFSETS', # GWL_*, GCL_*, associated routines
   ]
+
+  if cc.get_id() == 'msvc'
+    win_args += [
+      '-DNOTEXTMETRIC', # typedef TEXTMETRIC and associated routines
+    ]
+  endif
 
   add_project_arguments(win_args, language: ['c', 'cpp'])
 
