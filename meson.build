@@ -81,7 +81,6 @@ if host_machine.system() == 'darwin'
 elif host_machine.system() == 'windows'
   if cc.get_id() == 'msvc'
     msvc_args = [
-      '/TP',
       '/experimental:external',
       '/external:W0',
       '/external:anglebrackets',

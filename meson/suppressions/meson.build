@@ -56,6 +56,7 @@ elif cc.get_id() == 'gcc'
 elif cc.get_id() == 'msvc'
   c_suppressions += [
     '/wd4061', # enumerator in switch is not explicitly handled
+    '/wd4090', # different const qualitifers
     '/wd4191', # unsafe conversion from type to type
     '/wd4514', # unreferenced inline function has been removed
     '/wd4706', # assignment within conditional expression
