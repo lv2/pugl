@@ -75,7 +75,8 @@ puglMacVulkanCreate(PuglView* view)
 {
   PuglInternals*  impl     = view->impl;
   PuglVulkanView* drawView = [PuglVulkanView alloc];
-  const NSRect rect = NSMakeRect(0, 0, view->frame.width, view->frame.height);
+  const NSRect    rect =
+    NSMakeRect(0, 0, view->lastConfigure.width, view->lastConfigure.height);
 
   drawView->puglview = view;
   [drawView initWithFrame:rect];
