@@ -80,6 +80,10 @@ if host_machine.system() == 'darwin'
 
 # Windows
 elif host_machine.system() == 'windows'
+  if get_option('default_library') == 'both'
+    error('default_library=both is not supported on Windows')
+  endif
+
   if cc.get_id() == 'msvc'
     msvc_args = [
       '/experimental:external',
@@ -208,8 +212,7 @@ core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
 includes = include_directories(['include'])
 library_args = ['-DPUGL_INTERNAL']
 
-subdir('meson/library')
-if library_type == 'static_library'
+if get_option('default_library') == 'static'
   add_project_arguments(
     ['-DPUGL_STATIC'],
     language: ['c', 'cpp', 'objc', 'objcpp'],
@@ -221,7 +224,7 @@ common_sources = files(
   'src/internal.c',
 )
 
-libpugl = build_target(
+libpugl = library(
   core_name,
   common_sources + platform_sources,
   c_args: library_args + core_args,
@@ -230,7 +233,6 @@ libpugl = build_target(
   include_directories: includes,
   install: true,
   soversion: soversion,
-  target_type: library_type,
   version: meson.project_version(),
 )
 
@@ -260,7 +262,7 @@ if get_option('stub')
   name = 'pugl_' + platform + '_stub' + version_suffix
   sources = files('src/' + platform + '_stub' + extension)
 
-  stub_backend = build_target(
+  stub_backend = library(
     name,
     sources,
     c_args: library_args,
@@ -269,7 +271,6 @@ if get_option('stub')
     include_directories: includes,
     install: true,
     soversion: soversion,
-    target_type: library_type,
     version: meson.project_version(),
   )
 
@@ -302,7 +303,7 @@ if opengl_dep.found()
   name = 'pugl_' + platform + '_gl' + version_suffix
   sources = files('src/' + platform + '_gl' + extension)
 
-  gl_backend = build_target(
+  gl_backend = library(
     name,
     sources,
     c_args: library_args,
@@ -311,7 +312,6 @@ if opengl_dep.found()
     include_directories: includes,
     install: true,
     soversion: soversion,
-    target_type: library_type,
     version: meson.project_version(),
   )
 
@@ -355,7 +355,7 @@ if cairo_dep.found()
 
   cairo_args = cc.get_supported_arguments(cairo_args)
 
-  cairo_backend = build_target(
+  cairo_backend = library(
     name,
     sources,
     c_args: library_args + cairo_args,
@@ -365,7 +365,6 @@ if cairo_dep.found()
     install: true,
     objc_args: library_args + cairo_args,
     soversion: soversion,
-    target_type: library_type,
     version: meson.project_version(),
   )
 
@@ -410,7 +409,7 @@ if vulkan_dep.found()
     ]
   endif
 
-  vulkan_backend = build_target(
+  vulkan_backend = library(
     name,
     sources,
     c_args: library_args,
@@ -419,7 +418,6 @@ if vulkan_dep.found()
     include_directories: includes,
     install: true,
     soversion: soversion,
-    target_type: library_type,
     version: meson.project_version(),
   )
 
