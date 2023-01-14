@@ -26,9 +26,11 @@ struct PuglVulkanLoaderImpl {
 };
 
 PuglVulkanLoader*
-puglNewVulkanLoader(PuglWorld* PUGL_UNUSED(world))
+puglNewVulkanLoader(PuglWorld*        PUGL_UNUSED(world),
+                    const char* const libraryName)
 {
-  void* const libvulkan = dlopen("libvulkan.so", RTLD_LAZY);
+  const char* const filename  = libraryName ? libraryName : "libvulkan.so";
+  void* const       libvulkan = dlopen(filename, RTLD_LAZY);
   if (!libvulkan) {
     return NULL;
   }

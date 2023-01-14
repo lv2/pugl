@@ -1077,7 +1077,7 @@ main(int argc, char** argv)
   }
 
   // Create Vulkan surface for window
-  PuglVulkanLoader* loader = puglNewVulkanLoader(app.world);
+  PuglVulkanLoader* loader = puglNewVulkanLoader(app.world, NULL);
   if (puglCreateSurface(puglGetInstanceProcAddrFunc(loader),
                         app.view,
                         vk->instance,

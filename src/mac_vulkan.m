@@ -107,7 +107,8 @@ struct PuglVulkanLoaderImpl {
 };
 
 PuglVulkanLoader*
-puglNewVulkanLoader(PuglWorld* PUGL_UNUSED(world))
+puglNewVulkanLoader(PuglWorld*        PUGL_UNUSED(world),
+                    const char* const libraryName)
 {
   PuglVulkanLoader* loader =
     (PuglVulkanLoader*)calloc(1, sizeof(PuglVulkanLoader));
@@ -115,7 +116,8 @@ puglNewVulkanLoader(PuglWorld* PUGL_UNUSED(world))
     return NULL;
   }
 
-  if (!(loader->libvulkan = dlopen("libvulkan.dylib", RTLD_LAZY))) {
+  const char* const filename = libraryName ? libraryName : "libvulkan.dylib";
+  if (!(loader->libvulkan = dlopen(filename, RTLD_LAZY))) {
     free(loader);
     return NULL;
   }

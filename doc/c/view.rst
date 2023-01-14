@@ -228,7 +228,7 @@ To do so, first create a :struct:`PuglVulkanLoader`:
 
 .. code-block:: c
 
-   PuglVulkanLoader* loader = puglNewVulkanLoader(world);
+   PuglVulkanLoader* loader = puglNewVulkanLoader(world, NULL);
 
 The loader manages the dynamically loaded Vulkan library,
 so it must be kept alive for as long as the application is using Vulkan.

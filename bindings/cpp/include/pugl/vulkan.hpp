@@ -51,7 +51,20 @@ public:
      failed loader, but the accessors will always return null.
   */
   explicit VulkanLoader(World& world) noexcept
-    : Wrapper{puglNewVulkanLoader(world.cobj())}
+    : VulkanLoader{world, nullptr}
+  {}
+
+  /**
+     Create a new dynamic loader for Vulkan functions from a specific library.
+
+     This is the same as the simpler constructor, but allows the user to
+     specify the name of the Vulkan library to load, for certain packaging
+     scenarios or unusual/unsupported system configurations.  The `libraryName`
+     is passed to the system library loading function (`dlopen` or
+     `LoadLibrary`), and supports an absolute path.
+  */
+  explicit VulkanLoader(World& world, const char* const libraryName) noexcept
+    : Wrapper{puglNewVulkanLoader(world.cobj(), libraryName)}
   {}
 
   /**

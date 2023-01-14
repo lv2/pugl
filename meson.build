@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: 0BSD OR ISC
 
 project('pugl', ['c'],
-        version: '0.5.1',
+        version: '0.5.3',
         license: 'ISC',
         meson_version: '>= 0.54.0',
         default_options: [

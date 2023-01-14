@@ -157,7 +157,7 @@ main(int argc, char** argv)
   PuglWorld* const world = puglNewWorld(PUGL_PROGRAM, PUGL_WORLD_THREADS);
 
   PuglView* const         view   = puglNewView(world);
-  PuglVulkanLoader* const loader = puglNewVulkanLoader(world);
+  PuglVulkanLoader* const loader = puglNewVulkanLoader(world, NULL);
   const PuglTestOptions   opts   = puglParseTestOptions(&argc, &argv);
 
   PuglTest test = {world, view, VK_NULL_HANDLE, VK_NULL_HANDLE, opts, false};
