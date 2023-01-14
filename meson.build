@@ -67,6 +67,7 @@ if host_machine.system() == 'darwin'
   platform_sources = files('src/mac.m')
   core_deps = [framework_deps]
   extension = '.m'
+  soversion = meson.project_version().split('.')[0]
 
   platform_suppressions = [
     '-DGL_SILENCE_DEPRECATION',
@@ -156,6 +157,7 @@ elif host_machine.system() == 'windows'
   platform_sources = files('src/win.c')
   core_deps = [user32_dep, shlwapi_dep, dwmapi_dep]
   extension = '.c'
+  soversion = ''
 
 else # X11
   x11_dep = cc.find_library('X11')
@@ -194,6 +196,7 @@ else # X11
   platform_sources = files('src/x11.c')
   core_deps = [x11_dep, xcursor_dep, xrandr_dep, xext_dep]
   extension = '.c'
+  soversion = meson.project_version().split('.')[0]
 endif
 
 ################
@@ -226,6 +229,7 @@ libpugl = build_target(
   gnu_symbol_visibility: 'hidden',
   include_directories: includes,
   install: true,
+  soversion: soversion,
   target_type: library_type,
   version: meson.project_version(),
 )
@@ -264,6 +268,7 @@ if get_option('stub')
     gnu_symbol_visibility: 'hidden',
     include_directories: includes,
     install: true,
+    soversion: soversion,
     target_type: library_type,
     version: meson.project_version(),
   )
@@ -305,6 +310,7 @@ if opengl_dep.found()
     gnu_symbol_visibility: 'hidden',
     include_directories: includes,
     install: true,
+    soversion: soversion,
     target_type: library_type,
     version: meson.project_version(),
   )
@@ -358,6 +364,7 @@ if cairo_dep.found()
     include_directories: includes,
     install: true,
     objc_args: library_args + cairo_args,
+    soversion: soversion,
     target_type: library_type,
     version: meson.project_version(),
   )
@@ -411,6 +418,7 @@ if vulkan_dep.found()
     gnu_symbol_visibility: 'hidden',
     include_directories: includes,
     install: true,
+    soversion: soversion,
     target_type: library_type,
     version: meson.project_version(),
   )
