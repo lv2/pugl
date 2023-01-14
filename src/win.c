@@ -167,7 +167,8 @@ puglWinGetMonitor(const PuglView* const view)
 static double
 puglWinGetViewScaleFactor(const PuglView* const view)
 {
-  const HMODULE shcore = LoadLibrary("Shcore.dll");
+  const HMODULE shcore =
+    LoadLibraryEx("Shcore.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
   if (!shcore) {
     return 1.0;
   }
@@ -201,7 +202,8 @@ puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
   }
 
   if (type == PUGL_PROGRAM) {
-    HMODULE user32 = LoadLibrary("user32.dll");
+    HMODULE user32 =
+      LoadLibraryEx("user32.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (user32) {
       PFN_SetProcessDPIAware SetProcessDPIAware =
         (PFN_SetProcessDPIAware)GetProcAddress(user32, "SetProcessDPIAware");

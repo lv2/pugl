@@ -29,7 +29,8 @@ puglNewVulkanLoader(PuglWorld* PUGL_UNUSED(world))
     return NULL;
   }
 
-  if (!(loader->libvulkan = LoadLibrary("vulkan-1.dll"))) {
+  const DWORD flags = LOAD_LIBRARY_SEARCH_DEFAULT_DIRS;
+  if (!(loader->libvulkan = LoadLibraryEx("vulkan-1.dll", NULL, flags))) {
     free(loader);
     return NULL;
   }
