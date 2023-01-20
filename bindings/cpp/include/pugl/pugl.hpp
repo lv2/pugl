@@ -66,7 +66,8 @@ private:
 
 } // namespace detail
 
-using Rect = PuglRect; ///< @copydoc PuglRect
+/// @copydoc PuglRect
+using Rect = PuglRect;
 
 /// @copydoc PuglStringHint
 enum class StringHint {
@@ -110,15 +111,32 @@ struct Event final : Base {
   {}
 };
 
-using Mod            = PuglMod;            ///< @copydoc PuglMod
-using Mods           = PuglMods;           ///< @copydoc PuglMods
-using Key            = PuglKey;            ///< @copydoc PuglKey
-using EventType      = PuglEventType;      ///< @copydoc PuglEventType
-using EventFlag      = PuglEventFlag;      ///< @copydoc PuglEventFlag
-using EventFlags     = PuglEventFlags;     ///< @copydoc PuglEventFlags
-using CrossingMode   = PuglCrossingMode;   ///< @copydoc PuglCrossingMode
-using ViewStyleFlag  = PuglViewStyleFlag;  ///< @copydoc PuglViewStyleFlag
-using ViewStyleFlags = PuglViewStyleFlags; ///< @copydoc PuglViewStyleFlags
+/// @copydoc PuglMod
+using Mod = PuglMod;
+
+/// @copydoc PuglMods
+using Mods = PuglMods;
+
+/// @copydoc PuglKey
+using Key = PuglKey;
+
+/// @copydoc PuglEventType
+using EventType = PuglEventType;
+
+/// @copydoc PuglEventFlag
+using EventFlag = PuglEventFlag;
+
+/// @copydoc PuglEventFlags
+using EventFlags = PuglEventFlags;
+
+/// @copydoc PuglCrossingMode
+using CrossingMode = PuglCrossingMode;
+
+/// @copydoc PuglViewStyleFlag
+using ViewStyleFlag = PuglViewStyleFlag;
+
+/// @copydoc PuglViewStyleFlags
+using ViewStyleFlags = PuglViewStyleFlags;
 
 /// @copydoc PuglRealizeEvent
 using RealizeEvent = Event<PUGL_REALIZE, PuglRealizeEvent>;
@@ -242,7 +260,8 @@ enum class WorldFlag {
 static_assert(static_cast<WorldFlag>(PUGL_WORLD_THREADS) == WorldFlag::threads,
               "");
 
-using WorldFlags = PuglWorldFlags; ///< @copydoc PuglWorldFlags
+/// @copydoc PuglWorldFlags
+using WorldFlags = PuglWorldFlags;
 
 #if defined(PUGL_HPP_THROW_FAILED_CONSTRUCTION)
 
@@ -345,8 +364,11 @@ public:
    @{
 */
 
-using Backend    = PuglBackend;    ///< @copydoc PuglBackend
-using NativeView = PuglNativeView; ///< @copydoc PuglNativeView
+/// @copydoc PuglBackend
+using Backend = PuglBackend;
+
+/// @copydoc PuglNativeView
+using NativeView = PuglNativeView;
 
 /// @copydoc PuglSizeHint
 enum class SizeHint {
@@ -384,7 +406,8 @@ enum class ViewHint {
 static_assert(static_cast<ViewHint>(PUGL_DARK_FRAME) == ViewHint::darkFrame,
               "");
 
-using ViewHintValue = PuglViewHintValue; ///< @copydoc PuglViewHintValue
+/// @copydoc PuglViewHintValue
+using ViewHintValue = PuglViewHintValue;
 
 /// @copydoc PuglCursor
 enum class Cursor {
