@@ -11,6 +11,7 @@ WARN_NO_PARAMDOC       = NO
 
 JAVADOC_AUTOBRIEF      = YES
 
+FULL_PATH_NAMES        = NO
 CASE_SENSE_NAMES       = YES
 EXCLUDE_SYMBOLS        = pugl::detail
 EXTRACT_LOCAL_CLASSES  = NO
@@ -34,9 +35,18 @@ PREDEFINED             = PUGL_API \
                          PUGL_MALLOC_API= \
                          PUGL_MALLOC_FUNC=
 
-RECURSIVE              = YES
+RECURSIVE              = NO
 STRIP_FROM_PATH        = @PUGL_SRCDIR@
-INPUT                  = @PUGL_SRCDIR@/include \
-                         @PUGL_SRCDIR@/bindings/cpp/include
+INPUT                  = @PUGL_SRCDIR@/include/pugl/attributes.h \
+                         @PUGL_SRCDIR@/include/pugl/pugl.h \
+                         @PUGL_SRCDIR@/include/pugl/cairo.h \
+                         @PUGL_SRCDIR@/include/pugl/gl.h \
+                         @PUGL_SRCDIR@/include/pugl/stub.h \
+                         @PUGL_SRCDIR@/include/pugl/vulkan.h \
+                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/pugl.hpp \
+                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/cairo.hpp \
+                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/gl.hpp \
+                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/stub.hpp \
+                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/vulkan.hpp
 
 OUTPUT_DIRECTORY       = @DOX_OUTPUT@

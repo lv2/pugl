@@ -30,7 +30,7 @@ PREDEFINED             = PUGL_API \
                          PUGL_MALLOC_API= \
                          PUGL_MALLOC_FUNC=
 
-RECURSIVE              = YES
+RECURSIVE              = NO
 STRIP_FROM_PATH        = @PUGL_SRCDIR@
 INPUT                  = @PUGL_SRCDIR@/include/pugl/attributes.h \
                          @PUGL_SRCDIR@/include/pugl/pugl.h \

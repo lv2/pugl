@@ -4,16 +4,21 @@
 docdir = get_option('datadir') / 'doc'
 
 doxygen = find_program('doxygen', required: get_option('docs'))
-dox_to_sphinx = find_program('../scripts/dox_to_sphinx.py')
+sphinxygen = find_program('sphinxygen', required: false)
 sphinx_build = find_program('sphinx-build', required: get_option('docs'))
 
-build_docs = doxygen.found() and sphinx_build.found()
+if not sphinxygen.found()
+  subproject('sphinxygen')
+  sphinxygen = find_program('sphinxygen', required: get_option('docs'))
+endif
+
+build_docs = doxygen.found() and sphinxygen.found() and sphinx_build.found()
 
 if build_docs
   subdir('_static')
   subdir('c')
 
-  if not get_option('docs_cpp').disabled()
+  if get_option('docs_cpp')
     subdir('cpp')
   endif
 endif
