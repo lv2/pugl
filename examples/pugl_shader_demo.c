@@ -189,7 +189,7 @@ loadShader(const char* const programPath, const char* const name)
   char* const path = resourcePath(programPath, name);
   fprintf(stderr, "Loading shader %s\n", path);
 
-  FILE* const file = fopen(path, "r");
+  FILE* const file = fopen(path, "rb");
   if (!file) {
     logError("Failed to open '%s'\n", path);
     return NULL;
