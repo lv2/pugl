@@ -5,6 +5,7 @@ Checks: >
   *,
   -*-magic-numbers,
   -altera*,
+  -bugprone-assignment-in-if-condition,
   -clang-diagnostic-unused-function,
   -clang-diagnostic-unused-macros,
   -llvmlibc-*,
