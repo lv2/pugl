@@ -210,7 +210,7 @@ selectSurfaceFormat(const sk::VulkanApi&      vk,
                     VkSurfaceFormatKHR&       surfaceFormat)
 {
   std::vector<VkSurfaceFormatKHR> formats;
-  if (VkResult r = vk.getPhysicalDeviceSurfaceFormatsKHR(
+  if (const VkResult r = vk.getPhysicalDeviceSurfaceFormatsKHR(
         physicalDevice, surface, formats)) {
     return r;
   }
@@ -235,7 +235,7 @@ chooseBestPresentMode(const sk::VulkanApi&      vk,
                       VkPresentModeKHR&         presentMode)
 {
   std::vector<VkPresentModeKHR> modes;
-  if (VkResult r = vk.getPhysicalDeviceSurfacePresentModesKHR(
+  if (const VkResult r = vk.getPhysicalDeviceSurfacePresentModesKHR(
         physicalDevice, surface, modes)) {
     return r;
   }
@@ -486,7 +486,7 @@ findMemoryType(const sk::VulkanApi&         vk,
                const uint32_t               typeFilter,
                const VkMemoryPropertyFlags& properties)
 {
-  VkPhysicalDeviceMemoryProperties memProperties =
+  const VkPhysicalDeviceMemoryProperties memProperties =
     vk.getPhysicalDeviceMemoryProperties(physicalDevice);
 
   for (uint32_t i = 0; i < memProperties.memoryTypeCount; ++i) {
@@ -697,13 +697,13 @@ RenderPass::init(const sk::VulkanApi&  vk,
 std::vector<uint32_t>
 readFile(const char* const programPath, const std::string& filename)
 {
-  std::unique_ptr<char, decltype(&free)> path{
+  const std::unique_ptr<char, decltype(&free)> path{
     resourcePath(programPath, filename.c_str()), &free};
 
   std::cerr << "Loading shader:           " << path.get() << std::endl;
 
-  std::unique_ptr<FILE, decltype(&fclose)> file{fopen(path.get(), "rb"),
-                                                &fclose};
+  const std::unique_ptr<FILE, decltype(&fclose)> file{fopen(path.get(), "rb"),
+                                                      &fclose};
 
   if (!file) {
     std::cerr << "Failed to open file '" << filename << "'\n";
