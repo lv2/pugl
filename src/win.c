@@ -1205,7 +1205,7 @@ adjustedWindowRect(PuglView* const view,
   const unsigned flags   = puglWinGetWindowFlags(view);
   const unsigned exFlags = puglWinGetWindowExFlags(view);
 
-  RECT rect = {(long)x, (long)y, (long)x + (long)width, (long)y + (long)height};
+  RECT rect = {x, y, x + width, y + height};
   AdjustWindowRectEx(&rect, flags, FALSE, exFlags);
   return rect;
 }
@@ -1224,8 +1224,8 @@ puglSetFrame(PuglView* view, const PuglRect frame)
     // Set defaults to be used when realized
     view->defaultX                            = frame.x;
     view->defaultY                            = frame.y;
-    view->sizeHints[PUGL_DEFAULT_SIZE].width  = (PuglSpan)frame.width;
-    view->sizeHints[PUGL_DEFAULT_SIZE].height = (PuglSpan)frame.height;
+    view->sizeHints[PUGL_DEFAULT_SIZE].width  = frame.width;
+    view->sizeHints[PUGL_DEFAULT_SIZE].height = frame.height;
     return PUGL_SUCCESS;
   }
 
