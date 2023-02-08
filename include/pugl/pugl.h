@@ -1615,10 +1615,10 @@ PUGL_DEPRECATED_BY("PuglUnrealizeEvent")
 typedef PuglUnrealizeEvent PuglDestroyEvent;
 
 PUGL_DEPRECATED_BY("PuglRealizeEvent")
-typedef PuglCreateEvent PuglEventCreate;
+typedef PuglRealizeEvent PuglEventCreate;
 
 PUGL_DEPRECATED_BY("PuglUnrealizeEvent")
-typedef PuglDestroyEvent PuglEventDestroy;
+typedef PuglUnrealizeEvent PuglEventDestroy;
 
 PUGL_DEPRECATED_BY("PuglConfigureEvent")
 typedef PuglConfigureEvent PuglEventConfigure;
