@@ -7,6 +7,7 @@
 
 #include "attributes.h"
 #include "internal.h"
+#include "macros.h"
 #include "platform.h"
 #include "types.h"
 
@@ -42,14 +43,6 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
-#ifndef MIN
-#  define MIN(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-
-#ifndef MAX
-#  define MAX(a, b) (((a) > (b)) ? (a) : (b))
-#endif
 
 #ifdef __cplusplus
 #  define PUGL_INIT_STRUCT \
