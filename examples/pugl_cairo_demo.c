@@ -17,11 +17,20 @@
 typedef struct {
   PuglWorld*      world;
   PuglTestOptions opts;
+  double          currentMouseX;
+  double          currentMouseY;
+  double          lastDrawnMouseX;
+  double          lastDrawnMouseY;
   unsigned        framesDrawn;
   int             quit;
   bool            entered;
   bool            mouseDown;
 } PuglTestApp;
+
+typedef struct {
+  double x;
+  double y;
+} ViewScale;
 
 typedef struct {
   int         x;
@@ -36,6 +45,15 @@ static const Button buttons[] = {{128, 128, 64, 64, "1"},
                                  {128, 384, 64, 64, "3"},
                                  {384, 384, 64, 64, "4"},
                                  {0, 0, 0, 0, NULL}};
+
+static ViewScale
+getScale(const PuglView* const view)
+{
+  const PuglRect  frame = puglGetFrame(view);
+  const ViewScale scale = {(frame.width - (512.0 / frame.width)) / 512.0,
+                           (frame.height - (512.0 / frame.height)) / 512.0};
+  return scale;
+}
 
 static void
 roundedBox(cairo_t* cr, double x, double y, double w, double h)
@@ -93,18 +111,14 @@ buttonDraw(PuglTestApp* app, cairo_t* cr, const Button* but, const double time)
 static void
 postButtonRedisplay(PuglView* view)
 {
-  const PuglRect frame  = puglGetFrame(view);
-  const double   width  = frame.width;
-  const double   height = frame.height;
-  const double   scaleX = (width - (512 / width)) / 512.0;
-  const double   scaleY = (height - (512 / height)) / 512.0;
+  const ViewScale scale = getScale(view);
 
   for (const Button* b = buttons; b->label; ++b) {
     const double   span = sqrt(b->w * b->w + b->h * b->h);
-    const PuglRect rect = {(PuglCoord)((b->x - span) * scaleX),
-                           (PuglCoord)((b->y - span) * scaleY),
-                           (PuglSpan)ceil(span * 2.0 * scaleX),
-                           (PuglSpan)ceil(span * 2.0 * scaleY)};
+    const PuglRect rect = {(PuglCoord)((b->x - span) * scale.x),
+                           (PuglCoord)((b->y - span) * scale.y),
+                           (PuglSpan)ceil(span * 2.0 * scale.x),
+                           (PuglSpan)ceil(span * 2.0 * scale.y)};
 
     puglPostRedisplayRect(view, rect);
   }
@@ -119,9 +133,6 @@ onDisplay(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
   cairo_clip_preserve(cr);
 
   // Draw background
-  const PuglRect frame  = puglGetFrame(view);
-  const double   width  = frame.width;
-  const double   height = frame.height;
   if (app->entered) {
     cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
   } else {
@@ -130,15 +141,25 @@ onDisplay(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
   cairo_fill(cr);
 
   // Scale to view size
-  const double scaleX = (width - (512 / width)) / 512.0;
-  const double scaleY = (height - (512 / height)) / 512.0;
-  cairo_scale(cr, scaleX, scaleY);
+  const ViewScale scale = getScale(view);
+  cairo_scale(cr, scale.x, scale.y);
 
   // Draw button
   for (const Button* b = buttons; b->label; ++b) {
     buttonDraw(
       app, cr, b, app->opts.continuous ? puglGetTime(app->world) : 0.0);
   }
+
+  // Draw mouse cursor
+  const double mouseX = app->currentMouseX / scale.x;
+  const double mouseY = app->currentMouseY / scale.y;
+  cairo_set_line_width(cr, 2.0);
+  cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+  cairo_move_to(cr, mouseX - 8.0, mouseY);
+  cairo_line_to(cr, mouseX + 8.0, mouseY);
+  cairo_move_to(cr, mouseX, mouseY - 8.0);
+  cairo_line_to(cr, mouseX, mouseY + 8.0);
+  cairo_stroke(cr);
 
   ++app->framesDrawn;
 }
@@ -149,6 +170,20 @@ onClose(PuglView* view)
   PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
   app->quit = 1;
+}
+
+static PuglRect
+mouseCursorViewBounds(const PuglView* const view,
+                      const double          mouseX,
+                      const double          mouseY)
+{
+  const ViewScale scale = getScale(view);
+  const PuglRect  rect  = {(PuglCoord)floor(mouseX - (10.0 * scale.x)),
+                           (PuglCoord)floor(mouseY - (10.0 * scale.y)),
+                           (PuglSpan)ceil(20.0 * scale.x),
+                           (PuglSpan)ceil(20.0 * scale.y)};
+
+  return rect;
 }
 
 static PuglStatus
@@ -171,6 +206,22 @@ onEvent(PuglView* view, const PuglEvent* event)
   case PUGL_BUTTON_RELEASE:
     app->mouseDown = false;
     postButtonRedisplay(view);
+    break;
+  case PUGL_MOTION:
+    // Redisplay to clear the old cursor position
+    puglPostRedisplayRect(
+      view,
+      mouseCursorViewBounds(view, app->lastDrawnMouseX, app->lastDrawnMouseY));
+
+    // Redisplay to show the new cursor position
+    app->currentMouseX = event->motion.x;
+    app->currentMouseY = event->motion.y;
+    puglPostRedisplayRect(
+      view,
+      mouseCursorViewBounds(view, app->currentMouseX, app->currentMouseY));
+
+    app->lastDrawnMouseX = app->currentMouseX;
+    app->lastDrawnMouseY = app->currentMouseY;
     break;
   case PUGL_POINTER_IN:
     app->entered = true;
