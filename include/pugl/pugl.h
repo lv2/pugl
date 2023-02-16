@@ -1227,8 +1227,8 @@ PUGL_API
 PuglStatus
 puglSetSizeHint(PuglView*    view,
                 PuglSizeHint hint,
-                PuglSpan     width,
-                PuglSpan     height);
+                unsigned     width,
+                unsigned     height);
 
 /**
    @}
