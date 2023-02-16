@@ -12,6 +12,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+bool
+puglIsValidSize(const PuglViewSize size)
+{
+  return size.width && size.height;
+}
+
 void
 puglEnsureHint(PuglView* const view, const PuglViewHint hint, const int value)
 {
@@ -123,12 +129,6 @@ puglDecodeUTF8(const uint8_t* buf)
   return 0xFFFD;
 }
 
-static inline bool
-isValidSize(const double width, const double height)
-{
-  return width > 0.0 && height > 0.0;
-}
-
 PuglStatus
 puglPreRealize(PuglView* const view)
 {
@@ -143,8 +143,7 @@ puglPreRealize(PuglView* const view)
   }
 
   // Ensure that the default size is set to a valid size
-  const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
-  if (!isValidSize(defaultSize.width, defaultSize.height)) {
+  if (!puglIsValidSize(view->sizeHints[PUGL_DEFAULT_SIZE])) {
     return PUGL_BAD_CONFIGURATION;
   }
 

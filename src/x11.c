@@ -378,21 +378,21 @@ updateSizeHints(const PuglView* const view)
     sizeHints.max_height  = (int)frame.height;
   } else {
     const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
-    if (defaultSize.width && defaultSize.height) {
+    if (puglIsValidSize(defaultSize)) {
       sizeHints.flags |= PBaseSize;
       sizeHints.base_width  = defaultSize.width;
       sizeHints.base_height = defaultSize.height;
     }
 
     const PuglViewSize minSize = view->sizeHints[PUGL_MIN_SIZE];
-    if (minSize.width && minSize.height) {
+    if (puglIsValidSize(minSize)) {
       sizeHints.flags |= PMinSize;
       sizeHints.min_width  = minSize.width;
       sizeHints.min_height = minSize.height;
     }
 
     const PuglViewSize maxSize = view->sizeHints[PUGL_MAX_SIZE];
-    if (maxSize.width && maxSize.height) {
+    if (puglIsValidSize(maxSize)) {
       sizeHints.flags |= PMaxSize;
       sizeHints.max_width  = maxSize.width;
       sizeHints.max_height = maxSize.height;
@@ -400,8 +400,7 @@ updateSizeHints(const PuglView* const view)
 
     const PuglViewSize minAspect = view->sizeHints[PUGL_MIN_ASPECT];
     const PuglViewSize maxAspect = view->sizeHints[PUGL_MAX_ASPECT];
-    if (minAspect.width && minAspect.height && maxAspect.width &&
-        maxAspect.height) {
+    if (puglIsValidSize(minAspect) && puglIsValidSize(maxAspect)) {
       sizeHints.flags |= PAspect;
       sizeHints.min_aspect.x = minAspect.width;
       sizeHints.min_aspect.y = minAspect.height;
@@ -410,7 +409,7 @@ updateSizeHints(const PuglView* const view)
     }
 
     const PuglViewSize fixedAspect = view->sizeHints[PUGL_FIXED_ASPECT];
-    if (fixedAspect.width && fixedAspect.height) {
+    if (puglIsValidSize(fixedAspect)) {
       sizeHints.flags |= PAspect;
       sizeHints.min_aspect.x = fixedAspect.width;
       sizeHints.min_aspect.y = fixedAspect.height;

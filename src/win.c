@@ -738,7 +738,8 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     handleConfigure(view, &event);
     break;
   case WM_SIZING:
-    if (view->sizeHints[PUGL_MIN_ASPECT].width) {
+    if (puglIsValidSize(view->sizeHints[PUGL_MIN_ASPECT]) &&
+        puglIsValidSize(view->sizeHints[PUGL_MAX_ASPECT])) {
       constrainAspect(view, (RECT*)lParam, wParam);
       return TRUE;
     }
@@ -770,8 +771,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     mmi                   = (MINMAXINFO*)lParam;
     mmi->ptMinTrackSize.x = view->sizeHints[PUGL_MIN_SIZE].width;
     mmi->ptMinTrackSize.y = view->sizeHints[PUGL_MIN_SIZE].height;
-    if (view->sizeHints[PUGL_MAX_SIZE].width &&
-        view->sizeHints[PUGL_MAX_SIZE].height) {
+    if (puglIsValidSize(view->sizeHints[PUGL_MAX_SIZE])) {
       mmi->ptMaxTrackSize.x = view->sizeHints[PUGL_MAX_SIZE].width;
       mmi->ptMaxTrackSize.y = view->sizeHints[PUGL_MAX_SIZE].height;
     }

@@ -343,7 +343,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
 {
   const PuglViewSize defaultSize = puglview->sizeHints[PUGL_DEFAULT_SIZE];
 
-  return (defaultSize.width && defaultSize.height)
+  return puglIsValidSize(defaultSize)
            ? sizePoints(puglview, defaultSize.width, defaultSize.height)
            : NSMakeSize(NSViewNoInstrinsicMetric, NSViewNoInstrinsicMetric);
 }
@@ -1083,7 +1083,7 @@ updateSizeHint(PuglView* const view, const PuglSizeHint hint)
 {
   const PuglSpan width  = view->sizeHints[hint].width;
   const PuglSpan height = view->sizeHints[hint].height;
-  if (!width || !height) {
+  if (!puglIsValidSize(view->sizeHints[hint])) {
     return PUGL_FAILURE;
   }
 
@@ -1238,8 +1238,7 @@ puglRealize(PuglView* view)
                                  NSLayoutRelationGreaterThanOrEqual,
                                  view->sizeHints[PUGL_MIN_SIZE].height)];
 
-  if (view->sizeHints[PUGL_MAX_SIZE].width &&
-      view->sizeHints[PUGL_MAX_SIZE].height) {
+  if (puglIsValidSize(view->sizeHints[PUGL_MAX_SIZE])) {
     [impl->wrapperView
       addConstraint:puglConstraint(impl->wrapperView,
                                    NSLayoutAttributeWidth,
