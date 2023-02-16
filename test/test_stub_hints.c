@@ -35,7 +35,7 @@ main(void)
   puglSetBackend(view, puglStubBackend());
   puglSetEventFunc(view, onEvent);
   puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 256, 256);
-  puglSetPosition(view, 640, 384);
+  puglSetPositionHint(view, PUGL_DEFAULT_POSITION, 640, 384);
 
   // Check invalid cases
   assert(puglSetViewHint(view, (PuglViewHint)-1, 0) == PUGL_BAD_PARAMETER);

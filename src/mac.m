@@ -1730,20 +1730,10 @@ puglSetFrame(PuglView* view, const PuglRect frame)
   return dispatchCurrentChildViewConfiguration(view);
 }
 
-PuglStatus
-puglSetPosition(PuglView* const view, const int x, const int y)
+static PuglStatus
+puglSetWindowPosition(PuglView* const view, const int x, const int y)
 {
-  if (x < INT16_MIN || x > INT16_MAX || y < INT16_MIN || y > INT16_MAX) {
-    return PUGL_BAD_PARAMETER;
-  }
-
   PuglInternals* const impl = view->impl;
-  if (!impl->wrapperView) {
-    // Set defaults to be used when realized
-    view->defaultX = x;
-    view->defaultY = y;
-    return PUGL_SUCCESS;
-  }
 
   const PuglRect frame = {(PuglCoord)x,
                           (PuglCoord)y,
@@ -1769,20 +1759,12 @@ puglSetPosition(PuglView* const view, const int x, const int y)
   return dispatchCurrentChildViewConfiguration(view);
 }
 
-PuglStatus
-puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
+static PuglStatus
+puglSetWindowSize(PuglView* const view,
+                  const unsigned  width,
+                  const unsigned  height)
 {
-  if (width > INT16_MAX || height > INT16_MAX) {
-    return PUGL_BAD_PARAMETER;
-  }
-
   PuglInternals* const impl = view->impl;
-  if (!impl->wrapperView) {
-    // Set defaults to be used when realized
-    view->sizeHints[PUGL_DEFAULT_SIZE].width  = (PuglSpan)width;
-    view->sizeHints[PUGL_DEFAULT_SIZE].height = (PuglSpan)height;
-    return PUGL_SUCCESS;
-  }
 
   if (impl->window) {
     // Adjust top-level window frame
@@ -1826,7 +1808,7 @@ puglSetPositionHint(PuglView* const        view,
   if (view->impl->win && view->lastConfigure.x == oldHintedPos.x &&
       view->lastConfigure.y == oldHintedPos.y &&
       (newHintedPos.x != oldHintedPos.x || newHintedPos.y != oldHintedPos.y)) {
-    return puglSetPosition(view, newHintedPos.x, newHintedPos.y);
+    return puglSetWindowPosition(view, newHintedPos.x, newHintedPos.y);
   }
 
   return PUGL_SUCCESS;
@@ -1859,7 +1841,8 @@ puglSetSizeHint(PuglView* const    view,
       view->lastConfigure.height == oldHintedSize.height &&
       (newHintedSize.width != oldHintedSize.width ||
        newHintedSize.height != oldHintedSize.height)) {
-    return puglSetSize(view, hint, newHintedSize.width, newHintedSize.height);
+    return puglSetWindowSize(
+      view, hint, newHintedSize.width, newHintedSize.height);
   }
 
   return st;

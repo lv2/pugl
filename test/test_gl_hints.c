@@ -35,7 +35,7 @@ main(void)
   puglSetBackend(view, puglGlBackend());
   puglSetEventFunc(view, onEvent);
   puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 256, 256);
-  puglSetPosition(view, 128, 128);
+  puglSetPositionHint(view, PUGL_DEFAULT_POSITION, 128, 128);
 
   // Check invalid cases
   assert(puglSetViewHint(view, PUGL_CONTEXT_API, PUGL_DONT_CARE) ==

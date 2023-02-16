@@ -1967,23 +1967,10 @@ puglSetFrame(PuglView* const view, const PuglRect frame)
            : PUGL_UNKNOWN_ERROR;
 }
 
-PuglStatus
-puglSetPosition(PuglView* const view, const int x, const int y)
+static PuglStatus
+puglSetWindowPosition(PuglView* const view, const int x, const int y)
 {
-  Display* const display = view->world->impl->display;
-
-  if (x < INT16_MIN || x > INT16_MAX || y < INT16_MIN || y > INT16_MAX) {
-    return PUGL_BAD_PARAMETER;
-  }
-
-  if (!view->impl->win) {
-    // Set defaults to be used when realized
-    view->defaultX = x;
-    view->defaultY = y;
-    return PUGL_SUCCESS;
-  }
-
-  return XMoveWindow(display,
+  return XMoveWindow(view->world->impl->display,
                      view->impl->win,
                      (int)(x - view->impl->frameExtentLeft),
                      (int)(y - view->impl->frameExtentTop))
@@ -1991,23 +1978,13 @@ puglSetPosition(PuglView* const view, const int x, const int y)
            : PUGL_UNKNOWN_ERROR;
 }
 
-PuglStatus
-puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
+static PuglStatus
+puglSetWindowSize(PuglView* const view,
+                  const unsigned  width,
+                  const unsigned  height)
 {
-  Display* const display = view->world->impl->display;
-
-  if (width > INT16_MAX || height > INT16_MAX) {
-    return PUGL_BAD_PARAMETER;
-  }
-
-  if (!view->impl->win) {
-    // Set defaults to be used when realized
-    view->sizeHints[PUGL_DEFAULT_SIZE].width  = (PuglSpan)width;
-    view->sizeHints[PUGL_DEFAULT_SIZE].height = (PuglSpan)height;
-    return PUGL_SUCCESS;
-  }
-
-  return XResizeWindow(display, view->impl->win, width, height)
+  return XResizeWindow(
+           view->world->impl->display, view->impl->win, width, height)
            ? PUGL_SUCCESS
            : PUGL_UNKNOWN_ERROR;
 }
@@ -2032,7 +2009,7 @@ puglSetPositionHint(PuglView* const        view,
   if (view->impl->win && view->lastConfigure.x == oldHintedPos.x &&
       view->lastConfigure.y == oldHintedPos.y &&
       (newHintedPos.x != oldHintedPos.x || newHintedPos.y != oldHintedPos.y)) {
-    return puglSetPosition(view, newHintedPos.x, newHintedPos.y);
+    return puglSetWindowPosition(view, newHintedPos.x, newHintedPos.y);
   }
 
   return PUGL_SUCCESS;
@@ -2060,12 +2037,7 @@ puglSetSizeHint(PuglView* const    view,
       view->lastConfigure.height == oldHintedSize.height &&
       (newHintedSize.width != oldHintedSize.width ||
        newHintedSize.height != oldHintedSize.height)) {
-    return XResizeWindow(view->world->impl->display,
-                         view->impl->win,
-                         newHintedSize.width,
-                         newHintedSize.height)
-             ? PUGL_SUCCESS
-             : PUGL_UNKNOWN_ERROR;
+    return puglSetWindowSize(view, newHintedSize.width, newHintedSize.height);
   }
 
   return PUGL_SUCCESS;

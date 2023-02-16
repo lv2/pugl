@@ -75,7 +75,7 @@ main(int argc, char** argv)
   assert(puglRealize(test.view) == PUGL_BAD_CONFIGURATION);
 
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
-  puglSetPosition(test.view, 640, 128);
+  puglSetPositionHint(test.view, PUGL_DEFAULT_POSITION, 640, 128);
 
   // Create initially invisible window
   assert(!puglRealize(test.view));

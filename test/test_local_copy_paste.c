@@ -133,7 +133,7 @@ main(int argc, char** argv)
   puglSetHandle(app.view, &app);
   puglSetEventFunc(app.view, onEvent);
   puglSetSizeHint(app.view, PUGL_DEFAULT_SIZE, 256, 256);
-  puglSetPosition(app.view, 384, 128);
+  puglSetPositionHint(app.view, PUGL_DEFAULT_POSITION, 384, 128);
 
   // Create and show window
   assert(!puglRealize(app.view));

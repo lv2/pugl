@@ -73,7 +73,7 @@ main(int argc, char** argv)
   puglSetHandle(test.view, &test);
   puglSetEventFunc(test.view, onEvent);
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
-  puglSetPosition(test.view, 384, 640);
+  puglSetPositionHint(test.view, PUGL_DEFAULT_POSITION, 384, 640);
 
   // Check basic accessors
   assert(puglGetBackend(test.view) == puglStubBackend());

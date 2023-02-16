@@ -109,23 +109,23 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
     app->quit = 1;
   } else if (event->state & PUGL_MOD_SHIFT) {
     if (event->key == PUGL_KEY_UP) {
-      puglSetSize(view, frame.width, frame.height - 10U);
+      puglSetSizeHint(view, PUGL_USER_SIZE, frame.width, frame.height - 10U);
     } else if (event->key == PUGL_KEY_DOWN) {
-      puglSetSize(view, frame.width, frame.height + 10U);
+      puglSetSizeHint(view, PUGL_USER_SIZE, frame.width, frame.height + 10U);
     } else if (event->key == PUGL_KEY_LEFT) {
-      puglSetSize(view, frame.width - 10U, frame.height);
+      puglSetSizeHint(view, PUGL_USER_SIZE, frame.width - 10U, frame.height);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      puglSetSize(view, frame.width + 10U, frame.height);
+      puglSetSizeHint(view, PUGL_USER_SIZE, frame.width + 10U, frame.height);
     }
   } else {
     if (event->key == PUGL_KEY_UP) {
-      puglSetPosition(view, frame.x, frame.y - 10);
+      puglSetPositionHint(view, PUGL_USER_POSITION, frame.x, frame.y - 10);
     } else if (event->key == PUGL_KEY_DOWN) {
-      puglSetPosition(view, frame.x, frame.y + 10);
+      puglSetPositionHint(view, PUGL_USER_POSITION, frame.x, frame.y + 10);
     } else if (event->key == PUGL_KEY_LEFT) {
-      puglSetPosition(view, frame.x - 10, frame.y);
+      puglSetPositionHint(view, PUGL_USER_POSITION, frame.x - 10, frame.y);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      puglSetPosition(view, frame.x + 10, frame.y);
+      puglSetPositionHint(view, PUGL_USER_POSITION, frame.x + 10, frame.y);
     }
   }
 }

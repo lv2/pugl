@@ -1245,26 +1245,6 @@ PuglStatus
 puglSetFrame(PuglView* view, PuglRect frame);
 
 /**
-   Set the current position of the view.
-
-   @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
-   unchanged.
-*/
-PUGL_API
-PuglStatus
-puglSetPosition(PuglView* view, int x, int y);
-
-/**
-   Set the current size of the view.
-
-   @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
-   unchanged.
-*/
-PUGL_API
-PuglStatus
-puglSetSize(PuglView* view, unsigned width, unsigned height);
-
-/**
    Set a position hint for the view.
 
    This can be used to set the default, program-calculated, or user-specified
@@ -2231,6 +2211,32 @@ puglRequestAttention(PuglView* view)
 {
   return puglSetViewStyle(view,
                           puglGetViewStyle(view) | PUGL_VIEW_STYLE_DEMANDING);
+}
+
+/**
+   Set the current position of the view.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
+   unchanged.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetPositionHint")
+PuglStatus
+puglSetPosition(PuglView* view, int x, int y)
+{
+  return puglSetPositionHint(view, PUGL_CALCULATED_POSITION, x, y);
+}
+
+/**
+   Set the current size of the view.
+
+   @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
+   unchanged.
+*/
+static inline PUGL_DEPRECATED_BY("puglSetSizeHint")
+PuglStatus
+puglSetSize(PuglView* view, unsigned width, unsigned height)
+{
+  return puglSetSizeHint(view, PUGL_CALCULATED_SIZE, width, height);
 }
 
 #endif // PUGL_DISABLE_DEPRECATED
