@@ -1891,15 +1891,17 @@ puglViewStringChanged(PuglView* const      view,
     break;
 
   case PUGL_WINDOW_TITLE:
-    XStoreName(display, view->impl->win, value);
-    XChangeProperty(display,
-                    view->impl->win,
-                    atoms->NET_WM_NAME,
-                    atoms->UTF8_STRING,
-                    8,
-                    PropModeReplace,
-                    (const uint8_t*)value,
-                    (int)strlen(value));
+    if (value) {
+      XStoreName(display, view->impl->win, value);
+      XChangeProperty(display,
+                      view->impl->win,
+                      atoms->NET_WM_NAME,
+                      atoms->UTF8_STRING,
+                      8,
+                      PropModeReplace,
+                      (const uint8_t*)value,
+                      (int)strlen(value));
+    }
     break;
   }
 
