@@ -18,6 +18,16 @@ puglIsValidSize(const PuglViewSize size)
   return size.width && size.height;
 }
 
+PuglViewSize
+puglHintedSize(const PuglView* const view)
+{
+  return puglIsValidSize(view->sizeHints[PUGL_USER_SIZE])
+           ? view->sizeHints[PUGL_USER_SIZE]
+         : puglIsValidSize(view->sizeHints[PUGL_CALCULATED_SIZE])
+           ? view->sizeHints[PUGL_CALCULATED_SIZE]
+           : view->sizeHints[PUGL_DEFAULT_SIZE];
+}
+
 void
 puglEnsureHint(PuglView* const view, const PuglViewHint hint, const int value)
 {

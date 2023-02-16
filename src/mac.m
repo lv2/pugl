@@ -1816,10 +1816,26 @@ puglSetSizeHint(PuglView* const    view,
     return PUGL_BAD_PARAMETER;
   }
 
+  const PuglViewSize oldHintedSize = puglHintedSize(view);
+
   view->sizeHints[hint].width  = width;
   view->sizeHints[hint].height = height;
 
-  return view->impl->window ? updateSizeHint(view, hint) : PUGL_SUCCESS;
+  const PuglViewSize newHintedSize = puglHintedSize(view);
+
+  const PuglStatus st =
+    view->impl->window ? updateSizeHint(view, hint) : PUGL_SUCCESS;
+
+  PuglInternals* const impl = view->impl;
+  if (!st && impl->wrapperView &&
+      view->lastConfigure.width == oldHintedSize.width &&
+      view->lastConfigure.height == oldHintedSize.height &&
+      (newHintedSize.width != oldHintedSize.width ||
+       newHintedSize.height != oldHintedSize.height)) {
+    return puglSetSize(view, hint, newHintedSize.width, newHintedSize.height);
+  }
+
+  return st;
 }
 
 PuglStatus

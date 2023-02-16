@@ -1313,8 +1313,20 @@ puglSetSizeHint(PuglView* const    view,
     return PUGL_BAD_PARAMETER;
   }
 
+  const PuglViewSize oldHintedSize = puglHintedSize(view);
+
   view->sizeHints[hint].width  = width;
   view->sizeHints[hint].height = height;
+
+  const PuglViewSize newHintedSize = puglHintedSize(view);
+
+  if (view->impl->hwnd && view->lastConfigure.width == oldHintedSize.width &&
+      view->lastConfigure.height == oldHintedSize.height &&
+      (newHintedSize.width != oldHintedSize.width ||
+       newHintedSize.height != oldHintedSize.height)) {
+    return puglSetSize(view, newHintedSize.width, newHintedSize.height);
+  }
+
   return PUGL_SUCCESS;
 }
 

@@ -367,6 +367,21 @@ updateSizeHints(const PuglView* const view)
   Display*   display   = view->world->impl->display;
   XSizeHints sizeHints = PUGL_INIT_STRUCT;
 
+  /* Set precise size hints, which aren't used by most modern window managers,
+     but should be set anyway for maximum compatibility. */
+
+  if (puglIsValidSize(view->sizeHints[PUGL_USER_SIZE])) {
+    sizeHints.flags |= USSize;
+    sizeHints.width  = view->sizeHints[PUGL_USER_SIZE].width;
+    sizeHints.height = view->sizeHints[PUGL_USER_SIZE].height;
+  } else if (puglIsValidSize(view->sizeHints[PUGL_CALCULATED_SIZE])) {
+    sizeHints.flags |= PSize;
+    sizeHints.width  = view->sizeHints[PUGL_CALCULATED_SIZE].width;
+    sizeHints.height = view->sizeHints[PUGL_CALCULATED_SIZE].height;
+  }
+
+  /* Set size and aspect ratio constraint hints. */
+
   if (!view->hints[PUGL_RESIZABLE]) {
     const PuglRect frame  = puglGetFrame(view);
     sizeHints.flags       = PBaseSize | PMinSize | PMaxSize;
@@ -1990,9 +2005,26 @@ puglSetSizeHint(PuglView* const    view,
     return PUGL_BAD_PARAMETER;
   }
 
+  const PuglViewSize oldHintedSize = puglHintedSize(view);
+
   view->sizeHints[hint].width  = width;
   view->sizeHints[hint].height = height;
-  return updateSizeHints(view);
+
+  const PuglViewSize newHintedSize = puglHintedSize(view);
+
+  if (view->impl->win && view->lastConfigure.width == oldHintedSize.width &&
+      view->lastConfigure.height == oldHintedSize.height &&
+      (newHintedSize.width != oldHintedSize.width ||
+       newHintedSize.height != oldHintedSize.height)) {
+    return XResizeWindow(view->world->impl->display,
+                         view->impl->win,
+                         newHintedSize.width,
+                         newHintedSize.height)
+             ? PUGL_SUCCESS
+             : PUGL_UNKNOWN_ERROR;
+  }
+
+  return PUGL_SUCCESS;
 }
 
 PuglStatus

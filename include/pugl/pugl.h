@@ -964,6 +964,27 @@ typedef enum {
   PUGL_DEFAULT_SIZE,
 
   /**
+     Program-specified size.
+
+     This should be used for any size that is determined by the program, as
+     opposed to being specified by the user.  This includes views that
+     manipulate their own size (although this is generally discouraged), for
+     example to accomodate expanding contents.  Typically, it overrides the
+     default size.
+  */
+  PUGL_CALCULATED_SIZE,
+
+  /**
+     User-specified size.
+
+     This should be used for any size that is more or less directly set by the
+     user, for example by dragging the view's frame, or by explicitly setting
+     some configuration value.  Typically, it overrides the calculated (and in
+     turn the default) position.
+  */
+  PUGL_USER_SIZE,
+
+  /**
      Minimum size.
 
      If set, the view's size should be constrained to be at least this large.
@@ -1196,10 +1217,11 @@ puglSetSize(PuglView* view, unsigned width, unsigned height);
    as well as the supported range of aspect ratios.
 
    This should be called before puglRealize() so the initial window for the
-   view can be configured correctly.
+   view can be configured correctly.  It may also be used dynamically after the
+   window is realized, for some hints.
 
-   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
-   not yet realized.
+   @return An error code on failure, but always succeeds if the view is not yet
+   realized.
 */
 PUGL_API
 PuglStatus

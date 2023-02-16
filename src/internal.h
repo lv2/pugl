@@ -22,6 +22,10 @@ PUGL_BEGIN_DECLS
 bool
 puglIsValidSize(PuglViewSize size);
 
+/// Return the current size described by the view hints
+PuglViewSize
+puglHintedSize(const PuglView* view);
+
 /// Set hint to a default value if it is unset (PUGL_DONT_CARE)
 void
 puglEnsureHint(PuglView* view, PuglViewHint hint, int value);
