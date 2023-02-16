@@ -948,6 +948,60 @@ typedef enum {
 } PuglViewType;
 
 /**
+   A hint for configuring/constraining the position of a view.
+
+   The system will attempt to make the view's window adhere to these, but they
+   are suggestions, not hard constraints.  Applications should handle any view
+   position gracefully.
+
+   An unset position has `INT16_MIN` (-32768) for both `x` and `y`.  This sigil
+   is chosen because it makes the range of coordinates, -32767 to 32767,
+   conveniently symmetric.  In practice, set positions should be between -16000
+   and 16000 for portability.  Usually the position `{0, 0}` is (near) the
+   top-left of the (or a) display.
+*/
+typedef enum {
+  /**
+     Default position.
+
+     This is used as the position during window creation as a default, if no
+     other position is specified.  It isn't necessary to set a default position
+     (unlike the default size, which is required).  If not even a default
+     position is set, then the window will be created at an arbitrary position.
+     This position is a best-effort attempt to do the most reasonable thing for
+     the initial display of the window, for example, by centering.  Note that
+     it is implementation-defined, subject to change, platform-specific, and
+     for embedded views, may no longer make sense if the parent's size is
+     adjusted.  Code that wants to make assumptions about the initial position
+     must set the default to a specific valid one, such as `{0, 0}`.
+  */
+  PUGL_DEFAULT_POSITION,
+
+  /**
+     Program-specified position.
+
+     This should be used for any position that is determined by the program, as
+     opposed to being specified by the user.  This includes views that
+     manipulate their own position (which is highly discouraged).  Typically,
+     it overrides the default position.
+  */
+  PUGL_CALCULATED_POSITION,
+
+  /**
+     User-specified position.
+
+     This should be used for any position that is more or less directly set by
+     the user, for example by dragging the view, or by explicitly setting some
+     configuration value.  Typically, it overrides the calculated (and in turn
+     the default) position.
+  */
+  PUGL_USER_POSITION,
+} PuglPositionHint;
+
+/// The number of #PuglPositionHint values
+#define PUGL_NUM_POSITION_HINTS ((unsigned)PUGL_USER_POSITION + 1U)
+
+/**
    A hint for configuring/constraining the size of a view.
 
    The system will attempt to make the view's window adhere to these, but they
@@ -1209,6 +1263,23 @@ puglSetPosition(PuglView* view, int x, int y);
 PUGL_API
 PuglStatus
 puglSetSize(PuglView* view, unsigned width, unsigned height);
+
+/**
+   Set a position hint for the view.
+
+   This can be used to set the default, program-calculated, or user-specified
+   position of a view.
+
+   This should be called before puglRealize() so the initial window for the
+   view can be configured correctly.  It may also be used dynamically after the
+   window is realized, for some hints.
+
+   @return An error code on failure, but always succeeds if the view is not yet
+   realized.
+*/
+PUGL_API
+PuglStatus
+puglSetPositionHint(PuglView* view, PuglPositionHint hint, int x, int y);
 
 /**
    Set a size hint for the view.

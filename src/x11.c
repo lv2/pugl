@@ -367,6 +367,23 @@ updateSizeHints(const PuglView* const view)
   Display*   display   = view->world->impl->display;
   XSizeHints sizeHints = PUGL_INIT_STRUCT;
 
+  /* Set precise position hints, which aren't used by most modern window
+     managers, but should be set anyway for maximum compatibility. */
+
+  const PuglPoint userPos = view->positionHints[PUGL_USER_POSITION];
+  if (puglIsValidPosition(userPos)) {
+    sizeHints.flags |= USPosition;
+    sizeHints.x = userPos.x;
+    sizeHints.y = userPos.y;
+  } else {
+    const PuglPoint programPos = puglHintedPosition(view);
+    if (puglIsValidPosition(programPos)) {
+      sizeHints.flags |= PPosition;
+      sizeHints.x = programPos.x;
+      sizeHints.y = programPos.y;
+    }
+  }
+
   /* Set precise size hints, which aren't used by most modern window managers,
      but should be set anyway for maximum compatibility. */
 
@@ -1993,6 +2010,32 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
   return XResizeWindow(display, view->impl->win, width, height)
            ? PUGL_SUCCESS
            : PUGL_UNKNOWN_ERROR;
+}
+
+PuglStatus
+puglSetPositionHint(PuglView* const        view,
+                    const PuglPositionHint hint,
+                    const int              x,
+                    const int              y)
+{
+  if (x <= INT16_MIN || x > INT16_MAX || y <= INT16_MIN || y > INT16_MAX) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  const PuglPoint oldHintedPos = puglHintedPosition(view);
+
+  view->positionHints[hint].x = (PuglCoord)x;
+  view->positionHints[hint].y = (PuglCoord)y;
+
+  const PuglPoint newHintedPos = puglHintedPosition(view);
+
+  if (view->impl->win && view->lastConfigure.x == oldHintedPos.x &&
+      view->lastConfigure.y == oldHintedPos.y &&
+      (newHintedPos.x != oldHintedPos.x || newHintedPos.y != oldHintedPos.y)) {
+    return puglSetPosition(view, newHintedPos.x, newHintedPos.y);
+  }
+
+  return PUGL_SUCCESS;
 }
 
 PuglStatus

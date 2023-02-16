@@ -1304,6 +1304,32 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
 }
 
 PuglStatus
+puglSetPositionHint(PuglView* const        view,
+                    const PuglPositionHint hint,
+                    const int              x,
+                    const int              y)
+{
+  if (x <= INT16_MIN || x > INT16_MAX || y <= INT16_MIN || y > INT16_MAX) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  const PuglPoint oldHintedPos = puglHintedPosition(view);
+
+  view->positionHints[hint].x = (PuglCoord)x;
+  view->positionHints[hint].y = (PuglCoord)y;
+
+  const PuglPoint newHintedPos = puglHintedPosition(view);
+
+  if (view->impl->hwnd && view->lastConfigure.x == oldHintedPos.x &&
+      view->lastConfigure.y == oldHintedPos.y &&
+      (newHintedPos.x != oldHintedPos.x || newHintedPos.y != oldHintedPos.y)) {
+    return puglSetPosition(view, hint, newHintedPos.x, newHintedPos.y);
+  }
+
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglSetSizeHint(PuglView* const    view,
                 const PuglSizeHint hint,
                 const unsigned     width,

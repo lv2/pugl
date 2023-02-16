@@ -13,9 +13,25 @@
 #include <string.h>
 
 bool
+puglIsValidPosition(const PuglPoint pos)
+{
+  return (pos.x > INT16_MIN && pos.y > INT16_MIN);
+}
+
+bool
 puglIsValidSize(const PuglViewSize size)
 {
   return size.width && size.height;
+}
+
+PuglPoint
+puglHintedPosition(const PuglView* const view)
+{
+  return puglIsValidPosition(view->positionHints[PUGL_USER_POSITION])
+           ? view->positionHints[PUGL_USER_POSITION]
+         : puglIsValidPosition(view->positionHints[PUGL_CALCULATED_POSITION])
+           ? view->positionHints[PUGL_CALCULATED_POSITION]
+           : view->positionHints[PUGL_DEFAULT_POSITION];
 }
 
 PuglViewSize
