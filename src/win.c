@@ -1221,8 +1221,8 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 {
   if (!view->impl->hwnd) {
     // Set defaults to be used when realized
-    view->defaultX                            = frame.x;
-    view->defaultY                            = frame.y;
+    view->positionHints[PUGL_DEFAULT_POSITION].x = frame.x;
+    view->positionHints[PUGL_DEFAULT_POSITION].y = frame.y;
     view->sizeHints[PUGL_DEFAULT_SIZE].width  = (PuglSpan)frame.width;
     view->sizeHints[PUGL_DEFAULT_SIZE].height = (PuglSpan)frame.height;
     return PUGL_SUCCESS;
@@ -1247,8 +1247,8 @@ puglSetWindowPosition(PuglView* const view, const int x, const int y)
 {
   if (!view->impl->hwnd) {
     // Set defaults to be used when realized
-    view->defaultX = x;
-    view->defaultY = y;
+    view->positionHints[PUGL_DEFAULT_POSITION].x = x;
+    view->positionHints[PUGL_DEFAULT_POSITION].y = y;
     return PUGL_SUCCESS;
   }
 
@@ -1312,8 +1312,11 @@ puglSetPositionHint(PuglView* const        view,
 
   const PuglPoint newHintedPos = puglHintedPosition(view);
 
-  if (view->impl->hwnd && view->lastConfigure.x == oldHintedPos.x &&
-      view->lastConfigure.y == oldHintedPos.y &&
+  if (view->impl->win && 
+      (view->lastConfigure.x == oldHintedPos.x || 
+        PUGL_COORD_INVALID == oldHintedPos.x) &&
+      (view->lastConfigure.y == oldHintedPos.y || 
+        PUGL_COORD_INVALID == oldHintedPos.y) &&
       (newHintedPos.x != oldHintedPos.x || newHintedPos.y != oldHintedPos.y)) {
     return puglSetWindowPosition(view, hint, newHintedPos.x, newHintedPos.y);
   }
@@ -1575,12 +1578,11 @@ getInitialFrame(PuglView* const view)
 
   const PuglSpan defaultWidth  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
   const PuglSpan defaultHeight = view->sizeHints[PUGL_DEFAULT_SIZE].height;
-  const int      x             = view->defaultX;
-  const int      y             = view->defaultY;
-  if (x >= INT16_MIN && x <= INT16_MAX && y >= INT16_MIN && y <= INT16_MAX) {
+  const PuglPoint pos          = view->positionHints[PUGL_DEFAULT_POSITION];
+  if (puglIsValidPosition(pos)) {
     // Use the default position set with puglSetPosition while unrealized
     const PuglRect frame = {
-      (PuglCoord)x, (PuglCoord)y, defaultWidth, defaultHeight};
+      pos.x, pos.y, defaultWidth, defaultHeight};
     return frame;
   }
 

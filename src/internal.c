@@ -15,13 +15,14 @@
 bool
 puglIsValidPosition(const PuglPoint pos)
 {
-  return (pos.x > INT16_MIN && pos.y > INT16_MIN);
+  return (pos.x != PUGL_COORD_INVALID && pos.y != PUGL_COORD_INVALID);
 }
 
 bool
 puglIsValidSize(const PuglViewSize size)
 {
-  return size.width && size.height;
+  return  (size.width != PUGL_SPAN_INVALID) && 
+          (size.height != PUGL_SPAN_INVALID);
 }
 
 PuglPoint

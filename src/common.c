@@ -141,8 +141,12 @@ puglNewView(PuglWorld* const world)
   view->world                           = world;
   view->sizeHints[PUGL_MIN_SIZE].width  = 1;
   view->sizeHints[PUGL_MIN_SIZE].height = 1;
-  view->defaultX                        = INT_MIN;
-  view->defaultY                        = INT_MIN;
+
+  // Set all position hints to invalid
+  for (int i = 0; i < PUGL_NUM_POSITION_HINTS; ++i) {
+    view->positionHints[i].x = PUGL_COORD_INVALID;
+    view->positionHints[i].y = PUGL_COORD_INVALID;
+  }
 
   puglSetDefaultHints(view->hints);
 
@@ -292,16 +296,15 @@ puglGetFrame(const PuglView* view)
   }
 
   // Get the default position if set, or fallback to (0, 0)
-  int x = view->defaultX;
-  int y = view->defaultY;
-  if (x < INT16_MIN || x > INT16_MAX || y < INT16_MIN || y > INT16_MAX) {
-    x = 0;
-    y = 0;
+  PuglPoint pos = view->positionHints[PUGL_DEFAULT_POSITION];
+  if (!puglIsValidPosition(pos)) {
+    pos.x = 0;
+    pos.y = 0;
   }
 
   // Return the default frame, sanitized if necessary
-  const PuglRect frame = {(PuglCoord)x,
-                          (PuglCoord)y,
+  const PuglRect frame = {pos.x,
+                          pos.y,
                           view->sizeHints[PUGL_DEFAULT_SIZE].width,
                           view->sizeHints[PUGL_DEFAULT_SIZE].height};
   return frame;

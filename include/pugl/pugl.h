@@ -38,6 +38,8 @@ PUGL_BEGIN_DECLS
 */
 typedef int16_t PuglCoord;
 
+#define PUGL_COORD_INVALID INT16_MIN
+
 /**
    A pixel span (width or height) within/of a view.
 
@@ -45,6 +47,8 @@ typedef int16_t PuglCoord;
    between 1 and 10000.
 */
 typedef uint16_t PuglSpan;
+
+#define PUGL_SPAN_INVALID 0
 
 /**
    A rectangle in a view or on the screen.

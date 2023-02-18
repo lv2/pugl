@@ -518,12 +518,11 @@ getInitialFrame(PuglView* const view)
 
   const PuglSpan defaultWidth  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
   const PuglSpan defaultHeight = view->sizeHints[PUGL_DEFAULT_SIZE].height;
-  const int      x             = view->defaultX;
-  const int      y             = view->defaultY;
-  if (x >= INT16_MIN && x <= INT16_MAX && y >= INT16_MIN && y <= INT16_MAX) {
+  const PuglPoint pos          = view->positionHints[PUGL_DEFAULT_POSITION];
+  if (puglIsValidPosition(pos)) {
     // Use the default position set with puglSetPosition while unrealized
     const PuglRect frame = {
-      (PuglCoord)x, (PuglCoord)y, defaultWidth, defaultHeight};
+      pos.x, pos.y, defaultWidth, defaultHeight};
     return frame;
   }
 
@@ -1950,10 +1949,10 @@ puglSetFrame(PuglView* const view, const PuglRect frame)
 {
   if (!view->impl->win) {
     // Set defaults to be used when realized
-    view->defaultX                            = frame.x;
-    view->defaultY                            = frame.y;
-    view->sizeHints[PUGL_DEFAULT_SIZE].width  = frame.width;
-    view->sizeHints[PUGL_DEFAULT_SIZE].height = frame.height;
+    view->positionHints[PUGL_DEFAULT_POSITION].x = frame.x;
+    view->positionHints[PUGL_DEFAULT_POSITION].y = frame.y;
+    view->sizeHints[PUGL_DEFAULT_SIZE].width     = frame.width;
+    view->sizeHints[PUGL_DEFAULT_SIZE].height    = frame.height;
     return PUGL_SUCCESS;
   }
 
@@ -2006,8 +2005,11 @@ puglSetPositionHint(PuglView* const        view,
 
   const PuglPoint newHintedPos = puglHintedPosition(view);
 
-  if (view->impl->win && view->lastConfigure.x == oldHintedPos.x &&
-      view->lastConfigure.y == oldHintedPos.y &&
+  if (view->impl->win && 
+      (view->lastConfigure.x == oldHintedPos.x || 
+        PUGL_COORD_INVALID == oldHintedPos.x) &&
+      (view->lastConfigure.y == oldHintedPos.y || 
+        PUGL_COORD_INVALID == oldHintedPos.y) &&
       (newHintedPos.x != oldHintedPos.x || newHintedPos.y != oldHintedPos.y)) {
     return puglSetWindowPosition(view, newHintedPos.x, newHintedPos.y);
   }
