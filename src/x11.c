@@ -419,7 +419,7 @@ updateSizeHints(const PuglView* const view)
     }
   }
 
-  XSetNormalHints(display, view->impl->win, &sizeHints);
+  XSetWMNormalHints(display, view->impl->win, &sizeHints);
   return PUGL_SUCCESS;
 }
 
