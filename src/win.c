@@ -40,7 +40,8 @@
 #define PUGL_LOCAL_CLOSE_MSG (WM_USER + 50)
 #define PUGL_LOCAL_MARK_MSG (WM_USER + 51)
 #define PUGL_LOCAL_CLIENT_MSG (WM_USER + 52)
-#define PUGL_USER_TIMER_MIN 9470
+
+static const WPARAM PUGL_USER_TIMER_MIN = 9470;
 
 #ifdef __cplusplus
 #  define PUGL_INIT_STRUCT \
@@ -1123,7 +1124,7 @@ puglDispatchWinEvents(PuglWorld* world)
 }
 
 PuglStatus
-puglUpdate(PuglWorld* world, double timeout)
+puglUpdate(PuglWorld* world, const double timeout)
 {
   static const double minWaitSeconds = 0.002;
 

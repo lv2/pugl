@@ -131,6 +131,11 @@ if is_variable('cpp')
           '-Wno-poison-system-directories',
         ]
       endif
+
+    elif host_machine.system() == 'windows'
+      cpp_suppressions += [
+        '-Wno-deprecated-declarations',
+      ]
     endif
 
   elif cpp.get_id() == 'gcc'

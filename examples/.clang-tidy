@@ -37,6 +37,7 @@ Checks: >
   -hicpp-vararg,
   -llvm-header-guard,
   -misc-misplaced-const,
+  -modernize-macro-to-enum,
   -modernize-redundant-void-arg,
   -modernize-use-trailing-return-type,
   -modernize-use-using,

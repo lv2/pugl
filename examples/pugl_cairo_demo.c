@@ -338,7 +338,7 @@ main(int argc, char** argv)
   puglShow(view, PUGL_SHOW_RAISE);
 
   PuglFpsPrinter fpsPrinter = {puglGetTime(app.world)};
-  const double   timeout    = app.opts.continuous ? (1 / 60.0) : -1.0;
+  const double   timeout    = 0.0;//app.opts.continuous ? (1 / 60.0) : -1.0;
   while (!app.quit) {
     puglUpdate(app.world, timeout);
 

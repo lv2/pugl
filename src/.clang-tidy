@@ -4,8 +4,14 @@
 Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-multi-level-implicit-pointer-conversion,
+  -cert-flp30-c,
+  -clang-analyzer-security.FloatLoopCounter,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
+  -misc-misplaced-const,
+  -modernize-macro-to-enum,
+  -performance-no-int-to-ptr,
   -readability-function-cognitive-complexity,
 InheritParentConfig: true

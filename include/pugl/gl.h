@@ -12,13 +12,15 @@
 /* Unfortunately, GL includes vary across platforms, so include them here to
    enable pure portable programs. */
 
+#if defined(_WIN32) && \
+  !(defined(PUGL_NO_INCLUDE_GL_H) && defined(PUGL_NO_INCLUDE_GLU_H))
+#  include <windows.h>
+#endif
+
 #ifndef PUGL_NO_INCLUDE_GL_H
 #  ifdef __APPLE__
 #    include <OpenGL/gl.h>
 #  else
-#    ifdef _WIN32
-#      include <windows.h>
-#    endif
 #    include <GL/gl.h>
 #  endif
 #endif
