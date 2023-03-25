@@ -53,7 +53,7 @@ onTimer(PuglView* const view, const PuglTimerEvent* const event)
   PuglTest* const test = (PuglTest*)puglGetHandle(view);
   const double    time = puglGetTime(puglGetWorld(view));
 
-  assert(event->id == timerId);
+  assert(event->id == timerId || event->id == timerId + 1000);
 
   if (test->numAlarms++ == 0) {
     test->firstAlarmTime = time;
@@ -150,6 +150,48 @@ main(int argc, char** argv)
   // Update for a half second and check that we receive no more alarms
   test.numAlarms = 0;
   puglUpdate(test.world, 0.5);
+  assert(test.numAlarms == 0);
+
+
+
+  // Some tests with two timers
+
+  test.numAlarms = 0;
+  assert(!puglStartTimer(test.view, timerId,        timerPeriod));
+  assert(!puglStartTimer(test.view, timerId + 1000, timerPeriod));
+  puglUpdate(test.world, timerPeriod * 2);
+  assert(test.numAlarms > 0);
+
+  // stop first timer
+  assert(!puglStopTimer(test.view, timerId));
+  test.numAlarms = 0;
+  puglUpdate(test.world, timerPeriod * 2);
+
+  // expect second timer to continue
+  assert(test.numAlarms > 0);
+
+  // stop second timer
+  assert(!puglStopTimer(test.view, timerId + 1000));
+  test.numAlarms = 0;
+  puglUpdate(test.world, timerPeriod * 2);
+
+  // expect no more alarms
+  assert(test.numAlarms == 0);
+
+  // start first timer again
+  test.numAlarms = 0;
+  assert(!puglStartTimer(test.view, timerId,        timerPeriod));
+  puglUpdate(test.world, timerPeriod * 2);
+
+  // expect first timer to continue
+  assert(test.numAlarms > 0);
+
+  // stop first timer
+  assert(!puglStopTimer(test.view, timerId));
+  test.numAlarms = 0;
+  puglUpdate(test.world, timerPeriod * 2);
+
+  // expect no more alarms
   assert(test.numAlarms == 0);
 
   puglFreeView(test.view);
