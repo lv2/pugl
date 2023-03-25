@@ -1409,15 +1409,13 @@ puglStopTimer(PuglView* const view, const uintptr_t id)
     if (w->timers[i].view == view && w->timers[i].id == id) {
       XSyncDestroyAlarm(w->display, w->timers[i].alarm);
 
-      if (i == w->numTimers - 1) {
-        memset(&w->timers[i], 0, sizeof(PuglTimer));
-      } else {
+      if (i != w->numTimers - 1) {
         memmove(w->timers + i,
                 w->timers + i + 1,
                 sizeof(PuglTimer) * (w->numTimers - i - 1));
-
-        memset(&w->timers[i], 0, sizeof(PuglTimer));
       }
+
+      memset(&w->timers[w->numTimers - 1], 0, sizeof(PuglTimer));
 
       --w->numTimers;
       return PUGL_SUCCESS;
