@@ -99,8 +99,8 @@ puglX11CairoEnter(PuglView* view, const PuglExposeEvent* expose)
 
   if (expose) {
     const PuglViewSize viewSize      = puglX11CairoGetViewSize(view);
-    const PuglSpan     right         = expose->x + expose->width;
-    const PuglSpan     bottom        = expose->y + expose->height;
+    const PuglSpan     right         = (PuglSpan)(expose->x + expose->width);
+    const PuglSpan     bottom        = (PuglSpan)(expose->y + expose->height);
     const PuglSpan     surfaceWidth  = MAX(right, viewSize.width);
     const PuglSpan     surfaceHeight = MAX(bottom, viewSize.height);
     if (!(st = puglX11CairoOpen(view, surfaceWidth, surfaceHeight))) {

@@ -1561,8 +1561,8 @@ getInitialFrame(PuglView* const view)
   // Center the frame around the center of the bounding rectangle
   const LONG     centerX = rect.left + (rect.right - rect.left) / 2;
   const LONG     centerY = rect.top + (rect.bottom - rect.top) / 2;
-  const PuglRect frame   = {(PuglCoord)(centerX - (defaultWidth / 2U)),
-                            (PuglCoord)(centerY - (defaultHeight / 2U)),
+  const PuglRect frame   = {(PuglCoord)(centerX - (defaultWidth / 2)),
+                            (PuglCoord)(centerY - (defaultHeight / 2)),
                             defaultWidth,
                             defaultHeight};
   return frame;

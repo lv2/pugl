@@ -146,7 +146,7 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
   case 'm':
     if ((flags & PUGL_VIEW_STYLE_TALL) && (flags & PUGL_VIEW_STYLE_WIDE)) {
       return puglSetViewStyle(
-        view, flags & ~(PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE));
+        view, flags & ~(unsigned)(PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE));
     }
 
     return puglSetViewStyle(

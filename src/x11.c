@@ -510,8 +510,8 @@ getInitialFrame(PuglView* const view)
   // Center the frame within the parent bounds
   const int      centerX = parentAttrs.x + parentAttrs.width / 2;
   const int      centerY = parentAttrs.y + parentAttrs.height / 2;
-  const PuglRect frame   = {(PuglCoord)(centerX - (defaultWidth / 2U)),
-                            (PuglCoord)(centerY - (defaultHeight / 2U)),
+  const PuglRect frame   = {(PuglCoord)(centerX - (defaultWidth / 2)),
+                            (PuglCoord)(centerY - (defaultHeight / 2)),
                             defaultWidth,
                             defaultHeight};
   return frame;
@@ -1069,7 +1069,7 @@ makeConfigureEvent(PuglView* const view)
   } else if (view->impl->mapped) {
     event.configure.style |= PUGL_VIEW_STYLE_MAPPED;
   } else {
-    event.configure.style &= ~PUGL_VIEW_STYLE_MAPPED;
+    event.configure.style &= ~(PuglViewStyleFlags)PUGL_VIEW_STYLE_MAPPED;
   }
 
   return event;
