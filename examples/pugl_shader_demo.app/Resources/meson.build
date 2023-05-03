@@ -10,7 +10,9 @@ shaders = [
 ]
 
 foreach shader : shaders
-  configure_file(input: files('..' / '..' / 'shaders' / shader),
-                 output: shader,
-                 copy: true)
+  configure_file(
+    copy: true,
+    input: files('..' / '..' / 'shaders' / shader),
+    output: shader,
+  )
 endforeach

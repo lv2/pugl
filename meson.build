@@ -1,16 +1,19 @@
 # Copyright 2021-2023 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
-project('pugl', ['c'],
-        version: '0.5.3',
-        license: 'ISC',
-        meson_version: '>= 0.54.0',
-        default_options: [
-          'b_ndebug=if-release',
-          'buildtype=release',
-          'c_std=c99',
-          'cpp_std=c++14',
-        ])
+project(
+  'pugl',
+  ['c'],
+  default_options: [
+    'b_ndebug=if-release',
+    'buildtype=release',
+    'c_std=c99',
+    'cpp_std=c++14',
+  ],
+  license: 'ISC',
+  meson_version: '>= 0.54.0',
+  version: '0.5.3',
+)
 
 pugl_src_root = meson.current_source_dir()
 major_version = meson.project_version().split('.')[0]
@@ -45,8 +48,10 @@ if get_option('strict')
 endif
 
 # Disable deprecated API which is not used by tests or examples
-add_project_arguments(['-DPUGL_DISABLE_DEPRECATED'],
-                      language: ['c', 'cpp', 'objc', 'objcpp'])
+add_project_arguments(
+  ['-DPUGL_DISABLE_DEPRECATED'],
+  language: ['c', 'cpp', 'objc', 'objcpp'],
+)
 
 #############
 # Platforms #

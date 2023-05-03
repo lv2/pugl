@@ -69,8 +69,10 @@ elif cc.get_id() == 'msvc'
   ]
 endif
 
-add_project_arguments(cc.get_supported_arguments(c_suppressions),
-                      language: ['c'])
+add_project_arguments(
+  cc.get_supported_arguments(c_suppressions),
+  language: ['c'],
+)
 
 #######
 # C++ #
@@ -123,8 +125,10 @@ if is_variable('cpp')
     ]
   endif
 
-  add_project_arguments(cpp.get_supported_arguments(cpp_suppressions),
-                        language: ['cpp'])
+  add_project_arguments(
+    cpp.get_supported_arguments(cpp_suppressions),
+    language: ['cpp'],
+  )
 endif
 
 ###############
