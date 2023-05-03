@@ -450,11 +450,11 @@ static uint32_t
 getModifiers(void)
 {
   // clang-format off
-  return (((GetKeyState(VK_SHIFT)   < 0) ? PUGL_MOD_SHIFT  : 0U) |
-          ((GetKeyState(VK_CONTROL) < 0) ? PUGL_MOD_CTRL   : 0U) |
-          ((GetKeyState(VK_MENU)    < 0) ? PUGL_MOD_ALT    : 0U) |
-          ((GetKeyState(VK_LWIN)    < 0) ? PUGL_MOD_SUPER  : 0U) |
-          ((GetKeyState(VK_RWIN)    < 0) ? PUGL_MOD_SUPER  : 0U));
+  return (((GetKeyState(VK_SHIFT)   < 0) ? (uint32_t)PUGL_MOD_SHIFT  : 0U) |
+          ((GetKeyState(VK_CONTROL) < 0) ? (uint32_t)PUGL_MOD_CTRL   : 0U) |
+          ((GetKeyState(VK_MENU)    < 0) ? (uint32_t)PUGL_MOD_ALT    : 0U) |
+          ((GetKeyState(VK_LWIN)    < 0) ? (uint32_t)PUGL_MOD_SUPER  : 0U) |
+          ((GetKeyState(VK_RWIN)    < 0) ? (uint32_t)PUGL_MOD_SUPER  : 0U));
   // clang-format on
 }
 
@@ -614,12 +614,13 @@ handleConfigure(PuglView* view, PuglEvent* event)
   event->configure.height = (PuglSpan)height;
 
   event->configure.style =
-    ((view->impl->mapped ? PUGL_VIEW_STYLE_MAPPED : 0U) |
-     (view->resizing ? PUGL_VIEW_STYLE_RESIZING : 0U) |
-     (view->impl->fullscreen ? PUGL_VIEW_STYLE_FULLSCREEN : 0U) |
-     (view->impl->minimized ? PUGL_VIEW_STYLE_HIDDEN : 0U) |
-     (view->impl->maximized ? (PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE)
-                            : 0U));
+    ((view->impl->mapped ? (unsigned)PUGL_VIEW_STYLE_MAPPED : 0U) |
+     (view->resizing ? (unsigned)PUGL_VIEW_STYLE_RESIZING : 0U) |
+     (view->impl->fullscreen ? (unsigned)PUGL_VIEW_STYLE_FULLSCREEN : 0U) |
+     (view->impl->minimized ? (unsigned)PUGL_VIEW_STYLE_HIDDEN : 0U) |
+     (view->impl->maximized
+        ? (unsigned)(PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE)
+        : 0U));
 
   return rect;
 }

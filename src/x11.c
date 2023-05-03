@@ -848,7 +848,8 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
   const PuglKey special = keySymToSpecial(sym);
 
   event->key.key =
-    ((special || ufound <= 0) ? special : puglDecodeUTF8((const uint8_t*)ustr));
+    ((special || ufound <= 0) ? special
+                              : (PuglKey)puglDecodeUTF8((const uint8_t*)ustr));
 
   if (xevent->type == KeyPress && !filter && !special && view->impl->xic) {
     // Lookup shifted key for possible text event
@@ -871,10 +872,10 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
 static uint32_t
 translateModifiers(const unsigned xstate)
 {
-  return (((xstate & ShiftMask) ? PUGL_MOD_SHIFT : 0U) |
-          ((xstate & ControlMask) ? PUGL_MOD_CTRL : 0U) |
-          ((xstate & Mod1Mask) ? PUGL_MOD_ALT : 0U) |
-          ((xstate & Mod4Mask) ? PUGL_MOD_SUPER : 0U));
+  return (((xstate & ShiftMask) ? (uint32_t)PUGL_MOD_SHIFT : 0U) |
+          ((xstate & ControlMask) ? (uint32_t)PUGL_MOD_CTRL : 0U) |
+          ((xstate & Mod1Mask) ? (uint32_t)PUGL_MOD_ALT : 0U) |
+          ((xstate & Mod4Mask) ? (uint32_t)PUGL_MOD_SUPER : 0U));
 }
 
 static PuglStatus
