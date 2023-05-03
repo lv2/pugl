@@ -698,7 +698,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
   POINT           pt        = {0, 0};
   MINMAXINFO*     mmi       = NULL;
   void*           dummy_ptr = NULL;
-  WINDOWPLACEMENT placement = {sizeof(WINDOWPLACEMENT), 0, 0, pt, pt};
+  WINDOWPLACEMENT placement = {sizeof(WINDOWPLACEMENT), 0, 0, pt, pt, rect};
 
   if (InSendMessageEx(dummy_ptr)) {
     event.any.flags |= PUGL_IS_SEND_EVENT;
