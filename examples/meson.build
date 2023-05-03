@@ -1,4 +1,4 @@
-# Copyright 2021-2022 David Robillard <d@drobilla.net>
+# Copyright 2021-2023 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 data_dir = get_option('prefix') / get_option('datadir') / 'pugl-0'
@@ -35,7 +35,7 @@ includes = include_directories(
 
 # Suppress some additional C warnings in examples
 example_c_args = []
-if get_option('strict')
+if get_option('warning_level') == 'everything'
   if cc.get_id() == 'clang'
     example_c_args += [
       '-Wno-float-equal',
@@ -53,7 +53,7 @@ endif
 
 # Suppress some additional C++ warnings in examples
 example_cpp_args = []
-if get_option('strict') and is_variable('cpp')
+if get_option('warning_level') == 'everything' and is_variable('cpp')
   if cpp.get_id() == 'clang'
     example_cpp_args += [
       '-Wno-documentation', # Cairo

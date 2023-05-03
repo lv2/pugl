@@ -1,4 +1,4 @@
-# Copyright 2021-2022 David Robillard <d@drobilla.net>
+# Copyright 2021-2023 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 option('cairo', type: 'feature', value: 'auto',
@@ -13,11 +13,11 @@ option('docs', type: 'feature', value: 'auto',
 option('docs_cpp', type: 'boolean', value: false,
        description: 'Attempt to build C++ documentation for development')
 
+option('lint', type: 'boolean', value: false, yield: true,
+       description: 'Run code quality checks')
+
 option('opengl', type: 'feature', value: 'auto',
        description : 'Enable support for the OpenGL graphics API')
-
-option('strict', type: 'boolean', value: false,
-       description: 'Enable ultra-strict warnings for developers')
 
 option('stub', type: 'boolean', value: true,
        description: 'Build stub backend')

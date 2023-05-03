@@ -1,11 +1,9 @@
-# Copyright 2021 David Robillard <d@drobilla.net>
+# Copyright 2021-2023 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
-
-reuse = find_program('reuse', required: false)
 
 # Suppress some additional C warnings in tests
 test_c_args = []
-if get_option('strict')
+if get_option('warning_level') == 'everything'
   if cc.get_id() == 'clang'
     test_c_args += [
       '-Wno-float-equal',
@@ -21,7 +19,7 @@ endif
 
 # Suppress some additional C++ warnings in tests
 test_cpp_args = []
-if get_option('strict') and is_variable('cpp')
+if get_option('warning_level') == 'everything' and is_variable('cpp')
   if cpp.get_id() == 'clang'
     test_cpp_args += [
       '-Wno-documentation', # Cairo
@@ -34,8 +32,11 @@ if get_option('strict') and is_variable('cpp')
 endif
 
 # Check licensing metadata
-if reuse.found()
-  test('REUSE', reuse, args: ['--root', pugl_src_root, 'lint'], suite: 'data')
+if not meson.is_subproject() and get_option('lint')
+  reuse = find_program('reuse', required: false)
+  if reuse.found()
+    test('REUSE', reuse, args: ['--root', pugl_src_root, 'lint'], suite: 'data')
+  endif
 endif
 
 basic_exclusive_tests = [

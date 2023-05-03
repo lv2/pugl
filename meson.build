@@ -41,11 +41,8 @@ if host_machine.system() == 'darwin'
   objcc = meson.get_compiler('objc')
 endif
 
-# Set global ultra-strict warnings for developers if enabled
-if get_option('strict')
-  subdir('meson/warnings')
-  subdir('meson/suppressions')
-endif
+# Set global warning suppressions
+subdir('meson/suppressions')
 
 # Disable deprecated API which is not used by tests or examples
 add_project_arguments(
