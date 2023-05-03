@@ -97,32 +97,22 @@ fedora:
 
 # Non-Linux/Docker rows (not hosted)
 
-mac_dbg:
+mac:
   stage: build
   tags: [macos]
   script:
     - meson setup build -Dbuildtype=debug -Ddocs=disabled -Dstrict=true -Dwerror=true
     - ninja -C build
-
-mac_rel:
-  stage: build
-  tags: [macos]
-  script:
-    - meson setup build -Dbuildtype=release -Ddocs=disabled -Dstrict=true -Dwerror=true
+    - meson configure -Dbuildtype=release build
     - ninja -C build
 
-win_dbg:
+win:
   stage: build
   tags: [windows,meson]
   script:
     - meson setup build -Dbuildtype=debug -Ddocs=disabled -Dstrict=true -Dwerror=true
     - ninja -C build
-
-win_rel:
-  stage: build
-  tags: [windows,meson]
-  script:
-    - meson setup build -Dbuildtype=release -Ddocs=disabled -Dstrict=true -Dwerror=true
+    - meson configure -Dbuildtype=release build
     - ninja -C build
 
 pages:
