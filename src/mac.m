@@ -186,7 +186,7 @@ getCurrentViewStyleFlags(PuglView* const view)
          (isResizing ? PUGL_VIEW_STYLE_RESIZING : 0U);
 }
 
-PuglStatus
+static PuglStatus
 dispatchCurrentChildViewConfiguration(PuglView* const view)
 {
   const NSRect framePt = [view->impl->wrapperView frame];
