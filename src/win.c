@@ -1213,8 +1213,8 @@ adjustedWindowRect(PuglView* const view,
 double
 puglGetScaleFactor(const PuglView* const view)
 {
-  return view->impl->scaleFactor ? view->impl->scaleFactor
-                                 : puglWinGetViewScaleFactor(view);
+  return view->impl->scaleFactor > 0.0 ? view->impl->scaleFactor
+                                       : puglWinGetViewScaleFactor(view);
 }
 
 PuglStatus
