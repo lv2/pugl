@@ -62,19 +62,6 @@ puglSetString(char** dest, const char* string)
   }
 }
 
-PuglStatus
-puglStoreViewString(PuglView* const      view,
-                    const PuglStringHint key,
-                    const char* const    value)
-{
-  if ((unsigned)key >= 0 && (unsigned)key < PUGL_NUM_STRING_HINTS) {
-    puglSetString(&view->strings[key], value);
-    return PUGL_SUCCESS;
-  }
-
-  return PUGL_BAD_PARAMETER;
-}
-
 uint32_t
 puglDecodeUTF8(const uint8_t* buf)
 {
