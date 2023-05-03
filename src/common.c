@@ -87,7 +87,7 @@ puglSetWorldString(PuglWorld* const     world,
                    const PuglStringHint key,
                    const char* const    value)
 {
-  if ((unsigned)key < 0 || (unsigned)key >= PUGL_NUM_STRING_HINTS) {
+  if ((unsigned)key >= PUGL_NUM_STRING_HINTS) {
     return PUGL_BAD_PARAMETER;
   }
 
@@ -98,7 +98,7 @@ puglSetWorldString(PuglWorld* const     world,
 const char*
 puglGetWorldString(const PuglWorld* const world, const PuglStringHint key)
 {
-  if ((unsigned)key < 0 || (unsigned)key >= PUGL_NUM_STRING_HINTS) {
+  if ((unsigned)key >= PUGL_NUM_STRING_HINTS) {
     return NULL;
   }
 
@@ -238,7 +238,7 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
     }
   }
 
-  if (hint >= 0 && hint < PUGL_NUM_VIEW_HINTS) {
+  if ((unsigned)hint < PUGL_NUM_VIEW_HINTS) {
     view->hints[hint] = value;
     return PUGL_SUCCESS;
   }
@@ -249,7 +249,7 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
 int
 puglGetViewHint(const PuglView* view, PuglViewHint hint)
 {
-  if (hint >= 0 && hint < PUGL_NUM_VIEW_HINTS) {
+  if ((unsigned)hint < PUGL_NUM_VIEW_HINTS) {
     return view->hints[hint];
   }
 
@@ -261,7 +261,7 @@ puglSetViewString(PuglView* const      view,
                   const PuglStringHint key,
                   const char* const    value)
 {
-  if ((unsigned)key < 0 || (unsigned)key >= PUGL_NUM_STRING_HINTS) {
+  if ((unsigned)key >= PUGL_NUM_STRING_HINTS) {
     return PUGL_BAD_PARAMETER;
   }
 
@@ -272,7 +272,7 @@ puglSetViewString(PuglView* const      view,
 const char*
 puglGetViewString(const PuglView* const view, const PuglStringHint key)
 {
-  if ((unsigned)key < 0 || (unsigned)key >= PUGL_NUM_STRING_HINTS) {
+  if ((unsigned)key >= PUGL_NUM_STRING_HINTS) {
     return NULL;
   }
 
