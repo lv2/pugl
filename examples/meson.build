@@ -113,7 +113,7 @@ else
   foreach example : stub_examples
     source = [example]
     target = example.split('.')[0]
-    dependencies = [pugl_dep, stub_backend_dep]
+    dependencies = [pugl_dep, pugl_stub_dep]
     defines = []
 
     executable(
@@ -131,7 +131,7 @@ else
     foreach example : gl_examples
       source = [example]
       target = example.split('.')[0]
-      dependencies = [pugl_dep, gl_backend_dep]
+      dependencies = [pugl_dep, pugl_gl_dep]
       defines = []
 
       if target == 'pugl_shader_demo'
@@ -139,7 +139,7 @@ else
         dependencies += [dl_dep]
         defines += ['-D_POSIX_C_SOURCE=200809L']
       elif target == 'pugl_print_events'
-        dependencies += [stub_backend_dep]
+        dependencies += [pugl_stub_dep]
       elif target == 'pugl_cpp_demo'
         dependencies += [puglpp_dep]
       endif
@@ -163,7 +163,7 @@ else
         target,
         example,
         c_args: example_defines + example_c_args + cairo_args,
-        dependencies: [pugl_dep, cairo_backend_dep],
+        dependencies: [pugl_dep, pugl_cairo_dep],
         include_directories: includes,
       )
     endforeach
@@ -174,7 +174,7 @@ else
     foreach example : vulkan_examples
       source = [example]
       target = example.split('.')[0]
-      dependencies = [dl_dep, vulkan_backend_dep]
+      dependencies = [dl_dep, pugl_vulkan_dep]
       defines = []
 
       if target == 'pugl_vulkan_cpp_demo'

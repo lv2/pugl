@@ -282,7 +282,7 @@ if get_option('stub')
     version: meson.project_version(),
   )
 
-  stub_backend_dep = declare_dependency(
+  pugl_stub_dep = declare_dependency(
     compile_args: extra_c_args,
     link_with: stub_backend,
     dependencies: [pugl_dep],
@@ -299,7 +299,7 @@ if get_option('stub')
     version: meson.project_version(),
   )
 
-  meson.override_dependency(stub_pkg_name, stub_backend_dep)
+  meson.override_dependency(stub_pkg_name, pugl_stub_dep)
 endif
 
 # OpenGL
@@ -324,7 +324,7 @@ if opengl_dep.found()
     version: meson.project_version(),
   )
 
-  gl_backend_dep = declare_dependency(
+  pugl_gl_dep = declare_dependency(
     compile_args: extra_c_args,
     link_with: gl_backend,
     dependencies: [pugl_dep, opengl_dep],
@@ -341,7 +341,7 @@ if opengl_dep.found()
     version: meson.project_version(),
   )
 
-  meson.override_dependency(gl_pkg_name, gl_backend_dep)
+  meson.override_dependency(gl_pkg_name, pugl_gl_dep)
 endif
 
 # Cairo
@@ -378,7 +378,7 @@ if cairo_dep.found()
     version: meson.project_version(),
   )
 
-  cairo_backend_dep = declare_dependency(
+  pugl_cairo_dep = declare_dependency(
     compile_args: extra_c_args,
     dependencies: [pugl_dep, cairo_dep],
     link_with: cairo_backend,
@@ -395,7 +395,7 @@ if cairo_dep.found()
     version: meson.project_version(),
   )
 
-  meson.override_dependency(cairo_pkg_name, cairo_backend_dep)
+  meson.override_dependency(cairo_pkg_name, pugl_cairo_dep)
 endif
 
 # Vulkan
@@ -432,7 +432,7 @@ if vulkan_dep.found()
     version: meson.project_version(),
   )
 
-  vulkan_backend_dep = declare_dependency(
+  pugl_vulkan_dep = declare_dependency(
     compile_args: extra_c_args,
     dependencies: [pugl_dep, vulkan_dep, thread_dep],
     link_with: vulkan_backend,
@@ -449,7 +449,7 @@ if vulkan_dep.found()
     version: meson.project_version(),
   )
 
-  meson.override_dependency(vulkan_pkg_name, vulkan_backend_dep)
+  meson.override_dependency(vulkan_pkg_name, pugl_vulkan_dep)
 endif
 
 ###############################
