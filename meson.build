@@ -216,10 +216,12 @@ core_deps += [cc.find_library('m', required: false)]
 core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
 includes = include_directories(['include'])
 library_args = ['-DPUGL_INTERNAL']
+extra_c_args = []
 
 if get_option('default_library') == 'static'
+  extra_c_args += ['-DPUGL_STATIC']
   add_project_arguments(
-    ['-DPUGL_STATIC'],
+    extra_c_args,
     language: ['c', 'cpp', 'objc', 'objcpp'],
   )
 endif
@@ -242,6 +244,7 @@ libpugl = library(
 )
 
 pugl_dep = declare_dependency(
+  compile_args: extra_c_args,
   dependencies: core_deps,
   include_directories: ['include'],
   link_with: libpugl,
@@ -280,6 +283,7 @@ if get_option('stub')
   )
 
   stub_backend_dep = declare_dependency(
+    compile_args: extra_c_args,
     link_with: stub_backend,
     dependencies: [pugl_dep],
   )
@@ -321,6 +325,7 @@ if opengl_dep.found()
   )
 
   gl_backend_dep = declare_dependency(
+    compile_args: extra_c_args,
     link_with: gl_backend,
     dependencies: [pugl_dep, opengl_dep],
   )
@@ -374,6 +379,7 @@ if cairo_dep.found()
   )
 
   cairo_backend_dep = declare_dependency(
+    compile_args: extra_c_args,
     dependencies: [pugl_dep, cairo_dep],
     link_with: cairo_backend,
   )
@@ -427,6 +433,7 @@ if vulkan_dep.found()
   )
 
   vulkan_backend_dep = declare_dependency(
+    compile_args: extra_c_args,
     dependencies: [pugl_dep, vulkan_dep, thread_dep],
     link_with: vulkan_backend,
   )
