@@ -100,7 +100,7 @@ elif host_machine.system() == 'windows'
   endif
 
   win_args = [
-    # Set minimium target version
+    # Set minimum target version
     '-DWINVER=0x0500', # Windows 2000
     '-D_WIN32_WINNT=0x0500', # Windows 2000
 
