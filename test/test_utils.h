@@ -365,7 +365,7 @@ puglParseTestOptions(int* pargc, char*** pargv)
       }
 
       const int matches =
-        sscanf(argv[i], "%u.%u", &opts.glMajorVersion, &opts.glMinorVersion);
+        sscanf(argv[i], "%d.%d", &opts.glMajorVersion, &opts.glMinorVersion);
       if (matches != 2) {
         fprintf(stderr, "error: Invalid OpenGL version argument\n");
         return opts;
