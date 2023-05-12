@@ -1643,7 +1643,11 @@ puglPostRedisplay(PuglView* view)
 PuglStatus
 puglPostRedisplayRect(PuglView* view, const PuglRect rect)
 {
-  const NSRect rectPx = rectToNsRect(rect);
+  const NSRect rectPx = {
+    {(double)rect.x,
+     (double)view->lastConfigure.height - (rect.y + rect.height)},
+    {(double)rect.width, (double)rect.height},
+  };
 
   [view->impl->drawView setNeedsDisplayInRect:nsRectToPoints(view, rectPx)];
 
