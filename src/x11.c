@@ -1066,12 +1066,11 @@ getCurrentConfiguration(PuglView* const view)
   XGetWindowAttributes(display, view->impl->win, &attrs);
 
   // Get window position relative to the root window
-  const Window root         = RootWindow(display, view->impl->screen);
-  Window       ignoredChild = 0;
-  int          rootX        = 0;
-  int          rootY        = 0;
+  Window ignoredChild = 0;
+  int    rootX        = 0;
+  int    rootY        = 0;
   XTranslateCoordinates(
-    display, view->impl->win, root, 0, 0, &rootX, &rootY, &ignoredChild);
+    display, view->impl->win, attrs.root, 0, 0, &rootX, &rootY, &ignoredChild);
 
   // Build a configure event based on the current window configuration
   PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
