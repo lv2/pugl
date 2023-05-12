@@ -25,6 +25,7 @@ struct PuglInternalsImpl {
   HCURSOR         cursor;
   HDC             hdc;
   WINDOWPLACEMENT oldPlacement;
+  PAINTSTRUCT     paint;
   PuglBlob        clipboard;
   PuglSurface*    surface;
   double          scaleFactor;
