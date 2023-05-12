@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef TEST_TEST_UTILS_H
@@ -322,7 +322,7 @@ puglPrintTestUsage(const char* prog, const char* posHelp)
          "  -E  Use OpenGL ES\n"
          "  -G  OpenGL context version\n"
          "  -a  Enable anti-aliasing\n"
-         "  -c  Continuously animate and draw\n"
+         "  -b  Block and only update on user input\n"
          "  -d  Directly draw to window (no double-buffering)\n"
          "  -e  Enable platform error-checking\n"
          "  -f  Fast drawing, explicitly disable vertical sync\n"
@@ -345,7 +345,7 @@ puglParseTestOptions(int* pargc, char*** pargv)
     PUGL_OPENGL_API,
     3,
     3,
-    false,
+    true,
     false,
     false,
     false,
@@ -372,8 +372,8 @@ puglParseTestOptions(int* pargc, char*** pargv)
       }
     } else if (!strcmp(argv[i], "-a")) {
       opts.samples = 4;
-    } else if (!strcmp(argv[i], "-c")) {
-      opts.continuous = true;
+    } else if (!strcmp(argv[i], "-b")) {
+      opts.continuous = false;
     } else if (!strcmp(argv[i], "-d")) {
       opts.doubleBuffer = PUGL_FALSE;
     } else if (!strcmp(argv[i], "-e")) {

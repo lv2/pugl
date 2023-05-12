@@ -1,4 +1,4 @@
-// Copyright 2019-2020 David Robillard <d@drobilla.net>
+// Copyright 2019-2023 David Robillard <d@drobilla.net>
 // Copyright 2019 Jordan Halase <jordan@halase.me>
 // SPDX-License-Identifier: ISC
 
@@ -1008,6 +1008,8 @@ onEvent(PuglView* const view, const PuglEvent* const e)
   printEvent(e, "Event: ", app->opts.verbose);
 
   switch (e->type) {
+  case PUGL_UPDATE:
+    return app->opts.continuous ? puglPostRedisplay(view) : PUGL_SUCCESS;
   case PUGL_EXPOSE:
     return onExpose(view);
   case PUGL_CONFIGURE:
