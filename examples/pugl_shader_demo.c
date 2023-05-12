@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 /*
@@ -62,6 +62,8 @@ typedef struct {
   GLuint          ibo;
   double          lastDrawDuration;
   double          lastFrameEndTime;
+  double          mouseX;
+  double          mouseY;
   unsigned        framesDrawn;
   int             quit;
 } PuglTestApp;
@@ -103,17 +105,44 @@ onExpose(PuglView* view)
   glUseProgram(app->drawRect.program);
   glBindVertexArray(app->vao);
 
+  // Update horizontal mouse cursor line (last rect)
+  Rect* const mouseH   = &app->rects[app->numRects];
+  mouseH->pos[0]       = (float)(app->mouseX - 8.0);
+  mouseH->pos[1]       = (float)(frame.height - app->mouseY - 1.0);
+  mouseH->size[0]      = 16.0f;
+  mouseH->size[1]      = 2.0f;
+  mouseH->fillColor[0] = 1.0f;
+  mouseH->fillColor[1] = 1.0f;
+  mouseH->fillColor[2] = 1.0f;
+  mouseH->fillColor[3] = 0.5f;
+
+  // Update vertical mouse cursor line (second last rect)
+  Rect* const mouseV   = &app->rects[app->numRects + 1];
+  mouseV->pos[0]       = (float)(app->mouseX - 2.0);
+  mouseV->pos[1]       = (float)(frame.height - app->mouseY - 8.0);
+  mouseV->size[0]      = 2.0f;
+  mouseV->size[1]      = 16.0f;
+  mouseV->fillColor[0] = 1.0f;
+  mouseV->fillColor[1] = 1.0f;
+  mouseV->fillColor[2] = 1.0f;
+  mouseV->fillColor[3] = 0.5f;
+
   for (size_t i = 0; i < app->numRects; ++i) {
     moveRect(&app->rects[i], i, app->numRects, width, height, time);
   }
 
   glBufferData(GL_UNIFORM_BUFFER, sizeof(proj), &proj, GL_STREAM_DRAW);
 
-  glBufferSubData(
-    GL_ARRAY_BUFFER, 0, (GLsizeiptr)(app->numRects * sizeof(Rect)), app->rects);
+  glBufferSubData(GL_ARRAY_BUFFER,
+                  0,
+                  (GLsizeiptr)((app->numRects + 2) * sizeof(Rect)),
+                  app->rects);
 
-  glDrawElementsInstanced(
-    GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, NULL, (GLsizei)(app->numRects * 4));
+  glDrawElementsInstanced(GL_TRIANGLE_STRIP,
+                          4,
+                          GL_UNSIGNED_INT,
+                          NULL,
+                          (GLsizei)((app->numRects + 2) * 4));
 
   ++app->framesDrawn;
 
@@ -159,6 +188,10 @@ onEvent(PuglView* view, const PuglEvent* event)
     if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
       app->quit = 1;
     }
+    break;
+  case PUGL_MOTION:
+    app->mouseX = event->motion.x;
+    app->mouseY = event->motion.y;
     break;
   case PUGL_TIMER:
     if (event->timer.id == resizeTimerId) {
@@ -242,7 +275,7 @@ setupPugl(PuglTestApp* app)
   // Create world, view, and rect data
   app->world = puglNewWorld(PUGL_PROGRAM, 0);
   app->view  = puglNewView(app->world);
-  app->rects = makeRects(app->numRects);
+  app->rects = makeRects(app->numRects + 2);
 
   // Set up world and view
   puglSetWorldString(app->world, PUGL_CLASS_NAME, "PuglShaderDemo");
@@ -360,7 +393,7 @@ setupGl(PuglTestApp* app)
   glGenBuffers(1, &app->instanceVbo);
   glBindBuffer(GL_ARRAY_BUFFER, app->instanceVbo);
   glBufferData(GL_ARRAY_BUFFER,
-               (GLsizeiptr)(app->numRects * sizeof(Rect)),
+               (GLsizeiptr)((app->numRects + 2) * sizeof(Rect)),
                app->rects,
                GL_STREAM_DRAW);
 

@@ -1,4 +1,4 @@
-// Copyright 2019-2020 David Robillard <d@drobilla.net>
+// Copyright 2019-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 /*
@@ -1399,6 +1399,7 @@ public:
   pugl::Status onEvent(const pugl::LoopLeaveEvent& event);
   pugl::Status onEvent(const pugl::KeyPressEvent& event);
   pugl::Status onEvent(const pugl::CloseEvent& event);
+  pugl::Status onEvent(const pugl::MotionEvent& event);
 
 private:
   PuglVulkanDemo& _app;
@@ -1424,6 +1425,8 @@ public:
   uint32_t           framesDrawn{0};
   VkExtent2D         extent{512U, 512U};
   std::vector<Rect>  rects;
+  double             mouseX{0.0};
+  double             mouseY{0.0};
   bool               resizing{false};
   bool               quit{false};
 };
@@ -1447,7 +1450,7 @@ PuglVulkanDemo::PuglVulkanDemo(const char* const      executablePath,
   , world{pugl::WorldType::program, pugl::WorldFlag::threads}
   , loader{world}
   , view{world, *this}
-  , rects{makeRects(numRects, extent.width)}
+  , rects{makeRects(numRects + 2U, extent.width)}
 {}
 
 VkResult
@@ -1567,8 +1570,8 @@ beginFrame(PuglVulkanDemo& app, const sk::Device& device, uint32_t& imageIndex)
 void
 update(PuglVulkanDemo& app, const double time)
 {
-  // Animate rectangles
-  for (size_t i = 0; i < app.rects.size(); ++i) {
+  // Animate rectangles (except mouse cursor)
+  for (size_t i = 0; i < app.rects.size() - 2U; ++i) {
     moveRect(&app.rects[i],
              i,
              app.rects.size(),
@@ -1576,6 +1579,31 @@ update(PuglVulkanDemo& app, const double time)
              static_cast<float>(app.extent.height),
              time);
   }
+
+  const auto mouseX = static_cast<float>(app.mouseX);
+  const auto mouseY = static_cast<float>(app.mouseY);
+
+  // Update horizontal mouse cursor line (last rect)
+  Rect* const mouseH   = &app.rects[app.rects.size() - 1U];
+  mouseH->pos[0]       = mouseX - 8.0f;
+  mouseH->pos[1]       = mouseY - 1.0f;
+  mouseH->size[0]      = 16.0f;
+  mouseH->size[1]      = 2.0f;
+  mouseH->fillColor[0] = 1.0f;
+  mouseH->fillColor[1] = 1.0f;
+  mouseH->fillColor[2] = 1.0f;
+  mouseH->fillColor[3] = 0.5f;
+
+  // Update vertical mouse cursor line (second last rect)
+  Rect* const mouseV   = &app.rects[app.rects.size() - 2U];
+  mouseV->pos[0]       = mouseX - 2.0f;
+  mouseV->pos[1]       = mouseY - 8.0f;
+  mouseV->size[0]      = 2.0f;
+  mouseV->size[1]      = 16.0f;
+  mouseV->fillColor[0] = 1.0f;
+  mouseV->fillColor[1] = 1.0f;
+  mouseV->fillColor[2] = 1.0f;
+  mouseV->fillColor[3] = 0.5f;
 
   // Update vertex buffer
   memcpy(app.rectData.vertexData.get(),
@@ -1658,6 +1686,7 @@ View::onEvent(const pugl::ExposeEvent&)
   // Submit the frame to the queue and present it
   endFrame(vk, gpu, _app.renderer, nextImageIndex);
 
+  // Update frame counters
   ++_app.framesDrawn;
   ++_app.renderer.sync.currentFrame;
   _app.renderer.sync.currentFrame %= _app.renderer.sync.inFlight.size();
@@ -1697,6 +1726,15 @@ View::onEvent(const pugl::KeyPressEvent& event)
   if (event.key == PUGL_KEY_ESCAPE || event.key == 'q') {
     _app.quit = true;
   }
+
+  return pugl::Status::success;
+}
+
+pugl::Status
+View::onEvent(const pugl::MotionEvent& event)
+{
+  _app.mouseX = event.x;
+  _app.mouseY = event.y;
 
   return pugl::Status::success;
 }
