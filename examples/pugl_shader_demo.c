@@ -433,7 +433,8 @@ updateTimeout(const PuglTestApp* const app)
   const int    refreshRate      = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
   const double now              = puglGetTime(app->world);
   const double nextFrameEndTime = app->lastFrameEndTime + (1.0 / refreshRate);
-  const double nextExposeTime   = nextFrameEndTime - app->lastDrawDuration;
+  const double neededTime       = 1.5 * app->lastDrawDuration;
+  const double nextExposeTime   = nextFrameEndTime - neededTime;
   const double timeUntilNext    = nextExposeTime - now;
 
   return timeUntilNext;

@@ -1803,7 +1803,7 @@ run(const char* const      programPath,
 
   const int    refreshRate   = app.view.getHint(pugl::ViewHint::refreshRate);
   const double frameDuration = 1.0 / static_cast<double>(refreshRate);
-  const double timeout       = app.opts.sync ? frameDuration : 0.0;
+  const double timeout       = app.opts.sync ? frameDuration * 0.8 : 0.0;
 
   PuglFpsPrinter fpsPrinter = {app.world.time()};
   app.view.show(pugl::ShowCommand::passive);
