@@ -1514,7 +1514,9 @@ static void
 mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
 {
   if (!dst->type) {
-    *dst = *src;
+    if (src->width > 0.0 && src->height > 0.0) {
+      *dst = *src;
+    }
   } else {
     const int dst_r = dst->x + dst->width;
     const int src_r = src->x + src->width;
@@ -1689,20 +1691,21 @@ flushExposures(PuglWorld* const world)
     view->impl->pendingConfigure.type = PUGL_NOTHING;
     view->impl->pendingExpose.type    = PUGL_NOTHING;
 
-    if (expose.type) {
-      if (!(st0 = view->backend->enter(view, &expose.expose))) {
+    if (expose.type || configure.type) {
+      const PuglExposeEvent* const exposeEvent =
+        expose.type ? &expose.expose : NULL;
+
+      if (!(st0 = view->backend->enter(view, exposeEvent))) {
         if (configure.type) {
           st0 = puglConfigure(view, &configure);
         }
 
-        st1 = puglExpose(view, &expose);
-        st2 = view->backend->leave(view, &expose.expose);
+        if (expose.type) {
+          st1 = view->eventFunc(view, &expose);
+        }
       }
-    } else if (configure.type) {
-      if (!(st0 = view->backend->enter(view, NULL))) {
-        st0 = puglConfigure(view, &configure);
-        st1 = view->backend->leave(view, NULL);
-      }
+
+      st2 = view->backend->leave(view, exposeEvent);
     }
   }
 
