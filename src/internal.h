@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // Internal utilities available to platform implementations
@@ -12,10 +12,15 @@
 #include "pugl/attributes.h"
 #include "pugl/pugl.h"
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 PUGL_BEGIN_DECLS
+
+/// Return true if `size` is a valid view size
+bool
+puglIsValidSize(PuglViewSize size);
 
 /// Set hint to a default value if it is unset (PUGL_DONT_CARE)
 void
