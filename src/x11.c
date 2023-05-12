@@ -99,6 +99,21 @@ static const char* const cursorNames[PUGL_NUM_CURSORS] = {
 };
 #endif
 
+/**
+   Convert a return code from an Xlib function to a PuglStatus.
+
+   Careful, Xlib returns are wildly inconsistent, often undocumented, and
+   sometimes even use misleading types (for example, a Status that is actually
+   used as a boolean).  The only way to know for a given function is to read
+   the source.  For the most part, though, being a remote display protocol,
+   errors are handled asynchronously and return values mean nothing.
+*/
+static PuglStatus
+puglX11Status(const int returnCode)
+{
+  return returnCode ? PUGL_SUCCESS : PUGL_UNKNOWN_ERROR;
+}
+
 static bool
 initXSync(PuglWorldInternals* const impl)
 {
@@ -1480,19 +1495,17 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
     xev.xclient.data.l[0]    = CurrentTime;
     xev.xclient.data.l[1]    = 1;
 
-    return XSendEvent(display,
-                      RootWindow(display, impl->screen),
-                      False,
-                      SubstructureNotifyMask | SubstructureRedirectMask,
-                      &xev)
-             ? PUGL_SUCCESS
-             : PUGL_UNKNOWN_ERROR;
+    return puglX11Status(
+      XSendEvent(display,
+                 RootWindow(display, impl->screen),
+                 False,
+                 SubstructureNotifyMask | SubstructureRedirectMask,
+                 &xev));
   }
 
   xev = eventToX(view, event);
   if (xev.type) {
-    return XSendEvent(display, impl->win, False, 0, &xev) ? PUGL_SUCCESS
-                                                          : PUGL_UNKNOWN_ERROR;
+    return puglX11Status(XSendEvent(display, impl->win, False, 0, &xev));
   }
 
   return PUGL_UNSUPPORTED;
@@ -1659,10 +1672,8 @@ handleSelectionRequest(const PuglWorld* const              world,
                           request->property,
                           request->time};
 
-  return XSendEvent(
-           world->impl->display, note.requestor, True, 0, (XEvent*)&note)
-           ? PUGL_SUCCESS
-           : PUGL_UNKNOWN_ERROR;
+  return puglX11Status(
+    XSendEvent(world->impl->display, note.requestor, True, 0, (XEvent*)&note));
 }
 
 /// Flush pending configure and expose events for all views
@@ -1952,14 +1963,12 @@ puglSetFrame(PuglView* const view, const PuglRect frame)
     return PUGL_SUCCESS;
   }
 
-  return XMoveResizeWindow(view->world->impl->display,
-                           view->impl->win,
-                           frame.x,
-                           frame.y,
-                           frame.width,
-                           frame.height)
-           ? PUGL_SUCCESS
-           : PUGL_UNKNOWN_ERROR;
+  return puglX11Status(XMoveResizeWindow(view->world->impl->display,
+                                         view->impl->win,
+                                         frame.x,
+                                         frame.y,
+                                         frame.width,
+                                         frame.height));
 }
 
 PuglStatus
@@ -1978,12 +1987,10 @@ puglSetPosition(PuglView* const view, const int x, const int y)
     return PUGL_SUCCESS;
   }
 
-  return XMoveWindow(display,
-                     view->impl->win,
-                     (int)(x - view->impl->frameExtentLeft),
-                     (int)(y - view->impl->frameExtentTop))
-           ? PUGL_SUCCESS
-           : PUGL_UNKNOWN_ERROR;
+  return puglX11Status(XMoveWindow(display,
+                                   view->impl->win,
+                                   (int)(x - view->impl->frameExtentLeft),
+                                   (int)(y - view->impl->frameExtentTop)));
 }
 
 PuglStatus
@@ -2002,9 +2009,7 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
     return PUGL_SUCCESS;
   }
 
-  return XResizeWindow(display, view->impl->win, width, height)
-           ? PUGL_SUCCESS
-           : PUGL_UNKNOWN_ERROR;
+  return puglX11Status(XResizeWindow(display, view->impl->win, width, height));
 }
 
 PuglStatus

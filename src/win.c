@@ -85,6 +85,12 @@ puglWideCharToUtf8(const wchar_t* const wstr, size_t* len)
   return NULL;
 }
 
+static PuglStatus
+puglWinStatus(const BOOL success)
+{
+  return success ? PUGL_SUCCESS : PUGL_UNKNOWN_ERROR;
+}
+
 static bool
 puglRegisterWindowClass(const char* name)
 {
@@ -1002,9 +1008,7 @@ puglStartTimer(PuglView* view, uintptr_t id, double timeout)
 PuglStatus
 puglStopTimer(PuglView* view, uintptr_t id)
 {
-  return (KillTimer(view->impl->hwnd, PUGL_USER_TIMER_MIN + id)
-            ? PUGL_SUCCESS
-            : PUGL_UNKNOWN_ERROR);
+  return puglWinStatus(KillTimer(view->impl->hwnd, PUGL_USER_TIMER_MIN + id));
 }
 
 PuglStatus
@@ -1232,15 +1236,14 @@ puglSetFrame(PuglView* view, const PuglRect frame)
   const RECT rect =
     adjustedWindowRect(view, frame.x, frame.y, frame.width, frame.height);
 
-  return SetWindowPos(view->impl->hwnd,
-                      HWND_TOP,
-                      rect.left,
-                      rect.top,
-                      rect.right - rect.left,
-                      rect.bottom - rect.top,
-                      SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER)
-           ? PUGL_SUCCESS
-           : PUGL_UNKNOWN_ERROR;
+  return puglWinStatus(
+    SetWindowPos(view->impl->hwnd,
+                 HWND_TOP,
+                 rect.left,
+                 rect.top,
+                 rect.right - rect.left,
+                 rect.bottom - rect.top,
+                 SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER));
 }
 
 PuglStatus
@@ -1260,16 +1263,11 @@ puglSetPosition(PuglView* const view, const int x, const int y)
   const RECT rect = adjustedWindowRect(
     view, x, y, view->lastConfigure.width, view->lastConfigure.height);
 
-  return SetWindowPos(view->impl->hwnd,
-                      HWND_TOP,
-                      rect.left,
-                      rect.top,
-                      0,
-                      0,
-                      SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER |
-                        SWP_NOSIZE)
-           ? PUGL_SUCCESS
-           : PUGL_UNKNOWN_ERROR;
+  const UINT flags =
+    SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOSIZE;
+
+  return puglWinStatus(
+    SetWindowPos(view->impl->hwnd, HWND_TOP, rect.left, rect.top, 0, 0, flags));
 }
 
 PuglStatus
@@ -1292,16 +1290,16 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
                                        (long)width,
                                        (long)height);
 
-  return SetWindowPos(view->impl->hwnd,
-                      HWND_TOP,
-                      0,
-                      0,
-                      rect.right - rect.left,
-                      rect.bottom - rect.top,
-                      SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER |
-                        SWP_NOMOVE)
-           ? PUGL_SUCCESS
-           : PUGL_UNKNOWN_ERROR;
+  const UINT flags =
+    SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER | SWP_NOMOVE;
+
+  return puglWinStatus(SetWindowPos(view->impl->hwnd,
+                                    HWND_TOP,
+                                    0,
+                                    0,
+                                    rect.right - rect.left,
+                                    rect.bottom - rect.top,
+                                    flags));
 }
 
 PuglStatus
