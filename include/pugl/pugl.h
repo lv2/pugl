@@ -955,9 +955,27 @@ typedef enum {
    size gracefully.
 */
 typedef enum {
-  PUGL_DEFAULT_SIZE, ///< Default size
-  PUGL_MIN_SIZE,     ///< Minimum size
-  PUGL_MAX_SIZE,     ///< Maximum size
+  /**
+     Default size.
+
+     This is used as the size during window creation as a default, if no other
+     size is specified.
+  */
+  PUGL_DEFAULT_SIZE,
+
+  /**
+     Minimum size.
+
+     If set, the view's size should be constrained to be at least this large.
+  */
+  PUGL_MIN_SIZE,
+
+  /**
+     Maximum size.
+
+     If set, the view's size should be constrained to be at most this large.
+  */
+  PUGL_MAX_SIZE,
 
   /**
      Fixed aspect ratio.
