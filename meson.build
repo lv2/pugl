@@ -171,12 +171,12 @@ else # X11
 
   xcursor_dep = cc.find_library('Xcursor', required: false)
   if xcursor_dep.found()
-    core_args += ['-DHAVE_XCURSOR']
+    core_args += ['-DUSE_XCURSOR=1']
   endif
 
   xrandr_dep = cc.find_library('Xrandr', required: false)
   if xrandr_dep.found()
-    core_args += ['-DHAVE_XRANDR']
+    core_args += ['-DUSE_XRANDR=1']
   endif
 
   xext_dep = cc.find_library('Xext', required: false)
@@ -185,7 +185,7 @@ else # X11
       #include <X11/extensions/sync.h>
       int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }'''
     if cc.compiles(xsync_fragment, name: 'Xsync')
-      core_args += ['-DHAVE_XSYNC']
+      core_args += ['-DUSE_XSYNC=1']
     endif
   endif
 

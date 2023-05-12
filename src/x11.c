@@ -20,16 +20,40 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 
-#ifdef HAVE_XRANDR
+#ifndef USE_XRANDR
+#  if __has_include(<X11/extensions/Xrandr.h>)
+#    define USE_XRANDR 1
+#  else
+#    define USE_XRANDR 0
+#  endif
+#endif
+
+#ifndef USE_XSYNC
+#  if __has_include(<X11/extensions/sync.h>)
+#    define USE_XSYNC 1
+#  else
+#    define USE_XSYNC 0
+#  endif
+#endif
+
+#ifndef USE_XCURSOR
+#  if __has_include(<X11/Xcursor/Xcursor.h>)
+#    define USE_XCURSOR 1
+#  else
+#    define USE_XCURSOR 0
+#  endif
+#endif
+
+#if USE_XRANDR
 #  include <X11/extensions/Xrandr.h>
 #endif
 
-#ifdef HAVE_XSYNC
+#if USE_XSYNC
 #  include <X11/extensions/sync.h>
 #  include <X11/extensions/syncconst.h>
 #endif
 
-#ifdef HAVE_XCURSOR
+#if USE_XCURSOR
 #  include <X11/Xcursor/Xcursor.h>
 #endif
 
@@ -60,7 +84,7 @@ enum WmClientStateMessageAction {
   WM_STATE_TOGGLE
 };
 
-#ifdef HAVE_XCURSOR
+#if USE_XCURSOR
 static const char* const cursorNames[PUGL_NUM_CURSORS] = {
   "default",           // ARROW
   "text",              // CARET
@@ -78,7 +102,7 @@ static const char* const cursorNames[PUGL_NUM_CURSORS] = {
 static bool
 initXSync(PuglWorldInternals* const impl)
 {
-#ifdef HAVE_XSYNC
+#if USE_XSYNC
   int                 syncMajor   = 0;
   int                 syncMinor   = 0;
   int                 errorBase   = 0;
@@ -221,7 +245,7 @@ puglInitViewInternals(PuglWorld* const world)
   impl->clipboard.selection = world->impl->atoms.CLIPBOARD;
   impl->clipboard.property  = XA_PRIMARY;
 
-#ifdef HAVE_XCURSOR
+#if USE_XCURSOR
   impl->cursorName = cursorNames[PUGL_CURSOR_ARROW];
 #endif
 
@@ -423,7 +447,7 @@ updateSizeHints(const PuglView* const view)
   return PUGL_SUCCESS;
 }
 
-#ifdef HAVE_XCURSOR
+#if USE_XCURSOR
 static PuglStatus
 defineCursorName(PuglView* const view, const char* const name)
 {
@@ -605,7 +629,7 @@ puglRealize(PuglView* const view)
                     1);
   }
 
-#ifdef HAVE_XRANDR
+#if USE_XRANDR
   int ignored = 0;
   if (XRRQueryExtension(display, &ignored, &ignored)) {
     // Set refresh rate hint to the real refresh rate
@@ -1322,7 +1346,7 @@ puglHasFocus(const PuglView* const view)
 PuglStatus
 puglStartTimer(PuglView* const view, const uintptr_t id, const double timeout)
 {
-#ifdef HAVE_XSYNC
+#if USE_XSYNC
   if (view->world->impl->syncSupported) {
     XSyncValue value;
     XSyncIntToValue(&value, (int)floor(timeout * 1000.0));
@@ -1365,7 +1389,7 @@ puglStartTimer(PuglView* const view, const uintptr_t id, const double timeout)
 PuglStatus
 puglStopTimer(PuglView* const view, const uintptr_t id)
 {
-#ifdef HAVE_XSYNC
+#if USE_XSYNC
   PuglWorldInternals* w = view->world->impl;
 
   for (size_t i = 0; i < w->numTimers; ++i) {
@@ -1688,7 +1712,7 @@ flushExposures(PuglWorld* const world)
 static bool
 handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 {
-#ifdef HAVE_XSYNC
+#if USE_XSYNC
   if (xevent.type == world->impl->syncEventBase + XSyncAlarmNotify) {
     const XSyncAlarmNotifyEvent* const notify =
       ((const XSyncAlarmNotifyEvent*)&xevent);
@@ -2117,7 +2141,7 @@ puglSetClipboard(PuglView* const   view,
 PuglStatus
 puglSetCursor(PuglView* const view, const PuglCursor cursor)
 {
-#ifdef HAVE_XCURSOR
+#if USE_XCURSOR
   PuglInternals* const impl  = view->impl;
   const unsigned       index = (unsigned)cursor;
   const unsigned       count = sizeof(cursorNames) / sizeof(cursorNames[0]);
