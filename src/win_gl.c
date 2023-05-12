@@ -261,25 +261,20 @@ puglWinGlEnter(PuglView* view, const PuglExposeEvent* expose)
     return PUGL_FAILURE;
   }
 
+  const PuglStatus st = puglWinEnter(view, expose);
   wglMakeCurrent(view->impl->hdc, surface->hglrc);
-
-  if (expose) {
-    BeginPaint(view->impl->hwnd, &view->impl->paint);
-  }
-
-  return PUGL_SUCCESS;
+  return st;
 }
 
 static PuglStatus
 puglWinGlLeave(PuglView* view, const PuglExposeEvent* expose)
 {
   if (expose) {
-    EndPaint(view->impl->hwnd, &view->impl->paint);
     SwapBuffers(view->impl->hdc);
   }
 
   wglMakeCurrent(NULL, NULL);
-  return PUGL_SUCCESS;
+  return puglWinLeave(view, expose);
 }
 
 PuglGlFunc

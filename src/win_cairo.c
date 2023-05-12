@@ -108,7 +108,7 @@ puglWinCairoEnter(PuglView* view, const PuglExposeEvent* expose)
 
   if (expose && !(st = puglWinCairoCreateDrawContext(view)) &&
       !(st = puglWinCairoOpen(view))) {
-    BeginPaint(view->impl->hwnd, &view->impl->paint);
+    st = puglWinEnter(view, expose);
   }
 
   return st;
@@ -134,11 +134,9 @@ puglWinCairoLeave(PuglView* view, const PuglExposeEvent* expose)
 
     puglWinCairoClose(view);
     puglWinCairoDestroyDrawContext(view);
-
-    EndPaint(view->impl->hwnd, &view->impl->paint);
   }
 
-  return PUGL_SUCCESS;
+  return puglWinLeave(view, expose);
 }
 
 static void*
