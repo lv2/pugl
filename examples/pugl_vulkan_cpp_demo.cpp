@@ -52,6 +52,11 @@ namespace {
 
 constexpr uintptr_t resizeTimerId = 1U;
 
+enum class RenderMode {
+  normal,
+  resizing,
+};
+
 struct PhysicalDeviceSelection {
   sk::PhysicalDevice physicalDevice;
   uint32_t           graphicsFamilyIndex;
@@ -103,7 +108,7 @@ struct Swapchain {
                 VkSurfaceCapabilitiesKHR capabilities,
                 VkExtent2D               extent,
                 VkSwapchainKHR           oldSwapchain,
-                bool                     resizing);
+                RenderMode               mode);
 
   VkSurfaceCapabilitiesKHR   capabilities{};
   VkExtent2D                 extent{};
@@ -187,15 +192,14 @@ struct Renderer {
                 const RectData&       rectData,
                 const RectShaders&    rectShaders,
                 VkExtent2D            extent,
-                bool                  resizing);
+                RenderMode            mode);
 
   VkResult recreate(const sk::VulkanApi&  vk,
-                    const sk::SurfaceKHR& surface,
                     const GraphicsDevice& gpu,
                     const RectData&       rectData,
                     const RectShaders&    rectShaders,
                     VkExtent2D            extent,
-                    bool                  resizing);
+                    RenderMode            mode);
 
   Swapchain    swapchain;
   RenderPass   renderPass;
@@ -548,7 +552,7 @@ Swapchain::init(const sk::VulkanApi&           vk,
                 const VkSurfaceCapabilitiesKHR surfaceCapabilities,
                 const VkExtent2D               surfaceExtent,
                 VkSwapchainKHR                 oldSwapchain,
-                bool                           resizing)
+                RenderMode                     mode)
 {
   capabilities = surfaceCapabilities;
   extent       = surfaceExtent;
@@ -573,7 +577,7 @@ Swapchain::init(const sk::VulkanApi&           vk,
     SK_COUNTED(0, nullptr),
     capabilities.currentTransform,
     VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
-    resizing ? gpu.resizePresentMode : gpu.presentMode,
+    mode == RenderMode::resizing ? gpu.resizePresentMode : gpu.presentMode,
     VK_TRUE,
     oldSwapchain};
 
@@ -1110,14 +1114,14 @@ Renderer::init(const sk::VulkanApi&  vk,
                const RectData&       rectData,
                const RectShaders&    rectShaders,
                const VkExtent2D      extent,
-               bool                  resizing)
+               RenderMode            mode)
 {
   VkResult                 r            = VK_SUCCESS;
   VkSurfaceCapabilitiesKHR capabilities = {};
 
   if ((r = vk.getPhysicalDeviceSurfaceCapabilitiesKHR(
          gpu.physicalDevice, gpu.surface, capabilities)) ||
-      (r = swapchain.init(vk, gpu, capabilities, extent, {}, resizing)) ||
+      (r = swapchain.init(vk, gpu, capabilities, extent, {}, mode)) ||
       (r = renderPass.init(vk, gpu, swapchain)) ||
       (r = rectPipeline.init(
          vk, gpu, rectData, rectShaders, swapchain, renderPass))) {
@@ -1128,29 +1132,55 @@ Renderer::init(const sk::VulkanApi&  vk,
   return sync.init(vk, gpu.device, numFrames);
 }
 
+VkExtent2D
+clampExtent(const VkExtent2D& extent,
+            const VkExtent2D& minExtent,
+            const VkExtent2D& maxExtent)
+{
+  return {
+    std::min(maxExtent.width, std::max(minExtent.width, extent.width)),
+    std::min(maxExtent.height, std::max(minExtent.height, extent.height)),
+  };
+}
+
 VkResult
 Renderer::recreate(const sk::VulkanApi&  vk,
-                   const sk::SurfaceKHR& surface,
                    const GraphicsDevice& gpu,
                    const RectData&       rectData,
                    const RectShaders&    rectShaders,
                    const VkExtent2D      extent,
-                   bool                  resizing)
+                   const RenderMode      mode)
 {
-  VkResult   r            = VK_SUCCESS;
-  const auto oldNumImages = swapchain.imageViews.size();
+  // Wait for the GPU to become idle before anything else
+  VkResult r = VK_SUCCESS;
+  if ((r = vk.deviceWaitIdle(gpu.device))) {
+    return r;
+  }
 
+  // Get the surface capabilities (for the size)
   VkSurfaceCapabilitiesKHR capabilities = {};
   if ((r = vk.getPhysicalDeviceSurfaceCapabilitiesKHR(
-         gpu.physicalDevice, surface, capabilities)) ||
-      (r = swapchain.init(
-         vk, gpu, capabilities, extent, swapchain.swapchain, resizing)) ||
+         gpu.physicalDevice, gpu.surface, capabilities))) {
+    return r;
+  }
+
+  // Rebuild the swapchain and renderer
+  const auto oldNumImages = swapchain.imageViews.size();
+  const auto minExtent    = capabilities.minImageExtent;
+  const auto maxExtent    = capabilities.maxImageExtent;
+  if ((r = swapchain.init(vk,
+                          gpu,
+                          capabilities,
+                          clampExtent(extent, minExtent, maxExtent),
+                          swapchain.swapchain,
+                          mode)) ||
       (r = renderPass.init(vk, gpu, swapchain)) ||
       (r = rectPipeline.init(
          vk, gpu, rectData, rectShaders, swapchain, renderPass))) {
     return r;
   }
 
+  // Initialize synchronization primitives if necessary
   const auto numFrames = static_cast<uint32_t>(swapchain.imageViews.size());
   if (swapchain.imageViews.size() != oldNumImages) {
     return sync.init(vk, gpu.device, numFrames);
@@ -1427,7 +1457,7 @@ public:
   std::vector<Rect>  rects;
   double             mouseX{0.0};
   double             mouseY{0.0};
-  bool               resizing{false};
+  RenderMode         mode{RenderMode::normal};
   bool               quit{false};
 };
 
@@ -1454,48 +1484,28 @@ PuglVulkanDemo::PuglVulkanDemo(const char* const      executablePath,
 {}
 
 VkResult
-recreateRenderer(PuglVulkanDemo&       app,
-                 const sk::VulkanApi&  vk,
-                 const GraphicsDevice& gpu,
-                 const VkExtent2D      extent,
-                 const RectData&       rectData,
-                 const RectShaders&    rectShaders)
+recreateRenderer(PuglVulkanDemo& app)
 {
-  VkResult                 r            = VK_SUCCESS;
-  VkSurfaceCapabilitiesKHR capabilities = {};
-  if ((r = vk.getPhysicalDeviceSurfaceCapabilitiesKHR(
-         gpu.physicalDevice, gpu.surface, capabilities))) {
-    return r;
-  }
+  const auto& vk       = app.vulkan.vk;
+  auto&       renderer = app.renderer;
 
-  // There is a known race issue here, so we clamp and hope for the best
-  const VkExtent2D clampedExtent{
-    std::min(capabilities.maxImageExtent.width,
-             std::max(capabilities.minImageExtent.width, extent.width)),
-    std::min(capabilities.maxImageExtent.height,
-             std::max(capabilities.minImageExtent.height, extent.height))};
-
-  if ((r = vk.deviceWaitIdle(gpu.device)) ||
-      (r = app.renderer.recreate(vk,
-                                 gpu.surface,
-                                 gpu,
-                                 rectData,
-                                 rectShaders,
-                                 clampedExtent,
-                                 app.resizing))) {
+  // Recreate the renderer
+  VkResult r = VK_SUCCESS;
+  if ((r = renderer.recreate(
+         vk, app.gpu, app.rectData, app.rectShaders, app.extent, app.mode))) {
     return r;
   }
 
   // Reset current (initially signaled) fence because we already waited
-  vk.resetFence(gpu.device,
-                app.renderer.sync.inFlight[app.renderer.sync.currentFrame]);
+  vk.resetFence(app.gpu.device,
+                renderer.sync.inFlight[renderer.sync.currentFrame]);
 
   // Record new command buffers
   return recordCommandBuffers(vk,
-                              app.renderer.swapchain,
-                              app.renderer.renderPass,
-                              app.renderer.rectPipeline,
-                              rectData);
+                              renderer.swapchain,
+                              renderer.renderPass,
+                              renderer.rectPipeline,
+                              app.rectData);
 }
 
 pugl::Status
@@ -1505,7 +1515,9 @@ View::onEvent(const pugl::ConfigureEvent& event)
   _app.extent = {static_cast<uint32_t>(event.width),
                  static_cast<uint32_t>(event.height)};
 
-  _app.resizing = event.style & PUGL_VIEW_STYLE_RESIZING;
+  _app.mode = (event.style & PUGL_VIEW_STYLE_RESIZING) ? RenderMode::resizing
+                                                       : RenderMode::normal;
+
   return pugl::Status::success;
 }
 
@@ -1516,46 +1528,39 @@ View::onEvent(const pugl::UpdateEvent&)
 }
 
 VkResult
-beginFrame(PuglVulkanDemo& app, const sk::Device& device, uint32_t& imageIndex)
+beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
 {
-  const auto& vk = app.vulkan.vk;
+  const auto& vk           = app.vulkan.vk;
+  auto&       renderer     = app.renderer;
+  const auto  currentFrame = app.renderer.sync.currentFrame;
+  VkResult    r            = VK_SUCCESS;
 
-  VkResult r = VK_SUCCESS;
-
-  // Wait until we can start rendering the next frame
-  if ((r = vk.waitForFence(
-         device, app.renderer.sync.inFlight[app.renderer.sync.currentFrame])) ||
-      (r = vk.resetFence(
-         device, app.renderer.sync.inFlight[app.renderer.sync.currentFrame]))) {
+  // Wait until we can start rendering this frame
+  auto& inFlight = renderer.sync.inFlight[currentFrame];
+  if ((r = vk.waitForFence(app.gpu.device, inFlight)) ||
+      (r = vk.resetFence(app.gpu.device, inFlight))) {
     return r;
   }
 
-  // Rebuild the renderer first if the window size has changed
-  if (app.extent.width != app.renderer.swapchain.extent.width ||
-      app.extent.height != app.renderer.swapchain.extent.height) {
-    if ((r = recreateRenderer(
-           app, vk, app.gpu, app.extent, app.rectData, app.rectShaders))) {
+  // Rebuild the renderer if the window size has changed
+  const auto extent = renderer.swapchain.extent;
+  if (app.extent.width != extent.width || app.extent.height != extent.height) {
+    if ((r = recreateRenderer(app))) {
       return r;
     }
   }
 
   // Acquire the next image to render, rebuilding if necessary
-  while ((r = vk.acquireNextImageKHR(
-            device,
-            app.renderer.swapchain.swapchain,
-            UINT64_MAX,
-            app.renderer.sync.imageAvailable[app.renderer.sync.currentFrame],
-            {},
-            &imageIndex))) {
+  while ((r = vk.acquireNextImageKHR(app.gpu.device,
+                                     renderer.swapchain.swapchain,
+                                     UINT64_MAX,
+                                     renderer.sync.imageAvailable[currentFrame],
+                                     {},
+                                     &imageIndex))) {
     switch (r) {
     case VK_SUBOPTIMAL_KHR:
     case VK_ERROR_OUT_OF_DATE_KHR:
-      if ((r = recreateRenderer(app,
-                                vk,
-                                app.gpu,
-                                app.renderer.swapchain.extent,
-                                app.rectData,
-                                app.rectShaders))) {
+      if ((r = recreateRenderer(app))) {
         return r;
       }
       continue;
@@ -1624,13 +1629,17 @@ update(PuglVulkanDemo& app, const double time)
 }
 
 VkResult
-endFrame(const sk::VulkanApi&  vk,
-         const GraphicsDevice& gpu,
-         const Renderer&       renderer,
-         const uint32_t        imageIndex)
+endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
 {
-  const auto currentFrame = renderer.sync.currentFrame;
-  VkResult   r            = VK_SUCCESS;
+  const sk::VulkanApi&  vk       = app.vulkan.vk;
+  const GraphicsDevice& gpu      = app.gpu;
+  const Renderer&       renderer = app.renderer;
+
+  const auto  currentFrame   = renderer.sync.currentFrame;
+  const auto& inFlight       = renderer.sync.inFlight[currentFrame];
+  const auto& imageAvailable = renderer.sync.imageAvailable[currentFrame];
+  const auto& renderFinished = renderer.sync.renderFinished[imageIndex];
+  VkResult    r              = VK_SUCCESS;
 
   static constexpr VkPipelineStageFlags waitStage =
     VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -1638,21 +1647,19 @@ endFrame(const sk::VulkanApi&  vk,
   const VkSubmitInfo submitInfo{
     VK_STRUCTURE_TYPE_SUBMIT_INFO,
     nullptr,
-    SK_COUNTED(1, &renderer.sync.imageAvailable[currentFrame].get()),
+    SK_COUNTED(1, &imageAvailable.get()),
     &waitStage,
     SK_COUNTED(1, &renderer.renderPass.commandBuffers[imageIndex]),
-    SK_COUNTED(1, &renderer.sync.renderFinished[imageIndex].get())};
+    SK_COUNTED(1, &renderFinished.get())};
 
-  if ((r = vk.queueSubmit(gpu.graphicsQueue,
-                          submitInfo,
-                          renderer.sync.inFlight[currentFrame]))) {
+  if ((r = vk.queueSubmit(gpu.graphicsQueue, submitInfo, inFlight))) {
     return r;
   }
 
   const VkPresentInfoKHR presentInfo{
     VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
     nullptr,
-    SK_COUNTED(1, &renderer.sync.renderFinished[imageIndex].get()),
+    SK_COUNTED(1, &renderFinished.get()),
     SK_COUNTED(1, &renderer.swapchain.swapchain.get(), &imageIndex),
     nullptr};
 
@@ -1671,12 +1678,9 @@ endFrame(const sk::VulkanApi&  vk,
 pugl::Status
 View::onEvent(const pugl::ExposeEvent&)
 {
-  const auto& vk  = _app.vulkan.vk;
-  const auto& gpu = _app.gpu;
-
   // Acquire the next image, waiting and/or rebuilding if necessary
   auto nextImageIndex = 0U;
-  if (beginFrame(_app, gpu.device, nextImageIndex)) {
+  if (beginFrame(_app, nextImageIndex)) {
     return pugl::Status::unknownError;
   }
 
@@ -1684,7 +1688,7 @@ View::onEvent(const pugl::ExposeEvent&)
   update(_app, world().time());
 
   // Submit the frame to the queue and present it
-  endFrame(vk, gpu, _app.renderer, nextImageIndex);
+  endFrame(_app, nextImageIndex);
 
   // Update frame counters
   ++_app.framesDrawn;
@@ -1824,7 +1828,7 @@ run(const char* const      programPath,
                              app.rectData,
                              app.rectShaders,
                              app.extent,
-                             false))) {
+                             RenderMode::normal))) {
     return logError("Failed to create renderer (%s)\n", sk::string(r));
   }
 
