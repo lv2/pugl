@@ -10,8 +10,19 @@ conf_py = configure_file(
   output: 'conf.py',
 )
 
-configure_file(copy: true, input: '../deployment.rst', output: 'deployment.rst')
-configure_file(copy: true, input: '../summary.rst', output: 'summary.rst')
+deployment_rst = configure_file(
+  copy: true,
+  input: '../deployment.rst',
+  output: 'deployment.rst',
+)
+
+summary_rst = configure_file(
+  copy: true,
+  input: '../summary.rst',
+  output: 'summary.rst',
+)
+
+copied_rst_files = [deployment_rst, summary_rst]
 
 c_rst_files = files(
   'index.rst',
@@ -36,7 +47,7 @@ docs = custom_target(
   build_by_default: true,
   command: [sphinx_build, '-M', 'singlehtml', '@OUTDIR@', '@OUTDIR@',
             '-E', '-q', '-t', 'singlehtml'],
-  input: [c_rst_files, c_pugl_rst, c_index_xml],
+  input: [c_rst_files, copied_rst_files, c_pugl_rst, c_index_xml],
   install: true,
   install_dir: docdir / 'pugl-0',
   output: 'singlehtml',
@@ -47,7 +58,7 @@ docs = custom_target(
   build_by_default: true,
   command: [sphinx_build, '-M', 'html', '@OUTDIR@', '@OUTDIR@',
             '-E', '-q', '-t', 'html'],
-  input: [c_rst_files, c_pugl_rst, c_index_xml],
+  input: [c_rst_files, copied_rst_files, c_pugl_rst, c_index_xml],
   install: true,
   install_dir: docdir / 'pugl-0',
   output: 'html',
