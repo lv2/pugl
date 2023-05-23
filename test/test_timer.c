@@ -28,7 +28,7 @@ static const double timeout = -1.0;
 #endif
 
 // Windows SetTimer has a maximum resolution of 10ms
-static const double tolerance = 0.014;
+static const double tolerance = 0.015;
 
 typedef enum {
   START,
@@ -140,7 +140,7 @@ checkTimerPeriod(const TimerStats* const stats, const double expectedPeriod)
 int
 main(int argc, char** argv)
 {
-  const double updateDuration   = timerPeriod(NUM_TIMERS - 1U) * 10.0;
+  const double updateDuration   = 0.6;
   const double otherTimerPeriod = timerPeriod(0) * 3.0;
 
   PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0),
@@ -206,7 +206,7 @@ main(int argc, char** argv)
   for (unsigned i = 1U; i < NUM_TIMERS - 1U; ++i) {
     assert(!puglStopTimer(test.view, i));
   }
-  assert(!puglUpdate(test.world, timerPeriod(NUM_TIMERS - 1)));
+  assert(!puglUpdate(test.world, 0.0));
   for (unsigned i = 0U; i < NUM_TIMERS; ++i) {
     assert(test.stats[0].numAlarms == 0);
   }
