@@ -341,10 +341,12 @@ typedef struct {
    mapping used here is arbitrary and specific to Pugl.
 */
 typedef enum {
-  // ASCII control codes
+  // ASCII codes commonly mapped to keys
   PUGL_KEY_BACKSPACE = 0x08,
+  PUGL_KEY_ENTER     = 0x0D,
   PUGL_KEY_ESCAPE    = 0x1B,
   PUGL_KEY_DELETE    = 0x7F,
+  PUGL_KEY_SPACE     = 0x20,
 
   // Unicode Private Use Area
   PUGL_KEY_F1 = 0xE000,
