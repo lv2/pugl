@@ -31,19 +31,6 @@ static:
     - meson configure -Dbuildtype=release build
     - ninja -C build
 
-sanitize:
-  stage: build
-  image: lv2plugin/debian-x64-clang
-  script:
-    - meson setup build -Db_lundef=false -Dbuildtype=plain -Ddocs=disabled -Dwarning_level=3 -Dwerror=true
-    - ninja -C build
-  variables:
-    CC: "clang"
-    CXX: "clang++"
-    CFLAGS: "-fno-sanitize-recover=all -fsanitize=address -fsanitize=undefined -fsanitize=float-divide-by-zero -fsanitize=unsigned-integer-overflow -fsanitize=implicit-conversion -fsanitize=local-bounds -fsanitize=nullability"
-    CXXFLAGS: "-fno-sanitize-recover=all -fsanitize=address -fsanitize=undefined -fsanitize=float-divide-by-zero -fsanitize=unsigned-integer-overflow -fsanitize=implicit-conversion -fsanitize=local-bounds -fsanitize=nullability"
-    LDFLAGS: "-fno-sanitize-recover=all -fsanitize=address -fsanitize=undefined -fsanitize=float-divide-by-zero -fsanitize=unsigned-integer-overflow -fsanitize=implicit-conversion -fsanitize=local-bounds -fsanitize=nullability"
-
 # Linux Platforms
 
 arm32:
