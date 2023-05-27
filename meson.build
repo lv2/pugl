@@ -169,23 +169,27 @@ else # X11
   x11_dep = cc.find_library('X11')
   core_args += '-D_POSIX_C_SOURCE=200809L'
 
-  xcursor_dep = cc.find_library('Xcursor', required: false)
+  xcursor_dep = cc.find_library('Xcursor', required: get_option('xcursor'))
   if xcursor_dep.found()
     core_args += ['-DUSE_XCURSOR=1']
   endif
 
-  xrandr_dep = cc.find_library('Xrandr', required: false)
+  xrandr_dep = cc.find_library('Xrandr', required: get_option('xrandr'))
   if xrandr_dep.found()
     core_args += ['-DUSE_XRANDR=1']
   endif
 
-  xext_dep = cc.find_library('Xext', required: false)
+  use_xsync = false
+  xext_dep = cc.find_library('Xext', required: get_option('xsync'))
   if xext_dep.found()
     xsync_fragment = '''#include <X11/Xlib.h>
       #include <X11/extensions/sync.h>
       int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }'''
     if cc.compiles(xsync_fragment, name: 'Xsync')
       core_args += ['-DUSE_XSYNC=1']
+      use_xsync = true
+    elif get_option('xsync') == 'enabled'
+      error('C header <X11/extensions/sync.h> not found')
     endif
   endif
 
@@ -479,22 +483,61 @@ else
 endif
 
 if meson.version().version_compare('>=0.53.0')
-  summary('Platform', platform)
+  summary(
+    {
+      'Platform': platform,
+    },
+    section: 'Configuration',
+  )
 
-  summary('Cairo', cairo_dep.found(), section: 'Backends', bool_yn: true)
-  summary('OpenGL', opengl_dep.found(), section: 'Backends', bool_yn: true)
-  summary('Stub', get_option('stub'), section: 'Backends', bool_yn: true)
-  summary('Vulkan', vulkan_dep.found(), section: 'Backends', bool_yn: true)
+  if platform == 'x11'
+    summary(
+      {
+        'Cursor support (XCursor)': xcursor_dep.found(),
+        'Refresh rate support (XRandR)': xrandr_dep.found(),
+        'Timer support (XSync)': use_xsync,
+      },
+      bool_yn: true,
+      section: 'Configuration',
+    )
+  endif
 
-  summary('Tests', not get_option('tests').disabled(), bool_yn: true)
-  summary('Examples', not get_option('examples').disabled(), bool_yn: true)
-  summary('Documentation', build_docs, bool_yn: true)
+  summary(
+    {
+      'Cairo': cairo_dep.found(),
+      'OpenGL': opengl_dep.found(),
+      'Stub': get_option('stub'),
+      'Vulkan': vulkan_dep.found(),
+    },
+    bool_yn: true,
+    section: 'Backends',
+  )
 
-  summary('Prefix', get_option('prefix'), section: 'Paths')
-  summary('Headers', get_option('prefix') / get_option('includedir'), section: 'Paths')
-  summary('Libraries', get_option('prefix') / get_option('libdir'), section: 'Paths')
+  summary(
+    {
+      'Tests': not get_option('tests').disabled(),
+      'Examples': not get_option('examples').disabled(),
+      'Documentation': build_docs,
+    },
+    bool_yn: true,
+    section: 'Components',
+  )
+
+  summary(
+    {
+      'Install prefix': get_option('prefix'),
+      'Headers': get_option('prefix') / get_option('includedir'),
+      'Libraries': get_option('prefix') / get_option('libdir'),
+    },
+    section: 'Directories',
+  )
 
   if not get_option('examples').disabled()
-    summary('Executables', get_option('prefix') / get_option('bindir'), section: 'Paths')
+    summary(
+      {
+        'Executables': get_option('prefix') / get_option('bindir'),
+      },
+      section: 'Directories',
+    )
   endif
 endif

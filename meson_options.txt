@@ -27,3 +27,12 @@ option('tests', type: 'feature', value: 'auto', yield: true,
 
 option('vulkan', type: 'feature', value: 'auto',
        description: 'Enable support for the Vulkan graphics API')
+
+option('xcursor', type: 'feature', value: 'auto',
+       description: 'Support changing the cursor on X11')
+
+option('xrandr', type: 'feature', value: 'auto',
+       description: 'Support accessing the refresh rate on X11')
+
+option('xsync', type: 'feature', value: 'auto',
+       description: 'Support timers on X11')
