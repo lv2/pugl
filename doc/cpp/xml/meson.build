@@ -1,11 +1,6 @@
 # Copyright 2021 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
-cpp_doxygen_input = []
-foreach h : c_headers + cpp_headers
-  cpp_doxygen_input += ['..' / h]
-endforeach
-
 config = configuration_data()
 config.set('PUGL_SRCDIR', pugl_src_root)
 config.set('DOX_OUTPUT', meson.current_build_dir() / '..')
