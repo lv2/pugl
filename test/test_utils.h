@@ -121,6 +121,96 @@ viewStyleFlagString(const PuglViewStyleFlag state)
   return "unknown";
 }
 
+static inline const char*
+keyString(const uint32_t key)
+{
+  switch (key) {
+  case PUGL_KEY_BACKSPACE:
+    return "BACKSPACE";
+  case PUGL_KEY_ENTER:
+    return "ENTER";
+  case PUGL_KEY_ESCAPE:
+    return "ESCAPE";
+  case PUGL_KEY_DELETE:
+    return "DELETE";
+  case PUGL_KEY_SPACE:
+    return "SPACE";
+
+  case PUGL_KEY_F1:
+    return "F1";
+  case PUGL_KEY_F2:
+    return "F2";
+  case PUGL_KEY_F3:
+    return "F3";
+  case PUGL_KEY_F4:
+    return "F4";
+  case PUGL_KEY_F5:
+    return "F5";
+  case PUGL_KEY_F6:
+    return "F6";
+  case PUGL_KEY_F7:
+    return "F7";
+  case PUGL_KEY_F8:
+    return "F8";
+  case PUGL_KEY_F9:
+    return "F9";
+  case PUGL_KEY_F10:
+    return "F10";
+  case PUGL_KEY_F11:
+    return "F11";
+  case PUGL_KEY_F12:
+    return "F12";
+  case PUGL_KEY_LEFT:
+    return "LEFT";
+  case PUGL_KEY_UP:
+    return "UP";
+  case PUGL_KEY_RIGHT:
+    return "RIGHT";
+  case PUGL_KEY_DOWN:
+    return "DOWN";
+  case PUGL_KEY_PAGE_UP:
+    return "PAGE_UP";
+  case PUGL_KEY_PAGE_DOWN:
+    return "PAGE_DOWN";
+  case PUGL_KEY_HOME:
+    return "HOME";
+  case PUGL_KEY_END:
+    return "END";
+  case PUGL_KEY_INSERT:
+    return "INSERT";
+  case PUGL_KEY_SHIFT_L:
+    return "SHIFT_L";
+  case PUGL_KEY_SHIFT_R:
+    return "SHIFT_R";
+  case PUGL_KEY_CTRL_L:
+    return "CTRL_L";
+  case PUGL_KEY_CTRL_R:
+    return "CTRL_R";
+  case PUGL_KEY_ALT_L:
+    return "ALT_L";
+  case PUGL_KEY_ALT_R:
+    return "ALT_R";
+  case PUGL_KEY_SUPER_L:
+    return "SUPER_L";
+  case PUGL_KEY_SUPER_R:
+    return "SUPER_R";
+  case PUGL_KEY_MENU:
+    return "MENU";
+  case PUGL_KEY_CAPS_LOCK:
+    return "CAPS_LOCK";
+  case PUGL_KEY_SCROLL_LOCK:
+    return "SCROLL_LOCK";
+  case PUGL_KEY_NUM_LOCK:
+    return "NUM_LOCK";
+  case PUGL_KEY_PRINT_SCREEN:
+    return "PRINT_SCREEN";
+  case PUGL_KEY_PAUSE:
+    return "PAUSE";
+  }
+
+  return "";
+}
+
 static inline int
 printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 {
@@ -138,15 +228,17 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
   case PUGL_UNREALIZE:
     return fprintf(stderr, "%sUnrealize\n", prefix);
   case PUGL_KEY_PRESS:
-    return PRINT("%sKey press   code %3u key  U+%04X\n",
+    return PRINT("%sKey press   code %3u key  U+%04X (%s)\n",
                  prefix,
                  event->key.keycode,
-                 event->key.key);
+                 event->key.key,
+                 keyString(event->key.key));
   case PUGL_KEY_RELEASE:
-    return PRINT("%sKey release code %3u key  U+%04X\n",
+    return PRINT("%sKey release code %3u key  U+%04X (%s)\n",
                  prefix,
                  event->key.keycode,
-                 event->key.key);
+                 event->key.key,
+                 keyString(event->key.key));
   case PUGL_TEXT:
     return PRINT("%sText entry  code %3u char U+%04X (%s)\n",
                  prefix,
