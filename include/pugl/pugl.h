@@ -75,7 +75,7 @@ typedef enum {
      realized views), which is used for things like loading configuration, or
      custom window management rules.
   */
-  PUGL_CLASS_NAME = 1,
+  PUGL_CLASS_NAME = 1U,
 
   /**
      The title of the window or application.
@@ -134,8 +134,8 @@ typedef enum {
 
 /// Common flags for all event types
 typedef enum {
-  PUGL_IS_SEND_EVENT = 1, ///< Event is synthetic
-  PUGL_IS_HINT       = 2  ///< Event is a hint (not direct user input)
+  PUGL_IS_SEND_EVENT = 1U << 0U, ///< Event is synthetic
+  PUGL_IS_HINT       = 1U << 1U, ///< Event is a hint (not direct user input)
 } PuglEventFlag;
 
 /// Bitwise OR of #PuglEventFlag values
@@ -342,14 +342,14 @@ typedef struct {
 */
 typedef enum {
   // ASCII codes commonly mapped to keys
-  PUGL_KEY_BACKSPACE = 0x08,
-  PUGL_KEY_ENTER     = 0x0D,
-  PUGL_KEY_ESCAPE    = 0x1B,
-  PUGL_KEY_DELETE    = 0x7F,
-  PUGL_KEY_SPACE     = 0x20,
+  PUGL_KEY_BACKSPACE = 0x08U,
+  PUGL_KEY_ENTER     = 0x0DU,
+  PUGL_KEY_ESCAPE    = 0x1BU,
+  PUGL_KEY_DELETE    = 0x7FU,
+  PUGL_KEY_SPACE     = 0x20U,
 
   // Unicode Private Use Area
-  PUGL_KEY_F1 = 0xE000,
+  PUGL_KEY_F1 = 0xE000U,
   PUGL_KEY_F2,
   PUGL_KEY_F3,
   PUGL_KEY_F4,
