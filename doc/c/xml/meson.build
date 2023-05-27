@@ -14,6 +14,6 @@ c_doxyfile = configure_file(
 c_index_xml = custom_target(
   'c-index.xml',
   command: [doxygen, '@INPUT0@'],
-  input: [c_doxyfile] + c_header_files,
+  input: [c_doxyfile] + c_headers,
   output: 'index.xml',
 )

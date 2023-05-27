@@ -14,7 +14,7 @@ cpp_doxyfile = configure_file(
 cpp_index_xml = custom_target(
   'cpp-index.xml',
   command: [doxygen, '@INPUT0@'],
-  input: [cpp_doxyfile] + c_header_files + cpp_header_files,
+  input: [cpp_doxyfile] + c_headers + cpp_headers,
   output: 'index.xml',
 )
 
