@@ -470,9 +470,10 @@ defineCursorName(PuglView* const view, const char* const name)
   Display* const       display = world->impl->display;
 
   // Load cursor theme
-  char* const theme = XcursorGetTheme(display);
+  const char* theme = XcursorGetTheme(display);
   if (!theme) {
-    return PUGL_FAILURE;
+    // If that fails (like on Linux Mint 21.1), "default" usually works
+    theme = "default";
   }
 
   // Get the default size and cursor image from it
