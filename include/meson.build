@@ -7,6 +7,7 @@ c_headers = [
 
   'pugl/cairo.h',
   'pugl/gl.h',
+  'pugl/glu.h',
   'pugl/stub.h',
   'pugl/vulkan.h',
 ]

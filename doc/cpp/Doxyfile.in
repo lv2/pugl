@@ -41,6 +41,7 @@ INPUT                  = @PUGL_SRCDIR@/include/pugl/attributes.h \
                          @PUGL_SRCDIR@/include/pugl/pugl.h \
                          @PUGL_SRCDIR@/include/pugl/cairo.h \
                          @PUGL_SRCDIR@/include/pugl/gl.h \
+                         @PUGL_SRCDIR@/include/pugl/glu.h \
                          @PUGL_SRCDIR@/include/pugl/stub.h \
                          @PUGL_SRCDIR@/include/pugl/vulkan.h \
                          @PUGL_SRCDIR@/bindings/cpp/include/pugl/pugl.hpp \

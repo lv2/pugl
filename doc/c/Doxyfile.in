@@ -33,9 +33,10 @@ PREDEFINED             = PUGL_API \
 RECURSIVE              = NO
 STRIP_FROM_PATH        = @PUGL_SRCDIR@
 INPUT                  = @PUGL_SRCDIR@/include/pugl/attributes.h \
-                         @PUGL_SRCDIR@/include/pugl/pugl.h \
                          @PUGL_SRCDIR@/include/pugl/cairo.h \
                          @PUGL_SRCDIR@/include/pugl/gl.h \
+                         @PUGL_SRCDIR@/include/pugl/glu.h \
+                         @PUGL_SRCDIR@/include/pugl/pugl.h \
                          @PUGL_SRCDIR@/include/pugl/stub.h \
                          @PUGL_SRCDIR@/include/pugl/vulkan.h
 

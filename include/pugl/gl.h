@@ -22,17 +22,6 @@
 #  endif
 #endif
 
-#ifndef PUGL_NO_INCLUDE_GLU_H
-#  ifdef __APPLE__
-#    include <OpenGL/glu.h>
-#  else
-#    ifdef _WIN32
-#      include <windows.h>
-#    endif
-#    include <GL/glu.h>
-#  endif
-#endif
-
 // IWYU pragma: end_exports
 
 PUGL_BEGIN_DECLS
