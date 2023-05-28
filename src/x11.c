@@ -810,47 +810,48 @@ puglFreeWorldInternals(PuglWorld* const world)
 }
 
 static PuglKey
+keyInRange(const KeySym  xSym,
+           const KeySym  xMin,
+           const KeySym  xMax,
+           const PuglKey puglMin)
+{
+  return (xSym >= xMin && xSym <= xMax) ? (PuglKey)(puglMin + (xSym - xMin))
+                                        : (PuglKey)0;
+}
+
+static PuglKey
 keySymToSpecial(const KeySym sym)
 {
+  PuglKey key = (PuglKey)0;
+  if ((key = keyInRange(sym, XK_F1, XK_F12, PUGL_KEY_F1)) ||
+      (key = keyInRange(sym, XK_Page_Up, XK_End, PUGL_KEY_PAGE_UP)) ||
+      (key = keyInRange(sym, XK_Home, XK_Down, PUGL_KEY_HOME)) ||
+      (key = keyInRange(sym, XK_Shift_L, XK_Control_R, PUGL_KEY_SHIFT_L)) ||
+      (key = keyInRange(sym, XK_Alt_L, XK_Super_R, PUGL_KEY_ALT_L)) ||
+      (key = keyInRange(sym, XK_KP_Home, XK_KP_Down, PUGL_KEY_PAD_HOME)) ||
+      (key = keyInRange(sym, XK_KP_0, XK_KP_9, PUGL_KEY_PAD_0)) ||
+      (key = keyInRange(sym, XK_KP_Begin, XK_KP_Delete, PUGL_KEY_PAD_CLEAR)) ||
+      (key = keyInRange(
+         sym, XK_KP_Multiply, XK_KP_Divide, PUGL_KEY_PAD_MULTIPLY))) {
+    return key;
+  }
+
   // clang-format off
   switch (sym) {
-  case XK_F1:               return PUGL_KEY_F1;
-  case XK_F2:               return PUGL_KEY_F2;
-  case XK_F3:               return PUGL_KEY_F3;
-  case XK_F4:               return PUGL_KEY_F4;
-  case XK_F5:               return PUGL_KEY_F5;
-  case XK_F6:               return PUGL_KEY_F6;
-  case XK_F7:               return PUGL_KEY_F7;
-  case XK_F8:               return PUGL_KEY_F8;
-  case XK_F9:               return PUGL_KEY_F9;
-  case XK_F10:              return PUGL_KEY_F10;
-  case XK_F11:              return PUGL_KEY_F11;
-  case XK_F12:              return PUGL_KEY_F12;
-  case XK_Left:             return PUGL_KEY_LEFT;
-  case XK_Up:               return PUGL_KEY_UP;
-  case XK_Right:            return PUGL_KEY_RIGHT;
-  case XK_Down:             return PUGL_KEY_DOWN;
-  case XK_Page_Up:          return PUGL_KEY_PAGE_UP;
-  case XK_Page_Down:        return PUGL_KEY_PAGE_DOWN;
-  case XK_Home:             return PUGL_KEY_HOME;
-  case XK_End:              return PUGL_KEY_END;
-  case XK_Insert:           return PUGL_KEY_INSERT;
-  case XK_Shift_L:          return PUGL_KEY_SHIFT_L;
-  case XK_Shift_R:          return PUGL_KEY_SHIFT_R;
-  case XK_Control_L:        return PUGL_KEY_CTRL_L;
-  case XK_Control_R:        return PUGL_KEY_CTRL_R;
-  case XK_Alt_L:            return PUGL_KEY_ALT_L;
-  case XK_ISO_Level3_Shift:
-  case XK_Alt_R:            return PUGL_KEY_ALT_R;
-  case XK_Super_L:          return PUGL_KEY_SUPER_L;
-  case XK_Super_R:          return PUGL_KEY_SUPER_R;
-  case XK_Menu:             return PUGL_KEY_MENU;
-  case XK_Caps_Lock:        return PUGL_KEY_CAPS_LOCK;
-  case XK_Scroll_Lock:      return PUGL_KEY_SCROLL_LOCK;
-  case XK_Num_Lock:         return PUGL_KEY_NUM_LOCK;
-  case XK_Print:            return PUGL_KEY_PRINT_SCREEN;
+  case XK_ISO_Level3_Shift: return PUGL_KEY_ALT_R;
   case XK_Pause:            return PUGL_KEY_PAUSE;
-  default:                  break;
+  case XK_Scroll_Lock:      return PUGL_KEY_SCROLL_LOCK;
+  case XK_Print:            return PUGL_KEY_PRINT_SCREEN;
+  case XK_Insert:           return PUGL_KEY_INSERT;
+  case XK_Menu:             return PUGL_KEY_MENU;
+  case XK_Num_Lock:         return PUGL_KEY_NUM_LOCK;
+  case XK_KP_Enter:         return PUGL_KEY_PAD_ENTER;
+  case XK_KP_Page_Up:       return PUGL_KEY_PAD_PAGE_UP;
+  case XK_KP_Page_Down:     return PUGL_KEY_PAD_PAGE_DOWN;
+  case XK_KP_End:           return PUGL_KEY_PAD_END;
+  case XK_KP_Equal:         return PUGL_KEY_PAD_CLEAR;
+  case XK_Caps_Lock:        return PUGL_KEY_CAPS_LOCK;
+  default: break;
   }
   // clang-format on
 
@@ -878,7 +879,9 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
   const bool     filter = XFilterEvent(xevent, None);
 
   event->key.keycode = xevent->xkey.keycode;
-  xevent->xkey.state = 0;
+
+  // Mask off the shift bit to get the lowercase "main" symbol
+  xevent->xkey.state = xevent->xkey.state & ~(unsigned)ShiftMask;
 
   // Lookup unshifted key
   char          ustr[8] = {0};

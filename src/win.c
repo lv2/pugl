@@ -403,42 +403,35 @@ puglFreeWorldInternals(PuglWorld* world)
 }
 
 static PuglKey
+keyInRange(const WPARAM  winSym,
+           const WPARAM  winMin,
+           const WPARAM  winMax,
+           const PuglKey puglMin)
+{
+  return (winSym >= winMin && winSym <= winMax)
+           ? (PuglKey)(puglMin + (winSym - winMin))
+           : (PuglKey)0;
+}
+
+static PuglKey
 keySymToSpecial(const WPARAM sym, const bool ext)
 {
+  PuglKey key = (PuglKey)0;
+  if ((key = keyInRange(sym, VK_F1, VK_F12, PUGL_KEY_F1)) ||
+      (key = keyInRange(sym,
+                        VK_PRIOR,
+                        VK_DOWN,
+                        ext ? PUGL_KEY_PAGE_UP : PUGL_KEY_PAD_PAGE_UP)) ||
+      (key = keyInRange(sym, VK_NUMPAD0, VK_NUMPAD9, PUGL_KEY_PAD_0)) ||
+      (key = keyInRange(sym, VK_MULTIPLY, VK_DIVIDE, PUGL_KEY_PAD_MULTIPLY)) ||
+      (key = keyInRange(sym, VK_LSHIFT, VK_RMENU, PUGL_KEY_SHIFT_L))) {
+    return key;
+  }
+
   // clang-format off
   switch (sym) {
-  case VK_F1:       return PUGL_KEY_F1;
-  case VK_F2:       return PUGL_KEY_F2;
-  case VK_F3:       return PUGL_KEY_F3;
-  case VK_F4:       return PUGL_KEY_F4;
-  case VK_F5:       return PUGL_KEY_F5;
-  case VK_F6:       return PUGL_KEY_F6;
-  case VK_F7:       return PUGL_KEY_F7;
-  case VK_F8:       return PUGL_KEY_F8;
-  case VK_F9:       return PUGL_KEY_F9;
-  case VK_F10:      return PUGL_KEY_F10;
-  case VK_F11:      return PUGL_KEY_F11;
-  case VK_F12:      return PUGL_KEY_F12;
   case VK_BACK:     return PUGL_KEY_BACKSPACE;
-  case VK_DELETE:   return PUGL_KEY_DELETE;
-  case VK_LEFT:     return PUGL_KEY_LEFT;
-  case VK_UP:       return PUGL_KEY_UP;
-  case VK_RIGHT:    return PUGL_KEY_RIGHT;
-  case VK_DOWN:     return PUGL_KEY_DOWN;
-  case VK_PRIOR:    return PUGL_KEY_PAGE_UP;
-  case VK_NEXT:     return PUGL_KEY_PAGE_DOWN;
-  case VK_HOME:     return PUGL_KEY_HOME;
-  case VK_END:      return PUGL_KEY_END;
-  case VK_INSERT:   return PUGL_KEY_INSERT;
-  case VK_SHIFT:    return ext ? PUGL_KEY_SHIFT_L : PUGL_KEY_SHIFT_R;
-  case VK_LSHIFT:   return PUGL_KEY_SHIFT_L;
-  case VK_RSHIFT:   return PUGL_KEY_SHIFT_R;
-  case VK_CONTROL:  return ext ? PUGL_KEY_CTRL_L : PUGL_KEY_CTRL_R;
-  case VK_LCONTROL: return PUGL_KEY_CTRL_L;
-  case VK_RCONTROL: return PUGL_KEY_CTRL_R;
-  case VK_MENU:     return ext ? PUGL_KEY_ALT_L : PUGL_KEY_ALT_R;
-  case VK_LMENU:    return PUGL_KEY_ALT_L;
-  case VK_RMENU:    return PUGL_KEY_ALT_R;
+  case VK_CLEAR:    return PUGL_KEY_PAD_CLEAR;
   case VK_LWIN:     return PUGL_KEY_SUPER_L;
   case VK_RWIN:     return PUGL_KEY_SUPER_R;
   case VK_CAPITAL:  return PUGL_KEY_CAPS_LOCK;
@@ -448,6 +441,29 @@ keySymToSpecial(const WPARAM sym, const bool ext)
   case VK_PAUSE:    return PUGL_KEY_PAUSE;
   }
   // clang-format on
+
+  if (ext) {
+    // clang-format off
+    switch (sym) {
+    case VK_RETURN:  return PUGL_KEY_PAD_ENTER;
+    case VK_INSERT:  return PUGL_KEY_INSERT;
+    case VK_DELETE:  return PUGL_KEY_DELETE;
+    case VK_SHIFT:   return PUGL_KEY_SHIFT_L;
+    case VK_CONTROL: return PUGL_KEY_CTRL_L;
+    case VK_MENU:    return PUGL_KEY_ALT_L;
+    }
+    // clang-format on
+  } else {
+    // clang-format off
+    switch (sym) {
+    case VK_INSERT:  return PUGL_KEY_PAD_INSERT;
+    case VK_DELETE:  return PUGL_KEY_PAD_DELETE;
+    case VK_SHIFT:   return PUGL_KEY_SHIFT_R;
+    case VK_CONTROL: return PUGL_KEY_CTRL_R;
+    case VK_MENU:    return PUGL_KEY_ALT_R;
+    }
+    // clang-format on
+  }
 
   return (PuglKey)0;
 }
@@ -561,13 +577,9 @@ initKeyEvent(PuglKeyEvent* event,
   event->keycode = (uint32_t)((lParam & 0xFF0000) >> 16);
   event->key     = 0;
 
-  const PuglKey special = keySymToSpecial(vkey);
+  const PuglKey special = keySymToSpecial(vkey, ext);
   if (special) {
-    if (ext && (special == PUGL_KEY_CTRL_L || special == PUGL_KEY_ALT_L)) {
-      event->key = (uint32_t)special + 1U; // Right hand key
-    } else {
-      event->key = (uint32_t)special;
-    }
+    event->key = (uint32_t)special;
   } else if (!dead) {
     // Translate unshifted key
     BYTE    keyboardState[256] = PUGL_INIT_STRUCT;

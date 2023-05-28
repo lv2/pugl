@@ -379,31 +379,12 @@ keySymToSpecial(const NSEvent* const ev)
 {
   NSString* chars = [ev charactersIgnoringModifiers];
   if ([chars length] == 1) {
-    switch ([chars characterAtIndex:0]) {
-    case NSF1FunctionKey:
-      return PUGL_KEY_F1;
-    case NSF2FunctionKey:
-      return PUGL_KEY_F2;
-    case NSF3FunctionKey:
-      return PUGL_KEY_F3;
-    case NSF4FunctionKey:
-      return PUGL_KEY_F4;
-    case NSF5FunctionKey:
-      return PUGL_KEY_F5;
-    case NSF6FunctionKey:
-      return PUGL_KEY_F6;
-    case NSF7FunctionKey:
-      return PUGL_KEY_F7;
-    case NSF8FunctionKey:
-      return PUGL_KEY_F8;
-    case NSF9FunctionKey:
-      return PUGL_KEY_F9;
-    case NSF10FunctionKey:
-      return PUGL_KEY_F10;
-    case NSF11FunctionKey:
-      return PUGL_KEY_F11;
-    case NSF12FunctionKey:
-      return PUGL_KEY_F12;
+    const unichar sym = [chars characterAtIndex:0];
+    if (sym >= NSF1FunctionKey && sym <= NSF12FunctionKey) {
+      return (PuglKey)(PUGL_KEY_F1 + (sym - NSF1FunctionKey));
+    }
+
+    switch (sym) {
     case NSDeleteCharacter:
       return PUGL_KEY_BACKSPACE;
     case NSDeleteFunctionKey:
@@ -439,6 +420,44 @@ keySymToSpecial(const NSEvent* const ev)
     }
     // SHIFT, CTRL, ALT, and SUPER are handled in [flagsChanged]
   }
+
+  switch ([ev keyCode]) {
+  case 0x41:
+    return PUGL_KEY_PAD_DECIMAL;
+  case 0x43:
+    return PUGL_KEY_PAD_MULTIPLY;
+  case 0x45:
+    return PUGL_KEY_PAD_ADD;
+  case 0x4B:
+    return PUGL_KEY_PAD_DIVIDE;
+  case 0x4C:
+    return PUGL_KEY_PAD_ENTER;
+  case 0x4E:
+    return PUGL_KEY_PAD_SUBTRACT;
+  case 0x51:
+    return PUGL_KEY_PAD_EQUAL;
+  case 0x52:
+    return PUGL_KEY_PAD_0;
+  case 0x53:
+    return PUGL_KEY_PAD_1;
+  case 0x54:
+    return PUGL_KEY_PAD_2;
+  case 0x55:
+    return PUGL_KEY_PAD_3;
+  case 0x56:
+    return PUGL_KEY_PAD_4;
+  case 0x57:
+    return PUGL_KEY_PAD_5;
+  case 0x58:
+    return PUGL_KEY_PAD_6;
+  case 0x59:
+    return PUGL_KEY_PAD_7;
+  case 0x5B:
+    return PUGL_KEY_PAD_8;
+  case 0x5C:
+    return PUGL_KEY_PAD_9;
+  }
+
   return (PuglKey)0;
 }
 

@@ -358,16 +358,22 @@ typedef enum {
   PUGL_KEY_F10,                     ///< F10
   PUGL_KEY_F11,                     ///< F11
   PUGL_KEY_F12,                     ///< F12
+  PUGL_KEY_PAGE_UP = 0xE031,        ///< Page Up
+  PUGL_KEY_PAGE_DOWN,               ///< Page Down
+  PUGL_KEY_END,                     ///< End
+  PUGL_KEY_HOME,                    ///< Home
   PUGL_KEY_LEFT,                    ///< Left
   PUGL_KEY_UP,                      ///< Up
   PUGL_KEY_RIGHT,                   ///< Right
   PUGL_KEY_DOWN,                    ///< Down
-  PUGL_KEY_PAGE_UP,                 ///< Page Up
-  PUGL_KEY_PAGE_DOWN,               ///< Page Down
-  PUGL_KEY_HOME,                    ///< Home
-  PUGL_KEY_END,                     ///< End
+  PUGL_KEY_PRINT_SCREEN = 0xE041U,  ///< Print Screen
   PUGL_KEY_INSERT,                  ///< Insert
-  PUGL_KEY_SHIFT_L,                 ///< Left Shift
+  PUGL_KEY_PAUSE,                   ///< Pause/Break
+  PUGL_KEY_MENU,                    ///< Menu
+  PUGL_KEY_NUM_LOCK,                ///< Num Lock
+  PUGL_KEY_SCROLL_LOCK,             ///< Scroll Lock
+  PUGL_KEY_CAPS_LOCK,               ///< Caps Lock
+  PUGL_KEY_SHIFT_L = 0xE051U,       ///< Left Shift
   PUGL_KEY_SHIFT_R,                 ///< Right Shift
   PUGL_KEY_CTRL_L,                  ///< Left Control
   PUGL_KEY_CTRL_R,                  ///< Right Control
@@ -375,12 +381,35 @@ typedef enum {
   PUGL_KEY_ALT_R,                   ///< Right Alt / AltGr
   PUGL_KEY_SUPER_L,                 ///< Left Super
   PUGL_KEY_SUPER_R,                 ///< Right Super
-  PUGL_KEY_MENU,                    ///< Menu
-  PUGL_KEY_CAPS_LOCK,               ///< Caps Lock
-  PUGL_KEY_SCROLL_LOCK,             ///< Scroll Lock
-  PUGL_KEY_NUM_LOCK,                ///< Num Lock
-  PUGL_KEY_PRINT_SCREEN,            ///< Print Screen
-  PUGL_KEY_PAUSE                    ///< Pause
+  PUGL_KEY_PAD_0 = 0xE060U,         ///< Keypad 0
+  PUGL_KEY_PAD_1,                   ///< Keypad 1
+  PUGL_KEY_PAD_2,                   ///< Keypad 2
+  PUGL_KEY_PAD_3,                   ///< Keypad 3
+  PUGL_KEY_PAD_4,                   ///< Keypad 4
+  PUGL_KEY_PAD_5,                   ///< Keypad 5
+  PUGL_KEY_PAD_6,                   ///< Keypad 6
+  PUGL_KEY_PAD_7,                   ///< Keypad 7
+  PUGL_KEY_PAD_8,                   ///< Keypad 8
+  PUGL_KEY_PAD_9,                   ///< Keypad 9
+  PUGL_KEY_PAD_ENTER,               ///< Keypad Enter
+  PUGL_KEY_PAD_PAGE_UP = 0xE071U,   ///< Keypad Page Up
+  PUGL_KEY_PAD_PAGE_DOWN,           ///< Keypad Page Down
+  PUGL_KEY_PAD_END,                 ///< Keypad End
+  PUGL_KEY_PAD_HOME,                ///< Keypad Home
+  PUGL_KEY_PAD_LEFT,                ///< Keypad Left
+  PUGL_KEY_PAD_UP,                  ///< Keypad Up
+  PUGL_KEY_PAD_RIGHT,               ///< Keypad Right
+  PUGL_KEY_PAD_DOWN,                ///< Keypad Down
+  PUGL_KEY_PAD_CLEAR = 0xE09DU,     ///< Keypad Clear/Begin
+  PUGL_KEY_PAD_INSERT,              ///< Keypad Insert
+  PUGL_KEY_PAD_DELETE,              ///< Keypad Delete
+  PUGL_KEY_PAD_EQUAL,               ///< Keypad Equal
+  PUGL_KEY_PAD_MULTIPLY = 0xE0AAU,  ///< Keypad Multiply
+  PUGL_KEY_PAD_ADD,                 ///< Keypad Add
+  PUGL_KEY_PAD_SEPARATOR,           ///< Keypad Separator
+  PUGL_KEY_PAD_SUBTRACT,            ///< Keypad Subtract
+  PUGL_KEY_PAD_DECIMAL,             ///< Keypad Decimal
+  PUGL_KEY_PAD_DIVIDE,              ///< Keypad Divide
 } PuglKey;
 
 /// Keyboard modifier flags

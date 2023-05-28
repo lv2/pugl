@@ -160,6 +160,15 @@ keyString(const uint32_t key)
     return "F11";
   case PUGL_KEY_F12:
     return "F12";
+
+  case PUGL_KEY_PAGE_UP:
+    return "PAGE_UP";
+  case PUGL_KEY_PAGE_DOWN:
+    return "PAGE_DOWN";
+  case PUGL_KEY_END:
+    return "END";
+  case PUGL_KEY_HOME:
+    return "HOME";
   case PUGL_KEY_LEFT:
     return "LEFT";
   case PUGL_KEY_UP:
@@ -168,16 +177,22 @@ keyString(const uint32_t key)
     return "RIGHT";
   case PUGL_KEY_DOWN:
     return "DOWN";
-  case PUGL_KEY_PAGE_UP:
-    return "PAGE_UP";
-  case PUGL_KEY_PAGE_DOWN:
-    return "PAGE_DOWN";
-  case PUGL_KEY_HOME:
-    return "HOME";
-  case PUGL_KEY_END:
-    return "END";
+
+  case PUGL_KEY_PRINT_SCREEN:
+    return "PRINT_SCREEN";
   case PUGL_KEY_INSERT:
     return "INSERT";
+  case PUGL_KEY_PAUSE:
+    return "PAUSE";
+  case PUGL_KEY_MENU:
+    return "MENU";
+  case PUGL_KEY_NUM_LOCK:
+    return "NUM_LOCK";
+  case PUGL_KEY_SCROLL_LOCK:
+    return "SCROLL_LOCK";
+  case PUGL_KEY_CAPS_LOCK:
+    return "CAPS_LOCK";
+
   case PUGL_KEY_SHIFT_L:
     return "SHIFT_L";
   case PUGL_KEY_SHIFT_R:
@@ -194,18 +209,68 @@ keyString(const uint32_t key)
     return "SUPER_L";
   case PUGL_KEY_SUPER_R:
     return "SUPER_R";
-  case PUGL_KEY_MENU:
-    return "MENU";
-  case PUGL_KEY_CAPS_LOCK:
-    return "CAPS_LOCK";
-  case PUGL_KEY_SCROLL_LOCK:
-    return "SCROLL_LOCK";
-  case PUGL_KEY_NUM_LOCK:
-    return "NUM_LOCK";
-  case PUGL_KEY_PRINT_SCREEN:
-    return "PRINT_SCREEN";
-  case PUGL_KEY_PAUSE:
-    return "PAUSE";
+
+  case PUGL_KEY_PAD_0:
+    return "PAD_0";
+  case PUGL_KEY_PAD_1:
+    return "PAD_1";
+  case PUGL_KEY_PAD_2:
+    return "PAD_2";
+  case PUGL_KEY_PAD_3:
+    return "PAD_3";
+  case PUGL_KEY_PAD_4:
+    return "PAD_4";
+  case PUGL_KEY_PAD_5:
+    return "PAD_5";
+  case PUGL_KEY_PAD_6:
+    return "PAD_6";
+  case PUGL_KEY_PAD_7:
+    return "PAD_7";
+  case PUGL_KEY_PAD_8:
+    return "PAD_8";
+  case PUGL_KEY_PAD_9:
+    return "PAD_9";
+  case PUGL_KEY_PAD_ENTER:
+    return "PAD_ENTER";
+
+  case PUGL_KEY_PAD_PAGE_UP:
+    return "PAD_PAGE_UP";
+  case PUGL_KEY_PAD_PAGE_DOWN:
+    return "PAD_PAGE_DOWN";
+  case PUGL_KEY_PAD_END:
+    return "PAD_END";
+  case PUGL_KEY_PAD_HOME:
+    return "PAD_HOME";
+  case PUGL_KEY_PAD_LEFT:
+    return "PAD_LEFT";
+  case PUGL_KEY_PAD_UP:
+    return "PAD_UP";
+  case PUGL_KEY_PAD_RIGHT:
+    return "PAD_RIGHT";
+  case PUGL_KEY_PAD_DOWN:
+    return "PAD_DOWN";
+
+  case PUGL_KEY_PAD_CLEAR:
+    return "PAD_CLEAR";
+  case PUGL_KEY_PAD_INSERT:
+    return "PAD_INSERT";
+  case PUGL_KEY_PAD_DELETE:
+    return "PAD_DELETE";
+  case PUGL_KEY_PAD_EQUAL:
+    return "PAD_EQUAL";
+
+  case PUGL_KEY_PAD_MULTIPLY:
+    return "PAD_MULTIPLY";
+  case PUGL_KEY_PAD_ADD:
+    return "PAD_ADD";
+  case PUGL_KEY_PAD_SEPARATOR:
+    return "PAD_SEPARATOR";
+  case PUGL_KEY_PAD_SUBTRACT:
+    return "PAD_SUBTRACT";
+  case PUGL_KEY_PAD_DECIMAL:
+    return "PAD_DECIMAL";
+  case PUGL_KEY_PAD_DIVIDE:
+    return "PAD_DIVIDE";
   }
 
   return "";
