@@ -403,7 +403,7 @@ puglFreeWorldInternals(PuglWorld* world)
 }
 
 static PuglKey
-keySymToSpecial(WPARAM sym)
+keySymToSpecial(const WPARAM sym, const bool ext)
 {
   // clang-format off
   switch (sym) {
@@ -430,13 +430,13 @@ keySymToSpecial(WPARAM sym)
   case VK_HOME:     return PUGL_KEY_HOME;
   case VK_END:      return PUGL_KEY_END;
   case VK_INSERT:   return PUGL_KEY_INSERT;
-  case VK_SHIFT:
+  case VK_SHIFT:    return ext ? PUGL_KEY_SHIFT_L : PUGL_KEY_SHIFT_R;
   case VK_LSHIFT:   return PUGL_KEY_SHIFT_L;
   case VK_RSHIFT:   return PUGL_KEY_SHIFT_R;
-  case VK_CONTROL:
+  case VK_CONTROL:  return ext ? PUGL_KEY_CTRL_L : PUGL_KEY_CTRL_R;
   case VK_LCONTROL: return PUGL_KEY_CTRL_L;
   case VK_RCONTROL: return PUGL_KEY_CTRL_R;
-  case VK_MENU:
+  case VK_MENU:     return ext ? PUGL_KEY_ALT_L : PUGL_KEY_ALT_R;
   case VK_LMENU:    return PUGL_KEY_ALT_L;
   case VK_RMENU:    return PUGL_KEY_ALT_R;
   case VK_LWIN:     return PUGL_KEY_SUPER_L;
@@ -563,7 +563,7 @@ initKeyEvent(PuglKeyEvent* event,
 
   const PuglKey special = keySymToSpecial(vkey);
   if (special) {
-    if (ext && (special == PUGL_KEY_CTRL || special == PUGL_KEY_ALT)) {
+    if (ext && (special == PUGL_KEY_CTRL_L || special == PUGL_KEY_ALT_L)) {
       event->key = (uint32_t)special + 1U; // Right hand key
     } else {
       event->key = (uint32_t)special;

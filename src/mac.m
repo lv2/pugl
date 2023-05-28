@@ -825,17 +825,17 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
   if ((mods & PUGL_MOD_SHIFT) != (puglview->impl->mods & PUGL_MOD_SHIFT)) {
     type    = mods & PUGL_MOD_SHIFT ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-    special = PUGL_KEY_SHIFT;
+    special = PUGL_KEY_SHIFT_L;
   } else if ((mods & PUGL_MOD_CTRL) != (puglview->impl->mods & PUGL_MOD_CTRL)) {
     type    = mods & PUGL_MOD_CTRL ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-    special = PUGL_KEY_CTRL;
+    special = PUGL_KEY_CTRL_L;
   } else if ((mods & PUGL_MOD_ALT) != (puglview->impl->mods & PUGL_MOD_ALT)) {
     type    = mods & PUGL_MOD_ALT ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-    special = PUGL_KEY_ALT;
+    special = PUGL_KEY_ALT_L;
   } else if ((mods & PUGL_MOD_SUPER) !=
              (puglview->impl->mods & PUGL_MOD_SUPER)) {
     type    = mods & PUGL_MOD_SUPER ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-    special = PUGL_KEY_SUPER;
+    special = PUGL_KEY_SUPER_L;
   }
 
   if (special != 0) {
