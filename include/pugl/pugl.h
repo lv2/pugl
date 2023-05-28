@@ -341,49 +341,46 @@ typedef struct {
    mapping used here is arbitrary and specific to Pugl.
 */
 typedef enum {
-  // ASCII codes commonly mapped to keys
-  PUGL_KEY_BACKSPACE = 0x08U,
-  PUGL_KEY_ENTER     = 0x0DU,
-  PUGL_KEY_ESCAPE    = 0x1BU,
-  PUGL_KEY_DELETE    = 0x7FU,
-  PUGL_KEY_SPACE     = 0x20U,
-
-  // Unicode Private Use Area
-  PUGL_KEY_F1 = 0xE000U,
-  PUGL_KEY_F2,
-  PUGL_KEY_F3,
-  PUGL_KEY_F4,
-  PUGL_KEY_F5,
-  PUGL_KEY_F6,
-  PUGL_KEY_F7,
-  PUGL_KEY_F8,
-  PUGL_KEY_F9,
-  PUGL_KEY_F10,
-  PUGL_KEY_F11,
-  PUGL_KEY_F12,
-  PUGL_KEY_LEFT,
-  PUGL_KEY_UP,
-  PUGL_KEY_RIGHT,
-  PUGL_KEY_DOWN,
-  PUGL_KEY_PAGE_UP,
-  PUGL_KEY_PAGE_DOWN,
-  PUGL_KEY_HOME,
-  PUGL_KEY_END,
-  PUGL_KEY_INSERT,
-  PUGL_KEY_SHIFT_L,
-  PUGL_KEY_SHIFT_R,
-  PUGL_KEY_CTRL_L,
-  PUGL_KEY_CTRL_R,
-  PUGL_KEY_ALT_L,
-  PUGL_KEY_ALT_R,
-  PUGL_KEY_SUPER_L,
-  PUGL_KEY_SUPER_R,
-  PUGL_KEY_MENU,
-  PUGL_KEY_CAPS_LOCK,
-  PUGL_KEY_SCROLL_LOCK,
-  PUGL_KEY_NUM_LOCK,
-  PUGL_KEY_PRINT_SCREEN,
-  PUGL_KEY_PAUSE
+  PUGL_KEY_BACKSPACE = 0x00000008U, ///< Backspace
+  PUGL_KEY_ENTER     = 0x0000000DU, ///< Enter
+  PUGL_KEY_ESCAPE    = 0x0000001BU, ///< Escape
+  PUGL_KEY_DELETE    = 0x0000007FU, ///< Delete
+  PUGL_KEY_SPACE     = 0x00000020U, ///< Space
+  PUGL_KEY_F1        = 0x0000E000U, ///< F1
+  PUGL_KEY_F2,                      ///< F2
+  PUGL_KEY_F3,                      ///< F3
+  PUGL_KEY_F4,                      ///< F4
+  PUGL_KEY_F5,                      ///< F5
+  PUGL_KEY_F6,                      ///< F6
+  PUGL_KEY_F7,                      ///< F7
+  PUGL_KEY_F8,                      ///< F8
+  PUGL_KEY_F9,                      ///< F9
+  PUGL_KEY_F10,                     ///< F10
+  PUGL_KEY_F11,                     ///< F11
+  PUGL_KEY_F12,                     ///< F12
+  PUGL_KEY_LEFT,                    ///< Left
+  PUGL_KEY_UP,                      ///< Up
+  PUGL_KEY_RIGHT,                   ///< Right
+  PUGL_KEY_DOWN,                    ///< Down
+  PUGL_KEY_PAGE_UP,                 ///< Page Up
+  PUGL_KEY_PAGE_DOWN,               ///< Page Down
+  PUGL_KEY_HOME,                    ///< Home
+  PUGL_KEY_END,                     ///< End
+  PUGL_KEY_INSERT,                  ///< Insert
+  PUGL_KEY_SHIFT_L,                 ///< Left Shift
+  PUGL_KEY_SHIFT_R,                 ///< Right Shift
+  PUGL_KEY_CTRL_L,                  ///< Left Control
+  PUGL_KEY_CTRL_R,                  ///< Right Control
+  PUGL_KEY_ALT_L,                   ///< Left Alt
+  PUGL_KEY_ALT_R,                   ///< Right Alt / AltGr
+  PUGL_KEY_SUPER_L,                 ///< Left Super
+  PUGL_KEY_SUPER_R,                 ///< Right Super
+  PUGL_KEY_MENU,                    ///< Menu
+  PUGL_KEY_CAPS_LOCK,               ///< Caps Lock
+  PUGL_KEY_SCROLL_LOCK,             ///< Scroll Lock
+  PUGL_KEY_NUM_LOCK,                ///< Num Lock
+  PUGL_KEY_PRINT_SCREEN,            ///< Print Screen
+  PUGL_KEY_PAUSE                    ///< Pause
 } PuglKey;
 
 /// Keyboard modifier flags
