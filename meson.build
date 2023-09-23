@@ -57,8 +57,9 @@ add_project_arguments(
 core_args = []
 dl_dep = cc.find_library('dl', required: false)
 
-# MacOS
 if host_machine.system() == 'darwin'
+  # MacOS
+
   framework_deps = dependency(
     'appleframeworks',
     modules: ['foundation', 'corevideo'],
@@ -80,8 +81,9 @@ if host_machine.system() == 'darwin'
   add_project_arguments(platform_suppressions, language: mac_languages)
   add_project_link_arguments(['-Wl,-framework,Cocoa'], language: mac_languages)
 
-# Windows
 elif host_machine.system() == 'windows'
+  # Windows
+
   if get_option('default_library') == 'both'
     error('default_library=both is not supported on Windows')
   endif
@@ -165,7 +167,8 @@ elif host_machine.system() == 'windows'
   extension = '.c'
   soversion = ''
 
-else # X11
+else
+  # X11
   x11_dep = cc.find_library('X11')
   core_args += '-D_POSIX_C_SOURCE=200809L'
 

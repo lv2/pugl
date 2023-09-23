@@ -3,11 +3,10 @@
 
 c_headers = files(
   'pugl/attributes.h',
-  'pugl/pugl.h',
-
   'pugl/cairo.h',
   'pugl/gl.h',
   'pugl/glu.h',
+  'pugl/pugl.h',
   'pugl/stub.h',
   'pugl/vulkan.h',
 )

@@ -59,9 +59,7 @@ basic_tests = [
   'world',
 ]
 
-cairo_tests = [
-  'cairo'
-]
+cairo_tests = ['cairo']
 
 gl_tests = [
   'gl',
@@ -69,9 +67,7 @@ gl_tests = [
   'gl_hints',
 ]
 
-vulkan_tests = [
-  'vulkan'
-]
+vulkan_tests = ['vulkan']
 
 includes = [
   '.',
@@ -188,8 +184,7 @@ if host_machine.system() == 'darwin'
     ]
   endif
 
-  unified_args += objcpp.get_supported_arguments(
-    test_cpp_args + objcpp_args)
+  unified_args += objcpp.get_supported_arguments(test_cpp_args + objcpp_args)
 
   test(
     'inline_objcpp',

@@ -25,14 +25,14 @@ summary_rst = configure_file(
 copied_rst_files = [deployment_rst, summary_rst]
 
 c_rst_files = files(
+  'clipboards.rst',
+  'event-loop.rst',
+  'events.rst',
   'index.rst',
   'overview.rst',
-  'world.rst',
+  'shutting-down.rst',
   'view.rst',
-  'events.rst',
-  'event-loop.rst',
-  'clipboards.rst',
-  'shutting-down.rst'
+  'world.rst',
 )
 
 foreach f : c_rst_files
@@ -45,8 +45,15 @@ subdir('api')
 docs = custom_target(
   'singlehtml',
   build_by_default: true,
-  command: [sphinx_build, '-M', 'singlehtml', '@OUTDIR@', '@OUTDIR@',
-            '-E', '-q', '-t', 'singlehtml'],
+  command: [
+    sphinx_build,
+    '-M', 'singlehtml',
+    '@OUTDIR@',
+    '@OUTDIR@',
+    '-E',
+    '-q',
+    '-t', 'singlehtml',
+  ],
   input: [c_rst_files, copied_rst_files, c_pugl_rst, c_index_xml],
   install: true,
   install_dir: docdir / 'pugl-0',
@@ -56,8 +63,15 @@ docs = custom_target(
 docs = custom_target(
   'html',
   build_by_default: true,
-  command: [sphinx_build, '-M', 'html', '@OUTDIR@', '@OUTDIR@',
-            '-E', '-q', '-t', 'html'],
+  command: [
+    sphinx_build,
+    '-M', 'html',
+    '@OUTDIR@',
+    '@OUTDIR@',
+    '-E',
+    '-q',
+    '-t', 'html',
+  ],
   input: [c_rst_files, copied_rst_files, c_pugl_rst, c_index_xml],
   install: true,
   install_dir: docdir / 'pugl-0',

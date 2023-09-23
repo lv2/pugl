@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: 0BSD OR ISC
 
 cpp_headers = files(
-  'pugl/pugl.hpp',
-
   'pugl/cairo.hpp',
   'pugl/gl.hpp',
+  'pugl/pugl.hpp',
   'pugl/stub.hpp',
   'pugl/vulkan.hpp',
 )

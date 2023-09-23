@@ -14,12 +14,12 @@ configure_file(copy: true, input: '../deployment.rst', output: 'deployment.rst')
 configure_file(copy: true, input: '../summary.rst', output: 'summary.rst')
 
 cpp_rst_files = files(
+  'event-loop.rst',
+  'events.rst',
   'index.rst',
   'overview.rst',
-  'world.rst',
   'view.rst',
-  'events.rst',
-  'event-loop.rst',
+  'world.rst',
 )
 
 foreach f : cpp_rst_files
@@ -32,8 +32,15 @@ subdir('api')
 docs = custom_target(
   'singlehtml',
   build_by_default: true,
-  command: [sphinx_build, '-M', 'singlehtml', '@OUTDIR@', '@OUTDIR@',
-            '-E', '-q', '-t', 'singlehtml'],
+  command: [
+    sphinx_build,
+    '-M', 'singlehtml',
+    '@OUTDIR@',
+    '@OUTDIR@',
+    '-E',
+    '-q',
+    '-t', 'singlehtml',
+  ],
   input: [cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
   install: true,
   install_dir: docdir / 'puglpp-0',
@@ -42,8 +49,15 @@ docs = custom_target(
 
 docs = custom_target(
   'html',
-  command: [sphinx_build, '-M', 'html', '@OUTDIR@', '@OUTDIR@',
-            '-E', '-q', '-t', 'html'],
+  command: [
+    sphinx_build,
+    '-M', 'html',
+    '@OUTDIR@',
+    '@OUTDIR@',
+    '-E',
+    '-q',
+    '-t', 'html',
+  ],
   build_by_default: true,
   input: [cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
   install: true,

@@ -72,9 +72,9 @@ if get_option('warning_level') == 'everything' and is_variable('cpp')
     ]
   elif cpp.get_id() == 'msvc'
     example_cpp_args += [
-        '/wd4355', # 'this' used in base member initializer list
-        '/wd4868', # may not enforce left-to-right evaluation order
-        '/wd5246', # subobject initialization should be wrapped in braces
+      '/wd4355', # 'this' used in base member initializer list
+      '/wd4868', # may not enforce left-to-right evaluation order
+      '/wd5246', # subobject initialization should be wrapped in braces
     ]
   endif
 
