@@ -893,6 +893,41 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
     ((special || ufound <= 0) ? special
                               : (PuglKey)puglDecodeUTF8((const uint8_t*)ustr));
 
+  // make behaviour consistent across platforms by reporting *current* state
+  switch (special)
+  {
+  case PUGL_KEY_SHIFT_L:
+  case PUGL_KEY_SHIFT_R:
+    if (event->type == PUGL_KEY_PRESS)
+      event->key.state |= PUGL_MOD_SHIFT;
+    else
+      event->key.state &= ~PUGL_MOD_SHIFT;
+    break;
+  case PUGL_KEY_CTRL_L:
+  case PUGL_KEY_CTRL_R:
+    if (event->type == PUGL_KEY_PRESS)
+      event->key.state |= PUGL_MOD_CTRL;
+    else
+      event->key.state &= ~PUGL_MOD_CTRL;
+    break;
+  case PUGL_KEY_ALT_L:
+  case PUGL_KEY_ALT_R:
+    if (event->type == PUGL_KEY_PRESS)
+      event->key.state |= PUGL_MOD_ALT;
+    else
+      event->key.state &= ~PUGL_MOD_ALT;
+    break;
+  case PUGL_KEY_SUPER_L:
+  case PUGL_KEY_SUPER_R:
+    if (event->type == PUGL_KEY_PRESS)
+      event->key.state |= PUGL_MOD_SUPER;
+    else
+      event->key.state &= ~PUGL_MOD_SUPER;
+    break;
+  default:
+    break;
+  }
+
   if (xevent->type == KeyPress && !filter && !special && view->impl->xic) {
     // Lookup shifted key for possible text event
     xevent->xkey.state = state;
