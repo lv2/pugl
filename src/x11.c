@@ -96,6 +96,7 @@ static const char* const cursorNames[PUGL_NUM_CURSORS] = {
   "size_fdiag",        // UP_LEFT_DOWN_RIGHT
   "size_bdiag",        // UP_RIGHT_DOWN_LEFT
   "all-scroll",        // ALL_SCROLL
+  "none"               // HIDE CURSOR
 };
 #endif
 
@@ -462,6 +463,22 @@ updateSizeHints(const PuglView* const view)
 }
 
 #if USE_XCURSOR
+static void
+hideCursor(Display *display, Window win)
+{
+  Cursor invisibleCursor;
+  Pixmap bitmapNoData;
+  XColor black;
+  static char noData[] = { 0,0,0,0,0,0,0,0 };
+  black.red = black.green = black.blue = 0;
+
+  bitmapNoData = XCreateBitmapFromData(display, win, noData, 8, 8);
+  invisibleCursor = XCreatePixmapCursor(display, bitmapNoData, bitmapNoData, &black, &black, 0, 0);
+  XDefineCursor(display, win, invisibleCursor);
+  XFreeCursor(display, invisibleCursor);
+  XFreePixmap(display, bitmapNoData);
+}
+
 static PuglStatus
 defineCursorName(PuglView* const view, const char* const name)
 {
@@ -469,6 +486,10 @@ defineCursorName(PuglView* const view, const char* const name)
   PuglWorld* const     world   = view->world;
   Display* const       display = world->impl->display;
 
+  if (strcmp(name, "none") == 0) {
+    hideCursor(display, impl->win);
+    return PUGL_SUCCESS;
+  }
   // Load cursor theme
   const char* theme = XcursorGetTheme(display);
   if (!theme) {
@@ -2174,6 +2195,12 @@ puglSetCursor(PuglView* const view, const PuglCursor cursor)
   (void)cursor;
   return PUGL_FAILURE;
 #endif
+}
+
+void
+puglSetCursorPos(PuglView* const view, double x, double y)
+{
+  XWarpPointer(view->world->impl->display, None, view->impl->win, 0, 0, 0, 0, lrint (x), lrint (y));
 }
 
 // Semi-public platform API used by backends
