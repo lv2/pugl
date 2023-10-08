@@ -194,6 +194,7 @@ if is_variable('objcc')
   if warning_level == 'everything'
     objc_suppressions = [
       '-Wno-bad-function-cast',
+      '-Wno-declaration-after-statement',
       '-Wno-direct-ivar-access',
       '-Wno-objc-messaging-id',
       '-Wno-padded',
