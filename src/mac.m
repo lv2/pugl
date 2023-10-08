@@ -1646,9 +1646,11 @@ puglProcessEvents(PuglView* view)
 double
 puglGetTime(const PuglWorld* world)
 {
-  return ((double)mach_absolute_time() * world->impl->timebaseInfo.denom /
-          world->impl->timebaseInfo.numer / 1e9) -
-         world->startTime;
+  const struct mach_timebase_info base   = world->impl->timebaseInfo;
+  const double                    rate   = (1.0E9 / base.numer) * base.denom;
+  const double                    period = 1.0 / rate;
+
+  return (double)mach_absolute_time() * period;
 }
 
 PuglStatus
