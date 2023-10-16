@@ -706,8 +706,8 @@ readFile(const char* const programPath, const std::string& filename)
 
   std::cerr << "Loading shader:           " << path.get() << std::endl;
 
-  const std::unique_ptr<FILE, decltype(&fclose)> file{fopen(path.get(), "rb"),
-                                                      &fclose};
+  const std::unique_ptr<FILE, int (*)(FILE*)> file{fopen(path.get(), "rb"),
+                                                   &fclose};
 
   if (!file) {
     std::cerr << "Failed to open file '" << filename << "'\n";
