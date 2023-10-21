@@ -448,9 +448,9 @@ keySymToSpecial(const WPARAM sym, const bool ext)
     case VK_RETURN:  return PUGL_KEY_PAD_ENTER;
     case VK_INSERT:  return PUGL_KEY_INSERT;
     case VK_DELETE:  return PUGL_KEY_DELETE;
-    case VK_SHIFT:   return PUGL_KEY_SHIFT_L;
-    case VK_CONTROL: return PUGL_KEY_CTRL_L;
-    case VK_MENU:    return PUGL_KEY_ALT_L;
+    case VK_SHIFT:   return PUGL_KEY_SHIFT_R;
+    case VK_CONTROL: return PUGL_KEY_CTRL_R;
+    case VK_MENU:    return PUGL_KEY_ALT_R;
     }
     // clang-format on
   } else {
@@ -458,9 +458,9 @@ keySymToSpecial(const WPARAM sym, const bool ext)
     switch (sym) {
     case VK_INSERT:  return PUGL_KEY_PAD_INSERT;
     case VK_DELETE:  return PUGL_KEY_PAD_DELETE;
-    case VK_SHIFT:   return PUGL_KEY_SHIFT_R;
-    case VK_CONTROL: return PUGL_KEY_CTRL_R;
-    case VK_MENU:    return PUGL_KEY_ALT_R;
+    case VK_SHIFT:   return PUGL_KEY_SHIFT_L;
+    case VK_CONTROL: return PUGL_KEY_CTRL_L;
+    case VK_MENU:    return PUGL_KEY_ALT_L;
     }
     // clang-format on
   }
