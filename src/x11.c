@@ -958,28 +958,37 @@ getX11SelectionClipboard(PuglView* const view, const Atom selection)
            : NULL;
 }
 
-static void
+static PuglStatus
 setClipboardFormats(PuglView* const         view,
                     PuglX11Clipboard* const board,
                     const unsigned long     numFormats,
                     const Atom* const       formats)
 {
-  Atom* const newFormats =
-    (Atom*)realloc(board->formats, numFormats * sizeof(Atom));
-  if (!newFormats) {
-    return;
-  }
-
+  // Clear current board formats
   for (unsigned long i = 0; i < board->numFormats; ++i) {
     free(board->formatStrings[i]);
     board->formatStrings[i] = NULL;
   }
 
-  board->formats    = newFormats;
   board->numFormats = 0;
 
-  board->formatStrings =
+  // Enlarge formats array
+  Atom* const newFormats =
+    (Atom*)realloc(board->formats, numFormats * sizeof(Atom));
+  if (!newFormats) {
+    return PUGL_NO_MEMORY;
+  }
+
+  board->formats = newFormats;
+
+  // Enlarge format strings array
+  char** const newFormatStrings =
     (char**)realloc(board->formatStrings, numFormats * sizeof(char*));
+  if (!newFormatStrings) {
+    return PUGL_NO_MEMORY;
+  }
+
+  board->formatStrings = newFormatStrings;
 
   for (unsigned long i = 0; i < numFormats; ++i) {
     if (formats[i]) {
@@ -1006,6 +1015,8 @@ setClipboardFormats(PuglView* const         view,
       XFree(name);
     }
   }
+
+  return PUGL_SUCCESS;
 }
 
 static PuglEvent
@@ -1391,10 +1402,13 @@ puglStartTimer(PuglView* const view, const uintptr_t id, const double timeout)
       }
 
       // Add new timer
-      const size_t size           = ++w->numTimers * sizeof(timer);
-      w->timers                   = (PuglTimer*)realloc(w->timers, size);
-      w->timers[w->numTimers - 1] = timer;
-      return PUGL_SUCCESS;
+      const size_t     size      = ++w->numTimers * sizeof(timer);
+      PuglTimer* const newTimers = (PuglTimer*)realloc(w->timers, size);
+      if (newTimers) {
+        w->timers                   = newTimers;
+        w->timers[w->numTimers - 1] = timer;
+        return PUGL_SUCCESS;
+      }
     }
   }
 #else
@@ -1584,7 +1598,7 @@ retrieveSelection(const PuglWorld* const world,
   return PUGL_SUCCESS;
 }
 
-static void
+static PuglStatus
 handleSelectionNotify(const PuglWorld* const       world,
                       PuglView* const              view,
                       const XSelectionEvent* const event)
@@ -1601,9 +1615,8 @@ handleSelectionNotify(const PuglWorld* const       world,
     unsigned long numFormats = 0;
     Atom*         formats    = NULL;
     if (!getAtomProperty(
-          view, event->requestor, event->property, &numFormats, &formats)) {
-      setClipboardFormats(view, board, numFormats, formats);
-
+          view, event->requestor, event->property, &numFormats, &formats) &&
+        !setClipboardFormats(view, board, numFormats, formats)) {
       const PuglDataOfferEvent offer = {
         PUGL_DATA_OFFER, 0, (double)event->time / 1e3};
 
@@ -1629,7 +1642,7 @@ handleSelectionNotify(const PuglWorld* const       world,
     }
   }
 
-  puglDispatchEvent(view, &puglEvent);
+  return puglDispatchEvent(view, &puglEvent);
 }
 
 static PuglStatus
@@ -1755,8 +1768,7 @@ handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 static PuglStatus
 dispatchX11Events(PuglWorld* const world)
 {
-  PuglStatus st0 = PUGL_SUCCESS;
-  PuglStatus st1 = PUGL_SUCCESS;
+  PuglStatus st = PUGL_SUCCESS;
 
   // Flush output to the server once at the start
   Display* display = world->impl->display;
@@ -1792,9 +1804,13 @@ dispatchX11Events(PuglWorld* const world)
         clearX11Clipboard(board);
       }
     } else if (xevent.type == SelectionNotify) {
-      handleSelectionNotify(world, view, &xevent.xselection);
+      st = handleSelectionNotify(world, view, &xevent.xselection);
     } else if (xevent.type == SelectionRequest) {
-      handleSelectionRequest(world, view, &xevent.xselectionrequest);
+      st = handleSelectionRequest(world, view, &xevent.xselectionrequest);
+    }
+
+    if (st) {
+      break;
     }
 
     // Translate X11 event to Pugl event
@@ -1823,12 +1839,12 @@ dispatchX11Events(PuglWorld* const world)
       break;
     default:
       // Dispatch event to application immediately
-      st0 = puglDispatchEvent(view, &event);
+      st = puglDispatchEvent(view, &event);
       break;
     }
   }
 
-  return st0 ? st0 : st1;
+  return st;
 }
 
 #ifndef PUGL_DISABLE_DEPRECATED
@@ -2139,12 +2155,12 @@ puglSetClipboard(PuglView* const   view,
   PuglInternals* const    impl    = view->impl;
   Display* const          display = view->world->impl->display;
   PuglX11Clipboard* const board   = &view->impl->clipboard;
-  const PuglStatus        st      = puglSetBlob(&board->data, data, len);
+  PuglStatus              st      = puglSetBlob(&board->data, data, len);
 
   if (!st) {
     const Atom format = {XInternAtom(display, type, 0)};
 
-    setClipboardFormats(view, board, 1, &format);
+    st = setClipboardFormats(view, board, 1, &format);
     XSetSelectionOwner(display, board->selection, impl->win, CurrentTime);
 
     board->source = impl->win;

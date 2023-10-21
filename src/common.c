@@ -146,12 +146,20 @@ puglNewView(PuglWorld* const world)
 
   puglSetDefaultHints(view->hints);
 
-  // Add to world view list
-  ++world->numViews;
-  world->views =
-    (PuglView**)realloc(world->views, world->numViews * sizeof(PuglView*));
+  // Enlarge world view list
+  const size_t     newNumViews = world->numViews + 1U;
+  PuglView** const views =
+    (PuglView**)realloc(world->views, newNumViews * sizeof(PuglView*));
 
-  world->views[world->numViews - 1] = view;
+  if (!views) {
+    free(view);
+    return NULL;
+  }
+
+  // Add to world view list
+  world->views                  = views;
+  world->views[world->numViews] = view;
+  world->numViews               = newNumViews;
 
   return view;
 }
