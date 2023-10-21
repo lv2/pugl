@@ -4,6 +4,7 @@
 #ifndef PUGL_STUB_H
 #define PUGL_STUB_H
 
+#include "pugl/attributes.h"
 #include "pugl/pugl.h"
 
 PUGL_BEGIN_DECLS

@@ -8,7 +8,6 @@
 #include "pugl/cairo.h"
 #include "pugl/pugl.h"
 
-#include <X11/Xutil.h>
 #include <cairo-xlib.h>
 #include <cairo.h>
 
