@@ -665,7 +665,7 @@ puglRealize(PuglView* const view)
   updateSizeHints(view);
 
   // Set PID and hostname so the window manager can access our process
-  char       hostname[256] = {0};
+  char       hostname[256] = PUGL_INIT_STRUCT;
   const long pid           = (long)getpid();
   if (pid > 0 && !gethostname(hostname, sizeof(hostname))) {
     hostname[sizeof(hostname) - 1] = '\0';
@@ -884,7 +884,7 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
   xevent->xkey.state = xevent->xkey.state & ~(unsigned)ShiftMask;
 
   // Lookup unshifted key
-  char          ustr[8] = {0};
+  char          ustr[8] = PUGL_INIT_STRUCT;
   KeySym        sym     = 0;
   const int     ufound  = XLookupString(&xevent->xkey, ustr, 8, &sym, NULL);
   const PuglKey special = keySymToSpecial(sym);
@@ -897,7 +897,7 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
     // Lookup shifted key for possible text event
     xevent->xkey.state = state;
 
-    char      sstr[8] = {0};
+    char      sstr[8] = PUGL_INIT_STRUCT;
     const int sfound  = lookupString(view->impl->xic, xevent, sstr, &sym);
     if (sfound > 0) {
       // Dispatch key event now
