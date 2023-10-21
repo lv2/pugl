@@ -14,10 +14,12 @@ if cc.get_id() == 'clang'
   if warning_level == 'everything'
     c_suppressions += [
       '-Wno-bad-function-cast',
+      '-Wno-cast-function-type-strict',
       '-Wno-declaration-after-statement',
       '-Wno-padded',
       '-Wno-switch-default',
       '-Wno-switch-enum',
+      '-Wno-unsafe-buffer-usage',
     ]
 
     if not meson.is_cross_build()
@@ -115,9 +117,11 @@ if is_variable('cpp')
     if warning_level == 'everything'
       cpp_suppressions += [
         '-Wno-c++98-compat-pedantic',
+        '-Wno-cast-function-type-strict',
         '-Wno-inline',
         '-Wno-padded',
         '-Wno-sign-conversion',
+        '-Wno-unsafe-buffer-usage',
       ]
 
       if not meson.is_cross_build()
