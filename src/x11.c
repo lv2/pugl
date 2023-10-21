@@ -881,7 +881,8 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
   event->key.keycode = xevent->xkey.keycode;
 
   // Mask off the control and shift bits to get the lowercase "main" symbol
-  xevent->xkey.state = xevent->xkey.state & ~(unsigned)(ControlMask|ShiftMask);
+  xevent->xkey.state =
+    xevent->xkey.state & ~(unsigned)(ControlMask | ShiftMask);
 
   // Lookup unshifted key
   char          ustr[8] = PUGL_INIT_STRUCT;
