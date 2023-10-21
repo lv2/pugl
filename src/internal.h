@@ -43,6 +43,10 @@ puglViewStringChanged(PuglView* view, PuglStringHint key, const char* value);
 uint32_t
 puglDecodeUTF8(const uint8_t* buf);
 
+/// Return `state` with any flags related to `key` removed
+PuglMods
+puglFilterMods(PuglMods state, PuglKey key);
+
 /// Prepare a view to be realized by the platform implementation if possible
 PuglStatus
 puglPreRealize(PuglView* view);

@@ -888,10 +888,12 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
   KeySym        sym     = 0;
   const int     ufound  = XLookupString(&xevent->xkey, ustr, 8, &sym, NULL);
   const PuglKey special = keySymToSpecial(sym);
-
-  event->key.key =
-    ((special || ufound <= 0) ? special
-                              : (PuglKey)puglDecodeUTF8((const uint8_t*)ustr));
+  if (special) {
+    event->key.state = puglFilterMods(event->key.state, special);
+    event->key.key   = special;
+  } else if (ufound > 0) {
+    event->key.key = (PuglKey)puglDecodeUTF8((const uint8_t*)ustr);
+  }
 
   if (xevent->type == KeyPress && !filter && !special && view->impl->xic) {
     // Lookup shifted key for possible text event

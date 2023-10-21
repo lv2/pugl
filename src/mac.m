@@ -679,7 +679,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     wloc.y,
     rloc.x,
     [[NSScreen mainScreen] frame].size.height - rloc.y,
-    getModifiers(event),
+    puglFilterMods(getModifiers(event), spec),
     [event keyCode],
     (code != 0xFFFD) ? code : 0,
   };
@@ -710,7 +710,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     wloc.y,
     rloc.x,
     [[NSScreen mainScreen] frame].size.height - rloc.y,
-    getModifiers(event),
+    puglFilterMods(getModifiers(event), spec),
     [event keyCode],
     (code != 0xFFFD) ? code : 0,
   };
@@ -868,7 +868,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
                              wloc.y,
                              rloc.x,
                              [[NSScreen mainScreen] frame].size.height - rloc.y,
-                             mods,
+                             puglFilterMods(mods, special),
                              [event keyCode],
                              special};
 

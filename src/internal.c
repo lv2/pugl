@@ -116,6 +116,29 @@ puglDecodeUTF8(const uint8_t* buf)
   return 0xFFFD;
 }
 
+PuglMods
+puglFilterMods(const PuglMods state, const PuglKey key)
+{
+  switch (key) {
+  case PUGL_KEY_SHIFT_L:
+  case PUGL_KEY_SHIFT_R:
+    return state & ~(PuglMods)PUGL_MOD_SHIFT;
+  case PUGL_KEY_CTRL_L:
+  case PUGL_KEY_CTRL_R:
+    return state & ~(PuglMods)PUGL_MOD_CTRL;
+  case PUGL_KEY_ALT_L:
+  case PUGL_KEY_ALT_R:
+    return state & ~(PuglMods)PUGL_MOD_ALT;
+  case PUGL_KEY_SUPER_L:
+  case PUGL_KEY_SUPER_R:
+    return state & ~(PuglMods)PUGL_MOD_SUPER;
+  default:
+    break;
+  };
+
+  return state;
+}
+
 PuglStatus
 puglPreRealize(PuglView* const view)
 {

@@ -579,7 +579,8 @@ initKeyEvent(PuglKeyEvent* event,
 
   const PuglKey special = keySymToSpecial(vkey, ext);
   if (special) {
-    event->key = (uint32_t)special;
+    event->key   = (uint32_t)special;
+    event->state = puglFilterMods(event->state, special);
   } else if (!dead) {
     // Translate unshifted key
     BYTE    keyboardState[256] = PUGL_INIT_STRUCT;
