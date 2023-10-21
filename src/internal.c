@@ -134,7 +134,7 @@ puglFilterMods(const PuglMods state, const PuglKey key)
     return state & ~(PuglMods)PUGL_MOD_SUPER;
   default:
     break;
-  };
+  }
 
   return state;
 }
