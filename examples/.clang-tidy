@@ -14,6 +14,7 @@ Checks: >
   -cert-dcl51-cpp,
   -cert-err33-c,
   -concurrency-mt-unsafe,
+  -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-avoid-non-const-global-variables,
   -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,

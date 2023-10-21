@@ -5,6 +5,7 @@ Checks: >
   *,
   -altera*,
   -clang-diagnostic-unused-macros,
+  -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -google-runtime-references,
