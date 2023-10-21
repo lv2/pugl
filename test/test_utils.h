@@ -293,17 +293,19 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
   case PUGL_UNREALIZE:
     return fprintf(stderr, "%sUnrealize\n", prefix);
   case PUGL_KEY_PRESS:
-    return PRINT("%sKey press   code %3u key  U+%04X (%s)\n",
-                 prefix,
-                 event->key.keycode,
-                 event->key.key,
-                 keyString(event->key.key));
+    return (PRINT("%sKey press   code %3u key  U+%04X (%s) ",
+                  prefix,
+                  event->key.keycode,
+                  event->key.key,
+                  keyString(event->key.key)) +
+            printModifiers(event->scroll.state));
   case PUGL_KEY_RELEASE:
-    return PRINT("%sKey release code %3u key  U+%04X (%s)\n",
-                 prefix,
-                 event->key.keycode,
-                 event->key.key,
-                 keyString(event->key.key));
+    return (PRINT("%sKey release code %3u key  U+%04X (%s) ",
+                  prefix,
+                  event->key.keycode,
+                  event->key.key,
+                  keyString(event->key.key)) +
+            printModifiers(event->scroll.state));
   case PUGL_TEXT:
     return PRINT("%sText entry  code %3u char U+%04X (%s)\n",
                  prefix,
