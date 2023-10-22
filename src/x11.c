@@ -2042,7 +2042,7 @@ puglSetTransientParent(PuglView* const view, const PuglNativeView parent)
 
   view->transientParent = parent;
 
-  if (view->impl->win) {
+  if (view->impl->win && view->transientParent) {
     XSetTransientForHint(
       display, view->impl->win, (Window)view->transientParent);
   }
