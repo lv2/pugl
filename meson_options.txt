@@ -1,13 +1,13 @@
 # Copyright 2021-2023 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
-option('cairo', type: 'feature', value: 'auto',
+option('cairo', type: 'feature',
        description: 'Enable support for the Cairo graphics API')
 
-option('examples', type: 'feature', value: 'auto', yield: true,
+option('examples', type: 'feature', yield: true,
        description: 'Build example programs')
 
-option('docs', type: 'feature', value: 'auto',
+option('docs', type: 'feature',
        description: 'Build documentation')
 
 option('docs_cpp', type: 'boolean', value: false,
@@ -16,23 +16,23 @@ option('docs_cpp', type: 'boolean', value: false,
 option('lint', type: 'boolean', value: false, yield: true,
        description: 'Run code quality checks')
 
-option('opengl', type: 'feature', value: 'auto',
+option('opengl', type: 'feature',
        description: 'Enable support for the OpenGL graphics API')
 
-option('stub', type: 'boolean', value: true,
+option('stub', type: 'boolean',
        description: 'Build stub backend')
 
-option('tests', type: 'feature', value: 'auto', yield: true,
+option('tests', type: 'feature', yield: true,
        description: 'Build tests')
 
-option('vulkan', type: 'feature', value: 'auto',
+option('vulkan', type: 'feature',
        description: 'Enable support for the Vulkan graphics API')
 
-option('xcursor', type: 'feature', value: 'auto',
+option('xcursor', type: 'feature',
        description: 'Support changing the cursor on X11')
 
-option('xrandr', type: 'feature', value: 'auto',
+option('xrandr', type: 'feature',
        description: 'Support accessing the refresh rate on X11')
 
-option('xsync', type: 'feature', value: 'auto',
+option('xsync', type: 'feature',
        description: 'Support timers on X11')
