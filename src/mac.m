@@ -15,6 +15,7 @@
 
 #include <mach/mach_time.h>
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #ifndef __MAC_10_10
@@ -842,19 +843,20 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   PuglEventType  type    = PUGL_NOTHING;
   PuglKey        special = (PuglKey)0;
 
+  const uint16_t keyCode = [event keyCode];
   if ((mods & PUGL_MOD_SHIFT) != (puglview->impl->mods & PUGL_MOD_SHIFT)) {
     type    = mods & PUGL_MOD_SHIFT ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-    special = PUGL_KEY_SHIFT_L;
+    special = (keyCode == 0x3C) ? PUGL_KEY_SHIFT_R : PUGL_KEY_SHIFT_L;
   } else if ((mods & PUGL_MOD_CTRL) != (puglview->impl->mods & PUGL_MOD_CTRL)) {
     type    = mods & PUGL_MOD_CTRL ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-    special = PUGL_KEY_CTRL_L;
+    special = (keyCode == 0x3E) ? PUGL_KEY_CTRL_R : PUGL_KEY_CTRL_L;
   } else if ((mods & PUGL_MOD_ALT) != (puglview->impl->mods & PUGL_MOD_ALT)) {
     type    = mods & PUGL_MOD_ALT ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-    special = PUGL_KEY_ALT_L;
+    special = (keyCode == 0x3D) ? PUGL_KEY_ALT_R : PUGL_KEY_ALT_L;
   } else if ((mods & PUGL_MOD_SUPER) !=
              (puglview->impl->mods & PUGL_MOD_SUPER)) {
     type    = mods & PUGL_MOD_SUPER ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
-    special = PUGL_KEY_SUPER_L;
+    special = PUGL_KEY_SUPER_L; // Left and right command are identical
   }
 
   if (special != 0) {
