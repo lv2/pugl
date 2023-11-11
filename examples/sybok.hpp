@@ -1530,7 +1530,7 @@ public:
   {
     VkBool32 s = {};
 
-    if (VkResult r = vkGetPhysicalDeviceSurfaceSupportKHR(
+    if (const VkResult r = vkGetPhysicalDeviceSurfaceSupportKHR(
           physicalDevice, queueFamilyIndex, surface, &s)) {
       return r;
     }
@@ -2015,8 +2015,8 @@ public:
   VkResult end() noexcept
   {
     if (_commandBuffer) {
-      VkResult r     = _api.vkEndCommandBuffer(_commandBuffer);
-      _commandBuffer = {};
+      const VkResult r = _api.vkEndCommandBuffer(_commandBuffer);
+      _commandBuffer   = {};
       return r;
     }
 

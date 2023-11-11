@@ -1,4 +1,4 @@
-# Copyright 2020-2022 David Robillard <d@drobilla.net>
+# Copyright 2020-2023 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 Checks: >
@@ -13,6 +13,7 @@ Checks: >
   -cert-dcl37-c,
   -cert-dcl51-cpp,
   -cert-err33-c,
+  -cert-err34-c,
   -concurrency-mt-unsafe,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-avoid-non-const-global-variables,
@@ -36,4 +37,7 @@ Checks: >
   -performance-no-int-to-ptr,
   -readability-function-cognitive-complexity,
   -readability-implicit-bool-conversion,
+CheckOptions:
+  - key: cppcoreguidelines-avoid-do-while.IgnoreMacros
+    value: true
 InheritParentConfig: true
