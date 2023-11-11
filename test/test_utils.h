@@ -51,11 +51,14 @@ static inline int
 printModifiers(const uint32_t mods)
 {
   return fprintf(stderr,
-                 "Modifiers:%s%s%s%s\n",
+                 "Modifiers:%s%s%s%s%s%s%s\n",
                  (mods & PUGL_MOD_SHIFT) ? " Shift" : "",
                  (mods & PUGL_MOD_CTRL) ? " Ctrl" : "",
                  (mods & PUGL_MOD_ALT) ? " Alt" : "",
-                 (mods & PUGL_MOD_SUPER) ? " Super" : "");
+                 (mods & PUGL_MOD_SUPER) ? " Super" : "",
+                 (mods & PUGL_MOD_NUM_LOCK) ? " Num" : "",
+                 (mods & PUGL_MOD_SCROLL_LOCK) ? " Scroll" : "",
+                 (mods & PUGL_MOD_CAPS_LOCK) ? " Caps" : "");
 }
 
 static inline const char*

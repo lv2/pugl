@@ -920,7 +920,10 @@ translateModifiers(const unsigned xstate)
   return (((xstate & ShiftMask) ? (uint32_t)PUGL_MOD_SHIFT : 0U) |
           ((xstate & ControlMask) ? (uint32_t)PUGL_MOD_CTRL : 0U) |
           ((xstate & Mod1Mask) ? (uint32_t)PUGL_MOD_ALT : 0U) |
-          ((xstate & Mod4Mask) ? (uint32_t)PUGL_MOD_SUPER : 0U));
+          ((xstate & Mod4Mask) ? (uint32_t)PUGL_MOD_SUPER : 0U) |
+          ((xstate & Mod2Mask) ? (uint32_t)PUGL_MOD_NUM_LOCK : 0U) |
+          ((xstate & Mod3Mask) ? (uint32_t)PUGL_MOD_SCROLL_LOCK : 0U) |
+          ((xstate & LockMask) ? (uint32_t)PUGL_MOD_CAPS_LOCK : 0U));
 }
 
 static PuglStatus

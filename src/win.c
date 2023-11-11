@@ -472,11 +472,15 @@ static uint32_t
 getModifiers(void)
 {
   // clang-format off
-  return (((GetKeyState(VK_SHIFT)   < 0) ? (uint32_t)PUGL_MOD_SHIFT  : 0U) |
-          ((GetKeyState(VK_CONTROL) < 0) ? (uint32_t)PUGL_MOD_CTRL   : 0U) |
-          ((GetKeyState(VK_MENU)    < 0) ? (uint32_t)PUGL_MOD_ALT    : 0U) |
-          ((GetKeyState(VK_LWIN)    < 0) ? (uint32_t)PUGL_MOD_SUPER  : 0U) |
-          ((GetKeyState(VK_RWIN)    < 0) ? (uint32_t)PUGL_MOD_SUPER  : 0U));
+  return (
+    ((GetKeyState(VK_SHIFT) < 0)    ? (uint32_t)PUGL_MOD_SHIFT       : 0U) |
+    ((GetKeyState(VK_CONTROL) < 0)  ? (uint32_t)PUGL_MOD_CTRL        : 0U) |
+    ((GetKeyState(VK_MENU) < 0)     ? (uint32_t)PUGL_MOD_ALT         : 0U) |
+    ((GetKeyState(VK_LWIN) < 0)     ? (uint32_t)PUGL_MOD_SUPER       : 0U) |
+    ((GetKeyState(VK_RWIN) < 0)     ? (uint32_t)PUGL_MOD_SUPER       : 0U) |
+    ((GetKeyState(VK_NUMLOCK) & 1U) ? (uint32_t)PUGL_MOD_NUM_LOCK    : 0U) |
+    ((GetKeyState(VK_SCROLL) & 1U)  ? (uint32_t)PUGL_MOD_SCROLL_LOCK : 0U) |
+    ((GetKeyState(VK_CAPITAL) & 1U) ? (uint32_t)PUGL_MOD_CAPS_LOCK   : 0U));
   // clang-format on
 }
 

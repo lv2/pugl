@@ -132,6 +132,12 @@ puglFilterMods(const PuglMods state, const PuglKey key)
   case PUGL_KEY_SUPER_L:
   case PUGL_KEY_SUPER_R:
     return state & ~(PuglMods)PUGL_MOD_SUPER;
+  case PUGL_KEY_NUM_LOCK:
+    return state & ~(PuglMods)PUGL_MOD_NUM_LOCK;
+  case PUGL_KEY_SCROLL_LOCK:
+    return state & ~(PuglMods)PUGL_MOD_SCROLL_LOCK;
+  case PUGL_KEY_CAPS_LOCK:
+    return state & ~(PuglMods)PUGL_MOD_CAPS_LOCK;
   default:
     break;
   }

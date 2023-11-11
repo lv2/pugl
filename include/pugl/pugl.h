@@ -415,10 +415,13 @@ typedef enum {
 
 /// Keyboard modifier flags
 typedef enum {
-  PUGL_MOD_SHIFT = 1U << 0U, ///< Shift key
-  PUGL_MOD_CTRL  = 1U << 1U, ///< Control key
-  PUGL_MOD_ALT   = 1U << 2U, ///< Alt/Option key
-  PUGL_MOD_SUPER = 1U << 3U, ///< Mod4/Command/Windows key
+  PUGL_MOD_SHIFT       = 1U << 0U, ///< Shift pressed
+  PUGL_MOD_CTRL        = 1U << 1U, ///< Control pressed
+  PUGL_MOD_ALT         = 1U << 2U, ///< Alt/Option pressed
+  PUGL_MOD_SUPER       = 1U << 3U, ///< Super/Command/Windows pressed
+  PUGL_MOD_NUM_LOCK    = 1U << 4U, ///< Num lock enabled
+  PUGL_MOD_SCROLL_LOCK = 1U << 5U, ///< Scroll lock enabled
+  PUGL_MOD_CAPS_LOCK   = 1U << 6U, ///< Caps lock enabled
 } PuglMod;
 
 /// Bitwise OR of #PuglMod values
