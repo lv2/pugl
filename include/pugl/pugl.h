@@ -145,7 +145,7 @@ typedef uint32_t PuglEventFlags;
 typedef enum {
   PUGL_CROSSING_NORMAL, ///< Crossing due to pointer motion
   PUGL_CROSSING_GRAB,   ///< Crossing due to a grab
-  PUGL_CROSSING_UNGRAB  ///< Crossing due to a grab release
+  PUGL_CROSSING_UNGRAB, ///< Crossing due to a grab release
 } PuglCrossingMode;
 
 /// Common header for all event structs
@@ -417,7 +417,7 @@ typedef enum {
   PUGL_MOD_SHIFT = 1U << 0U, ///< Shift key
   PUGL_MOD_CTRL  = 1U << 1U, ///< Control key
   PUGL_MOD_ALT   = 1U << 2U, ///< Alt/Option key
-  PUGL_MOD_SUPER = 1U << 3U  ///< Mod4/Command/Windows key
+  PUGL_MOD_SUPER = 1U << 3U, ///< Mod4/Command/Windows key
 } PuglMod;
 
 /// Bitwise OR of #PuglMod values
@@ -505,11 +505,11 @@ typedef struct {
    arbitrary scroll direction freedom, like some touchpads.
 */
 typedef enum {
-  PUGL_SCROLL_UP,    ///< Scroll up
-  PUGL_SCROLL_DOWN,  ///< Scroll down
-  PUGL_SCROLL_LEFT,  ///< Scroll left
-  PUGL_SCROLL_RIGHT, ///< Scroll right
-  PUGL_SCROLL_SMOOTH ///< Smooth scroll in any direction
+  PUGL_SCROLL_UP,     ///< Scroll up
+  PUGL_SCROLL_DOWN,   ///< Scroll down
+  PUGL_SCROLL_LEFT,   ///< Scroll left
+  PUGL_SCROLL_RIGHT,  ///< Scroll right
+  PUGL_SCROLL_SMOOTH, ///< Smooth scroll in any direction
 } PuglScrollDirection;
 
 /**
@@ -763,7 +763,7 @@ typedef void* PuglWorldHandle;
 /// The type of a World
 typedef enum {
   PUGL_PROGRAM, ///< Top-level application
-  PUGL_MODULE   ///< Plugin or module within a larger application
+  PUGL_MODULE,  ///< Plugin or module within a larger application
 } PuglWorldType;
 
 /// World flags
@@ -773,7 +773,7 @@ typedef enum {
 
      X11: Calls XInitThreads() which is required for some drivers.
   */
-  PUGL_WORLD_THREADS = 1U << 0U
+  PUGL_WORLD_THREADS = 1U << 0U,
 } PuglWorldFlag;
 
 /// Bitwise OR of #PuglWorldFlag values
@@ -1023,7 +1023,7 @@ typedef enum {
      If set, the view's size should be constrained to an aspect ratio no higher
      than this.  Mutually exclusive with #PUGL_FIXED_ASPECT.
   */
-  PUGL_MAX_ASPECT
+  PUGL_MAX_ASPECT,
 } PuglSizeHint;
 
 /// The number of #PuglSizeHint values
