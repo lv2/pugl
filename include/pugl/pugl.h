@@ -342,6 +342,7 @@ typedef struct {
 */
 typedef enum {
   PUGL_KEY_BACKSPACE = 0x00000008U, ///< Backspace
+  PUGL_KEY_TAB       = 0x00000009U, ///< Tab
   PUGL_KEY_ENTER     = 0x0000000DU, ///< Enter
   PUGL_KEY_ESCAPE    = 0x0000001BU, ///< Escape
   PUGL_KEY_DELETE    = 0x0000007FU, ///< Delete

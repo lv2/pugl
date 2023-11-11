@@ -127,6 +127,8 @@ keyString(const uint32_t key)
   switch (key) {
   case PUGL_KEY_BACKSPACE:
     return "BACKSPACE";
+  case PUGL_KEY_TAB:
+    return "TAB";
   case PUGL_KEY_ENTER:
     return "ENTER";
   case PUGL_KEY_ESCAPE:
