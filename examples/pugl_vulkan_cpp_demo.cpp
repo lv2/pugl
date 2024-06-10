@@ -704,7 +704,7 @@ readFile(const char* const programPath, const std::string& filename)
   const std::unique_ptr<char, decltype(&free)> path{
     resourcePath(programPath, filename.c_str()), &free};
 
-  std::cerr << "Loading shader:           " << path.get() << std::endl;
+  std::cerr << "Loading shader:           " << path.get() << "\n";
 
   const std::unique_ptr<FILE, int (*)(FILE*)> file{fopen(path.get(), "rb"),
                                                    &fclose};
@@ -1201,7 +1201,7 @@ debugCallback(VkDebugReportFlagsEXT flags,
               void*)
 {
   std::cerr << sk::string(static_cast<VkDebugReportFlagBitsEXT>(flags)) << ": "
-            << layerPrefix << ": " << msg << std::endl;
+            << layerPrefix << ": " << msg << "\n";
 
   return VK_FALSE;
 }
@@ -1236,7 +1236,7 @@ void
 logInfo(const char* heading, const Value& value)
 {
   std::cout << std::setw(26) << std::left << (std::string(heading) + ":")
-            << value << std::endl;
+            << value << "\n";
 }
 
 VkResult
