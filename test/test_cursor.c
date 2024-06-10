@@ -63,7 +63,9 @@ main(int argc, char** argv)
   // Change the cursor, updating each time
   assert(puglSetCursor(test.view, (PuglCursor)-1));
   for (unsigned i = 0; i < (unsigned)PUGL_CURSOR_ALL_SCROLL; ++i) {
-    assert(!puglSetCursor(test.view, (PuglCursor)i));
+    const PuglStatus st = puglSetCursor(test.view, (PuglCursor)i);
+
+    assert(!st || st == PUGL_UNSUPPORTED);
     assert(!puglUpdate(test.world, 0.1));
   }
 

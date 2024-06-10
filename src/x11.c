@@ -2194,7 +2194,7 @@ puglSetCursor(PuglView* const view, const PuglCursor cursor)
 #else
   (void)view;
   (void)cursor;
-  return PUGL_FAILURE;
+  return PUGL_UNSUPPORTED;
 #endif
 }
 

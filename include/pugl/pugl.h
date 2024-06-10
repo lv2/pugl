@@ -1573,7 +1573,8 @@ puglGetClipboard(PuglView* view, uint32_t typeIndex, size_t* len);
    for example if compiled on X11 without Xcursor support.
 
    @return #PUGL_BAD_PARAMETER if the given cursor is invalid,
-   #PUGL_FAILURE if the cursor is known but loading it system fails.
+   #PUGL_UNSUPPORTED if setting the cursor is not supported on this system, or
+   another error if the cursor is known but loading it fails.
 */
 PUGL_API
 PuglStatus

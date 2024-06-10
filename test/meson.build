@@ -39,10 +39,7 @@ if not meson.is_subproject() and get_option('lint')
   endif
 endif
 
-basic_exclusive_tests = [
-  'local_copy_paste',
-  'remote_copy_paste',
-]
+basic_exclusive_tests = []
 
 basic_tests = [
   'cursor',
@@ -53,7 +50,6 @@ basic_tests = [
   'strerror',
   'stub',
   'stub_hints',
-  'timer',
   'update',
   'view',
   'world',
@@ -68,6 +64,11 @@ gl_tests = [
 ]
 
 vulkan_tests = ['vulkan']
+
+if with_timers
+  basic_exclusive_tests += ['local_copy_paste', 'remote_copy_paste']
+  basic_tests += ['timer']
+endif
 
 includes = [
   '.',
@@ -152,7 +153,7 @@ if vulkan_dep.found()
   endforeach
 endif
 
-unified_args = []
+unified_args = core_args
 unified_deps = [core_deps]
 if cairo_dep.found()
   unified_args += ['-DWITH_CAIRO']
@@ -174,9 +175,9 @@ if host_machine.system() == 'darwin'
 
   objcpp = meson.get_compiler('objcpp')
 
-  objcpp_args = []
+  objcpp_unified_args = unified_args
   if objcpp.get_id() == 'clang'
-    objcpp_args += [
+    objcpp_unified_args += [
       '-Wno-c++98-compat',
       '-Wno-c++98-compat-pedantic',
       '-Wno-deprecated-declarations',
@@ -184,7 +185,7 @@ if host_machine.system() == 'darwin'
     ]
   endif
 
-  unified_args += objcpp.get_supported_arguments(test_cpp_args + objcpp_args)
+  objcpp_unified_args = objcpp.get_supported_arguments(objcpp_unified_args)
 
   test(
     'inline_objcpp',
@@ -193,23 +194,22 @@ if host_machine.system() == 'darwin'
       'test_inline_objcpp.mm',
       dependencies: unified_deps,
       include_directories: include_directories(includes),
-      objcpp_args: unified_args,
+      objcpp_args: objcpp_unified_args,
     ),
     suite: 'unit',
   )
 
 elif is_variable('cpp')
-  unified_args = []
-
+  cpp_unified_args = unified_args
   if cpp.get_id() == 'clang'
-    unified_args += [
+    cpp_unified_args += [
       '-Wno-old-style-cast',
       '-Wno-switch-default',
       '-Wno-switch-enum',
       '-Wno-unused-macros', # Mac
     ]
   elif cpp.get_id() == 'gcc'
-    unified_args += [
+    cpp_unified_args += [
       '-Wno-conditionally-supported',
       '-Wno-old-style-cast',
       '-Wno-switch-default',
@@ -217,17 +217,19 @@ elif is_variable('cpp')
       '-Wno-useless-cast',
     ]
   elif cpp.get_id() == 'msvc'
-    unified_args += [
+    cpp_unified_args += [
       '/wd4464', # relative include path contains '..'
     ]
   endif
+
+  cpp_unified_args = cpp.get_supported_arguments(cpp_unified_args)
 
   test(
     'inline_cpp',
     executable(
       'test_inline_cpp',
       'test_inline_cpp.cpp',
-      cpp_args: test_cpp_args + unified_args,
+      cpp_args: cpp_unified_args,
       dependencies: unified_deps,
       include_directories: include_directories(includes),
     ),

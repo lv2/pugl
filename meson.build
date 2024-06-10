@@ -56,6 +56,7 @@ add_project_arguments(
 
 core_args = []
 dl_dep = cc.find_library('dl', required: false)
+with_timers = true
 
 if host_machine.system() == 'darwin'
   # MacOS
@@ -173,15 +174,12 @@ else
   core_args += '-D_POSIX_C_SOURCE=200809L'
 
   xcursor_dep = cc.find_library('Xcursor', required: get_option('xcursor'))
-  if xcursor_dep.found()
-    core_args += ['-DUSE_XCURSOR=1']
-  endif
+  core_args += ['-DUSE_XCURSOR=@0@'.format(xcursor_dep.found().to_int())]
 
   xrandr_dep = cc.find_library('Xrandr', required: get_option('xrandr'))
-  if xrandr_dep.found()
-    core_args += ['-DUSE_XRANDR=1']
-  endif
+  core_args += ['-DUSE_XRANDR=@0@'.format(xrandr_dep.found().to_int())]
 
+  with_timers = false
   use_xsync = false
   xext_dep = cc.find_library('Xext', required: get_option('xsync'))
   if xext_dep.found()
@@ -189,12 +187,13 @@ else
       #include <X11/extensions/sync.h>
       int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }'''
     if cc.compiles(xsync_fragment, name: 'Xsync')
-      core_args += ['-DUSE_XSYNC=1']
+      with_timers = true
       use_xsync = true
     elif get_option('xsync') == 'enabled'
       error('C header <X11/extensions/sync.h> not found')
     endif
   endif
+  core_args += ['-DUSE_XSYNC=@0@'.format(use_xsync.to_int())]
 
   x11_args = []
   if cc.get_id() == 'clang'

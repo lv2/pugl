@@ -85,7 +85,8 @@ main(void)
   assert(puglGetViewHint(view, PUGL_SWAP_INTERVAL) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_RESIZABLE) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_IGNORE_KEY_REPEAT) != PUGL_DONT_CARE);
-  assert(puglGetViewHint(view, PUGL_REFRESH_RATE) != PUGL_DONT_CARE);
+  assert(puglGetViewHint(view, PUGL_REFRESH_RATE) == PUGL_DONT_CARE ||
+         puglGetViewHint(view, PUGL_REFRESH_RATE) > 0);
 
   // Tear down
   puglFreeView(view);
