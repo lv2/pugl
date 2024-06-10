@@ -6,9 +6,11 @@ Checks: >
   -*-magic-numbers,
   -altera*,
   -bugprone-assignment-in-if-condition,
+  -bugprone-switch-missing-default-case,
   -clang-diagnostic-unused-function,
   -clang-diagnostic-unused-macros,
   -llvmlibc-*,
+  -misc-include-cleaner,
   -readability-identifier-length,
 CheckOptions:
   - key: hicpp-uppercase-literal-suffix.NewSuffixes
