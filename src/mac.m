@@ -326,11 +326,14 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
     return;
   }
 
+  const double viewY = (double)puglview->lastConfigure.height -
+                       ((rect.origin.y + rect.size.height) * scaleFactor);
+
   const PuglExposeEvent ev = {
     PUGL_EXPOSE,
     0,
     (PuglCoord)(rect.origin.x * scaleFactor),
-    (PuglCoord)(rect.origin.y * scaleFactor),
+    (PuglCoord)viewY,
     (PuglSpan)(rect.size.width * scaleFactor),
     (PuglSpan)(rect.size.height * scaleFactor),
   };
