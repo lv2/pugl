@@ -416,8 +416,9 @@ updateSizeHints(const PuglView* const view)
     sizeHints.max_width   = (int)frame.width;
     sizeHints.max_height  = (int)frame.height;
   } else {
+    // Avoid setting PBaseSize for top level views to avoid window manager bugs
     const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
-    if (puglIsValidSize(defaultSize)) {
+    if (puglIsValidSize(defaultSize) && view->parent) {
       sizeHints.flags |= PBaseSize;
       sizeHints.base_width  = defaultSize.width;
       sizeHints.base_height = defaultSize.height;
