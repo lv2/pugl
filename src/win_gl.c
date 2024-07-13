@@ -288,7 +288,7 @@ puglGetProcAddress(const char* name)
 
   return func
            ? func
-           : (PuglGlFunc)GetProcAddress(GetModuleHandle("opengl32.dll"), name);
+           : (PuglGlFunc)GetProcAddress(GetModuleHandleA("opengl32.dll"), name);
 }
 
 PuglStatus

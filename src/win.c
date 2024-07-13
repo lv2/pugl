@@ -94,6 +94,12 @@ puglWinStatus(const BOOL success)
 static bool
 puglRegisterWindowClass(const char* name)
 {
+#ifdef UNICODE
+  wchar_t* const wname = puglUtf8ToWideChar(name);
+#else
+  const char* const wname = name;
+#endif
+
   HMODULE module = NULL;
   if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
                            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
@@ -103,7 +109,7 @@ puglRegisterWindowClass(const char* name)
   }
 
   WNDCLASSEX wc = PUGL_INIT_STRUCT;
-  if (GetClassInfoEx(module, name, &wc)) {
+  if (GetClassInfoEx(module, wname, &wc)) {
     return true; // Already registered
   }
 
@@ -114,9 +120,13 @@ puglRegisterWindowClass(const char* name)
   wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
   wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
   wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-  wc.lpszClassName = name;
+  wc.lpszClassName = wname;
 
-  return !!RegisterClassEx(&wc);
+  const bool success = !!RegisterClassEx(&wc);
+#ifdef UNICODE
+  free(wname);
+#endif
+  return success;
 }
 
 static unsigned
@@ -174,7 +184,7 @@ static double
 puglWinGetViewScaleFactor(const PuglView* const view)
 {
   const HMODULE shcore =
-    LoadLibraryEx("Shcore.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    LoadLibraryExA("Shcore.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
   if (!shcore) {
     return 1.0;
   }
@@ -209,7 +219,7 @@ puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
 
   if (type == PUGL_PROGRAM) {
     HMODULE user32 =
-      LoadLibraryEx("user32.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+      LoadLibraryExA("user32.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (user32) {
       PFN_SetProcessDPIAware SetProcessDPIAware =
         (PFN_SetProcessDPIAware)GetProcAddress(user32, "SetProcessDPIAware");
@@ -398,7 +408,14 @@ puglFreeViewInternals(PuglView* view)
 void
 puglFreeWorldInternals(PuglWorld* world)
 {
+#ifdef UNICODE
+  wchar_t* const wname = puglUtf8ToWideChar(world->strings[PUGL_CLASS_NAME]);
+  UnregisterClass(wname, NULL);
+  free(wname);
+#else
   UnregisterClass(world->strings[PUGL_CLASS_NAME], NULL);
+#endif
+
   free(world->impl);
 }
 
@@ -1481,7 +1498,7 @@ puglPaste(PuglView* const view)
   return PUGL_SUCCESS;
 }
 
-static const char* const cursor_ids[] = {
+static const TCHAR* const cursor_ids[] = {
   IDC_ARROW,    // ARROW
   IDC_IBEAM,    // CARET
   IDC_CROSS,    // CROSSHAIR
@@ -1606,18 +1623,18 @@ puglWinCreateWindow(PuglView* const   view,
   AdjustWindowRectEx(&wr, winFlags, FALSE, winExFlags);
 
   // Create window and get drawing context
-  if (!(*hwnd = CreateWindowEx(winExFlags,
-                               className,
-                               title,
-                               winFlags,
-                               wr.left,
-                               wr.right,
-                               wr.right - wr.left,
-                               wr.bottom - wr.top,
-                               (HWND)parent,
-                               NULL,
-                               NULL,
-                               NULL))) {
+  if (!(*hwnd = CreateWindowExA(winExFlags,
+                                className,
+                                title,
+                                winFlags,
+                                wr.left,
+                                wr.right,
+                                wr.right - wr.left,
+                                wr.bottom - wr.top,
+                                (HWND)parent,
+                                NULL,
+                                NULL,
+                                NULL))) {
     return PUGL_REALIZE_FAILED;
   }
 

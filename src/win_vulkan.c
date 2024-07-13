@@ -32,7 +32,7 @@ puglNewVulkanLoader(PuglWorld*        PUGL_UNUSED(world),
 
   const char* const filename = libraryName ? libraryName : "vulkan-1.dll";
   if (!(loader->libvulkan =
-          LoadLibraryEx(filename, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS))) {
+          LoadLibraryExA(filename, NULL, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS))) {
     free(loader);
     return NULL;
   }
