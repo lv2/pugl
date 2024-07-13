@@ -630,10 +630,16 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
 - (void)scrollWheel:(NSEvent*)event
 {
-  const NSPoint             wloc = [self eventLocation:event];
-  const NSPoint             rloc = [NSEvent mouseLocation];
-  const double              dx   = -[event scrollingDeltaX];
-  const double              dy   = [event scrollingDeltaY];
+  const NSPoint wloc = [self eventLocation:event];
+  const NSPoint rloc = [NSEvent mouseLocation];
+
+  double dx = -[event scrollingDeltaX];
+  double dy = [event scrollingDeltaY];
+  if (![event hasPreciseScrollingDeltas]) {
+    dx *= 10.0;
+    dy *= 10.0;
+  }
+
   const PuglScrollDirection dir =
     ((dx == 0.0 && dy > 0.0)
        ? PUGL_SCROLL_UP
@@ -653,7 +659,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     rloc.x,
     [[NSScreen mainScreen] frame].size.height - rloc.y,
     getModifiers(event),
-    [event hasPreciseScrollingDeltas] ? PUGL_SCROLL_SMOOTH : dir,
+    dir,
     dx,
     dy,
   };
