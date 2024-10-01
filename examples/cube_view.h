@@ -4,7 +4,7 @@
 #ifndef EXAMPLES_CUBE_VIEW_H
 #define EXAMPLES_CUBE_VIEW_H
 
-#define GL_SILENCE_DEPRECATION 1 // NOLINT(modernize-macro-to-enum)
+#define GL_SILENCE_DEPRECATION 1 // NOLINT(*-macro-to-enum)
 
 #include "demo_utils.h"
 

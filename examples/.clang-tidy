@@ -1,4 +1,4 @@
-# Copyright 2020-2023 David Robillard <d@drobilla.net>
+# Copyright 2020-2024 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 Checks: >
@@ -8,6 +8,7 @@ Checks: >
   -android-cloexec-fopen,
   -bugprone-easily-swappable-parameters,
   -bugprone-macro-parentheses,
+  -bugprone-multi-level-implicit-pointer-conversion,
   -bugprone-reserved-identifier,
   -bugprone-suspicious-string-compare,
   -cert-dcl37-c,
@@ -34,9 +35,11 @@ Checks: >
   -llvm-header-guard,
   -misc-misplaced-const,
   -modernize-use-trailing-return-type,
+  -performance-enum-size,
   -performance-no-int-to-ptr,
   -readability-function-cognitive-complexity,
   -readability-implicit-bool-conversion,
+  -readability-redundant-member-init,
 CheckOptions:
   - key: cppcoreguidelines-avoid-do-while.IgnoreMacros
     value: true

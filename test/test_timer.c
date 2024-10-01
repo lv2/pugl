@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define NUM_TIMERS 4U // NOLINT(modernize-macro-to-enum)
+#define NUM_TIMERS 4U // NOLINT(*-macro-to-enum)
 
 #ifdef __APPLE__
 static const double timeout = 1 / 60.0;
