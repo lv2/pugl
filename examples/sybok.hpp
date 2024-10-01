@@ -1751,10 +1751,10 @@ public:
 
 private:
   template<class T>
-  static inline VkResult wrapResult(const VkResult           r,
-                                    const typename T::Handle handle,
-                                    typename T::Deleter&&    deleter,
-                                    T&                       result) noexcept
+  static VkResult wrapResult(const VkResult           r,
+                             const typename T::Handle handle,
+                             typename T::Deleter&&    deleter,
+                             T&                       result) noexcept
   {
     if (r) {
       return r;
