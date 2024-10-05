@@ -1,4 +1,4 @@
-// Copyright 2022 David Robillard <d@drobilla.net>
+// Copyright 2022-2024 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 /*
@@ -9,8 +9,6 @@
 
 #undef NDEBUG
 
-#include "test_utils.h"
-
 #include "pugl/gl.h"
 #include "pugl/pugl.h"
 
@@ -18,16 +16,14 @@
 #include <stddef.h>
 
 typedef struct {
-  PuglWorld*      world;
-  PuglView*       view;
-  PuglTestOptions opts;
+  PuglWorld* world;
+  PuglView*  view;
 } PuglTest;
 
 int
-main(int argc, char** argv)
+main(void)
 {
-  PuglTest test = {
-    puglNewWorld(PUGL_PROGRAM, 0), NULL, puglParseTestOptions(&argc, &argv)};
+  PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0), NULL};
 
   // Set up view
   test.view = puglNewView(test.world);
