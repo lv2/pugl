@@ -1,4 +1,4 @@
-# Copyright 2021-2022 David Robillard <d@drobilla.net>
+# Copyright 2021-2024 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 config = configuration_data()
@@ -43,7 +43,7 @@ subdir('xml')
 subdir('api')
 
 docs = custom_target(
-  'singlehtml',
+  'c_singlehtml',
   build_by_default: true,
   command: [
     sphinx_build,
@@ -61,7 +61,7 @@ docs = custom_target(
 )
 
 docs = custom_target(
-  'html',
+  'c_html',
   build_by_default: true,
   command: [
     sphinx_build,
