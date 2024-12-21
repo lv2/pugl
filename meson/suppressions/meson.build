@@ -137,6 +137,7 @@ if is_variable('cpp')
       cpp_suppressions += [
         '-Wno-inline',
         '-Wno-padded',
+        '-Wno-suggest-attribute=pure',
       ]
 
       if host_machine.system() == 'windows'
