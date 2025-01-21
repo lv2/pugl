@@ -45,10 +45,7 @@
 #  define PUGL_INIT_STRUCT \
     {}
 #else
-#  define PUGL_INIT_STRUCT \
-    {                      \
-      0                    \
-    }
+#  define PUGL_INIT_STRUCT {0}
 #endif
 
 typedef BOOL(WINAPI* PFN_SetProcessDPIAware)(void);

@@ -72,10 +72,7 @@
 #  define PUGL_INIT_STRUCT \
     {}
 #else
-#  define PUGL_INIT_STRUCT \
-    {                      \
-      0                    \
-    }
+#  define PUGL_INIT_STRUCT {0}
 #endif
 
 enum WmClientStateMessageAction {
