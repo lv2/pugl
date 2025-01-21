@@ -27,7 +27,7 @@ test(
     'test_headers_c',
     files('test_headers.c'),
     c_args: test_headers_c_args,
-    dependencies: pugl_dep,
+    dependencies: [pugl_dep, vulkan_dep],
   ),
   suite: 'unit',
 )

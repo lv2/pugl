@@ -27,7 +27,7 @@ test(
     'test_headers_cpp',
     files('test_headers.cpp'),
     cpp_args: test_headers_cpp_args,
-    dependencies: puglpp_dep,
+    dependencies: [puglpp_dep, vulkan_dep],
   ),
   suite: 'unit',
 )
