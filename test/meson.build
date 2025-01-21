@@ -138,6 +138,12 @@ if vulkan_dep.found()
   endforeach
 endif
 
+###################
+# Header Warnings #
+###################
+
+subdir('headers')
+
 #######################
 # C++ / Objective C++ #
 #######################

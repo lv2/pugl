@@ -1,5 +1,9 @@
-# Copyright 2021 David Robillard <d@drobilla.net>
+# Copyright 2021-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
+
+######################################
+# C++ Bindings Package (Header-Only) #
+######################################
 
 subdir('include')
 
@@ -20,3 +24,9 @@ pkg.generate(
 )
 
 meson.override_dependency(puglpp_versioned_name, puglpp_dep)
+
+############################
+# C++ Header Warning Tests #
+############################
+
+subdir('test/headers')
