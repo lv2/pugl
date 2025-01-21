@@ -4,12 +4,17 @@
 header_cpp_suppressions = []
 
 if get_option('warning_level') == 'everything'
-  if cc.get_id() == 'clang'
+  if cpp.get_id() == 'clang'
     if not meson.is_cross_build()
-      header_cpp_suppressions += ['-Wno-poison-system-directories']
+      header_cpp_suppressions += [
+        '-Wno-old-style-cast',
+        '-Wno-poison-system-directories',
+      ]
     endif
   endif
 endif
+
+header_cpp_suppressions = cpp.get_supported_arguments(header_cpp_suppressions)
 
 test_headers_cpp_args = header_cpp_suppressions
 test_headers_cpp_args += [
