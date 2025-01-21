@@ -635,9 +635,9 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
   double dx = -[event scrollingDeltaX];
   double dy = [event scrollingDeltaY];
-  if (![event hasPreciseScrollingDeltas]) {
-    dx *= 10.0;
-    dy *= 10.0;
+  if ([event hasPreciseScrollingDeltas]) {
+    dx /= 20.0;
+    dy /= 20.0;
   }
 
   const PuglScrollDirection dir =
