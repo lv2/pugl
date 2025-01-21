@@ -95,13 +95,14 @@ puglPrintFps(const PuglWorld* world,
              unsigned* const  framesDrawn)
 {
   const double thisTime = puglGetTime(world);
-  if (thisTime > printer->lastReportTime + 5) {
-    const double fps = *framesDrawn / (thisTime - printer->lastReportTime);
+  if (thisTime > printer->lastReportTime + 5.0) {
+    const double elapsed = (thisTime - printer->lastReportTime);
+    const double fps     = *framesDrawn / elapsed;
     fprintf(stderr,
-            "FPS: %.2f (%u frames in %.0f seconds)\n",
+            "FPS: %.2f (%u frames / %.2f seconds)\n",
             fps,
             *framesDrawn,
-            thisTime - printer->lastReportTime);
+            elapsed);
 
     printer->lastReportTime = thisTime;
     *framesDrawn            = 0;

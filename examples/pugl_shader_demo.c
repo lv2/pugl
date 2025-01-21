@@ -470,7 +470,7 @@ updateTimeout(const PuglTestApp* const app)
   const double nextExposeTime   = nextFrameEndTime - neededTime;
   const double timeUntilNext    = nextExposeTime - now;
 
-  return timeUntilNext;
+  return fmax(0.0, (timeUntilNext * 0.9) - 0.001);
 }
 
 int
@@ -505,7 +505,7 @@ main(int argc, char** argv)
   const double   startTime  = puglGetTime(app.world);
   PuglFpsPrinter fpsPrinter = {startTime};
   while (!app.quit) {
-    puglUpdate(app.world, fmax(0.0, updateTimeout(&app)));
+    puglUpdate(app.world, updateTimeout(&app));
     puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
   }
 
