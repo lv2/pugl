@@ -341,6 +341,7 @@ typedef struct {
    mapping used here is arbitrary and specific to Pugl.
 */
 typedef enum {
+  PUGL_KEY_NONE      = 0U,          ///< Sentinel value for no key
   PUGL_KEY_BACKSPACE = 0x00000008U, ///< Backspace
   PUGL_KEY_TAB       = 0x00000009U, ///< Tab
   PUGL_KEY_ENTER     = 0x0000000DU, ///< Enter

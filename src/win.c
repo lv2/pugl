@@ -424,13 +424,13 @@ keyInRange(const WPARAM  winSym,
 {
   return (winSym >= winMin && winSym <= winMax)
            ? (PuglKey)((WPARAM)puglMin + (winSym - winMin))
-           : (PuglKey)0;
+           : PUGL_KEY_NONE;
 }
 
 static PuglKey
 keySymToSpecial(const WPARAM sym, const bool ext)
 {
-  PuglKey key = (PuglKey)0;
+  PuglKey key = PUGL_KEY_NONE;
   if ((key = keyInRange(sym, VK_F1, VK_F12, PUGL_KEY_F1)) ||
       (key = keyInRange(sym,
                         VK_PRIOR,
@@ -479,7 +479,7 @@ keySymToSpecial(const WPARAM sym, const bool ext)
     // clang-format on
   }
 
-  return (PuglKey)0;
+  return PUGL_KEY_NONE;
 }
 
 static bool

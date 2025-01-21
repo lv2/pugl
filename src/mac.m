@@ -463,7 +463,7 @@ keySymToSpecial(const NSEvent* const ev)
     return PUGL_KEY_PAD_9;
   }
 
-  return (PuglKey)0;
+  return PUGL_KEY_NONE;
 }
 
 - (void)updateTrackingAreas
@@ -856,7 +856,7 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 - (void)flagsChanged:(NSEvent*)event
 {
   const uint32_t mods    = getModifiers(event);
-  PuglKey        special = (PuglKey)0;
+  PuglKey        special = PUGL_KEY_NONE;
 
   const uint16_t keyCode = [event keyCode];
   if (flagDiffers(mods, puglview->impl->mods, PUGL_MOD_SHIFT)) {

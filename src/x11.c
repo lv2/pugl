@@ -814,13 +814,13 @@ keyInRange(const KeySym  xSym,
            const PuglKey puglMin)
 {
   return (xSym >= xMin && xSym <= xMax) ? (PuglKey)(puglMin + (xSym - xMin))
-                                        : (PuglKey)0;
+                                        : PUGL_KEY_NONE;
 }
 
 static PuglKey
 keySymToSpecial(const KeySym sym)
 {
-  PuglKey key = (PuglKey)0;
+  PuglKey key = PUGL_KEY_NONE;
   if ((key = keyInRange(sym, XK_F1, XK_F12, PUGL_KEY_F1)) ||
       (key = keyInRange(sym, XK_Page_Up, XK_End, PUGL_KEY_PAGE_UP)) ||
       (key = keyInRange(sym, XK_Home, XK_Down, PUGL_KEY_HOME)) ||
@@ -853,7 +853,7 @@ keySymToSpecial(const KeySym sym)
   }
   // clang-format on
 
-  return (PuglKey)0;
+  return PUGL_KEY_NONE;
 }
 
 static int
