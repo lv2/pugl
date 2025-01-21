@@ -1,4 +1,4 @@
-# Copyright 2020-2024 David Robillard <d@drobilla.net>
+# Copyright 2020-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 Checks: >
@@ -12,6 +12,7 @@ Checks: >
   -bugprone-reserved-identifier,
   -bugprone-suspicious-string-compare,
   -cert-dcl37-c,
+  -cert-dcl50-cpp,
   -cert-dcl51-cpp,
   -cert-err33-c,
   -cert-err34-c,
@@ -27,6 +28,7 @@ Checks: >
   -fuchsia-default-arguments,
   -fuchsia-default-arguments-calls,
   -fuchsia-overloaded-operator,
+  -google-readability-casting,
   -google-runtime-references,
   -hicpp-multiway-paths-covered,
   -hicpp-no-array-decay,
@@ -34,7 +36,10 @@ Checks: >
   -hicpp-vararg,
   -llvm-header-guard,
   -misc-misplaced-const,
+  -modernize-redundant-void-arg,
   -modernize-use-trailing-return-type,
+  -modernize-use-using,
+  -performance-enum-size,
   -performance-enum-size,
   -performance-no-int-to-ptr,
   -readability-function-cognitive-complexity,

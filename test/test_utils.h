@@ -471,11 +471,10 @@ static inline void
 printViewHints(const PuglView* view)
 {
   for (unsigned i = 0; i < PUGL_NUM_VIEW_HINTS; ++i) {
-    const PuglViewHint hint = (PuglViewHint)i;
     fprintf(stderr,
             "%s: %d\n",
-            puglViewHintString(hint),
-            puglGetViewHint(view, hint));
+            puglViewHintString((PuglViewHint)i),
+            puglGetViewHint(view, (PuglViewHint)i));
   }
 }
 

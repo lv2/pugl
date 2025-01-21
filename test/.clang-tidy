@@ -7,10 +7,8 @@ Checks: >
   -cert-err33-c,
   -cert-err34-c,
   -clang-analyzer-optin.core.EnumCastOutOfRange,
-  -google-runtime-references,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
-  -modernize-use-trailing-return-type,
   -readability-function-cognitive-complexity,
 InheritParentConfig: true
