@@ -55,8 +55,12 @@ typedef HRESULT(WINAPI* PFN_GetScaleFactorForMonitor)(HMONITOR, DWORD*);
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-static wchar_t*
-puglUtf8ToWideChar(const char* const utf8)
+#ifdef UNICODE
+
+typedef wchar_t ArgStringChar;
+
+static ArgStringChar*
+puglArgStringNew(const char* const utf8)
 {
   const int len = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0);
   if (len > 0) {
@@ -67,6 +71,30 @@ puglUtf8ToWideChar(const char* const utf8)
 
   return NULL;
 }
+
+static void
+puglArgStringFree(ArgStringChar* const utf8)
+{
+  free(utf8);
+}
+
+#else // !defined(UNICODE)
+
+typedef const char ArgStringChar;
+
+static ArgStringChar*
+puglArgStringNew(const char* const utf8)
+{
+  return utf8;
+}
+
+static void
+puglArgStringFree(ArgStringChar* const utf8)
+{
+  (void)utf8;
+}
+
+#endif
 
 static char*
 puglWideCharToUtf8(const wchar_t* const wstr, size_t* len)
@@ -91,11 +119,7 @@ puglWinStatus(const BOOL success)
 static bool
 puglRegisterWindowClass(const char* name)
 {
-#ifdef UNICODE
-  wchar_t* const wname = puglUtf8ToWideChar(name);
-#else
-  const char* const wname = name;
-#endif
+  ArgStringChar* const nameArg = puglArgStringNew(name);
 
   HMODULE module = NULL;
   if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
@@ -106,7 +130,7 @@ puglRegisterWindowClass(const char* name)
   }
 
   WNDCLASSEX wc = PUGL_INIT_STRUCT;
-  if (GetClassInfoEx(module, wname, &wc)) {
+  if (GetClassInfoEx(module, nameArg, &wc)) {
     return true; // Already registered
   }
 
@@ -117,12 +141,10 @@ puglRegisterWindowClass(const char* name)
   wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
   wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
   wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-  wc.lpszClassName = wname;
+  wc.lpszClassName = nameArg;
 
   const bool success = !!RegisterClassEx(&wc);
-#ifdef UNICODE
-  free(wname);
-#endif
+  puglArgStringFree(nameArg);
   return success;
 }
 
@@ -181,7 +203,7 @@ static double
 puglWinGetViewScaleFactor(const PuglView* const view)
 {
   const HMODULE shcore =
-    LoadLibraryExA("Shcore.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    LoadLibraryEx(TEXT("Shcore.dll"), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
   if (!shcore) {
     return 1.0;
   }
@@ -216,7 +238,7 @@ puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
 
   if (type == PUGL_PROGRAM) {
     HMODULE user32 =
-      LoadLibraryExA("user32.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
+      LoadLibraryEx(TEXT("user32.dll"), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (user32) {
       PFN_SetProcessDPIAware SetProcessDPIAware =
         (PFN_SetProcessDPIAware)GetProcAddress(user32, "SetProcessDPIAware");
@@ -284,9 +306,9 @@ puglRealize(PuglView* view)
   puglEnsureHint(view, PUGL_ALPHA_BITS, 8);
 
   // Get refresh rate for resize draw timer
-  DEVMODEA devMode;
+  DEVMODE devMode;
   memset(&devMode, 0, sizeof(devMode));
-  EnumDisplaySettingsA(NULL, ENUM_CURRENT_SETTINGS, &devMode);
+  EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
   view->hints[PUGL_REFRESH_RATE] = (int)devMode.dmDisplayFrequency;
 
   // Register window class if necessary
@@ -405,14 +427,11 @@ puglFreeViewInternals(PuglView* view)
 void
 puglFreeWorldInternals(PuglWorld* world)
 {
-#ifdef UNICODE
-  wchar_t* const wname = puglUtf8ToWideChar(world->strings[PUGL_CLASS_NAME]);
-  UnregisterClass(wname, NULL);
-  free(wname);
-#else
-  UnregisterClass(world->strings[PUGL_CLASS_NAME], NULL);
-#endif
+  const char* const    className    = world->strings[PUGL_CLASS_NAME];
+  ArgStringChar* const classNameArg = puglArgStringNew(className);
 
+  UnregisterClass(classNameArg, NULL);
+  puglArgStringFree(classNameArg);
   free(world->impl);
 }
 
@@ -1223,11 +1242,9 @@ puglViewStringChanged(PuglView* const      view,
   }
 
   if (key == PUGL_WINDOW_TITLE) {
-    wchar_t* const wtitle = puglUtf8ToWideChar(value);
-    if (wtitle) {
-      SetWindowTextW(view->impl->hwnd, wtitle);
-      free(wtitle);
-    }
+    ArgStringChar* const titleArg = puglArgStringNew(value);
+    SetWindowText(view->impl->hwnd, titleArg);
+    puglArgStringFree(titleArg);
   }
 
   return PUGL_SUCCESS;
@@ -1622,19 +1639,25 @@ puglWinCreateWindow(PuglView* const   view,
                                (long)frame.y + frame.height};
   AdjustWindowRectEx(&wr, winFlags, FALSE, winExFlags);
 
+  ArgStringChar* const classNameArg = puglArgStringNew(className);
+  ArgStringChar* const titleArg     = puglArgStringNew(title);
+
   // Create window and get drawing context
-  if (!(*hwnd = CreateWindowExA(winExFlags,
-                                className,
-                                title,
-                                winFlags,
-                                wr.left,
-                                wr.right,
-                                wr.right - wr.left,
-                                wr.bottom - wr.top,
-                                (HWND)parent,
-                                NULL,
-                                NULL,
-                                NULL))) {
+  *hwnd = CreateWindowEx(winExFlags,
+                         classNameArg,
+                         titleArg,
+                         winFlags,
+                         wr.left,
+                         wr.right,
+                         wr.right - wr.left,
+                         wr.bottom - wr.top,
+                         (HWND)parent,
+                         NULL,
+                         NULL,
+                         NULL);
+  puglArgStringFree(titleArg);
+  puglArgStringFree(classNameArg);
+  if (!*hwnd) {
     return PUGL_REALIZE_FAILED;
   }
 

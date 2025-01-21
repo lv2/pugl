@@ -156,6 +156,10 @@ elif host_machine.system() == 'windows'
     ]
   endif
 
+  if not get_option('win_wchar').disabled()
+    win_args += ['-DUNICODE', '-D_UNICODE']
+  endif
+
   add_project_arguments(win_args, language: ['c', 'cpp'])
 
   user32_dep = cc.find_library('user32')
