@@ -1789,7 +1789,7 @@ puglGetClassName(const PuglWorld* world)
 /**
    Set the window class name before creating a window.
 */
-static inline PUGL_DEPRECATED_BY("puglSetClassName")
+static inline PUGL_DEPRECATED_BY("puglSetWorldString")
 void
 puglInitWindowClass(PuglView* view, const char* name)
 {
@@ -1816,7 +1816,7 @@ puglInitWindowSize(PuglView* view, int width, int height)
 /**
    Set the minimum window size before creating a window.
 */
-static inline PUGL_DEPRECATED_BY("puglSetMinSize")
+static inline PUGL_DEPRECATED_BY("puglSetSizeHint")
 void
 puglInitWindowMinSize(PuglView* view, int width, int height)
 {
@@ -1833,7 +1833,7 @@ puglInitWindowMinSize(PuglView* view, int width, int height)
    currently work on MacOS (the minimum is used), so only setting a fixed
    aspect ratio works properly across all platforms.
 */
-static inline PUGL_DEPRECATED_BY("puglSetAspectRatio")
+static inline PUGL_DEPRECATED_BY("puglSetSizeHint")
 void
 puglInitWindowAspectRatio(PuglView* view,
                           int       minX,
