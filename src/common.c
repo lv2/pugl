@@ -316,14 +316,14 @@ puglGetFrame(const PuglView* view)
 }
 
 PuglStatus
-puglSetParentWindow(PuglView* view, PuglNativeView parent)
+puglSetParent(PuglView* view, PuglNativeView parent)
 {
   view->parent = parent;
   return PUGL_SUCCESS;
 }
 
 PuglNativeView
-puglGetParentWindow(const PuglView* const view)
+puglGetParent(const PuglView* const view)
 {
   return view->parent;
 }

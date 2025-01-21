@@ -50,14 +50,14 @@ Embedding
 
 To embed the view in another window,
 you will need to somehow get the :type:`native view handle <PuglNativeView>` for the parent,
-then set it with :func:`puglSetParentWindow`.
+then set it with :func:`puglSetParent`.
 If the parent is a Pugl view,
 the native handle can be accessed with :func:`puglGetNativeView`.
 For example:
 
 .. code-block:: c
 
-   puglSetParentWindow(view, puglGetNativeView(parent));
+   puglSetParent(view, puglGetNativeView(parent));
 
 ************************
 Setting an Event Handler

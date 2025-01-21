@@ -90,14 +90,14 @@ Embedding
 
 To embed the view in another window,
 you will need to somehow get the :type:`native view handle <pugl::NativeView>` for the parent,
-then set it with :func:`View::setParentWindow`.
+then set it with :func:`View::setParent`.
 If the parent is a Pugl view,
 the native handle can be accessed with :func:`View::nativeView`.
 For example:
 
 .. code-block:: cpp
 
-   view.setParentWindow(view, parent.getNativeView());
+   view.setParent(view, parent.nativeView());
 
 *****************
 Setting a Backend

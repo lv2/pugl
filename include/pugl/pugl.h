@@ -1245,18 +1245,18 @@ puglSetSizeHint(PuglView*    view,
 */
 
 /**
-   Set the parent window for embedding a view in an existing window.
+   Set the parent for embedding a view in an existing window.
 
    This must be called before puglRealize(), reparenting is not supported.
 */
 PUGL_API
 PuglStatus
-puglSetParentWindow(PuglView* view, PuglNativeView parent);
+puglSetParent(PuglView* view, PuglNativeView parent);
 
 /// Return the parent window this view is embedded in, or null
 PUGL_API
 PuglNativeView
-puglGetParentWindow(const PuglView* view);
+puglGetParent(const PuglView* view);
 
 /**
    Set the transient parent of the window.
@@ -1927,11 +1927,11 @@ puglInitWindowHint(PuglView* view, PuglViewHint hint, int value)
 
    @deprecated Use puglSetWindowParent().
 */
-static inline PUGL_DEPRECATED_BY("puglSetParentWindow")
+static inline PUGL_DEPRECATED_BY("puglSetParent")
 void
 puglInitWindowParent(PuglView* view, PuglNativeView parent)
 {
-  puglSetParentWindow(view, parent);
+  puglSetParent(view, parent);
 }
 
 /**
@@ -2177,6 +2177,22 @@ puglRequestAttention(PuglView* view)
 #  define PUGL_KEY_ALT PUGL_KEY_ALT_L
 
 #  define PUGL_KEY_SUPER PUGL_KEY_SUPER_L
+
+/// Set the parent window for embedding a view in an existing window
+static inline PUGL_DEPRECATED_BY("puglSetParent")
+PuglStatus
+puglSetParentWindow(PuglView* view, PuglNativeView parent)
+{
+  return puglSetParent(view, parent);
+}
+
+/// Return the parent window this view is embedded in, or null
+static inline PUGL_DEPRECATED_BY("puglGetParent")
+PuglNativeView
+puglGetParentWindow(PuglView* view)
+{
+  return puglGetParent(view);
+}
 
 #endif // PUGL_DISABLE_DEPRECATED
 

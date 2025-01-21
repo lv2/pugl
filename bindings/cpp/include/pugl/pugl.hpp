@@ -558,16 +558,25 @@ public:
      @{
   */
 
-  /// @copydoc puglSetParentWindow
-  Status setParentWindow(NativeView parent) noexcept
+  /// @copydoc puglSetParent
+  Status setParent(NativeView parent) noexcept
   {
-    return static_cast<Status>(puglSetParentWindow(cobj(), parent));
+    return static_cast<Status>(puglSetParent(cobj(), parent));
   }
+
+  /// @copydoc puglGetParent
+  NativeView parent() const noexcept { return puglGetParent(cobj()); }
 
   /// @copydoc puglSetTransientParent
   Status setTransientParent(NativeView parent) noexcept
   {
     return static_cast<Status>(puglSetTransientParent(cobj(), parent));
+  }
+
+  /// @copydoc puglGetTransientParent
+  NativeView transientParent() const noexcept
+  {
+    return puglGetTransientParent(cobj());
   }
 
   /// @copydoc puglRealize
