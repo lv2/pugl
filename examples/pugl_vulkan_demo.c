@@ -83,8 +83,8 @@ typedef struct {
   PuglView*       view;
   VulkanState     vk;
   uint32_t        framesDrawn;
-  uint32_t        width;
-  uint32_t        height;
+  PuglSpan        width;
+  PuglSpan        height;
   bool            quit;
 } VulkanApp;
 
@@ -569,8 +569,8 @@ configureSurface(VulkanState* const vk)
 
 static VkResult
 createRawSwapchain(VulkanState* const vk,
-                   const uint32_t     width,
-                   const uint32_t     height)
+                   const PuglSpan     width,
+                   const PuglSpan     height)
 {
   VkSurfaceCapabilitiesKHR surfaceCapabilities;
   VkResult                 vr = VK_SUCCESS;
@@ -583,12 +583,12 @@ createRawSwapchain(VulkanState* const vk,
   /* There is a known race condition with window/surface sizes, so we clamp
      to what Vulkan reports and hope for the best. */
 
-  vk->swapchain->extent.width = CLAMP(width,
+  vk->swapchain->extent.width = CLAMP((uint32_t)width,
                                       surfaceCapabilities.minImageExtent.width,
                                       surfaceCapabilities.maxImageExtent.width);
 
   vk->swapchain->extent.height =
-    CLAMP(height,
+    CLAMP((uint32_t)height,
           surfaceCapabilities.minImageExtent.height,
           surfaceCapabilities.maxImageExtent.height);
 
@@ -707,8 +707,8 @@ recordCommandBuffers(VulkanState* const vk)
 
 static VkResult
 createSwapchain(VulkanState* const vk,
-                const uint32_t     width,
-                const uint32_t     height)
+                const PuglSpan     width,
+                const PuglSpan     height)
 {
   VkResult vr = VK_SUCCESS;
 
@@ -895,21 +895,21 @@ destroyWorld(VulkanApp* const app)
 }
 
 static PuglStatus
-onConfigure(PuglView* const view, const double width, const double height)
+onConfigure(PuglView* const view, const PuglSpan width, const PuglSpan height)
 {
   VulkanApp* const app = (VulkanApp*)puglGetHandle(view);
 
   // We just record the size here and lazily resize the surface when exposed
-  app->width  = (uint32_t)width;
-  app->height = (uint32_t)height;
+  app->width  = width;
+  app->height = height;
 
   return PUGL_SUCCESS;
 }
 
 static PuglStatus
 recreateSwapchain(VulkanState* const vk,
-                  const uint32_t     width,
-                  const uint32_t     height)
+                  const PuglSpan     width,
+                  const PuglSpan     height)
 {
   vkDeviceWaitIdle(vk->device);
   destroySwapchain(vk, vk->swapchain);

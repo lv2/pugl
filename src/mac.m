@@ -157,7 +157,7 @@ rectToNsRect(const PuglRect rect)
 }
 
 static NSSize
-sizePoints(PuglView* view, const double width, const double height)
+sizePoints(PuglView* view, const PuglSpan width, const PuglSpan height)
 {
   const double scaleFactor = [viewScreen(view) backingScaleFactor];
 

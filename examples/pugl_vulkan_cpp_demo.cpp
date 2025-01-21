@@ -1512,11 +1512,9 @@ pugl::Status
 View::onEvent(const pugl::ConfigureEvent& event)
 {
   // We just record the size here and lazily resize the surface when exposed
-  _app.extent = {static_cast<uint32_t>(event.width),
-                 static_cast<uint32_t>(event.height)};
-
-  _app.mode = (event.style & PUGL_VIEW_STYLE_RESIZING) ? RenderMode::resizing
-                                                       : RenderMode::normal;
+  _app.extent = {event.width, event.height};
+  _app.mode   = (event.style & PUGL_VIEW_STYLE_RESIZING) ? RenderMode::resizing
+                                                         : RenderMode::normal;
 
   return pugl::Status::success;
 }

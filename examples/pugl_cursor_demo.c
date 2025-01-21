@@ -19,7 +19,7 @@ typedef struct {
 } PuglTestApp;
 
 static void
-onConfigure(const double width, const double height)
+onConfigure(const PuglSpan width, const PuglSpan height)
 {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);

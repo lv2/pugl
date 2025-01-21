@@ -75,7 +75,7 @@ static void
 teardownGl(PuglTestApp* app);
 
 static void
-onConfigure(PuglView* view, double width, double height)
+onConfigure(PuglView* view, PuglSpan width, PuglSpan height)
 {
   (void)view;
 
