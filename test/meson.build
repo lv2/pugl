@@ -208,6 +208,13 @@ elif is_variable('cpp')
       '-Wno-switch-enum',
       '-Wno-unused-macros', # Mac
     ]
+    if host_machine.system() == 'windows'
+      cpp_unified_args += [
+        '-Wno-cast-function-type',
+        '-Wno-deprecated-declarations',
+        '-Wno-nonportable-system-include-path',
+      ]
+    endif
   elif cpp.get_id() == 'gcc'
     cpp_unified_args += [
       '-Wno-conditionally-supported',

@@ -61,6 +61,13 @@ if get_option('warning_level') == 'everything' and is_variable('cpp')
       '-Wno-old-style-cast',
       '-Wno-switch-enum',
     ]
+    if host_machine.system() == 'windows'
+      example_cpp_args += [
+        '-Wno-deprecated-declarations',
+        '-Wno-format-nonliteral',
+        '-Wno-nonportable-system-include-path',
+      ]
+    endif
   elif cpp.get_id() == 'gcc'
     example_cpp_args += [
       '-Wno-effc++',

@@ -30,6 +30,7 @@ if cc.get_id() == 'clang'
 
     if host_machine.system() == 'windows'
       c_suppressions += [
+        '-Wno-cast-function-type',
         '-Wno-deprecated-declarations',
         '-Wno-format-nonliteral',
         '-Wno-nonportable-system-include-path',

@@ -426,7 +426,7 @@ keyInRange(const WPARAM  winSym,
            const PuglKey puglMin)
 {
   return (winSym >= winMin && winSym <= winMax)
-           ? (PuglKey)(puglMin + (winSym - winMin))
+           ? (PuglKey)((WPARAM)puglMin + (winSym - winMin))
            : (PuglKey)0;
 }
 
@@ -485,20 +485,23 @@ keySymToSpecial(const WPARAM sym, const bool ext)
   return (PuglKey)0;
 }
 
+static bool
+is_toggled(int vkey)
+{
+  return (unsigned)GetKeyState(vkey) & 1U;
+}
+
 static uint32_t
 getModifiers(void)
 {
-  // clang-format off
-  return (
-    ((GetKeyState(VK_SHIFT) < 0)    ? (uint32_t)PUGL_MOD_SHIFT       : 0U) |
-    ((GetKeyState(VK_CONTROL) < 0)  ? (uint32_t)PUGL_MOD_CTRL        : 0U) |
-    ((GetKeyState(VK_MENU) < 0)     ? (uint32_t)PUGL_MOD_ALT         : 0U) |
-    ((GetKeyState(VK_LWIN) < 0)     ? (uint32_t)PUGL_MOD_SUPER       : 0U) |
-    ((GetKeyState(VK_RWIN) < 0)     ? (uint32_t)PUGL_MOD_SUPER       : 0U) |
-    ((GetKeyState(VK_NUMLOCK) & 1U) ? (uint32_t)PUGL_MOD_NUM_LOCK    : 0U) |
-    ((GetKeyState(VK_SCROLL) & 1U)  ? (uint32_t)PUGL_MOD_SCROLL_LOCK : 0U) |
-    ((GetKeyState(VK_CAPITAL) & 1U) ? (uint32_t)PUGL_MOD_CAPS_LOCK   : 0U));
-  // clang-format on
+  return ((uint32_t)(((GetKeyState(VK_SHIFT) < 0) ? PUGL_MOD_SHIFT : 0) |
+                     ((GetKeyState(VK_CONTROL) < 0) ? PUGL_MOD_CTRL : 0) |
+                     ((GetKeyState(VK_MENU) < 0) ? PUGL_MOD_ALT : 0) |
+                     ((GetKeyState(VK_LWIN) < 0) ? PUGL_MOD_SUPER : 0) |
+                     ((GetKeyState(VK_RWIN) < 0) ? PUGL_MOD_SUPER : 0) |
+                     (is_toggled(VK_NUMLOCK) ? PUGL_MOD_NUM_LOCK : 0) |
+                     (is_toggled(VK_SCROLL) ? PUGL_MOD_SCROLL_LOCK : 0) |
+                     (is_toggled(VK_CAPITAL) ? PUGL_MOD_CAPS_LOCK : 0)));
 }
 
 static void
