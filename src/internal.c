@@ -19,6 +19,12 @@ puglIsValidPosition(const int x, const int y)
 }
 
 bool
+puglIsValidSize(const unsigned width, const unsigned height)
+{
+  return width && height && width <= INT16_MAX && height <= INT16_MAX;
+}
+
+bool
 puglIsValidArea(const PuglArea size)
 {
   return size.width && size.height;
@@ -80,8 +86,7 @@ puglStoreSizeHint(PuglView* const    view,
                   const unsigned     width,
                   const unsigned     height)
 {
-  if (width > INT16_MAX || height > INT16_MAX ||
-      (unsigned)hint >= PUGL_NUM_SIZE_HINTS) {
+  if (!puglIsValidSize(width, height)) {
     return PUGL_BAD_PARAMETER;
   }
 

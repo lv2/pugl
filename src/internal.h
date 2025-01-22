@@ -22,6 +22,10 @@ PUGL_BEGIN_DECLS
 bool
 puglIsValidPosition(int x, int y);
 
+/// Return true if `width`,`height` is a valid position
+bool
+puglIsValidSize(unsigned x, unsigned y);
+
 /// Return true if `size` is a valid view size
 bool
 puglIsValidArea(PuglArea size);

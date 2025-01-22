@@ -1812,7 +1812,7 @@ puglSetPosition(PuglView* const view, const int x, const int y)
 PuglStatus
 puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
 {
-  if (width > INT16_MAX || height > INT16_MAX) {
+  if (!puglIsValidSize(width, height)) {
     return PUGL_BAD_PARAMETER;
   }
 

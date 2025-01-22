@@ -2021,7 +2021,7 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
 {
   Display* const display = view->world->impl->display;
 
-  if (width > INT16_MAX || height > INT16_MAX) {
+  if (!puglIsValidSize(width, height)) {
     return PUGL_BAD_PARAMETER;
   }
 
