@@ -34,6 +34,13 @@ puglSetBlob(PuglBlob* dest, const void* data, size_t len);
 void
 puglSetString(char** dest, const char* string);
 
+/// Store `width` and `height` as the current value of a size `hint`
+PuglStatus
+puglStoreSizeHint(PuglView*    view,
+                  PuglSizeHint hint,
+                  unsigned     width,
+                  unsigned     height);
+
 /// Handle a changed string property
 PUGL_API
 PuglStatus

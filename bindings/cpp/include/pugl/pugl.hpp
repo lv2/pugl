@@ -545,7 +545,7 @@ public:
   }
 
   /// @copydoc puglSetSizeHint
-  Status setSizeHint(SizeHint hint, PuglSpan width, PuglSpan height) noexcept
+  Status setSizeHint(SizeHint hint, unsigned width, unsigned height) noexcept
   {
     return static_cast<Status>(
       puglSetSizeHint(cobj(), static_cast<PuglSizeHint>(hint), width, height));

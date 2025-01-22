@@ -68,6 +68,22 @@ puglSetString(char** dest, const char* string)
   }
 }
 
+PuglStatus
+puglStoreSizeHint(PuglView* const    view,
+                  const PuglSizeHint hint,
+                  const unsigned     width,
+                  const unsigned     height)
+{
+  if (width > INT16_MAX || height > INT16_MAX ||
+      (unsigned)hint >= PUGL_NUM_SIZE_HINTS) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  view->sizeHints[hint].width  = (PuglSpan)width;
+  view->sizeHints[hint].height = (PuglSpan)height;
+  return PUGL_SUCCESS;
+}
+
 uint32_t
 puglDecodeUTF8(const uint8_t* buf)
 {

@@ -1234,8 +1234,8 @@ PUGL_API
 PuglStatus
 puglSetSizeHint(PuglView*    view,
                 PuglSizeHint hint,
-                PuglSpan     width,
-                PuglSpan     height);
+                unsigned     width,
+                unsigned     height);
 
 /**
    @}
@@ -1820,7 +1820,7 @@ static inline PUGL_DEPRECATED_BY("puglSetSizeHint")
 void
 puglInitWindowMinSize(PuglView* view, int width, int height)
 {
-  puglSetSizeHint(view, PUGL_MIN_SIZE, (PuglSpan)width, (PuglSpan)height);
+  puglSetSizeHint(view, PUGL_MIN_SIZE, (unsigned)width, (unsigned)height);
 }
 
 /**
@@ -1841,8 +1841,8 @@ puglInitWindowAspectRatio(PuglView* view,
                           int       maxX,
                           int       maxY)
 {
-  puglSetSizeHint(view, PUGL_MIN_ASPECT, (PuglSpan)minX, (PuglSpan)minY);
-  puglSetSizeHint(view, PUGL_MAX_ASPECT, (PuglSpan)maxX, (PuglSpan)maxY);
+  puglSetSizeHint(view, PUGL_MIN_ASPECT, (unsigned)minX, (unsigned)minY);
+  puglSetSizeHint(view, PUGL_MAX_ASPECT, (unsigned)maxX, (unsigned)maxY);
 }
 
 /**
@@ -2081,7 +2081,7 @@ PuglStatus
 puglSetDefaultSize(PuglView* view, int width, int height)
 {
   return puglSetSizeHint(
-    view, PUGL_DEFAULT_SIZE, (PuglSpan)width, (PuglSpan)height);
+    view, PUGL_DEFAULT_SIZE, (unsigned)width, (unsigned)height);
 }
 
 /**
@@ -2098,7 +2098,7 @@ PuglStatus
 puglSetMinSize(PuglView* view, int width, int height)
 {
   return puglSetSizeHint(
-    view, PUGL_MIN_SIZE, (PuglSpan)width, (PuglSpan)height);
+    view, PUGL_MIN_SIZE, (unsigned)width, (unsigned)height);
 }
 
 /**
@@ -2115,7 +2115,7 @@ PuglStatus
 puglSetMaxSize(PuglView* view, int width, int height)
 {
   return puglSetSizeHint(
-    view, PUGL_MAX_SIZE, (PuglSpan)width, (PuglSpan)height);
+    view, PUGL_MAX_SIZE, (unsigned)width, (unsigned)height);
 }
 
 /**
@@ -2139,10 +2139,10 @@ PuglStatus
 puglSetAspectRatio(PuglView* view, int minX, int minY, int maxX, int maxY)
 {
   const PuglStatus st0 =
-    puglSetSizeHint(view, PUGL_MIN_ASPECT, (PuglSpan)minX, (PuglSpan)minY);
+    puglSetSizeHint(view, PUGL_MIN_ASPECT, (unsigned)minX, (unsigned)minY);
 
   const PuglStatus st1 =
-    puglSetSizeHint(view, PUGL_MAX_ASPECT, (PuglSpan)maxX, (PuglSpan)maxY);
+    puglSetSizeHint(view, PUGL_MAX_ASPECT, (unsigned)maxX, (unsigned)maxY);
 
   return st0 ? st0 : st1;
 }
