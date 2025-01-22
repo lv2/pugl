@@ -1137,16 +1137,18 @@ puglDispatchWinEvents(PuglWorld* world)
 PuglStatus
 puglUpdate(PuglWorld* world, double timeout)
 {
+  static const double minWaitSeconds = 0.002;
+
   const double startTime = puglGetTime(world);
   PuglStatus   st        = PUGL_SUCCESS;
 
   if (timeout < 0.0) {
     st = puglPollWinEvents(world, timeout);
     st = st ? st : puglDispatchWinEvents(world);
-  } else if (timeout <= 0.001) {
+  } else if (timeout < minWaitSeconds) {
     st = puglDispatchWinEvents(world);
   } else {
-    const double endTime = startTime + timeout - 0.001;
+    const double endTime = startTime + timeout - minWaitSeconds;
     for (double t = startTime; t < endTime; t = puglGetTime(world)) {
       if ((st = puglPollWinEvents(world, endTime - t)) ||
           (st = puglDispatchWinEvents(world))) {
