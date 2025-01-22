@@ -1576,42 +1576,18 @@ puglWinGetPixelFormatDescriptor(const PuglHints hints)
   return pfd;
 }
 
-static PuglRect
-getInitialFrame(PuglView* const view)
+PuglPoint
+puglGetAncestorCenter(const PuglView* const view)
 {
-  if (view->lastConfigure.type == PUGL_CONFIGURE) {
-    // Use the last configured frame
-    const PuglRect frame = {view->lastConfigure.x,
-                            view->lastConfigure.y,
-                            view->lastConfigure.width,
-                            view->lastConfigure.height};
-    return frame;
-  }
+  RECT rect = {0, 0, 0, 0};
+  GetWindowRect(view->transientParent ? (HWND)view->transientParent
+                                      : GetDesktopWindow(),
+                &rect);
 
-  const PuglSpan defaultWidth  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
-  const PuglSpan defaultHeight = view->sizeHints[PUGL_DEFAULT_SIZE].height;
-  const int      x             = view->defaultX;
-  const int      y             = view->defaultY;
-  if (puglIsValidPosition(x, y)) {
-    // Use the default position set with puglSetPosition while unrealized
-    const PuglRect frame = {
-      (PuglCoord)x, (PuglCoord)y, defaultWidth, defaultHeight};
-    return frame;
-  }
-
-  // Get a bounding rect from the "nearest" parent or parent-like window
-  const HWND hwnd = puglWinGetWindow(view);
-  RECT       rect = {0, 0, 0, 0};
-  GetWindowRect(hwnd ? hwnd : GetDesktopWindow(), &rect);
-
-  // Center the frame around the center of the bounding rectangle
-  const LONG     centerX = rect.left + (rect.right - rect.left) / 2;
-  const LONG     centerY = rect.top + (rect.bottom - rect.top) / 2;
-  const PuglRect frame   = {(PuglCoord)(centerX - (defaultWidth / 2)),
-                            (PuglCoord)(centerY - (defaultHeight / 2)),
-                            defaultWidth,
-                            defaultHeight};
-  return frame;
+  const PuglPoint center = {
+    (PuglCoord)(rect.left + (rect.right - rect.left) / 2),
+    (PuglCoord)(rect.top + (rect.bottom - rect.top) / 2)};
+  return center;
 }
 
 PuglStatus
@@ -1626,13 +1602,14 @@ puglWinCreateWindow(PuglView* const   view,
   PuglNativeView parent = view->parent ? view->parent : view->transientParent;
 
   // Calculate initial window rectangle
-  const unsigned winFlags   = puglWinGetWindowFlags(view);
-  const unsigned winExFlags = puglWinGetWindowExFlags(view);
-  const PuglRect frame      = getInitialFrame(view);
-  RECT           wr         = {(long)frame.x,
-                               (long)frame.y,
-                               (long)frame.x + frame.width,
-                               (long)frame.y + frame.height};
+  const unsigned  winFlags   = puglWinGetWindowFlags(view);
+  const unsigned  winExFlags = puglWinGetWindowExFlags(view);
+  const PuglArea  size       = puglGetInitialSize(view);
+  const PuglPoint pos        = puglGetInitialPosition(view, size);
+  RECT            wr         = {(long)pos.x,
+                                (long)pos.y,
+                                (long)pos.x + size.width,
+                                (long)pos.y + size.height};
   AdjustWindowRectEx(&wr, winFlags, FALSE, winExFlags);
 
   ArgStringChar* const classNameArg = puglArgStringNew(className);

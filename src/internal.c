@@ -9,8 +9,16 @@
 
 #include <assert.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
+static PuglPoint
+make_point(const PuglCoord x, const PuglCoord y)
+{
+  const PuglPoint point = {x, y};
+  return point;
+}
 
 bool
 puglIsValidPosition(const int x, const int y)
@@ -28,6 +36,45 @@ bool
 puglIsValidArea(const PuglArea size)
 {
   return size.width && size.height;
+}
+
+PuglArea
+puglGetInitialSize(const PuglView* const view)
+{
+  if (view->lastConfigure.type == PUGL_CONFIGURE) {
+    // Use the last configured size
+    const PuglConfigureEvent config = view->lastConfigure;
+    const PuglArea           size   = {config.width, config.height};
+    return size;
+  }
+
+  // Use the default size hint set by the application
+  return view->sizeHints[PUGL_DEFAULT_SIZE];
+}
+
+PuglPoint
+puglGetInitialPosition(const PuglView* const view, const PuglArea size)
+{
+  if (view->lastConfigure.type == PUGL_CONFIGURE) {
+    // Use the last configured frame
+    return make_point(view->lastConfigure.x, view->lastConfigure.y);
+  }
+
+  if (puglIsValidPosition(view->defaultX, view->defaultY)) {
+    // Use the default position hint set by the application
+    return make_point((PuglCoord)view->defaultX, (PuglCoord)view->defaultY);
+  }
+
+  if (view->parent) {
+    // Default to the top/left origin of the parent
+    return make_point(0, 0);
+  }
+
+  // Center frame on a transient ancestor, or failing that, the screen
+  const PuglPoint center = puglGetAncestorCenter(view);
+  const PuglPoint pos    = {(PuglCoord)(center.x - (size.width / 2)),
+                            (PuglCoord)(center.y - (size.height / 2))};
+  return pos;
 }
 
 void

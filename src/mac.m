@@ -121,7 +121,7 @@ viewScreen(const PuglView* view)
 }
 
 static NSRect
-nsRectToPoints(PuglView* view, const NSRect rect)
+nsRectToPoints(const PuglView* view, const NSRect rect)
 {
   const double scaleFactor = [viewScreen(view) backingScaleFactor];
 
@@ -132,7 +132,7 @@ nsRectToPoints(PuglView* view, const NSRect rect)
 }
 
 static NSRect
-nsRectFromPoints(PuglView* view, const NSRect rect)
+nsRectFromPoints(const PuglView* view, const NSRect rect)
 {
   const double scaleFactor = [viewScreen(view) backingScaleFactor];
 
@@ -143,7 +143,7 @@ nsRectFromPoints(PuglView* view, const NSRect rect)
 }
 
 static NSPoint
-nsPointFromPoints(PuglView* view, const NSPoint point)
+nsPointFromPoints(const PuglView* view, const NSPoint point)
 {
   const double scaleFactor = [viewScreen(view) backingScaleFactor];
 
@@ -1153,30 +1153,9 @@ updateSizeHints(PuglView* const view)
   }
 }
 
-static PuglRect
-getInitialFrame(PuglView* const view)
+PuglPoint
+puglGetAncestorCenter(const PuglView* const view)
 {
-  if (view->lastConfigure.type == PUGL_CONFIGURE) {
-    // Use the last configured frame
-    const PuglRect frame = {view->lastConfigure.x,
-                            view->lastConfigure.y,
-                            view->lastConfigure.width,
-                            view->lastConfigure.height};
-    return frame;
-  }
-
-  const int x = view->defaultX;
-  const int y = view->defaultY;
-  if (puglIsValidPosition(x, y)) {
-    // Use the default position set with puglSetPosition while unrealized
-    const PuglRect frame = {(PuglCoord)x,
-                            (PuglCoord)y,
-                            view->sizeHints[PUGL_DEFAULT_SIZE].width,
-                            view->sizeHints[PUGL_DEFAULT_SIZE].height};
-    return frame;
-  }
-
-  // Get a bounding rect from the transient parent or the screen
   const NSScreen* const screen = viewScreen(view);
   const NSRect          boundsPt =
     rectFromScreen(screen,
@@ -1184,17 +1163,11 @@ getInitialFrame(PuglView* const view)
                      ? [[(const NSView*)view->transientParent window] frame]
                      : [screen frame]);
 
-  // Center the frame around the center of the bounding rectangle
-  const PuglArea defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
-  const NSRect   boundsPx    = nsRectFromPoints(view, boundsPt);
-  const double   centerX     = boundsPx.origin.x + boundsPx.size.width / 2;
-  const double   centerY     = boundsPx.origin.y + boundsPx.size.height / 2;
-
-  const PuglRect frame = {(PuglCoord)(centerX - (defaultSize.width / 2U)),
-                          (PuglCoord)(centerY - (defaultSize.height / 2U)),
-                          view->sizeHints[PUGL_DEFAULT_SIZE].width,
-                          view->sizeHints[PUGL_DEFAULT_SIZE].height};
-  return frame;
+  const NSRect    boundsPx = nsRectFromPoints(view, boundsPt);
+  const PuglPoint center   = {
+    (PuglCoord)(boundsPx.origin.x + boundsPx.size.width / 2.0),
+    (PuglCoord)(boundsPx.origin.y + boundsPx.size.height / 2.0)};
+  return center;
 }
 
 PuglStatus
@@ -1243,7 +1216,9 @@ puglRealize(PuglView* view)
   }
 
   // Get the initial frame to use from the defaults or last configuration
-  const PuglRect initialFrame = getInitialFrame(view);
+  const PuglArea  size         = puglGetInitialSize(view);
+  const PuglPoint pos          = puglGetInitialPosition(view, size);
+  const PuglRect  initialFrame = {pos.x, pos.y, size.width, size.height};
 
   // Convert frame to points
   const NSRect framePx = rectToNsRect(initialFrame);

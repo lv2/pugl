@@ -510,48 +510,21 @@ clearX11Clipboard(PuglX11Clipboard* const board)
   board->data.len            = 0;
 }
 
-static PuglRect
-getInitialFrame(PuglView* const view)
+PuglPoint
+puglGetAncestorCenter(const PuglView* const view)
 {
-  if (view->lastConfigure.type == PUGL_CONFIGURE) {
-    // Use the last configured frame
-    const PuglRect frame = {view->lastConfigure.x,
-                            view->lastConfigure.y,
-                            view->lastConfigure.width,
-                            view->lastConfigure.height};
-    return frame;
-  }
+  Display* const    display       = view->world->impl->display;
+  const int         screen        = view->impl->screen;
+  XWindowAttributes ancestorAttrs = PUGL_INIT_STRUCT;
+  XGetWindowAttributes(display,
+                       view->transientParent ? (Window)view->transientParent
+                                             : RootWindow(display, screen),
+                       &ancestorAttrs);
 
-  const PuglSpan defaultWidth  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
-  const PuglSpan defaultHeight = view->sizeHints[PUGL_DEFAULT_SIZE].height;
-  const int      x             = view->defaultX;
-  const int      y             = view->defaultY;
-  if (puglIsValidPosition(x, y)) {
-    // Use the default position set with puglSetPosition while unrealized
-    const PuglRect frame = {
-      (PuglCoord)x, (PuglCoord)y, defaultWidth, defaultHeight};
-    return frame;
-  }
-
-  // Get the best "parentish" window to position the window in
-  Display* const display = view->world->impl->display;
-  const Window   parent =
-    (view->parent            ? (Window)view->parent
-     : view->transientParent ? (Window)view->transientParent
-                             : RootWindow(display, view->impl->screen));
-
-  // Get the position/size of the parent as bounds for the new window
-  XWindowAttributes parentAttrs = PUGL_INIT_STRUCT;
-  XGetWindowAttributes(display, parent, &parentAttrs);
-
-  // Center the frame within the parent bounds
-  const int      centerX = parentAttrs.x + parentAttrs.width / 2;
-  const int      centerY = parentAttrs.y + parentAttrs.height / 2;
-  const PuglRect frame   = {(PuglCoord)(centerX - (defaultWidth / 2)),
-                            (PuglCoord)(centerY - (defaultHeight / 2)),
-                            defaultWidth,
-                            defaultHeight};
-  return frame;
+  const PuglPoint center = {
+    (PuglCoord)(ancestorAttrs.x + ancestorAttrs.width / 2),
+    (PuglCoord)(ancestorAttrs.y + ancestorAttrs.height / 2)};
+  return center;
 }
 
 PuglStatus
@@ -606,16 +579,17 @@ puglRealize(PuglView* const view)
   attr.event_mask |= StructureNotifyMask;
   attr.event_mask |= VisibilityChangeMask;
 
-  // Calculate the initial window rectangle
-  const PuglRect initialFrame = getInitialFrame(view);
+  // Calculate the initial window frame
+  const PuglArea  initialSize = puglGetInitialSize(view);
+  const PuglPoint initialPos  = puglGetInitialPosition(view, initialSize);
 
   // Create the window
   impl->win = XCreateWindow(display,
                             parent,
-                            initialFrame.x,
-                            initialFrame.y,
-                            initialFrame.width,
-                            initialFrame.height,
+                            initialPos.x,
+                            initialPos.y,
+                            initialSize.width,
+                            initialSize.height,
                             0,
                             impl->vi->depth,
                             InputOutput,
@@ -1099,17 +1073,19 @@ getCurrentConfiguration(PuglView* const view)
   XWindowAttributes attrs;
   XGetWindowAttributes(display, view->impl->win, &attrs);
 
-  // Get window position relative to the root window
+  // Get window position (relative to the root window if not a child)
   Window ignoredChild = 0;
-  int    rootX        = 0;
-  int    rootY        = 0;
-  XTranslateCoordinates(
-    display, view->impl->win, attrs.root, 0, 0, &rootX, &rootY, &ignoredChild);
+  int    x            = attrs.x;
+  int    y            = attrs.y;
+  if (!view->parent) {
+    XTranslateCoordinates(
+      display, view->impl->win, attrs.root, 0, 0, &x, &y, &ignoredChild);
+  }
 
   // Build a configure event based on the current window configuration
   PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
-  configureEvent.configure.x      = (PuglCoord)rootX;
-  configureEvent.configure.y      = (PuglCoord)rootY;
+  configureEvent.configure.x      = (PuglCoord)x;
+  configureEvent.configure.y      = (PuglCoord)y;
   configureEvent.configure.width  = (PuglSpan)attrs.width;
   configureEvent.configure.height = (PuglSpan)attrs.height;
   configureEvent.configure.style  = getCurrentViewStyleFlags(view);

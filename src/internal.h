@@ -30,6 +30,18 @@ puglIsValidSize(unsigned x, unsigned y);
 bool
 puglIsValidArea(PuglArea size);
 
+/// Return the center point of some "soft" ancestor (parent window or screen)
+PuglPoint
+puglGetAncestorCenter(const PuglView* view);
+
+/// Return the initial size of a view
+PuglArea
+puglGetInitialSize(const PuglView* view);
+
+/// Return the initial position of a view if known, or an invalid position
+PuglPoint
+puglGetInitialPosition(const PuglView* view, PuglArea size);
+
 /// Set hint to a default value if it is unset (PUGL_DONT_CARE)
 void
 puglEnsureHint(PuglView* view, PuglViewHint hint, int value);
