@@ -345,9 +345,9 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
 
 - (NSSize)intrinsicContentSize
 {
-  const PuglViewSize defaultSize = puglview->sizeHints[PUGL_DEFAULT_SIZE];
+  const PuglArea defaultSize = puglview->sizeHints[PUGL_DEFAULT_SIZE];
 
-  return puglIsValidSize(defaultSize)
+  return puglIsValidArea(defaultSize)
            ? sizePoints(puglview, defaultSize.width, defaultSize.height)
            : NSMakeSize(NSViewNoInstrinsicMetric, NSViewNoInstrinsicMetric);
 }
@@ -1117,7 +1117,7 @@ updateSizeHint(PuglView* const view, const PuglSizeHint hint)
 {
   const PuglSpan width  = view->sizeHints[hint].width;
   const PuglSpan height = view->sizeHints[hint].height;
-  if (!puglIsValidSize(view->sizeHints[hint])) {
+  if (!puglIsValidArea(view->sizeHints[hint])) {
     return PUGL_FAILURE;
   }
 
@@ -1185,10 +1185,10 @@ getInitialFrame(PuglView* const view)
                      : [screen frame]);
 
   // Center the frame around the center of the bounding rectangle
-  const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
-  const NSRect       boundsPx    = nsRectFromPoints(view, boundsPt);
-  const double       centerX     = boundsPx.origin.x + boundsPx.size.width / 2;
-  const double       centerY     = boundsPx.origin.y + boundsPx.size.height / 2;
+  const PuglArea defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
+  const NSRect   boundsPx    = nsRectFromPoints(view, boundsPt);
+  const double   centerX     = boundsPx.origin.x + boundsPx.size.width / 2;
+  const double   centerY     = boundsPx.origin.y + boundsPx.size.height / 2;
 
   const PuglRect frame = {(PuglCoord)(centerX - (defaultSize.width / 2U)),
                           (PuglCoord)(centerY - (defaultSize.height / 2U)),
@@ -1272,7 +1272,7 @@ puglRealize(PuglView* view)
                                  NSLayoutRelationGreaterThanOrEqual,
                                  view->sizeHints[PUGL_MIN_SIZE].height)];
 
-  if (puglIsValidSize(view->sizeHints[PUGL_MAX_SIZE])) {
+  if (puglIsValidArea(view->sizeHints[PUGL_MAX_SIZE])) {
     [impl->wrapperView
       addConstraint:puglConstraint(impl->wrapperView,
                                    NSLayoutAttributeWidth,

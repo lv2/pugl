@@ -31,7 +31,7 @@ typedef struct {
 typedef struct {
   PuglSpan width;
   PuglSpan height;
-} PuglViewSize;
+} PuglArea;
 
 /// Blob of arbitrary data
 typedef struct {
@@ -57,7 +57,7 @@ struct PuglViewImpl {
   uintptr_t          transientParent;
   PuglConfigureEvent lastConfigure;
   PuglHints          hints;
-  PuglViewSize       sizeHints[PUGL_NUM_SIZE_HINTS];
+  PuglArea           sizeHints[PUGL_NUM_SIZE_HINTS];
   char*              strings[PUGL_NUM_STRING_HINTS];
   int                defaultX;
   int                defaultY;

@@ -13,7 +13,7 @@
 #include <string.h>
 
 bool
-puglIsValidSize(const PuglViewSize size)
+puglIsValidArea(const PuglArea size)
 {
   return size.width && size.height;
 }
@@ -175,7 +175,7 @@ puglPreRealize(PuglView* const view)
   }
 
   // Ensure that the default size is set to a valid size
-  if (!puglIsValidSize(view->sizeHints[PUGL_DEFAULT_SIZE])) {
+  if (!puglIsValidArea(view->sizeHints[PUGL_DEFAULT_SIZE])) {
     return PUGL_BAD_CONFIGURATION;
   }
 

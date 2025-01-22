@@ -414,30 +414,30 @@ updateSizeHints(const PuglView* const view)
     sizeHints.max_height  = (int)frame.height;
   } else {
     // Avoid setting PBaseSize for top level views to avoid window manager bugs
-    const PuglViewSize defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
-    if (puglIsValidSize(defaultSize) && view->parent) {
+    const PuglArea defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
+    if (puglIsValidArea(defaultSize) && view->parent) {
       sizeHints.flags |= PBaseSize;
       sizeHints.base_width  = defaultSize.width;
       sizeHints.base_height = defaultSize.height;
     }
 
-    const PuglViewSize minSize = view->sizeHints[PUGL_MIN_SIZE];
-    if (puglIsValidSize(minSize)) {
+    const PuglArea minSize = view->sizeHints[PUGL_MIN_SIZE];
+    if (puglIsValidArea(minSize)) {
       sizeHints.flags |= PMinSize;
       sizeHints.min_width  = minSize.width;
       sizeHints.min_height = minSize.height;
     }
 
-    const PuglViewSize maxSize = view->sizeHints[PUGL_MAX_SIZE];
-    if (puglIsValidSize(maxSize)) {
+    const PuglArea maxSize = view->sizeHints[PUGL_MAX_SIZE];
+    if (puglIsValidArea(maxSize)) {
       sizeHints.flags |= PMaxSize;
       sizeHints.max_width  = maxSize.width;
       sizeHints.max_height = maxSize.height;
     }
 
-    const PuglViewSize minAspect = view->sizeHints[PUGL_MIN_ASPECT];
-    const PuglViewSize maxAspect = view->sizeHints[PUGL_MAX_ASPECT];
-    if (puglIsValidSize(minAspect) && puglIsValidSize(maxAspect)) {
+    const PuglArea minAspect = view->sizeHints[PUGL_MIN_ASPECT];
+    const PuglArea maxAspect = view->sizeHints[PUGL_MAX_ASPECT];
+    if (puglIsValidArea(minAspect) && puglIsValidArea(maxAspect)) {
       sizeHints.flags |= PAspect;
       sizeHints.min_aspect.x = minAspect.width;
       sizeHints.min_aspect.y = minAspect.height;
@@ -445,8 +445,8 @@ updateSizeHints(const PuglView* const view)
       sizeHints.max_aspect.y = maxAspect.height;
     }
 
-    const PuglViewSize fixedAspect = view->sizeHints[PUGL_FIXED_ASPECT];
-    if (puglIsValidSize(fixedAspect)) {
+    const PuglArea fixedAspect = view->sizeHints[PUGL_FIXED_ASPECT];
+    if (puglIsValidArea(fixedAspect)) {
       sizeHints.flags |= PAspect;
       sizeHints.min_aspect.x = fixedAspect.width;
       sizeHints.min_aspect.y = fixedAspect.height;

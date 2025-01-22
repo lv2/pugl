@@ -712,8 +712,8 @@ constrainAspect(const PuglView* const view,
                 RECT* const           size,
                 const WPARAM          wParam)
 {
-  const PuglViewSize minAspect = view->sizeHints[PUGL_MIN_ASPECT];
-  const PuglViewSize maxAspect = view->sizeHints[PUGL_MAX_ASPECT];
+  const PuglArea minAspect = view->sizeHints[PUGL_MIN_ASPECT];
+  const PuglArea maxAspect = view->sizeHints[PUGL_MAX_ASPECT];
 
   const float minA = (float)minAspect.width / (float)minAspect.height;
   const float maxA = (float)maxAspect.width / (float)maxAspect.height;
@@ -798,8 +798,8 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     handleConfigure(view, &event);
     break;
   case WM_SIZING:
-    if (puglIsValidSize(view->sizeHints[PUGL_MIN_ASPECT]) &&
-        puglIsValidSize(view->sizeHints[PUGL_MAX_ASPECT])) {
+    if (puglIsValidArea(view->sizeHints[PUGL_MIN_ASPECT]) &&
+        puglIsValidArea(view->sizeHints[PUGL_MAX_ASPECT])) {
       constrainAspect(view, (RECT*)lParam, wParam);
       return TRUE;
     }
@@ -831,7 +831,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     mmi                   = (MINMAXINFO*)lParam;
     mmi->ptMinTrackSize.x = view->sizeHints[PUGL_MIN_SIZE].width;
     mmi->ptMinTrackSize.y = view->sizeHints[PUGL_MIN_SIZE].height;
-    if (puglIsValidSize(view->sizeHints[PUGL_MAX_SIZE])) {
+    if (puglIsValidArea(view->sizeHints[PUGL_MAX_SIZE])) {
       mmi->ptMaxTrackSize.x = view->sizeHints[PUGL_MAX_SIZE].width;
       mmi->ptMaxTrackSize.y = view->sizeHints[PUGL_MAX_SIZE].height;
     }
