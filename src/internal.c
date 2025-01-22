@@ -13,6 +13,12 @@
 #include <string.h>
 
 bool
+puglIsValidPosition(const int x, const int y)
+{
+  return x >= INT16_MIN && x <= INT16_MAX && y >= INT16_MIN && y <= INT16_MAX;
+}
+
+bool
 puglIsValidArea(const PuglArea size)
 {
   return size.width && size.height;

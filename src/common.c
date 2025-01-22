@@ -12,7 +12,6 @@
 
 #include <limits.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -302,7 +301,7 @@ puglGetFrame(const PuglView* view)
   // Get the default position if set, or fallback to (0, 0)
   int x = view->defaultX;
   int y = view->defaultY;
-  if (x < INT16_MIN || x > INT16_MAX || y < INT16_MIN || y > INT16_MAX) {
+  if (!puglIsValidPosition(x, y)) {
     x = 0;
     y = 0;
   }

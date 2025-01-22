@@ -1167,7 +1167,7 @@ getInitialFrame(PuglView* const view)
 
   const int x = view->defaultX;
   const int y = view->defaultY;
-  if (x >= INT16_MIN && x <= INT16_MAX && y >= INT16_MIN && y <= INT16_MAX) {
+  if (puglIsValidPosition(x, y)) {
     // Use the default position set with puglSetPosition while unrealized
     const PuglRect frame = {(PuglCoord)x,
                             (PuglCoord)y,
@@ -1773,7 +1773,7 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 PuglStatus
 puglSetPosition(PuglView* const view, const int x, const int y)
 {
-  if (x < INT16_MIN || x > INT16_MAX || y < INT16_MIN || y > INT16_MAX) {
+  if (!puglIsValidPosition(x, y)) {
     return PUGL_BAD_PARAMETER;
   }
 

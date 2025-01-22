@@ -526,7 +526,7 @@ getInitialFrame(PuglView* const view)
   const PuglSpan defaultHeight = view->sizeHints[PUGL_DEFAULT_SIZE].height;
   const int      x             = view->defaultX;
   const int      y             = view->defaultY;
-  if (x >= INT16_MIN && x <= INT16_MAX && y >= INT16_MIN && y <= INT16_MAX) {
+  if (puglIsValidPosition(x, y)) {
     // Use the default position set with puglSetPosition while unrealized
     const PuglRect frame = {
       (PuglCoord)x, (PuglCoord)y, defaultWidth, defaultHeight};
@@ -1999,7 +1999,7 @@ puglSetPosition(PuglView* const view, const int x, const int y)
 {
   Display* const display = view->world->impl->display;
 
-  if (x < INT16_MIN || x > INT16_MAX || y < INT16_MIN || y > INT16_MAX) {
+  if (!puglIsValidPosition(x, y)) {
     return PUGL_BAD_PARAMETER;
   }
 
