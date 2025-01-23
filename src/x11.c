@@ -1522,7 +1522,7 @@ static void
 mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
 {
   if (!dst->type) {
-    if (src->width > 0.0 && src->height > 0.0) {
+    if (src->width && src->height) {
       *dst = *src;
     }
   } else {
@@ -1843,8 +1843,9 @@ puglUpdate(PuglWorld* const world, const double timeout)
   world->impl->dispatchingEvents = true;
 
   if (timeout < 0.0) {
-    st0 = pollX11Socket(world, timeout);
-    st0 = st0 ? st0 : dispatchX11Events(world);
+    if (!(st0 = pollX11Socket(world, timeout))) {
+      st0 = dispatchX11Events(world);
+    }
   } else if (timeout <= 0.001) {
     st0 = dispatchX11Events(world);
   } else {
