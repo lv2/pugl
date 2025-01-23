@@ -92,8 +92,8 @@ swapFocus(PuglTestApp* app)
   }
 
   if (!app->continuous) {
-    puglPostRedisplay(app->parent);
-    puglPostRedisplay(app->child);
+    puglObscureView(app->parent);
+    puglObscureView(app->child);
   }
 }
 
@@ -146,7 +146,7 @@ onParentEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_UPDATE:
     if (app->continuous) {
-      puglPostRedisplay(view);
+      puglObscureView(view);
     }
     break;
   case PUGL_EXPOSE:
@@ -195,7 +195,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_UPDATE:
     if (app->continuous) {
-      puglPostRedisplay(view);
+      puglObscureView(view);
     }
     break;
   case PUGL_EXPOSE:
@@ -213,14 +213,14 @@ onEvent(PuglView* view, const PuglEvent* event)
     app->lastMouseX = event->motion.x;
     app->lastMouseY = event->motion.y;
     if (!app->continuous) {
-      puglPostRedisplay(view);
-      puglPostRedisplay(app->parent);
+      puglObscureView(view);
+      puglObscureView(app->parent);
     }
     break;
   case PUGL_SCROLL:
     app->dist = fmaxf(10.0f, app->dist + (float)event->scroll.dy);
     if (!app->continuous) {
-      puglPostRedisplay(view);
+      puglObscureView(view);
     }
     break;
   case PUGL_POINTER_IN:

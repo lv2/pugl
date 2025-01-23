@@ -116,7 +116,7 @@ static void
 redisplayView(PuglTestApp* app, PuglView* view)
 {
   if (!app->continuous) {
-    puglPostRedisplay(view);
+    puglObscureView(view);
   }
 }
 
@@ -135,7 +135,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_UPDATE:
     if (app->continuous) {
-      puglPostRedisplay(view);
+      puglObscureView(view);
     }
     break;
   case PUGL_EXPOSE:

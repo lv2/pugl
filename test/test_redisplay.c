@@ -140,7 +140,7 @@ main(int argc, char** argv)
   }
 
   // Redisplay from outside the event handler
-  puglPostRedisplay(test.view);
+  puglObscureView(test.view);
   while (test.state != REREDISPLAYED) {
     assert(!puglUpdate(test.world, timeout));
   }

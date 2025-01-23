@@ -1644,7 +1644,7 @@ puglGetTime(const PuglWorld* world)
 }
 
 PuglStatus
-puglPostRedisplay(PuglView* view)
+puglObscureView(PuglView* view)
 {
   [view->impl->drawView setNeedsDisplay:YES];
   return PUGL_SUCCESS;

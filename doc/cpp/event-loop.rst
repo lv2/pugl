@@ -24,14 +24,13 @@ while those that draw continuously may use a significant fraction of the frame p
 Redrawing
 *********
 
-Occasional redrawing can be requested by calling :func:`View::postRedisplay` or :func:`View::postRedisplayRect`.
+Occasional redrawing can be requested by calling :func:`View::obscure`.
 After these are called,
 a :type:`ExposeEvent` will be dispatched on the next call to :func:`World::update`.
 Note, however, that this will not wake up a blocked :func:`World::update` call on MacOS
 (which does not handle drawing via events).
 
-For continuous redrawing,
-call :func:`View::postRedisplay` while handling a :type:`UpdateEvent`.
+For continuous redrawing, obscure the view while handling a :type:`UpdateEvent`.
 This event is sent just before views are redrawn,
 so it can be used as a hook to expand the update region right before the view is exposed.
 Anything else that needs to be done every frame can be handled similarly.

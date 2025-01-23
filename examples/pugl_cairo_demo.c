@@ -225,15 +225,15 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_POINTER_IN:
     app->entered = true;
-    puglPostRedisplay(view);
+    puglObscureView(view);
     break;
   case PUGL_POINTER_OUT:
     app->entered = false;
-    puglPostRedisplay(view);
+    puglObscureView(view);
     break;
   case PUGL_UPDATE:
     if (app->opts.continuous) {
-      puglPostRedisplay(view);
+      puglObscureView(view);
     }
     break;
   case PUGL_EXPOSE:

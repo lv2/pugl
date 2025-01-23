@@ -744,7 +744,7 @@ puglShow(PuglView* const view, const PuglShowCommand command)
     }
 
     if (view->stage == PUGL_VIEW_STAGE_CONFIGURED) {
-      st = puglPostRedisplay(view);
+      st = puglObscureView(view);
     }
   }
 
@@ -1877,7 +1877,7 @@ puglGetTime(const PuglWorld* const world)
 }
 
 PuglStatus
-puglPostRedisplay(PuglView* const view)
+puglObscureView(PuglView* const view)
 {
   PuglRect rect = puglGetFrame(view);
   rect.x        = 0;

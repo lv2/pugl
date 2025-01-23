@@ -1042,7 +1042,7 @@ puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
   const bool newMaximized = styleIsMaximized(flags);
   if (oldMaximized != newMaximized) {
     ShowWindow(impl->hwnd, newMaximized ? SW_SHOWMAXIMIZED : SW_RESTORE);
-    puglPostRedisplay(view);
+    puglObscureView(view);
   }
 
   return PUGL_SUCCESS;
@@ -1209,7 +1209,7 @@ puglGetTime(const PuglWorld* world)
 }
 
 PuglStatus
-puglPostRedisplay(PuglView* view)
+puglObscureView(PuglView* view)
 {
   InvalidateRect(view->impl->hwnd, NULL, false);
   return PUGL_SUCCESS;

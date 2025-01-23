@@ -298,9 +298,9 @@ typedef PuglAnyEvent PuglCloseEvent;
 
    This event is sent to every view near the end of a main loop iteration when
    any pending exposures are about to be redrawn.  It is typically used to mark
-   regions to expose with puglPostRedisplay() or puglPostRedisplayRect().  For
-   example, to continuously animate, a view calls puglPostRedisplay() when an
-   update event is received, and it will then shortly receive an expose event.
+   regions to expose with puglObscureView() or puglPostRedisplayRect().  For
+   example, to continuously animate, obscure the view when an update event is
+   received, and it will receive an expose event shortly afterwards.
 */
 typedef PuglAnyEvent PuglUpdateEvent;
 
@@ -1422,13 +1422,13 @@ puglGetContext(PuglView* view);
 */
 PUGL_API
 PuglStatus
-puglPostRedisplay(PuglView* view);
+puglObscureView(PuglView* view);
 
 /**
    Request a redisplay of the given rectangle within the view.
 
-   This has the same semantics as puglPostRedisplay(), but allows giving a
-   precise region for redrawing only a portion of the view.
+   This has the same semantics as puglObscureView(), but allows giving a precise
+   region for redrawing only a portion of the view.
 */
 PUGL_API
 PuglStatus
@@ -2192,6 +2192,22 @@ PuglNativeView
 puglGetParentWindow(PuglView* view)
 {
   return puglGetParent(view);
+}
+
+/**
+   Request a redisplay for the entire view.
+
+   This will cause an expose event to be dispatched later.  If called from
+   within the event handler, the expose should arrive at the end of the current
+   event loop iteration, though this is not strictly guaranteed on all
+   platforms.  If called elsewhere, an expose will be enqueued to be processed
+   in the next event loop iteration.
+*/
+static inline PUGL_DEPRECATED_BY("puglObscureView")
+PuglStatus
+puglPostRedisplay(PuglView* view)
+{
+  return puglObscureView(view);
 }
 
 #endif // PUGL_DISABLE_DEPRECATED

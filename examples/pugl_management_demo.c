@@ -203,7 +203,7 @@ onCommonEvent(PuglView* view, const PuglEvent* const event)
     }
     break;
   case PUGL_CONFIGURE:
-    return puglPostRedisplay(view);
+    return puglObscureView(view);
   case PUGL_EXPOSE:
     return onExpose(view, &event->expose);
   case PUGL_KEY_PRESS:

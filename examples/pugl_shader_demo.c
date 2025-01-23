@@ -168,7 +168,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     onConfigure(view, event->configure.width, event->configure.height);
     break;
   case PUGL_UPDATE:
-    puglPostRedisplay(view);
+    puglObscureView(view);
     break;
   case PUGL_EXPOSE:
     onExpose(view);
@@ -195,7 +195,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_TIMER:
     if (event->timer.id == resizeTimerId) {
-      puglPostRedisplay(view);
+      puglObscureView(view);
     }
     break;
   default:

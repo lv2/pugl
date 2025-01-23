@@ -609,10 +609,10 @@ public:
   /// @copydoc puglGetContext
   void* context() noexcept { return puglGetContext(cobj()); }
 
-  /// @copydoc puglPostRedisplay
-  Status postRedisplay() noexcept
+  /// @copydoc puglObscure
+  Status obscure() noexcept
   {
-    return static_cast<Status>(puglPostRedisplay(cobj()));
+    return static_cast<Status>(puglObscureView(cobj()));
   }
 
   /// @copydoc puglPostRedisplayRect

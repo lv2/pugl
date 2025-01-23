@@ -1522,7 +1522,7 @@ View::onEvent(const pugl::ConfigureEvent& event)
 pugl::Status
 View::onEvent(const pugl::UpdateEvent&)
 {
-  return postRedisplay();
+  return obscure();
 }
 
 VkResult
@@ -1708,7 +1708,7 @@ View::onEvent(const pugl::LoopEnterEvent&)
 pugl::Status
 View::onEvent(const pugl::TimerEvent&)
 {
-  return postRedisplay();
+  return obscure();
 }
 
 pugl::Status

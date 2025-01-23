@@ -23,12 +23,11 @@ while those that draw continuously may use a significant fraction of the frame p
 Redrawing
 *********
 
-Occasional redrawing can be requested by calling :func:`puglPostRedisplay` or :func:`puglPostRedisplayRect`.
+Occasional redrawing can be requested by calling :func:`puglObscureView` or :func:`puglPostRedisplayRect`.
 After these are called,
 a :struct:`PuglExposeEvent` will be dispatched on the next call to :func:`puglUpdate`.
 
-For continuous redrawing,
-call :func:`puglPostRedisplay` while handling a :struct:`PuglUpdateEvent` event.
+For continuous redrawing, obscure the view while handling a :struct:`PuglUpdateEvent` event.
 This event is sent just before views are redrawn,
 so it can be used as a hook to expand the update region right before the view is exposed.
 Anything else that needs to be done every frame can be handled similarly.

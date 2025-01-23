@@ -1009,7 +1009,7 @@ onEvent(PuglView* const view, const PuglEvent* const e)
 
   switch (e->type) {
   case PUGL_UPDATE:
-    return app->opts.continuous ? puglPostRedisplay(view) : PUGL_SUCCESS;
+    return app->opts.continuous ? puglObscureView(view) : PUGL_SUCCESS;
   case PUGL_EXPOSE:
     return onExpose(view);
   case PUGL_CONFIGURE:
