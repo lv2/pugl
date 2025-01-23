@@ -7,6 +7,7 @@
 #include "mac.h"
 
 #include "internal.h"
+#include "macros.h"
 #include "platform.h"
 
 #include "pugl/pugl.h"
@@ -1651,15 +1652,30 @@ puglObscureView(PuglView* view)
 }
 
 PuglStatus
-puglPostRedisplayRect(PuglView* view, const PuglRect rect)
+puglObscureRegion(PuglView*      view,
+                  const int      x,
+                  const int      y,
+                  const unsigned width,
+                  const unsigned height)
 {
-  const NSRect rectPx = {
-    {(double)rect.x,
-     (double)view->lastConfigure.height - (rect.y + rect.height)},
-    {(double)rect.width, (double)rect.height},
-  };
+  if (!puglIsValidPosition(x, y) || !puglIsValidSize(width, height)) {
+    return PUGL_BAD_PARAMETER;
+  }
 
-  [view->impl->drawView setNeedsDisplayInRect:nsRectToPoints(view, rectPx)];
+  const PuglSpan viewHeight = view->lastConfigure.height;
+
+  const int      cx = MAX(0, x);
+  const int      cy = MAX(0, viewHeight - y - (int)height);
+  const unsigned cw = MIN(view->lastConfigure.width, width);
+  const unsigned ch = MIN(view->lastConfigure.height, height);
+
+  if (cw == view->lastConfigure.width && ch == view->lastConfigure.height) {
+    [view->impl->drawView setNeedsDisplay:YES];
+  } else {
+    const NSRect rectPx = NSMakeRect(cx, cy, cw, ch);
+
+    [view->impl->drawView setNeedsDisplayInRect:nsRectToPoints(view, rectPx)];
+  }
 
   return PUGL_SUCCESS;
 }

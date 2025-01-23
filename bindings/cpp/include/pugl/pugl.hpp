@@ -615,10 +615,13 @@ public:
     return static_cast<Status>(puglObscureView(cobj()));
   }
 
-  /// @copydoc puglPostRedisplayRect
-  Status postRedisplayRect(const Rect& rect) noexcept
+  /// "Obscure" a region so it will be exposed in the next render
+  Status obscure(const int      x,
+                 const int      y,
+                 const unsigned width,
+                 const unsigned height)
   {
-    return static_cast<Status>(puglPostRedisplayRect(cobj(), rect));
+    return static_cast<Status>(puglObscureRegion(cobj(), x, y, width, height));
   }
 
   /**

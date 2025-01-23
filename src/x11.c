@@ -1879,18 +1879,27 @@ puglGetTime(const PuglWorld* const world)
 PuglStatus
 puglObscureView(PuglView* const view)
 {
-  PuglRect rect = puglGetFrame(view);
-  rect.x        = 0;
-  rect.y        = 0;
-
-  return puglPostRedisplayRect(view, rect);
+  return puglObscureRegion(
+    view, 0, 0, view->lastConfigure.width, view->lastConfigure.height);
 }
 
 PuglStatus
-puglPostRedisplayRect(PuglView* const view, const PuglRect rect)
+puglObscureRegion(PuglView* const view,
+                  const int       x,
+                  const int       y,
+                  const unsigned  width,
+                  const unsigned  height)
 {
-  const PuglExposeEvent event = {
-    PUGL_EXPOSE, 0, rect.x, rect.y, rect.width, rect.height};
+  if (!puglIsValidPosition(x, y) || !puglIsValidSize(width, height)) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  const PuglCoord cx = MAX((PuglCoord)0, (PuglCoord)x);
+  const PuglCoord cy = MAX((PuglCoord)0, (PuglCoord)y);
+  const PuglSpan  cw = MIN(view->lastConfigure.width, (PuglSpan)width);
+  const PuglSpan  ch = MIN(view->lastConfigure.height, (PuglSpan)height);
+
+  const PuglExposeEvent event = {PUGL_EXPOSE, 0, cx, cy, cw, ch};
 
   if (view->world->impl->dispatchingEvents) {
     // Currently dispatching events, add/expand expose for the loop end

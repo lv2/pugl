@@ -114,13 +114,12 @@ postButtonRedisplay(PuglView* view)
   const ViewScale scale = getScale(view);
 
   for (const Button* b = buttons; b->label; ++b) {
-    const double   span = sqrt(b->w * b->w + b->h * b->h);
-    const PuglRect rect = {(PuglCoord)((b->x - span) * scale.x),
-                           (PuglCoord)((b->y - span) * scale.y),
-                           (PuglSpan)ceil(span * 2.0 * scale.x),
-                           (PuglSpan)ceil(span * 2.0 * scale.y)};
-
-    puglPostRedisplayRect(view, rect);
+    const double span = sqrt(b->w * b->w + b->h * b->h);
+    puglObscureRegion(view,
+                      (int)((b->x - span) * scale.x),
+                      (int)((b->y - span) * scale.y),
+                      (unsigned)ceil(span * 2.0 * scale.x),
+                      (unsigned)ceil(span * 2.0 * scale.y));
   }
 }
 
@@ -172,18 +171,17 @@ onClose(PuglView* view)
   app->quit = 1;
 }
 
-static PuglRect
-mouseCursorViewBounds(const PuglView* const view,
-                      const double          mouseX,
-                      const double          mouseY)
+static PuglStatus
+obscureMouseCursor(PuglView* const view,
+                   const ViewScale scale,
+                   const double    mouseX,
+                   const double    mouseY)
 {
-  const ViewScale scale = getScale(view);
-  const PuglRect  rect  = {(PuglCoord)floor(mouseX - (10.0 * scale.x)),
-                           (PuglCoord)floor(mouseY - (10.0 * scale.y)),
-                           (PuglSpan)ceil(20.0 * scale.x),
-                           (PuglSpan)ceil(20.0 * scale.y)};
-
-  return rect;
+  return puglObscureRegion(view,
+                           (int)floor(mouseX - (10.0 * scale.x)),
+                           (int)floor(mouseY - (10.0 * scale.y)),
+                           (unsigned)ceil(20.0 * scale.x),
+                           (unsigned)ceil(20.0 * scale.y));
 }
 
 static PuglStatus
@@ -193,6 +191,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 
   printEvent(event, "Event: ", app->opts.verbose);
 
+  const ViewScale scale = getScale(view);
   switch (event->type) {
   case PUGL_KEY_PRESS:
     if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
@@ -209,16 +208,12 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_MOTION:
     // Redisplay to clear the old cursor position
-    puglPostRedisplayRect(
-      view,
-      mouseCursorViewBounds(view, app->lastDrawnMouseX, app->lastDrawnMouseY));
+    obscureMouseCursor(view, scale, app->lastDrawnMouseX, app->lastDrawnMouseY);
 
     // Redisplay to show the new cursor position
     app->currentMouseX = event->motion.x;
     app->currentMouseY = event->motion.y;
-    puglPostRedisplayRect(
-      view,
-      mouseCursorViewBounds(view, app->currentMouseX, app->currentMouseY));
+    obscureMouseCursor(view, scale, app->currentMouseX, app->currentMouseY);
 
     app->lastDrawnMouseX = app->currentMouseX;
     app->lastDrawnMouseY = app->currentMouseY;

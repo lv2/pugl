@@ -51,8 +51,11 @@ typedef struct {
   State           state;
 } PuglTest;
 
-static const PuglRect  redisplayRect   = {2, 4, 8, 16};
-static const uintptr_t postRedisplayId = 42;
+static const PuglCoord obscureX      = 2;
+static const PuglCoord obscureY      = 4;
+static const PuglSpan  obscureWidth  = 8;
+static const PuglSpan  obscureHeight = 16;
+static const uintptr_t obscureId     = 42;
 
 static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
@@ -67,7 +70,7 @@ onEvent(PuglView* view, const PuglEvent* event)
   switch (event->type) {
   case PUGL_UPDATE:
     if (test->state == SHOULD_REDISPLAY) {
-      puglPostRedisplayRect(view, redisplayRect);
+      puglObscureRegion(view, obscureX, obscureY, obscureWidth, obscureHeight);
       test->state = POSTED_REDISPLAY;
     }
     break;
@@ -75,13 +78,12 @@ onEvent(PuglView* view, const PuglEvent* event)
   case PUGL_EXPOSE:
     if (test->state == START) {
       test->state = EXPOSED;
-    } else if (test->state == POSTED_REDISPLAY &&
-               event->expose.x <= redisplayRect.x &&
-               event->expose.y <= redisplayRect.y &&
+    } else if (test->state == POSTED_REDISPLAY && event->expose.x <= obscureX &&
+               event->expose.y <= obscureY &&
                (event->expose.x + event->expose.width >=
-                redisplayRect.x + redisplayRect.width) &&
+                obscureX + obscureWidth) &&
                (event->expose.y + event->expose.height >=
-                redisplayRect.y + redisplayRect.height)) {
+                obscureY + obscureHeight)) {
       test->state = REDISPLAYED;
     } else if (test->state == REDISPLAYED) {
       test->state = REREDISPLAYED;
@@ -89,7 +91,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
 
   case PUGL_CLIENT:
-    if (event->client.data1 == postRedisplayId) {
+    if (event->client.data1 == obscureId) {
       test->state = SHOULD_REDISPLAY;
     }
     break;
@@ -128,7 +130,7 @@ main(int argc, char** argv)
 
   // Send a custom event to trigger a redisplay in the event loop
   PuglEvent client_event    = {{PUGL_CLIENT, 0}};
-  client_event.client.data1 = postRedisplayId;
+  client_event.client.data1 = obscureId;
   client_event.client.data2 = 0;
   assert(!puglSendEvent(test.view, &client_event));
 

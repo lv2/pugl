@@ -12,7 +12,7 @@ project(
   ],
   license: 'ISC',
   meson_version: '>= 0.54.0',
-  version: '0.5.3',
+  version: '0.5.5',
 )
 
 pugl_src_root = meson.current_source_dir()

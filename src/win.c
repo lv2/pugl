@@ -4,6 +4,7 @@
 #include "win.h"
 
 #include "internal.h"
+#include "macros.h"
 #include "platform.h"
 
 #include "pugl/pugl.h"
@@ -1216,13 +1217,22 @@ puglObscureView(PuglView* view)
 }
 
 PuglStatus
-puglPostRedisplayRect(PuglView* view, const PuglRect rect)
+puglObscureRegion(PuglView* const view,
+                  const int       x,
+                  const int       y,
+                  const unsigned  width,
+                  const unsigned  height)
 {
-  const RECT r = {(long)floor(rect.x),
-                  (long)floor(rect.y),
-                  (long)ceil(rect.x + rect.width),
-                  (long)ceil(rect.y + rect.height)};
+  if (!puglIsValidPosition(x, y) || !puglIsValidSize(width, height)) {
+    return PUGL_BAD_PARAMETER;
+  }
 
+  const int      cx = MAX(0, x);
+  const int      cy = MAX(0, y);
+  const unsigned cw = MIN(view->lastConfigure.width, width);
+  const unsigned ch = MIN(view->lastConfigure.height, height);
+
+  const RECT r = {cx, cy, cx + (long)cw, cy + (long)ch};
   InvalidateRect(view->impl->hwnd, &r, false);
 
   return PUGL_SUCCESS;

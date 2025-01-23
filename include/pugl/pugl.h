@@ -298,7 +298,7 @@ typedef PuglAnyEvent PuglCloseEvent;
 
    This event is sent to every view near the end of a main loop iteration when
    any pending exposures are about to be redrawn.  It is typically used to mark
-   regions to expose with puglObscureView() or puglPostRedisplayRect().  For
+   regions to expose with puglObscureView() or puglObscureRegion().  For
    example, to continuously animate, obscure the view when an update event is
    received, and it will receive an expose event shortly afterwards.
 */
@@ -1425,14 +1425,29 @@ PuglStatus
 puglObscureView(PuglView* view);
 
 /**
-   Request a redisplay of the given rectangle within the view.
+   "Obscure" a region so it will be exposed in the next render.
 
-   This has the same semantics as puglObscureView(), but allows giving a precise
-   region for redrawing only a portion of the view.
+   This will cause an expose event to be dispatched later.  If called from
+   within the event handler, the expose should arrive at the end of the current
+   event loop iteration, though this is not strictly guaranteed on all
+   platforms.  If called elsewhere, an expose will be enqueued to be processed
+   in the next event loop iteration.
+
+   The region is clamped to the size of the view if necessary.
+
+   @param view The view to expose later.
+   @param x The top-left X coordinate of the rectangle to obscure.
+   @param y The top-left Y coordinate of the rectangle to obscure.
+   @param width The width of the rectangle to obscure.
+   @param height The height coordinate of the rectangle to obscure.
 */
 PUGL_API
 PuglStatus
-puglPostRedisplayRect(PuglView* view, PuglRect rect);
+puglObscureRegion(PuglView* view,
+                  int       x,
+                  int       y,
+                  unsigned  width,
+                  unsigned  height);
 
 /**
    @}
@@ -1634,8 +1649,8 @@ puglStopTimer(PuglView* view, uintptr_t id);
    Currently, only #PUGL_CLIENT events are supported on all platforms.
 
    X11: A #PUGL_EXPOSE event can be sent, which is similar to calling
-   puglPostRedisplayRect(), but will always send a message to the X server,
-   even when called in an event handler.
+   puglObscureRegion(), but will always send a message to the X server, even
+   when called in an event handler.
 
    @return #PUGL_UNSUPPORTED if sending events of this type is not supported,
    #PUGL_UNKNOWN_ERROR if sending the event failed.
@@ -2208,6 +2223,19 @@ PuglStatus
 puglPostRedisplay(PuglView* view)
 {
   return puglObscureView(view);
+}
+
+/**
+   Request a redisplay of the given rectangle within the view.
+
+   This has the same semantics as puglPostRedisplay(), but allows giving a
+   precise region for redrawing only a portion of the view.
+*/
+static inline PUGL_DEPRECATED_BY("puglObscureRegion")
+PuglStatus
+puglPostRedisplayRect(PuglView* view, PuglRect rect)
+{
+  return puglObscureRegion(view, rect.x, rect.y, rect.width, rect.height);
 }
 
 #endif // PUGL_DISABLE_DEPRECATED
