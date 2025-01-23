@@ -58,12 +58,32 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
   char                 buf[128] = {0};
   cairo_text_extents_t extents  = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
   cairo_set_font_size(cr, 30.0);
+  cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+
+  // Draw position label
+  snprintf(buf, sizeof(buf), "Position: %5d, %5d", frame.x, frame.y);
+  cairo_text_extents(cr, buf, &extents);
+  cairo_move_to(
+    cr, cx - extents.width / 2.0, cy + extents.height / 2.0 - 192.0);
+  cairo_show_text(cr, buf);
+
+  // Draw size label
+  snprintf(buf, sizeof(buf), "Size: %5u, %5u", frame.width, frame.height);
+  cairo_text_extents(cr, buf, &extents);
+  cairo_move_to(
+    cr, cx - extents.width / 2.0, cy + extents.height / 2.0 - 144.0);
+  cairo_show_text(cr, buf);
+
+  // Draw scale label
+  snprintf(buf, sizeof(buf), "Scale: %g", puglGetScaleFactor(view));
+  cairo_text_extents(cr, buf, &extents);
+  cairo_move_to(cr, cx - extents.width / 2.0, cy + extents.height / 2.0 - 96.0);
+  cairo_show_text(cr, buf);
 
   // Draw time label
   snprintf(buf, sizeof(buf), "Draw time: %g", puglGetTime(world));
   cairo_text_extents(cr, buf, &extents);
   cairo_move_to(cr, cx - extents.width / 2.0, cy + extents.height / 2.0 - 48.0);
-  cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);
   cairo_show_text(cr, buf);
 
   // Draw style label
@@ -81,7 +101,6 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
            style & PUGL_VIEW_STYLE_RESIZING ? " resizing" : "");
   cairo_text_extents(cr, buf, &extents);
   cairo_move_to(cr, cx - extents.width / 2.0, cy + extents.height / 2.0);
-  cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
   cairo_show_text(cr, buf);
 
   if (view == app->mainView.view) {
@@ -90,7 +109,6 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
     cairo_text_extents(cr, buf, &extents);
     cairo_move_to(
       cr, cx - extents.width / 2.0, cy + extents.height / 2.0 + 48.0);
-    cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
     cairo_show_text(cr, buf);
   }
 
