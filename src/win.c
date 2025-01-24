@@ -270,20 +270,6 @@ puglInitViewInternals(PuglWorld* PUGL_UNUSED(world))
   return (PuglInternals*)calloc(1, sizeof(PuglInternals));
 }
 
-static PuglStatus
-puglPollWinEvents(PuglWorld* world, const double timeout)
-{
-  (void)world;
-
-  if (timeout < 0) {
-    WaitMessage();
-  } else {
-    MsgWaitForMultipleObjects(
-      0, NULL, FALSE, (DWORD)(timeout * 1e3), QS_ALLEVENTS);
-  }
-  return PUGL_SUCCESS;
-}
-
 PuglStatus
 puglRealize(PuglView* view)
 {
@@ -1144,19 +1130,18 @@ puglUpdate(PuglWorld* world, double timeout)
   PuglStatus   st        = PUGL_SUCCESS;
 
   if (timeout < 0.0) {
-    st = puglPollWinEvents(world, timeout);
-    st = st ? st : puglDispatchWinEvents(world);
+    WaitMessage();
+    st = puglDispatchWinEvents(world);
   } else if (timeout < minWaitSeconds) {
     st = puglDispatchWinEvents(world);
   } else {
     const double endTime = startTime + timeout - minWaitSeconds;
     double       t       = startTime;
     while (!st && t < endTime) {
-      if ((st = puglPollWinEvents(world, endTime - t)) ||
-          (st = puglDispatchWinEvents(world))) {
-        break;
-      }
-      t = puglGetTime(world);
+      const DWORD timeoutMs = (DWORD)((endTime - t) * 1e3);
+      MsgWaitForMultipleObjects(0, NULL, FALSE, timeoutMs, QS_ALLEVENTS);
+      st = puglDispatchWinEvents(world);
+      t  = puglGetTime(world);
     }
   }
 
