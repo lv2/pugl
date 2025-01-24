@@ -1,4 +1,4 @@
-# Copyright 2021-2023 David Robillard <d@drobilla.net>
+# Copyright 2021-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 project(
@@ -8,7 +8,7 @@ project(
     'b_ndebug=if-release',
     'buildtype=release',
     'c_std=c99',
-    'cpp_std=c++14',
+    'cpp_std=c++17',
   ],
   license: 'ISC',
   meson_version: '>= 0.54.0',
