@@ -1150,11 +1150,13 @@ puglUpdate(PuglWorld* world, double timeout)
     st = puglDispatchWinEvents(world);
   } else {
     const double endTime = startTime + timeout - minWaitSeconds;
-    for (double t = startTime; t < endTime; t = puglGetTime(world)) {
+    double       t       = startTime;
+    while (!st && t < endTime) {
       if ((st = puglPollWinEvents(world, endTime - t)) ||
           (st = puglDispatchWinEvents(world))) {
         break;
       }
+      t = puglGetTime(world);
     }
   }
 
