@@ -349,24 +349,22 @@ puglUnrealize(PuglView* const view)
     view->backend->destroy(view);
   }
 
+  memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
   ReleaseDC(view->impl->hwnd, view->impl->hdc);
   view->impl->hdc = NULL;
 
-  DestroyWindow(view->impl->hwnd);
-  view->impl->hwnd = NULL;
-
-  memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
-  return PUGL_SUCCESS;
+  const PuglStatus st = puglWinStatus(DestroyWindow(view->impl->hwnd));
+  view->impl->hwnd    = NULL;
+  return st;
 }
 
 PuglStatus
 puglShow(PuglView* view, const PuglShowCommand command)
 {
   PuglInternals* impl = view->impl;
-
+  PuglStatus     st   = PUGL_SUCCESS;
   if (!impl->hwnd) {
-    const PuglStatus st = puglRealize(view);
-    if (st) {
+    if ((st = puglRealize(view))) {
       return st;
     }
   }
@@ -381,19 +379,17 @@ puglShow(PuglView* view, const PuglShowCommand command)
     break;
   case PUGL_SHOW_FORCE_RAISE:
     ShowWindow(impl->hwnd, SW_SHOWNORMAL);
-    SetForegroundWindow(impl->hwnd);
+    st = puglWinStatus(!!SetForegroundWindow(impl->hwnd));
     break;
   }
 
-  return PUGL_SUCCESS;
+  return st;
 }
 
 PuglStatus
 puglHide(PuglView* view)
 {
-  PuglInternals* impl = view->impl;
-
-  ShowWindow(impl->hwnd, SW_HIDE);
+  ShowWindow(view->impl->hwnd, SW_HIDE);
   return PUGL_SUCCESS;
 }
 
@@ -954,8 +950,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 PuglStatus
 puglGrabFocus(PuglView* view)
 {
-  SetFocus(view->impl->hwnd);
-  return PUGL_SUCCESS;
+  return puglWinStatus(!!SetFocus(view->impl->hwnd));
 }
 
 bool
@@ -1040,9 +1035,8 @@ puglStartTimer(PuglView* view, uintptr_t id, double timeout)
 {
   const UINT msec = (UINT)floor(timeout * 1000.0);
 
-  return (SetTimer(view->impl->hwnd, PUGL_USER_TIMER_MIN + id, msec, NULL)
-            ? PUGL_SUCCESS
-            : PUGL_UNKNOWN_ERROR);
+  SetTimer(view->impl->hwnd, PUGL_USER_TIMER_MIN + id, msec, NULL);
+  return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -1055,17 +1049,14 @@ PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event)
 {
   if (event->type == PUGL_CLOSE) {
-    PostMessage(view->impl->hwnd, WM_CLOSE, 0, 0);
-    return PUGL_SUCCESS;
+    return puglWinStatus(PostMessage(view->impl->hwnd, WM_CLOSE, 0, 0));
   }
 
   if (event->type == PUGL_CLIENT) {
-    PostMessage(view->impl->hwnd,
-                PUGL_LOCAL_CLIENT_MSG,
-                (WPARAM)event->client.data1,
-                (LPARAM)event->client.data2);
-
-    return PUGL_SUCCESS;
+    return puglWinStatus(PostMessage(view->impl->hwnd,
+                                     PUGL_LOCAL_CLIENT_MSG,
+                                     (WPARAM)event->client.data1,
+                                     (LPARAM)event->client.data2));
   }
 
   return PUGL_UNSUPPORTED;
@@ -1199,8 +1190,7 @@ puglGetTime(const PuglWorld* world)
 PuglStatus
 puglObscureView(PuglView* view)
 {
-  InvalidateRect(view->impl->hwnd, NULL, false);
-  return PUGL_SUCCESS;
+  return puglWinStatus(InvalidateRect(view->impl->hwnd, NULL, false));
 }
 
 PuglStatus
@@ -1220,9 +1210,7 @@ puglObscureRegion(PuglView* const view,
   const unsigned ch = MIN(view->lastConfigure.height, height);
 
   const RECT r = {cx, cy, cx + (long)cw, cy + (long)ch};
-  InvalidateRect(view->impl->hwnd, &r, false);
-
-  return PUGL_SUCCESS;
+  return puglWinStatus(InvalidateRect(view->impl->hwnd, &r, false));
 }
 
 PuglNativeView
@@ -1236,17 +1224,18 @@ puglViewStringChanged(PuglView* const      view,
                       const PuglStringHint key,
                       const char* const    value)
 {
+  PuglStatus st = PUGL_SUCCESS;
   if (!view->impl->hwnd) {
-    return PUGL_SUCCESS;
+    return st;
   }
 
   if (key == PUGL_WINDOW_TITLE) {
     ArgStringChar* const titleArg = puglArgStringNew(value);
-    SetWindowText(view->impl->hwnd, titleArg);
+    st = puglWinStatus(SetWindowText(view->impl->hwnd, titleArg));
     puglArgStringFree(titleArg);
   }
 
-  return PUGL_SUCCESS;
+  return st;
 }
 
 static RECT
@@ -1411,8 +1400,7 @@ puglAcceptOffer(PuglView* const                 view,
 
   PuglEvent dataEvent;
   dataEvent.data = data;
-  puglDispatchEvent(view, &dataEvent);
-  return PUGL_SUCCESS;
+  return puglDispatchEvent(view, &dataEvent);
 }
 
 const void*
@@ -1504,8 +1492,7 @@ puglPaste(PuglView* const view)
 
   PuglEvent offerEvent;
   offerEvent.offer = offer;
-  puglDispatchEvent(view, &offerEvent);
-  return PUGL_SUCCESS;
+  return puglDispatchEvent(view, &offerEvent);
 }
 
 static const TCHAR* const cursor_ids[] = {
@@ -1653,7 +1640,6 @@ puglWinConfigure(PuglView* view)
 {
   PuglInternals* const impl = view->impl;
   PuglStatus           st   = PUGL_SUCCESS;
-
   if ((st = puglWinCreateWindow(view, "Pugl", &impl->hwnd, &impl->hdc))) {
     return st;
   }
@@ -1666,20 +1652,18 @@ puglWinConfigure(PuglView* view)
     DestroyWindow(impl->hwnd);
     impl->hwnd = NULL;
     impl->hdc  = NULL;
-    return PUGL_SET_FORMAT_FAILED;
+    st         = PUGL_SET_FORMAT_FAILED;
   }
 
-  return PUGL_SUCCESS;
+  return st;
 }
 
 PuglStatus
 puglWinEnter(PuglView* view, const PuglExposeEvent* expose)
 {
-  if (expose) {
-    BeginPaint(view->impl->hwnd, &view->impl->paint);
-  }
-
-  return PUGL_SUCCESS;
+  return expose
+           ? puglWinStatus(!!BeginPaint(view->impl->hwnd, &view->impl->paint))
+           : PUGL_SUCCESS;
 }
 
 PuglStatus
