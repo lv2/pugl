@@ -379,7 +379,7 @@ puglShow(PuglView* view, const PuglShowCommand command)
     break;
   case PUGL_SHOW_FORCE_RAISE:
     ShowWindow(impl->hwnd, SW_SHOWNORMAL);
-    st = puglWinStatus(!!SetForegroundWindow(impl->hwnd));
+    SetForegroundWindow(impl->hwnd);
     break;
   }
 
