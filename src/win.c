@@ -314,16 +314,16 @@ puglRealize(PuglView* view)
   puglSetViewString(view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
   puglSetTransientParent(view, view->transientParent);
 
-  view->impl->scaleFactor = puglWinGetViewScaleFactor(view);
-  view->impl->cursor      = LoadCursor(NULL, IDC_ARROW);
+  impl->scaleFactor = puglWinGetViewScaleFactor(view);
+  impl->cursor      = LoadCursor(NULL, IDC_ARROW);
 
   if (view->hints[PUGL_DARK_FRAME]) {
     const BOOL useDarkMode = TRUE;
-    if ((DwmSetWindowAttribute(view->impl->hwnd,
+    if ((DwmSetWindowAttribute(impl->hwnd,
                                DWMWA_USE_IMMERSIVE_DARK_MODE,
                                &useDarkMode,
                                sizeof(useDarkMode)) != S_OK)) {
-      DwmSetWindowAttribute(view->impl->hwnd,
+      DwmSetWindowAttribute(impl->hwnd,
                             PRE_20H1_DWMWA_USE_IMMERSIVE_DARK_MODE,
                             &useDarkMode,
                             sizeof(useDarkMode));
@@ -350,11 +350,11 @@ puglUnrealize(PuglView* const view)
   }
 
   memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
-  ReleaseDC(view->impl->hwnd, view->impl->hdc);
-  view->impl->hdc = NULL;
+  ReleaseDC(impl->hwnd, impl->hdc);
+  impl->hdc = NULL;
 
-  const PuglStatus st = puglWinStatus(DestroyWindow(view->impl->hwnd));
-  view->impl->hwnd    = NULL;
+  const PuglStatus st = puglWinStatus(DestroyWindow(impl->hwnd));
+  impl->hwnd          = NULL;
   return st;
 }
 
@@ -1422,15 +1422,14 @@ puglGetClipboard(PuglView* const view,
     return NULL;
   }
 
-  free(view->impl->clipboard.data);
-  view->impl->clipboard.data =
-    puglWideCharToUtf8(wstr, &view->impl->clipboard.len);
+  free(impl->clipboard.data);
+  impl->clipboard.data = puglWideCharToUtf8(wstr, &impl->clipboard.len);
 
   GlobalUnlock(mem);
   CloseClipboard();
 
-  *len = view->impl->clipboard.len;
-  return view->impl->clipboard.data;
+  *len = impl->clipboard.len;
+  return impl->clipboard.data;
 }
 
 PuglStatus
@@ -1441,7 +1440,7 @@ puglSetClipboard(PuglView* const   view,
 {
   PuglInternals* const impl = view->impl;
 
-  PuglStatus st = puglSetBlob(&view->impl->clipboard, data, len);
+  PuglStatus st = puglSetBlob(&impl->clipboard, data, len);
   if (st) {
     return st;
   }
