@@ -1410,8 +1410,21 @@ puglGetClipboard(PuglView* const view,
 {
   PuglInternals* const impl = view->impl;
 
-  if (typeIndex > 0U || !IsClipboardFormatAvailable(CF_UNICODETEXT) ||
-      !OpenClipboard(impl->hwnd)) {
+  if (typeIndex > 0U || !IsClipboardFormatAvailable(CF_UNICODETEXT)) {
+    return NULL;
+  }
+
+  // Try to open the clipboard several times since others may have locked it
+  BOOL                  opened    = FALSE;
+  static const unsigned max_tries = 16U;
+  for (unsigned i = 0U; !opened && i < max_tries; ++i) {
+    opened = OpenClipboard(impl->hwnd);
+    if (!opened) {
+      Sleep(0);
+    }
+  }
+
+  if (!opened) {
     return NULL;
   }
 
