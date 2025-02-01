@@ -1000,7 +1000,7 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
 {
   Display* const            display = view->world->impl->display;
   const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
-  PuglEvent                 event   = {{PUGL_NOTHING, 0}};
+  PuglEvent                 event   = {{PUGL_NOTHING, 0U}};
 
   if (message.message_type == atoms->WM_PROTOCOLS) {
     const Atom protocol = (Atom)message.data.l[0];
@@ -1083,7 +1083,7 @@ getCurrentConfiguration(PuglView* const view)
   }
 
   // Build a configure event based on the current window configuration
-  PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0}};
+  PuglEvent configureEvent        = {{PUGL_CONFIGURE, 0U}};
   configureEvent.configure.x      = (PuglCoord)x;
   configureEvent.configure.y      = (PuglCoord)y;
   configureEvent.configure.width  = (PuglSpan)attrs.width;
@@ -1114,7 +1114,7 @@ translatePropertyNotify(PuglView* const view, XPropertyEvent message)
 {
   const PuglInternals* const impl  = view->impl;
   const PuglX11Atoms* const  atoms = &view->world->impl->atoms;
-  PuglEvent                  event = {{PUGL_NOTHING, 0}};
+  PuglEvent                  event = {{PUGL_NOTHING, 0U}};
 
   if (message.atom == atoms->NET_WM_STATE) {
     // Get all the current states set in the window hints
@@ -1164,7 +1164,7 @@ translatePropertyNotify(PuglView* const view, XPropertyEvent message)
 static PuglEvent
 translateEvent(PuglView* const view, XEvent xevent)
 {
-  PuglEvent event = {{PUGL_NOTHING, 0}};
+  PuglEvent event = {{PUGL_NOTHING, 0U}};
   event.any.flags = xevent.xany.send_event ? PUGL_IS_SEND_EVENT : 0;
 
   switch (xevent.type) {
@@ -1586,7 +1586,7 @@ handleSelectionNotify(const PuglWorld* const       world,
   Display* const          display   = view->world->impl->display;
   const Atom              selection = event->selection;
   PuglX11Clipboard* const board     = getX11SelectionClipboard(view, selection);
-  PuglEvent               puglEvent = {{PUGL_NOTHING, 0}};
+  PuglEvent               puglEvent = {{PUGL_NOTHING, 0U}};
 
   if (event->target == atoms->TARGETS) {
     // Notification of available datatypes
@@ -1596,7 +1596,7 @@ handleSelectionNotify(const PuglWorld* const       world,
           view, event->requestor, event->property, &numFormats, &formats) &&
         !setClipboardFormats(view, board, numFormats, formats)) {
       const PuglDataOfferEvent offer = {
-        PUGL_DATA_OFFER, 0, (double)event->time / 1e3};
+        PUGL_DATA_OFFER, 0U, (double)event->time / 1e3};
 
       puglEvent.offer            = offer;
       board->acceptedFormatIndex = UINT32_MAX;
@@ -1727,7 +1727,7 @@ handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 
     for (size_t i = 0; i < world->impl->numTimers; ++i) {
       if (world->impl->timers[i].alarm == notify->alarm) {
-        PuglEvent event = {{PUGL_TIMER, 0}};
+        PuglEvent event = {{PUGL_TIMER, 0U}};
         event.timer.id  = world->impl->timers[i].id;
         puglDispatchEvent(world->impl->timers[i].view, &event);
       }
@@ -1899,14 +1899,14 @@ puglObscureRegion(PuglView* const view,
   const PuglSpan  cw = MIN(view->lastConfigure.width, (PuglSpan)width);
   const PuglSpan  ch = MIN(view->lastConfigure.height, (PuglSpan)height);
 
-  const PuglExposeEvent event = {PUGL_EXPOSE, 0, cx, cy, cw, ch};
+  const PuglExposeEvent event = {PUGL_EXPOSE, 0U, cx, cy, cw, ch};
 
   if (view->world->impl->dispatchingEvents) {
     // Currently dispatching events, add/expand expose for the loop end
     mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
   } else if (view->impl->win) {
     // Not dispatching events, send an X expose so we wake up next time
-    PuglEvent exposeEvent = {{PUGL_EXPOSE, 0}};
+    PuglEvent exposeEvent = {{PUGL_EXPOSE, 0U}};
     exposeEvent.expose    = event;
     return puglSendEvent(view, &exposeEvent);
   }

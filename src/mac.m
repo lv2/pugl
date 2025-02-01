@@ -200,7 +200,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
 
   const PuglConfigureEvent ev = {
     PUGL_CONFIGURE,
-    0,
+    0U,
     (PuglCoord)framePx.origin.x,
     (PuglCoord)framePx.origin.y,
     (PuglSpan)framePx.size.width,
@@ -250,7 +250,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
 
   const PuglConfigureEvent ev = {
     PUGL_CONFIGURE,
-    0,
+    0U,
     (PuglCoord)contentPx.origin.x,
     (PuglCoord)(screenHeight - contentPx.origin.y - contentPx.size.height),
     (PuglSpan)contentPx.size.width,
@@ -332,7 +332,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
 
   const PuglExposeEvent ev = {
     PUGL_EXPOSE,
-    0,
+    0U,
     (PuglCoord)(rect.origin.x * scaleFactor),
     (PuglCoord)viewY,
     (PuglSpan)(rect.size.width * scaleFactor),
@@ -497,7 +497,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   const NSPoint           rloc = [NSEvent mouseLocation];
   const PuglCrossingEvent ev   = {
     type,
-    0,
+    0U,
     [event timestamp],
     wloc.x,
     wloc.y,
@@ -538,7 +538,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   const NSPoint         rloc = [NSEvent mouseLocation];
   const PuglMotionEvent ev   = {
     PUGL_MOTION,
-    0,
+    0U,
     [event timestamp],
     wloc.x,
     wloc.y,
@@ -573,7 +573,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   const NSPoint         rloc = [NSEvent mouseLocation];
   const PuglButtonEvent ev   = {
     PUGL_BUTTON_PRESS,
-    0,
+    0U,
     [event timestamp],
     wloc.x,
     wloc.y,
@@ -594,7 +594,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
   const NSPoint         rloc = [NSEvent mouseLocation];
   const PuglButtonEvent ev   = {
     PUGL_BUTTON_RELEASE,
-    0,
+    0U,
     [event timestamp],
     wloc.x,
     wloc.y,
@@ -653,7 +653,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
   const PuglScrollEvent ev = {
     PUGL_SCROLL,
-    0,
+    0U,
     [event timestamp],
     wloc.x,
     wloc.y,
@@ -685,7 +685,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
   const PuglKeyEvent ev = {
     PUGL_KEY_PRESS,
-    0,
+    0U,
     [event timestamp],
     wloc.x,
     wloc.y,
@@ -716,7 +716,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
   const PuglKeyEvent ev = {
     PUGL_KEY_RELEASE,
-    0,
+    0U,
     [event timestamp],
     wloc.x,
     wloc.y,
@@ -828,7 +828,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
 
     PuglTextEvent ev = {
       PUGL_TEXT,
-      0,
+      0U,
       [event timestamp],
       wloc.x,
       wloc.y,
@@ -878,7 +878,7 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
     const bool    release = [event type] == NSEventTypeKeyUp;
 
     const PuglKeyEvent ev = {release ? PUGL_KEY_RELEASE : PUGL_KEY_PRESS,
-                             0,
+                             0U,
                              [event timestamp],
                              wloc.x,
                              wloc.y,
@@ -920,7 +920,7 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 - (void)timerTick:(NSTimer*)userTimer
 {
   const NSNumber*      userInfo = userTimer.userInfo;
-  const PuglTimerEvent ev       = {PUGL_TIMER, 0, userInfo.unsignedLongValue};
+  const PuglTimerEvent ev       = {PUGL_TIMER, 0U, userInfo.unsignedLongValue};
 
   PuglEvent timerEvent;
   timerEvent.timer = ev;
@@ -985,7 +985,7 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 {
   (void)notification;
 
-  PuglEvent ev  = {{PUGL_FOCUS_IN, 0}};
+  PuglEvent ev  = {{PUGL_FOCUS_IN, 0U}};
   ev.focus.mode = PUGL_CROSSING_NORMAL;
   puglDispatchEvent(window->puglview, &ev);
 }
@@ -994,7 +994,7 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 {
   (void)notification;
 
-  PuglEvent ev  = {{PUGL_FOCUS_OUT, 0}};
+  PuglEvent ev  = {{PUGL_FOCUS_OUT, 0U}};
   ev.focus.mode = PUGL_CROSSING_NORMAL;
   puglDispatchEvent(window->puglview, &ev);
 }
@@ -1873,7 +1873,7 @@ puglPaste(PuglView* const view)
 {
   const PuglDataOfferEvent offer = {
     PUGL_DATA_OFFER,
-    0,
+    0U,
     puglGetTime(view->world),
   };
 

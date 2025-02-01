@@ -247,7 +247,7 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
          type == PUGL_UPDATE || type == PUGL_CLOSE || type == PUGL_LOOP_ENTER ||
          type == PUGL_LOOP_LEAVE);
 
-  const PuglEvent event = {{type, 0}};
+  const PuglEvent event = {{type, 0U}};
   return puglDispatchEvent(view, &event);
 }
 

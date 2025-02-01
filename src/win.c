@@ -675,7 +675,7 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
 
   const PuglCrossingEvent ev = {
     type,
-    0,
+    0U,
     GetMessageTime() / 1e3,
     (double)pos.x,
     (double)pos.y,
@@ -685,7 +685,7 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
     PUGL_CROSSING_NORMAL,
   };
 
-  PuglEvent crossingEvent = {{type, 0}};
+  PuglEvent crossingEvent = {{type, 0U}};
   crossingEvent.crossing  = ev;
   puglDispatchEvent(view, &crossingEvent);
 }
@@ -735,7 +735,7 @@ constrainAspect(const PuglView* const view,
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  PuglEvent       event     = {{PUGL_NOTHING, 0}};
+  PuglEvent       event     = {{PUGL_NOTHING, 0U}};
   RECT            rect      = {0, 0, 0, 0};
   POINT           pt        = {0, 0};
   MINMAXINFO*     mmi       = NULL;
@@ -797,7 +797,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     break;
   case WM_TIMER:
     if (wParam >= PUGL_USER_TIMER_MIN) {
-      PuglEvent ev = {{PUGL_TIMER, 0}};
+      PuglEvent ev = {{PUGL_TIMER, 0U}};
       ev.timer.id  = wParam - PUGL_USER_TIMER_MIN;
       puglDispatchEvent(view, &ev);
     }
@@ -1393,7 +1393,7 @@ puglAcceptOffer(PuglView* const                 view,
 
   const PuglDataEvent data = {
     PUGL_DATA,
-    0,
+    0U,
     GetMessageTime() / 1e3,
     0,
   };
@@ -1498,7 +1498,7 @@ puglPaste(PuglView* const view)
 {
   const PuglDataOfferEvent offer = {
     PUGL_DATA_OFFER,
-    0,
+    0U,
     GetMessageTime() / 1e3,
   };
 

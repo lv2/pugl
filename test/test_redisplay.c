@@ -129,7 +129,7 @@ main(int argc, char** argv)
   }
 
   // Send a custom event to trigger a redisplay in the event loop
-  PuglEvent client_event    = {{PUGL_CLIENT, 0}};
+  PuglEvent client_event    = {{PUGL_CLIENT, 0U}};
   client_event.client.data1 = obscureId;
   client_event.client.data2 = 0;
   assert(!puglSendEvent(test.view, &client_event));
