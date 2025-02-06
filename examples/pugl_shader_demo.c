@@ -230,10 +230,15 @@ loadShader(const char* const programPath, const char* const name)
 
   free(path);
   fseek(file, 0, SEEK_END);
-  const size_t fileSize = (size_t)ftell(file);
+  const long filePos = ftell(file);
+  if (filePos <= 0) {
+    fclose(file);
+    return NULL;
+  }
 
   fseek(file, 0, SEEK_SET);
-  char* source = (char*)calloc(1, fileSize + 1U);
+  const size_t fileSize = (size_t)filePos;
+  char*        source   = (char*)calloc(1, fileSize + 1U);
 
   if (fread(source, 1, fileSize, file) != fileSize) {
     free(source);
@@ -351,17 +356,16 @@ setupGl(PuglTestApp* app)
   char* const fragmentSource =
     loadShader(app->programPath, SHADER_DIR "rect.frag");
 
-  if (!vertexSource || !fragmentSource) {
-    logError("Failed to load shader sources\n");
-    return PUGL_FAILURE;
+  // Compile rectangle shaders and program
+  if (headerSource && vertexSource && fragmentSource) {
+    app->drawRect = compileProgram(headerSource, vertexSource, fragmentSource);
   }
 
-  // Compile rectangle shaders and program
-  app->drawRect = compileProgram(headerSource, vertexSource, fragmentSource);
   free(fragmentSource);
   free(vertexSource);
   free(headerSource);
   if (!app->drawRect.program) {
+    logError("Failed to compile shader program\n");
     return PUGL_FAILURE;
   }
 

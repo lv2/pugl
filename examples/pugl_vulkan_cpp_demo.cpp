@@ -715,7 +715,12 @@ readFile(const char* const programPath, const std::string& filename)
   }
 
   fseek(file.get(), 0, SEEK_END);
-  const auto fileSize = static_cast<size_t>(ftell(file.get()));
+  const auto filePos = ftell(file.get());
+  if (filePos <= 0) {
+    return {};
+  }
+
+  const auto fileSize = static_cast<size_t>(filePos);
   fseek(file.get(), 0, SEEK_SET);
 
   const auto            numWords = fileSize / sizeof(uint32_t);
