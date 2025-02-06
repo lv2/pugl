@@ -40,7 +40,7 @@ onExpose(void)
   glColor3f(0.6f, 0.6f, 0.6f);
 
   for (int row = 1; row < N_ROWS; ++row) {
-    const float y = (float)row * (2.0f / (float)N_ROWS) - 1.0f;
+    const float y = ((float)row * (2.0f / (float)N_ROWS)) - 1.0f;
     glBegin(GL_LINES);
     glVertex2f(-1.0f, y);
     glVertex2f(1.0f, y);
@@ -48,7 +48,7 @@ onExpose(void)
   }
 
   for (int col = 1; col < N_COLS; ++col) {
-    const float x = (float)col * (2.0f / (float)N_COLS) - 1.0f;
+    const float x = ((float)col * (2.0f / (float)N_COLS)) - 1.0f;
     glBegin(GL_LINES);
     glVertex2f(x, -1.0f);
     glVertex2f(x, 1.0f);

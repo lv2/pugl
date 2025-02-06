@@ -56,8 +56,8 @@ getChildFrame(const PuglRect parentFrame)
   const PuglRect childFrame = {
     borderWidth,
     borderWidth,
-    (PuglSpan)(parentFrame.width - 2 * borderWidth),
-    (PuglSpan)(parentFrame.height - 2 * borderWidth)};
+    (PuglSpan)(parentFrame.width - (2 * borderWidth)),
+    (PuglSpan)(parentFrame.height - (2 * borderWidth))};
 
   return childFrame;
 }
@@ -72,8 +72,8 @@ onDisplay(PuglView* view)
     const double dTime =
       (thisTime - app->lastDrawTime) * (app->reversing ? -1.0 : 1.0);
 
-    app->xAngle = fmod(app->xAngle + dTime * 100.0, 360.0);
-    app->yAngle = fmod(app->yAngle + dTime * 100.0, 360.0);
+    app->xAngle = fmod(app->xAngle + (dTime * 100.0), 360.0);
+    app->yAngle = fmod(app->yAngle + (dTime * 100.0), 360.0);
   }
 
   displayCube(

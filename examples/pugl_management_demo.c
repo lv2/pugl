@@ -64,26 +64,28 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
   snprintf(buf, sizeof(buf), "Position: %5d, %5d", frame.x, frame.y);
   cairo_text_extents(cr, buf, &extents);
   cairo_move_to(
-    cr, cx - extents.width / 2.0, cy + extents.height / 2.0 - 192.0);
+    cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 192.0);
   cairo_show_text(cr, buf);
 
   // Draw size label
   snprintf(buf, sizeof(buf), "Size: %5u, %5u", frame.width, frame.height);
   cairo_text_extents(cr, buf, &extents);
   cairo_move_to(
-    cr, cx - extents.width / 2.0, cy + extents.height / 2.0 - 144.0);
+    cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 144.0);
   cairo_show_text(cr, buf);
 
   // Draw scale label
   snprintf(buf, sizeof(buf), "Scale: %g", puglGetScaleFactor(view));
   cairo_text_extents(cr, buf, &extents);
-  cairo_move_to(cr, cx - extents.width / 2.0, cy + extents.height / 2.0 - 96.0);
+  cairo_move_to(
+    cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 96.0);
   cairo_show_text(cr, buf);
 
   // Draw time label
   snprintf(buf, sizeof(buf), "Draw time: %g", puglGetTime(world));
   cairo_text_extents(cr, buf, &extents);
-  cairo_move_to(cr, cx - extents.width / 2.0, cy + extents.height / 2.0 - 48.0);
+  cairo_move_to(
+    cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 48.0);
   cairo_show_text(cr, buf);
 
   // Draw style label
@@ -100,7 +102,7 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
            style & PUGL_VIEW_STYLE_DEMANDING ? " demanding" : "",
            style & PUGL_VIEW_STYLE_RESIZING ? " resizing" : "");
   cairo_text_extents(cr, buf, &extents);
-  cairo_move_to(cr, cx - extents.width / 2.0, cy + extents.height / 2.0);
+  cairo_move_to(cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0));
   cairo_show_text(cr, buf);
 
   if (view == app->mainView.view) {
@@ -108,7 +110,7 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
     snprintf(buf, sizeof(buf), "Keys: Space T W H M F A B D Q");
     cairo_text_extents(cr, buf, &extents);
     cairo_move_to(
-      cr, cx - extents.width / 2.0, cy + extents.height / 2.0 + 48.0);
+      cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) + 48.0);
     cairo_show_text(cr, buf);
   }
 

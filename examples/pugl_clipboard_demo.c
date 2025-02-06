@@ -44,8 +44,8 @@ onDisplay(PuglView* view)
   if (app->continuous) {
     const double dTime = thisTime - cube->lastDrawTime;
 
-    cube->xAngle = fmod(cube->xAngle + dTime * 100.0, 360.0);
-    cube->yAngle = fmod(cube->yAngle + dTime * 100.0, 360.0);
+    cube->xAngle = fmod(cube->xAngle + (dTime * 100.0), 360.0);
+    cube->yAngle = fmod(cube->yAngle + (dTime * 100.0), 360.0);
   }
 
   displayCube(

@@ -100,8 +100,8 @@ buttonDraw(PuglTestApp* app, cairo_t* cr, const Button* but, const double time)
   cairo_set_font_size(cr, 32.0);
   cairo_text_extents(cr, but->label, &extents);
   cairo_move_to(cr,
-                (but->w / 2.0) - extents.width / 2,
-                (but->h / 2.0) + extents.height / 2);
+                (but->w / 2.0) - (extents.width / 2),
+                (but->h / 2.0) + (extents.height / 2));
   cairo_set_source_rgba(cr, 0, 0, 0, 1);
   cairo_show_text(cr, but->label);
 
@@ -114,7 +114,7 @@ postButtonRedisplay(PuglView* view)
   const ViewScale scale = getScale(view);
 
   for (const Button* b = buttons; b->label; ++b) {
-    const double span = sqrt(b->w * b->w + b->h * b->h);
+    const double span = sqrt((b->w * b->w) + (b->h * b->h));
     puglObscureRegion(view,
                       (int)((b->x - span) * scale.x),
                       (int)((b->y - span) * scale.y),

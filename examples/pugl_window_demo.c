@@ -49,8 +49,8 @@ onDisplay(PuglView* view)
   if (app->continuous) {
     const double dTime = thisTime - cube->lastDrawTime;
 
-    cube->xAngle = fmod(cube->xAngle + dTime * 100.0, 360.0);
-    cube->yAngle = fmod(cube->yAngle + dTime * 100.0, 360.0);
+    cube->xAngle = fmod(cube->xAngle + (dTime * 100.0), 360.0);
+    cube->yAngle = fmod(cube->yAngle + (dTime * 100.0), 360.0);
   }
 
   displayCube(
@@ -187,8 +187,8 @@ main(int argc, char** argv)
 
     puglSetViewString(view, PUGL_WINDOW_TITLE, "Pugl Window Demo");
     puglSetPosition(view,
-                    (PuglCoord)(pad + (128U + pad) * i),
-                    (PuglCoord)(pad + (128U + pad) * i));
+                    (PuglCoord)(pad + ((128U + pad) * i)),
+                    (PuglCoord)(pad + ((128U + pad) * i)));
 
     puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
     puglSetSizeHint(view, PUGL_MIN_SIZE, 128, 128);
