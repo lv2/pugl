@@ -6,6 +6,7 @@ Checks: >
   -*-non-private-member-variables-in-classes,
   -*avoid-c-arrays,
   -android-cloexec-fopen,
+  -boost-*,
   -bugprone-easily-swappable-parameters,
   -bugprone-macro-parentheses,
   -bugprone-multi-level-implicit-pointer-conversion,
