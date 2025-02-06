@@ -523,8 +523,8 @@ puglGetAncestorCenter(const PuglView* const view)
                        &ancestorAttrs);
 
   const PuglPoint center = {
-    (PuglCoord)(ancestorAttrs.x + ancestorAttrs.width / 2),
-    (PuglCoord)(ancestorAttrs.y + ancestorAttrs.height / 2)};
+    (PuglCoord)(ancestorAttrs.x + (ancestorAttrs.width / 2)),
+    (PuglCoord)(ancestorAttrs.y + (ancestorAttrs.height / 2))};
   return center;
 }
 

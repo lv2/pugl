@@ -1166,8 +1166,8 @@ puglGetAncestorCenter(const PuglView* const view)
 
   const NSRect    boundsPx = nsRectFromPoints(view, boundsPt);
   const PuglPoint center   = {
-    (PuglCoord)(boundsPx.origin.x + boundsPx.size.width / 2.0),
-    (PuglCoord)(boundsPx.origin.y + boundsPx.size.height / 2.0)};
+    (PuglCoord)(boundsPx.origin.x + (boundsPx.size.width / 2.0)),
+    (PuglCoord)(boundsPx.origin.y + (boundsPx.size.height / 2.0))};
   return center;
 }
 

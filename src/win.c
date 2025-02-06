@@ -44,7 +44,8 @@
 
 #ifdef __cplusplus
 #  define PUGL_INIT_STRUCT \
-    {}
+    {                      \
+    }
 #else
 #  define PUGL_INIT_STRUCT {0}
 #endif
@@ -1581,8 +1582,8 @@ puglGetAncestorCenter(const PuglView* const view)
                 &rect);
 
   const PuglPoint center = {
-    (PuglCoord)(rect.left + (rect.right - rect.left) / 2),
-    (PuglCoord)(rect.top + (rect.bottom - rect.top) / 2)};
+    (PuglCoord)(rect.left + ((rect.right - rect.left) / 2)),
+    (PuglCoord)(rect.top + ((rect.bottom - rect.top) / 2))};
   return center;
 }
 
