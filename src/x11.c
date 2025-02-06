@@ -70,7 +70,8 @@
 
 #ifdef __cplusplus
 #  define PUGL_INIT_STRUCT \
-    {}
+    {                      \
+    }
 #else
 #  define PUGL_INIT_STRUCT {0}
 #endif
