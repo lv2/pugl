@@ -341,77 +341,77 @@ typedef struct {
    mapping used here is arbitrary and specific to Pugl.
 */
 typedef enum {
-  PUGL_KEY_NONE      = 0U,          ///< Sentinel value for no key
-  PUGL_KEY_BACKSPACE = 0x00000008U, ///< Backspace
-  PUGL_KEY_TAB       = 0x00000009U, ///< Tab
-  PUGL_KEY_ENTER     = 0x0000000DU, ///< Enter
-  PUGL_KEY_ESCAPE    = 0x0000001BU, ///< Escape
-  PUGL_KEY_DELETE    = 0x0000007FU, ///< Delete
-  PUGL_KEY_SPACE     = 0x00000020U, ///< Space
-  PUGL_KEY_F1        = 0x0000E000U, ///< F1
-  PUGL_KEY_F2,                      ///< F2
-  PUGL_KEY_F3,                      ///< F3
-  PUGL_KEY_F4,                      ///< F4
-  PUGL_KEY_F5,                      ///< F5
-  PUGL_KEY_F6,                      ///< F6
-  PUGL_KEY_F7,                      ///< F7
-  PUGL_KEY_F8,                      ///< F8
-  PUGL_KEY_F9,                      ///< F9
-  PUGL_KEY_F10,                     ///< F10
-  PUGL_KEY_F11,                     ///< F11
-  PUGL_KEY_F12,                     ///< F12
-  PUGL_KEY_PAGE_UP = 0xE031,        ///< Page Up
-  PUGL_KEY_PAGE_DOWN,               ///< Page Down
-  PUGL_KEY_END,                     ///< End
-  PUGL_KEY_HOME,                    ///< Home
-  PUGL_KEY_LEFT,                    ///< Left
-  PUGL_KEY_UP,                      ///< Up
-  PUGL_KEY_RIGHT,                   ///< Right
-  PUGL_KEY_DOWN,                    ///< Down
-  PUGL_KEY_PRINT_SCREEN = 0xE041U,  ///< Print Screen
-  PUGL_KEY_INSERT,                  ///< Insert
-  PUGL_KEY_PAUSE,                   ///< Pause/Break
-  PUGL_KEY_MENU,                    ///< Menu
-  PUGL_KEY_NUM_LOCK,                ///< Num Lock
-  PUGL_KEY_SCROLL_LOCK,             ///< Scroll Lock
-  PUGL_KEY_CAPS_LOCK,               ///< Caps Lock
-  PUGL_KEY_SHIFT_L = 0xE051U,       ///< Left Shift
-  PUGL_KEY_SHIFT_R,                 ///< Right Shift
-  PUGL_KEY_CTRL_L,                  ///< Left Control
-  PUGL_KEY_CTRL_R,                  ///< Right Control
-  PUGL_KEY_ALT_L,                   ///< Left Alt
-  PUGL_KEY_ALT_R,                   ///< Right Alt / AltGr
-  PUGL_KEY_SUPER_L,                 ///< Left Super
-  PUGL_KEY_SUPER_R,                 ///< Right Super
-  PUGL_KEY_PAD_0 = 0xE060U,         ///< Keypad 0
-  PUGL_KEY_PAD_1,                   ///< Keypad 1
-  PUGL_KEY_PAD_2,                   ///< Keypad 2
-  PUGL_KEY_PAD_3,                   ///< Keypad 3
-  PUGL_KEY_PAD_4,                   ///< Keypad 4
-  PUGL_KEY_PAD_5,                   ///< Keypad 5
-  PUGL_KEY_PAD_6,                   ///< Keypad 6
-  PUGL_KEY_PAD_7,                   ///< Keypad 7
-  PUGL_KEY_PAD_8,                   ///< Keypad 8
-  PUGL_KEY_PAD_9,                   ///< Keypad 9
-  PUGL_KEY_PAD_ENTER,               ///< Keypad Enter
-  PUGL_KEY_PAD_PAGE_UP = 0xE071U,   ///< Keypad Page Up
-  PUGL_KEY_PAD_PAGE_DOWN,           ///< Keypad Page Down
-  PUGL_KEY_PAD_END,                 ///< Keypad End
-  PUGL_KEY_PAD_HOME,                ///< Keypad Home
-  PUGL_KEY_PAD_LEFT,                ///< Keypad Left
-  PUGL_KEY_PAD_UP,                  ///< Keypad Up
-  PUGL_KEY_PAD_RIGHT,               ///< Keypad Right
-  PUGL_KEY_PAD_DOWN,                ///< Keypad Down
-  PUGL_KEY_PAD_CLEAR = 0xE09DU,     ///< Keypad Clear/Begin
-  PUGL_KEY_PAD_INSERT,              ///< Keypad Insert
-  PUGL_KEY_PAD_DELETE,              ///< Keypad Delete
-  PUGL_KEY_PAD_EQUAL,               ///< Keypad Equal
-  PUGL_KEY_PAD_MULTIPLY = 0xE0AAU,  ///< Keypad Multiply
-  PUGL_KEY_PAD_ADD,                 ///< Keypad Add
-  PUGL_KEY_PAD_SEPARATOR,           ///< Keypad Separator
-  PUGL_KEY_PAD_SUBTRACT,            ///< Keypad Subtract
-  PUGL_KEY_PAD_DECIMAL,             ///< Keypad Decimal
-  PUGL_KEY_PAD_DIVIDE,              ///< Keypad Divide
+  PUGL_KEY_NONE          = 0U,      ///< Sentinel value for no key
+  PUGL_KEY_BACKSPACE     = 0x0008U, ///< Backspace
+  PUGL_KEY_TAB           = 0x0009U, ///< Tab
+  PUGL_KEY_ENTER         = 0x000DU, ///< Enter
+  PUGL_KEY_ESCAPE        = 0x001BU, ///< Escape
+  PUGL_KEY_DELETE        = 0x007FU, ///< Delete
+  PUGL_KEY_SPACE         = 0x0020U, ///< Space
+  PUGL_KEY_F1            = 0xE000U, ///< F1
+  PUGL_KEY_F2            = 0xE001U, ///< F2
+  PUGL_KEY_F3            = 0xE002U, ///< F3
+  PUGL_KEY_F4            = 0xE003U, ///< F4
+  PUGL_KEY_F5            = 0xE004U, ///< F5
+  PUGL_KEY_F6            = 0xE005U, ///< F6
+  PUGL_KEY_F7            = 0xE006U, ///< F7
+  PUGL_KEY_F8            = 0xE007U, ///< F8
+  PUGL_KEY_F9            = 0xE008U, ///< F9
+  PUGL_KEY_F10           = 0xE009U, ///< F10
+  PUGL_KEY_F11           = 0xE010U, ///< F11
+  PUGL_KEY_F12           = 0xE011U, ///< F12
+  PUGL_KEY_PAGE_UP       = 0xE031U, ///< Page Up
+  PUGL_KEY_PAGE_DOWN     = 0xE032U, ///< Page Down
+  PUGL_KEY_END           = 0xE033U, ///< End
+  PUGL_KEY_HOME          = 0xE034U, ///< Home
+  PUGL_KEY_LEFT          = 0xE035U, ///< Left
+  PUGL_KEY_UP            = 0xE036U, ///< Up
+  PUGL_KEY_RIGHT         = 0xE037U, ///< Right
+  PUGL_KEY_DOWN          = 0xE038U, ///< Down
+  PUGL_KEY_PRINT_SCREEN  = 0xE041U, ///< Print Screen
+  PUGL_KEY_INSERT        = 0xE042U, ///< Insert
+  PUGL_KEY_PAUSE         = 0xE043U, ///< Pause/Break
+  PUGL_KEY_MENU          = 0xE044U, ///< Menu
+  PUGL_KEY_NUM_LOCK      = 0xE045U, ///< Num Lock
+  PUGL_KEY_SCROLL_LOCK   = 0xE046U, ///< Scroll Lock
+  PUGL_KEY_CAPS_LOCK     = 0xE047U, ///< Caps Lock
+  PUGL_KEY_SHIFT_L       = 0xE051U, ///< Left Shift
+  PUGL_KEY_SHIFT_R       = 0xE052U, ///< Right Shift
+  PUGL_KEY_CTRL_L        = 0xE053U, ///< Left Control
+  PUGL_KEY_CTRL_R        = 0xE054U, ///< Right Control
+  PUGL_KEY_ALT_L         = 0xE055U, ///< Left Alt
+  PUGL_KEY_ALT_R         = 0xE056U, ///< Right Alt / AltGr
+  PUGL_KEY_SUPER_L       = 0xE057U, ///< Left Super
+  PUGL_KEY_SUPER_R       = 0xE058U, ///< Right Super
+  PUGL_KEY_PAD_0         = 0xE060U, ///< Keypad 0
+  PUGL_KEY_PAD_1         = 0xE061U, ///< Keypad 1
+  PUGL_KEY_PAD_2         = 0xE062U, ///< Keypad 2
+  PUGL_KEY_PAD_3         = 0xE063U, ///< Keypad 3
+  PUGL_KEY_PAD_4         = 0xE064U, ///< Keypad 4
+  PUGL_KEY_PAD_5         = 0xE065U, ///< Keypad 5
+  PUGL_KEY_PAD_6         = 0xE066U, ///< Keypad 6
+  PUGL_KEY_PAD_7         = 0xE067U, ///< Keypad 7
+  PUGL_KEY_PAD_8         = 0xE068U, ///< Keypad 8
+  PUGL_KEY_PAD_9         = 0xE069U, ///< Keypad 9
+  PUGL_KEY_PAD_ENTER     = 0xE070U, ///< Keypad Enter
+  PUGL_KEY_PAD_PAGE_UP   = 0xE071U, ///< Keypad Page Up
+  PUGL_KEY_PAD_PAGE_DOWN = 0xE072U, ///< Keypad Page Down
+  PUGL_KEY_PAD_END       = 0xE073U, ///< Keypad End
+  PUGL_KEY_PAD_HOME      = 0xE074U, ///< Keypad Home
+  PUGL_KEY_PAD_LEFT      = 0xE075U, ///< Keypad Left
+  PUGL_KEY_PAD_UP        = 0xE076U, ///< Keypad Up
+  PUGL_KEY_PAD_RIGHT     = 0xE077U, ///< Keypad Right
+  PUGL_KEY_PAD_DOWN      = 0xE078U, ///< Keypad Down
+  PUGL_KEY_PAD_CLEAR     = 0xE09DU, ///< Keypad Clear/Begin
+  PUGL_KEY_PAD_INSERT    = 0xE09EU, ///< Keypad Insert
+  PUGL_KEY_PAD_DELETE    = 0xE09FU, ///< Keypad Delete
+  PUGL_KEY_PAD_EQUAL     = 0xE0A0U, ///< Keypad Equal
+  PUGL_KEY_PAD_MULTIPLY  = 0xE0AAU, ///< Keypad Multiply
+  PUGL_KEY_PAD_ADD       = 0xE0ABU, ///< Keypad Add
+  PUGL_KEY_PAD_SEPARATOR = 0xE0ACU, ///< Keypad Separator
+  PUGL_KEY_PAD_SUBTRACT  = 0xE0ADU, ///< Keypad Subtract
+  PUGL_KEY_PAD_DECIMAL   = 0xE0AEU, ///< Keypad Decimal
+  PUGL_KEY_PAD_DIVIDE    = 0xE0AFU, ///< Keypad Divide
 } PuglKey;
 
 /// Keyboard modifier flags
