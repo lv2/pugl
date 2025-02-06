@@ -444,8 +444,8 @@ typedef struct {
    Key press or release event.
 
    This event represents low-level key presses and releases.  This can be used
-   for "direct" keyboard handing like key bindings, but must not be interpreted
-   as text input.
+   for "direct" keyboard handling like key bindings, but must not be
+   interpreted as text input.
 
    Keys are represented portably as Unicode code points, using the "natural"
    code point for the key where possible (see #PuglKey for details).  The `key`
