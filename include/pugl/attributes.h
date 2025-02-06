@@ -26,17 +26,6 @@
 #  endif
 #endif
 
-// Deprecated API
-#ifndef PUGL_DISABLE_DEPRECATED
-#  if defined(__clang__)
-#    define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("", rep)))
-#  elif defined(__GNUC__)
-#    define PUGL_DEPRECATED_BY(rep) __attribute__((deprecated("Use " rep)))
-#  else
-#    define PUGL_DEPRECATED_BY(rep)
-#  endif
-#endif
-
 // GCC function attributes
 #if defined(__GNUC__)
 #  define PUGL_CONST_FUNC __attribute__((const))

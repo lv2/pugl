@@ -1063,15 +1063,6 @@ puglSendEvent(PuglView* view, const PuglEvent* event)
   return PUGL_UNSUPPORTED;
 }
 
-#ifndef PUGL_DISABLE_DEPRECATED
-PuglStatus
-puglWaitForEvent(PuglView* PUGL_UNUSED(view))
-{
-  WaitMessage();
-  return PUGL_SUCCESS;
-}
-#endif
-
 static PuglStatus
 puglDispatchViewEvents(PuglView* view)
 {
@@ -1147,14 +1138,6 @@ puglUpdate(PuglWorld* world, double timeout)
 
   return st;
 }
-
-#ifndef PUGL_DISABLE_DEPRECATED
-PuglStatus
-puglProcessEvents(PuglView* view)
-{
-  return puglUpdate(view->world, 0.0);
-}
-#endif
 
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)

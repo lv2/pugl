@@ -39,11 +39,7 @@ Stability
 Pugl is currently being developed towards a long-term stable API.  For the time
 being, however, the API may break occasionally.  Please report any relevant
 feedback, or file feature requests, so that we can ensure that the released API
-is stable for as long as possible.
-
-When the API changes, backwards compatibility is maintained where possible.
-These compatibility shims will be removed before release, so users are
-encouraged to build with `PUGL_DISABLE_DEPRECATED` defined.
+will be stable for as long as possible.
 
 Documentation
 -------------

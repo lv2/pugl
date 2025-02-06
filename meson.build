@@ -44,12 +44,6 @@ endif
 # Set global warning suppressions
 subdir('meson/suppressions')
 
-# Disable deprecated API which is not used by tests or examples
-add_project_arguments(
-  ['-DPUGL_DISABLE_DEPRECATED'],
-  language: ['c', 'cpp', 'objc', 'objcpp'],
-)
-
 #############
 # Platforms #
 #############

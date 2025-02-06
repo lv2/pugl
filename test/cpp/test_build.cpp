@@ -5,8 +5,6 @@
   Tests that C++ headers compile without any warnings.
 */
 
-#define PUGL_DISABLE_DEPRECATED
-
 #include "pugl/cairo.hpp" // IWYU pragma: keep
 #include "pugl/gl.hpp"    // IWYU pragma: keep
 #include "pugl/pugl.h"    // IWYU pragma: keep

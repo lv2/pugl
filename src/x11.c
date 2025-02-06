@@ -1509,16 +1509,6 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
   return PUGL_UNSUPPORTED;
 }
 
-#ifndef PUGL_DISABLE_DEPRECATED
-PuglStatus
-puglWaitForEvent(PuglView* const view)
-{
-  XEvent xevent;
-  XPeekEvent(view->world->impl->display, &xevent);
-  return PUGL_SUCCESS;
-}
-#endif
-
 static void
 mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
 {
@@ -1825,14 +1815,6 @@ dispatchX11Events(PuglWorld* const world)
 
   return st;
 }
-
-#ifndef PUGL_DISABLE_DEPRECATED
-PuglStatus
-puglProcessEvents(PuglView* const view)
-{
-  return puglUpdate(view->world, 0.0);
-}
-#endif
 
 PuglStatus
 puglUpdate(PuglWorld* const world, const double timeout)

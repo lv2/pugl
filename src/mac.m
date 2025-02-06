@@ -1581,14 +1581,6 @@ puglSendEvent(PuglView* view, const PuglEvent* event)
   return PUGL_UNSUPPORTED;
 }
 
-#ifndef PUGL_DISABLE_DEPRECATED
-PuglStatus
-puglWaitForEvent(PuglView* view)
-{
-  return puglPollEvents(view->world, -1.0);
-}
-#endif
-
 PuglStatus
 puglUpdate(PuglWorld* world, const double timeout)
 {
@@ -1625,14 +1617,6 @@ puglUpdate(PuglWorld* world, const double timeout)
 
   return PUGL_SUCCESS;
 }
-
-#ifndef PUGL_DISABLE_DEPRECATED
-PuglStatus
-puglProcessEvents(PuglView* view)
-{
-  return puglDispatchEvents(view->world);
-}
-#endif
 
 double
 puglGetTime(const PuglWorld* world)
