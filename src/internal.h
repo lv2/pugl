@@ -62,7 +62,6 @@ puglStoreSizeHint(PuglView*    view,
                   unsigned     height);
 
 /// Handle a changed string property
-PUGL_API
 PuglStatus
 puglViewStringChanged(PuglView* view, PuglStringHint key, const char* value);
 
