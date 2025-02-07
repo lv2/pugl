@@ -1,4 +1,4 @@
-# Copyright 2021-2023 David Robillard <d@drobilla.net>
+# Copyright 2021-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 # Suppress some additional C warnings in tests
@@ -148,4 +148,6 @@ subdir('headers')
 # C++ / Objective C++ #
 #######################
 
-subdir('cpp')
+if is_variable('cpp')
+  subdir('cpp')
+endif

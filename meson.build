@@ -1,4 +1,4 @@
-# Copyright 2021-2023 David Robillard <d@drobilla.net>
+# Copyright 2021-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 project(
@@ -28,8 +28,11 @@ versioned_name = 'pugl' + version_suffix
 pkg = import('pkgconfig')
 cc = meson.get_compiler('c')
 
-# Enable C++ support if we're building the examples
-if not get_option('examples').disabled() or not get_option('tests').disabled()
+# Enable C++ support if we're building the examples or the bindings
+if (
+  not get_option('bindings_cpp').disabled()
+  or not get_option('examples').disabled()
+)
   if add_languages(['cpp'], native: false, required: false)
     cpp = meson.get_compiler('cpp')
   endif
@@ -458,7 +461,10 @@ endif
 ###############################
 
 subdir('include')
-subdir('bindings/cpp')
+
+if not get_option('bindings_cpp').disabled()
+  subdir('bindings/cpp')
+endif
 
 ######################
 # Tests and Examples #

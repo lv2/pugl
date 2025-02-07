@@ -1,4 +1,4 @@
-# Copyright 2021-2023 David Robillard <d@drobilla.net>
+# Copyright 2021-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 data_dir = get_option('prefix') / get_option('datadir') / 'pugl-0'
@@ -148,6 +148,10 @@ else
       elif target == 'pugl_print_events'
         dependencies += [pugl_stub_dep]
       elif target == 'pugl_cpp_demo'
+        if not is_variable('puglpp_dep')
+          continue
+        endif
+
         dependencies += [puglpp_dep]
       endif
 
@@ -185,8 +189,13 @@ else
       defines = []
 
       if target == 'pugl_vulkan_cpp_demo'
+        if not is_variable('puglpp_dep')
+          continue
+        endif
+
         source += ['file_utils.c']
         defines += ['-D_POSIX_C_SOURCE=200809L']
+        dependencies += [puglpp_dep]
       endif
 
       executable(

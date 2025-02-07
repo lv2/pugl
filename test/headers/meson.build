@@ -11,7 +11,7 @@ if get_option('warning_level') == 'everything'
   endif
 endif
 
-header_c_suppressions = cpp.get_supported_arguments(header_c_suppressions)
+header_c_suppressions = cc.get_supported_arguments(header_c_suppressions)
 
 test_headers_c_args = header_c_suppressions
 test_headers_c_args += [
