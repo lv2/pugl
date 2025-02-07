@@ -66,6 +66,12 @@ private:
 
 } // namespace detail
 
+/// @copydoc PuglCoord
+using Coord = PuglCoord;
+
+/// @copydoc PuglSpan
+using Span = PuglSpan;
+
 /// @copydoc PuglRect
 using Rect = PuglRect;
 
@@ -227,6 +233,7 @@ enum class Status {
   setFormatFailed,     ///< @copydoc PUGL_SET_FORMAT_FAILED
   createContextFailed, ///< @copydoc PUGL_CREATE_CONTEXT_FAILED
   unsupported,         ///< @copydoc PUGL_UNSUPPORTED
+  noMemory,            ///< @copydoc PUGL_NO_MEMORY
 };
 
 static_assert(static_cast<Status>(PUGL_UNSUPPORTED) == Status::unsupported, "");
@@ -375,6 +382,7 @@ enum class SizeHint {
   defaultSize, ///< @copydoc PUGL_DEFAULT_SIZE
   minSize,     ///< @copydoc PUGL_MIN_SIZE
   maxSize,     ///< @copydoc PUGL_MAX_SIZE
+  fixedAspect, ///< @copydoc PUGL_FIXED_ASPECT
   minAspect,   ///< @copydoc PUGL_MIN_ASPECT
   maxAspect,   ///< @copydoc PUGL_MAX_ASPECT
 };
