@@ -1,10 +1,17 @@
-# Copyright 2020-2022 David Robillard <d@drobilla.net>
+# Copyright 2020-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 ---
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
-AlignEscapedNewlinesLeft: true
+AlignEscapedNewlines: Left
+AttributeMacros:
+  - PUGL_API
+  - PUGL_CONST_API
+  - PUGL_CONST_FUNC
+  - PUGL_MALLOC_API
+  - PUGL_MALLOC_FUNC
+  - PUGL_WARN_UNUSED_RESULT
 BasedOnStyle: Mozilla
 BraceWrapping:
   AfterNamespace: false
@@ -22,10 +29,5 @@ IndentPPDirectives: AfterHash
 KeepEmptyLinesAtTheStartOfBlocks: false
 SpacesInContainerLiterals: false
 StatementMacros:
-  - PUGL_API
-  - PUGL_CONST_API
-  - PUGL_CONST_FUNC
   - PUGL_UNUSED
-  - PUGL_WARN_UNUSED_RESULT
-  - _Pragma
 ...

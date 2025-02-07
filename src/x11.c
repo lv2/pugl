@@ -1664,8 +1664,7 @@ handleSelectionRequest(const PuglWorld* const              world,
 }
 
 /// Flush pending configure and expose events for all views
-PUGL_WARN_UNUSED_RESULT
-static PuglStatus
+PUGL_WARN_UNUSED_RESULT static PuglStatus
 flushExposures(PuglWorld* const world)
 {
   PuglStatus st0 = PUGL_SUCCESS;

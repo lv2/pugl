@@ -734,8 +734,7 @@ typedef enum {
 } PuglStatus;
 
 /// Return a string describing a status code
-PUGL_CONST_API
-const char*
+PUGL_CONST_API const char*
 puglStrerror(PuglStatus status);
 
 /**
@@ -791,13 +790,11 @@ typedef uint32_t PuglWorldFlags;
    @param flags Flags to control world features.
    @return A new world, which must be later freed with puglFreeWorld().
 */
-PUGL_MALLOC_API
-PuglWorld*
+PUGL_MALLOC_API PuglWorld*
 puglNewWorld(PuglWorldType type, PuglWorldFlags flags);
 
 /// Free a world allocated with puglNewWorld()
-PUGL_API
-void
+PUGL_API void
 puglFreeWorld(PuglWorld* world);
 
 /**
@@ -808,13 +805,11 @@ puglFreeWorld(PuglWorld* world);
 
    The handle is opaque to Pugl and is not interpreted in any way.
 */
-PUGL_API
-void
+PUGL_API void
 puglSetWorldHandle(PuglWorld* world, PuglWorldHandle handle);
 
 /// Get the user data for the world
-PUGL_API
-PuglWorldHandle
+PUGL_API PuglWorldHandle
 puglGetWorldHandle(PuglWorld* world);
 
 /**
@@ -826,8 +821,7 @@ puglGetWorldHandle(PuglWorld* world);
 
    Windows: Returns the `HMODULE` of the calling process.
 */
-PUGL_API
-void*
+PUGL_API void*
 puglGetNativeWorld(PuglWorld* world);
 
 /**
@@ -836,8 +830,7 @@ puglGetNativeWorld(PuglWorld* world);
    The string value only needs to be valid for the duration of this call, it
    will be copied if necessary.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetWorldString(PuglWorld* world, PuglStringHint key, const char* value);
 
 /**
@@ -846,8 +839,7 @@ puglSetWorldString(PuglWorld* world, PuglStringHint key, const char* value);
    The returned string should be accessed immediately, or copied.  It may
    become invalid upon any call to any function that manipulates the same view.
 */
-PUGL_API
-const char*
+PUGL_API const char*
 puglGetWorldString(const PuglWorld* world, PuglStringHint key);
 
 /**
@@ -857,8 +849,7 @@ puglGetWorldString(const PuglWorld* world, PuglStringHint key);
    time is only useful to compare against other times returned by this
    function, its absolute value has no meaning.
 */
-PUGL_API
-double
+PUGL_API double
 puglGetTime(const PuglWorld* world);
 
 /**
@@ -883,8 +874,7 @@ puglGetTime(const PuglWorld* world);
    @return #PUGL_SUCCESS if events are read, #PUGL_FAILURE if no events are
    read, or an error.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglUpdate(PuglWorld* world, double timeout);
 
 /**
@@ -1050,18 +1040,15 @@ typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
    It must first be configured, then the system view can be created with
    puglRealize().
 */
-PUGL_MALLOC_API
-PuglView*
+PUGL_MALLOC_API PuglView*
 puglNewView(PuglWorld* world);
 
 /// Free a view created with puglNewView()
-PUGL_API
-void
+PUGL_API void
 puglFreeView(PuglView* view);
 
 /// Return the world that `view` is a part of
-PUGL_API
-PuglWorld*
+PUGL_API PuglWorld*
 puglGetWorld(PuglView* view);
 
 /**
@@ -1073,13 +1060,11 @@ puglGetWorld(PuglView* view);
 
    The handle is opaque to Pugl and is not interpreted in any way.
 */
-PUGL_API
-void
+PUGL_API void
 puglSetHandle(PuglView* view, PuglHandle handle);
 
 /// Get the user data for a view
-PUGL_API
-PuglHandle
+PUGL_API PuglHandle
 puglGetHandle(PuglView* view);
 
 /**
@@ -1099,18 +1084,15 @@ puglGetHandle(PuglView* view);
    applications must link against the appropriate backend library, or be sure
    to compile in the appropriate code if using a local copy of Pugl.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetBackend(PuglView* view, const PuglBackend* backend);
 
 /// Return the graphics backend used by a view
-PUGL_API
-const PuglBackend*
+PUGL_API const PuglBackend*
 puglGetBackend(const PuglView* view);
 
 /// Set the function to call when an event occurs
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
 /**
@@ -1118,8 +1100,7 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc);
 
    This only has an effect when called before puglRealize().
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
 
 /**
@@ -1129,8 +1110,7 @@ puglSetViewHint(PuglView* view, PuglViewHint hint, int value);
    hint which was initially set to PUGL_DONT_CARE, or has been adjusted from
    the suggested value.
 */
-PUGL_API
-int
+PUGL_API int
 puglGetViewHint(const PuglView* view, PuglViewHint hint);
 
 /**
@@ -1140,8 +1120,7 @@ puglGetViewHint(const PuglView* view, PuglViewHint hint);
    string value only needs to be valid for the duration of this call, it will
    be copied if necessary.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetViewString(PuglView* view, PuglStringHint key, const char* value);
 
 /**
@@ -1150,8 +1129,7 @@ puglSetViewString(PuglView* view, PuglStringHint key, const char* value);
    The returned string should be accessed immediately, or copied.  It may
    become invalid upon any call to any function that manipulates the same view.
 */
-PUGL_API
-const char*
+PUGL_API const char*
 puglGetViewString(const PuglView* view, PuglStringHint key);
 
 /**
@@ -1166,8 +1144,7 @@ puglGetViewString(const PuglView* view, PuglStringHint key);
    that is reasonably sized on a 96 DPI display, and the scale 2.0 should have
    text twice that large.
 */
-PUGL_API
-double
+PUGL_API double
 puglGetScaleFactor(const PuglView* view);
 
 /**
@@ -1182,8 +1159,7 @@ puglGetScaleFactor(const PuglView* view);
 
    The position is in screen coordinates with an upper left origin.
 */
-PUGL_API
-PuglRect
+PUGL_API PuglRect
 puglGetFrame(const PuglView* view);
 
 /**
@@ -1194,8 +1170,7 @@ puglGetFrame(const PuglView* view);
    @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
    unchanged.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetFrame(PuglView* view, PuglRect frame);
 
 /**
@@ -1204,8 +1179,7 @@ puglSetFrame(PuglView* view, PuglRect frame);
    @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
    unchanged.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetPosition(PuglView* view, int x, int y);
 
 /**
@@ -1214,8 +1188,7 @@ puglSetPosition(PuglView* view, int x, int y);
    @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
    unchanged.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetSize(PuglView* view, unsigned width, unsigned height);
 
 /**
@@ -1230,8 +1203,7 @@ puglSetSize(PuglView* view, unsigned width, unsigned height);
    @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
    not yet realized.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetSizeHint(PuglView*    view,
                 PuglSizeHint hint,
                 unsigned     width,
@@ -1249,13 +1221,11 @@ puglSetSizeHint(PuglView*    view,
 
    This must be called before puglRealize(), reparenting is not supported.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetParent(PuglView* view, PuglNativeView parent);
 
 /// Return the parent window this view is embedded in, or null
-PUGL_API
-PuglNativeView
+PUGL_API PuglNativeView
 puglGetParent(const PuglView* view);
 
 /**
@@ -1268,8 +1238,7 @@ puglGetParent(const PuglView* view);
    A view can either have a parent (for embedding) or a transient parent (for
    top-level windows like dialogs), but not both.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetTransientParent(PuglView* view, PuglNativeView parent);
 
 /**
@@ -1278,8 +1247,7 @@ puglSetTransientParent(PuglView* view, PuglNativeView parent);
    @return The native handle to the window this view is a transient child of,
    or null.
 */
-PUGL_API
-PuglNativeView
+PUGL_API PuglNativeView
 puglGetTransientParent(const PuglView* view);
 
 /**
@@ -1291,8 +1259,7 @@ puglGetTransientParent(const PuglView* view);
    The view should be fully configured using the above functions before this is
    called.  This function may only be called once per view.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglRealize(PuglView* view);
 
 /**
@@ -1301,8 +1268,7 @@ puglRealize(PuglView* view);
    This is the inverse of puglRealize().  After this call, the view no longer
    corresponds to a real system view, and can be realized again later.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglUnrealize(PuglView* view);
 
 /// A command to control the behaviour of puglShow()
@@ -1346,13 +1312,11 @@ typedef enum {
    If the view is currently hidden, it will be shown and possibly raised to the
    top depending on the platform.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglShow(PuglView* view, PuglShowCommand command);
 
 /// Hide the current window
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglHide(PuglView* view);
 
 /**
@@ -1365,8 +1329,7 @@ puglHide(PuglView* view);
    used to determine if the state has actually been set.  Any changes to the
    actual state of the view will arrive in later configure events.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetViewStyle(PuglView* view, PuglViewStyleFlags flags);
 
 /**
@@ -1375,18 +1338,15 @@ puglSetViewStyle(PuglView* view, PuglViewStyleFlags flags);
    The result is determined based on the state announced in the last configure
    event.
 */
-PUGL_API
-PuglViewStyleFlags
+PUGL_API PuglViewStyleFlags
 puglGetViewStyle(const PuglView* view);
 
 /// Return true iff the view is currently visible
-PUGL_API
-bool
+PUGL_API bool
 puglGetVisible(const PuglView* view);
 
 /// Return the native window handle
-PUGL_API
-PuglNativeView
+PUGL_API PuglNativeView
 puglGetNativeView(PuglView* view);
 
 /**
@@ -1407,8 +1367,7 @@ puglGetNativeView(PuglView* view);
 
    All other backends: returns null.
 */
-PUGL_API
-void*
+PUGL_API void*
 puglGetContext(PuglView* view);
 
 /**
@@ -1420,8 +1379,7 @@ puglGetContext(PuglView* view);
    platforms.  If called elsewhere, an expose will be enqueued to be processed
    in the next event loop iteration.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglObscureView(PuglView* view);
 
 /**
@@ -1441,8 +1399,7 @@ puglObscureView(PuglView* view);
    @param width The width of the rectangle to obscure.
    @param height The height coordinate of the rectangle to obscure.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglObscureRegion(PuglView* view,
                   int       x,
                   int       y,
@@ -1486,13 +1443,11 @@ typedef enum {
 
    @return #PUGL_SUCCESS if the focus was successfully grabbed, or an error.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglGrabFocus(PuglView* view);
 
 /// Return whether `view` has the keyboard input focus
-PUGL_API
-bool
+PUGL_API bool
 puglHasFocus(const PuglView* view);
 
 /**
@@ -1500,8 +1455,7 @@ puglHasFocus(const PuglView* view);
 
    A #PUGL_DATA_OFFER event will be sent if data is available.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglPaste(PuglView* view);
 
 /**
@@ -1509,8 +1463,7 @@ puglPaste(PuglView* view);
 
    Returns zero if the clipboard is empty.
 */
-PUGL_API
-uint32_t
+PUGL_API uint32_t
 puglGetNumClipboardTypes(const PuglView* view);
 
 /**
@@ -1522,8 +1475,7 @@ puglGetNumClipboardTypes(const PuglView* view);
    Returns null if `typeIndex` is out of bounds according to
    puglGetNumClipboardTypes().
 */
-PUGL_API
-const char*
+PUGL_API const char*
 puglGetClipboardType(const PuglView* view, uint32_t typeIndex);
 
 /**
@@ -1542,8 +1494,7 @@ puglGetClipboardType(const PuglView* view, uint32_t typeIndex);
    the `typeIndex` argument to the call of puglGetClipboardType() that returned
    the accepted type.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglAcceptOffer(PuglView*                 view,
                 const PuglDataOfferEvent* offer,
                 uint32_t                  typeIndex);
@@ -1559,8 +1510,7 @@ puglAcceptOffer(PuglView*                 view,
    @param data The data to copy to the clipboard.
    @param len The length of data in bytes (including terminator if necessary).
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetClipboard(PuglView*   view,
                  const char* type,
                  const void* data,
@@ -1577,8 +1527,7 @@ puglSetClipboard(PuglView*   view,
    @param[out] len Set to the length of the data in bytes.
    @return The clipboard contents, or null.
 */
-PUGL_API
-const void*
+PUGL_API const void*
 puglGetClipboard(PuglView* view, uint32_t typeIndex, size_t* len);
 
 /**
@@ -1592,8 +1541,7 @@ puglGetClipboard(PuglView* view, uint32_t typeIndex, size_t* len);
    #PUGL_UNSUPPORTED if setting the cursor is not supported on this system, or
    another error if the cursor is known but loading it fails.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSetCursor(PuglView* view, PuglCursor cursor);
 
 /**
@@ -1622,8 +1570,7 @@ puglSetCursor(PuglView* view, PuglCursor cursor);
    @return #PUGL_FAILURE if timers are not supported by the system,
    #PUGL_UNKNOWN_ERROR if setting the timer failed.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglStartTimer(PuglView* view, uintptr_t id, double timeout);
 
 /**
@@ -1635,8 +1582,7 @@ puglStartTimer(PuglView* view, uintptr_t id, double timeout);
    @return #PUGL_FAILURE if timers are not supported by this system,
    #PUGL_UNKNOWN_ERROR if stopping the timer failed.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglStopTimer(PuglView* view, uintptr_t id);
 
 /**
@@ -1655,8 +1601,7 @@ puglStopTimer(PuglView* view, uintptr_t id);
    @return #PUGL_UNSUPPORTED if sending events of this type is not supported,
    #PUGL_UNKNOWN_ERROR if sending the event failed.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event);
 
 /**

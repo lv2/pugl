@@ -70,8 +70,7 @@ typedef struct PuglVulkanLoaderImpl PuglVulkanLoader;
 
    @return A new Vulkan loader, or null on failure.
 */
-PUGL_API
-PuglVulkanLoader*
+PUGL_API PuglVulkanLoader*
 puglNewVulkanLoader(PuglWorld* world, const char* libraryName);
 
 /**
@@ -80,8 +79,7 @@ puglNewVulkanLoader(PuglWorld* world, const char* libraryName);
    Note that this closes the Vulkan library, so no Vulkan objects or API may be
    used after this is called.
 */
-PUGL_API
-void
+PUGL_API void
 puglFreeVulkanLoader(PuglVulkanLoader* loader);
 
 /**
@@ -90,8 +88,7 @@ puglFreeVulkanLoader(PuglVulkanLoader* loader);
    @return Null if the Vulkan library does not contain this function (which is
    unlikely and indicates a broken system).
 */
-PUGL_API
-PFN_vkGetInstanceProcAddr
+PUGL_API PFN_vkGetInstanceProcAddr
 puglGetInstanceProcAddrFunc(const PuglVulkanLoader* loader);
 
 /**
@@ -100,8 +97,7 @@ puglGetInstanceProcAddrFunc(const PuglVulkanLoader* loader);
    @return Null if the Vulkan library does not contain this function (which is
    unlikely and indicates a broken system).
 */
-PUGL_API
-PFN_vkGetDeviceProcAddr
+PUGL_API PFN_vkGetDeviceProcAddr
 puglGetDeviceProcAddrFunc(const PuglVulkanLoader* loader);
 
 /**
@@ -113,8 +109,7 @@ puglGetDeviceProcAddrFunc(const PuglVulkanLoader* loader);
    @param[out] count The number of extensions in the returned array.
    @return An array of extension name strings.
 */
-PUGL_API
-const char* const*
+PUGL_API const char* const*
 puglGetInstanceExtensions(uint32_t* count);
 
 /**
@@ -127,8 +122,7 @@ puglGetInstanceExtensions(uint32_t* count);
    @param[out] surface Pointed to a newly created Vulkan surface.
    @return `VK_SUCCESS` on success, or a Vulkan error code.
 */
-PUGL_API
-VkResult
+PUGL_API VkResult
 puglCreateSurface(PFN_vkGetInstanceProcAddr    vkGetInstanceProcAddr,
                   PuglView*                    view,
                   VkInstance                   instance,
@@ -140,8 +134,7 @@ puglCreateSurface(PFN_vkGetInstanceProcAddr    vkGetInstanceProcAddr,
 
    Pass the returned value to puglSetBackend() to draw to a view with Vulkan.
 */
-PUGL_CONST_API
-const PuglBackend*
+PUGL_CONST_API const PuglBackend*
 puglVulkanBackend(void);
 
 /**

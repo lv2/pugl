@@ -93,9 +93,7 @@ struct PuglInternalsImpl {
   bool             mapped;
 };
 
-PUGL_WARN_UNUSED_RESULT
-PUGL_API
-PuglStatus
+PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
 puglX11Configure(PuglView* view);
 
 #endif // PUGL_SRC_X11_H

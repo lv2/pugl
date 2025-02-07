@@ -22,8 +22,7 @@ PUGL_BEGIN_DECLS
    This backend just creates a simple native window without setting up any
    portable graphics API.
 */
-PUGL_CONST_API
-const PuglBackend*
+PUGL_CONST_API const PuglBackend*
 puglStubBackend(void);
 
 /**

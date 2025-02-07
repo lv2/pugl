@@ -83,8 +83,7 @@ PuglStatus
 puglDispatchSimpleEvent(PuglView* view, PuglEventType type);
 
 /// Process configure event while already in the graphics context
-PUGL_WARN_UNUSED_RESULT
-PuglStatus
+PUGL_WARN_UNUSED_RESULT PuglStatus
 puglConfigure(PuglView* view, const PuglEvent* event);
 
 /// Dispatch `event` to `view`, entering graphics context if necessary

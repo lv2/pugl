@@ -42,8 +42,7 @@ typedef void (*PuglGlFunc)(void);
 /**
    Return the address of an OpenGL extension function.
 */
-PUGL_API
-PuglGlFunc
+PUGL_API PuglGlFunc
 puglGetProcAddress(const char* name);
 
 /**
@@ -53,8 +52,7 @@ puglGetProcAddress(const char* name);
    doing things like loading textures.  Note that this must not be used for
    drawing, which may only be done while processing an expose event.
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglEnterContext(PuglView* view);
 
 /**
@@ -62,8 +60,7 @@ puglEnterContext(PuglView* view);
 
    This must only be called after puglEnterContext().
 */
-PUGL_API
-PuglStatus
+PUGL_API PuglStatus
 puglLeaveContext(PuglView* view);
 
 /**
@@ -71,8 +68,7 @@ puglLeaveContext(PuglView* view);
 
    Pass the returned value to puglSetBackend() to draw to a view with OpenGL.
 */
-PUGL_CONST_API
-const PuglBackend*
+PUGL_CONST_API const PuglBackend*
 puglGlBackend(void);
 
 PUGL_END_DECLS
