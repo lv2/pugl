@@ -6,7 +6,7 @@
 
 #include "internal.h"
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <windows.h>
 

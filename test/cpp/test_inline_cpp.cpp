@@ -23,34 +23,34 @@
 #  pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #endif
 
-#include "../src/common.c"   // IWYU pragma: keep
-#include "../src/internal.c" // IWYU pragma: keep
+#include "../../src/common.c"   // IWYU pragma: keep
+#include "../../src/internal.c" // IWYU pragma: keep
 
 #if defined(_WIN32)
-#  include "../src/win.c"      // IWYU pragma: keep
-#  include "../src/win.h"      // IWYU pragma: keep
-#  include "../src/win_stub.c" // IWYU pragma: keep
+#  include "../../src/win.c"      // IWYU pragma: keep
+#  include "../../src/win.h"      // IWYU pragma: keep
+#  include "../../src/win_stub.c" // IWYU pragma: keep
 #  if defined(WITH_CAIRO)
-#    include "../src/win_cairo.c" // IWYU pragma: keep
+#    include "../../src/win_cairo.c" // IWYU pragma: keep
 #  endif
 #  if defined(WITH_OPENGL)
-#    include "../src/win_gl.c" // IWYU pragma: keep
+#    include "../../src/win_gl.c" // IWYU pragma: keep
 #  endif
 #  if defined(WITH_VULKAN)
-#    include "../src/win_vulkan.c" // IWYU pragma: keep
+#    include "../../src/win_vulkan.c" // IWYU pragma: keep
 #  endif
 
 #else
-#  include "../src/x11.c"      // IWYU pragma: keep
-#  include "../src/x11_stub.c" // IWYU pragma: keep
+#  include "../../src/x11.c"      // IWYU pragma: keep
+#  include "../../src/x11_stub.c" // IWYU pragma: keep
 #  if defined(WITH_CAIRO)
-#    include "../src/x11_cairo.c" // IWYU pragma: keep
+#    include "../../src/x11_cairo.c" // IWYU pragma: keep
 #  endif
 #  if defined(WITH_OPENGL)
-#    include "../src/x11_gl.c" // IWYU pragma: keep
+#    include "../../src/x11_gl.c" // IWYU pragma: keep
 #  endif
 #  if defined(WITH_VULKAN)
-#    include "../src/x11_vulkan.c" // IWYU pragma: keep
+#    include "../../src/x11_vulkan.c" // IWYU pragma: keep
 #  endif
 #endif
 

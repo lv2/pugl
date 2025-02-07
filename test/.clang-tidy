@@ -3,7 +3,6 @@
 
 Checks: >
   -bugprone-multi-level-implicit-pointer-conversion,
-  -bugprone-suspicious-include,
   -cert-err33-c,
   -cert-err34-c,
   -clang-analyzer-optin.core.EnumCastOutOfRange,

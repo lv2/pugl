@@ -10,8 +10,8 @@
 #ifndef PUGL_VULKAN_H
 #define PUGL_VULKAN_H
 
-#include "pugl/attributes.h"
-#include "pugl/pugl.h"
+#include <pugl/attributes.h>
+#include <pugl/pugl.h>
 
 #include <vulkan/vulkan_core.h>
 

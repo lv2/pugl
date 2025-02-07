@@ -6,9 +6,9 @@
 
 #include "puglutil/test_utils.h"
 
-#include "pugl/gl.hpp"
-#include "pugl/pugl.h"
-#include "pugl/pugl.hpp"
+#include <pugl/gl.hpp>
+#include <pugl/pugl.h>
+#include <pugl/pugl.hpp>
 
 #include <cmath>
 

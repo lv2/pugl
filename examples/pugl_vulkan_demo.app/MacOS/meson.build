@@ -9,5 +9,4 @@ executable(
   ],
   c_args: example_defines + example_c_args,
   dependencies: [pugl_dep, pugl_vulkan_dep, puglutil_dep],
-  include_directories: include_directories('../../..'),
 )

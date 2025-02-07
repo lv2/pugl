@@ -5,8 +5,8 @@
 #include "types.h"
 #include "x11.h"
 
-#include "pugl/cairo.h"
-#include "pugl/pugl.h"
+#include <pugl/cairo.h>
+#include <pugl/pugl.h>
 
 #include <cairo-xlib.h>
 #include <cairo.h>

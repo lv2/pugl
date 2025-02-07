@@ -27,11 +27,6 @@ vulkan_examples = [
   'pugl_vulkan_demo.c',
 ]
 
-includes = include_directories(
-  '../bindings/cpp/include',
-  '../include',
-)
-
 # Suppress some additional C warnings in examples
 example_c_args = []
 if get_option('warning_level') == 'everything'
@@ -128,7 +123,6 @@ else
       c_args: example_defines + example_c_args + defines,
       cpp_args: example_defines + example_cpp_args + defines,
       dependencies: dependencies,
-      include_directories: includes,
     )
   endforeach
 
@@ -160,7 +154,6 @@ else
         c_args: example_defines + example_c_args + defines,
         cpp_args: example_defines + example_cpp_args + defines,
         dependencies: dependencies,
-        include_directories: includes,
       )
     endforeach
   endif
@@ -174,7 +167,6 @@ else
         example,
         c_args: example_defines + example_c_args + cairo_args,
         dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep],
-        include_directories: includes,
       )
     endforeach
   endif
@@ -203,7 +195,6 @@ else
         c_args: example_defines + example_c_args + defines,
         cpp_args: example_defines + example_cpp_args + defines,
         dependencies: dependencies,
-        include_directories: includes,
       )
     endforeach
   endif

@@ -5,7 +5,7 @@
 #include "types.h"
 #include "win.h"
 
-#include "pugl/cairo.h"
+#include <pugl/cairo.h>
 
 #include <cairo-win32.h>
 #include <cairo.h>

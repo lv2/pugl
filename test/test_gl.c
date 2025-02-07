@@ -7,8 +7,8 @@
 
 #include "puglutil/test_utils.h"
 
-#include "pugl/gl.h"
-#include "pugl/pugl.h"
+#include <pugl/gl.h>
+#include <pugl/pugl.h>
 
 #include <assert.h>
 #include <stdbool.h>

@@ -8,7 +8,7 @@
 subdir('include')
 
 puglpp_dep = declare_dependency(
-  dependencies: core_deps + [pugl_dep],
+  dependencies: [pugl_dep],
   include_directories: include_directories('include'),
   link_with: libpugl,
 )

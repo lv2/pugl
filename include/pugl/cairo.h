@@ -4,8 +4,8 @@
 #ifndef PUGL_CAIRO_H
 #define PUGL_CAIRO_H
 
-#include "pugl/attributes.h"
-#include "pugl/pugl.h"
+#include <pugl/attributes.h>
+#include <pugl/pugl.h>
 
 PUGL_BEGIN_DECLS
 

@@ -11,7 +11,7 @@
 #include "platform.h"
 #include "types.h"
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <X11/X.h>
 #include <X11/Xatom.h>

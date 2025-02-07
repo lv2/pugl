@@ -9,8 +9,8 @@
 
 #include "puglutil/test_utils.h"
 
-#include "pugl/pugl.h"
-#include "pugl/stub.h"
+#include <pugl/pugl.h>
+#include <pugl/stub.h>
 
 #include <assert.h>
 

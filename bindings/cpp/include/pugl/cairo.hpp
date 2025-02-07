@@ -4,8 +4,8 @@
 #ifndef PUGL_CAIRO_HPP
 #define PUGL_CAIRO_HPP
 
-#include "pugl/cairo.h"
-#include "pugl/pugl.h"
+#include <pugl/cairo.h>
+#include <pugl/pugl.h>
 
 namespace pugl {
 

@@ -7,7 +7,7 @@
 #include "macros.h"
 #include "platform.h"
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <dwmapi.h>
 #include <windows.h>

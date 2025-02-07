@@ -5,7 +5,7 @@
 
 #include "types.h"
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <assert.h>
 #include <stdbool.h>

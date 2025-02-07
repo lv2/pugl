@@ -4,7 +4,7 @@
 #ifndef PUGL_PUGL_H
 #define PUGL_PUGL_H
 
-#include "pugl/attributes.h"
+#include <pugl/attributes.h>
 
 #include <stddef.h>
 #include <stdint.h>

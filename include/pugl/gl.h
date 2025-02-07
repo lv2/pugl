@@ -4,8 +4,8 @@
 #ifndef PUGL_GL_H
 #define PUGL_GL_H
 
-#include "pugl/attributes.h"
-#include "pugl/pugl.h"
+#include <pugl/attributes.h>
+#include <pugl/pugl.h>
 
 // IWYU pragma: begin_exports
 

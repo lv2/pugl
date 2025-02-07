@@ -4,10 +4,10 @@
 #ifndef PUGL_PUGL_HPP
 #define PUGL_PUGL_HPP
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
-#include <cstddef> // IWYU pragma: keep
-#include <cstdint> // IWYU pragma: keep
+#include <cstddef>
+#include <cstdint>
 
 #if defined(PUGL_HPP_THROW_FAILED_CONSTRUCTION)
 #  include <exception>

@@ -250,7 +250,7 @@ libpugl = library(
 pugl_dep = declare_dependency(
   compile_args: extra_c_args,
   dependencies: core_deps,
-  include_directories: ['include'],
+  include_directories: includes,
   link_with: libpugl,
 )
 

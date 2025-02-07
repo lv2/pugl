@@ -4,7 +4,7 @@
 #ifndef TEST_TEST_UTILS_H
 #define TEST_TEST_UTILS_H
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <inttypes.h>
 #include <stdarg.h>

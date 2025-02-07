@@ -9,8 +9,8 @@
 
 #undef NDEBUG
 
-#include "pugl/gl.h"
-#include "pugl/pugl.h"
+#include <pugl/gl.h>
+#include <pugl/pugl.h>
 
 #include <assert.h>
 #include <stddef.h>

@@ -6,7 +6,7 @@
 
 #include "attributes.h"
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <stdbool.h>
 #include <stddef.h>

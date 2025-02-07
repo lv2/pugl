@@ -13,8 +13,8 @@
 
 #include "puglutil/test_utils.h"
 
-#include "pugl/pugl.h"
-#include "pugl/vulkan.h"
+#include <pugl/pugl.h>
+#include <pugl/vulkan.h>
 
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan_core.h>

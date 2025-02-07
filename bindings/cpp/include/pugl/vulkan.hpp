@@ -10,9 +10,9 @@
 #ifndef PUGL_VULKAN_HPP
 #define PUGL_VULKAN_HPP
 
-#include "pugl/pugl.h"
-#include "pugl/pugl.hpp"
-#include "pugl/vulkan.h"
+#include <pugl/pugl.h>
+#include <pugl/pugl.hpp>
+#include <pugl/vulkan.h>
 
 #include <vulkan/vulkan_core.h>
 

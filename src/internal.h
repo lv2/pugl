@@ -9,8 +9,8 @@
 #include "attributes.h"
 #include "types.h"
 
-#include "pugl/attributes.h"
-#include "pugl/pugl.h"
+#include <pugl/attributes.h>
+#include <pugl/pugl.h>
 
 #include <stdbool.h>
 #include <stddef.h>

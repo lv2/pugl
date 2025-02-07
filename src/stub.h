@@ -4,7 +4,7 @@
 #ifndef PUGL_SRC_STUB_H
 #define PUGL_SRC_STUB_H
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <stddef.h>
 

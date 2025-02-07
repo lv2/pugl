@@ -8,7 +8,7 @@
 #include "platform.h"
 #include "types.h"
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <limits.h>
 #include <stdbool.h>

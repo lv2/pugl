@@ -7,7 +7,7 @@
 #include "types.h"
 #include "win.h"
 
-#include "pugl/vulkan.h"
+#include <pugl/vulkan.h>
 
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_win32.h>

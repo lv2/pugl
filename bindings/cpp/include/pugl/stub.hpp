@@ -4,8 +4,8 @@
 #ifndef PUGL_STUB_HPP
 #define PUGL_STUB_HPP
 
-#include "pugl/pugl.h"
-#include "pugl/stub.h"
+#include <pugl/pugl.h>
+#include <pugl/stub.h>
 
 namespace pugl {
 

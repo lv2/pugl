@@ -7,8 +7,8 @@
 
 #include "puglutil/test_utils.h"
 
-#include "pugl/cairo.h"
-#include "pugl/pugl.h"
+#include <pugl/cairo.h>
+#include <pugl/pugl.h>
 
 #include <cairo.h>
 

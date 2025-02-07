@@ -4,7 +4,7 @@
 #ifndef EXAMPLES_DEMO_UTILS_H
 #define EXAMPLES_DEMO_UTILS_H
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <math.h>
 #include <stdio.h>

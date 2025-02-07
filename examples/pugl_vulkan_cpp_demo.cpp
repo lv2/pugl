@@ -22,9 +22,9 @@
 
 #include "sybok.hpp"
 
-#include "pugl/pugl.h"
-#include "pugl/pugl.hpp"
-#include "pugl/vulkan.hpp"
+#include <pugl/pugl.h>
+#include <pugl/pugl.hpp>
+#include <pugl/vulkan.hpp>
 
 #include <vulkan/vk_platform.h>
 

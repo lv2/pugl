@@ -5,7 +5,7 @@
 
 #undef NDEBUG
 
-#include "pugl/pugl.h"
+#include <pugl/pugl.h>
 
 #include <assert.h>
 #include <ctype.h>

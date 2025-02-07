@@ -30,8 +30,8 @@
 
 #include "glad/glad.h"
 
-#include "pugl/gl.h"
-#include "pugl/pugl.h"
+#include <pugl/gl.h>
+#include <pugl/pugl.h>
 
 #include <math.h>
 #include <stddef.h>
