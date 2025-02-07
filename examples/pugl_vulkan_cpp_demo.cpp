@@ -17,7 +17,8 @@
 #include "demo_utils.h"
 #include "file_utils.h"
 #include "rects.h"
-#include "test/test_utils.h"
+
+#include "puglutil/test_utils.h"
 
 #include "sybok.hpp"
 

@@ -470,6 +470,11 @@ endif
 # Tests and Examples #
 ######################
 
+if not get_option('tests').disabled() or not get_option('examples').disabled()
+  puglutil = subproject('puglutil')
+  puglutil_dep = puglutil.get_variable('puglutil_dep')
+endif
+
 if not get_option('tests').disabled()
   subdir('test')
 endif

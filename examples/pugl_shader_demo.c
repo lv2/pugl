@@ -25,7 +25,8 @@
 #include "file_utils.h"
 #include "rects.h"
 #include "shader_utils.h"
-#include "test/test_utils.h"
+
+#include "puglutil/test_utils.h"
 
 #include "glad/glad.h"
 

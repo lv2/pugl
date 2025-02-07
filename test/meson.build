@@ -57,7 +57,6 @@ if with_timers
 endif
 
 includes = [
-  '.',
   '../include',
 ]
 
@@ -68,7 +67,7 @@ foreach test : basic_tests
       'test_' + test,
       'test_@0@.c'.format(test),
       c_args: test_c_args,
-      dependencies: [pugl_dep, pugl_stub_dep],
+      dependencies: [pugl_dep, pugl_stub_dep, puglutil_dep],
       include_directories: include_directories(includes),
     ),
     suite: 'unit',
@@ -82,7 +81,7 @@ foreach test : basic_exclusive_tests
       'test_' + test,
       'test_@0@.c'.format(test),
       c_args: test_c_args,
-      dependencies: [pugl_dep, pugl_stub_dep],
+      dependencies: [pugl_dep, pugl_stub_dep, puglutil_dep],
       include_directories: include_directories(includes),
     ),
     is_parallel: false,
@@ -98,7 +97,7 @@ if opengl_dep.found()
         'test_' + test,
         'test_@0@.c'.format(test),
         c_args: test_c_args,
-        dependencies: [pugl_dep, pugl_gl_dep],
+        dependencies: [pugl_dep, pugl_gl_dep, puglutil_dep],
         include_directories: include_directories(includes),
       ),
       suite: 'unit',
@@ -114,7 +113,7 @@ if cairo_dep.found()
         'test_' + test,
         'test_@0@.c'.format(test),
         c_args: test_c_args + cairo_args,
-        dependencies: [pugl_dep, pugl_cairo_dep],
+        dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep],
         include_directories: include_directories(includes),
       ),
       suite: 'unit',
@@ -130,7 +129,7 @@ if vulkan_dep.found()
         'test_' + test,
         'test_@0@.c'.format(test),
         c_args: test_c_args,
-        dependencies: [pugl_dep, pugl_vulkan_dep],
+        dependencies: [pugl_dep, pugl_vulkan_dep, puglutil_dep],
         include_directories: include_directories(includes),
       ),
       suite: 'unit',

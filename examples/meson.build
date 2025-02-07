@@ -28,7 +28,6 @@ vulkan_examples = [
 ]
 
 includes = include_directories(
-  '..',
   '../bindings/cpp/include',
   '../include',
 )
@@ -120,7 +119,7 @@ else
   foreach example : stub_examples
     source = [example]
     target = example.split('.')[0]
-    dependencies = [pugl_dep, pugl_stub_dep]
+    dependencies = [pugl_dep, pugl_stub_dep, puglutil_dep]
     defines = []
 
     executable(
@@ -138,7 +137,7 @@ else
     foreach example : gl_examples
       source = [example]
       target = example.split('.')[0]
-      dependencies = [pugl_dep, pugl_gl_dep]
+      dependencies = [pugl_dep, pugl_gl_dep, puglutil_dep]
       defines = []
 
       if target == 'pugl_shader_demo'
@@ -174,7 +173,7 @@ else
         target,
         example,
         c_args: example_defines + example_c_args + cairo_args,
-        dependencies: [pugl_dep, pugl_cairo_dep],
+        dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep],
         include_directories: includes,
       )
     endforeach
@@ -185,7 +184,7 @@ else
     foreach example : vulkan_examples
       source = [example]
       target = example.split('.')[0]
-      dependencies = [dl_dep, pugl_vulkan_dep]
+      dependencies = [dl_dep, pugl_vulkan_dep, puglutil_dep]
       defines = []
 
       if target == 'pugl_vulkan_cpp_demo'

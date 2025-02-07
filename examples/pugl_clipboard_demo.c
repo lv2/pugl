@@ -4,7 +4,8 @@
 // A demonstration of using clipboards for copy/paste and drag and drop
 
 #include "cube_view.h"
-#include "test/test_utils.h"
+
+#include "puglutil/test_utils.h"
 
 #include "pugl/gl.h"
 #include "pugl/pugl.h"

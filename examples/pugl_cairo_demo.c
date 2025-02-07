@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: ISC
 
 #include "demo_utils.h"
-#include "test/test_utils.h"
+
+#include "puglutil/test_utils.h"
 
 #include "pugl/cairo.h"
 #include "pugl/pugl.h"
