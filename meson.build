@@ -524,6 +524,7 @@ if meson.version().version_compare('>=0.53.0')
       'Tests': not get_option('tests').disabled(),
       'Examples': not get_option('examples').disabled(),
       'Documentation': build_docs,
+      'C++ bindings': not get_option('bindings_cpp').disabled(),
     },
     bool_yn: true,
     section: 'Components',
