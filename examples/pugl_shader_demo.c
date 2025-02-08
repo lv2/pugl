@@ -91,15 +91,15 @@ static void
 onExpose(PuglView* view)
 {
   PuglTestApp*   app    = (PuglTestApp*)puglGetHandle(view);
-  const PuglRect frame  = puglGetFrame(view);
-  const float    width  = (float)frame.width;
-  const float    height = (float)frame.height;
+  const PuglArea size   = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+  const float    width  = (float)size.width;
+  const float    height = (float)size.height;
   const double   time   = puglGetTime(puglGetWorld(view));
 
   // Construct projection matrix for 2D window surface (in pixels)
   mat4 proj;
   mat4Ortho(
-    proj, 0.0f, (float)frame.width, 0.0f, (float)frame.height, -1.0f, 1.0f);
+    proj, 0.0f, (float)size.width, 0.0f, (float)size.height, -1.0f, 1.0f);
 
   // Clear and bind everything that is the same for every rect
   glClear(GL_COLOR_BUFFER_BIT);
@@ -109,7 +109,7 @@ onExpose(PuglView* view)
   // Update horizontal mouse cursor line (last rect)
   Rect* const mouseH   = &app->rects[app->numRects];
   mouseH->pos[0]       = (float)(app->mouseX - 8.0);
-  mouseH->pos[1]       = (float)(frame.height - app->mouseY - 1.0);
+  mouseH->pos[1]       = (float)(size.height - app->mouseY - 1.0);
   mouseH->size[0]      = 16.0f;
   mouseH->size[1]      = 2.0f;
   mouseH->fillColor[0] = 1.0f;
@@ -120,7 +120,7 @@ onExpose(PuglView* view)
   // Update vertical mouse cursor line (second last rect)
   Rect* const mouseV   = &app->rects[app->numRects + 1];
   mouseV->pos[0]       = (float)(app->mouseX - 2.0);
-  mouseV->pos[1]       = (float)(frame.height - app->mouseY - 8.0);
+  mouseV->pos[1]       = (float)(size.height - app->mouseY - 8.0);
   mouseV->size[0]      = 2.0f;
   mouseV->size[1]      = 16.0f;
   mouseV->fillColor[0] = 1.0f;

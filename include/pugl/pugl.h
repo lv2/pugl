@@ -46,6 +46,18 @@ typedef int16_t PuglCoord;
 */
 typedef uint16_t PuglSpan;
 
+/// A 2-dimensional position within/of a view
+typedef struct {
+  PuglCoord x;
+  PuglCoord y;
+} PuglPoint;
+
+/// A 2-dimensional size within/of a view
+typedef struct {
+  PuglSpan width;
+  PuglSpan height;
+} PuglArea;
+
 /**
    A rectangle in a view or on the screen.
 
@@ -967,6 +979,49 @@ typedef enum {
 } PuglViewType;
 
 /**
+   A hint for configuring/constraining the position of a view.
+
+   The system will attempt to make the view's window adhere to these, but they
+   are suggestions, not hard constraints.  Applications should handle any view
+   position gracefully.
+
+   An unset position has `INT16_MIN` (-32768) for both `x` and `y`.  In
+   practice, set positions should be between -16000 and 16000 for portability.
+   Usually, the origin is the top left of the display, although negative
+   coordinates are possible, particularly on multi-display system.
+*/
+typedef enum {
+  /**
+     Default position.
+
+     This is used as the position during window creation as a default, if no
+     other position is specified.  It isn't necessary to set a default position
+     (unlike the default size, which is required).  If not even a default
+     position is set, then the window will be created at an arbitrary position.
+     This position is a best-effort attempt to do the most reasonable thing for
+     the initial display of the window, for example, by centering.  Note that
+     it is implementation-defined, subject to change, platform-specific, and
+     for embedded views, may no longer make sense if the parent's size is
+     adjusted.  Code that wants to make assumptions about the initial position
+     must set the default to a specific valid one, such as `{0, 0}`.
+  */
+  PUGL_DEFAULT_POSITION,
+
+  /**
+     Current position.
+
+     This reflects the current position of the view, which may be different from
+     the default position if the view has been moved by the user, window
+     manager, or for any other reason.  Typically, it overrides the
+     default position.
+  */
+  PUGL_CURRENT_POSITION,
+} PuglPositionHint;
+
+/// The number of #PuglPositionHint values
+#define PUGL_NUM_POSITION_HINTS ((unsigned)PUGL_CURRENT_POSITION + 1U)
+
+/**
    A hint for configuring/constraining the size of a view.
 
    The system will attempt to make the view's window adhere to these, but they
@@ -1164,30 +1219,37 @@ puglGetScaleFactor(const PuglView* view);
 */
 
 /**
-   Get the current position and size of the view.
+   Get a position hint for the view.
 
-   The position is in screen coordinates with an upper left origin.
+   This can be used to get the default or current position of a view, in screen
+   coordinates with an upper left origin.
 */
-PUGL_API PuglRect
-puglGetFrame(const PuglView* view);
+PUGL_API PuglPoint
+puglGetPositionHint(const PuglView* view, PuglPositionHint hint);
 
 /**
-   Set the current position of the view.
+   Set a position hint for the view.
 
-   @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
-   unchanged.
+   This can be used to set the default or current position of a view.
+
+   This should be called before puglRealize() so the initial window for the
+   view can be configured correctly.  It may also be used dynamically after the
+   window is realized, for some hints.
+
+   @return An error code on failure, but always succeeds if the view is not yet
+   realized.
 */
 PUGL_API PuglStatus
-puglSetPosition(PuglView* view, int x, int y);
+puglSetPositionHint(PuglView* view, PuglPositionHint hint, int x, int y);
 
 /**
-   Set the current size of the view.
+   Get a size hint for the view.
 
-   @return #PUGL_UNKNOWN_ERROR on failure, in which case the view frame is
-   unchanged.
+   This can be used to get the default, current, minimum, and maximum size of a
+   view, as well as the supported range of aspect ratios.
 */
-PUGL_API PuglStatus
-puglSetSize(PuglView* view, unsigned width, unsigned height);
+PUGL_API PuglArea
+puglGetSizeHint(const PuglView* view, PuglSizeHint hint);
 
 /**
    Set a size hint for the view.

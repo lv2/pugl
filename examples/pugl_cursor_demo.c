@@ -59,9 +59,9 @@ onExpose(void)
 static void
 onMotion(PuglView* view, double x, double y)
 {
-  const PuglRect frame = puglGetFrame(view);
-  int            row   = (int)(y * N_ROWS / frame.height);
-  int            col   = (int)(x * N_COLS / frame.width);
+  const PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+  int            row  = (int)(y * N_ROWS / size.height);
+  int            col  = (int)(x * N_COLS / size.width);
 
   row = (row < 0) ? 0 : (row >= N_ROWS) ? (N_ROWS - 1) : row;
   col = (col < 0) ? 0 : (col >= N_COLS) ? (N_COLS - 1) : col;

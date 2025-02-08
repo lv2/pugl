@@ -37,12 +37,13 @@ onMainEvent(PuglView* view, const PuglEvent* event);
 static PuglStatus
 onExpose(PuglView* const view, const PuglExposeEvent* const event)
 {
-  PuglWorld* const         world = puglGetWorld(view);
-  DemoApp* const           app   = (DemoApp*)puglGetWorldHandle(world);
-  const PuglRect           frame = puglGetFrame(view);
+  PuglWorld* const world = puglGetWorld(view);
+  DemoApp* const   app   = (DemoApp*)puglGetWorldHandle(world);
+  const PuglPoint  pos   = puglGetPositionHint(view, PUGL_CURRENT_POSITION);
+  const PuglArea   size  = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
   const PuglViewStyleFlags style = puglGetViewStyle(view);
-  const PuglCoord          cx    = (PuglCoord)(frame.width / 2U);
-  const PuglCoord          cy    = (PuglCoord)(frame.height / 2U);
+  const PuglCoord          cx    = (PuglCoord)(size.width / 2U);
+  const PuglCoord          cy    = (PuglCoord)(size.height / 2U);
   cairo_t* const           cr    = (cairo_t*)puglGetContext(view);
 
   // Clip to expose region
@@ -61,14 +62,14 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
   cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
 
   // Draw position label
-  snprintf(buf, sizeof(buf), "Position: %5d, %5d", frame.x, frame.y);
+  snprintf(buf, sizeof(buf), "Position: %5d, %5d", pos.x, pos.y);
   cairo_text_extents(cr, buf, &extents);
   cairo_move_to(
     cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 192.0);
   cairo_show_text(cr, buf);
 
   // Draw size label
-  snprintf(buf, sizeof(buf), "Size: %5u, %5u", frame.width, frame.height);
+  snprintf(buf, sizeof(buf), "Size: %5u, %5u", size.width, size.height);
   cairo_text_extents(cr, buf, &extents);
   cairo_move_to(
     cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 144.0);

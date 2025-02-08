@@ -32,7 +32,7 @@ main(void)
   puglSetBackend(test.view, puglGlBackend());
   puglSetHandle(test.view, &test);
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
-  puglSetPosition(test.view, 640, 896);
+  puglSetPositionHint(test.view, PUGL_DEFAULT_POSITION, 640, 896);
 
   assert(!puglGetVisible(test.view));
 

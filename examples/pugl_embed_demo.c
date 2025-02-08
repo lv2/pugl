@@ -89,32 +89,33 @@ swapFocus(PuglTestApp* app)
 static void
 onKeyPress(PuglView* view, const PuglKeyEvent* event)
 {
-  PuglTestApp* app   = (PuglTestApp*)puglGetHandle(view);
-  PuglRect     frame = puglGetFrame(view);
+  PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
   if (event->key == '\t') {
     swapFocus(app);
   } else if (event->key == 'q' || event->key == PUGL_KEY_ESCAPE) {
     app->quit = 1;
   } else if (event->state & PUGL_MOD_SHIFT) {
+    const PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
     if (event->key == PUGL_KEY_UP) {
-      puglSetSize(view, frame.width, frame.height - 10U);
+      puglSetSizeHint(view, PUGL_CURRENT_SIZE, size.width, size.height - 10U);
     } else if (event->key == PUGL_KEY_DOWN) {
-      puglSetSize(view, frame.width, frame.height + 10U);
+      puglSetSizeHint(view, PUGL_CURRENT_SIZE, size.width, size.height + 10U);
     } else if (event->key == PUGL_KEY_LEFT) {
-      puglSetSize(view, frame.width - 10U, frame.height);
+      puglSetSizeHint(view, PUGL_CURRENT_SIZE, size.width - 10U, size.height);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      puglSetSize(view, frame.width + 10U, frame.height);
+      puglSetSizeHint(view, PUGL_CURRENT_SIZE, size.width + 10U, size.height);
     }
   } else {
+    const PuglPoint pos = puglGetPositionHint(view, PUGL_CURRENT_POSITION);
     if (event->key == PUGL_KEY_UP) {
-      puglSetPosition(view, frame.x, frame.y - 10);
+      puglSetPositionHint(view, PUGL_CURRENT_POSITION, pos.x, pos.y - 10);
     } else if (event->key == PUGL_KEY_DOWN) {
-      puglSetPosition(view, frame.x, frame.y + 10);
+      puglSetPositionHint(view, PUGL_CURRENT_POSITION, pos.x, pos.y + 10);
     } else if (event->key == PUGL_KEY_LEFT) {
-      puglSetPosition(view, frame.x - 10, frame.y);
+      puglSetPositionHint(view, PUGL_CURRENT_POSITION, pos.x - 10, pos.y);
     } else if (event->key == PUGL_KEY_RIGHT) {
-      puglSetPosition(view, frame.x + 10, frame.y);
+      puglSetPositionHint(view, PUGL_CURRENT_POSITION, pos.x + 10, pos.y);
     }
   }
 }
@@ -122,17 +123,17 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
 static PuglStatus
 onParentEvent(PuglView* view, const PuglEvent* event)
 {
-  PuglTestApp*   app         = (PuglTestApp*)puglGetHandle(view);
-  const PuglRect parentFrame = puglGetFrame(view);
+  PuglTestApp* const app = (PuglTestApp*)puglGetHandle(view);
 
   printEvent(event, "Parent: ", app->verbose);
 
   switch (event->type) {
   case PUGL_CONFIGURE:
     reshapeCube((float)event->configure.width, (float)event->configure.height);
-    puglSetSize(app->child,
-                parentFrame.width - (2 * borderWidth),
-                parentFrame.height - (2 * borderWidth));
+    puglSetSizeHint(app->child,
+                    PUGL_CURRENT_SIZE,
+                    event->configure.width - (2U * borderWidth),
+                    event->configure.height - (2U * borderWidth));
     break;
   case PUGL_UPDATE:
     if (app->continuous) {
@@ -251,7 +252,6 @@ main(int argc, char** argv)
 
   puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglEmbedDemo");
 
-  const PuglRect parentFrame = {0, 0, 512, 512};
   puglSetSizeHint(app.parent, PUGL_DEFAULT_SIZE, 512, 512);
   puglSetSizeHint(app.parent, PUGL_MIN_SIZE, 192, 192);
   puglSetSizeHint(app.parent, PUGL_MAX_SIZE, 1024, 1024);
@@ -279,10 +279,12 @@ main(int argc, char** argv)
   }
 
   puglSetParent(app.child, puglGetNativeView(app.parent));
-  puglSetPosition(app.child, borderWidth, borderWidth);
-  puglSetSize(app.child,
-              parentFrame.width - (2 * borderWidth),
-              parentFrame.height - (2 * borderWidth));
+  puglSetPositionHint(
+    app.child, PUGL_DEFAULT_POSITION, borderWidth, borderWidth);
+  puglSetSizeHint(app.child,
+                  PUGL_DEFAULT_SIZE,
+                  512U - (2U * borderWidth),
+                  512U - (2U * borderWidth));
 
   puglSetViewHint(app.child, PUGL_CONTEXT_DEBUG, opts.errorChecking);
   puglSetViewHint(app.child, PUGL_SAMPLES, opts.samples);

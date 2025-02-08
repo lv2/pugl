@@ -90,7 +90,7 @@ main(int argc, char** argv)
   puglSetHandle(test.view, &test);
   puglSetEventFunc(test.view, onEvent);
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
-  puglSetPosition(test.view, 128, 640);
+  puglSetPositionHint(test.view, PUGL_DEFAULT_POSITION, 128, 640);
 
   // Create and show window
   assert(!puglRealize(test.view));

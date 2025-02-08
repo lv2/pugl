@@ -50,9 +50,9 @@ static const Button buttons[] = {{128, 128, 64, 64, "1"},
 static ViewScale
 getScale(const PuglView* const view)
 {
-  const PuglRect  frame = puglGetFrame(view);
-  const ViewScale scale = {(frame.width - (512.0 / frame.width)) / 512.0,
-                           (frame.height - (512.0 / frame.height)) / 512.0};
+  const PuglArea  size  = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+  const ViewScale scale = {(size.width - (512.0 / size.width)) / 512.0,
+                           (size.height - (512.0 / size.height)) / 512.0};
   return scale;
 }
 

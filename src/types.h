@@ -21,18 +21,6 @@ typedef struct PuglInternalsImpl PuglInternals;
 /// View hints
 typedef int PuglHints[PUGL_NUM_VIEW_HINTS];
 
-/// View position (both X and Y coordinates) or general point
-typedef struct {
-  PuglCoord x;
-  PuglCoord y;
-} PuglPoint;
-
-/// View size (both X and Y coordinates)
-typedef struct {
-  PuglSpan width;
-  PuglSpan height;
-} PuglArea;
-
 /// Blob of arbitrary data
 typedef struct {
   void*  data; ///< Dynamically allocated data
@@ -57,10 +45,9 @@ struct PuglViewImpl {
   uintptr_t          transientParent;
   PuglConfigureEvent lastConfigure;
   PuglHints          hints;
+  PuglPoint          positionHints[PUGL_NUM_POSITION_HINTS];
   PuglArea           sizeHints[PUGL_NUM_SIZE_HINTS];
   char*              strings[PUGL_NUM_STRING_HINTS];
-  int                defaultX;
-  int                defaultY;
   PuglViewStage      stage;
   bool               resizing;
 };

@@ -87,7 +87,7 @@ main(int argc, char** argv)
   puglSetSizeHint(test.view, PUGL_MIN_SIZE, minSize, minSize);
   puglSetSizeHint(test.view, PUGL_MAX_SIZE, maxSize, maxSize);
   puglSetSizeHint(test.view, PUGL_FIXED_ASPECT, 1, 1);
-  puglSetPosition(test.view, 384, 384);
+  puglSetPositionHint(test.view, PUGL_DEFAULT_POSITION, 384, 384);
 
   // Create and show window
   assert(!puglRealize(test.view));
@@ -97,21 +97,22 @@ main(int argc, char** argv)
   }
 
   // Check that the frame matches the last configure event
-  const PuglRect frame = puglGetFrame(test.view);
-  assert(frame.x == test.configuredFrame.x);
-  assert(frame.y == test.configuredFrame.y);
-  assert(frame.width == test.configuredFrame.width);
-  assert(frame.height == test.configuredFrame.height);
+  const PuglPoint pos  = puglGetPositionHint(test.view, PUGL_CURRENT_POSITION);
+  const PuglArea  size = puglGetSizeHint(test.view, PUGL_CURRENT_SIZE);
+  assert(pos.x == test.configuredFrame.x);
+  assert(pos.y == test.configuredFrame.y);
+  assert(size.width == test.configuredFrame.width);
+  assert(size.height == test.configuredFrame.height);
 
 #if defined(_WIN32) || defined(__APPLE__)
   /* Some window managers on Linux (particularly tiling ones) just disregard
      these hints entirely, so we only check that the size is in bounds on MacOS
      and Windows where this is more or less universally supported. */
 
-  assert(frame.width >= minSize);
-  assert(frame.height >= minSize);
-  assert(frame.width <= maxSize);
-  assert(frame.height <= maxSize);
+  assert(size.width >= minSize);
+  assert(size.height >= minSize);
+  assert(size.width <= maxSize);
+  assert(size.height <= maxSize);
 #endif
 
   // Tear down

@@ -72,6 +72,12 @@ using Coord = PuglCoord;
 /// @copydoc PuglSpan
 using Span = PuglSpan;
 
+/// @copydoc PuglPoint
+using Point = PuglPoint;
+
+/// @copydoc PuglArea
+using Area = PuglArea;
+
 /// @copydoc PuglRect
 using Rect = PuglRect;
 
@@ -377,9 +383,16 @@ using Backend = PuglBackend;
 /// @copydoc PuglNativeView
 using NativeView = PuglNativeView;
 
+/// @copydoc PuglPositionHint
+enum class PositionHint {
+  defaultPosition, ///< @copydoc PUGL_DEFAULT_POSITION
+  currentPosition, ///< @copydoc PUGL_CURRENT_POSITION
+};
+
 /// @copydoc PuglSizeHint
 enum class SizeHint {
   defaultSize, ///< @copydoc PUGL_DEFAULT_SIZE
+  currentSize, ///< @copydoc PUGL_CURRENT_SIZE
   minSize,     ///< @copydoc PUGL_MIN_SIZE
   maxSize,     ///< @copydoc PUGL_MAX_SIZE
   fixedAspect, ///< @copydoc PUGL_FIXED_ASPECT
@@ -543,8 +556,24 @@ public:
      @{
   */
 
-  /// @copydoc puglGetFrame
-  Rect frame() const noexcept { return puglGetFrame(cobj()); }
+  /// @copydoc puglGetPositionHint
+  Point position(PositionHint hint) const noexcept
+  {
+    return puglGetPositionHint(cobj(), static_cast<PuglPositionHint>(hint));
+  }
+
+  /// @copydoc puglGetSizeHint
+  Area size(SizeHint hint) const noexcept
+  {
+    return puglGetSizeHint(cobj(), static_cast<PuglSizeHint>(hint));
+  }
+
+  /// @copydoc puglSetSizeHint
+  Status setSize(unsigned width, unsigned height) noexcept
+  {
+    return static_cast<Status>(
+      puglSetSizeHint(cobj(), PUGL_CURRENT_SIZE, width, height));
+  }
 
   /// @copydoc puglSetSizeHint
   Status setSizeHint(SizeHint hint, unsigned width, unsigned height) noexcept

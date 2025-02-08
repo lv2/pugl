@@ -4,14 +4,13 @@
 // Common implementations of public API functions in the core library
 
 #include "internal.h"
-
 #include "platform.h"
 #include "types.h"
 
 #include <pugl/pugl.h>
 
-#include <limits.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -127,6 +126,11 @@ puglSetDefaultHints(PuglView* const view)
   view->hints[PUGL_REFRESH_RATE]          = PUGL_DONT_CARE;
   view->hints[PUGL_VIEW_TYPE]             = PUGL_DONT_CARE;
 
+  for (unsigned i = 0U; i < PUGL_NUM_POSITION_HINTS; ++i) {
+    view->positionHints[i].x = INT16_MIN;
+    view->positionHints[i].y = INT16_MIN;
+  }
+
   for (unsigned i = 0U; i < PUGL_NUM_SIZE_HINTS; ++i) {
     view->sizeHints[i].width  = 0U;
     view->sizeHints[i].height = 0U;
@@ -142,10 +146,7 @@ puglNewView(PuglWorld* const world)
     return NULL;
   }
 
-  view->world    = world;
-  view->defaultX = INT_MIN;
-  view->defaultY = INT_MIN;
-
+  view->world = world;
   puglSetDefaultHints(view);
 
   // Enlarge world view list
@@ -289,32 +290,37 @@ puglGetViewString(const PuglView* const view, const PuglStringHint key)
   return view->strings[key];
 }
 
-PuglRect
-puglGetFrame(const PuglView* view)
+PuglPoint
+puglGetPositionHint(const PuglView* const view, const PuglPositionHint hint)
 {
-  if (view->lastConfigure.type == PUGL_CONFIGURE) {
-    // Return the last configured frame
-    const PuglRect frame = {view->lastConfigure.x,
-                            view->lastConfigure.y,
-                            view->lastConfigure.width,
-                            view->lastConfigure.height};
-    return frame;
+  if (hint == PUGL_CURRENT_POSITION) {
+    PuglPoint pos = {0, 0};
+    if (view->lastConfigure.type == PUGL_CONFIGURE) {
+      pos.x = view->lastConfigure.x;
+      pos.y = view->lastConfigure.y;
+    } else {
+      const PuglPoint defaultPos = view->positionHints[PUGL_DEFAULT_POSITION];
+      if (puglIsValidPosition(defaultPos.x, defaultPos.y)) {
+        pos.x = defaultPos.x;
+        pos.y = defaultPos.y;
+      }
+    }
+    return pos;
   }
 
-  // Get the default position if set, or fallback to (0, 0)
-  int x = view->defaultX;
-  int y = view->defaultY;
-  if (!puglIsValidPosition(x, y)) {
-    x = 0;
-    y = 0;
+  return view->positionHints[hint];
+}
+
+PuglArea
+puglGetSizeHint(const PuglView* const view, const PuglSizeHint hint)
+{
+  if (hint == PUGL_CURRENT_SIZE && view->lastConfigure.type == PUGL_CONFIGURE) {
+    const PuglArea area = {view->lastConfigure.width,
+                           view->lastConfigure.height};
+    return area;
   }
 
-  // Return the default frame, sanitized if necessary
-  const PuglRect frame = {(PuglCoord)x,
-                          (PuglCoord)y,
-                          view->sizeHints[PUGL_DEFAULT_SIZE].width,
-                          view->sizeHints[PUGL_DEFAULT_SIZE].height};
-  return frame;
+  return view->sizeHints[hint];
 }
 
 PuglStatus

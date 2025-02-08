@@ -66,7 +66,7 @@ main(int argc, char** argv)
   puglSetBackend(test.view, puglCairoBackend());
   puglSetEventFunc(test.view, onEvent);
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
-  puglSetPosition(test.view, 128, 896);
+  puglSetPositionHint(test.view, PUGL_DEFAULT_POSITION, 128, 896);
   puglShow(test.view, PUGL_SHOW_RAISE);
 
   // Drive event loop until the view gets exposed

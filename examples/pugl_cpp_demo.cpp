@@ -58,8 +58,9 @@ CubeView::onEvent(const pugl::UpdateEvent&) noexcept
   // return obscure();
 
   // But for testing, use sendEvent() instead:
+  const auto currentSize = this->size(pugl::SizeHint::currentSize);
   return sendEvent(pugl::ExposeEvent{
-    0U, PuglCoord{0}, PuglCoord{0}, frame().width, frame().height});
+    0U, PuglCoord{0}, PuglCoord{0}, currentSize.width, currentSize.height});
 }
 
 pugl::Status

@@ -23,7 +23,7 @@ make_point(const PuglCoord x, const PuglCoord y)
 bool
 puglIsValidPosition(const int x, const int y)
 {
-  return x >= INT16_MIN && x <= INT16_MAX && y >= INT16_MIN && y <= INT16_MAX;
+  return x >= INT16_MIN && x < INT16_MAX && y >= INT16_MIN && y < INT16_MAX;
 }
 
 bool
@@ -60,9 +60,10 @@ puglGetInitialPosition(const PuglView* const view, const PuglArea size)
     return make_point(view->lastConfigure.x, view->lastConfigure.y);
   }
 
-  if (puglIsValidPosition(view->defaultX, view->defaultY)) {
+  const PuglPoint defaultPos = view->positionHints[PUGL_DEFAULT_POSITION];
+  if (puglIsValidPosition(defaultPos.x, defaultPos.y)) {
     // Use the default position hint set by the application
-    return make_point((PuglCoord)view->defaultX, (PuglCoord)view->defaultY);
+    return make_point(defaultPos.x, defaultPos.y);
   }
 
   if (view->parent) {

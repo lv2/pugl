@@ -405,14 +405,18 @@ updateSizeHints(const PuglView* const view)
   XSizeHints sizeHints = PUGL_INIT_STRUCT;
 
   if (!view->hints[PUGL_RESIZABLE]) {
-    const PuglRect frame  = puglGetFrame(view);
+    PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+    if (!puglIsValidSize(size.width, size.height)) {
+      size = puglGetSizeHint(view, PUGL_DEFAULT_SIZE);
+    }
+
     sizeHints.flags       = PBaseSize | PMinSize | PMaxSize;
-    sizeHints.base_width  = (int)frame.width;
-    sizeHints.base_height = (int)frame.height;
-    sizeHints.min_width   = (int)frame.width;
-    sizeHints.min_height  = (int)frame.height;
-    sizeHints.max_width   = (int)frame.width;
-    sizeHints.max_height  = (int)frame.height;
+    sizeHints.base_width  = (int)size.width;
+    sizeHints.base_height = (int)size.height;
+    sizeHints.min_width   = (int)size.width;
+    sizeHints.min_height  = (int)size.height;
+    sizeHints.max_width   = (int)size.width;
+    sizeHints.max_height  = (int)size.height;
   } else {
     // Avoid setting PBaseSize for top level views to avoid window manager bugs
     const PuglArea defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];
@@ -1945,45 +1949,41 @@ puglGetScaleFactor(const PuglView* const view)
   return view->world->impl->scaleFactor;
 }
 
-PuglStatus
-puglSetPosition(PuglView* const view, const int x, const int y)
+static PuglStatus
+puglSetWindowPosition(PuglView* const view, const int x, const int y)
 {
-  Display* const display = view->world->impl->display;
-
-  if (!puglIsValidPosition(x, y)) {
-    return PUGL_BAD_PARAMETER;
-  }
-
-  if (!view->impl->win) {
-    // Set defaults to be used when realized
-    view->defaultX = x;
-    view->defaultY = y;
-    return PUGL_SUCCESS;
-  }
-
-  return puglX11Status(XMoveWindow(display,
+  return puglX11Status(XMoveWindow(view->world->impl->display,
                                    view->impl->win,
                                    (int)(x - view->impl->frameExtentLeft),
                                    (int)(y - view->impl->frameExtentTop)));
 }
 
-PuglStatus
-puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
+static PuglStatus
+puglSetWindowSize(PuglView* const view,
+                  const unsigned  width,
+                  const unsigned  height)
 {
-  Display* const display = view->world->impl->display;
+  return !view->impl->win
+           ? PUGL_SUCCESS
+           : puglX11Status(XResizeWindow(
+               view->world->impl->display, view->impl->win, width, height));
+}
 
-  if (!puglIsValidSize(width, height)) {
+PuglStatus
+puglSetPositionHint(PuglView* const        view,
+                    const PuglPositionHint hint,
+                    const int              x,
+                    const int              y)
+{
+  if (x <= INT16_MIN || x > INT16_MAX || y <= INT16_MIN || y > INT16_MAX) {
     return PUGL_BAD_PARAMETER;
   }
 
-  if (!view->impl->win) {
-    // Set defaults to be used when realized
-    view->sizeHints[PUGL_DEFAULT_SIZE].width  = (PuglSpan)width;
-    view->sizeHints[PUGL_DEFAULT_SIZE].height = (PuglSpan)height;
-    return PUGL_SUCCESS;
-  }
+  view->positionHints[hint].x = (PuglCoord)x;
+  view->positionHints[hint].y = (PuglCoord)y;
 
-  return puglX11Status(XResizeWindow(display, view->impl->win, width, height));
+  return (hint == PUGL_CURRENT_POSITION) ? puglSetWindowPosition(view, x, y)
+                                         : PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -1995,7 +1995,7 @@ puglSetSizeHint(PuglView* const    view,
   const PuglStatus st = puglStoreSizeHint(view, hint, width, height);
 
   return st                            ? st
-         : (hint == PUGL_CURRENT_SIZE) ? puglSetSize(view, width, height)
+         : (hint == PUGL_CURRENT_SIZE) ? puglSetWindowSize(view, width, height)
                                        : updateSizeHints(view);
 }
 
