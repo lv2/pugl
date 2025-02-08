@@ -1216,13 +1216,12 @@ puglRealize(PuglView* view)
     CVDisplayLinkRelease(link);
   }
 
-  // Get the initial frame to use from the defaults or last configuration
-  const PuglArea  size         = puglGetInitialSize(view);
-  const PuglPoint pos          = puglGetInitialPosition(view, size);
-  const PuglRect  initialFrame = {pos.x, pos.y, size.width, size.height};
+  // Get the initial size and position from the defaults or last configuration
+  const PuglArea  size = puglGetInitialSize(view);
+  const PuglPoint pos  = puglGetInitialPosition(view, size);
 
   // Convert frame to points
-  const NSRect framePx = rectToNsRect(initialFrame);
+  const NSRect framePx = NSMakeRect(pos.x, pos.y, size.width, size.height);
   const NSRect framePt = NSMakeRect(framePx.origin.x / scaleFactor,
                                     framePx.origin.y / scaleFactor,
                                     framePx.size.width / scaleFactor,
@@ -1308,8 +1307,17 @@ puglRealize(PuglView* view)
     ((NSWindow*)window).delegate =
       [[PuglWindowDelegate alloc] initWithPuglWindow:window];
 
-    // Set basic window hints and attributes
-    puglSetFrame(view, initialFrame);
+    // Set window frame
+    const NSRect screenPt = rectToScreen(screen, framePt);
+    const NSRect winFrame = [impl->window frameRectForContentRect:screenPt];
+    [impl->window setFrame:winFrame display:NO];
+
+    // Resize views and move them to (0, 0)
+    const NSRect sizePx = {{0, 0}, {framePx.size.width, framePx.size.height}};
+    const NSRect sizePt = [impl->drawView convertRectFromBacking:sizePx];
+    [impl->wrapperView setFrame:sizePt];
+    [impl->drawView setFrame:sizePt];
+
     puglSetTransientParent(view, view->transientParent);
     updateSizeHints(view);
 
