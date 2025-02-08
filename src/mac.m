@@ -1118,6 +1118,7 @@ updateSizeHint(PuglView* const view, const PuglSizeHint hint)
 
   switch (hint) {
   case PUGL_DEFAULT_SIZE:
+  case PUGL_CURRENT_SIZE:
     break;
 
   case PUGL_MIN_SIZE:
@@ -1789,7 +1790,9 @@ puglSetSizeHint(PuglView* const    view,
 {
   const PuglStatus st = puglStoreSizeHint(view, hint, width, height);
 
-  return (!st && view->impl->window) ? updateSizeHint(view, hint) : st;
+  return st                            ? st
+         : (hint == PUGL_CURRENT_SIZE) ? puglSetSize(view, width, height)
+                                       : updateSizeHint(view, hint);
 }
 
 PuglStatus

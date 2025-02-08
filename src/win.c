@@ -1306,7 +1306,10 @@ puglSetSizeHint(PuglView* const    view,
                 const unsigned     width,
                 const unsigned     height)
 {
-  return puglStoreSizeHint(view, hint, width, height);
+  const PuglStatus st = puglStoreSizeHint(view, hint, width, height);
+
+  return (!st && hint == PUGL_CURRENT_SIZE) ? puglSetSize(view, width, height)
+                                            : st;
 }
 
 PuglStatus

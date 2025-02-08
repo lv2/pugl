@@ -983,6 +983,15 @@ typedef enum {
   PUGL_DEFAULT_SIZE,
 
   /**
+     Current size.
+
+     This reflects the current size of the view, which may be different from
+     the default size if the view is resizable.  Typically, it overrides the
+     default size.
+  */
+  PUGL_CURRENT_SIZE,
+
+  /**
      Minimum size.
 
      If set, the view's size should be constrained to be at least this large.
@@ -1183,14 +1192,15 @@ puglSetSize(PuglView* view, unsigned width, unsigned height);
 /**
    Set a size hint for the view.
 
-   This can be used to set the default, minimum, and maximum size of a view,
-   as well as the supported range of aspect ratios.
+   This can be used to set the default, current, minimum, and maximum size of a
+   view, as well as the supported range of aspect ratios.
 
    This should be called before puglRealize() so the initial window for the
-   view can be configured correctly.
+   view can be configured correctly.  It may also be used dynamically after the
+   window is realized, for some hints.
 
-   @return #PUGL_UNKNOWN_ERROR on failure, but always succeeds if the view is
-   not yet realized.
+   @return An error code on failure, but always succeeds if the view is not yet
+   realized.
 */
 PUGL_API PuglStatus
 puglSetSizeHint(PuglView*    view,

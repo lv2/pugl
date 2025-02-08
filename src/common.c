@@ -105,27 +105,32 @@ puglGetWorldString(const PuglWorld* const world, const PuglStringHint key)
 }
 
 static void
-puglSetDefaultHints(PuglHints hints)
+puglSetDefaultHints(PuglView* const view)
 {
-  hints[PUGL_CONTEXT_API]           = PUGL_OPENGL_API;
-  hints[PUGL_CONTEXT_VERSION_MAJOR] = 2;
-  hints[PUGL_CONTEXT_VERSION_MINOR] = 0;
-  hints[PUGL_CONTEXT_PROFILE]       = PUGL_OPENGL_CORE_PROFILE;
-  hints[PUGL_CONTEXT_DEBUG]         = PUGL_FALSE;
-  hints[PUGL_RED_BITS]              = 8;
-  hints[PUGL_GREEN_BITS]            = 8;
-  hints[PUGL_BLUE_BITS]             = 8;
-  hints[PUGL_ALPHA_BITS]            = 8;
-  hints[PUGL_DEPTH_BITS]            = 0;
-  hints[PUGL_STENCIL_BITS]          = 0;
-  hints[PUGL_SAMPLE_BUFFERS]        = PUGL_DONT_CARE;
-  hints[PUGL_SAMPLES]               = 0;
-  hints[PUGL_DOUBLE_BUFFER]         = PUGL_TRUE;
-  hints[PUGL_SWAP_INTERVAL]         = PUGL_DONT_CARE;
-  hints[PUGL_RESIZABLE]             = PUGL_FALSE;
-  hints[PUGL_IGNORE_KEY_REPEAT]     = PUGL_FALSE;
-  hints[PUGL_REFRESH_RATE]          = PUGL_DONT_CARE;
-  hints[PUGL_VIEW_TYPE]             = PUGL_DONT_CARE;
+  view->hints[PUGL_CONTEXT_API]           = PUGL_OPENGL_API;
+  view->hints[PUGL_CONTEXT_VERSION_MAJOR] = 2;
+  view->hints[PUGL_CONTEXT_VERSION_MINOR] = 0;
+  view->hints[PUGL_CONTEXT_PROFILE]       = PUGL_OPENGL_CORE_PROFILE;
+  view->hints[PUGL_CONTEXT_DEBUG]         = PUGL_FALSE;
+  view->hints[PUGL_RED_BITS]              = 8;
+  view->hints[PUGL_GREEN_BITS]            = 8;
+  view->hints[PUGL_BLUE_BITS]             = 8;
+  view->hints[PUGL_ALPHA_BITS]            = 8;
+  view->hints[PUGL_DEPTH_BITS]            = 0;
+  view->hints[PUGL_STENCIL_BITS]          = 0;
+  view->hints[PUGL_SAMPLE_BUFFERS]        = PUGL_DONT_CARE;
+  view->hints[PUGL_SAMPLES]               = 0;
+  view->hints[PUGL_DOUBLE_BUFFER]         = PUGL_TRUE;
+  view->hints[PUGL_SWAP_INTERVAL]         = PUGL_DONT_CARE;
+  view->hints[PUGL_RESIZABLE]             = PUGL_FALSE;
+  view->hints[PUGL_IGNORE_KEY_REPEAT]     = PUGL_FALSE;
+  view->hints[PUGL_REFRESH_RATE]          = PUGL_DONT_CARE;
+  view->hints[PUGL_VIEW_TYPE]             = PUGL_DONT_CARE;
+
+  for (unsigned i = 0U; i < PUGL_NUM_SIZE_HINTS; ++i) {
+    view->sizeHints[i].width  = 0U;
+    view->sizeHints[i].height = 0U;
+  }
 }
 
 PuglView*
@@ -137,13 +142,11 @@ puglNewView(PuglWorld* const world)
     return NULL;
   }
 
-  view->world                           = world;
-  view->sizeHints[PUGL_MIN_SIZE].width  = 1;
-  view->sizeHints[PUGL_MIN_SIZE].height = 1;
-  view->defaultX                        = INT_MIN;
-  view->defaultY                        = INT_MIN;
+  view->world    = world;
+  view->defaultX = INT_MIN;
+  view->defaultY = INT_MIN;
 
-  puglSetDefaultHints(view->hints);
+  puglSetDefaultHints(view);
 
   // Enlarge world view list
   const size_t     newNumViews = world->numViews + 1U;
