@@ -546,12 +546,6 @@ public:
   /// @copydoc puglGetFrame
   Rect frame() const noexcept { return puglGetFrame(cobj()); }
 
-  /// @copydoc puglSetFrame
-  Status setFrame(const Rect& frame) noexcept
-  {
-    return static_cast<Status>(puglSetFrame(cobj(), frame));
-  }
-
   /// @copydoc puglSetSizeHint
   Status setSizeHint(SizeHint hint, unsigned width, unsigned height) noexcept
   {

@@ -151,12 +151,6 @@ nsPointFromPoints(const PuglView* view, const NSPoint point)
   return NSMakePoint(point.x * scaleFactor, point.y * scaleFactor);
 }
 
-static NSRect
-rectToNsRect(const PuglRect rect)
-{
-  return NSMakeRect(rect.x, rect.y, rect.width, rect.height);
-}
-
 static NSSize
 sizePoints(PuglView* view, const PuglSpan width, const PuglSpan height)
 {
@@ -1710,47 +1704,6 @@ double
 puglGetScaleFactor(const PuglView* const view)
 {
   return [viewScreen(view) backingScaleFactor];
-}
-
-PuglStatus
-puglSetFrame(PuglView* view, const PuglRect frame)
-{
-  PuglInternals* const impl    = view->impl;
-  const NSRect         framePx = rectToNsRect(frame);
-  const NSRect         framePt = nsRectToPoints(view, framePx);
-
-  if (!impl->wrapperView) {
-    // Set defaults to be used when realized
-    view->defaultX                            = frame.x;
-    view->defaultY                            = frame.y;
-    view->sizeHints[PUGL_DEFAULT_SIZE].width  = (PuglSpan)frame.width;
-    view->sizeHints[PUGL_DEFAULT_SIZE].height = (PuglSpan)frame.height;
-    return PUGL_SUCCESS;
-  }
-
-  if (impl->window) {
-    const NSRect screenPt = rectToScreen(viewScreen(view), framePt);
-
-    // Move and resize window to fit new content rect
-    const NSRect winFrame = [impl->window frameRectForContentRect:screenPt];
-    [impl->window setFrame:winFrame display:NO];
-
-    // Resize views
-    const NSRect sizePx = NSMakeRect(0, 0, frame.width, frame.height);
-    const NSRect sizePt = [impl->drawView convertRectFromBacking:sizePx];
-    [impl->wrapperView setFrame:sizePt];
-    [impl->drawView setFrame:sizePt];
-    [impl->window dispatchCurrentConfiguration];
-    return PUGL_SUCCESS;
-  }
-
-  // Resize view
-  const NSRect sizePx = NSMakeRect(0, 0, frame.width, frame.height);
-  const NSRect sizePt = [impl->drawView convertRectFromBacking:sizePx];
-
-  [impl->wrapperView setFrame:framePt];
-  [impl->drawView setFrame:sizePt];
-  return dispatchCurrentChildViewConfiguration(view);
 }
 
 PuglStatus

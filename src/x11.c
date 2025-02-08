@@ -1946,26 +1946,6 @@ puglGetScaleFactor(const PuglView* const view)
 }
 
 PuglStatus
-puglSetFrame(PuglView* const view, const PuglRect frame)
-{
-  if (!view->impl->win) {
-    // Set defaults to be used when realized
-    view->defaultX                            = frame.x;
-    view->defaultY                            = frame.y;
-    view->sizeHints[PUGL_DEFAULT_SIZE].width  = frame.width;
-    view->sizeHints[PUGL_DEFAULT_SIZE].height = frame.height;
-    return PUGL_SUCCESS;
-  }
-
-  return puglX11Status(XMoveResizeWindow(view->world->impl->display,
-                                         view->impl->win,
-                                         frame.x,
-                                         frame.y,
-                                         frame.width,
-                                         frame.height));
-}
-
-PuglStatus
 puglSetPosition(PuglView* const view, const int x, const int y)
 {
   Display* const display = view->world->impl->display;

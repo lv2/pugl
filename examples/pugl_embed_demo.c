@@ -51,18 +51,6 @@ static const float backgroundColorVertices[] = {
 
 // clang-format on
 
-static PuglRect
-getChildFrame(const PuglRect parentFrame)
-{
-  const PuglRect childFrame = {
-    borderWidth,
-    borderWidth,
-    (PuglSpan)(parentFrame.width - (2 * borderWidth)),
-    (PuglSpan)(parentFrame.height - (2 * borderWidth))};
-
-  return childFrame;
-}
-
 static void
 onDisplay(PuglView* view)
 {
@@ -142,8 +130,9 @@ onParentEvent(PuglView* view, const PuglEvent* event)
   switch (event->type) {
   case PUGL_CONFIGURE:
     reshapeCube((float)event->configure.width, (float)event->configure.height);
-
-    puglSetFrame(app->child, getChildFrame(parentFrame));
+    puglSetSize(app->child,
+                parentFrame.width - (2 * borderWidth),
+                parentFrame.height - (2 * borderWidth));
     break;
   case PUGL_UPDATE:
     if (app->continuous) {
@@ -289,8 +278,11 @@ main(int argc, char** argv)
     return logError("Failed to create parent window (%s)\n", puglStrerror(st));
   }
 
-  puglSetFrame(app.child, getChildFrame(parentFrame));
   puglSetParent(app.child, puglGetNativeView(app.parent));
+  puglSetPosition(app.child, borderWidth, borderWidth);
+  puglSetSize(app.child,
+              parentFrame.width - (2 * borderWidth),
+              parentFrame.height - (2 * borderWidth));
 
   puglSetViewHint(app.child, PUGL_CONTEXT_DEBUG, opts.errorChecking);
   puglSetViewHint(app.child, PUGL_SAMPLES, opts.samples);

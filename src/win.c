@@ -1245,31 +1245,6 @@ puglGetScaleFactor(const PuglView* const view)
 }
 
 PuglStatus
-puglSetFrame(PuglView* view, const PuglRect frame)
-{
-  if (!view->impl->hwnd) {
-    // Set defaults to be used when realized
-    view->defaultX                            = frame.x;
-    view->defaultY                            = frame.y;
-    view->sizeHints[PUGL_DEFAULT_SIZE].width  = frame.width;
-    view->sizeHints[PUGL_DEFAULT_SIZE].height = frame.height;
-    return PUGL_SUCCESS;
-  }
-
-  const RECT rect =
-    adjustedWindowRect(view, frame.x, frame.y, frame.width, frame.height);
-
-  return puglWinStatus(
-    SetWindowPos(view->impl->hwnd,
-                 HWND_TOP,
-                 rect.left,
-                 rect.top,
-                 rect.right - rect.left,
-                 rect.bottom - rect.top,
-                 SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOZORDER));
-}
-
-PuglStatus
 puglSetPosition(PuglView* const view, const int x, const int y)
 {
   if (!puglIsValidPosition(x, y)) {
