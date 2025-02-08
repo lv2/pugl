@@ -26,7 +26,8 @@ typedef struct {
   PuglView*       view;
   PuglTestOptions opts;
   State           state;
-  PuglRect        configuredFrame;
+  PuglPoint       configuredPos;
+  PuglArea        configuredSize;
 } PuglTest;
 
 static PuglStatus
@@ -47,10 +48,10 @@ onEvent(PuglView* view, const PuglEvent* event)
     if (test->state == REALIZED) {
       test->state = CONFIGURED;
     }
-    test->configuredFrame.x      = event->configure.x;
-    test->configuredFrame.y      = event->configure.y;
-    test->configuredFrame.width  = event->configure.width;
-    test->configuredFrame.height = event->configure.height;
+    test->configuredPos.x       = event->configure.x;
+    test->configuredPos.y       = event->configure.y;
+    test->configuredSize.width  = event->configure.width;
+    test->configuredSize.height = event->configure.height;
     break;
   case PUGL_UNREALIZE:
     test->state = UNREALIZED;
@@ -73,7 +74,8 @@ main(int argc, char** argv)
                    NULL,
                    puglParseTestOptions(&argc, &argv),
                    START,
-                   {0, 0, 0U, 0U}};
+                   {0, 0},
+                   {0U, 0U}};
 
   // Set up view with size bounds and an aspect ratio
   test.view = puglNewView(test.world);
@@ -99,10 +101,10 @@ main(int argc, char** argv)
   // Check that the frame matches the last configure event
   const PuglPoint pos  = puglGetPositionHint(test.view, PUGL_CURRENT_POSITION);
   const PuglArea  size = puglGetSizeHint(test.view, PUGL_CURRENT_SIZE);
-  assert(pos.x == test.configuredFrame.x);
-  assert(pos.y == test.configuredFrame.y);
-  assert(size.width == test.configuredFrame.width);
-  assert(size.height == test.configuredFrame.height);
+  assert(pos.x == test.configuredPos.x);
+  assert(pos.y == test.configuredPos.y);
+  assert(size.width == test.configuredSize.width);
+  assert(size.height == test.configuredSize.height);
 
 #if defined(_WIN32) || defined(__APPLE__)
   /* Some window managers on Linux (particularly tiling ones) just disregard
