@@ -1760,25 +1760,20 @@ puglSetPosition(PuglView* const view, const int x, const int y)
     return PUGL_SUCCESS;
   }
 
-  const PuglRect frame = {(PuglCoord)x,
-                          (PuglCoord)y,
-                          view->lastConfigure.width,
-                          view->lastConfigure.height};
+  const NSRect framePx =
+    NSMakeRect(x, y, view->lastConfigure.width, view->lastConfigure.height);
+
+  const NSRect framePt = nsRectToPoints(view, framePx);
 
   if (impl->window) {
     // Adjust top-level window frame
-    return puglSetFrame(view, frame);
+    const NSRect screenPt = rectToScreen(viewScreen(view), framePt);
+    [impl->window setFrameOrigin:screenPt.origin];
+    return PUGL_SUCCESS;
   }
 
   // Set wrapper view origin
-  const NSRect framePx = rectToNsRect(frame);
-  const NSRect framePt = nsRectToPoints(view, framePx);
   [impl->wrapperView setFrameOrigin:framePt.origin];
-
-  // Set draw view origin
-  const NSRect drawPx = NSMakeRect(0, 0, frame.width, frame.height);
-  const NSRect drawPt = [impl->drawView convertRectFromBacking:drawPx];
-  [impl->drawView setFrameOrigin:drawPt.origin];
 
   // Dispatch new configuration
   return dispatchCurrentChildViewConfiguration(view);
@@ -1799,14 +1794,6 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
     return PUGL_SUCCESS;
   }
 
-  if (impl->window) {
-    // Adjust top-level window frame
-    PuglRect frame = puglGetFrame(view);
-    frame.width    = (PuglSpan)width;
-    frame.height   = (PuglSpan)height;
-    return puglSetFrame(view, frame);
-  }
-
   // Set wrapper view size
   const double scaleFactor = [viewScreen(view) backingScaleFactor];
   const CGSize frameSizePt = {width / scaleFactor, height / scaleFactor};
@@ -1816,6 +1803,18 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
   const NSRect drawPx = NSMakeRect(0, 0, width, height);
   const NSRect drawPt = [impl->drawView convertRectFromBacking:drawPx];
   [impl->drawView setFrameSize:drawPt.size];
+
+  if (impl->window) {
+    const NSRect framePx =
+      NSMakeRect(view->lastConfigure.x, view->lastConfigure.y, width, height);
+    const NSRect framePt  = nsRectToPoints(view, framePx);
+    const NSRect screenPt = rectToScreen(viewScreen(view), framePt);
+
+    // Resize window to fit new content rect
+    const NSRect winFrame = [impl->window frameRectForContentRect:screenPt];
+    [impl->window setFrame:winFrame display:NO];
+    [impl->window dispatchCurrentConfiguration];
+  }
 
   // Dispatch new configuration
   return dispatchCurrentChildViewConfiguration(view);
