@@ -58,23 +58,6 @@ typedef struct {
   PuglSpan height;
 } PuglArea;
 
-/**
-   A rectangle in a view or on the screen.
-
-   This type is used to describe two things: the position and size of a view
-   (for configuring), or a rectangle within a view (for exposing).
-
-   The coordinate (0, 0) represents the top-left pixel of the parent window (or
-   display if there isn't one), or the top-left pixel of the view,
-   respectively.
-*/
-typedef struct {
-  PuglCoord x;
-  PuglCoord y;
-  PuglSpan  width;
-  PuglSpan  height;
-} PuglRect;
-
 /// A string property for configuration
 typedef enum {
   /**

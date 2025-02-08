@@ -78,9 +78,6 @@ using Point = PuglPoint;
 /// @copydoc PuglArea
 using Area = PuglArea;
 
-/// @copydoc PuglRect
-using Rect = PuglRect;
-
 /// @copydoc PuglStringHint
 enum class StringHint {
   className = 1, ///< @copydoc PUGL_CLASS_NAME
