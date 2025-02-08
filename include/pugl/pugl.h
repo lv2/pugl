@@ -950,9 +950,9 @@ typedef enum {
 
 /// A special view hint value
 typedef enum {
-  PUGL_DONT_CARE                    = -1, ///< Generic trinary: Use best default
-  PUGL_FALSE                        = 0,  ///< Generic trinary: Explicitly false
-  PUGL_TRUE                         = 1,  ///< Generic trinary: Explicitly true
+  PUGL_DONT_CARE                    = -1, ///< Generic trinary: unset
+  PUGL_FALSE                        = 0,  ///< Generic trinary: false
+  PUGL_TRUE                         = 1,  ///< Generic trinary: true
   PUGL_OPENGL_API                   = 2,  ///< For #PUGL_CONTEXT_API
   PUGL_OPENGL_ES_API                = 3,  ///< For #PUGL_CONTEXT_API
   PUGL_OPENGL_CORE_PROFILE          = 4,  ///< For #PUGL_CONTEXT_PROFILE
