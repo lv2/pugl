@@ -188,13 +188,18 @@ getCurrentViewStyleFlags(PuglView* const view)
 }
 
 static PuglStatus
-dispatchCurrentChildViewConfiguration(PuglView* const view)
+dispatchCurrentChildViewConfiguration(PuglView* const view, bool drawViewResize)
 {
   const NSRect framePt = [view->impl->wrapperView frame];
   const NSRect framePx = nsRectFromPoints(view, framePt);
 
   if (view->stage < PUGL_VIEW_STAGE_REALIZED) {
     return PUGL_SUCCESS;
+  }
+
+  if (drawViewResize) {
+    const NSSize sizePt = [view->impl->drawView convertSizeFromBacking:framePx.size];
+    [view->impl->drawView setFrameSize:sizePt];
   }
 
   const PuglConfigureEvent ev = {
@@ -317,7 +322,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
     if (puglview->impl->window) {
       [puglview->impl->window dispatchCurrentConfiguration];
     } else {
-      dispatchCurrentChildViewConfiguration(puglview);
+      dispatchCurrentChildViewConfiguration(puglview, true);
     }
     reshaped = false;
   }
@@ -1767,7 +1772,7 @@ puglSetFrame(PuglView* view, const PuglRect frame)
 
   [impl->wrapperView setFrame:framePt];
   [impl->drawView setFrame:sizePt];
-  return dispatchCurrentChildViewConfiguration(view);
+  return dispatchCurrentChildViewConfiguration(view, false);
 }
 
 PuglStatus
@@ -1806,7 +1811,7 @@ puglSetPosition(PuglView* const view, const int x, const int y)
   [impl->drawView setFrameOrigin:drawPt.origin];
 
   // Dispatch new configuration
-  return dispatchCurrentChildViewConfiguration(view);
+  return dispatchCurrentChildViewConfiguration(view, false);
 }
 
 PuglStatus
@@ -1843,7 +1848,7 @@ puglSetSize(PuglView* const view, const unsigned width, const unsigned height)
   [impl->drawView setFrameSize:drawPt.size];
 
   // Dispatch new configuration
-  return dispatchCurrentChildViewConfiguration(view);
+  return dispatchCurrentChildViewConfiguration(view, false);
 }
 
 PuglStatus
