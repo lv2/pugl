@@ -1,13 +1,11 @@
 // Copyright 2020 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-/*
-  Tests that all hints are set to real values after a view is realized.
-*/
+// Tests that all hints are set to real values after a view is realized
 
 #undef NDEBUG
 
-#include "puglutil/test_utils.h"
+#include <puglutil/test_utils.h>
 
 #include <pugl/pugl.h>
 #include <pugl/stub.h>

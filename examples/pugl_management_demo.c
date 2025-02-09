@@ -1,11 +1,9 @@
 // Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-/*
-  A demonstration of window types, states, and management.
-*/
+// A demonstration of window types, states, and management
 
-#include "puglutil/test_utils.h"
+#include <puglutil/test_utils.h>
 
 #include <pugl/cairo.h>
 #include <pugl/pugl.h>

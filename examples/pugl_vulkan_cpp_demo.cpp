@@ -18,9 +18,9 @@
 #include "file_utils.h"
 #include "rects.h"
 
-#include "puglutil/test_utils.h"
-
 #include "sybok.hpp"
+
+#include <puglutil/test_utils.h>
 
 #include <pugl/pugl.h>
 #include <pugl/pugl.hpp>

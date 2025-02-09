@@ -4,7 +4,7 @@
 #include "cube_view.h"
 #include "demo_utils.h"
 
-#include "puglutil/test_utils.h"
+#include <puglutil/test_utils.h>
 
 #include <pugl/gl.hpp>
 #include <pugl/pugl.h>
