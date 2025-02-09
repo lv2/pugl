@@ -577,7 +577,7 @@ Swapchain::init(const sk::VulkanApi&           vk,
     VK_SHARING_MODE_EXCLUSIVE,
     SK_COUNTED(0, nullptr),
     capabilities.currentTransform,
-    VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR,
+    VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
     mode == RenderMode::resizing ? gpu.resizePresentMode : gpu.presentMode,
     VK_TRUE,
     oldSwapchain};
