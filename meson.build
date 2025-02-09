@@ -8,6 +8,7 @@ project(
     'b_ndebug=if-release',
     'buildtype=release',
     'c_std=c99',
+    'c_winlibs=',
     'cpp_std=c++14',
   ],
   license: 'ISC',
@@ -162,10 +163,11 @@ elif host_machine.system() == 'windows'
   user32_dep = cc.find_library('user32')
   shlwapi_dep = cc.find_library('shlwapi')
   dwmapi_dep = cc.find_library('dwmapi')
+  gdi32_dep = cc.find_library('gdi32')
 
   platform = 'win'
   platform_sources = files('src/win.c')
-  core_deps = [user32_dep, shlwapi_dep, dwmapi_dep]
+  core_deps = [user32_dep, shlwapi_dep, dwmapi_dep, gdi32_dep]
   extension = '.c'
   soversion = ''
 
