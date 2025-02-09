@@ -23,7 +23,8 @@ make_point(const PuglCoord x, const PuglCoord y)
 bool
 puglIsValidPosition(const int x, const int y)
 {
-  return x >= INT16_MIN && x < INT16_MAX && y >= INT16_MIN && y < INT16_MAX;
+  // INT16_MIN is a sentinel, INT16_MAX is impossible with non-zero size
+  return x > INT16_MIN && x < INT16_MAX && y > INT16_MIN && y < INT16_MAX;
 }
 
 bool
