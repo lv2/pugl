@@ -21,6 +21,8 @@
   about 100000 rectangles.
 */
 
+#define PUGL_NO_INCLUDE_GL_H
+
 #include "demo_utils.h"
 #include "file_utils.h"
 #include "rects.h"
