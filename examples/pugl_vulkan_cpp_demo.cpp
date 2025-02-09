@@ -560,7 +560,7 @@ Swapchain::init(const sk::VulkanApi&           vk,
 
   const auto minNumImages =
     (!capabilities.maxImageCount || capabilities.maxImageCount >= 3U)
-      ? 3U
+      ? std::max(capabilities.minImageCount, 3U)
       : capabilities.maxImageCount;
 
   const VkSwapchainCreateInfoKHR swapchainCreateInfo{
