@@ -93,6 +93,37 @@ struct PuglInternalsImpl {
   bool             mapped;
 };
 
+// Common utility functions in x11.c
+
+void
+mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src);
+
+PuglStatus
+getAtomProperty(PuglView*      view,
+                Window         window,
+                Atom           property,
+                unsigned long* numValues,
+                Atom**         values);
+
+// Clipboard and selection functions in x11_clipboard.c
+
+void
+clearX11Clipboard(PuglX11Clipboard* board);
+
+PuglStatus
+handleSelectionClear(PuglView* view, const XSelectionClearEvent* event);
+
+PuglStatus
+handleSelectionNotify(const PuglWorld*       world,
+                      PuglView*              view,
+                      const XSelectionEvent* event);
+PuglStatus
+handleSelectionRequest(const PuglWorld*              world,
+                       PuglView*                     view,
+                       const XSelectionRequestEvent* request);
+
+// Semi-public platform API used by backends
+
 PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
 puglX11Configure(PuglView* view);
 

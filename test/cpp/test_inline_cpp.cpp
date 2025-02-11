@@ -1,4 +1,4 @@
-// Copyright 2021 David Robillard <d@drobilla.net>
+// Copyright 2021-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // Tests that the implementation compiles as included C++
@@ -41,8 +41,11 @@
 #  endif
 
 #else
-#  include "../../src/x11.c"      // IWYU pragma: keep
-#  include "../../src/x11_stub.c" // IWYU pragma: keep
+#  include "../../src/x11.c"           // IWYU pragma: keep
+#  include "../../src/x11_clipboard.c" // IWYU pragma: keep
+#  include "../../src/x11_cursor.c"    // IWYU pragma: keep
+#  include "../../src/x11_stub.c"      // IWYU pragma: keep
+#  include "../../src/x11_world.c"     // IWYU pragma: keep
 #  if defined(WITH_CAIRO)
 #    include "../../src/x11_cairo.c" // IWYU pragma: keep
 #  endif

@@ -208,7 +208,12 @@ else
   core_args += cc.get_supported_arguments(x11_args)
 
   platform = 'x11'
-  platform_sources = files('src/x11.c')
+  platform_sources = files(
+    'src/x11.c',
+    'src/x11_clipboard.c',
+    'src/x11_cursor.c',
+    'src/x11_world.c',
+  )
   core_deps = [x11_dep, xcursor_dep, xrandr_dep, xext_dep]
   extension = '.c'
   soversion = meson.project_version().split('.')[0]
