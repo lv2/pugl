@@ -1190,6 +1190,9 @@ translateEvent(PuglView* const view, XEvent xevent)
     view->impl->mapped = false;
     event              = makeConfigureEvent(view);
     break;
+  case DestroyNotify:
+    view->impl->win = None;
+    break;
   case ConfigureNotify:
     event                  = makeConfigureEvent(view);
     event.configure.width  = (PuglSpan)xevent.xconfigure.width;
