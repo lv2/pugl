@@ -30,6 +30,7 @@ test(
     files('test_headers.c'),
     c_args: test_headers_c_args,
     dependencies: [pugl_dep, vulkan_dep],
+    implicit_include_directories: false,
   ),
   suite: 'unit',
 )

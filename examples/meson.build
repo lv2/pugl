@@ -123,6 +123,7 @@ else
       c_args: example_defines + example_c_args + defines,
       cpp_args: example_defines + example_cpp_args + defines,
       dependencies: dependencies,
+      implicit_include_directories: false,
     )
   endforeach
 
@@ -154,6 +155,7 @@ else
         c_args: example_defines + example_c_args + defines,
         cpp_args: example_defines + example_cpp_args + defines,
         dependencies: dependencies,
+        implicit_include_directories: false,
       )
     endforeach
   endif
@@ -167,6 +169,7 @@ else
         example,
         c_args: example_defines + example_c_args + cairo_args,
         dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep],
+        implicit_include_directories: false,
       )
     endforeach
   endif
@@ -195,6 +198,7 @@ else
         c_args: example_defines + example_c_args + defines,
         cpp_args: example_defines + example_cpp_args + defines,
         dependencies: dependencies,
+        implicit_include_directories: false,
       )
     endforeach
   endif

@@ -9,4 +9,5 @@ executable(
   ],
   c_args: example_defines + example_c_args,
   dependencies: [pugl_dep, pugl_vulkan_dep, puglutil_dep],
+  implicit_include_directories: false,
 )
