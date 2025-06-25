@@ -24,7 +24,7 @@ puglIsValidPosition(int x, int y);
 
 /// Return true if `width`,`height` is a valid position
 bool
-puglIsValidSize(unsigned x, unsigned y);
+puglIsValidSize(unsigned width, unsigned height);
 
 /// Return true if `size` is a valid view size
 bool
