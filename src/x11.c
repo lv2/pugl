@@ -873,7 +873,7 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
     event->key.key = (PuglKey)puglDecodeUTF8((const uint8_t*)ustr);
   }
 
-  if (xevent->type == KeyPress && !filter && !(special && ufound <= 0) &&
+  if (xevent->type == KeyPress && !filter && (!special || ufound > 0) &&
       view->impl->xic) {
     // Lookup shifted key for possible text event
     xevent->xkey.state = state;
