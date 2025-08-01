@@ -705,9 +705,7 @@ typedef union {
 /**
    @}
    @defgroup pugl_status Status
-
    Most functions return a status code which can be used to check for errors.
-
    @{
 */
 
