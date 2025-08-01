@@ -10,6 +10,7 @@ project(
     'c_std=c99',
     'c_winlibs=',
     'cpp_std=c++14',
+    'cpp_winlibs=',
   ],
   license: 'ISC',
   meson_version: '>= 0.54.0',
