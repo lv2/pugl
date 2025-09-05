@@ -806,7 +806,11 @@ PUGL_API PuglWorldHandle
 puglGetWorldHandle(PuglWorld* world);
 
 /**
-   Return a pointer to the native handle of the world.
+   Return the native world handle.
+
+   The "native world" is a system-specific handle that's shared across an
+   entire program or module.  It serves as a common denominator between pugl,
+   host applications, the windowing system API, and other APIs that use it.
 
    X11: Returns a pointer to the `Display`.
 
@@ -902,6 +906,11 @@ typedef struct PuglBackendImpl PuglBackend;
 
 /**
    A native view handle.
+
+   A "native view" is a system-specific handle for a view (or "window").  A
+   #PuglView is itself a native view, which may be embedded in another.  Like
+   the native world handle, this serves as a common denominator between this
+   and other APIs.
 
    X11: This is a `Window`.
 
@@ -1259,14 +1268,19 @@ puglSetSizeHint(PuglView*    view,
 */
 
 /**
-   Set the parent for embedding a view in an existing window.
+   Set the native view the view will be embedded in.
 
    This must be called before puglRealize(), reparenting is not supported.
 */
 PUGL_API PuglStatus
 puglSetParent(PuglView* view, PuglNativeView parent);
 
-/// Return the parent window this view is embedded in, or null
+/**
+   Return the native view that the view is embedded in.
+
+   @return The native view handle of the parent that `view` is embedded in, or
+   zero (if view is top-level or unrealized).
+*/
 PUGL_API PuglNativeView
 puglGetParent(const PuglView* view);
 
@@ -1349,20 +1363,23 @@ typedef enum {
    Show the view.
 
    If the view has not yet been realized, the first call to this function will
-   do so automatically.
-
-   If the view is currently hidden, it will be shown and possibly raised to the
-   top depending on the platform.
+   do so automatically.  If the view is currently hidden, it will be shown and
+   possibly raised to the top depending on the platform.
 */
 PUGL_API PuglStatus
 puglShow(PuglView* view, PuglShowCommand command);
 
-/// Hide the current window
+/**
+   Hide the view.
+
+   This is the counterpart to puglShow().  If the view is currently visible, it
+   will be hidden, otherwise, this does nothing.
+*/
 PUGL_API PuglStatus
 puglHide(PuglView* view);
 
 /**
-   Set a view state, if supported by the system.
+   Set a view style, if supported by the system.
 
    This can be used to manipulate the window into various special states, but
    note that not all states are supported on all systems.  This function may
@@ -1375,7 +1392,7 @@ PUGL_API PuglStatus
 puglSetViewStyle(PuglView* view, PuglViewStyleFlags flags);
 
 /**
-   Return true if the view currently has a state flag set.
+   Return true if the view currently has a style flag set.
 
    The result is determined based on the state announced in the last configure
    event.
@@ -1488,7 +1505,11 @@ typedef enum {
 PUGL_API PuglStatus
 puglGrabFocus(PuglView* view);
 
-/// Return whether `view` has the keyboard input focus
+/**
+   Return whether `view` has the keyboard input focus.
+
+   @return True if the view is realized and focused for keyboard input.
+*/
 PUGL_API bool
 puglHasFocus(const PuglView* view);
 
