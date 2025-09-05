@@ -15,9 +15,9 @@ Checks: >
   -readability-identifier-length,
   -readability-implicit-bool-conversion,
 CheckOptions:
-  - key: hicpp-uppercase-literal-suffix.NewSuffixes
+  - key:   hicpp-uppercase-literal-suffix.NewSuffixes
     value: L;U;f
-  - key: readability-uppercase-literal-suffix.NewSuffixes
+  - key:   readability-uppercase-literal-suffix.NewSuffixes
     value: L;U;f
 FormatStyle: file
 HeaderFilterRegex: 'pugl/.*'

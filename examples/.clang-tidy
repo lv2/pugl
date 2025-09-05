@@ -47,6 +47,6 @@ Checks: >
   -readability-implicit-bool-conversion,
   -readability-redundant-member-init,
 CheckOptions:
-  - key: cppcoreguidelines-avoid-do-while.IgnoreMacros
+  - key:   cppcoreguidelines-avoid-do-while.IgnoreMacros
     value: true
 InheritParentConfig: true
