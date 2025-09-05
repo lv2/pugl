@@ -8,6 +8,7 @@
 
 #include "types.h"
 
+#include <pugl/attributes.h>
 #include <pugl/pugl.h>
 
 PUGL_BEGIN_DECLS
