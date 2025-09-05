@@ -1,4 +1,4 @@
-// Copyright 2012-2023 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_PUGL_HPP
@@ -115,8 +115,8 @@ struct Event final : Base {
   {}
 
   template<class... Args>
-  explicit Event(const PuglEventFlags f, Args... args)
-    : Base{t, f, args...}
+  explicit Event(const PuglEventFlags base_flags, Args... args)
+    : Base{t, base_flags, args...}
   {}
 };
 

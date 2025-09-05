@@ -1,4 +1,4 @@
-// Copyright 2012-2023 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 /*
@@ -146,10 +146,10 @@ createSurface(PFN_vkGetInstanceProcAddr          vkGetInstanceProcAddr,
               const VkAllocationCallbacks* const allocator,
               VkSurfaceKHR* const                surface) noexcept
 {
-  const VkResult r = puglCreateSurface(
+  const VkResult result = puglCreateSurface(
     vkGetInstanceProcAddr, view.cobj(), instance, allocator, surface);
 
-  return (!r && !surface) ? VK_ERROR_INITIALIZATION_FAILED : r;
+  return (!result && !surface) ? VK_ERROR_INITIALIZATION_FAILED : result;
 }
 
 /// @copydoc puglVulkanBackend

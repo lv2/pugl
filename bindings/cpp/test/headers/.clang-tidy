@@ -18,9 +18,7 @@ CheckOptions:
   - key:   readability-function-cognitive-complexity.Threshold
     value: '2'
   - key:   readability-identifier-length.IgnoredParameterNames
-    value: '^(f)|(id)|(x)|(y)$'
-  - key:   readability-identifier-length.IgnoredVariableNames
-    value: '^(r)$'
+    value: '^(id)|(x)|(y)$'
 FormatStyle: file
 HeaderFilterRegex: '.*'
 WarningsAsErrors: '*'
