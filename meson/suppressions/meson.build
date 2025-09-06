@@ -207,6 +207,7 @@ if is_variable('objcc')
       '-Wno-padded',
       '-Wno-pedantic',
       '-Wno-poison-system-directories',
+      '-Wno-switch-default',
       '-Wno-switch-enum',
       '-Wno-undeclared-selector',
     ]
