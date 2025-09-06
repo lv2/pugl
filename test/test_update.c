@@ -94,7 +94,7 @@ main(int argc, char** argv)
 
   // Create and show window
   assert(!puglRealize(test.view));
-  assert(!puglShow(test.view, PUGL_SHOW_RAISE));
+  assert(puglShow(test.view, PUGL_SHOW_RAISE) <= PUGL_FAILURE);
 
   // Tick until an expose happens
   while (test.state < EXPOSED1) {

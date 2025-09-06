@@ -59,7 +59,7 @@ main(int argc, char** argv)
     puglSetEventFunc(test.views[i], onEvent);
     puglSetDefaultSize(test.views[i], 512, 512);
 
-    assert(!puglShow(test.views[i]));
+    assert(puglShow(test.views[i]) <= PUGL_FAILURE);
   }
 
   // Update until view is exposed

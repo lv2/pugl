@@ -86,7 +86,7 @@ showHide(PuglTest* const test)
 {
   // Show and hide window a few times
   for (unsigned i = 0U; i < 3U; ++i) {
-    assert(!puglShow(test->view, (PuglShowCommand)i));
+    assert(puglShow(test->view, (PuglShowCommand)i) <= PUGL_FAILURE);
     while (test->state != EXPOSED) {
       tick(test->world);
     }

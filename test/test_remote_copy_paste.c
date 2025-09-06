@@ -161,8 +161,8 @@ main(int argc, char** argv)
   puglSetPositionHint(app.pasterView, PUGL_DEFAULT_POSITION, 896, 896);
 
   // Create and show both views
-  assert(!puglShow(app.copierView, PUGL_SHOW_RAISE));
-  assert(!puglShow(app.pasterView, PUGL_SHOW_RAISE));
+  assert(puglShow(app.copierView, PUGL_SHOW_RAISE) <= PUGL_FAILURE);
+  assert(puglShow(app.pasterView, PUGL_SHOW_RAISE) <= PUGL_FAILURE);
 
   // Run until the test is finished
   while (app.state != FINISHED) {

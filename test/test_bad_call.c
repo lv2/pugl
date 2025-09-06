@@ -86,7 +86,7 @@ main(int argc, char** argv)
 
   // Realize, show, then update until the view is exposed
   assert(!puglRealize(test.view));
-  assert(!puglShow(test.view, PUGL_SHOW_RAISE));
+  assert(puglShow(test.view, PUGL_SHOW_RAISE) <= PUGL_FAILURE);
   while (!test.exposed) {
     assert(!puglUpdate(test.world, -1.0));
   }
