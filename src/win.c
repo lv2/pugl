@@ -363,25 +363,22 @@ PuglStatus
 puglShow(PuglView* view, const PuglShowCommand command)
 {
   PuglInternals* impl = view->impl;
-  PuglStatus     st   = PUGL_SUCCESS;
-  if (!impl->hwnd) {
-    if ((st = puglRealize(view))) {
-      return st;
-    }
-  }
+  PuglStatus     st   = impl->hwnd ? PUGL_SUCCESS : puglRealize(view);
 
-  switch (command) {
-  case PUGL_SHOW_PASSIVE:
-    ShowWindow(impl->hwnd, SW_SHOWNOACTIVATE);
-    break;
-  case PUGL_SHOW_RAISE:
-    ShowWindow(impl->hwnd, SW_SHOWNORMAL);
-    SetActiveWindow(impl->hwnd);
-    break;
-  case PUGL_SHOW_FORCE_RAISE:
-    ShowWindow(impl->hwnd, SW_SHOWNORMAL);
-    SetForegroundWindow(impl->hwnd);
-    break;
+  if (!st) {
+    switch (command) {
+    case PUGL_SHOW_PASSIVE:
+      ShowWindow(impl->hwnd, SW_SHOWNOACTIVATE);
+      break;
+    case PUGL_SHOW_RAISE:
+      ShowWindow(impl->hwnd, SW_SHOWNORMAL);
+      st = SetActiveWindow(impl->hwnd) ? PUGL_SUCCESS : PUGL_FAILURE;
+      break;
+    case PUGL_SHOW_FORCE_RAISE:
+      ShowWindow(impl->hwnd, SW_SHOWNORMAL);
+      st = SetForegroundWindow(impl->hwnd) ? PUGL_SUCCESS : PUGL_FAILURE;
+      break;
+    }
   }
 
   return st;
@@ -1062,6 +1059,10 @@ puglStopTimer(PuglView* view, uintptr_t id)
 PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event)
 {
+  if (!view->impl->hwnd) {
+    return PUGL_FAILURE;
+  }
+
   if (event->type == PUGL_CLOSE) {
     return puglWinStatus(PostMessage(view->impl->hwnd, WM_CLOSE, 0, 0));
   }

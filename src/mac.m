@@ -1368,24 +1368,23 @@ puglUnrealize(PuglView* const view)
 PuglStatus
 puglShow(PuglView* view, const PuglShowCommand command)
 {
-  if (!view->impl->wrapperView) {
-    const PuglStatus st = puglRealize(view);
-    if (st) {
-      return st;
-    }
+  PuglInternals* impl = view->impl;
+  PuglStatus     st   = impl->wrapperView ? PUGL_SUCCESS : puglRealize(view);
+  if (st || !impl->wrapperView) {
+    return st;
   }
 
-  NSWindow* const window = [view->impl->wrapperView window];
+  NSWindow* const window = [impl->wrapperView window];
   if (![window isVisible]) {
     [window setIsVisible:YES];
-    [view->impl->drawView setNeedsDisplay:YES];
+    [impl->drawView setNeedsDisplay:YES];
   }
 
   switch (command) {
   case PUGL_SHOW_PASSIVE:
     break;
   case PUGL_SHOW_RAISE:
-    [window orderFront:view->impl->wrapperView];
+    [window orderFront:impl->wrapperView];
     break;
   case PUGL_SHOW_FORCE_RAISE:
     [window orderFrontRegardless];
@@ -1558,6 +1557,10 @@ puglStopTimer(PuglView* view, uintptr_t id)
 PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event)
 {
+  if (!view->impl->window) {
+    return PUGL_FAILURE;
+  }
+
   if (event->type == PUGL_CLIENT) {
     PuglEvent copiedEvent = *event;
 
@@ -1837,7 +1840,7 @@ puglAcceptOffer(PuglView* const                 view,
   PuglWrapperView* const wrapper    = view->impl->wrapperView;
   NSPasteboard* const    pasteboard = [NSPasteboard generalPasteboard];
   if (!pasteboard) {
-    return PUGL_BAD_PARAMETER;
+    return PUGL_UNKNOWN_ERROR;
   }
 
   const NSArray<NSPasteboardType>* const types = [pasteboard types];
@@ -1848,13 +1851,12 @@ puglAcceptOffer(PuglView* const                 view,
   wrapper->dragOperation = NSDragOperationCopy;
   wrapper->dragTypeIndex = typeIndex;
 
-  const PuglDataEvent data = {
-    PUGL_DATA, 0U, puglGetTime(view->world), (uint32_t)typeIndex};
+  const double        now  = puglGetTime(view->world);
+  const PuglDataEvent data = {PUGL_DATA, 0U, now, typeIndex};
 
   PuglEvent dataEvent;
   dataEvent.data = data;
-  puglDispatchEvent(view, &dataEvent);
-  return PUGL_SUCCESS;
+  return puglDispatchEvent(view, &dataEvent);
 }
 
 const void*

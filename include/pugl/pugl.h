@@ -1365,6 +1365,9 @@ typedef enum {
    If the view has not yet been realized, the first call to this function will
    do so automatically.  If the view is currently hidden, it will be shown and
    possibly raised to the top depending on the platform.
+
+   @return #PUGL_SUCCESS, an error from puglRealize(), or #PUGL_FAILURE if the
+   window was shown but not raised.
 */
 PUGL_API PuglStatus
 puglShow(PuglView* view, PuglShowCommand command);
@@ -1661,8 +1664,8 @@ puglStopTimer(PuglView* view, uintptr_t id);
    puglObscureRegion(), but will always send a message to the X server, even
    when called in an event handler.
 
-   @return #PUGL_UNSUPPORTED if sending events of this type is not supported,
-   #PUGL_UNKNOWN_ERROR if sending the event failed.
+   @return #PUGL_UNSUPPORTED if sending this type of event isn't supported in
+   general, #PUGL_FAILURE if the event can't be sent now.
 */
 PUGL_API PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event);

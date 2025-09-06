@@ -742,16 +742,17 @@ puglUnrealize(PuglView* const view)
 PuglStatus
 puglShow(PuglView* const view, const PuglShowCommand command)
 {
-  PuglStatus st = view->impl->win ? PUGL_SUCCESS : puglRealize(view);
+  PuglInternals* impl = view->impl;
+  PuglStatus     st   = impl->win ? PUGL_SUCCESS : puglRealize(view);
 
   if (!st) {
     switch (command) {
     case PUGL_SHOW_PASSIVE:
-      XMapWindow(view->world->impl->display, view->impl->win);
+      XMapWindow(view->world->impl->display, impl->win);
       break;
     case PUGL_SHOW_RAISE:
     case PUGL_SHOW_FORCE_RAISE:
-      XMapRaised(view->world->impl->display, view->impl->win);
+      XMapRaised(view->world->impl->display, impl->win);
       break;
     }
 
@@ -1900,6 +1901,7 @@ puglObscureRegion(PuglView* const view,
 
   const PuglExposeEvent event = {PUGL_EXPOSE, 0U, cx, cy, cw, ch};
 
+  PuglStatus st = PUGL_SUCCESS;
   if (view->world->impl->dispatchingEvents) {
     // Currently dispatching events, add/expand expose for the loop end
     mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
@@ -1907,10 +1909,9 @@ puglObscureRegion(PuglView* const view,
     // Not dispatching events, send an X expose so we wake up next time
     PuglEvent exposeEvent = {{PUGL_EXPOSE, 0U}};
     exposeEvent.expose    = event;
-    return puglSendEvent(view, &exposeEvent);
+    st                    = puglSendEvent(view, &exposeEvent);
   }
-
-  return PUGL_SUCCESS;
+  return st;
 }
 
 PuglNativeView
