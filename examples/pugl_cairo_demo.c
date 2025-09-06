@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "demo_utils.h"
@@ -54,6 +54,15 @@ getScale(const PuglView* const view)
   const ViewScale scale = {(size.width - (512.0 / size.width)) / 512.0,
                            (size.height - (512.0 / size.height)) / 512.0};
   return scale;
+}
+
+static void
+resetMouse(PuglTestApp* app)
+{
+  app->currentMouseX   = -1.0;
+  app->currentMouseY   = -1.0;
+  app->lastDrawnMouseX = -1.0;
+  app->lastDrawnMouseY = -1.0;
 }
 
 static void
@@ -172,17 +181,19 @@ onClose(PuglView* view)
   app->quit = 1;
 }
 
-static PuglStatus
+static void
 obscureMouseCursor(PuglView* const view,
                    const ViewScale scale,
                    const double    mouseX,
                    const double    mouseY)
 {
-  return puglObscureRegion(view,
-                           (int)floor(mouseX - (10.0 * scale.x)),
-                           (int)floor(mouseY - (10.0 * scale.y)),
-                           (unsigned)ceil(20.0 * scale.x),
-                           (unsigned)ceil(20.0 * scale.y));
+  if (mouseX >= 0.0 && mouseY >= 0.0) {
+    puglObscureRegion(view,
+                      (int)floor(mouseX - (10.0 * scale.x)),
+                      (int)floor(mouseY - (10.0 * scale.y)),
+                      (unsigned)ceil(20.0 * scale.x),
+                      (unsigned)ceil(20.0 * scale.y));
+  }
 }
 
 static PuglStatus
@@ -225,6 +236,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_POINTER_OUT:
     app->entered = false;
+    resetMouse(app);
     puglObscureView(view);
     break;
   case PUGL_UPDATE:
@@ -258,6 +270,7 @@ main(int argc, char** argv)
   }
 
   app.world = puglNewWorld(PUGL_PROGRAM, 0);
+  resetMouse(&app);
   puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglCairoDemo");
 
   PuglView* view = puglNewView(app.world);
