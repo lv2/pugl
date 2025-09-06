@@ -1987,10 +1987,8 @@ puglSetWindowSize(PuglView* const view,
                   const unsigned  width,
                   const unsigned  height)
 {
-  return !view->impl->win
-           ? PUGL_SUCCESS
-           : puglX11Status(XResizeWindow(
-               view->world->impl->display, view->impl->win, width, height));
+  return puglX11Status(
+    XResizeWindow(view->world->impl->display, view->impl->win, width, height));
 }
 
 PuglStatus
