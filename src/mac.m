@@ -1557,7 +1557,7 @@ puglStopTimer(PuglView* view, uintptr_t id)
 PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event)
 {
-  if (!view->impl->window) {
+  if (!view->impl->window || view->world->state == PUGL_WORLD_EXPOSING) {
     return PUGL_FAILURE;
   }
 
@@ -1592,6 +1592,13 @@ PuglStatus
 puglUpdate(PuglWorld* world, const double timeout)
 {
   @autoreleasepool {
+    const PuglWorldState startState = world->state;
+    if (startState == PUGL_WORLD_IDLE) {
+      world->state = PUGL_WORLD_UPDATING;
+    } else if (startState != PUGL_WORLD_RECURSING) {
+      return PUGL_BAD_CALL;
+    }
+
     if (world->type == PUGL_PROGRAM) {
       NSDate* date =
         ((timeout < 0) ? [NSDate distantFuture]
@@ -1620,6 +1627,8 @@ puglUpdate(PuglWorld* world, const double timeout)
 
       [view->impl->drawView displayIfNeeded];
     }
+
+    world->state = startState;
   }
 
   return PUGL_SUCCESS;
@@ -1638,6 +1647,10 @@ puglGetTime(const PuglWorld* world)
 PuglStatus
 puglObscureView(PuglView* view)
 {
+  if (view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL;
+  }
+
   [view->impl->drawView setNeedsDisplay:YES];
   return PUGL_SUCCESS;
 }
@@ -1649,6 +1662,10 @@ puglObscureRegion(PuglView*      view,
                   const unsigned width,
                   const unsigned height)
 {
+  if (view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL;
+  }
+
   if (!puglIsValidPosition(x, y) || !puglIsValidSize(width, height)) {
     return PUGL_BAD_PARAMETER;
   }

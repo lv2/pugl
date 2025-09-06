@@ -135,6 +135,10 @@ puglStoreSizeHint(PuglView* const    view,
                   const unsigned     width,
                   const unsigned     height)
 {
+  if (view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL;
+  }
+
   if (!puglIsValidSize(width, height)) {
     return PUGL_BAD_PARAMETER;
   }
@@ -239,7 +243,8 @@ puglPreRealize(PuglView* const view)
     return PUGL_BAD_CONFIGURATION;
   }
 
-  return PUGL_SUCCESS;
+  return (view->world->state == PUGL_WORLD_EXPOSING) ? PUGL_BAD_CALL
+                                                     : PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -316,8 +321,12 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
   case PUGL_EXPOSE:
     assert(view->stage == PUGL_VIEW_STAGE_CONFIGURED);
     if (!(st0 = view->backend->enter(view, &event->expose))) {
-      st0 = view->eventFunc(view, event);
-      st1 = view->backend->leave(view, &event->expose);
+      const PuglWorldState old_state = view->world->state;
+
+      view->world->state = PUGL_WORLD_EXPOSING;
+      st0                = view->eventFunc(view, event);
+      view->world->state = old_state;
+      st1                = view->backend->leave(view, &event->expose);
     }
     break;
 

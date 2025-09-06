@@ -75,7 +75,6 @@ struct PuglWorldInternalsImpl {
   XID          serverTimeCounter;
   int          syncEventBase;
   bool         syncSupported;
-  bool         dispatchingEvents;
 };
 
 struct PuglInternalsImpl {

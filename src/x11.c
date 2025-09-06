@@ -767,6 +767,10 @@ puglShow(PuglView* const view, const PuglShowCommand command)
 PuglStatus
 puglHide(PuglView* const view)
 {
+  if (view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL;
+  }
+
   XUnmapWindow(view->world->impl->display, view->impl->win);
   return PUGL_SUCCESS;
 }
@@ -1493,7 +1497,7 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
   PuglInternals* const impl    = view->impl;
   Display* const       display = view->world->impl->display;
   XEvent               xev     = PUGL_INIT_STRUCT;
-  if (!impl->win) {
+  if (!impl->win || view->world->state == PUGL_WORLD_EXPOSING) {
     return PUGL_FAILURE;
   }
 
@@ -1686,13 +1690,17 @@ flushExposures(PuglWorld* const world)
   PuglStatus st1 = PUGL_SUCCESS;
   PuglStatus st2 = PUGL_SUCCESS;
 
+  // Send update events so the application can trigger redraws
+  for (size_t i = 0; i < world->numViews; ++i) {
+    if (puglGetVisible(world->views[i])) {
+      puglDispatchSimpleEvent(world->views[i], PUGL_UPDATE);
+    }
+  }
+
+  // Expose any dirty views
+  world->state = PUGL_WORLD_EXPOSING;
   for (size_t i = 0; i < world->numViews; ++i) {
     PuglView* const view = world->views[i];
-
-    // Send update event so the application can trigger redraws
-    if (puglGetVisible(view)) {
-      puglDispatchSimpleEvent(view, PUGL_UPDATE);
-    }
 
     // Copy and reset pending events (in case their handlers write new ones)
     const PuglEvent configure = view->impl->pendingConfigure;
@@ -1833,11 +1841,16 @@ dispatchX11Events(PuglWorld* const world)
 PuglStatus
 puglUpdate(PuglWorld* const world, const double timeout)
 {
-  const double startTime = puglGetTime(world);
-  PuglStatus   st0       = PUGL_SUCCESS;
-  PuglStatus   st1       = PUGL_SUCCESS;
+  const double         startTime  = puglGetTime(world);
+  const PuglWorldState startState = world->state;
+  PuglStatus           st0        = PUGL_SUCCESS;
+  PuglStatus           st1        = PUGL_SUCCESS;
 
-  world->impl->dispatchingEvents = true;
+  if (startState == PUGL_WORLD_IDLE) {
+    world->state = PUGL_WORLD_UPDATING;
+  } else if (startState != PUGL_WORLD_RECURSING) {
+    return PUGL_BAD_CALL;
+  }
 
   if (timeout < 0.0) {
     if (!(st0 = pollX11Socket(world, timeout))) {
@@ -1857,10 +1870,8 @@ puglUpdate(PuglWorld* const world, const double timeout)
     }
   }
 
-  st1 = flushExposures(world);
-
-  world->impl->dispatchingEvents = false;
-
+  st1          = flushExposures(world);
+  world->state = startState;
   return st0 ? st0 : st1;
 }
 
@@ -1902,9 +1913,11 @@ puglObscureRegion(PuglView* const view,
   const PuglExposeEvent event = {PUGL_EXPOSE, 0U, cx, cy, cw, ch};
 
   PuglStatus st = PUGL_SUCCESS;
-  if (view->world->impl->dispatchingEvents) {
+  if (view->world->state == PUGL_WORLD_UPDATING) {
     // Currently dispatching events, add/expand expose for the loop end
     mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
+  } else if (view->world->state == PUGL_WORLD_EXPOSING) {
+    st = PUGL_BAD_CALL;
   } else if (view->impl->win) {
     // Not dispatching events, send an X expose so we wake up next time
     PuglEvent exposeEvent = {{PUGL_EXPOSE, 0U}};

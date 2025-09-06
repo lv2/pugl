@@ -230,6 +230,7 @@ enum class Status {
   badBackend,          ///< @copydoc PUGL_BAD_BACKEND
   badConfiguration,    ///< @copydoc PUGL_BAD_CONFIGURATION
   badParameter,        ///< @copydoc PUGL_BAD_PARAMETER
+  badCall,             ///< @copydoc PUGL_BAD_CALL
   backendFailed,       ///< @copydoc PUGL_BACKEND_FAILED
   registrationFailed,  ///< @copydoc PUGL_REGISTRATION_FAILED
   realizeFailed,       ///< @copydoc PUGL_REALIZE_FAILED

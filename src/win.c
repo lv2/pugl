@@ -387,6 +387,10 @@ puglShow(PuglView* view, const PuglShowCommand command)
 PuglStatus
 puglHide(PuglView* view)
 {
+  if (view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL;
+  }
+
   ShowWindow(view->impl->hwnd, SW_HIDE);
   return PUGL_SUCCESS;
 }
@@ -1059,7 +1063,7 @@ puglStopTimer(PuglView* view, uintptr_t id)
 PuglStatus
 puglSendEvent(PuglView* view, const PuglEvent* event)
 {
-  if (!view->impl->hwnd) {
+  if (!view->impl->hwnd || view->world->state == PUGL_WORLD_EXPOSING) {
     return PUGL_FAILURE;
   }
 
@@ -1123,8 +1127,15 @@ puglUpdate(PuglWorld* world, double timeout)
 {
   static const double minWaitSeconds = 0.002;
 
-  const double startTime = puglGetTime(world);
-  PuglStatus   st        = PUGL_SUCCESS;
+  const double         startTime  = puglGetTime(world);
+  const PuglWorldState startState = world->state;
+  PuglStatus           st         = PUGL_SUCCESS;
+
+  if (startState == PUGL_WORLD_IDLE) {
+    world->state = PUGL_WORLD_UPDATING;
+  } else if (startState != PUGL_WORLD_RECURSING) {
+    return PUGL_BAD_CALL;
+  }
 
   if (timeout < 0.0) {
     WaitMessage();
@@ -1150,6 +1161,7 @@ puglUpdate(PuglWorld* world, double timeout)
     UpdateWindow(world->views[i]->impl->hwnd);
   }
 
+  world->state = startState;
   return st;
 }
 
@@ -1188,7 +1200,9 @@ puglGetTime(const PuglWorld* world)
 PuglStatus
 puglObscureView(PuglView* view)
 {
-  return puglWinStatus(InvalidateRect(view->impl->hwnd, NULL, false));
+  return view->world->state == PUGL_WORLD_EXPOSING
+           ? PUGL_BAD_CALL
+           : puglWinStatus(InvalidateRect(view->impl->hwnd, NULL, false));
 }
 
 PuglStatus
@@ -1198,6 +1212,10 @@ puglObscureRegion(PuglView* const view,
                   const unsigned  width,
                   const unsigned  height)
 {
+  if (view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL;
+  }
+
   if (!puglIsValidPosition(x, y) || !puglIsValidSize(width, height)) {
     return PUGL_BAD_PARAMETER;
   }

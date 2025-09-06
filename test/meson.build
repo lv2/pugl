@@ -28,6 +28,7 @@ endif
 basic_exclusive_tests = []
 
 basic_tests = [
+  'bad_call',
   'cursor',
   'realize',
   'redisplay',

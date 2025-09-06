@@ -27,6 +27,14 @@ typedef struct {
   size_t len;  ///< Length of data in bytes
 } PuglBlob;
 
+/// State of the world in the process of an update
+typedef enum {
+  PUGL_WORLD_IDLE,      ///< Idle, not in puglUpdate()
+  PUGL_WORLD_UPDATING,  ///< Event processing stage of puglUpdate()
+  PUGL_WORLD_EXPOSING,  ///< Exposing stage of puglUpdate()
+  PUGL_WORLD_RECURSING, ///< Currently in recursive loop (Windows)
+} PuglWorldState;
+
 /// Stage of a view along its lifespan
 typedef enum {
   PUGL_VIEW_STAGE_ALLOCATED,
@@ -61,6 +69,7 @@ struct PuglWorldImpl {
   PuglView**          views;
   char*               strings[PUGL_NUM_STRING_HINTS];
   PuglWorldType       type;
+  PuglWorldState      state;
 };
 
 /// Opaque surface used by graphics backend

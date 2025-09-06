@@ -717,6 +717,7 @@ typedef enum {
   PUGL_BAD_BACKEND,           ///< Invalid or missing backend
   PUGL_BAD_CONFIGURATION,     ///< Invalid view configuration
   PUGL_BAD_PARAMETER,         ///< Invalid parameter
+  PUGL_BAD_CALL,              ///< Invalid call
   PUGL_BACKEND_FAILED,        ///< Backend initialization failed
   PUGL_REGISTRATION_FAILED,   ///< Class registration failed
   PUGL_REALIZE_FAILED,        ///< System view realization failed

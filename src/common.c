@@ -25,6 +25,7 @@ puglStrerror(const PuglStatus status)
   case PUGL_BAD_BACKEND:           return "Invalid or missing backend";
   case PUGL_BAD_CONFIGURATION:     return "Invalid view configuration";
   case PUGL_BAD_PARAMETER:         return "Invalid parameter";
+  case PUGL_BAD_CALL:              return "Invalid call";
   case PUGL_BACKEND_FAILED:        return "Backend initialisation failed";
   case PUGL_REGISTRATION_FAILED:   return "Class registration failed";
   case PUGL_REALIZE_FAILED:        return "View creation failed";
@@ -317,6 +318,10 @@ puglSetPositionHint(PuglView* const        view,
                     const int              x,
                     const int              y)
 {
+  if (view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL;
+  }
+
   if (x <= INT16_MIN || x > INT16_MAX || y <= INT16_MIN || y > INT16_MAX) {
     return PUGL_BAD_PARAMETER;
   }
