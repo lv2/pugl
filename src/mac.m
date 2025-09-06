@@ -1107,8 +1107,8 @@ puglConstraint(const id                item,
                                        constant:(CGFloat)constant];
 }
 
-static PuglStatus
-updateSizeHint(PuglView* const view, const PuglSizeHint hint)
+PuglStatus
+puglApplySizeHint(PuglView* const view, const PuglSizeHint hint)
 {
   const PuglSpan width  = view->sizeHints[hint].width;
   const PuglSpan height = view->sizeHints[hint].height;
@@ -1141,12 +1141,13 @@ updateSizeHint(PuglView* const view, const PuglSizeHint hint)
   return PUGL_SUCCESS;
 }
 
-static void
-updateSizeHints(PuglView* const view)
+PuglStatus
+puglUpdateSizeHints(PuglView* const view)
 {
   for (unsigned i = 0U; i < PUGL_NUM_SIZE_HINTS; ++i) {
-    updateSizeHint(view, (PuglSizeHint)i);
+    puglApplySizeHint(view, (PuglSizeHint)i);
   }
+  return PUGL_SUCCESS;
 }
 
 PuglPoint
@@ -1314,7 +1315,7 @@ puglRealize(PuglView* view)
     [impl->drawView setFrame:sizePt];
 
     puglSetTransientParent(view, view->transientParent);
-    updateSizeHints(view);
+    puglUpdateSizeHints(view);
 
     [window setContentView:impl->wrapperView];
     [view->world->impl->app activateIgnoringOtherApps:YES];
@@ -1707,7 +1708,7 @@ puglGetScaleFactor(const PuglView* const view)
   return [viewScreen(view) backingScaleFactor];
 }
 
-static PuglStatus
+PuglStatus
 puglSetWindowPosition(PuglView* const view, const int x, const int y)
 {
   PuglInternals* const impl = view->impl;
@@ -1731,7 +1732,7 @@ puglSetWindowPosition(PuglView* const view, const int x, const int y)
   return dispatchCurrentChildViewConfiguration(view);
 }
 
-static PuglStatus
+PuglStatus
 puglSetWindowSize(PuglView* const view,
                   const unsigned  width,
                   const unsigned  height)
@@ -1762,36 +1763,6 @@ puglSetWindowSize(PuglView* const view,
 
   // Dispatch new configuration
   return dispatchCurrentChildViewConfiguration(view);
-}
-
-PuglStatus
-puglSetPositionHint(PuglView* const        view,
-                    const PuglPositionHint hint,
-                    const int              x,
-                    const int              y)
-{
-  if (x <= INT16_MIN || x > INT16_MAX || y <= INT16_MIN || y > INT16_MAX) {
-    return PUGL_BAD_PARAMETER;
-  }
-
-  view->positionHints[hint].x = (PuglCoord)x;
-  view->positionHints[hint].y = (PuglCoord)y;
-
-  return (hint == PUGL_CURRENT_POSITION) ? puglSetWindowPosition(view, x, y)
-                                         : PUGL_SUCCESS;
-}
-
-PuglStatus
-puglSetSizeHint(PuglView* const    view,
-                const PuglSizeHint hint,
-                const unsigned     width,
-                const unsigned     height)
-{
-  const PuglStatus st = puglStoreSizeHint(view, hint, width, height);
-
-  return st                            ? st
-         : (hint == PUGL_CURRENT_SIZE) ? puglSetWindowSize(view, width, height)
-                                       : updateSizeHint(view, hint);
 }
 
 PuglStatus

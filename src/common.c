@@ -311,6 +311,23 @@ puglGetPositionHint(const PuglView* const view, const PuglPositionHint hint)
   return view->positionHints[hint];
 }
 
+PuglStatus
+puglSetPositionHint(PuglView* const        view,
+                    const PuglPositionHint hint,
+                    const int              x,
+                    const int              y)
+{
+  if (x <= INT16_MIN || x > INT16_MAX || y <= INT16_MIN || y > INT16_MAX) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  view->positionHints[hint].x = (PuglCoord)x;
+  view->positionHints[hint].y = (PuglCoord)y;
+
+  return (hint == PUGL_CURRENT_POSITION) ? puglSetWindowPosition(view, x, y)
+                                         : PUGL_SUCCESS;
+}
+
 PuglArea
 puglGetSizeHint(const PuglView* const view, const PuglSizeHint hint)
 {
@@ -328,6 +345,19 @@ puglSetParent(PuglView* view, PuglNativeView parent)
 {
   view->parent = parent;
   return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglSetSizeHint(PuglView* const    view,
+                const PuglSizeHint hint,
+                const unsigned     width,
+                const unsigned     height)
+{
+  const PuglStatus st = puglStoreSizeHint(view, hint, width, height);
+
+  return st                            ? st
+         : (hint == PUGL_CURRENT_SIZE) ? puglSetWindowSize(view, width, height)
+                                       : puglApplySizeHint(view, hint);
 }
 
 PuglNativeView
