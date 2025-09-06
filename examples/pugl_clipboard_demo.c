@@ -132,7 +132,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 
   switch (event->type) {
   case PUGL_CONFIGURE:
-    reshapeCube((float)event->configure.width, (float)event->configure.height);
+    reshapeCube(event->configure.width, event->configure.height);
     break;
   case PUGL_UPDATE:
     if (app->continuous) {

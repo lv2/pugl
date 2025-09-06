@@ -418,12 +418,12 @@ puglUpdateSizeHints(PuglView* const view)
     }
 
     sizeHints.flags       = PBaseSize | PMinSize | PMaxSize;
-    sizeHints.base_width  = (int)size.width;
-    sizeHints.base_height = (int)size.height;
-    sizeHints.min_width   = (int)size.width;
-    sizeHints.min_height  = (int)size.height;
-    sizeHints.max_width   = (int)size.width;
-    sizeHints.max_height  = (int)size.height;
+    sizeHints.base_width  = size.width;
+    sizeHints.base_height = size.height;
+    sizeHints.min_width   = size.width;
+    sizeHints.min_height  = size.height;
+    sizeHints.max_width   = size.width;
+    sizeHints.max_height  = size.height;
   } else {
     // Avoid setting PBaseSize for top level views to avoid window manager bugs
     const PuglArea defaultSize = view->sizeHints[PUGL_DEFAULT_SIZE];

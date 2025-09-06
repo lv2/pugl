@@ -108,9 +108,9 @@ static const float cubeSideLineColors[] = {
 // clang-format on
 
 static inline void
-reshapeCube(const float width, const float height)
+reshapeCube(const PuglSpan width, const PuglSpan height)
 {
-  const float aspect = width / height;
+  const float aspect = (float)width / (float)height;
 
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -121,7 +121,7 @@ reshapeCube(const float width, const float height)
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glViewport(0, 0, (int)width, (int)height);
+  glViewport(0, 0, width, height);
 
   float projection[16];
   perspective(projection, 1.8f, aspect, 1.0f, 100.0f);

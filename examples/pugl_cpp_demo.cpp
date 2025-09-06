@@ -45,8 +45,7 @@ private:
 pugl::Status
 CubeView::onEvent(const pugl::ConfigureEvent& event) noexcept
 {
-  reshapeCube(static_cast<float>(event.width),
-              static_cast<float>(event.height));
+  reshapeCube(event.width, event.height);
 
   return pugl::Status::success;
 }

@@ -129,7 +129,7 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 
   switch (event->type) {
   case PUGL_CONFIGURE:
-    reshapeCube((float)event->configure.width, (float)event->configure.height);
+    reshapeCube(event->configure.width, event->configure.height);
     puglSetSizeHint(app->child,
                     PUGL_CURRENT_SIZE,
                     event->configure.width - (2U * borderWidth),
@@ -182,7 +182,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 
   switch (event->type) {
   case PUGL_CONFIGURE:
-    reshapeCube((float)event->configure.width, (float)event->configure.height);
+    reshapeCube(event->configure.width, event->configure.height);
     break;
   case PUGL_UPDATE:
     if (app->continuous) {

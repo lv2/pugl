@@ -27,7 +27,7 @@ puglWinCairoCreateDrawContext(PuglView* view)
 
   surface->drawDc     = CreateCompatibleDC(impl->hdc);
   surface->drawBitmap = CreateCompatibleBitmap(
-    impl->hdc, (int)view->lastConfigure.width, (int)view->lastConfigure.height);
+    impl->hdc, view->lastConfigure.width, view->lastConfigure.height);
 
   DeleteObject(SelectObject(surface->drawDc, surface->drawBitmap));
 
@@ -125,8 +125,8 @@ puglWinCairoLeave(PuglView* view, const PuglExposeEvent* expose)
     BitBlt(impl->hdc,
            0,
            0,
-           (int)view->lastConfigure.width,
-           (int)view->lastConfigure.height,
+           view->lastConfigure.width,
+           view->lastConfigure.height,
            surface->drawDc,
            0,
            0,

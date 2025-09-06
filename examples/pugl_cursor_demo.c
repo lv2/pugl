@@ -27,7 +27,7 @@ onConfigure(const PuglSpan width, const PuglSpan height)
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glViewport(0, 0, (int)width, (int)height);
+  glViewport(0, 0, width, height);
 }
 
 static void

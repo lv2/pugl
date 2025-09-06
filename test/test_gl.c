@@ -31,7 +31,7 @@ onConfigure(PuglView* const view, const PuglConfigureEvent* const event)
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glViewport(0, 0, (int)event->width, (int)event->height);
+  glViewport(0, 0, event->width, event->height);
 }
 
 static void
