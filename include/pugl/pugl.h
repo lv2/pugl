@@ -738,7 +738,6 @@ typedef union {
 /// Return status code
 typedef enum {
   PUGL_SUCCESS,               ///< Success
-  PUGL_IGNORE,                ///< Operation ignored
   PUGL_FAILURE,               ///< Non-fatal failure
   PUGL_UNKNOWN_ERROR,         ///< Unknown system error
   PUGL_BAD_BACKEND,           ///< Invalid or missing backend

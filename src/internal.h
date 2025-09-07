@@ -88,10 +88,6 @@ puglDispatchSimpleEvent(PuglView* view, PuglEventType type);
 void
 puglExpandExposure(PuglExposeEvent* dst, const PuglExposeEvent* src);
 
-/// Dispatch `event` to `view` if the backend says to
-PuglStatus
-puglMaybeDispatchEvent(PuglView* view, PuglEventType type);
-
 /// Dispatch `event` to `view`, entering graphics context if necessary
 PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event);

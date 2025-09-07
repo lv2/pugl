@@ -78,7 +78,8 @@ puglGetDeviceProcAddrFunc(const PuglVulkanLoader* loader)
 const PuglBackend*
 puglVulkanBackend(void)
 {
-  static const PuglBackend backend = {puglX11Configure,
+  static const PuglBackend backend = {0U,
+                                      puglX11Configure,
                                       puglStubCreate,
                                       puglStubDestroy,
                                       puglStubEnter,

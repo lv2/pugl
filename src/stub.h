@@ -37,7 +37,7 @@ puglStubEnter(PuglView* const view, const bool drawing)
 {
   (void)view;
   (void)drawing;
-  return PUGL_IGNORE;
+  return PUGL_SUCCESS;
 }
 
 static inline PuglStatus
@@ -45,7 +45,7 @@ puglStubLeave(PuglView* const view, const bool drawing)
 {
   (void)view;
   (void)drawing;
-  return PUGL_IGNORE;
+  return PUGL_SUCCESS;
 }
 
 static inline PuglStatus

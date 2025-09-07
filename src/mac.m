@@ -1327,7 +1327,7 @@ puglRealize(PuglView* view)
   [impl->wrapperView updateTrackingAreas];
 
   st = puglDispatchSimpleEvent(view, PUGL_REALIZE);
-  return st > PUGL_IGNORE ? st : PUGL_SUCCESS;
+  return st;
 }
 
 PuglStatus

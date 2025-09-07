@@ -123,14 +123,6 @@ puglX11GlLeave(PuglView* view, const bool drawing)
   return glXMakeCurrent(display, None, NULL) ? PUGL_SUCCESS : PUGL_FAILURE;
 }
 
-PUGL_WARN_UNUSED_RESULT static PuglStatus
-puglX11GlHandle(PuglView* PUGL_UNUSED(view), const PuglEvent* event)
-{
-  return (event->type == PUGL_BLANK || event->type == PUGL_FLUSH)
-           ? PUGL_IGNORE
-           : PUGL_SUCCESS;
-}
-
 static PuglStatus
 puglX11GlCreate(PuglView* view)
 {
@@ -247,12 +239,13 @@ puglLeaveContext(PuglView* view)
 const PuglBackend*
 puglGlBackend(void)
 {
-  static const PuglBackend backend = {puglX11GlConfigure,
+  static const PuglBackend backend = {PUGL_BACKEND_EXCLUSIVE,
+                                      puglX11GlConfigure,
                                       puglX11GlCreate,
                                       puglX11GlDestroy,
                                       puglX11GlEnter,
                                       puglX11GlLeave,
-                                      puglX11GlHandle,
+                                      puglStubHandle,
                                       puglStubGetContext};
 
   return &backend;

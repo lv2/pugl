@@ -70,7 +70,8 @@ puglMacStubDestroy(PuglView* view)
 const PuglBackend*
 puglStubBackend(void)
 {
-  static const PuglBackend backend = {puglStubConfigure,
+  static const PuglBackend backend = {0U,
+                                      puglStubConfigure,
                                       puglMacStubCreate,
                                       puglMacStubDestroy,
                                       puglStubEnter,

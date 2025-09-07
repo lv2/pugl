@@ -116,7 +116,7 @@ puglX11CairoEnter(PuglView* view, const bool drawing)
     return PUGL_CREATE_CONTEXT_FAILED;
   }
 
-  return st ? st : PUGL_IGNORE;
+  return st;
 }
 
 static PuglStatus
@@ -126,7 +126,7 @@ puglX11CairoLeave(PuglView* view, const bool drawing)
   PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
   if (!drawing || !surface->region) {
-    return PUGL_IGNORE;
+    return PUGL_SUCCESS;
   }
 
   // Destroy front context and create a new one for drawing to the back
@@ -159,7 +159,7 @@ puglX11CairoLeave(PuglView* view, const bool drawing)
   surface->region = NULL;
   surface->cr     = NULL;
   puglX11CairoClose(view);
-  return PUGL_IGNORE;
+  return PUGL_SUCCESS;
 }
 
 static PuglStatus
@@ -197,7 +197,8 @@ puglX11CairoGetContext(PuglView* view)
 const PuglBackend*
 puglCairoBackend(void)
 {
-  static const PuglBackend backend = {puglX11Configure,
+  static const PuglBackend backend = {0U,
+                                      puglX11Configure,
                                       puglX11CairoCreate,
                                       puglX11CairoDestroy,
                                       puglX11CairoEnter,

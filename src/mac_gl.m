@@ -187,12 +187,13 @@ puglLeaveContext(PuglView* view)
 const PuglBackend*
 puglGlBackend(void)
 {
-  static const PuglBackend backend = {puglStubConfigure,
+  static const PuglBackend backend = {PUGL_BACKEND_EXCLUSIVE,
+                                      puglStubConfigure,
                                       puglMacGlCreate,
                                       puglMacGlDestroy,
                                       puglMacGlEnter,
                                       puglMacGlLeave,
-                                      puglStubHandle,,
+                                      puglStubHandle,
                                       puglStubGetContext};
 
   return &backend;

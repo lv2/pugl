@@ -315,7 +315,7 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 
   case PUGL_REALIZE:
     assert(view->stage == PUGL_VIEW_STAGE_ALLOCATED);
-    if ((st0 = view->backend->enter(view, false)) < PUGL_FAILURE) {
+    if (!(st0 = view->backend->enter(view, false))) {
       st0 = view->eventFunc(view, event);
       st1 = view->backend->leave(view, false);
     }
@@ -324,7 +324,7 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 
   case PUGL_UNREALIZE:
     assert(view->stage >= PUGL_VIEW_STAGE_REALIZED);
-    if ((st0 = view->backend->enter(view, false)) < PUGL_FAILURE) {
+    if (!(st0 = view->backend->enter(view, false))) {
       st0 = view->eventFunc(view, event);
       st1 = view->backend->leave(view, false);
     }
@@ -369,13 +369,4 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
   }
 
   return st0 ? st0 : st1;
-}
-
-PuglStatus
-puglMaybeDispatchEvent(PuglView* const view, const PuglEventType type)
-{
-  const PuglEvent  event = {{type, 0U}};
-  const PuglStatus st    = view->backend->handle(view, &event);
-
-  return !st ? puglDispatchEvent(view, &event) : PUGL_SUCCESS;
 }

@@ -286,14 +286,6 @@ puglWinGlLeave(PuglView* view, const bool drawing)
   return wglMakeCurrent(NULL, NULL) ? PUGL_SUCCESS : PUGL_FAILURE;
 }
 
-PUGL_WARN_UNUSED_RESULT static PuglStatus
-puglWinGlHandle(PuglView* PUGL_UNUSED(view), const PuglEvent* event)
-{
-  return (event->type == PUGL_BLANK || event->type == PUGL_FLUSH)
-           ? PUGL_IGNORE
-           : PUGL_SUCCESS;
-}
-
 PuglGlFunc
 puglGetProcAddress(const char* name)
 {
@@ -323,12 +315,13 @@ puglLeaveContext(PuglView* view)
 const PuglBackend*
 puglGlBackend(void)
 {
-  static const PuglBackend backend = {puglWinGlConfigure,
+  static const PuglBackend backend = {PUGL_BACKEND_EXCLUSIVE,
+                                      puglWinGlConfigure,
                                       puglWinGlCreate,
                                       puglWinGlDestroy,
                                       puglWinGlEnter,
                                       puglWinGlLeave,
-                                      puglWinGlHandle,
+                                      puglStubHandle,
                                       puglStubGetContext};
 
   return &backend;

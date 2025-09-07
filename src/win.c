@@ -1221,8 +1221,9 @@ puglUpdate(PuglWorld* world, double timeout)
     PuglView* const view = world->views[i];
     if (puglGetVisible(view)) {
       puglDispatchSimpleEvent(view, PUGL_UPDATE);
-      if (view->pendingExpose.type) {
-        puglMaybeDispatchEvent(view, PUGL_BLANK);
+      if (view->pendingExpose.type &&
+          !(view->backend->flags & PUGL_BACKEND_EXCLUSIVE)) {
+        puglDispatchSimpleEvent(view, PUGL_BLANK);
       }
     }
   }
@@ -1242,7 +1243,7 @@ puglUpdate(PuglWorld* world, double timeout)
   // Flush any views that were blanked/exposed
   for (size_t i = 0; i < world->numViews; ++i) {
     PuglView* const view = world->views[i];
-    if (view->drawState >= PUGL_BLANKED) {
+    if (!(view->backend->flags & PUGL_BACKEND_EXCLUSIVE)) {
       puglMaybeDispatchEvent(view, PUGL_FLUSH);
     }
   }

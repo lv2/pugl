@@ -230,7 +230,6 @@ using DataEvent = Event<PUGL_DATA, PuglDataEvent>;
 /// @copydoc PuglStatus
 enum class Status {
   success,             ///< @copydoc PUGL_SUCCESS
-  ignore,              ///< @copydoc PUGL_IGNORE
   failure,             ///< @copydoc PUGL_FAILURE
   unknownError,        ///< @copydoc PUGL_UNKNOWN_ERROR
   badBackend,          ///< @copydoc PUGL_BAD_BACKEND

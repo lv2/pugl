@@ -698,7 +698,7 @@ puglRealize(PuglView* const view)
      increases the chances that an application will be cleanly configured once
      on startup with the correct position and size. */
   XFlush(display);
-  return st > PUGL_IGNORE ? st : PUGL_SUCCESS;
+  return st;
 }
 
 PuglStatus
@@ -1645,43 +1645,32 @@ flushExposures(PuglWorld* const world)
   PuglStatus st0 = PUGL_SUCCESS;
   PuglStatus st1 = PUGL_SUCCESS;
 
-  // Send update events so the application can trigger redraws
-  for (size_t i = 0; i < world->numViews; ++i) {
-    if (puglGetVisible(world->views[i])) {
-      puglDispatchSimpleEvent(world->views[i], PUGL_UPDATE);
-    }
-  }
-
   // Expose any dirty views
   world->state = PUGL_WORLD_EXPOSING;
   for (size_t i = 0; i < world->numViews; ++i) {
-    PuglView* const view   = world->views[i];
-    const PuglEvent expose = view->pendingExpose;
-    if (puglGetVisible(view) && expose.type) {
+    PuglView* const view = world->views[i];
+    if (puglGetVisible(view) && view->pendingExpose.type) {
+      // Copy and reset pending exposure
+      const PuglEvent expose   = view->pendingExpose;
       view->pendingExpose.type = PUGL_NOTHING;
-      if (view->drawState < PUGL_BLANKED) {
-        puglMaybeDispatchEvent(view, PUGL_BLANK);
-      }
 
-      // Enter backend context for exposure
-      if ((st0 = view->backend->enter(view, true)) < PUGL_FAILURE) {
-        // Dispatch a low-level blank if the backend says to
-        if (!st0) {
+      if (!(st0 = view->backend->enter(view, true))) {
+        if (view->backend->flags & PUGL_BACKEND_EXCLUSIVE) {
           puglDispatchSimpleEvent(view, PUGL_BLANK);
         }
 
-        // Dispatch the expose to the view and the backend
         st0 = puglDispatchEvent(view, &expose);
 
-        // Leave context and dispatch a low-level flush if the backend says to
-        if (!(st1 = view->backend->leave(view, true))) {
+        if (view->backend->flags & PUGL_BACKEND_EXCLUSIVE) {
           puglDispatchSimpleEvent(view, PUGL_FLUSH);
         }
+
+        st1 = view->backend->leave(view, true);
       }
     }
   }
 
-  return st0 > PUGL_IGNORE ? st0 : st1 > PUGL_IGNORE ? st1 : PUGL_SUCCESS;
+  return st0 ? st0 : st1;
 }
 
 static bool
@@ -1827,8 +1816,9 @@ puglUpdate(PuglWorld* const world, const double timeout)
     PuglView* const view = world->views[i];
     if (puglGetVisible(view)) {
       puglDispatchSimpleEvent(view, PUGL_UPDATE);
-      if (view->pendingExpose.type) {
-        puglMaybeDispatchEvent(view, PUGL_BLANK);
+      if (view->pendingExpose.type &&
+          !(view->backend->flags & PUGL_BACKEND_EXCLUSIVE)) {
+        puglDispatchSimpleEvent(view, PUGL_BLANK);
       }
     }
   }
@@ -1842,8 +1832,8 @@ puglUpdate(PuglWorld* const world, const double timeout)
   // Flush any views that were blanked/exposed
   for (size_t i = 0; i < world->numViews; ++i) {
     PuglView* const view = world->views[i];
-    if (view->drawState >= PUGL_BLANKED) {
-      puglMaybeDispatchEvent(view, PUGL_FLUSH);
+    if (!(view->backend->flags & PUGL_BACKEND_EXCLUSIVE)) {
+      puglDispatchSimpleEvent(view, PUGL_FLUSH);
     }
   }
 

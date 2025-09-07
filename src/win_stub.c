@@ -17,7 +17,8 @@ puglWinStubConfigure(PuglView* view)
 const PuglBackend*
 puglStubBackend(void)
 {
-  static const PuglBackend backend = {puglWinStubConfigure,
+  static const PuglBackend backend = {0U,
+                                      puglWinStubConfigure,
                                       puglStubCreate,
                                       puglStubDestroy,
                                       puglStubEnter,

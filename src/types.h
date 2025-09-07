@@ -85,8 +85,16 @@ struct PuglWorldImpl {
 /// Opaque surface used by graphics backend
 typedef void PuglSurface;
 
+/// Backend flags that influence the main implementation
+typedef enum {
+  PUGL_BACKEND_EXCLUSIVE = 1U << 0U, // Views are entered exclusively
+} PuglBackendFlag;
+
 /// Graphics backend interface
 struct PuglBackendImpl {
+  /// Bitwise OR of PuglBackendFlag values
+  unsigned flags;
+
   /// Get visual information from display and setup view as necessary
   PUGL_WARN_UNUSED_RESULT PuglStatus (*configure)(PuglView*);
 
@@ -99,18 +107,16 @@ struct PuglBackendImpl {
   /**
      Enter context, for drawing if parameter is true.
 
-     @return #PUGL_SUCCESS if the context was successfully entered,
-     #PUGL_IGNORE if a blank event should NOT be dispatched to the client, or
-     an error.
+     @return #PUGL_SUCCESS if the context was successfully entered, or an
+     error.
   */
   PUGL_WARN_UNUSED_RESULT PuglStatus (*enter)(PuglView*, bool);
 
   /**
      Leave context, after drawing if parameter is true.
 
-     @return #PUGL_SUCCESS if the context was successfully left/flushed,
-     #PUGL_IGNORE if a flush event should NOT be dispatched to the client, or
-     an error.
+     @return #PUGL_SUCCESS if the context was successfully left/flushed, or an
+     error.
   */
   PUGL_WARN_UNUSED_RESULT PuglStatus (*leave)(PuglView*, bool);
 
@@ -118,28 +124,11 @@ struct PuglBackendImpl {
      Handle an event for a view.
 
      This is a hook that can be used by the backend to implement
-     rendering-related events, and control (to a limited degree) how they are
-     communicated to clients.
-
-     For every update that renders a frame:
-
-     1. The backend receives a blank event.
-     2. The context is entered for exposure.
-     3. The backend receives any number of expose events.
-     4. The context is left.
-     5. The backend receives a flush event.
-
-     To account for different APIs, the backend can control whether blank and
-     flush events are dispatched in steps 1 and 5, or 2 and 4.  The latter
-     scheme is used by backends where entering and leaving the context is
-     expensive, such as OpenGL.  Where this is not the case, it is better to
-     dispatch them as early and late as possible (in steps 1 and 5) to allow
-     more fine-grained control over synchronization (potentially reducing input
-     latency).
+     rendering-related events.  Currently, this is sent expose events with the
+     context entered, allowing backends to track and update damaged regions.
 
      @return #PUGL_SUCCESS if handling the event was successful and should
-     continue, #PUGL_IGNORE if the event should not be dispatched to the view,
-     or an error.
+     continue, or an error.
   */
   PUGL_WARN_UNUSED_RESULT PuglStatus (*handle)(PuglView*, const PuglEvent*);
 

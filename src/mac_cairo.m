@@ -137,7 +137,8 @@ puglMacCairoGetContext(PuglView* view)
 const PuglBackend*
 puglCairoBackend(void)
 {
-  static const PuglBackend backend = {puglStubConfigure,
+  static const PuglBackend backend = {0U,
+                                      puglStubConfigure,
                                       puglMacCairoCreate,
                                       puglMacCairoDestroy,
                                       puglMacCairoEnter,

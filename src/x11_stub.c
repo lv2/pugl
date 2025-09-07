@@ -13,6 +13,7 @@ const PuglBackend*
 puglStubBackend(void)
 {
   static const PuglBackend backend = {
+    0U,
     puglX11Configure,
     puglStubCreate,
     puglStubDestroy,
