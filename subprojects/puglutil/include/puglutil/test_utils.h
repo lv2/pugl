@@ -372,8 +372,6 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 
   if (verbose) {
     switch (event->type) {
-    case PUGL_UPDATE:
-      return fprintf(stderr, "%sUpdate\n", prefix);
     case PUGL_CONFIGURE:
       PRINT("%sConfigure " PIFMT " " PUFMT " (",
             prefix,
@@ -389,6 +387,8 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
       }
       PRINT("%s\n", " )");
       return 0;
+    case PUGL_UPDATE:
+      return fprintf(stderr, "%sUpdate\n", prefix);
     case PUGL_EXPOSE:
       return PRINT("%sExpose    " PIFMT " " PUFMT "\n",
                    prefix,
