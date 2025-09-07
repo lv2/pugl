@@ -1394,12 +1394,7 @@ puglHide(PuglView* view);
 PUGL_API PuglStatus
 puglSetViewStyle(PuglView* view, PuglViewStyleFlags flags);
 
-/**
-   Return true if the view currently has a style flag set.
-
-   The result is determined based on the state announced in the last configure
-   event.
-*/
+/// Return the style flags currently set for a view
 PUGL_API PuglViewStyleFlags
 puglGetViewStyle(const PuglView* view);
 
