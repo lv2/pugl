@@ -1885,7 +1885,7 @@ puglObscureRegion(PuglView* const view,
 }
 
 PuglNativeView
-puglGetNativeView(PuglView* const view)
+puglGetNativeView(const PuglView* const view)
 {
   return (PuglNativeView)view->impl->win;
 }

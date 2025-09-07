@@ -354,7 +354,7 @@ public:
   }
 
   /// @copydoc puglGetWorldString
-  const char* getString(StringHint key) noexcept
+  const char* getString(StringHint key) const noexcept
   {
     return puglGetWorldString(cobj(), static_cast<PuglStringHint>(key));
   }
@@ -529,7 +529,7 @@ public:
   }
 
   /// @copydoc puglGetViewHint
-  int getHint(ViewHint hint) noexcept
+  int getHint(ViewHint hint) const noexcept
   {
     return puglGetViewHint(cobj(), static_cast<PuglViewHint>(hint));
   }
@@ -542,7 +542,7 @@ public:
   }
 
   /// @copydoc puglGetViewString
-  const char* getString(StringHint key) noexcept
+  const char* getString(StringHint key) const noexcept
   {
     return puglGetViewString(cobj(), static_cast<PuglStringHint>(key));
   }
@@ -625,7 +625,7 @@ public:
   bool visible() const noexcept { return puglGetVisible(cobj()); }
 
   /// @copydoc puglGetNativeView
-  NativeView nativeView() noexcept { return puglGetNativeView(cobj()); }
+  NativeView nativeView() const noexcept { return puglGetNativeView(cobj()); }
 
   /**
      @}

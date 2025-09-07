@@ -1409,7 +1409,7 @@ puglGetVisible(const PuglView* view);
 
 /// Return the native window handle
 PUGL_API PuglNativeView
-puglGetNativeView(PuglView* view);
+puglGetNativeView(const PuglView* view);
 
 /**
    @}
