@@ -7,7 +7,7 @@
 #include <pugl/stub.h>
 
 #include <stdbool.h>
-#include <stdio.h>
+#include <stddef.h>
 
 typedef struct {
   PuglWorld* world;
