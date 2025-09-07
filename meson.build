@@ -161,14 +161,14 @@ elif host_machine.system() == 'windows'
 
   add_project_arguments(win_args, language: ['c', 'cpp'])
 
-  user32_dep = cc.find_library('user32')
-  shlwapi_dep = cc.find_library('shlwapi')
   dwmapi_dep = cc.find_library('dwmapi')
   gdi32_dep = cc.find_library('gdi32')
+  shlwapi_dep = cc.find_library('shlwapi')
+  user32_dep = cc.find_library('user32')
 
   platform = 'win'
   platform_sources = files('src/win.c')
-  core_deps = [user32_dep, shlwapi_dep, dwmapi_dep, gdi32_dep]
+  core_deps = [dwmapi_dep, gdi32_dep, shlwapi_dep, user32_dep]
   extension = '.c'
   soversion = ''
 
@@ -210,7 +210,7 @@ else
 
   platform = 'x11'
   platform_sources = files('src/x11.c')
-  core_deps = [x11_dep, xcursor_dep, xrandr_dep, xext_dep]
+  core_deps = [x11_dep, xcursor_dep, xext_dep, xrandr_dep]
   extension = '.c'
   soversion = meson.project_version().split('.')[0]
 endif
