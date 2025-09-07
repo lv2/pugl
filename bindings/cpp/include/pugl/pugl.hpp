@@ -255,6 +255,9 @@ strerror(const Status status) noexcept
    @{
 */
 
+/// @copydoc PuglWorldHandle
+using WorldHandle = PuglWorldHandle;
+
 /// @copydoc PuglWorldType
 enum class WorldType {
   program, ///< @copydoc PUGL_PROGRAM
@@ -342,6 +345,15 @@ public:
   explicit World(WorldType type)
     : World{type, WorldFlags{}}
   {}
+
+  /// @copydoc puglGetWorldHandle
+  WorldHandle handle() noexcept { return puglGetWorldHandle(cobj()); }
+
+  /// @copydoc puglSetWorldHandle
+  void setHandle(const WorldHandle handle) noexcept
+  {
+    puglSetWorldHandle(cobj(), handle);
+  }
 
   /// @copydoc puglGetNativeWorld
   void* nativeWorld() noexcept { return puglGetNativeWorld(cobj()); }
@@ -515,6 +527,9 @@ public:
     return static_cast<Status>(puglSetEventFunc(cobj(), eventFunc<Handler>));
   }
 
+  /// @copydoc puglGetBackend
+  const PuglBackend* backend() const noexcept { return puglGetBackend(cobj()); }
+
   /// @copydoc puglSetBackend
   Status setBackend(const PuglBackend* backend) noexcept
   {
@@ -621,6 +636,15 @@ public:
   /// @copydoc puglHide
   Status hide() noexcept { return static_cast<Status>(puglHide(cobj())); }
 
+  /// @copydoc puglSetViewStyle
+  Status setViewStyle(const ViewStyleFlags flags)
+  {
+    return static_cast<Status>(puglSetViewStyle(cobj(), flags));
+  }
+
+  /// @copydoc puglGetViewStyle
+  ViewStyleFlags viewStyle() const noexcept { return puglGetViewStyle(cobj()); }
+
   /// @copydoc puglGetVisible
   bool visible() const noexcept { return puglGetVisible(cobj()); }
 
@@ -638,7 +662,7 @@ public:
   /// @copydoc puglGetContext
   void* context() noexcept { return puglGetContext(cobj()); }
 
-  /// @copydoc puglObscure
+  /// @copydoc puglObscureView
   Status obscure() noexcept
   {
     return static_cast<Status>(puglObscureView(cobj()));
@@ -669,12 +693,8 @@ public:
   /// @copydoc puglHasFocus
   bool hasFocus() const noexcept { return puglHasFocus(cobj()); }
 
-  /// @copydoc puglSetCursor
-  Status setCursor(const Cursor cursor) noexcept
-  {
-    return static_cast<Status>(
-      puglSetCursor(cobj(), static_cast<PuglCursor>(cursor)));
-  }
+  /// @copydoc puglPaste
+  Status paste() noexcept { return static_cast<Status>(puglPaste(cobj())); }
 
   /// @copydoc puglGetNumClipboardTypes
   uint32_t numClipboardTypes() const
@@ -707,10 +727,25 @@ public:
     return static_cast<Status>(puglAcceptOffer(cobj(), &offer, typeIndex));
   }
 
-  /// @copydoc puglSetViewStyle
-  Status setViewStyle(const PuglViewStyleFlags flags)
+  /// @copydoc puglSetClipboard
+  Status setClipboard(const char* const type,
+                      const void* const data,
+                      const size_t      len)
   {
-    return static_cast<Status>(puglSetViewStyle(cobj(), flags));
+    return static_cast<Status>(puglSetClipboard(cobj(), type, data, len));
+  }
+
+  /// @copydoc puglGetClipboard
+  const void* getClipboard(const uint32_t typeIndex, size_t* const len)
+  {
+    return puglGetClipboard(cobj(), typeIndex, len);
+  }
+
+  /// @copydoc puglSetCursor
+  Status setCursor(const Cursor cursor) noexcept
+  {
+    return static_cast<Status>(
+      puglSetCursor(cobj(), static_cast<PuglCursor>(cursor)));
   }
 
   /**
