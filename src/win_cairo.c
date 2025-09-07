@@ -106,12 +106,11 @@ puglWinCairoEnter(PuglView* view, const PuglExposeEvent* expose)
 {
   PuglStatus st = PUGL_SUCCESS;
 
-  if (expose && !(st = puglWinCairoCreateDrawContext(view)) &&
-      !(st = puglWinCairoOpen(view))) {
-    st = puglWinEnter(view, expose);
+  if (expose && !(st = puglWinCairoCreateDrawContext(view))) {
+    st = puglWinCairoOpen(view);
   }
 
-  return st;
+  return st ? st : puglWinEnter(view, expose);
 }
 
 static PuglStatus

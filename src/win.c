@@ -1635,9 +1635,11 @@ puglWinConfigure(PuglView* view)
 PuglStatus
 puglWinEnter(PuglView* view, const PuglExposeEvent* expose)
 {
-  return expose
-           ? puglWinStatus(!!BeginPaint(view->impl->hwnd, &view->impl->paint))
-           : PUGL_SUCCESS;
+  if (expose) {
+    return puglWinStatus(!!BeginPaint(view->impl->hwnd, &view->impl->paint));
+  }
+
+  return PUGL_SUCCESS;
 }
 
 PuglStatus
