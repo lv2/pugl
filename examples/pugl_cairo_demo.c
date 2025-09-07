@@ -279,6 +279,9 @@ onEvent(PuglView* view, const PuglEvent* event)
     resetMouse(app);
     puglObscureView(view);
     break;
+  case PUGL_CONFIGURE:
+    puglObscureView(view);
+    break;
   case PUGL_UPDATE:
     if (app->opts.continuous) {
       const double now = fmod(puglGetTime(app->world), loop_duration);

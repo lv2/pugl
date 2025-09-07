@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "cube_view.h"
@@ -52,9 +52,10 @@ static const float backgroundColorVertices[] = {
 // clang-format on
 
 static void
-onDisplay(PuglView* view)
+onExpose(PuglView* view)
 {
-  PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
+  PuglTestApp* const app  = (PuglTestApp*)puglGetHandle(view);
+  const PuglArea     size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
 
   const double thisTime = puglGetTime(app->world);
   if (app->continuous) {
@@ -64,6 +65,8 @@ onDisplay(PuglView* view)
     app->xAngle = fmod(app->xAngle + (dTime * 100.0), 360.0);
     app->yAngle = fmod(app->yAngle + (dTime * 100.0), 360.0);
   }
+
+  reshapeCube(size.width, size.height);
 
   displayCube(
     view, app->dist, (float)app->xAngle, (float)app->yAngle, app->mouseEntered);
@@ -129,7 +132,6 @@ onParentEvent(PuglView* view, const PuglEvent* event)
 
   switch (event->type) {
   case PUGL_CONFIGURE:
-    reshapeCube(event->configure.width, event->configure.height);
     puglSetSizeHint(app->child,
                     PUGL_CURRENT_SIZE,
                     event->configure.width - (2U * borderWidth),
@@ -181,16 +183,13 @@ onEvent(PuglView* view, const PuglEvent* event)
   printEvent(event, "Child:  ", app->verbose);
 
   switch (event->type) {
-  case PUGL_CONFIGURE:
-    reshapeCube(event->configure.width, event->configure.height);
-    break;
   case PUGL_UPDATE:
     if (app->continuous) {
       puglObscureView(view);
     }
     break;
   case PUGL_EXPOSE:
-    onDisplay(view);
+    onExpose(view);
     break;
   case PUGL_CLOSE:
     app->quit = 1;

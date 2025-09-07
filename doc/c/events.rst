@@ -67,14 +67,13 @@ Null is returned by :func:`puglGetContext` at any other time.
 OpenGL Context
 --------------
 
-The OpenGL context is only active during the handling of these events:
+The OpenGL context is only active while handling realization (:enumerator:`PUGL_REALIZE`, :enumerator:`PUGL_UNREALIZE`) and exposure (:enumerator:`PUGL_EXPOSE`),
+and can only be used for rendering during exposure.
 
-- :struct:`PuglRealizeEvent`
-- :struct:`PuglUnrealizeEvent`
-- :struct:`PuglConfigureEvent`
-- :struct:`PuglExposeEvent`
-
-As always, drawing is only possible during an expose.
+Note that the OpenGL context is *not* active while handling configuration.
+When a :enumerator:`PUGL_CONFIGURE` is received,
+the application should record it and prepare accordingly,
+but only apply it to OpenGL when the view is next exposed.
 
 Vulkan Context
 --------------

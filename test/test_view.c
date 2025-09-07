@@ -44,7 +44,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     test->state = REALIZED;
     break;
   case PUGL_CONFIGURE:
-    assert(test->state == REALIZED);
+    assert(test->state == REALIZED || test->state == CONFIGURED);
     test->state = CONFIGURED;
     break;
   case PUGL_UNREALIZE:

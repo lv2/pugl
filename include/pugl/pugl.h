@@ -680,9 +680,8 @@ typedef struct {
    to the appropriate type, or the union members used.
 
    The graphics system may only be accessed when handling certain events.  The
-   graphics context is active for #PUGL_REALIZE, #PUGL_UNREALIZE,
-   #PUGL_CONFIGURE, and #PUGL_EXPOSE, but only enabled for drawing for
-   #PUGL_EXPOSE.
+   graphics context is active for #PUGL_REALIZE, #PUGL_UNREALIZE, and
+   #PUGL_EXPOSE, but only enabled for drawing for #PUGL_EXPOSE.
 */
 typedef union {
   PuglAnyEvent       any;       ///< Valid for all event types

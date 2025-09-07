@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include <puglutil/test_utils.h>
@@ -19,7 +19,7 @@ typedef struct {
 } PuglTestApp;
 
 static void
-onConfigure(const PuglSpan width, const PuglSpan height)
+beginFrame(const PuglSpan width, const PuglSpan height)
 {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
@@ -31,8 +31,11 @@ onConfigure(const PuglSpan width, const PuglSpan height)
 }
 
 static void
-onExpose(void)
+onExpose(PuglView* view)
 {
+  const PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+  beginFrame(size.width, size.height);
+
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -78,9 +81,6 @@ onEvent(PuglView* view, const PuglEvent* event)
   printEvent(event, "Event: ", app->opts.verbose);
 
   switch (event->type) {
-  case PUGL_CONFIGURE:
-    onConfigure(event->configure.width, event->configure.height);
-    break;
   case PUGL_KEY_PRESS:
     if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
       app->quit = 1;
@@ -90,7 +90,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     onMotion(view, event->motion.x, event->motion.y);
     break;
   case PUGL_EXPOSE:
-    onExpose();
+    onExpose(view);
     break;
   case PUGL_POINTER_OUT:
     puglSetCursor(view, PUGL_CURSOR_ARROW);

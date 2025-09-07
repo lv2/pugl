@@ -1,4 +1,4 @@
-// Copyright 2012-2023 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 /*
@@ -67,6 +67,7 @@ typedef struct {
   double          lastFrameEndTime;
   double          mouseX;
   double          mouseY;
+  PuglArea        size;
   unsigned        framesDrawn;
   int             quit;
 } PuglTestApp;
@@ -78,7 +79,7 @@ static void
 teardownGl(PuglTestApp* app);
 
 static void
-onConfigure(PuglView* view, PuglSpan width, PuglSpan height)
+beginFrame(PuglView* view, PuglSpan width, PuglSpan height)
 {
   (void)view;
 
@@ -93,8 +94,10 @@ static void
 onExpose(PuglView* view)
 {
   PuglTestApp*   app  = (PuglTestApp*)puglGetHandle(view);
-  const PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+  const PuglArea size = app->size;
   const double   time = puglGetTime(puglGetWorld(view));
+
+  beginFrame(view, size.width, size.height);
 
   // Construct projection matrix for 2D window surface (in pixels)
   mat4 proj;
@@ -165,7 +168,8 @@ onEvent(PuglView* view, const PuglEvent* event)
     teardownGl(app);
     break;
   case PUGL_CONFIGURE:
-    onConfigure(view, event->configure.width, event->configure.height);
+    app->size.width  = event->configure.width;
+    app->size.height = event->configure.height;
     break;
   case PUGL_UPDATE:
     puglObscureView(view);

@@ -1,4 +1,4 @@
-// Copyright 2021 David Robillard <d@drobilla.net>
+// Copyright 2021-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // Tests basic OpenGL support
@@ -17,32 +17,9 @@ typedef struct {
   PuglWorld*      world;
   PuglView*       view;
   PuglTestOptions opts;
+  PuglArea        size;
   bool            exposed;
 } PuglTest;
-
-static void
-onConfigure(PuglView* const view, const PuglConfigureEvent* const event)
-{
-  (void)view;
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-
-  glViewport(0, 0, event->width, event->height);
-}
-
-static void
-onExpose(PuglView* const view, const PuglExposeEvent* const event)
-{
-  (void)view;
-  (void)event;
-
-  glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
-}
 
 static PuglStatus
 onEvent(PuglView* const view, const PuglEvent* const event)
@@ -53,18 +30,18 @@ onEvent(PuglView* const view, const PuglEvent* const event)
     printEvent(event, "Event: ", true);
   }
 
-  switch (event->type) {
-  case PUGL_CONFIGURE:
-    onConfigure(view, &event->configure);
-    break;
-
-  case PUGL_EXPOSE:
-    onExpose(view, &event->expose);
+  if (event->type == PUGL_CONFIGURE) {
+    test->size.width  = event->configure.width;
+    test->size.height = event->configure.height;
+  } else if (event->type == PUGL_EXPOSE) {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glViewport(0, 0, test->size.width, test->size.height);
+    glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     test->exposed = true;
-    break;
-
-  default:
-    break;
   }
 
   return PUGL_SUCCESS;
@@ -76,7 +53,7 @@ main(int argc, char** argv)
   PuglWorld* const      world = puglNewWorld(PUGL_PROGRAM, 0);
   PuglView* const       view  = puglNewView(world);
   const PuglTestOptions opts  = puglParseTestOptions(&argc, &argv);
-  PuglTest              test  = {world, view, opts, false};
+  PuglTest              test  = {world, view, opts, {0U, 0U}, false};
 
   // Set up and show view
   puglSetWorldString(test.world, PUGL_CLASS_NAME, "PuglTest");

@@ -1,4 +1,4 @@
-// Copyright 2012-2023 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "internal.h"
@@ -258,26 +258,6 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
   return puglDispatchEvent(view, &event);
 }
 
-static inline bool
-puglMustConfigure(PuglView* view, const PuglConfigureEvent* configure)
-{
-  return !!memcmp(configure, &view->lastConfigure, sizeof(PuglConfigureEvent));
-}
-
-PuglStatus
-puglConfigure(PuglView* view, const PuglEvent* event)
-{
-  PuglStatus st = PUGL_SUCCESS;
-
-  assert(event->type == PUGL_CONFIGURE);
-  if (puglMustConfigure(view, &event->configure)) {
-    st                  = view->eventFunc(view, event);
-    view->lastConfigure = event->configure;
-  }
-
-  return st;
-}
-
 PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
@@ -307,12 +287,8 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     break;
 
   case PUGL_CONFIGURE:
-    if (puglMustConfigure(view, &event->configure)) {
-      if (!(st0 = view->backend->enter(view, NULL))) {
-        st0 = puglConfigure(view, event);
-        st1 = view->backend->leave(view, NULL);
-      }
-    }
+    st0                 = view->eventFunc(view, event);
+    view->lastConfigure = event->configure;
     if (view->stage == PUGL_VIEW_STAGE_REALIZED) {
       view->stage = PUGL_VIEW_STAGE_CONFIGURED;
     }

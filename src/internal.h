@@ -6,7 +6,6 @@
 #ifndef PUGL_INTERNAL_H
 #define PUGL_INTERNAL_H
 
-#include "attributes.h"
 #include "types.h"
 
 #include <pugl/attributes.h>
@@ -80,10 +79,6 @@ puglPreRealize(PuglView* view);
 /// Dispatch an event with a simple `type` to `view`
 PuglStatus
 puglDispatchSimpleEvent(PuglView* view, PuglEventType type);
-
-/// Process configure event while already in the graphics context
-PUGL_WARN_UNUSED_RESULT PuglStatus
-puglConfigure(PuglView* view, const PuglEvent* event);
 
 /// Dispatch `event` to `view`, entering graphics context if necessary
 PuglStatus
