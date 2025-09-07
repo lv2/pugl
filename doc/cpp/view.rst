@@ -59,9 +59,9 @@ This way, it will be a compile error if any event is not explicitly handled.
 Configuring the Frame
 *********************
 
-Before display,
-the necessary :doc:`frame <api/puglpp_frame>` and :doc:`window <api/puglpp_window>` attributes should be set.
-These allow the window system (or plugin host) to arrange the view properly.
+Before realizing a view,
+the necessary attributes should be set with :func:`View::setHint` and similar methods.
+These allow the window system or host application to arrange the view properly.
 
 Derived classes can configure themselves during construction,
 but we assume here that configuration is being done outside the view.
@@ -89,7 +89,7 @@ Embedding
 *********
 
 To embed the view in another window,
-you will need to somehow get the :type:`native view handle <pugl::NativeView>` for the parent,
+you will need to somehow get the :type:`native view handle <NativeView>` for the parent,
 then set it with :func:`View::setParent`.
 If the parent is a Pugl view,
 the native handle can be accessed with :func:`View::nativeView`.
@@ -107,7 +107,7 @@ Before being realized, the view must have a backend set with :func:`View::setBac
 
 The backend manages the graphics API that will be used for drawing.
 Pugl includes backends and supporting API for
-:doc:`Cairo <api/cairo>`, :doc:`OpenGL <api/gl>`, and :doc:`Vulkan <api/vulkan>`.
+:doc:`Cairo <api/puglpp_cairo>`, :doc:`OpenGL <api/puglpp_gl>`, and :doc:`Vulkan <api/puglpp_vulkan>`.
 
 Using Cairo
 ===========

@@ -12,7 +12,7 @@ must be drawn, or in other situations that may need to be handled such as resizi
 Events are sent to the ``onEvent`` method that takes the matching event type.
 The application must handle at least :type:`ConfigureEvent`
 and :type:`ExposeEvent` to draw anything,
-but there are many other :type:`event types <pugl::EventType>`.
+but there are many other :type:`event types <EventType>`.
 
 For example, basic event handling for our above class might look something like:
 

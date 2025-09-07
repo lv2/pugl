@@ -32,7 +32,7 @@ For example, Vulkan requires thread support:
 
    pugl::World world{pugl::WorldType::program, pugl::WorldFlag::threads};
 
-It is a good idea to set a class name for your project with :func:`World::setClassName`.
+It is a good idea to set a :enumerator:`StringHint::className` for your project with :func:`World::setString`.
 This allows the window system to distinguish different applications and,
 for example, users to set up rules to manage their windows nicely:
 

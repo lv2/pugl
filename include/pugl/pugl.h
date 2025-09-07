@@ -1366,7 +1366,7 @@ typedef enum {
    do so automatically.  If the view is currently hidden, it will be shown and
    possibly raised to the top depending on the platform.
 
-   @return #PUGL_SUCCESS, an error from puglRealize(), or #PUGL_FAILURE if the
+   @return #PUGL_SUCCESS, an error from realization, or #PUGL_FAILURE if the
    window was shown but not raised.
 */
 PUGL_API PuglStatus

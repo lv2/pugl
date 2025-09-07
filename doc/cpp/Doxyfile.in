@@ -4,6 +4,7 @@
 PROJECT_NAME           = Pugl
 PROJECT_BRIEF          = "A minimal portable API for embeddable GUIs"
 
+AUTOLINK_SUPPORT       = NO
 QUIET                  = YES
 WARN_AS_ERROR          = YES
 WARN_IF_UNDOCUMENTED   = NO

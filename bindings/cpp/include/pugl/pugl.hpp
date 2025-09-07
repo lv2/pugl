@@ -104,7 +104,6 @@ static_assert(static_cast<StringHint>(PUGL_WINDOW_TITLE) ==
 */
 template<PuglEventType t, class Base>
 struct Event final : Base {
-  /// The type of the corresponding C event structure
   using BaseEvent = Base;
 
   /// The `type` field of the corresponding C event structure
@@ -519,6 +518,9 @@ public:
      This facility is just a convenience, applications may use the C API
      directly to set a handle and event function to set up a different
      approach for event handling.
+
+     @tparam Handler Type of event handler object with `onEvent` methods to
+     call.
   */
   template<class Handler>
   Status setEventHandler(Handler& handler)
@@ -668,7 +670,7 @@ public:
     return static_cast<Status>(puglObscureView(cobj()));
   }
 
-  /// "Obscure" a region so it will be exposed in the next render
+  /// @copydoc puglObscureRegion
   Status obscure(const int      x,
                  const int      y,
                  const unsigned width,
@@ -714,13 +716,13 @@ public:
      To accept data, this must be called while handling a #PUGL_DATA_OFFER
      event. Doing so will request the data from the source as the specified
      type.  When the data is available, a #PUGL_DATA event will be sent to the
-     view which can then retrieve the data with puglGetClipboard().
+     view which can then retrieve the data with getClipboard().
 
      @param offer The data offer event.
 
      @param typeIndex The index of the type that the view will accept.  This is
-     the `typeIndex` argument to the call of puglGetClipboardType() that
-     returned the accepted type.
+     the `typeIndex` argument to the call of getClipboardType() that returned
+     the accepted type.
   */
   Status acceptOffer(const DataOfferEvent& offer, const uint32_t typeIndex)
   {
@@ -790,6 +792,7 @@ public:
     return static_cast<Status>(puglStopTimer(cobj(), id));
   }
 
+  /// @copydoc puglSendEvent
   template<PuglEventType t, class Base>
   Status sendEvent(const Event<t, Base>& event) noexcept
   {
