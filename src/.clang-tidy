@@ -4,6 +4,7 @@
 Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-multi-level-implicit-pointer-conversion,
+  -bugprone-tagged-union-member-count,
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,

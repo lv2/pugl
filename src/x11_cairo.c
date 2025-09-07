@@ -1,7 +1,6 @@
 // Copyright 2012-2023 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#include "macros.h"
 #include "types.h"
 #include "x11.h"
 
@@ -11,12 +10,14 @@
 #include <cairo-xlib.h>
 #include <cairo.h>
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 typedef struct {
   cairo_surface_t* back;
   cairo_surface_t* front;
   cairo_t*         cr;
+  cairo_region_t*  region;
 } PuglX11CairoSurface;
 
 static PuglArea
@@ -90,56 +91,88 @@ puglX11CairoDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglX11CairoEnter(PuglView* view, const PuglExposeEvent* expose)
+puglX11CairoEnter(PuglView* view, const bool drawing)
 {
   PuglInternals* const       impl    = view->impl;
   PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
   PuglStatus                 st      = PUGL_SUCCESS;
+  if (!drawing) {
+    return st;
+  }
 
-  if (expose) {
-    const PuglArea viewSize      = puglX11CairoGetViewSize(view);
-    const PuglSpan right         = (PuglSpan)(expose->x + expose->width);
-    const PuglSpan bottom        = (PuglSpan)(expose->y + expose->height);
-    const PuglSpan surfaceWidth  = MAX(right, viewSize.width);
-    const PuglSpan surfaceHeight = MAX(bottom, viewSize.height);
-    if (!(st = puglX11CairoOpen(view, surfaceWidth, surfaceHeight))) {
-      surface->cr = cairo_create(surface->front);
-      if (cairo_status(surface->cr)) {
-        cairo_destroy(surface->cr);
-        surface->cr = NULL;
-        st          = PUGL_CREATE_CONTEXT_FAILED;
-      }
-    }
+  const PuglArea viewSize = puglX11CairoGetViewSize(view);
+  if ((st = puglX11CairoOpen(view, viewSize.width, viewSize.height))) {
+    return st;
+  }
+
+  surface->cr     = cairo_create(surface->front);
+  surface->region = cairo_region_create();
+  if (cairo_status(surface->cr) || cairo_region_status(surface->region)) {
+    cairo_region_destroy(surface->region);
+    cairo_destroy(surface->cr);
+    surface->region = NULL;
+    surface->cr     = NULL;
+    puglX11CairoClose(view);
+    return PUGL_CREATE_CONTEXT_FAILED;
   }
 
   return st;
 }
 
 static PuglStatus
-puglX11CairoLeave(PuglView* view, const PuglExposeEvent* expose)
+puglX11CairoLeave(PuglView* view, const bool drawing)
 {
   PuglInternals* const       impl    = view->impl;
   PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
 
-  if (expose) {
-    // Destroy front context and create a new one for drawing to the back
-    cairo_destroy(surface->cr);
-    surface->cr = cairo_create(surface->back);
+  if (!drawing || !surface->region) {
+    return PUGL_SUCCESS;
+  }
 
-    // Clip to expose region
-    cairo_rectangle(
-      surface->cr, expose->x, expose->y, expose->width, expose->height);
+  // Destroy front context and create a new one for drawing to the back
+  cairo_destroy(surface->cr);
+  surface->cr = cairo_create(surface->back);
+
+  // Paint exposed region(s) from the front to the back
+  const int n_rects = cairo_region_num_rectangles(surface->region);
+  for (int i = 0; i < n_rects; ++i) {
+    cairo_rectangle_int_t rect = {0, 0, 0, 0};
+    cairo_region_get_rectangle(surface->region, i, &rect);
+
+    cairo_save(surface->cr);
+
+    // Clip to exposed region
+    cairo_rectangle(surface->cr, rect.x, rect.y, rect.width, rect.height);
     cairo_clip(surface->cr);
 
     // Paint front onto back
     cairo_set_source_surface(surface->cr, surface->front, 0, 0);
     cairo_paint(surface->cr);
 
-    // Flush to X and close everything
-    cairo_destroy(surface->cr);
-    cairo_surface_flush(surface->back);
-    puglX11CairoClose(view);
-    surface->cr = NULL;
+    cairo_restore(surface->cr);
+  }
+
+  // Flush to X and close everything
+  cairo_destroy(surface->cr);
+  cairo_region_destroy(surface->region);
+  cairo_surface_flush(surface->back);
+  surface->region = NULL;
+  surface->cr     = NULL;
+  puglX11CairoClose(view);
+  return PUGL_SUCCESS;
+}
+
+static PuglStatus
+puglX11CairoExpose(PuglView* view, const PuglExposeEvent* expose)
+{
+  PuglInternals* const       impl    = view->impl;
+  PuglX11CairoSurface* const surface = (PuglX11CairoSurface*)impl->surface;
+
+  if (surface->region) {
+    const cairo_rectangle_int_t rect = {
+      expose->x, expose->y, expose->width, expose->height};
+
+    cairo_region_union_rectangle(surface->region, &rect);
   }
 
   return PUGL_SUCCESS;
@@ -162,6 +195,7 @@ puglCairoBackend(void)
                                       puglX11CairoDestroy,
                                       puglX11CairoEnter,
                                       puglX11CairoLeave,
+                                      puglX11CairoExpose,
                                       puglX11CairoGetContext};
 
   return &backend;

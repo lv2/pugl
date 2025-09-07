@@ -161,6 +161,7 @@ puglVulkanBackend(void)
                                       puglMacVulkanDestroy,
                                       puglStubEnter,
                                       puglStubLeave,
+                                      puglStubExpose,
                                       puglStubGetContext};
 
   return &backend;

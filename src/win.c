@@ -1633,9 +1633,9 @@ puglWinConfigure(PuglView* view)
 }
 
 PuglStatus
-puglWinEnter(PuglView* view, const PuglExposeEvent* expose)
+puglWinEnter(PuglView* view, const bool drawing)
 {
-  if (expose) {
+  if (drawing) {
     return puglWinStatus(!!BeginPaint(view->impl->hwnd, &view->impl->paint));
   }
 
@@ -1643,9 +1643,9 @@ puglWinEnter(PuglView* view, const PuglExposeEvent* expose)
 }
 
 PuglStatus
-puglWinLeave(PuglView* view, const PuglExposeEvent* expose)
+puglWinLeave(PuglView* view, const bool drawing)
 {
-  if (expose) {
+  if (drawing) {
     EndPaint(view->impl->hwnd, &view->impl->paint);
   }
 

@@ -6,6 +6,7 @@
 #include "win.h"
 
 #include <pugl/stub.h>
+#include <stdbool.h>
 
 static PuglStatus
 puglWinStubConfigure(PuglView* view)
@@ -14,15 +15,15 @@ puglWinStubConfigure(PuglView* view)
 }
 
 static PuglStatus
-puglWinStubEnter(PuglView* view, const PuglExposeEvent* expose)
+puglWinStubEnter(PuglView* view, const bool drawing)
 {
-  return puglWinEnter(view, expose);
+  return puglWinEnter(view, drawing);
 }
 
 static PuglStatus
-puglWinStubLeave(PuglView* view, const PuglExposeEvent* expose)
+puglWinStubLeave(PuglView* view, const bool drawing)
 {
-  return puglWinLeave(view, expose);
+  return puglWinLeave(view, drawing);
 }
 
 const PuglBackend*
@@ -33,6 +34,7 @@ puglStubBackend(void)
                                       puglStubDestroy,
                                       puglWinStubEnter,
                                       puglWinStubLeave,
+                                      puglStubExpose,
                                       puglStubGetContext};
 
   return &backend;

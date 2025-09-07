@@ -1680,9 +1680,9 @@ flushExposures(PuglWorld* const world)
 
     if (puglGetVisible(view)) {
       const PuglEvent expose = view->impl->pendingExpose;
-      if (expose.type && !(st0 = view->backend->enter(view, &expose.expose))) {
-        st0 = view->eventFunc(view, &expose);
-        st1 = view->backend->leave(view, &expose.expose);
+      if (expose.type && !(st0 = view->backend->enter(view, true))) {
+        st0                            = view->eventFunc(view, &expose);
+        st1                            = view->backend->leave(view, true);
         view->impl->pendingExpose.type = PUGL_NOTHING;
       }
     }

@@ -47,9 +47,9 @@ PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
 puglWinConfigure(PuglView* view);
 
 PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
-puglWinEnter(PuglView* view, const PuglExposeEvent* expose);
+puglWinEnter(PuglView* view, bool drawing);
 
 PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
-puglWinLeave(PuglView* view, const PuglExposeEvent* expose);
+puglWinLeave(PuglView* view, bool drawing);
 
 #endif // PUGL_SRC_WIN_H

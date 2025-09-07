@@ -86,13 +86,15 @@ struct PuglBackendImpl {
   /// Destroy surface and drawing context
   void (*destroy)(PuglView*);
 
-  /// Enter drawing context, for drawing if expose is non-null
-  PUGL_WARN_UNUSED_RESULT PuglStatus (*enter)(PuglView*,
-                                              const PuglExposeEvent*);
+  /// Enter graphics context, for drawing if parameter is true
+  PUGL_WARN_UNUSED_RESULT PuglStatus (*enter)(PuglView*, bool);
 
-  /// Leave drawing context, after drawing if expose is non-null
-  PUGL_WARN_UNUSED_RESULT PuglStatus (*leave)(PuglView*,
-                                              const PuglExposeEvent*);
+  /// Leave graphics context, after drawing if parameter is true
+  PUGL_WARN_UNUSED_RESULT PuglStatus (*leave)(PuglView*, bool);
+
+  /// Expose a region while in a drawing context
+  PUGL_WARN_UNUSED_RESULT PuglStatus (*expose)(PuglView*,
+                                               const PuglExposeEvent*);
 
   /// Return the puglGetContext() handle for the application, if any
   void* (*getContext)(PuglView*);

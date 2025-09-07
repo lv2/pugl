@@ -270,18 +270,18 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 
   case PUGL_REALIZE:
     assert(view->stage == PUGL_VIEW_STAGE_ALLOCATED);
-    if (!(st0 = view->backend->enter(view, NULL))) {
+    if (!(st0 = view->backend->enter(view, false))) {
       st0 = view->eventFunc(view, event);
-      st1 = view->backend->leave(view, NULL);
+      st1 = view->backend->leave(view, false);
     }
     view->stage = PUGL_VIEW_STAGE_REALIZED;
     break;
 
   case PUGL_UNREALIZE:
     assert(view->stage >= PUGL_VIEW_STAGE_REALIZED);
-    if (!(st0 = view->backend->enter(view, NULL))) {
+    if (!(st0 = view->backend->enter(view, false))) {
       st0 = view->eventFunc(view, event);
-      st1 = view->backend->leave(view, NULL);
+      st1 = view->backend->leave(view, false);
     }
     view->stage = PUGL_VIEW_STAGE_ALLOCATED;
     break;
@@ -296,13 +296,13 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 
   case PUGL_EXPOSE:
     assert(view->stage == PUGL_VIEW_STAGE_CONFIGURED);
-    if (!(st0 = view->backend->enter(view, &event->expose))) {
+    if (!(st0 = view->backend->enter(view, true))) {
       const PuglWorldState old_state = view->world->state;
 
       view->world->state = PUGL_WORLD_EXPOSING;
-      st0                = view->eventFunc(view, event);
+      st0                = view->backend->expose(view, &event->expose);
       view->world->state = old_state;
-      st1                = view->backend->leave(view, &event->expose);
+      st1                = view->backend->leave(view, true);
     }
     break;
 

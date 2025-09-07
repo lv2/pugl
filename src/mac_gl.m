@@ -133,7 +133,7 @@ puglMacGlDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglMacGlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
+puglMacGlEnter(PuglView* view, const bool PUGL_UNUSED(drawing))
 {
   PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
   if (!drawView) {
@@ -145,11 +145,11 @@ puglMacGlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 }
 
 static PuglStatus
-puglMacGlLeave(PuglView* view, const PuglExposeEvent* expose)
+puglMacGlLeave(PuglView* view, const bool drawing)
 {
   PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
 
-  if (expose) {
+  if (drawing) {
     [[drawView openGLContext] flushBuffer];
   }
 
@@ -178,13 +178,13 @@ puglGetProcAddress(const char* name)
 PuglStatus
 puglEnterContext(PuglView* view)
 {
-  return view->backend->enter(view, NULL);
+  return view->backend->enter(view, false);
 }
 
 PuglStatus
 puglLeaveContext(PuglView* view)
 {
-  return view->backend->leave(view, NULL);
+  return view->backend->leave(view, false);
 }
 
 const PuglBackend*
@@ -195,6 +195,7 @@ puglGlBackend(void)
                                       puglMacGlDestroy,
                                       puglMacGlEnter,
                                       puglMacGlLeave,
+                                      puglStubExpose,
                                       puglStubGetContext};
 
   return &backend;

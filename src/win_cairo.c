@@ -10,13 +10,16 @@
 #include <cairo-win32.h>
 #include <cairo.h>
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 typedef struct {
   cairo_surface_t* surface;
   cairo_t*         cr;
+  cairo_region_t*  region;
   HDC              drawDc;
   HBITMAP          drawBitmap;
+  PAINTSTRUCT      ps;
 } PuglWinCairoSurface;
 
 static PuglStatus
@@ -68,8 +71,13 @@ puglWinCairoClose(PuglView* view)
   PuglInternals* const       impl    = view->impl;
   PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
-  cairo_surface_destroy(surface->surface);
+  cairo_region_destroy(surface->region);
+  surface->region = NULL;
 
+  cairo_destroy(surface->cr);
+  surface->cr = NULL;
+
+  cairo_surface_destroy(surface->surface);
   surface->surface = NULL;
 }
 
@@ -82,7 +90,7 @@ puglWinCairoOpen(PuglView* view)
   if (!(surface->surface = cairo_win32_surface_create(surface->drawDc)) ||
       cairo_surface_status(surface->surface) ||
       !(surface->cr = cairo_create(surface->surface)) ||
-      cairo_status(surface->cr)) {
+      cairo_status(surface->cr) || !(surface->region = cairo_region_create())) {
     return PUGL_CREATE_CONTEXT_FAILED;
   }
 
@@ -102,11 +110,13 @@ puglWinCairoDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglWinCairoEnter(PuglView* view, const PuglExposeEvent* expose)
+puglWinCairoEnter(PuglView* view, const bool drawing)
 {
-  PuglStatus st = PUGL_SUCCESS;
+  PuglInternals* const       impl    = view->impl;
+  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
+  PuglStatus                 st      = PUGL_SUCCESS;
 
-  if (expose && !(st = puglWinCairoCreateDrawContext(view))) {
+  if (drawing && !(st = puglWinCairoCreateDrawContext(view))) {
     st = puglWinCairoOpen(view);
   }
 
@@ -114,28 +124,55 @@ puglWinCairoEnter(PuglView* view, const PuglExposeEvent* expose)
 }
 
 static PuglStatus
-puglWinCairoLeave(PuglView* view, const PuglExposeEvent* expose)
+puglWinCairoLeave(PuglView* view, const bool drawing)
 {
   PuglInternals* const       impl    = view->impl;
   PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
-  if (expose) {
+  if (drawing && surface->region) {
     cairo_surface_flush(surface->surface);
-    BitBlt(impl->hdc,
-           0,
-           0,
-           view->lastConfigure.width,
-           view->lastConfigure.height,
-           surface->drawDc,
-           0,
-           0,
-           SRCCOPY);
 
-    puglWinCairoClose(view);
-    puglWinCairoDestroyDrawContext(view);
+    // Paint exposed region(s) from the Cairo surface to the window
+    const int n_rects = cairo_region_num_rectangles(surface->region);
+    for (int i = 0; i < n_rects; ++i) {
+      cairo_rectangle_int_t rect = {0, 0, 0, 0};
+      cairo_region_get_rectangle(surface->region, i, &rect);
+
+      cairo_save(surface->cr);
+
+      BitBlt(impl->hdc,
+             rect.x,
+             rect.y,
+             rect.width,
+             rect.height,
+             surface->drawDc,
+             0,
+             0,
+             SRCCOPY);
+
+      puglWinCairoClose(view);
+      puglWinCairoDestroyDrawContext(view);
+      cairo_restore(surface->cr);
+    }
   }
 
   return puglWinLeave(view, expose);
+}
+
+static PuglStatus
+puglWinCairoExpose(PuglView* view, const PuglExposeEvent* expose)
+{
+  PuglInternals* const       impl    = view->impl;
+  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
+
+  if (surface->region) {
+    const cairo_rectangle_int_t rect = {
+      expose->x, expose->y, expose->width, expose->height};
+
+    cairo_region_union_rectangle(surface->region, &rect);
+  }
+
+  return PUGL_SUCCESS;
 }
 
 static void*
@@ -152,6 +189,7 @@ puglCairoBackend(void)
                                       puglWinCairoDestroy,
                                       puglWinCairoEnter,
                                       puglWinCairoLeave,
+                                      puglWinCairoExpose,
                                       puglWinCairoGetContext};
 
   return &backend;
