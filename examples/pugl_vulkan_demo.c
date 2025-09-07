@@ -561,9 +561,8 @@ configureSurface(VulkanState* const vk)
 
   free(presentModes);
   vk->presentMode = presentMode;
-  printf("Using present mode:          \"%s\" (%u)\n",
-         presentModeString(presentMode),
-         presentMode);
+  printf("Using present mode:          \"%s\"\n",
+         presentModeString(presentMode));
 
   return VK_SUCCESS;
 }
