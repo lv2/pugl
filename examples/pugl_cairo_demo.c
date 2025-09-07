@@ -14,6 +14,14 @@
 #include <stdbool.h>
 #include <string.h>
 
+enum {
+  N_BUTTONS = 4U,
+};
+
+static const double turn_overlap  = 0.5; // Fraction of turns to overlap
+static const double loop_duration = 2.5; // Total duration of animation loop (s)
+static const double turn_duration = 1.0; // Duration of a full button turn (s)
+
 typedef struct {
   PuglWorld*      world;
   PuglTestOptions opts;
@@ -21,6 +29,7 @@ typedef struct {
   double          currentMouseY;
   double          lastDrawnMouseX;
   double          lastDrawnMouseY;
+  double          lastDrawTime;
   unsigned        framesDrawn;
   int             quit;
   bool            entered;
@@ -40,11 +49,10 @@ typedef struct {
   const char* label;
 } Button;
 
-static const Button buttons[] = {{128, 128, 64, 64, "1"},
-                                 {384, 128, 64, 64, "2"},
-                                 {128, 384, 64, 64, "3"},
-                                 {384, 384, 64, 64, "4"},
-                                 {0, 0, 0, 0, NULL}};
+static const Button buttons[N_BUTTONS] = {{128, 128, 64, 64, "1"},
+                                          {384, 128, 64, 64, "2"},
+                                          {128, 384, 64, 64, "3"},
+                                          {384, 384, 64, 64, "4"}};
 
 static ViewScale
 getScale(const PuglView* const view)
@@ -84,11 +92,20 @@ roundedBox(cairo_t* cr, double x, double y, double w, double h)
 }
 
 static void
-buttonDraw(PuglTestApp* app, cairo_t* cr, const Button* but, const double time)
+buttonDraw(PuglTestApp*  app,
+           cairo_t*      cr,
+           const Button* but,
+           const double  startTime,
+           const double  time)
 {
   cairo_save(cr);
   cairo_translate(cr, but->x, but->y);
-  cairo_rotate(cr, sin(time) * 3.141592);
+
+  if (time >= startTime && time < startTime + turn_duration) {
+    cairo_rotate(cr, (time - startTime) * 2.0 * 3.141592);
+  }
+
+  cairo_translate(cr, -(but->w / 2.0), -(but->h / 2.0));
 
   // Draw base
   if (app->mouseDown) {
@@ -118,17 +135,39 @@ buttonDraw(PuglTestApp* app, cairo_t* cr, const Button* but, const double time)
 }
 
 static void
-postButtonRedisplay(PuglView* view)
+obscureButton(PuglView* view, const ViewScale scale, const Button* button)
+{
+  const double span = sqrt((button->w * button->w) + (button->h * button->h));
+  puglObscureRegion(view,
+                    (int)((button->x - span / 2.0) * scale.x),
+                    (int)((button->y - span / 2.0) * scale.y),
+                    (unsigned)ceil(span * scale.x),
+                    (unsigned)ceil(span * scale.y));
+}
+
+static void
+obscureUpdatedButtons(PuglView* view, const double lastTime, const double time)
 {
   const ViewScale scale = getScale(view);
 
-  for (const Button* b = buttons; b->label; ++b) {
-    const double span = sqrt((b->w * b->w) + (b->h * b->h));
-    puglObscureRegion(view,
-                      (int)((b->x - span) * scale.x),
-                      (int)((b->y - span) * scale.y),
-                      (unsigned)ceil(span * 2.0 * scale.x),
-                      (unsigned)ceil(span * 2.0 * scale.y));
+  for (unsigned i = 0U; i < N_BUTTONS; ++i) {
+    const double buttonStart  = fmod((double)i * turn_overlap, loop_duration);
+    const double buttonEnd    = buttonStart + turn_duration;
+    const bool   movingBefore = lastTime >= buttonStart && lastTime < buttonEnd;
+    const bool   movingNow    = time >= buttonStart && time < buttonEnd;
+    if (movingNow || movingBefore) {
+      obscureButton(view, scale, &buttons[i]);
+    }
+  }
+}
+
+static void
+obscureAllButtons(PuglView* view)
+{
+  const ViewScale scale = getScale(view);
+
+  for (unsigned i = 0U; i < N_BUTTONS; ++i) {
+    obscureButton(view, scale, &buttons[i]);
   }
 }
 
@@ -152,10 +191,12 @@ onDisplay(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
   const ViewScale scale = getScale(view);
   cairo_scale(cr, scale.x, scale.y);
 
+  const double drawTime =
+    app->opts.continuous ? fmod(puglGetTime(app->world), loop_duration) : 0.0;
+
   // Draw button
-  for (const Button* b = buttons; b->label; ++b) {
-    buttonDraw(
-      app, cr, b, app->opts.continuous ? puglGetTime(app->world) : 0.0);
+  for (unsigned i = 0U; i < N_BUTTONS; ++i) {
+    buttonDraw(app, cr, &buttons[i], (double)i * turn_overlap, drawTime);
   }
 
   // Draw mouse cursor
@@ -211,17 +252,17 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_BUTTON_PRESS:
     app->mouseDown = true;
-    postButtonRedisplay(view);
+    obscureAllButtons(view);
     break;
   case PUGL_BUTTON_RELEASE:
     app->mouseDown = false;
-    postButtonRedisplay(view);
+    obscureAllButtons(view);
     break;
   case PUGL_MOTION:
-    // Redisplay to clear the old cursor position
+    // Obscure old cursor position
     obscureMouseCursor(view, scale, app->lastDrawnMouseX, app->lastDrawnMouseY);
 
-    // Redisplay to show the new cursor position
+    // Obscure new cursor position
     app->currentMouseX = event->motion.x;
     app->currentMouseY = event->motion.y;
     obscureMouseCursor(view, scale, app->currentMouseX, app->currentMouseY);
@@ -240,7 +281,9 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_UPDATE:
     if (app->opts.continuous) {
-      puglObscureView(view);
+      const double now = fmod(puglGetTime(app->world), loop_duration);
+      obscureUpdatedButtons(view, app->lastDrawTime, now);
+      app->lastDrawTime = now;
     }
     break;
   case PUGL_EXPOSE:
