@@ -1066,6 +1066,7 @@ getCurrentViewStyleFlags(PuglView* const view)
         state |= PUGL_VIEW_STYLE_DEMANDING;
       }
     }
+    XFree(hints);
   }
 
   if (view->impl->mapped) {
