@@ -193,6 +193,7 @@ main(int argc, char** argv)
   }
 
   // Tear down
+  vkDestroySurfaceKHR(test.instance, test.surface, ALLOC_VK);
   puglFreeVulkanLoader(loader);
   puglFreeView(test.view);
   puglFreeWorld(test.world);
