@@ -1487,10 +1487,11 @@ typedef enum {
   PUGL_CURSOR_UP_LEFT_DOWN_RIGHT, ///< Diagonal arrow for down/right resize
   PUGL_CURSOR_UP_RIGHT_DOWN_LEFT, ///< Diagonal arrow for down/left resize
   PUGL_CURSOR_ALL_SCROLL,         ///< Omnidirectional "arrow" for scrolling
+  PUGL_CURSOR_NONE                ///< Hide mouse cursor
 } PuglCursor;
 
 /// The number of #PuglCursor values
-#define PUGL_NUM_CURSORS ((unsigned)PUGL_CURSOR_ALL_SCROLL + 1U)
+#define PUGL_NUM_CURSORS ((unsigned)PUGL_CURSOR_NONE + 1U)
 
 /**
    Grab the keyboard input focus.
@@ -1604,6 +1605,15 @@ puglGetClipboard(PuglView* view, uint32_t typeIndex, size_t* len);
 */
 PUGL_API PuglStatus
 puglSetCursor(PuglView* view, PuglCursor cursor);
+
+/**
+   Set mouse cursor position.
+
+   This moves the mouse corsor to the position x and y inside the view.
+*/
+PUGL_API
+void
+puglSetCursorPos(PuglView* view, double x, double y);
 
 /**
    Activate a repeating timer event.

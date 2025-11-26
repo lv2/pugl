@@ -20,6 +20,7 @@ gl_examples = [
 cairo_examples = [
   'pugl_cairo_demo.c',
   'pugl_management_demo.c',
+  'pugl_pointer_lock_demo.c',
 ]
 
 vulkan_examples = [
