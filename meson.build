@@ -422,8 +422,6 @@ if vulkan_dep.found()
   thread_dep = dependency('threads', include_type: 'system')
 
   vulkan_deps = [pugl_dep, vulkan_dep, dl_dep]
-  vulkan_c_args = library_args
-  vulkan_link_args = []
   if platform == 'mac'
     vulkan_deps += [
       dependency('Metal', include_type: 'system', modules: 'foundation'),

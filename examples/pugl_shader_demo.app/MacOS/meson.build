@@ -9,7 +9,6 @@ executable(
     '../../pugl_shader_demo.c',
   ],
   c_args: example_defines + example_c_args,
-  cpp_args: example_defines + example_cpp_args,
   dependencies: [pugl_dep, pugl_gl_dep, dl_dep, puglutil_dep],
   implicit_include_directories: false,
 )

@@ -5,7 +5,6 @@ executable(
   'pugl_management_demo',
   ['../../pugl_management_demo.c'],
   c_args: example_defines + example_c_args + cairo_args,
-  cpp_args: example_defines + example_cpp_args,
   dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep],
   implicit_include_directories: false,
 )
