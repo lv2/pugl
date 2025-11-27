@@ -53,13 +53,10 @@ elif cc.get_id() == 'gcc'
       c_suppressions += [
         '-Wno-cast-function-type',
         '-Wno-float-equal',
+        '-Wno-pedantic',
         '-Wno-suggest-attribute=format',
       ]
     endif
-  endif
-
-  if warning_level in ['everything', '3']
-    c_suppressions += ['-Wno-pedantic']
   endif
 
 elif cc.get_id() == 'msvc'

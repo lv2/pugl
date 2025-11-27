@@ -131,6 +131,10 @@ else
         gl_args += ['-DGL_SILENCE_DEPRECATION', '-Wno-deprecated-declarations']
       endif
 
+      if cc.get_id() == 'gcc' and warning_level in ['everything', '3']
+        gl_args += ['-Wno-pedantic']
+      endif
+
       if target == 'pugl_shader_demo'
         source += ['file_utils.c', 'glad/glad.c']
         dependencies += [dl_dep]

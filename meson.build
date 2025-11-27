@@ -406,10 +406,15 @@ if vulkan_dep.found()
     ]
   endif
 
+  vulkan_args = []
+  if cc.get_id() == 'gcc' and warning_level in ['everything', '3']
+    vulkan_args += ['-Wno-pedantic']
+  endif
+
   vulkan_backend = library(
     'pugl_@0@_vulkan@1@'.format(platform, version_suffix),
     files('src' / (platform + '_vulkan' + backend_extension)),
-    c_args: c_suppressions + library_args,
+    c_args: c_suppressions + library_args + vulkan_args,
     dependencies: vulkan_deps,
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
