@@ -17,6 +17,8 @@ Checks: >
 CheckOptions:
   - key:   hicpp-uppercase-literal-suffix.NewSuffixes
     value: L;U;f
+  - key:   readability-function-cognitive-complexity.IgnoreMacros
+    value: 'true'
   - key:   readability-uppercase-literal-suffix.NewSuffixes
     value: L;U;f
 FormatStyle: file

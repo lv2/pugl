@@ -7,5 +7,7 @@ Checks: >
   -hicpp-multiway-paths-covered,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
-  -readability-function-cognitive-complexity,
+CheckOptions:
+  - key:   readability-function-cognitive-complexity.Threshold
+    value: '38'
 InheritParentConfig: true

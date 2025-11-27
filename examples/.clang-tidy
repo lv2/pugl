@@ -43,10 +43,11 @@ Checks: >
   -performance-enum-size,
   -performance-enum-size,
   -performance-no-int-to-ptr,
-  -readability-function-cognitive-complexity,
   -readability-implicit-bool-conversion,
   -readability-redundant-member-init,
 CheckOptions:
   - key:   cppcoreguidelines-avoid-do-while.IgnoreMacros
     value: true
+  - key:   readability-function-cognitive-complexity.Threshold
+    value: '21'
 InheritParentConfig: true
