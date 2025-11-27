@@ -1426,47 +1426,39 @@ puglStopTimer(PuglView* const view, const uintptr_t id)
   return PUGL_FAILURE;
 }
 
-static XEvent
-eventToX(PuglView* const view, const PuglEvent* const event)
+static PuglStatus
+eventToX(PuglView* const view, const PuglEvent* const event, XEvent* const out)
 {
-  XEvent xev          = PUGL_INIT_STRUCT;
-  xev.xany.send_event = True;
+  memset(out, 0, sizeof(XEvent));
+  out->xany.serial     = 0;
+  out->xany.send_event = True;
+  out->xany.display    = view->world->impl->display;
+  out->xany.window     = view->impl->win;
 
-  switch (event->type) {
-  case PUGL_EXPOSE: {
+  if (event->type == PUGL_EXPOSE) {
     const double x = floor(event->expose.x);
     const double y = floor(event->expose.y);
     const double w = ceil(event->expose.x + event->expose.width) - x;
     const double h = ceil(event->expose.y + event->expose.height) - y;
 
-    xev.xexpose.type    = Expose;
-    xev.xexpose.serial  = 0;
-    xev.xexpose.display = view->world->impl->display;
-    xev.xexpose.window  = view->impl->win;
-    xev.xexpose.x       = (int)x;
-    xev.xexpose.y       = (int)y;
-    xev.xexpose.width   = (int)w;
-    xev.xexpose.height  = (int)h;
-    break;
+    out->xexpose.type   = Expose;
+    out->xexpose.x      = (int)x;
+    out->xexpose.y      = (int)y;
+    out->xexpose.width  = (int)w;
+    out->xexpose.height = (int)h;
+    return PUGL_SUCCESS;
   }
 
-  case PUGL_CLIENT:
-    xev.xclient.type         = ClientMessage;
-    xev.xclient.serial       = 0;
-    xev.xclient.send_event   = True;
-    xev.xclient.display      = view->world->impl->display;
-    xev.xclient.window       = view->impl->win;
-    xev.xclient.message_type = view->world->impl->atoms.PUGL_CLIENT_MSG;
-    xev.xclient.format       = 32;
-    xev.xclient.data.l[0]    = (long)event->client.data1;
-    xev.xclient.data.l[1]    = (long)event->client.data2;
-    break;
-
-  default:
-    break;
+  if (event->type == PUGL_CLIENT) {
+    out->xclient.type         = ClientMessage;
+    out->xclient.message_type = view->world->impl->atoms.PUGL_CLIENT_MSG;
+    out->xclient.format       = 32;
+    out->xclient.data.l[0]    = (long)event->client.data1;
+    out->xclient.data.l[1]    = (long)event->client.data2;
+    return PUGL_SUCCESS;
   }
 
-  return xev;
+  return PUGL_FAILURE;
 }
 
 PuglStatus
@@ -1498,8 +1490,7 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
                  &xev));
   }
 
-  xev = eventToX(view, event);
-  if (xev.type) {
+  if (!eventToX(view, event, &xev)) {
     return puglX11Status(XSendEvent(display, impl->win, False, 0, &xev));
   }
 
