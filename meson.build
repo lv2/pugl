@@ -69,7 +69,7 @@ if host_machine.system() == 'darwin'
   platform = 'mac'
   platform_sources = files('src/mac.m')
   core_deps = [framework_deps]
-  extension = '.m'
+  backend_extension = '.m'
   soversion = meson.project_version().split('.')[0]
 
   platform_suppressions = [
@@ -169,8 +169,8 @@ elif host_machine.system() == 'windows'
   platform = 'win'
   platform_sources = files('src/win.c')
   core_deps = [dwmapi_dep, gdi32_dep, shlwapi_dep, user32_dep]
-  extension = '.c'
-  soversion = ''
+  backend_extension = '.c'
+  soversion = '' # Avoid redundant version in DLL name
 
 else
   # X11
@@ -211,7 +211,7 @@ else
   platform = 'x11'
   platform_sources = files('src/x11.c')
   core_deps = [x11_dep, xcursor_dep, xext_dep, xrandr_dep]
-  extension = '.c'
+  backend_extension = '.c'
   soversion = meson.project_version().split('.')[0]
 endif
 
@@ -273,14 +273,12 @@ meson.override_dependency(versioned_name, pugl_dep)
 # Backends #
 ############
 
-# Stub
-if get_option('stub')
-  name = 'pugl_' + platform + '_stub' + version_suffix
-  sources = files('src/' + platform + '_stub' + extension)
+# Stub Backend #
 
+if get_option('stub')
   stub_backend = library(
-    name,
-    sources,
+    'pugl_@0@_stub@1@'.format(platform, version_suffix),
+    files('src' / (platform + '_stub' + backend_extension)),
     c_args: library_args,
     dependencies: [pugl_dep],
     gnu_symbol_visibility: 'hidden',
@@ -298,32 +296,29 @@ if get_option('stub')
   )
 
   stub_pkg_name = 'pugl-stub-@0@'.format(major_version)
+  meson.override_dependency(stub_pkg_name, pugl_stub_dep)
 
   pkg.generate(
     stub_backend,
-    description: 'Native window pugl graphics backend',
+    description: 'Pugl GUI library with stub (platform-specific) backend',
     filebase: stub_pkg_name,
     name: 'Pugl Stub',
     subdirs: [versioned_name],
     version: meson.project_version(),
   )
-
-  meson.override_dependency(stub_pkg_name, pugl_stub_dep)
 endif
 
-# OpenGL
+# OpenGL Backend #
+
 opengl_dep = dependency(
   'GL',
   include_type: 'system',
   required: get_option('opengl'),
 )
 if opengl_dep.found()
-  name = 'pugl_' + platform + '_gl' + version_suffix
-  sources = files('src/' + platform + '_gl' + extension)
-
   gl_backend = library(
-    name,
-    sources,
+    'pugl_@0@_gl@1@'.format(platform, version_suffix),
+    files('src' / (platform + '_gl' + backend_extension)),
     c_args: library_args,
     dependencies: [pugl_dep, opengl_dep],
     gnu_symbol_visibility: 'hidden',
@@ -341,6 +336,7 @@ if opengl_dep.found()
   )
 
   gl_pkg_name = 'pugl-gl-@0@'.format(major_version)
+  meson.override_dependency(gl_pkg_name, pugl_gl_dep)
 
   pkg.generate(
     gl_backend,
@@ -350,20 +346,16 @@ if opengl_dep.found()
     subdirs: [versioned_name],
     version: meson.project_version(),
   )
-
-  meson.override_dependency(gl_pkg_name, pugl_gl_dep)
 endif
 
-# Cairo
+# Cairo Backend #
+
 cairo_dep = dependency(
   'cairo',
   include_type: 'system',
   required: get_option('cairo'),
 )
 if cairo_dep.found()
-  name = 'pugl_' + platform + '_cairo' + version_suffix
-  sources = files('src/' + platform + '_cairo' + extension)
-
   cairo_args = []
   if cc.get_id() == 'clang'
     cairo_args += [
@@ -372,12 +364,11 @@ if cairo_dep.found()
       '-Wno-reserved-identifier',
     ]
   endif
-
   cairo_args = cc.get_supported_arguments(cairo_args)
 
   cairo_backend = library(
-    name,
-    sources,
+    'pugl_@0@_cairo@1@'.format(platform, version_suffix),
+    files('src' / (platform + '_cairo' + backend_extension)),
     c_args: library_args + cairo_args,
     dependencies: [pugl_dep, cairo_dep],
     gnu_symbol_visibility: 'hidden',
@@ -396,6 +387,7 @@ if cairo_dep.found()
   )
 
   cairo_pkg_name = 'pugl-cairo-@0@'.format(major_version)
+  meson.override_dependency(cairo_pkg_name, pugl_cairo_dep)
 
   pkg.generate(
     cairo_backend,
@@ -406,7 +398,6 @@ if cairo_dep.found()
     version: meson.project_version(),
   )
 
-  meson.override_dependency(cairo_pkg_name, pugl_cairo_dep)
 endif
 
 # Vulkan
@@ -416,9 +407,6 @@ vulkan_dep = dependency(
   required: get_option('vulkan'),
 )
 if vulkan_dep.found()
-  name = 'pugl_' + platform + '_vulkan' + version_suffix
-  sources = files('src/' + platform + '_vulkan' + extension)
-
   thread_dep = dependency('threads', include_type: 'system')
 
   vulkan_deps = [pugl_dep, vulkan_dep, dl_dep]
@@ -430,8 +418,8 @@ if vulkan_dep.found()
   endif
 
   vulkan_backend = library(
-    name,
-    sources,
+    'pugl_@0@_vulkan@1@'.format(platform, version_suffix),
+    files('src' / (platform + '_vulkan' + backend_extension)),
     c_args: library_args,
     dependencies: vulkan_deps,
     gnu_symbol_visibility: 'hidden',
@@ -449,6 +437,7 @@ if vulkan_dep.found()
   )
 
   vulkan_pkg_name = 'pugl-vulkan-@0@'.format(major_version)
+  meson.override_dependency(vulkan_pkg_name, pugl_vulkan_dep)
 
   pkg.generate(
     vulkan_backend,
@@ -458,8 +447,6 @@ if vulkan_dep.found()
     subdirs: [versioned_name],
     version: meson.project_version(),
   )
-
-  meson.override_dependency(vulkan_pkg_name, pugl_vulkan_dep)
 endif
 
 ###############################
