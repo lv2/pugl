@@ -1,0 +1,23 @@
+# Copyright 2025 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+# Simplify clang-format configuration and format all code
+1c365945ed2ebd5b9f54eb0c8c5c1c6d97cad712
+
+# Format meson.build files with muon
+f6f0ecfa0aa9872a582e22f2b839d500105aafa1
+
+# Fix whitespace
+88759ddbcc4205c9b1a5021fe360bc052ae1dea3
+
+# Fix whitespace
+495ee90d4f5798f2751f8191daf0a316772ce8c0
+
+# Fix inconsistent whitespace
+70ca6e6138589c1c24ea3e22eff96cfbd1c06d34
+
+# Update clang-format configuration
+2d5c5c205605c23dbfba71017730aa3d529cf6c6
+
+# Format all meson files with meson format
+dec7f9836b9c87b1241617f4f979f067e4dad951
