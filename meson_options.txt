@@ -1,22 +1,22 @@
 # Copyright 2021-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
-option('bindings_cpp', type: 'feature', yield: true,
+option('bindings_cpp', type: 'feature'
        description: 'Build C++ bindings')
 
 option('cairo', type: 'feature',
        description: 'Enable support for the Cairo graphics API')
 
-option('docs', type: 'feature', yield: true,
+option('docs', type: 'feature'
        description: 'Build documentation')
 
 option('docs_cpp', type: 'boolean', value: false,
        description: 'Attempt to build C++ documentation for development')
 
-option('examples', type: 'feature', yield: true,
+option('examples', type: 'feature'
        description: 'Build example programs')
 
-option('lint', type: 'boolean', value: false, yield: true,
+option('lint', type: 'boolean', value: false
        description: 'Run code quality checks')
 
 option('opengl', type: 'feature',
@@ -25,13 +25,13 @@ option('opengl', type: 'feature',
 option('stub', type: 'boolean',
        description: 'Build stub backend')
 
-option('tests', type: 'feature', yield: true,
+option('tests', type: 'feature'
        description: 'Build tests')
 
 option('vulkan', type: 'feature',
        description: 'Enable support for the Vulkan graphics API')
 
-option('win_wchar', type: 'feature', yield: true,
+option('win_wchar', type: 'feature'
        description: 'Use UTF-16 wchar_t and UNICODE with Windows API')
 
 option('xcursor', type: 'feature',
