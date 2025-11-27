@@ -708,27 +708,27 @@ constrainAspect(const PuglView* const view,
 
   switch (wParam) {
   case WMSZ_TOP:
-    size->top = (a < minA   ? (LONG)((float)size->bottom - w * minA)
-                 : a > maxA ? (LONG)((float)size->bottom - w * maxA)
+    size->top = (a < minA   ? (LONG)((float)size->bottom - (w * minA))
+                 : a > maxA ? (LONG)((float)size->bottom - (w * maxA))
                             : size->top);
     break;
   case WMSZ_TOPRIGHT:
   case WMSZ_RIGHT:
   case WMSZ_BOTTOMRIGHT:
-    size->right = (a < minA   ? (LONG)((float)size->left + h * minA)
-                   : a > maxA ? (LONG)((float)size->left + h * maxA)
+    size->right = (a < minA   ? (LONG)((float)size->left + (h * minA))
+                   : a > maxA ? (LONG)((float)size->left + (h * maxA))
                               : size->right);
     break;
   case WMSZ_BOTTOM:
-    size->bottom = (a < minA   ? (LONG)((float)size->top + w * minA)
-                    : a > maxA ? (LONG)((float)size->top + w * maxA)
+    size->bottom = (a < minA   ? (LONG)((float)size->top + (w * minA))
+                    : a > maxA ? (LONG)((float)size->top + (w * maxA))
                                : size->bottom);
     break;
   case WMSZ_BOTTOMLEFT:
   case WMSZ_LEFT:
   case WMSZ_TOPLEFT:
-    size->left = (a < minA   ? (LONG)((float)size->right - h * minA)
-                  : a > maxA ? (LONG)((float)size->right - h * maxA)
+    size->left = (a < minA   ? (LONG)((float)size->right - (h * minA))
+                  : a > maxA ? (LONG)((float)size->right - (h * maxA))
                              : size->left);
     break;
   }
@@ -1193,7 +1193,7 @@ puglGetTime(const PuglWorld* world)
 {
   LARGE_INTEGER count;
   QueryPerformanceCounter(&count);
-  return ((double)count.QuadPart / world->impl->timerFrequency -
+  return (((double)count.QuadPart / world->impl->timerFrequency) -
           world->startTime);
 }
 
