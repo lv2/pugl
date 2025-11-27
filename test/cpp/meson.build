@@ -14,7 +14,7 @@ if get_option('warning_level') == 'everything' and is_variable('cpp')
   test_cpp_args = cpp.get_supported_arguments(test_cpp_args)
 endif
 
-unified_args = core_args
+unified_args = cpp_suppressions + platform_args
 unified_deps = [core_deps]
 if cairo_dep.found()
   unified_args += ['-DWITH_CAIRO']
@@ -36,9 +36,9 @@ if host_machine.system() == 'darwin'
 
   objcpp = meson.get_compiler('objcpp')
 
-  objcpp_unified_args = unified_args
+  objcpp_suppressions = []
   if objcpp.get_id() == 'clang'
-    objcpp_unified_args += [
+    objcpp_suppressions += [
       '-Wno-c++98-compat',
       '-Wno-c++98-compat-pedantic',
       '-Wno-deprecated-declarations',
@@ -46,7 +46,8 @@ if host_machine.system() == 'darwin'
     ]
   endif
 
-  objcpp_unified_args = objcpp.get_supported_arguments(objcpp_unified_args)
+  objcpp_suppressions = objcpp.get_supported_arguments(objcpp_suppressions)
+  objcpp_unified_args = objc_suppressions + objcpp_suppressions + unified_args
 
   test(
     'inline_objcpp',
@@ -56,13 +57,14 @@ if host_machine.system() == 'darwin'
       dependencies: unified_deps,
       implicit_include_directories: false,
       include_directories: include_directories('../../include'),
+      link_args: platform_link_args,
       objcpp_args: objcpp_unified_args,
     ),
     suite: 'unit',
   )
 
 elif is_variable('cpp')
-  cpp_unified_args = unified_args
+  cpp_unified_args = []
   if cpp.get_id() == 'clang'
     cpp_unified_args += [
       '-Wno-old-style-cast',
@@ -92,6 +94,7 @@ elif is_variable('cpp')
   endif
 
   cpp_unified_args = cpp.get_supported_arguments(cpp_unified_args)
+  cpp_unified_args += unified_args
 
   test(
     'inline_cpp',

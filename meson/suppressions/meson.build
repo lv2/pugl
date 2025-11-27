@@ -102,10 +102,7 @@ elif cc.get_id() == 'msvc'
   endif
 endif
 
-add_project_arguments(
-  cc.get_supported_arguments(c_suppressions),
-  language: ['c'],
-)
+c_suppressions = cc.get_supported_arguments(c_suppressions)
 
 #######
 # C++ #
@@ -187,19 +184,18 @@ if is_variable('cpp')
     endif
   endif
 
-  add_project_arguments(
-    cpp.get_supported_arguments(cpp_suppressions),
-    language: ['cpp'],
-  )
+  cpp_suppressions = cpp.get_supported_arguments(cpp_suppressions)
 endif
 
 ###############
 # Objective C #
 ###############
 
+objc_suppressions = []
 if is_variable('objcc')
   if warning_level == 'everything'
     objc_suppressions = [
+      '-Wno-switch-enum',
       '-Wno-bad-function-cast',
       '-Wno-declaration-after-statement',
       '-Wno-direct-ivar-access',
@@ -213,7 +209,6 @@ if is_variable('objcc')
     ]
 
     objc_suppressions = objcc.get_supported_arguments(objc_suppressions)
-    add_project_arguments(objc_suppressions, language: ['objc'])
-    add_project_arguments(objc_suppressions, language: ['objcpp'])
+    objc_suppressions += c_suppressions
   endif
 endif

@@ -49,13 +49,22 @@ endif
 # Set global warning suppressions
 subdir('meson/suppressions')
 
+# Set additional suppressions for OpenGL code
+opengl_args = []
+if host_machine.system() == 'darwin'
+  opengl_args += [
+    '-DGL_SILENCE_DEPRECATION',
+    '-Wno-deprecated-declarations',
+  ]
+endif
+
 #############
 # Platforms #
 #############
 
-core_args = []
 dl_dep = cc.find_library('dl', required: false)
-with_timers = true
+
+platform_link_args = []
 
 if host_machine.system() == 'darwin'
   # MacOS
@@ -68,18 +77,15 @@ if host_machine.system() == 'darwin'
 
   platform = 'mac'
   platform_sources = files('src/mac.m')
+  platform_link_args = ['-Wl,-framework,Cocoa']
   core_deps = [framework_deps]
   backend_extension = '.m'
   soversion = meson.project_version().split('.')[0]
 
-  platform_suppressions = [
+  platform_args = [
     '-DGL_SILENCE_DEPRECATION',
     '-Wno-deprecated-declarations',
   ]
-
-  mac_languages = ['c', 'objc', 'objcpp']
-  add_project_arguments(platform_suppressions, language: mac_languages)
-  add_project_link_arguments(['-Wl,-framework,Cocoa'], language: mac_languages)
 
 elif host_machine.system() == 'windows'
   # Windows
@@ -88,17 +94,7 @@ elif host_machine.system() == 'windows'
     error('default_library=both is not supported on Windows')
   endif
 
-  if cc.get_id() == 'msvc'
-    msvc_args = [
-      '/experimental:external',
-      '/external:W0',
-      '/external:anglebrackets',
-    ]
-
-    add_project_arguments(msvc_args, language: ['c', 'cpp'])
-  endif
-
-  win_args = [
+  platform_args = [
     # Set minimum target version
     '-DWINVER=0x0500', # Windows 2000
     '-D_WIN32_WINNT=0x0500', # Windows 2000
@@ -150,16 +146,14 @@ elif host_machine.system() == 'windows'
   ]
 
   if cc.get_id() == 'msvc'
-    win_args += [
+    platform_args += [
       '-DNOTEXTMETRIC', # typedef TEXTMETRIC and associated routines
     ]
   endif
 
   if not get_option('win_wchar').disabled()
-    win_args += ['-DUNICODE', '-D_UNICODE']
+    platform_args += ['-DUNICODE', '-D_UNICODE']
   endif
-
-  add_project_arguments(win_args, language: ['c', 'cpp'])
 
   dwmapi_dep = cc.find_library('dwmapi')
   gdi32_dep = cc.find_library('gdi32')
@@ -175,41 +169,37 @@ elif host_machine.system() == 'windows'
 else
   # X11
   x11_dep = cc.find_library('X11')
-  core_args += '-D_POSIX_C_SOURCE=200809L'
+  platform_args = ['-D_POSIX_C_SOURCE=200809L']
 
   xcursor_dep = cc.find_library('Xcursor', required: get_option('xcursor'))
-  core_args += ['-DUSE_XCURSOR=@0@'.format(xcursor_dep.found().to_int())]
+  platform_args += ['-DUSE_XCURSOR=@0@'.format(xcursor_dep.found().to_int())]
 
   xrandr_dep = cc.find_library('Xrandr', required: get_option('xrandr'))
-  core_args += ['-DUSE_XRANDR=@0@'.format(xrandr_dep.found().to_int())]
+  platform_args += ['-DUSE_XRANDR=@0@'.format(xrandr_dep.found().to_int())]
 
-  with_timers = false
   use_xsync = false
   xext_dep = cc.find_library('Xext', required: get_option('xsync'))
   if xext_dep.found()
     xsync_fragment = '''#include <X11/Xlib.h>
       #include <X11/extensions/sync.h>
       int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }'''
-    if cc.compiles(xsync_fragment, name: 'Xsync')
-      with_timers = true
-      use_xsync = true
-    elif get_option('xsync') == 'enabled'
+    use_xsync = cc.compiles(xsync_fragment, name: 'Xsync')
+    if (not use_xsync) and (get_option('xsync') == 'enabled')
       error('C header <X11/extensions/sync.h> not found')
     endif
   endif
-  core_args += ['-DUSE_XSYNC=@0@'.format(use_xsync.to_int())]
+  platform_args += ['-DUSE_XSYNC=@0@'.format(use_xsync.to_int())]
 
-  x11_args = []
+  x11_suppressions = []
   if cc.get_id() == 'clang'
-    x11_args += [
+    x11_suppressions += [
       '-Wno-reserved-identifier', # FD_ZERO
     ]
   endif
 
-  core_args += cc.get_supported_arguments(x11_args)
-
   platform = 'x11'
   platform_sources = files('src/x11.c')
+  platform_args += cc.get_supported_arguments(x11_suppressions)
   core_deps = [x11_dep, xcursor_dep, xext_dep, xrandr_dep]
   backend_extension = '.c'
   soversion = meson.project_version().split('.')[0]
@@ -222,16 +212,16 @@ endif
 core_deps += [cc.find_library('m', required: false)]
 core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
 includes = include_directories(['include'])
-library_args = ['-DPUGL_INTERNAL']
-extra_c_args = []
 
+# "Usage" arguments for libraries and their dependants
+usage_args = []
 if get_option('default_library') == 'static'
-  extra_c_args += ['-DPUGL_STATIC']
-  add_project_arguments(
-    extra_c_args,
-    language: ['c', 'cpp', 'objc', 'objcpp'],
-  )
+  usage_args += ['-DPUGL_STATIC']
 endif
+
+# Arguments used when building libraries
+library_args = usage_args + platform_args
+library_args += ['-DPUGL_INTERNAL']
 
 common_sources = files(
   'src/common.c',
@@ -241,18 +231,20 @@ common_sources = files(
 libpugl = library(
   core_name,
   common_sources + platform_sources,
-  c_args: library_args + core_args,
+  c_args: c_suppressions + library_args,
   dependencies: core_deps,
   gnu_symbol_visibility: 'hidden',
   implicit_include_directories: false,
   include_directories: includes,
   install: true,
+  link_args: platform_link_args,
+  objc_args: objc_suppressions + library_args,
   soversion: soversion,
   version: meson.project_version(),
 )
 
 pugl_dep = declare_dependency(
-  compile_args: extra_c_args,
+  compile_args: usage_args,
   dependencies: core_deps,
   include_directories: includes,
   link_with: libpugl,
@@ -279,18 +271,20 @@ if get_option('stub')
   stub_backend = library(
     'pugl_@0@_stub@1@'.format(platform, version_suffix),
     files('src' / (platform + '_stub' + backend_extension)),
-    c_args: library_args,
+    c_args: c_suppressions + library_args,
     dependencies: [pugl_dep],
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
     install: true,
+    link_args: platform_link_args,
+    objc_args: objc_suppressions + library_args,
     soversion: soversion,
     version: meson.project_version(),
   )
 
   pugl_stub_dep = declare_dependency(
-    compile_args: extra_c_args,
+    compile_args: usage_args,
     link_with: stub_backend,
     dependencies: [pugl_dep],
   )
@@ -319,18 +313,20 @@ if opengl_dep.found()
   gl_backend = library(
     'pugl_@0@_gl@1@'.format(platform, version_suffix),
     files('src' / (platform + '_gl' + backend_extension)),
-    c_args: library_args,
+    c_args: c_suppressions + library_args,
     dependencies: [pugl_dep, opengl_dep],
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
     install: true,
+    link_args: platform_link_args,
+    objc_args: objc_suppressions + library_args,
     soversion: soversion,
     version: meson.project_version(),
   )
 
   pugl_gl_dep = declare_dependency(
-    compile_args: extra_c_args,
+    compile_args: usage_args,
     link_with: gl_backend,
     dependencies: [pugl_dep, opengl_dep],
   )
@@ -364,24 +360,27 @@ if cairo_dep.found()
       '-Wno-reserved-identifier',
     ]
   endif
+
   cairo_args = cc.get_supported_arguments(cairo_args)
+  cairo_args += library_args
 
   cairo_backend = library(
     'pugl_@0@_cairo@1@'.format(platform, version_suffix),
     files('src' / (platform + '_cairo' + backend_extension)),
-    c_args: library_args + cairo_args,
+    c_args: c_suppressions + cairo_args,
     dependencies: [pugl_dep, cairo_dep],
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
     install: true,
-    objc_args: library_args + cairo_args,
+    link_args: platform_link_args,
+    objc_args: objc_suppressions + cairo_args,
     soversion: soversion,
     version: meson.project_version(),
   )
 
   pugl_cairo_dep = declare_dependency(
-    compile_args: extra_c_args,
+    compile_args: usage_args,
     dependencies: [pugl_dep, cairo_dep],
     link_with: cairo_backend,
   )
@@ -397,7 +396,6 @@ if cairo_dep.found()
     subdirs: [versioned_name],
     version: meson.project_version(),
   )
-
 endif
 
 # Vulkan
@@ -420,18 +418,20 @@ if vulkan_dep.found()
   vulkan_backend = library(
     'pugl_@0@_vulkan@1@'.format(platform, version_suffix),
     files('src' / (platform + '_vulkan' + backend_extension)),
-    c_args: library_args,
+    c_args: c_suppressions + library_args,
     dependencies: vulkan_deps,
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
     install: true,
+    link_args: platform_link_args,
+    objc_args: objc_suppressions + library_args,
     soversion: soversion,
     version: meson.project_version(),
   )
 
   pugl_vulkan_dep = declare_dependency(
-    compile_args: extra_c_args,
+    compile_args: usage_args,
     dependencies: [pugl_dep, vulkan_dep, thread_dep],
     link_with: vulkan_backend,
   )

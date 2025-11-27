@@ -17,6 +17,8 @@ if get_option('warning_level') == 'everything'
   test_c_args = cc.get_supported_arguments(test_c_args)
 endif
 
+test_c_args += c_suppressions
+
 # Check licensing metadata
 if not meson.is_subproject() and get_option('lint')
   reuse = find_program('reuse', required: false)
@@ -52,7 +54,7 @@ gl_tests = [
 
 vulkan_tests = ['vulkan']
 
-if with_timers
+if platform != 'x11' or use_xsync
   basic_exclusive_tests += ['local_copy_paste', 'remote_copy_paste']
   basic_tests += ['timer']
 endif
@@ -93,7 +95,7 @@ if opengl_dep.found()
       executable(
         'test_' + test,
         'test_@0@.c'.format(test),
-        c_args: test_c_args,
+        c_args: test_c_args + opengl_args,
         dependencies: [pugl_dep, pugl_gl_dep, puglutil_dep],
         implicit_include_directories: false,
       ),

@@ -44,6 +44,7 @@ if get_option('warning_level') == 'everything'
 
   example_c_args = cc.get_supported_arguments(example_c_args)
 endif
+example_c_args += c_suppressions
 
 # Suppress some additional C++ warnings in examples
 example_cpp_args = []
@@ -81,6 +82,7 @@ if get_option('warning_level') == 'everything' and is_variable('cpp')
 
   example_cpp_args = cpp.get_supported_arguments(example_cpp_args)
 endif
+example_cpp_args += cpp_suppressions
 
 subdir('shaders')
 
@@ -132,12 +134,19 @@ else
       source = [example]
       target = example.split('.')[0]
       dependencies = [pugl_dep, pugl_gl_dep, puglutil_dep]
-      defines = []
+      gl_args = []
+
+      if host_machine.system() == 'darwin'
+        gl_args += [
+          '-DGL_SILENCE_DEPRECATION',
+          '-Wno-deprecated-declarations',
+        ]
+      endif
 
       if target == 'pugl_shader_demo'
         source += ['file_utils.c', 'glad/glad.c']
         dependencies += [dl_dep]
-        defines += ['-D_POSIX_C_SOURCE=200809L']
+        gl_args += ['-D_POSIX_C_SOURCE=200809L']
       elif target == 'pugl_print_events'
         dependencies += [pugl_stub_dep]
       elif target == 'pugl_cpp_demo'
@@ -151,8 +160,8 @@ else
       executable(
         target,
         source,
-        c_args: example_defines + example_c_args + defines,
-        cpp_args: example_defines + example_cpp_args + defines,
+        c_args: example_defines + example_c_args + gl_args,
+        cpp_args: example_defines + example_cpp_args + gl_args,
         dependencies: dependencies,
         implicit_include_directories: false,
       )

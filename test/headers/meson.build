@@ -5,9 +5,16 @@ header_c_suppressions = []
 
 if get_option('warning_level') == 'everything'
   if cc.get_id() == 'clang'
+    header_c_suppressions += ['-Wno-padded']
     if not meson.is_cross_build()
       header_c_suppressions += ['-Wno-poison-system-directories']
     endif
+  elif cc.get_id() == 'gcc'
+    header_c_suppressions += ['-Wno-padded']
+  elif cc.get_id() == 'msvc'
+    header_c_suppressions += [
+      '/wd4820',  # padding added after construct
+    ]
   endif
 endif
 
