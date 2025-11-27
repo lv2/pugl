@@ -1,44 +1,31 @@
 # Copyright 2021-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
-option('bindings_cpp', type: 'feature'
-       description: 'Build C++ bindings')
+option('bindings_cpp', type: 'feature', description: 'Build C++ bindings')
+option('cairo', type: 'feature', description: 'Enable Cairo graphics backend')
+option('docs', type: 'feature', description: 'Build documentation')
 
-option('cairo', type: 'feature',
-       description: 'Enable support for the Cairo graphics API')
+option(
+  'docs_cpp',
+  type: 'boolean',
+  value: false,
+  description: 'Build experimental C++ documentation',
+)
 
-option('docs', type: 'feature'
-       description: 'Build documentation')
+option('examples', type: 'feature', description: 'Build example programs')
 
-option('docs_cpp', type: 'boolean', value: false,
-       description: 'Attempt to build C++ documentation for development')
+option(
+  'lint',
+  type: 'boolean',
+  value: false,
+  description: 'Run maintainer checks',
+)
 
-option('examples', type: 'feature'
-       description: 'Build example programs')
-
-option('lint', type: 'boolean', value: false
-       description: 'Run code quality checks')
-
-option('opengl', type: 'feature',
-       description: 'Enable support for the OpenGL graphics API')
-
-option('stub', type: 'boolean',
-       description: 'Build stub backend')
-
-option('tests', type: 'feature'
-       description: 'Build tests')
-
-option('vulkan', type: 'feature',
-       description: 'Enable support for the Vulkan graphics API')
-
-option('win_wchar', type: 'feature'
-       description: 'Use UTF-16 wchar_t and UNICODE with Windows API')
-
-option('xcursor', type: 'feature',
-       description: 'Support changing the cursor on X11')
-
-option('xrandr', type: 'feature',
-       description: 'Support accessing the refresh rate on X11')
-
-option('xsync', type: 'feature',
-       description: 'Support timers on X11')
+option('opengl', type: 'feature', description: 'Enable OpenGL graphics backend')
+option('stub', type: 'boolean', description: 'Build stub backend')
+option('tests', type: 'feature', description: 'Build tests')
+option('vulkan', type: 'feature', description: 'Enable Vulkan graphics backend')
+option('win_wchar', type: 'feature', description: 'Use UNICODE with Win32')
+option('xcursor', type: 'feature', description: 'Support X11 cursor')
+option('xrandr', type: 'feature', description: 'Support X11 refresh rate')
+option('xsync', type: 'feature', description: 'Support timers on X11')
