@@ -18,15 +18,15 @@
 PUGL_BEGIN_DECLS
 
 /// Return true if `x`,`y` is a valid position
-bool
+PUGL_CONST_FUNC bool
 puglIsValidPosition(int x, int y);
 
 /// Return true if `width`,`height` is a valid position
-bool
+PUGL_CONST_FUNC bool
 puglIsValidSize(unsigned width, unsigned height);
 
 /// Return true if `size` is a valid view size
-bool
+PUGL_CONST_FUNC bool
 puglIsValidArea(PuglArea size);
 
 /// Return the center point of some "soft" ancestor (parent window or screen)
@@ -69,7 +69,7 @@ uint32_t
 puglDecodeUTF8(const uint8_t* buf);
 
 /// Return `state` with any flags related to `key` removed
-PuglMods
+PUGL_CONST_FUNC PuglMods
 puglFilterMods(PuglMods state, PuglKey key);
 
 /// Prepare a view to be realized by the platform implementation if possible

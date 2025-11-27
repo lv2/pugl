@@ -1032,14 +1032,14 @@ puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
   return PUGL_SUCCESS;
 }
 
-PuglStatus
+PUGL_CONST_FUNC PuglStatus
 puglApplySizeHint(PuglView* const    PUGL_UNUSED(view),
                   const PuglSizeHint PUGL_UNUSED(hint))
 {
   return PUGL_SUCCESS;
 }
 
-PuglStatus
+PUGL_CONST_FUNC PuglStatus
 puglUpdateSizeHints(PuglView* const PUGL_UNUSED(view))
 {
   return PUGL_SUCCESS;

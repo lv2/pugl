@@ -18,7 +18,6 @@
 #  pragma GCC diagnostic ignored "-Wconversion"
 #  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #  pragma GCC diagnostic ignored "-Wredundant-tags"
-#  pragma GCC diagnostic ignored "-Wsuggest-attribute=const"
 #  pragma GCC diagnostic ignored "-Wsuggest-attribute=pure"
 #  pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #endif
@@ -57,6 +56,8 @@
 int
 main()
 {
+  PuglWorld* const world = puglNewWorld(PUGL_PROGRAM, 0);
+  puglFreeWorld(world);
   return 0;
 }
 
