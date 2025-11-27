@@ -4,9 +4,7 @@
 data_dir = get_option('prefix') / get_option('datadir') / 'pugl-0'
 example_defines = ['-DPUGL_DATA_DIR="@0@"'.format(data_dir)]
 
-stub_examples = [
-  'pugl_print_events.c',
-]
+stub_examples = ['pugl_print_events.c']
 
 gl_examples = [
   'pugl_clipboard_demo.c',
@@ -17,15 +15,9 @@ gl_examples = [
   'pugl_window_demo.c',
 ]
 
-cairo_examples = [
-  'pugl_cairo_demo.c',
-  'pugl_management_demo.c',
-]
+cairo_examples = ['pugl_cairo_demo.c', 'pugl_management_demo.c']
 
-vulkan_examples = [
-  'pugl_vulkan_cpp_demo.cpp',
-  'pugl_vulkan_demo.c',
-]
+vulkan_examples = ['pugl_vulkan_cpp_demo.cpp', 'pugl_vulkan_demo.c']
 
 # Suppress some additional C warnings in examples
 example_c_args = []
@@ -37,9 +29,7 @@ if get_option('warning_level') == 'everything'
       '-Wno-reserved-identifier',
     ]
   elif cc.get_id() == 'gcc'
-    example_c_args += [
-      '-Wno-float-equal',
-    ]
+    example_c_args += ['-Wno-float-equal']
   endif
 
   example_c_args = cc.get_supported_arguments(example_c_args)
@@ -51,8 +41,8 @@ example_cpp_args = []
 if get_option('warning_level') == 'everything' and is_variable('cpp')
   if cpp.get_id() == 'clang'
     example_cpp_args += [
-      '-Wno-documentation', # Cairo
-      '-Wno-documentation-unknown-command', # Cairo
+      '-Wno-documentation',  # Cairo
+      '-Wno-documentation-unknown-command',  # Cairo
       '-Wno-old-style-cast',
       '-Wno-switch-enum',
     ]
@@ -74,9 +64,9 @@ if get_option('warning_level') == 'everything' and is_variable('cpp')
     ]
   elif cpp.get_id() == 'msvc'
     example_cpp_args += [
-      '/wd4355', # 'this' used in base member initializer list
-      '/wd4868', # may not enforce left-to-right evaluation order
-      '/wd5246', # subobject initialization should be wrapped in braces
+      '/wd4355',  # 'this' used in base member initializer list
+      '/wd4868',  # may not enforce left-to-right evaluation order
+      '/wd5246',  # subobject initialization should be wrapped in braces
     ]
   endif
 
@@ -137,10 +127,7 @@ else
       gl_args = []
 
       if host_machine.system() == 'darwin'
-        gl_args += [
-          '-DGL_SILENCE_DEPRECATION',
-          '-Wno-deprecated-declarations',
-        ]
+        gl_args += ['-DGL_SILENCE_DEPRECATION', '-Wno-deprecated-declarations']
       endif
 
       if target == 'pugl_shader_demo'

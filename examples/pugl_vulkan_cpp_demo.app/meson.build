@@ -10,10 +10,7 @@ info_plist = configure_file(
   output: 'Info.plist',
 )
 
-shaders = [
-  'rect.frag.spv',
-  'rect.vert.spv',
-]
+shaders = ['rect.frag.spv', 'rect.vert.spv']
 
 cp = find_program('../../scripts/cp.py')
 

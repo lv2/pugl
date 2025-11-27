@@ -3,10 +3,7 @@
 
 executable(
   'pugl_vulkan_demo',
-  [
-    '../../pugl_vulkan_demo.c',
-    '../../file_utils.c',
-  ],
+  ['../../pugl_vulkan_demo.c', '../../file_utils.c'],
   c_args: example_defines + example_c_args,
   dependencies: [pugl_dep, pugl_vulkan_dep, puglutil_dep],
   implicit_include_directories: false,

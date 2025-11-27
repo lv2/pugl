@@ -3,11 +3,7 @@
 
 executable(
   'pugl_shader_demo',
-  [
-    '../../file_utils.c',
-    '../../glad/glad.c',
-    '../../pugl_shader_demo.c',
-  ],
+  ['../../file_utils.c', '../../glad/glad.c', '../../pugl_shader_demo.c'],
   c_args: example_defines + example_c_args + opengl_args,
   dependencies: [pugl_dep, pugl_gl_dep, dl_dep, puglutil_dep],
   implicit_include_directories: false,

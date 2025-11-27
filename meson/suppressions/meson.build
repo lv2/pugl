@@ -23,9 +23,7 @@ if cc.get_id() == 'clang'
     ]
 
     if not meson.is_cross_build()
-      c_suppressions += [
-        '-Wno-poison-system-directories',
-      ]
+      c_suppressions += ['-Wno-poison-system-directories']
     endif
 
     if host_machine.system() == 'windows'
@@ -62,9 +60,7 @@ elif cc.get_id() == 'gcc'
   endif
 
   if warning_level in ['everything', '3']
-    c_suppressions += [
-      '-Wno-pedantic',
-    ]
+    c_suppressions += ['-Wno-pedantic']
   endif
 
 elif cc.get_id() == 'msvc'
@@ -76,28 +72,28 @@ elif cc.get_id() == 'msvc'
 
   if warning_level == 'everything'
     c_suppressions += [
-      '/wd4061', # enumerator in switch is not explicitly handled
-      '/wd4090', # different const qualitifers
-      '/wd4191', # unsafe conversion from type to type
-      '/wd4514', # unreferenced inline function has been removed
-      '/wd4710', # function not inlined
-      '/wd4711', # function selected for automatic inline expansion
-      '/wd4820', # padding added after construct
-      '/wd5045', # will insert Spectre mitigation for memory load
-      '/wd5246', # subobject initialization should be wrapped in braces
+      '/wd4061',  # enumerator in switch is not explicitly handled
+      '/wd4090',  # different const qualitifers
+      '/wd4191',  # unsafe conversion from type to type
+      '/wd4514',  # unreferenced inline function has been removed
+      '/wd4710',  # function not inlined
+      '/wd4711',  # function selected for automatic inline expansion
+      '/wd4820',  # padding added after construct
+      '/wd5045',  # will insert Spectre mitigation for memory load
+      '/wd5246',  # subobject initialization should be wrapped in braces
     ]
   endif
 
   if warning_level in ['everything', '3']
     c_suppressions += [
-      '/wd4100', # unreferenced formal parameter
-      '/wd4706', # assignment within conditional expression
+      '/wd4100',  # unreferenced formal parameter
+      '/wd4706',  # assignment within conditional expression
     ]
   endif
 
   if warning_level in ['everything', '3', '2']
     c_suppressions += [
-      '/wd4996', # POSIX name for this item is deprecated
+      '/wd4996',  # POSIX name for this item is deprecated
     ]
   endif
 endif
@@ -124,9 +120,7 @@ if is_variable('cpp')
       ]
 
       if not meson.is_cross_build()
-        cpp_suppressions += [
-          '-Wno-poison-system-directories',
-        ]
+        cpp_suppressions += ['-Wno-poison-system-directories']
       endif
     endif
 
@@ -155,31 +149,31 @@ if is_variable('cpp')
 
     if warning_level == 'everything'
       cpp_suppressions += [
-        '/wd4061', # enumerator in switch is not explicitly handled
-        '/wd4191', # unsafe conversion from type to type
-        '/wd4514', # unreferenced inline function has been removed
-        '/wd4625', # copy constructor implicitly deleted
-        '/wd4626', # copy assignment operator implicitly deleted
-        '/wd4710', # function not inlined
-        '/wd4711', # function selected for automatic inline expansion
-        '/wd4800', # implicit conversion to bool
-        '/wd4820', # padding added after construct
-        '/wd5026', # move constructor implicitly deleted
-        '/wd5027', # move assignment operator implicitly deleted
-        '/wd5039', # pointer to potentially throwing function passed to C
-        '/wd5045', # will insert Spectre mitigation for memory load
+        '/wd4061',  # enumerator in switch is not explicitly handled
+        '/wd4191',  # unsafe conversion from type to type
+        '/wd4514',  # unreferenced inline function has been removed
+        '/wd4625',  # copy constructor implicitly deleted
+        '/wd4626',  # copy assignment operator implicitly deleted
+        '/wd4710',  # function not inlined
+        '/wd4711',  # function selected for automatic inline expansion
+        '/wd4800',  # implicit conversion to bool
+        '/wd4820',  # padding added after construct
+        '/wd5026',  # move constructor implicitly deleted
+        '/wd5027',  # move assignment operator implicitly deleted
+        '/wd5039',  # pointer to potentially throwing function passed to C
+        '/wd5045',  # will insert Spectre mitigation for memory load
       ]
     endif
 
     if warning_level in ['everything', '3']
       cpp_suppressions += [
-        '/wd4706', # assignment within conditional expression
+        '/wd4706',  # assignment within conditional expression
       ]
     endif
 
     if warning_level in ['everything', '3', '2']
       cpp_suppressions += [
-        '/wd4996', # POSIX name for this item is deprecated
+        '/wd4996',  # POSIX name for this item is deprecated
       ]
     endif
   endif

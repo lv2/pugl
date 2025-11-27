@@ -52,10 +52,7 @@ subdir('meson/suppressions')
 # Set additional suppressions for OpenGL code
 opengl_args = []
 if host_machine.system() == 'darwin'
-  opengl_args += [
-    '-DGL_SILENCE_DEPRECATION',
-    '-Wno-deprecated-declarations',
-  ]
+  opengl_args += ['-DGL_SILENCE_DEPRECATION', '-Wno-deprecated-declarations']
 endif
 
 #############
@@ -82,10 +79,7 @@ if host_machine.system() == 'darwin'
   backend_extension = '.m'
   soversion = meson.project_version().split('.')[0]
 
-  platform_args = [
-    '-DGL_SILENCE_DEPRECATION',
-    '-Wno-deprecated-declarations',
-  ]
+  platform_args = ['-DGL_SILENCE_DEPRECATION', '-Wno-deprecated-declarations']
 
 elif host_machine.system() == 'windows'
   # Windows
@@ -96,34 +90,34 @@ elif host_machine.system() == 'windows'
 
   platform_args = [
     # Set minimum target version
-    '-DWINVER=0x0500', # Windows 2000
-    '-D_WIN32_WINNT=0x0500', # Windows 2000
+    '-DWINVER=0x0500',  # Windows 2000
+    '-D_WIN32_WINNT=0x0500',  # Windows 2000
 
     # Disable as many things from windows.h as possible
     '-DWIN32_LEAN_AND_MEAN',
-    '-DNOGDICAPMASKS', # CC_*, LC_*, PC_*, CP_*, TC_*, RC_
-    '-DNOSYSMETRICS', # SM_*
-    '-DNOKEYSTATES', # MK_*
-    '-DOEMRESOURCE', # OEM Resource values
-    '-DNOATOM', # Atom Manager routines
-    '-DNOCOLOR', # Screen colors
-    '-DNODRAWTEXT', # DrawText() and DT_*
-    '-DNOKERNEL', # All KERNEL defines and routines
-    '-DNOMB', # MB_* and MessageBox()
-    '-DNOMEMMGR', # GMEM_*, LMEM_*, GHND, LHND, associated routines
-    '-DNOMETAFILE', # typedef METAFILEPICT
-    '-DNOMINMAX', # Macros min(a,b) and max(a,b)
-    '-DNOOPENFILE', # OpenFile(), OemToAnsi, AnsiToOem, and OF_*
-    '-DNOSCROLL', # SB_* and scrolling routines
-    '-DNOSERVICE', # All Service Controller routines, SERVICE_ equates, etc.
-    '-DNOSOUND', # Sound driver routines
-    '-DNOWH', # SetWindowsHook and WH_*
-    '-DNOCOMM', # COMM driver routines
-    '-DNOKANJI', # Kanji support stuff
-    '-DNOHELP', # Help engine interface
-    '-DNOPROFILER', # Profiler interface
-    '-DNODEFERWINDOWPOS', # DeferWindowPos routines
-    '-DNOMCX', # Modem Configuration Extensions
+    '-DNOGDICAPMASKS',  # CC_*, LC_*, PC_*, CP_*, TC_*, RC_
+    '-DNOSYSMETRICS',  # SM_*
+    '-DNOKEYSTATES',  # MK_*
+    '-DOEMRESOURCE',  # OEM Resource values
+    '-DNOATOM',  # Atom Manager routines
+    '-DNOCOLOR',  # Screen colors
+    '-DNODRAWTEXT',  # DrawText() and DT_*
+    '-DNOKERNEL',  # All KERNEL defines and routines
+    '-DNOMB',  # MB_* and MessageBox()
+    '-DNOMEMMGR',  # GMEM_*, LMEM_*, GHND, LHND, associated routines
+    '-DNOMETAFILE',  # typedef METAFILEPICT
+    '-DNOMINMAX',  # Macros min(a,b) and max(a,b)
+    '-DNOOPENFILE',  # OpenFile(), OemToAnsi, AnsiToOem, and OF_*
+    '-DNOSCROLL',  # SB_* and scrolling routines
+    '-DNOSERVICE',  # All Service Controller routines, SERVICE_ equates, etc.
+    '-DNOSOUND',  # Sound driver routines
+    '-DNOWH',  # SetWindowsHook and WH_*
+    '-DNOCOMM',  # COMM driver routines
+    '-DNOKANJI',  # Kanji support stuff
+    '-DNOHELP',  # Help engine interface
+    '-DNOPROFILER',  # Profiler interface
+    '-DNODEFERWINDOWPOS',  # DeferWindowPos routines
+    '-DNOMCX',  # Modem Configuration Extensions
 
     # Needed only for Cairo
     # '-DNORASTEROPS', # Binary and Tertiary raster ops
@@ -147,7 +141,7 @@ elif host_machine.system() == 'windows'
 
   if cc.get_id() == 'msvc'
     platform_args += [
-      '-DNOTEXTMETRIC', # typedef TEXTMETRIC and associated routines
+      '-DNOTEXTMETRIC',  # typedef TEXTMETRIC and associated routines
     ]
   endif
 
@@ -164,7 +158,7 @@ elif host_machine.system() == 'windows'
   platform_sources = files('src/win.c')
   core_deps = [dwmapi_dep, gdi32_dep, shlwapi_dep, user32_dep]
   backend_extension = '.c'
-  soversion = '' # Avoid redundant version in DLL name
+  soversion = ''  # Avoid redundant version in DLL name
 
 else
   # X11
@@ -193,7 +187,7 @@ else
   x11_suppressions = []
   if cc.get_id() == 'clang'
     x11_suppressions += [
-      '-Wno-reserved-identifier', # FD_ZERO
+      '-Wno-reserved-identifier',  # FD_ZERO
     ]
   endif
 
@@ -223,10 +217,7 @@ endif
 library_args = usage_args + platform_args
 library_args += ['-DPUGL_INTERNAL']
 
-common_sources = files(
-  'src/common.c',
-  'src/internal.c',
-)
+common_sources = files('src/common.c', 'src/internal.c')
 
 libpugl = library(
   core_name,
@@ -487,12 +478,7 @@ else
 endif
 
 if meson.version().version_compare('>=0.53.0')
-  summary(
-    {
-      'Platform': platform,
-    },
-    section: 'Configuration',
-  )
+  summary({'Platform': platform}, section: 'Configuration')
 
   if platform == 'x11'
     summary(
@@ -539,9 +525,7 @@ if meson.version().version_compare('>=0.53.0')
 
   if not get_option('examples').disabled()
     summary(
-      {
-        'Executables': get_option('prefix') / get_option('bindir'),
-      },
+      {'Executables': get_option('prefix') / get_option('bindir')},
       section: 'Directories',
     )
   endif

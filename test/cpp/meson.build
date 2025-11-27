@@ -5,8 +5,8 @@ test_cpp_args = []
 if get_option('warning_level') == 'everything' and is_variable('cpp')
   if cpp.get_id() == 'clang'
     test_cpp_args += [
-      '-Wno-documentation', # Cairo
-      '-Wno-documentation-unknown-command', # Cairo
+      '-Wno-documentation',  # Cairo
+      '-Wno-documentation-unknown-command',  # Cairo
       '-Wno-old-style-cast',
     ]
   endif
@@ -70,7 +70,7 @@ elif is_variable('cpp')
       '-Wno-old-style-cast',
       '-Wno-switch-default',
       '-Wno-switch-enum',
-      '-Wno-unused-macros', # Mac
+      '-Wno-unused-macros',  # Mac
     ]
     if host_machine.system() == 'windows'
       cpp_unified_args += [
@@ -89,7 +89,7 @@ elif is_variable('cpp')
     ]
   elif cpp.get_id() == 'msvc'
     cpp_unified_args += [
-      '/wd4464', # relative include path contains '..'
+      '/wd4464',  # relative include path contains '..'
     ]
   endif
 

@@ -5,13 +5,9 @@
 test_c_args = []
 if get_option('warning_level') == 'everything'
   if cc.get_id() == 'clang'
-    test_c_args += [
-      '-Wno-float-equal',
-    ]
+    test_c_args += ['-Wno-float-equal']
   elif cc.get_id() == 'gcc'
-    test_c_args += [
-      '-Wno-float-equal',
-    ]
+    test_c_args += ['-Wno-float-equal']
   endif
 
   test_c_args = cc.get_supported_arguments(test_c_args)
@@ -46,11 +42,7 @@ basic_tests = [
 
 cairo_tests = ['cairo']
 
-gl_tests = [
-  'gl',
-  'gl_free_unrealized',
-  'gl_hints',
-]
+gl_tests = ['gl', 'gl_free_unrealized', 'gl_hints']
 
 vulkan_tests = ['vulkan']
 

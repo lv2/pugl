@@ -21,10 +21,7 @@ endif
 header_c_suppressions = cc.get_supported_arguments(header_c_suppressions)
 
 test_headers_c_args = header_c_suppressions
-test_headers_c_args += [
-  '-DPUGL_NO_INCLUDE_GL_H',
-  '-DPUGL_NO_INCLUDE_GLU_H',
-]
+test_headers_c_args += ['-DPUGL_NO_INCLUDE_GL_H', '-DPUGL_NO_INCLUDE_GLU_H']
 
 if vulkan_dep.found()
   test_headers_c_args += ['-DPUGL_TEST_VULKAN']
