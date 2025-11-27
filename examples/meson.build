@@ -57,6 +57,7 @@ if get_option('warning_level') == 'everything' and is_variable('cpp')
     example_cpp_args += [
       '-Wno-effc++',
       '-Wno-old-style-cast',
+      '-Wno-strict-overflow',
       '-Wno-switch-default',
       '-Wno-switch-enum',
       '-Wno-unused-const-variable',
