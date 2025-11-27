@@ -1141,7 +1141,7 @@ puglApplySizeHint(PuglView* const view, const PuglSizeHint hint)
   return PUGL_SUCCESS;
 }
 
-PuglStatus
+static PuglStatus
 puglUpdateSizeHints(PuglView* const view)
 {
   for (unsigned i = 0U; i < PUGL_NUM_SIZE_HINTS; ++i) {

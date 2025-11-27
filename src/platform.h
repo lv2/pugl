@@ -33,10 +33,6 @@ puglFreeViewInternals(PuglView* view);
 PuglStatus
 puglApplySizeHint(PuglView* view, PuglSizeHint hint);
 
-/// Adapt to all configured size hints
-PuglStatus
-puglUpdateSizeHints(PuglView* view);
-
 /// Set the current position of a view window
 PuglStatus
 puglSetWindowPosition(PuglView* view, int x, int y);

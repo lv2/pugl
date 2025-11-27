@@ -394,14 +394,7 @@ findView(PuglWorld* const world, const Window window)
   return NULL;
 }
 
-PuglStatus
-puglApplySizeHint(PuglView* const view, const PuglSizeHint PUGL_UNUSED(hint))
-{
-  // No fine-grained updates, hints are always recalculated together
-  return puglUpdateSizeHints(view);
-}
-
-PuglStatus
+static PuglStatus
 puglUpdateSizeHints(PuglView* const view)
 {
   if (!view->impl->win) {
@@ -469,6 +462,13 @@ puglUpdateSizeHints(PuglView* const view)
 
   XSetWMNormalHints(display, view->impl->win, &sizeHints);
   return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglApplySizeHint(PuglView* const view, const PuglSizeHint PUGL_UNUSED(hint))
+{
+  // No fine-grained updates, hints are always recalculated together
+  return puglUpdateSizeHints(view);
 }
 
 #if USE_XCURSOR

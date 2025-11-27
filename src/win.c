@@ -1039,12 +1039,6 @@ puglApplySizeHint(PuglView* const    PUGL_UNUSED(view),
   return PUGL_SUCCESS;
 }
 
-PUGL_CONST_FUNC PuglStatus
-puglUpdateSizeHints(PuglView* const PUGL_UNUSED(view))
-{
-  return PUGL_SUCCESS;
-}
-
 PuglStatus
 puglStartTimer(PuglView* view, uintptr_t id, double timeout)
 {
