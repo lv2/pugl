@@ -125,7 +125,7 @@ puglSetString(char** dest, const char* string)
     *dest = NULL;
   } else {
     *dest = (char*)realloc(*dest, len + 1U);
-    strncpy(*dest, string, len + 1U);
+    memcpy(*dest, string, len + 1U);
   }
 }
 
