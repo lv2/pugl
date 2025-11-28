@@ -69,27 +69,18 @@ elif cc.get_id() == 'msvc'
   if warning_level == 'everything'
     c_suppressions += [
       '/wd4061',  # enumerator in switch is not explicitly handled
-      '/wd4090',  # different const qualitifers
       '/wd4191',  # unsafe conversion from type to type
       '/wd4514',  # unreferenced inline function has been removed
       '/wd4710',  # function not inlined
       '/wd4711',  # function selected for automatic inline expansion
       '/wd4820',  # padding added after construct
       '/wd5045',  # will insert Spectre mitigation for memory load
-      '/wd5246',  # subobject initialization should be wrapped in braces
     ]
   endif
 
   if warning_level in ['everything', '3']
     c_suppressions += [
       '/wd4100',  # unreferenced formal parameter
-      '/wd4706',  # assignment within conditional expression
-    ]
-  endif
-
-  if warning_level in ['everything', '3', '2']
-    c_suppressions += [
-      '/wd4996',  # POSIX name for this item is deprecated
     ]
   endif
 endif
@@ -158,18 +149,6 @@ if is_variable('cpp')
         '/wd5027',  # move assignment operator implicitly deleted
         '/wd5039',  # pointer to potentially throwing function passed to C
         '/wd5045',  # will insert Spectre mitigation for memory load
-      ]
-    endif
-
-    if warning_level in ['everything', '3']
-      cpp_suppressions += [
-        '/wd4706',  # assignment within conditional expression
-      ]
-    endif
-
-    if warning_level in ['everything', '3', '2']
-      cpp_suppressions += [
-        '/wd4996',  # POSIX name for this item is deprecated
       ]
     endif
   endif

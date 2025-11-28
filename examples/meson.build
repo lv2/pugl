@@ -20,8 +20,9 @@ cairo_examples = ['pugl_cairo_demo.c', 'pugl_management_demo.c']
 vulkan_examples = ['pugl_vulkan_cpp_demo.cpp', 'pugl_vulkan_demo.c']
 
 # Suppress some additional C warnings in examples
+warning_level = get_option('warning_level')
 example_c_args = []
-if get_option('warning_level') == 'everything'
+if warning_level == 'everything'
   if cc.get_id() == 'clang'
     example_c_args += [
       '-Wno-float-equal',
@@ -34,11 +35,16 @@ if get_option('warning_level') == 'everything'
 
   example_c_args = cc.get_supported_arguments(example_c_args)
 endif
+
+if cc.get_id() == 'msvc' and warning_level in ['everything', '3', '2']
+  example_c_args += ['/D_CRT_SECURE_NO_WARNINGS']
+endif
+
 example_c_args += c_suppressions
 
 # Suppress some additional C++ warnings in examples
 example_cpp_args = []
-if get_option('warning_level') == 'everything' and is_variable('cpp')
+if warning_level == 'everything' and is_variable('cpp')
   if cpp.get_id() == 'clang'
     example_cpp_args += [
       '-Wno-documentation',  # Cairo
@@ -73,6 +79,11 @@ if get_option('warning_level') == 'everything' and is_variable('cpp')
 
   example_cpp_args = cpp.get_supported_arguments(example_cpp_args)
 endif
+
+if cpp.get_id() == 'msvc' and warning_level in ['everything', '3', '2']
+  example_cpp_args += ['/D_CRT_SECURE_NO_WARNINGS']
+endif
+
 example_cpp_args += cpp_suppressions
 
 subdir('shaders')
