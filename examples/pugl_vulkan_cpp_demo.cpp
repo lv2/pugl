@@ -702,13 +702,10 @@ RenderPass::init(const sk::VulkanApi&  vk,
 std::vector<uint32_t>
 readFile(const char* const programPath, const std::string& filename)
 {
-  const std::unique_ptr<char, decltype(&free)> path{
-    resourcePath(programPath, filename.c_str()), &free};
+  std::cerr << "Loading shader:           " << filename << "\n";
 
-  std::cerr << "Loading shader:           " << path.get() << "\n";
-
-  const std::unique_ptr<FILE, int (*)(FILE*)> file{fopen(path.get(), "rb"),
-                                                   &fclose};
+  const std::unique_ptr<FILE, int (*)(FILE*)> file{
+    resourceFile(programPath, filename.c_str()), &fclose};
 
   if (!file) {
     std::cerr << "Failed to open file '" << filename << "'\n";

@@ -1,4 +1,4 @@
-// Copyright 2019-2020 David Robillard <d@drobilla.net>
+// Copyright 2019-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "file_utils.h"
@@ -6,7 +6,6 @@
 #ifdef _WIN32
 #  include <io.h>
 #  include <windows.h>
-#  define F_OK 0
 #else
 #  include <libgen.h>
 #  include <unistd.h>
@@ -16,8 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-char*
-resourcePath(const char* const programPath, const char* const name)
+FILE*
+resourceFile(const char* const programPath, const char* const name)
 {
   char* const binary = strdup(programPath);
 
@@ -36,16 +35,18 @@ resourcePath(const char* const programPath, const char* const name)
 
   char* const programRelative = (char*)calloc(totalLen, 1);
   snprintf(programRelative, totalLen, "%s/%s", programDir, name);
-  if (!access(programRelative, F_OK)) {
-    free(binary);
-    return programRelative;
-  }
 
+  FILE* file = fopen(programRelative, "rb");
   free(programRelative);
   free(binary);
+  if (file) {
+    return file;
+  }
 
   const size_t sysPathLen = strlen(PUGL_DATA_DIR) + nameLen + 4;
   char* const  sysPath    = (char*)calloc(sysPathLen, 1);
   snprintf(sysPath, sysPathLen, "%s/%s", PUGL_DATA_DIR, name);
-  return sysPath;
+  file = fopen(sysPath, "rb");
+  free(sysPath);
+  return file;
 }

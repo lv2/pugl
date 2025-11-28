@@ -223,16 +223,13 @@ makeRects(const size_t numRects)
 static char*
 loadShader(const char* const programPath, const char* const name)
 {
-  char* const path = resourcePath(programPath, name);
-  fprintf(stderr, "Loading shader %s\n", path);
-
-  FILE* const file = fopen(path, "rb");
+  fprintf(stderr, "Loading shader %s\n", name);
+  FILE* const file = resourceFile(programPath, name);
   if (!file) {
-    logError("Failed to open '%s'\n", path);
+    logError("Failed to open '%s'\n", name);
     return NULL;
   }
 
-  free(path);
   fseek(file, 0, SEEK_END);
   const long filePos = ftell(file);
   if (filePos <= 0) {
