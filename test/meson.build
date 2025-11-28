@@ -58,7 +58,7 @@ foreach test : basic_tests
       'test_' + test,
       'test_@0@.c'.format(test),
       c_args: test_c_args,
-      dependencies: [pugl_dep, pugl_stub_dep, puglutil_dep],
+      dependencies: [m_dep, pugl_dep, pugl_stub_dep, puglutil_dep],
       implicit_include_directories: false,
     ),
     suite: 'unit',

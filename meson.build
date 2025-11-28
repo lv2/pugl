@@ -60,6 +60,7 @@ endif
 #############
 
 dl_dep = cc.find_library('dl', required: false)
+m_dep = cc.find_library('m', required: false)
 
 platform_link_args = []
 
@@ -203,7 +204,7 @@ endif
 # Core Library #
 ################
 
-core_deps += [cc.find_library('m', required: false)]
+core_deps += []
 core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
 includes = include_directories(['include'])
 

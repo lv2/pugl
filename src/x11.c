@@ -1356,7 +1356,7 @@ puglStartTimer(PuglView* const view, const uintptr_t id, const double timeout)
 #if USE_XSYNC
   if (view->world->impl->syncSupported) {
     XSyncValue value;
-    XSyncIntToValue(&value, (int)floor(timeout * 1000.0));
+    XSyncIntToValue(&value, (int)(timeout * 1000.0));
 
     PuglWorldInternals*  w       = view->world->impl;
     Display* const       display = w->display;

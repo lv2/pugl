@@ -135,7 +135,7 @@ else
     foreach example : gl_examples
       source = [example]
       target = example.split('.')[0]
-      dependencies = [pugl_dep, pugl_gl_dep, puglutil_dep]
+      dependencies = [m_dep, pugl_dep, pugl_gl_dep, puglutil_dep]
       gl_args = []
 
       if host_machine.system() == 'darwin'
@@ -179,7 +179,7 @@ else
         target,
         example,
         c_args: example_defines + example_c_args + cairo_args,
-        dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep],
+        dependencies: [m_dep, pugl_dep, pugl_cairo_dep, puglutil_dep],
         implicit_include_directories: false,
       )
     endforeach
