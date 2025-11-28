@@ -22,6 +22,8 @@
 #  pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #endif
 
+#include <pugl/pugl.h>
+
 #include "../../src/common.c"   // IWYU pragma: keep
 #include "../../src/internal.c" // IWYU pragma: keep
 

@@ -8,7 +8,6 @@
 #  include <windows.h>
 #else
 #  include <libgen.h>
-#  include <unistd.h>
 #endif
 
 #include <stdio.h>
