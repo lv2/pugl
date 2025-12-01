@@ -27,11 +27,10 @@ public:
     return pugl::Status::success;
   }
 
-  static pugl::Status onEvent(const pugl::ConfigureEvent& event) noexcept;
-  pugl::Status        onEvent(const pugl::UpdateEvent& event) noexcept;
-  pugl::Status        onEvent(const pugl::ExposeEvent& event) noexcept;
-  pugl::Status        onEvent(const pugl::KeyPressEvent& event) noexcept;
-  pugl::Status        onEvent(const pugl::CloseEvent& event) noexcept;
+  pugl::Status onEvent(const pugl::UpdateEvent& event) noexcept;
+  pugl::Status onEvent(const pugl::ExposeEvent& event) noexcept;
+  pugl::Status onEvent(const pugl::KeyPressEvent& event) noexcept;
+  pugl::Status onEvent(const pugl::CloseEvent& event) noexcept;
 
   bool quit() const { return _quit; }
 
@@ -41,14 +40,6 @@ private:
   double _lastDrawTime{0.0};
   bool   _quit{false};
 };
-
-pugl::Status
-CubeView::onEvent(const pugl::ConfigureEvent& event) noexcept
-{
-  reshapeCube(event.width, event.height);
-
-  return pugl::Status::success;
-}
 
 pugl::Status
 CubeView::onEvent(const pugl::UpdateEvent&) noexcept
@@ -71,6 +62,10 @@ CubeView::onEvent(const pugl::ExposeEvent&) noexcept
 
   _xAngle = fmod(_xAngle + dAngle, 360.0);
   _yAngle = fmod(_yAngle + dAngle, 360.0);
+
+  const PuglArea size = this->size(pugl::SizeHint::currentSize);
+  reshapeCube(size.width, size.height);
+
   displayCube(cobj(),
               8.0f,
               static_cast<float>(_xAngle),
