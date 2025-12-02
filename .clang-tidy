@@ -13,7 +13,6 @@ Checks: >
   -misc-include-cleaner,
   -readability-avoid-nested-conditional-operator,
   -readability-identifier-length,
-  -readability-implicit-bool-conversion,
 CheckOptions:
   - key:   hicpp-uppercase-literal-suffix.NewSuffixes
     value: L;U;f

@@ -12,7 +12,6 @@ Checks: >
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -performance-enum-size,
-  -readability-implicit-bool-conversion,
 CheckOptions:
   - key:   readability-function-cognitive-complexity.Threshold
     value: '2'

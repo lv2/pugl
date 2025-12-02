@@ -89,7 +89,7 @@ public:
   }
 
   /// Return true if this loader is valid to use
-  explicit operator bool() const noexcept { return cobj(); }
+  explicit operator bool() const noexcept { return cobj() != nullptr; }
 };
 
 /**
@@ -145,10 +145,8 @@ createSurface(PFN_vkGetInstanceProcAddr          vkGetInstanceProcAddr,
               const VkAllocationCallbacks* const allocator,
               VkSurfaceKHR* const                surface) noexcept
 {
-  const VkResult result = puglCreateSurface(
+  return puglCreateSurface(
     vkGetInstanceProcAddr, view.cobj(), instance, allocator, surface);
-
-  return (!result && !surface) ? VK_ERROR_INITIALIZATION_FAILED : result;
 }
 
 /// @copydoc puglVulkanBackend
