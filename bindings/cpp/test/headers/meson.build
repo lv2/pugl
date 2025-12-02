@@ -6,7 +6,6 @@ if get_option('warning_level') == 'everything'
   if cpp.get_id() == 'clang'
     header_cpp_suppressions += [
       '-Wno-c++98-compat-pedantic',
-      '-Wno-old-style-cast',
       '-Wno-padded',
       '-Wno-switch-default',
       '-Wno-unsafe-buffer-usage',
