@@ -51,6 +51,7 @@ if platform != 'x11' or use_xsync
   basic_tests += ['timer']
 endif
 
+# Basic tests that only need a stub backend
 foreach test : basic_tests
   test(
     test,
@@ -65,6 +66,7 @@ foreach test : basic_tests
   )
 endforeach
 
+# Basic tests that only need a stub backend and must be run sequentially
 foreach test : basic_exclusive_tests
   test(
     test,
@@ -80,6 +82,7 @@ foreach test : basic_exclusive_tests
   )
 endforeach
 
+# Tests that need an OpenGL backend
 if opengl_dep.found()
   foreach test : gl_tests
     test(
@@ -96,6 +99,7 @@ if opengl_dep.found()
   endforeach
 endif
 
+# Tests that need a Cairo backend
 if cairo_dep.found()
   foreach test : cairo_tests
     test(
@@ -112,6 +116,7 @@ if cairo_dep.found()
   endforeach
 endif
 
+# Tests that need a Vulkan backend
 if vulkan_dep.found()
   foreach test : vulkan_tests
     test(

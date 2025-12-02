@@ -19,11 +19,14 @@ if get_option('warning_level') == 'everything'
     header_cpp_suppressions += ['-Wno-padded']
   endif
 endif
+
 header_cpp_suppressions = cpp.get_supported_arguments(header_cpp_suppressions)
 
-test_headers_cpp_args = cpp_suppressions + header_cpp_suppressions
+# Test build of pugl/gl.hpp etc., without including OpenGL headers
+test_headers_cpp_args = header_cpp_suppressions
 test_headers_cpp_args += ['-DPUGL_NO_INCLUDE_GL_H', '-DPUGL_NO_INCLUDE_GLU_H']
 
+# Only test build of pugl/vulkan.hpp if Vulkan is available
 if vulkan_dep.found()
   test_headers_cpp_args += ['-DPUGL_TEST_VULKAN']
 endif

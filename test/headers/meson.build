@@ -20,9 +20,11 @@ endif
 
 header_c_suppressions = cc.get_supported_arguments(header_c_suppressions)
 
+# Test build of pugl/gl.h etc., without including OpenGL headers
 test_headers_c_args = header_c_suppressions
 test_headers_c_args += ['-DPUGL_NO_INCLUDE_GL_H', '-DPUGL_NO_INCLUDE_GLU_H']
 
+# Only test build of pugl/vulkan.h if Vulkan is available
 if vulkan_dep.found()
   test_headers_c_args += ['-DPUGL_TEST_VULKAN']
 endif
