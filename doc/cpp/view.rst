@@ -107,7 +107,7 @@ Before being realized, the view must have a backend set with :func:`View::setBac
 
 The backend manages the graphics API that will be used for drawing.
 Pugl includes backends and supporting API for
-:doc:`Cairo <api/puglpp_cairo>`, :doc:`OpenGL <api/puglpp_gl>`, and :doc:`Vulkan <api/puglpp_vulkan>`.
+:doc:`Cairo <api/pugl_cpp_cairo>`, :doc:`OpenGL <api/pugl_cpp_gl>`, and :doc:`Vulkan <api/pugl_cpp_vulkan>`.
 
 Using Cairo
 ===========

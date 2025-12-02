@@ -1,4 +1,4 @@
-# Copyright 2021 David Robillard <d@drobilla.net>
+# Copyright 2021-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 cpp_headers = files(
@@ -9,4 +9,4 @@ cpp_headers = files(
   'pugl/vulkan.hpp',
 )
 
-install_headers(cpp_headers, subdir: 'puglpp' + version_suffix / 'pugl')
+install_headers(cpp_headers, subdir: 'pugl-cpp' + version_suffix / 'pugl')

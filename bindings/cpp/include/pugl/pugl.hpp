@@ -18,7 +18,7 @@
 namespace pugl {
 
 /**
-   @defgroup puglpp Pugl C++ API
+   @defgroup pugl_cpp Pugl C++ API
    Pugl C++ API wrapper.
    @{
 */
@@ -89,7 +89,7 @@ static_assert(static_cast<StringHint>(PUGL_WINDOW_TITLE) ==
               "");
 
 /**
-   @defgroup puglpp_events Events
+   @defgroup pugl_cpp_events Events
    @{
 */
 
@@ -217,7 +217,7 @@ using DataEvent = Event<PUGL_DATA, PuglDataEvent>;
 
 /**
    @}
-   @defgroup puglpp_status Status
+   @defgroup pugl_cpp_status Status
    @{
 */
 
@@ -250,7 +250,7 @@ strerror(const Status status) noexcept
 
 /**
    @}
-   @defgroup puglpp_world World
+   @defgroup pugl_cpp_world World
    @{
 */
 
@@ -382,7 +382,7 @@ public:
 
 /**
    @}
-   @defgroup puglpp_view View
+   @defgroup pugl_cpp_view View
    @{
 */
 

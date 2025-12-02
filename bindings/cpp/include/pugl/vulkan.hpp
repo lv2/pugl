@@ -20,7 +20,7 @@
 namespace pugl {
 
 /**
-   @defgroup puglpp_vulkan Vulkan
+   @defgroup pugl_cpp_vulkan Vulkan
    Vulkan graphics support.
 
    Note that the Pugl C++ wrapper does not use vulkan-hpp because it is a
@@ -29,7 +29,7 @@ namespace pugl {
    vulkan-hpp smart handles, it is relatively straightforward to wrap the
    result of createSurface() manually.
 
-   @ingroup puglpp
+   @ingroup pugl_cpp
    @{
 */
 

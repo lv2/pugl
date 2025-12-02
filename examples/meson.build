@@ -153,11 +153,11 @@ else
       elif target == 'pugl_print_events'
         dependencies += [pugl_stub_dep]
       elif target == 'pugl_cpp_demo'
-        if not is_variable('puglpp_dep')
+        if not is_variable('pugl_cpp_dep')
           continue
         endif
 
-        dependencies += [puglpp_dep]
+        dependencies += [pugl_cpp_dep]
       endif
 
       executable(
@@ -194,12 +194,12 @@ else
       defines = []
 
       if target == 'pugl_vulkan_cpp_demo'
-        if not is_variable('puglpp_dep')
+        if not is_variable('pugl_cpp_dep')
           continue
         endif
 
         defines += ['-D_POSIX_C_SOURCE=200809L']
-        dependencies += [puglpp_dep, puglutil_dep]
+        dependencies += [pugl_cpp_dep, puglutil_dep]
       endif
 
       executable(

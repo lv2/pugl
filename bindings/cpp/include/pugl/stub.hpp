@@ -10,9 +10,9 @@
 namespace pugl {
 
 /**
-   @defgroup puglpp_stub Stub
+   @defgroup pugl_cpp_stub Stub
    Stub graphics support.
-   @ingroup puglpp
+   @ingroup pugl_cpp
    @{
 */
 

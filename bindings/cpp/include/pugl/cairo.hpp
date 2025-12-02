@@ -10,9 +10,9 @@
 namespace pugl {
 
 /**
-   @defgroup puglpp_cairo Cairo
+   @defgroup pugl_cpp_cairo Cairo
    Cairo graphics support.
-   @ingroup puglpp
+   @ingroup pugl_cpp
    @{
 */
 

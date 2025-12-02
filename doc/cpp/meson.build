@@ -38,7 +38,7 @@ foreach format : ['html', 'singlehtml']
     command: [sphinx_build, ['-M', format], sphinx_args, ['-t', format]],
     input: [cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
     install: true,
-    install_dir: docdir / 'puglpp-0',
+    install_dir: docdir / 'pugl-cpp-0',
     output: format,
   )
 endforeach

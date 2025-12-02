@@ -9,4 +9,4 @@ Pugl
    deployment
    overview
    api/pugl
-   api/puglpp
+   api/pugl_cpp
