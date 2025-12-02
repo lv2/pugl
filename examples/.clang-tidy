@@ -38,6 +38,8 @@ Checks: >
   -llvm-header-guard,
   -misc-misplaced-const,
   -modernize-redundant-void-arg,
+  -modernize-unary-static-assert,
+  -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -modernize-use-using,
   -performance-enum-size,

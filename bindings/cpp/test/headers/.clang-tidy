@@ -11,6 +11,8 @@ Checks: >
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -llvmlibc-*,
   -modernize-redundant-void-arg,
+  -modernize-unary-static-assert,
+  -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -performance-enum-size,
   -readability-implicit-bool-conversion,

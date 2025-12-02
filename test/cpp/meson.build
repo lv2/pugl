@@ -108,4 +108,17 @@ elif is_variable('cpp')
     ),
     suite: 'unit',
   )
+
+  test(
+    'build_cpp',
+    executable(
+      'test_build_cpp',
+      'test_build.cpp',
+      cpp_args: cpp_unified_args,
+      dependencies: unified_deps,
+      implicit_include_directories: false,
+      include_directories: include_directories('../../bindings/cpp/include'),
+    ),
+    suite: 'unit',
+  )
 endif
