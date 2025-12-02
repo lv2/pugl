@@ -29,38 +29,16 @@ endforeach
 subdir('xml')
 subdir('api')
 
-docs = custom_target(
-  'cpp_singlehtml',
-  build_by_default: true,
-  command: [
-    sphinx_build,
-    ['-M', 'singlehtml'],
-    '@OUTDIR@',
-    '@OUTDIR@',
-    '-E',
-    '-q',
-    ['-t', 'singlehtml'],
-  ],
-  input: [cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
-  install: true,
-  install_dir: docdir / 'puglpp-0',
-  output: 'singlehtml',
-)
+sphinx_args = ['@OUTDIR@', '@OUTDIR@', '-E', '-q']
 
-docs = custom_target(
-  'cpp_html',
-  command: [
-    sphinx_build,
-    ['-M', 'html'],
-    '@OUTDIR@',
-    '@OUTDIR@',
-    '-E',
-    '-q',
-    ['-t', 'html'],
-  ],
-  build_by_default: true,
-  input: [cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
-  install: true,
-  install_dir: docdir / 'puglpp-0',
-  output: 'html',
-)
+foreach format : ['html', 'singlehtml']
+  custom_target(
+    'cpp_@0@'.format(format),
+    build_by_default: true,
+    command: [sphinx_build, ['-M', format], sphinx_args, ['-t', format]],
+    input: [cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
+    install: true,
+    install_dir: docdir / 'puglpp-0',
+    output: format,
+  )
+endforeach

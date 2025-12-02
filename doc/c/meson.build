@@ -42,38 +42,16 @@ endforeach
 subdir('xml')
 subdir('api')
 
-docs = custom_target(
-  'c_singlehtml',
-  build_by_default: true,
-  command: [
-    sphinx_build,
-    ['-M', 'singlehtml'],
-    '@OUTDIR@',
-    '@OUTDIR@',
-    '-E',
-    '-q',
-    ['-t', 'singlehtml'],
-  ],
-  input: [c_rst_files, copied_rst_files, c_pugl_rst, c_index_xml],
-  install: true,
-  install_dir: docdir / 'pugl-0',
-  output: 'singlehtml',
-)
+sphinx_args = ['@OUTDIR@', '@OUTDIR@', '-E', '-q']
 
-docs = custom_target(
-  'c_html',
-  build_by_default: true,
-  command: [
-    sphinx_build,
-    ['-M', 'html'],
-    '@OUTDIR@',
-    '@OUTDIR@',
-    '-E',
-    '-q',
-    ['-t', 'html'],
-  ],
-  input: [c_rst_files, copied_rst_files, c_pugl_rst, c_index_xml],
-  install: true,
-  install_dir: docdir / 'pugl-0',
-  output: 'html',
-)
+foreach format : ['html', 'singlehtml']
+  custom_target(
+    'c_@0@'.format(format),
+    build_by_default: true,
+    command: [sphinx_build, ['-M', format], sphinx_args, ['-t', format]],
+    input: [c_rst_files, copied_rst_files, c_pugl_rst, c_index_xml],
+    install: true,
+    install_dir: docdir / 'pugl-0',
+    output: format,
+  )
+endforeach
