@@ -15,7 +15,7 @@ if get_option('warning_level') == 'everything'
     if not meson.is_cross_build()
       header_cpp_suppressions += ['-Wno-poison-system-directories']
     endif
-  elif cc.get_id() == 'gcc'
+  elif cpp.get_id() == 'gcc'
     header_cpp_suppressions += ['-Wno-padded']
   endif
 endif
