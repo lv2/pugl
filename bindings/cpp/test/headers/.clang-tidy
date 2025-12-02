@@ -3,14 +3,11 @@
 
 Checks: >
   *,
-  -*-magic-numbers,
-  -*-use-using,
   -altera-*,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -llvmlibc-*,
-  -modernize-redundant-void-arg,
   -modernize-unary-static-assert,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
@@ -22,5 +19,5 @@ CheckOptions:
   - key:   readability-identifier-length.IgnoredParameterNames
     value: '^(id)|(x)|(y)$'
 FormatStyle: file
-HeaderFilterRegex: '.*'
+HeaderFilterRegex: '.*\.hpp$'
 WarningsAsErrors: '*'
