@@ -158,8 +158,6 @@ displayCube(PuglView* const view,
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
-
-    glColor3f(0.0f, 0.0f, 0.0f);
   } else {
     // Draw cube wireframe
     glEnableClientState(GL_VERTEX_ARRAY);
