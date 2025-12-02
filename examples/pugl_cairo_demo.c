@@ -1,8 +1,7 @@
 // Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#include "demo_utils.h"
-
+#include <puglutil/demo_utils.h>
 #include <puglutil/test_utils.h>
 
 #include <pugl/cairo.h>
@@ -343,7 +342,7 @@ main(int argc, char** argv)
     puglUpdate(app.world, timeout);
 
     if (app.opts.continuous) {
-      puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
+      puglPrintFps(puglGetTime(app.world), &fpsPrinter, &app.framesDrawn);
     }
   }
 

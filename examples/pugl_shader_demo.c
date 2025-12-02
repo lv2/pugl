@@ -23,13 +23,13 @@
 
 #define PUGL_NO_INCLUDE_GL_H
 
-#include "demo_utils.h"
-#include "file_utils.h"
-#include "rects.h"
 #include "shader_utils.h"
 
 #include "glad/glad.h"
 
+#include <puglutil/demo_utils.h>
+#include <puglutil/file_utils.h>
+#include <puglutil/rects.h>
 #include <puglutil/test_utils.h>
 
 #include <pugl/gl.h>
@@ -224,7 +224,7 @@ static char*
 loadShader(const char* const programPath, const char* const name)
 {
   fprintf(stderr, "Loading shader %s\n", name);
-  FILE* const file = resourceFile(programPath, name);
+  FILE* const file = resourceFile(programPath, PUGL_DATA_DIR, name);
   if (!file) {
     logError("Failed to open '%s'\n", name);
     return NULL;
@@ -511,7 +511,7 @@ main(int argc, char** argv)
   PuglFpsPrinter fpsPrinter = {startTime};
   while (!app.quit) {
     puglUpdate(app.world, updateTimeout(&app));
-    puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
+    puglPrintFps(puglGetTime(app.world), &fpsPrinter, &app.framesDrawn);
   }
 
   // Destroy window (which will send a PUGL_UNREALIZE event)

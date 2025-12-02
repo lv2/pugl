@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: ISC
 
 #include "cube_view.h"
-#include "demo_utils.h"
 
+#include <puglutil/demo_utils.h>
 #include <puglutil/test_utils.h>
 
 #include <pugl/gl.hpp>
@@ -130,7 +130,7 @@ main(int argc, char** argv)
     world.update(0.0);
 
     ++framesDrawn;
-    puglPrintFps(world.cobj(), &fpsPrinter, &framesDrawn);
+    puglPrintFps(world.time(), &fpsPrinter, &framesDrawn);
   }
 
   return 0;

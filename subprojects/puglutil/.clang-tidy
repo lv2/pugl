@@ -1,0 +1,24 @@
+# Copyright 2025 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+Checks: >
+  *,
+  -altera-*,
+  -android-cloexec-fopen,
+  -bugprone-easily-swappable-parameters,
+  -cert-err33-c,
+  -concurrency-mt-unsafe,
+  -llvm-header-guard,
+  -llvmlibc-*,
+CheckOptions:
+  - key:   hicpp-uppercase-literal-suffix.NewSuffixes
+    value: L;U;f
+  - key:   readability-function-cognitive-complexity.IgnoreMacros
+    value: 'true'
+  - key:   readability-function-cognitive-complexity.Threshold
+    value: '1'
+  - key:   readability-uppercase-literal-suffix.NewSuffixes
+    value: L;U;f
+FormatStyle: file
+HeaderFilterRegex: '.*'
+

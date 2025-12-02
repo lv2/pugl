@@ -21,7 +21,7 @@ extern "C" {
    The returned path must be freed with free().
 */
 FILE*
-resourceFile(const char* programPath, const char* name);
+resourceFile(const char* programPath, const char* dataDir, const char* name);
 
 #ifdef __cplusplus
 }

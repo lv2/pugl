@@ -61,6 +61,8 @@
 
 #define VK_NO_PROTOTYPES
 
+#include <cstdint>
+
 // On 64-bit platforms, all handles are "dispatchable" pointers
 #if defined(__LP64__) || defined(_WIN64) ||                          \
   (defined(__x86_64__) && !defined(__ILP32__)) || defined(_M_X64) || \
@@ -92,7 +94,6 @@ struct NonDispatchableHandle {
 #include <array>
 #include <cassert>
 #include <cstddef>
-#include <cstdint>
 #include <type_traits>
 #include <utility>
 

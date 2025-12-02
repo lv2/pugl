@@ -9,8 +9,7 @@
   pugl_vulkan_cpp_demo.cpp.
 */
 
-#include "demo_utils.h"
-
+#include <puglutil/demo_utils.h>
 #include <puglutil/test_utils.h>
 
 #include <pugl/pugl.h>
@@ -1108,7 +1107,7 @@ main(int argc, char** argv)
     puglUpdate(app.world, -1.0);
 
     if (app.opts.continuous) {
-      puglPrintFps(app.world, &fpsPrinter, &app.framesDrawn);
+      puglPrintFps(puglGetTime(app.world), &fpsPrinter, &app.framesDrawn);
     }
   }
 

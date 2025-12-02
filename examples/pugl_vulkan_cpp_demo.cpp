@@ -14,12 +14,11 @@
   Pugl that works nicely on all supported platforms.
 */
 
-#include "demo_utils.h"
-#include "file_utils.h"
-#include "rects.h"
-
 #include "sybok.hpp"
 
+#include <puglutil/demo_utils.h>
+#include <puglutil/file_utils.h>
+#include <puglutil/rects.h>
 #include <puglutil/test_utils.h>
 
 #include <pugl/pugl.h>
@@ -705,7 +704,7 @@ readFile(const char* const programPath, const std::string& filename)
   std::cerr << "Loading shader:           " << filename << "\n";
 
   const std::unique_ptr<FILE, int (*)(FILE*)> file{
-    resourceFile(programPath, filename.c_str()), &fclose};
+    resourceFile(programPath, PUGL_DATA_DIR, filename.c_str()), &fclose};
 
   if (!file) {
     std::cerr << "Failed to open file '" << filename << "'\n";
@@ -1852,7 +1851,7 @@ run(const char* const      programPath,
   app.view.show(pugl::ShowCommand::passive);
   while (!app.quit) {
     app.world.update(timeout);
-    puglPrintFps(app.world.cobj(), &fpsPrinter, &app.framesDrawn);
+    puglPrintFps(app.world.time(), &fpsPrinter, &app.framesDrawn);
   }
 
   if ((r = app.vulkan.vk.deviceWaitIdle(app.gpu.device))) {

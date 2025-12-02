@@ -147,7 +147,7 @@ else
       endif
 
       if target == 'pugl_shader_demo'
-        source += ['file_utils.c', 'glad/glad.c']
+        source += ['glad/glad.c']
         dependencies += [dl_dep]
         gl_args += ['-D_POSIX_C_SOURCE=200809L']
       elif target == 'pugl_print_events'
@@ -198,9 +198,8 @@ else
           continue
         endif
 
-        source += ['file_utils.c']
         defines += ['-D_POSIX_C_SOURCE=200809L']
-        dependencies += [puglpp_dep]
+        dependencies += [puglpp_dep, puglutil_dep]
       endif
 
       executable(

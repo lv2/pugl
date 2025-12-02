@@ -6,7 +6,7 @@
 
 #define GL_SILENCE_DEPRECATION 1 // NOLINT(*-macro-to-enum)
 
-#include "demo_utils.h"
+#include <puglutil/demo_utils.h>
 
 #include <pugl/gl.h>
 #include <pugl/pugl.h>

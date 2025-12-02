@@ -6,8 +6,8 @@
 */
 
 #include "cube_view.h"
-#include "demo_utils.h"
 
+#include <puglutil/demo_utils.h>
 #include <puglutil/test_utils.h>
 
 #include <pugl/gl.h>
@@ -225,7 +225,7 @@ main(int argc, char** argv)
     ++framesDrawn;
 
     if (app.continuous) {
-      puglPrintFps(app.world, &fpsPrinter, &framesDrawn);
+      puglPrintFps(puglGetTime(app.world), &fpsPrinter, &framesDrawn);
     }
   }
 

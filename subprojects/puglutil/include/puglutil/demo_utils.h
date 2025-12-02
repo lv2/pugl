@@ -4,8 +4,6 @@
 #ifndef EXAMPLES_DEMO_UTILS_H
 #define EXAMPLES_DEMO_UTILS_H
 
-#include <pugl/pugl.h>
-
 #include <math.h>
 #include <stdio.h>
 
@@ -90,11 +88,10 @@ perspective(float* m, float fov, float aspect, float zNear, float zFar)
 }
 
 static inline void
-puglPrintFps(const PuglWorld* world,
-             PuglFpsPrinter*  printer,
-             unsigned* const  framesDrawn)
+puglPrintFps(const double    thisTime,
+             PuglFpsPrinter* printer,
+             unsigned* const framesDrawn)
 {
-  const double thisTime = puglGetTime(world);
   if (thisTime > printer->lastReportTime + 5.0) {
     const double elapsed = (thisTime - printer->lastReportTime);
     const double fps     = *framesDrawn / elapsed;

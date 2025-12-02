@@ -1,7 +1,7 @@
 // Copyright 2019-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#include "file_utils.h"
+#include <puglutil/file_utils.h>
 
 #ifdef _WIN32
 #  include <io.h>
@@ -15,7 +15,9 @@
 #include <string.h>
 
 FILE*
-resourceFile(const char* const programPath, const char* const name)
+resourceFile(const char* const programPath,
+             const char* const dataDir,
+             const char* const name)
 {
   char* const binary = strdup(programPath);
 
@@ -42,9 +44,9 @@ resourceFile(const char* const programPath, const char* const name)
     return file;
   }
 
-  const size_t sysPathLen = strlen(PUGL_DATA_DIR) + nameLen + 4;
+  const size_t sysPathLen = strlen(dataDir) + nameLen + 4;
   char* const  sysPath    = (char*)calloc(sysPathLen, 1);
-  snprintf(sysPath, sysPathLen, "%s/%s", PUGL_DATA_DIR, name);
+  snprintf(sysPath, sysPathLen, "%s/%s", dataDir, name);
   file = fopen(sysPath, "rb");
   free(sysPath);
   return file;
