@@ -7,7 +7,6 @@
 #include <puglutil/test_utils.h>
 
 #include <pugl/gl.hpp>
-#include <pugl/pugl.h>
 #include <pugl/pugl.hpp>
 
 #include <cmath>
@@ -21,7 +20,7 @@ public:
     setEventHandler(*this);
   }
 
-  template<PuglEventType t, class Base>
+  template<pugl::EventType t, class Base>
   pugl::Status onEvent(const pugl::Event<t, Base>&) noexcept
   {
     return pugl::Status::success;
@@ -50,7 +49,7 @@ CubeView::onEvent(const pugl::UpdateEvent&) noexcept
   // But for testing, use sendEvent() instead:
   const auto currentSize = this->size(pugl::SizeHint::currentSize);
   return sendEvent(pugl::ExposeEvent{
-    0U, PuglCoord{0}, PuglCoord{0}, currentSize.width, currentSize.height});
+    0U, pugl::Coord{0}, pugl::Coord{0}, currentSize.width, currentSize.height});
 }
 
 pugl::Status
@@ -63,7 +62,7 @@ CubeView::onEvent(const pugl::ExposeEvent&) noexcept
   _xAngle = fmod(_xAngle + dAngle, 360.0);
   _yAngle = fmod(_yAngle + dAngle, 360.0);
 
-  const PuglArea size = this->size(pugl::SizeHint::currentSize);
+  const auto size = this->size(pugl::SizeHint::currentSize);
   reshapeCube(size.width, size.height);
 
   displayCube(cobj(),
@@ -80,7 +79,7 @@ CubeView::onEvent(const pugl::ExposeEvent&) noexcept
 pugl::Status
 CubeView::onEvent(const pugl::KeyPressEvent& event) noexcept
 {
-  if (event.key == PUGL_KEY_ESCAPE || event.key == 'q') {
+  if (event.key == 0x1BU || event.key == 'q') {
     _quit = true;
   }
 

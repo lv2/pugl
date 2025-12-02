@@ -5,7 +5,6 @@
 #define PUGL_GL_HPP
 
 #include <pugl/gl.h>
-#include <pugl/pugl.h>
 #include <pugl/pugl.hpp>
 
 namespace pugl {

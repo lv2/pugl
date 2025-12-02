@@ -1778,8 +1778,8 @@ run(const char* const      programPath,
   PuglVulkanDemo app{programPath, opts, numRects};
 
   VkResult   r      = VK_SUCCESS;
-  const auto width  = static_cast<PuglSpan>(app.extent.width);
-  const auto height = static_cast<PuglSpan>(app.extent.height);
+  const auto width  = static_cast<pugl::Span>(app.extent.width);
+  const auto height = static_cast<pugl::Span>(app.extent.height);
 
   // Realize window so we can set up Vulkan
   app.world.setString(pugl::StringHint::className, "PuglVulkanCppDemo");
