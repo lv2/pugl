@@ -8,7 +8,6 @@ Checks: >
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -llvmlibc-*,
-  -modernize-unary-static-assert,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -performance-enum-size,

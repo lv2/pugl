@@ -33,7 +33,6 @@ Checks: >
   -modernize-avoid-c-arrays,
   -modernize-loop-convert,
   -modernize-redundant-void-arg,
-  -modernize-unary-static-assert,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -modernize-use-using,

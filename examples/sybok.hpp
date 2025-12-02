@@ -355,7 +355,7 @@ public:
   using Deleter = TDeleter;
   using Handle  = T;
 
-  static_assert(std::is_pointer<T>::value, "");
+  static_assert(std::is_pointer_v<T>);
 
   UniqueDispatchableHandle() = default;
 

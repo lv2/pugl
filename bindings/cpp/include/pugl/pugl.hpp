@@ -85,8 +85,7 @@ enum class StringHint {
 };
 
 static_assert(static_cast<StringHint>(PUGL_WINDOW_TITLE) ==
-                StringHint::windowTitle,
-              "");
+              StringHint::windowTitle);
 
 /**
    @defgroup pugl_cpp_events Events
@@ -239,7 +238,7 @@ enum class Status {
   noMemory,            ///< @copydoc PUGL_NO_MEMORY
 };
 
-static_assert(static_cast<Status>(PUGL_UNSUPPORTED) == Status::unsupported, "");
+static_assert(static_cast<Status>(PUGL_UNSUPPORTED) == Status::unsupported);
 
 /// @copydoc puglStrerror
 inline const char*
@@ -263,15 +262,14 @@ enum class WorldType {
   module,  ///< @copydoc PUGL_MODULE
 };
 
-static_assert(static_cast<WorldType>(PUGL_MODULE) == WorldType::module, "");
+static_assert(static_cast<WorldType>(PUGL_MODULE) == WorldType::module);
 
 /// @copydoc PuglWorldFlag
 enum class WorldFlag {
   threads = PUGL_WORLD_THREADS, ///< @copydoc PUGL_WORLD_THREADS
 };
 
-static_assert(static_cast<WorldFlag>(PUGL_WORLD_THREADS) == WorldFlag::threads,
-              "");
+static_assert(static_cast<WorldFlag>(PUGL_WORLD_THREADS) == WorldFlag::threads);
 
 /// @copydoc PuglWorldFlags
 using WorldFlags = PuglWorldFlags;
@@ -433,8 +431,7 @@ enum class ViewHint {
   darkFrame,           ///< @copydoc PUGL_DARK_FRAME
 };
 
-static_assert(static_cast<ViewHint>(PUGL_DARK_FRAME) == ViewHint::darkFrame,
-              "");
+static_assert(static_cast<ViewHint>(PUGL_DARK_FRAME) == ViewHint::darkFrame);
 
 /// @copydoc PuglViewHintValue
 using ViewHintValue = PuglViewHintValue;
@@ -453,8 +450,7 @@ enum class Cursor {
   allScroll,       ///< @copydoc PUGL_CURSOR_ALL_SCROLL
 };
 
-static_assert(static_cast<Cursor>(PUGL_CURSOR_ALL_SCROLL) == Cursor::allScroll,
-              "");
+static_assert(static_cast<Cursor>(PUGL_CURSOR_ALL_SCROLL) == Cursor::allScroll);
 
 /// @copydoc PuglShowCommand
 enum class ShowCommand {
@@ -464,8 +460,7 @@ enum class ShowCommand {
 };
 
 static_assert(static_cast<ShowCommand>(PUGL_SHOW_FORCE_RAISE) ==
-                ShowCommand::forceRaise,
-              "");
+              ShowCommand::forceRaise);
 
 /// @copydoc PuglView
 class View : protected detail::Wrapper<PuglView, puglFreeView>

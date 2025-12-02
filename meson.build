@@ -9,7 +9,7 @@ project(
     'buildtype=release',
     'c_std=c99',
     'c_winlibs=',
-    'cpp_std=c++14',
+    'cpp_std=c++17',
     'cpp_winlibs=',
   ],
   license: 'ISC',
