@@ -138,11 +138,3 @@ endif
 ###################
 
 subdir('headers')
-
-#######################
-# C++ / Objective C++ #
-#######################
-
-if is_variable('cpp')
-  subdir('cpp')
-endif
