@@ -58,13 +58,13 @@ puglFreeVulkanLoader(PuglVulkanLoader* loader)
 PFN_vkGetInstanceProcAddr
 puglGetInstanceProcAddrFunc(const PuglVulkanLoader* loader)
 {
-  return loader->vkGetInstanceProcAddr;
+  return loader ? loader->vkGetInstanceProcAddr : NULL;
 }
 
 PFN_vkGetDeviceProcAddr
 puglGetDeviceProcAddrFunc(const PuglVulkanLoader* loader)
 {
-  return loader->vkGetDeviceProcAddr;
+  return loader ? loader->vkGetDeviceProcAddr : NULL;
 }
 
 const PuglBackend*

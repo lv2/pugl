@@ -74,7 +74,7 @@ public:
   */
   PFN_vkGetInstanceProcAddr getInstanceProcAddrFunc() const noexcept
   {
-    return cobj() ? puglGetInstanceProcAddrFunc(cobj()) : nullptr;
+    return puglGetInstanceProcAddrFunc(cobj());
   }
 
   /**
@@ -85,7 +85,7 @@ public:
   */
   PFN_vkGetDeviceProcAddr getDeviceProcAddrFunc() const noexcept
   {
-    return cobj() ? puglGetDeviceProcAddrFunc(cobj()) : nullptr;
+    return puglGetDeviceProcAddrFunc(cobj());
   }
 
   /// Return true if this loader is valid to use
