@@ -49,10 +49,10 @@ html_short_title = "Pugl"
 html_static_path = ["../_static"]
 html_theme = "sphinx_lv2_theme"
 
-if tags.has('singlehtml'):
+if tags.has("singlehtml"):
     html_sidebars = {
         "**": [
-        "globaltoc.html",
+            "globaltoc.html",
         ]
     }
 
