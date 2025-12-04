@@ -1,0 +1,38 @@
+# Copyright 2021-2025 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+option(
+  'docs',
+  type: 'feature',
+  value: 'disabled',
+  description: 'Build experimental C++ documentation',
+)
+
+option(
+  'examples',
+  type: 'feature',
+  yield: true,
+  description: 'Build example programs',
+)
+
+option(
+  'lint',
+  type: 'boolean',
+  value: false,
+  yield: true,
+  description: 'Run project tests',
+)
+
+option(
+  'tests',
+  type: 'feature',
+  yield: true,
+  description: 'Build tests',
+)
+
+option(
+  'vulkan',
+  type: 'feature',
+  yield: true,
+  description: 'Build Vulkan example program',
+)

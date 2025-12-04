@@ -1,11 +1,10 @@
 // Copyright 2012-2020 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#include "cube_view.h"
-
 #include <puglutil/demo_utils.h>
 #include <puglutil/test_utils.h>
 
+#include <pugl/gl.h>
 #include <pugl/gl.hpp>
 #include <pugl/pugl.hpp>
 
@@ -55,6 +54,42 @@ CubeView::onEvent(const pugl::UpdateEvent&) noexcept
 pugl::Status
 CubeView::onEvent(const pugl::ExposeEvent&) noexcept
 {
+  static const float cubeStripVertices[] = {
+    -1.0f, +1.0f, +1.0f, // Front top left
+    +1.0f, +1.0f, +1.0f, // Front top right
+    -1.0f, -1.0f, +1.0f, // Front bottom left
+    +1.0f, -1.0f, +1.0f, // Front bottom right
+    +1.0f, -1.0f, -1.0f, // Back bottom right
+    +1.0f, +1.0f, +1.0f, // Front top right
+    +1.0f, +1.0f, -1.0f, // Back top right
+    -1.0f, +1.0f, +1.0f, // Front top left
+    -1.0f, +1.0f, -1.0f, // Back top left
+    -1.0f, -1.0f, +1.0f, // Front bottom left
+    -1.0f, -1.0f, -1.0f, // Back bottom left
+    +1.0f, -1.0f, -1.0f, // Back bottom right
+    -1.0f, +1.0f, -1.0f, // Back top left
+    +1.0f, +1.0f, -1.0f, // Back top right
+  };
+
+  static const float cubeStripColorVertices[] = {
+    0.25f, 0.75f, 0.75f, // Front top left
+    0.75f, 0.75f, 0.75f, // Front top right
+    0.25f, 0.25f, 0.75f, // Front bottom left
+    0.75f, 0.25f, 0.75f, // Front bottom right
+    0.75f, 0.25f, 0.25f, // Back bottom right
+    0.75f, 0.75f, 0.75f, // Front top right
+    0.75f, 0.75f, 0.25f, // Back top right
+    0.25f, 0.75f, 0.75f, // Front top left
+    0.25f, 0.75f, 0.25f, // Back top left
+    0.25f, 0.25f, 0.75f, // Front bottom left
+    0.25f, 0.25f, 0.25f, // Back bottom left
+    0.75f, 0.25f, 0.25f, // Back bottom right
+    0.25f, 0.75f, 0.25f, // Back top left
+    0.75f, 0.75f, 0.25f, // Back top right
+  };
+
+  static const float distance = 8.0f;
+
   const double thisTime = world().time();
   const double dTime    = thisTime - _lastDrawTime;
   const double dAngle   = dTime * 100.0;
@@ -62,14 +97,42 @@ CubeView::onEvent(const pugl::ExposeEvent&) noexcept
   _xAngle = fmod(_xAngle + dAngle, 360.0);
   _yAngle = fmod(_yAngle + dAngle, 360.0);
 
-  const auto size = this->size(pugl::SizeHint::currentSize);
-  reshapeCube(size.width, size.height);
+  const auto currentSize = this->size(pugl::SizeHint::currentSize);
 
-  displayCube(cobj(),
-              8.0f,
-              static_cast<float>(_xAngle),
-              static_cast<float>(_yAngle),
-              false);
+  const auto aspect = (static_cast<float>(currentSize.width) /
+                       static_cast<float>(currentSize.height));
+
+  glEnable(GL_CULL_FACE);
+  glCullFace(GL_BACK);
+  glFrontFace(GL_CW);
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glViewport(0, 0, currentSize.width, currentSize.height);
+
+  float projection[16];
+  perspective(projection, 1.8f, aspect, 1.0f, 100.0f);
+  glLoadMatrixf(projection);
+
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glTranslatef(0.0f, 0.0f, distance * -1.0f);
+  glRotatef(static_cast<float>(_xAngle), 0.0f, 1.0f, 0.0f);
+  glRotatef(static_cast<float>(_yAngle), 1.0f, 0.0f, 0.0f);
+
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glEnableClientState(GL_COLOR_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, cubeStripVertices);
+  glColorPointer(3, GL_FLOAT, 0, cubeStripColorVertices);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 14);
+  glDisableClientState(GL_COLOR_ARRAY);
+  glDisableClientState(GL_VERTEX_ARRAY);
 
   _lastDrawTime = thisTime;
 

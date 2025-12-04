@@ -16,6 +16,17 @@ if get_option('warning_level') == 'everything'
     endif
   elif cpp.get_id() == 'gcc'
     header_cpp_suppressions += ['-Wno-padded']
+  elif cpp.get_id() == 'msvc'
+    header_cpp_suppressions += [
+      '/wd4514',  # unreferenced inline function has been removed
+      '/wd4625',  # copy constructor implicitly deleted
+      '/wd4626',  # copy assignment operator implicitly deleted
+      '/wd4710',  # function not inlined
+      '/wd4711',  # function selected for automatic inline expansion
+      '/wd4820',  # padding added after construct
+      '/wd5027',  # move assignment operator implicitly deleted
+      '/wd5039',  # pointer to potentially throwing function passed to C
+    ]
   endif
 endif
 

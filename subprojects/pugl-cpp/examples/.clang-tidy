@@ -1,0 +1,36 @@
+# Copyright 2025 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+Checks: >
+  -*-avoid-c-arrays,
+  -*-magic-numbers,
+  -*-vararg,
+  -bugprone-assignment-in-if-condition,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-macro-parentheses,
+  -cert-err33-c,
+  -cppcoreguidelines-avoid-const-or-ref-data-members,
+  -cppcoreguidelines-macro-usage,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -fuchsia-default-arguments-calls,
+  -fuchsia-overloaded-operator,
+  -hicpp-named-parameter,
+  -hicpp-no-array-decay,
+  -hicpp-signed-bitwise,
+  -llvm-header-guard,
+  -misc-non-private-member-variables-in-classes,
+  -modernize-use-nodiscard,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length,
+  -readability-implicit-bool-conversion,
+  -readability-named-parameter,
+  -readability-redundant-member-init,
+CheckOptions:
+  - key:   cppcoreguidelines-avoid-do-while.IgnoreMacros
+    value: true
+  - key:   readability-function-cognitive-complexity.Threshold
+    value: '12'
+InheritParentConfig: true

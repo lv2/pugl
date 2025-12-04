@@ -4,23 +4,8 @@
 option('bindings_cpp', type: 'feature', description: 'Build C++ bindings')
 option('cairo', type: 'feature', description: 'Enable Cairo graphics backend')
 option('docs', type: 'feature', description: 'Build documentation')
-
-option(
-  'docs_cpp',
-  type: 'boolean',
-  value: false,
-  description: 'Build experimental C++ documentation',
-)
-
 option('examples', type: 'feature', description: 'Build example programs')
-
-option(
-  'lint',
-  type: 'boolean',
-  value: false,
-  description: 'Run maintainer checks',
-)
-
+option('lint', type: 'boolean', value: false, description: 'Run project tests')
 option('opengl', type: 'feature', description: 'Enable OpenGL graphics backend')
 option('stub', type: 'boolean', description: 'Build stub backend')
 option('tests', type: 'feature', description: 'Build tests')

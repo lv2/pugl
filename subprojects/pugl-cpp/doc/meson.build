@@ -21,8 +21,6 @@ endif
 # Build documentation if all required tools are found
 build_docs = doxygen.found() and sphinxygen.found() and sphinx_build.found()
 if build_docs
-  subdir('_static')
-
   config = configuration_data()
   config.set('PUGL_VERSION', meson.project_version())
 
@@ -32,22 +30,17 @@ if build_docs
     output: 'conf.py',
   )
 
-  rst_files_src = files(
-    'clipboards.rst',
-    'deployment.rst',
+  cpp_rst_files = files(
     'event-loop.rst',
     'events.rst',
     'index.rst',
     'overview.rst',
-    'shutting-down.rst',
-    'summary.rst',
     'view.rst',
     'world.rst',
   )
 
-  rst_files = []
-  foreach f : rst_files_src
-    rst_files += [configure_file(copy: true, input: f, output: '@PLAINNAME@')]
+  foreach f : cpp_rst_files
+    configure_file(copy: true, input: f, output: '@PLAINNAME@')
   endforeach
 
   subdir('xml')
@@ -57,12 +50,12 @@ if build_docs
 
   foreach format : ['html', 'singlehtml']
     custom_target(
-      format,
+      'cpp_@0@'.format(format),
       build_by_default: true,
       command: [sphinx_build, ['-M', format], sphinx_args, ['-t', format]],
-      input: [rst_files, pugl_rst, index_xml],
+      input: [cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
       install: true,
-      install_dir: docdir / 'pugl-0',
+      install_dir: docdir / 'pugl-cpp-0',
       output: format,
     )
   endforeach

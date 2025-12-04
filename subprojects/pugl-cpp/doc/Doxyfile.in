@@ -6,7 +6,8 @@ PROJECT_BRIEF          = "A minimal portable API for embeddable GUIs"
 
 AUTOLINK_SUPPORT       = NO
 QUIET                  = YES
-WARN_AS_ERROR          = YES
+WARN_AS_ERROR          = NO
+WARN_IF_INCOMPLETE_DOC = NO
 WARN_IF_UNDOCUMENTED   = NO
 WARN_NO_PARAMDOC       = NO
 
@@ -36,18 +37,18 @@ PREDEFINED             = PUGL_API \
                          PUGL_MALLOC_FUNC=
 
 RECURSIVE              = NO
-STRIP_FROM_PATH        = @PUGL_SRCDIR@
-INPUT                  = @PUGL_SRCDIR@/include/pugl/attributes.h \
-                         @PUGL_SRCDIR@/include/pugl/pugl.h \
-                         @PUGL_SRCDIR@/include/pugl/cairo.h \
-                         @PUGL_SRCDIR@/include/pugl/gl.h \
-                         @PUGL_SRCDIR@/include/pugl/glu.h \
-                         @PUGL_SRCDIR@/include/pugl/stub.h \
-                         @PUGL_SRCDIR@/include/pugl/vulkan.h \
-                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/pugl.hpp \
-                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/cairo.hpp \
-                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/gl.hpp \
-                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/stub.hpp \
-                         @PUGL_SRCDIR@/bindings/cpp/include/pugl/vulkan.hpp
+STRIP_FROM_PATH        = @PUGL_CPP_SRCDIR@
+INPUT                  = @PUGL_CPP_SRCDIR@/../../include/pugl/attributes.h \
+                         @PUGL_CPP_SRCDIR@/../../include/pugl/pugl.h \
+                         @PUGL_CPP_SRCDIR@/../../include/pugl/cairo.h \
+                         @PUGL_CPP_SRCDIR@/../../include/pugl/gl.h \
+                         @PUGL_CPP_SRCDIR@/../../include/pugl/glu.h \
+                         @PUGL_CPP_SRCDIR@/../../include/pugl/stub.h \
+                         @PUGL_CPP_SRCDIR@/../../include/pugl/vulkan.h \
+                         @PUGL_CPP_SRCDIR@/include/pugl/pugl.hpp \
+                         @PUGL_CPP_SRCDIR@/include/pugl/cairo.hpp \
+                         @PUGL_CPP_SRCDIR@/include/pugl/gl.hpp \
+                         @PUGL_CPP_SRCDIR@/include/pugl/stub.hpp \
+                         @PUGL_CPP_SRCDIR@/include/pugl/vulkan.hpp
 
 OUTPUT_DIRECTORY       = @DOX_OUTPUT@

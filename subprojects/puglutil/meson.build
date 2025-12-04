@@ -29,6 +29,15 @@ if cc.get_id() == 'clang'
   endif
 elif cc.get_id() == 'gcc'
   c_suppressions += ['-Wno-suggest-attribute=malloc']
+elif cc.get_id() == 'msvc'
+  c_suppressions += [
+    '/D_CRT_SECURE_NO_WARNINGS',
+
+    '/wd4514',  # unreferenced inline function has been removed
+    '/wd4625',  # copy constructor implicitly deleted
+    '/wd4668',  # not defined as a preprocessor macro
+    '/wd4710',  # function not inlined
+  ]
 endif
 
 c_suppressions = cc.get_supported_arguments(c_suppressions)

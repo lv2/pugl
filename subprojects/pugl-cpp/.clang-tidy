@@ -1,0 +1,23 @@
+# Copyright 2020-2025 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+Checks: >
+  *,
+  -altera*,
+  -bugprone-multi-level-implicit-pointer-conversion,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -llvmlibc-*,
+  -misc-include-cleaner,
+  -misc-non-private-member-variables-in-classes,
+  -modernize-use-nodiscard,
+  -modernize-use-trailing-return-type,
+  -performance-enum-size,
+CheckOptions:
+  - key:   hicpp-uppercase-literal-suffix.NewSuffixes
+    value: L;U;f
+  - key:   readability-function-cognitive-complexity.IgnoreMacros
+    value: 'true'
+  - key:   readability-uppercase-literal-suffix.NewSuffixes
+    value: L;U;f
+FormatStyle: file
+HeaderFilterRegex: '.*\.hpp$'

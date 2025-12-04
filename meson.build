@@ -10,7 +10,6 @@ project(
     'c_std=c99',
     'c_winlibs=',
     'cpp_std=c++17',
-    'cpp_winlibs=',
   ],
   license: 'ISC',
   meson_version: '>= 0.54.0',
@@ -30,19 +29,9 @@ versioned_name = 'pugl' + version_suffix
 pkg = import('pkgconfig')
 cc = meson.get_compiler('c')
 
-# Enable C++ support if we're building the examples or the bindings
-if (
-  not get_option('bindings_cpp').disabled()
-  or not get_option('examples').disabled()
-)
-  if add_languages(['cpp'], native: false, required: false)
-    cpp = meson.get_compiler('cpp')
-  endif
-endif
-
 # Enable Objective C support if we're building for MacOS
 if host_machine.system() == 'darwin'
-  add_languages(['objc', 'objcpp'], native: false)
+  add_languages(['objc'], native: false)
   objcc = meson.get_compiler('objc')
 endif
 
@@ -446,15 +435,11 @@ if vulkan_dep.found()
   )
 endif
 
-###############################
-# Public Headers and Bindings #
-###############################
+##################
+# Public Headers #
+##################
 
 subdir('include')
-
-if not get_option('bindings_cpp').disabled()
-  subdir('bindings/cpp')
-endif
 
 ######################
 # Tests and Examples #
@@ -472,6 +457,12 @@ endif
 if not get_option('examples').disabled()
   subdir('examples')
 endif
+
+################
+# C++ Bindings #
+################
+
+subproject('pugl-cpp', required: get_option('bindings_cpp'))
 
 #################
 # Documentation #

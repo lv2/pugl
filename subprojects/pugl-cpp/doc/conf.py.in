@@ -34,13 +34,12 @@ _opaque = [
     "uintptr_t",
 ]
 
-nitpick_ignore = list(map(lambda x: ("c:identifier", x), _opaque))
+nitpick_ignore = list(map(lambda x: ("cpp:identifier", x), _opaque))
 
 # HTML output
 
 html_copy_source = False
 html_short_title = "Pugl"
-html_static_path = ["_static"]
 html_theme = "sphinx_lv2_theme"
 
 if tags.has("singlehtml"):
