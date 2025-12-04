@@ -58,36 +58,6 @@ typedef struct {
   PuglSpan height;
 } PuglArea;
 
-/// A string property for configuration
-typedef enum {
-  /**
-     The application class name.
-
-     This is a stable identifier for the application, which should be a short
-     camel-case name like "MyApp".  This should be the same for every instance
-     of the application, but different from any other application.  On X11 and
-     Windows, it is used to set the class name of windows (that underlie
-     realized views), which is used for things like loading configuration, or
-     custom window management rules.
-  */
-  PUGL_CLASS_NAME = 1U,
-
-  /**
-     The title of the window or application.
-
-     This is used by the system to display a title for the application or
-     window, for example in title bars or window/application switchers.  It is
-     only used to display a label to the user, not as an identifier, and can
-     change over time to reflect the current state of the application.  For
-     example, it is common for programs to add the name of the current
-     document, like "myfile.txt - Fancy Editor".
-  */
-  PUGL_WINDOW_TITLE,
-} PuglStringHint;
-
-/// The number of #PuglStringHint values
-#define PUGL_NUM_STRING_HINTS ((unsigned)PUGL_WINDOW_TITLE + 1U)
-
 /**
    @}
    @defgroup pugl_events Events
@@ -729,6 +699,43 @@ typedef enum {
 /// Return a string describing a status code
 PUGL_CONST_API const char*
 puglStrerror(PuglStatus status);
+
+/**
+   @}
+   @defgroup pugl_string_hints String Hints
+   Configuration hints that have a string value.
+   @{
+*/
+
+/// A string property for configuration
+typedef enum {
+  /**
+     The application class name.
+
+     This is a stable identifier for the application, which should be a short
+     camel-case name like "MyApp".  This should be the same for every instance
+     of the application, but different from any other application.  On X11 and
+     Windows, it is used to set the class name of windows (that underlie
+     realized views), which is used for things like loading configuration, or
+     custom window management rules.
+  */
+  PUGL_CLASS_NAME = 1U,
+
+  /**
+     The title of the window or application.
+
+     This is used by the system to display a title for the application or
+     window, for example in title bars or window/application switchers.  It is
+     only used to display a label to the user, not as an identifier, and can
+     change over time to reflect the current state of the application.  For
+     example, it is common for programs to add the name of the current
+     document, like "myfile.txt - Fancy Editor".
+  */
+  PUGL_WINDOW_TITLE,
+} PuglStringHint;
+
+/// The number of #PuglStringHint values
+#define PUGL_NUM_STRING_HINTS ((unsigned)PUGL_WINDOW_TITLE + 1U)
 
 /**
    @}
