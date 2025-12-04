@@ -26,7 +26,6 @@ Checks: >
   -readability-identifier-length,
   -readability-implicit-bool-conversion,
   -readability-named-parameter,
-  -readability-redundant-member-init,
 CheckOptions:
   - key:   cppcoreguidelines-avoid-do-while.IgnoreMacros
     value: true

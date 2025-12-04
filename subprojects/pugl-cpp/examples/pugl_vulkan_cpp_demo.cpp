@@ -84,9 +84,9 @@ struct GraphicsDevice {
   VkSurfaceFormatKHR surfaceFormat{};
   VkPresentModeKHR   presentMode{};
   VkPresentModeKHR   resizePresentMode{};
-  sk::Device         device{};
+  sk::Device         device;
   sk::Queue          graphicsQueue{};
-  sk::CommandPool    commandPool{};
+  sk::CommandPool    commandPool;
 };
 
 /// Buffer allocated on the GPU
@@ -112,8 +112,8 @@ struct Swapchain {
 
   VkSurfaceCapabilitiesKHR   capabilities{};
   VkExtent2D                 extent{};
-  sk::SwapchainKHR           swapchain{};
-  std::vector<sk::ImageView> imageViews{};
+  sk::SwapchainKHR           swapchain;
+  std::vector<sk::ImageView> imageViews;
 };
 
 /// A pass that renders to a target
@@ -138,12 +138,12 @@ struct RectData {
                 const GraphicsDevice& gpu,
                 size_t                nRects);
 
-  sk::DescriptorSetLayout descriptorSetLayout{};
+  sk::DescriptorSetLayout descriptorSetLayout;
   Buffer                  uniformBuffer{};
-  sk::MappedMemory        uniformData{};
+  sk::MappedMemory        uniformData;
   Buffer                  modelBuffer{};
   Buffer                  instanceBuffer{};
-  sk::MappedMemory        vertexData{};
+  sk::MappedMemory        vertexData;
   size_t                  numRects{};
 };
 
@@ -153,8 +153,8 @@ struct RectShaders {
                 const GraphicsDevice& gpu,
                 const std::string&    programPath);
 
-  sk::ShaderModule vert{};
-  sk::ShaderModule frag{};
+  sk::ShaderModule vert;
+  sk::ShaderModule frag;
 };
 
 /// A pipeline to render rectangles with our shaders
@@ -166,9 +166,9 @@ struct RectPipeline {
                 const Swapchain&      swapchain,
                 const RenderPass&     renderPass);
 
-  sk::DescriptorPool                               descriptorPool{};
-  sk::DescriptorSets<std::vector<VkDescriptorSet>> descriptorSets{};
-  sk::PipelineLayout                               pipelineLayout{};
+  sk::DescriptorPool                               descriptorPool;
+  sk::DescriptorSets<std::vector<VkDescriptorSet>> descriptorSets;
+  sk::PipelineLayout                               pipelineLayout;
   std::array<sk::Pipeline, 1>                      pipelines{};
   uint32_t                                         numImages{};
 };
@@ -179,9 +179,9 @@ struct RenderSync {
                 const sk::Device&    device,
                 uint32_t             numImages);
 
-  std::vector<sk::Semaphore> imageAvailable{};
-  std::vector<sk::Semaphore> renderFinished{};
-  std::vector<sk::Fence>     inFlight{};
+  std::vector<sk::Semaphore> imageAvailable;
+  std::vector<sk::Semaphore> renderFinished;
+  std::vector<sk::Fence>     inFlight;
   size_t                     currentFrame{};
 };
 
