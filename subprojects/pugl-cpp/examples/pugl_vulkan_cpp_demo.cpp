@@ -1241,6 +1241,20 @@ logInfo(const char* heading, const Value& value)
             << value << "\n";
 }
 
+int
+logFail(const char* heading)
+{
+  std::cerr << heading << "\n";
+  return 1;
+}
+
+int
+logFail(const char* heading, const char* detail)
+{
+  std::cerr << heading << " (" << detail << ")\n";
+  return 1;
+}
+
 VkResult
 createInstance(sk::VulkanInitApi&     initApi,
                const PuglTestOptions& opts,
@@ -1791,23 +1805,23 @@ run(const char* const      programPath,
   app.view.setHint(pugl::ViewHint::darkFrame, true);
   const pugl::Status st = app.view.realize();
   if (st != pugl::Status::success) {
-    return logError("Failed to create window (%s)\n", pugl::strerror(st));
+    return logFail("Failed to create window", pugl::strerror(st));
   }
 
   if (!app.loader) {
-    return logError("Failed to load Vulkan library\n");
+    return logFail("Failed to load Vulkan library");
   }
 
   // Load Vulkan for the view
   if ((r = app.vulkan.init(app.loader, opts))) {
-    return logError("Failed to set up Vulkan API (%s)\n", sk::string(r));
+    return logFail("Failed to set up Vulkan API", sk::string(r));
   }
 
   const auto& vk = app.vulkan.vk;
 
   // Set up the graphics device
   if ((r = app.gpu.init(app.loader, app.vulkan, app.view, opts))) {
-    return logError("Failed to set up device (%s)\n", sk::string(r));
+    return logFail("Failed to set up device", sk::string(r));
   }
 
   logInfo("Present mode", sk::string(app.gpu.presentMode));
@@ -1815,12 +1829,12 @@ run(const char* const      programPath,
 
   // Set up the rectangle data we will render every frame
   if ((r = app.rectData.init(vk, app.gpu, app.rects.size()))) {
-    return logError("Failed to allocate render data (%s)\n", sk::string(r));
+    return logFail("Failed to allocate render data", sk::string(r));
   }
 
   // Load shader modules
   if ((r = app.rectShaders.init(vk, app.gpu, app.programPath))) {
-    return logError("Failed to load shaders (%s)\n", sk::string(r));
+    return logFail("Failed to load shaders", sk::string(r));
   }
 
   if ((r = app.renderer.init(app.vulkan.vk,
@@ -1829,7 +1843,7 @@ run(const char* const      programPath,
                              app.rectShaders,
                              app.extent,
                              RenderMode::normal))) {
-    return logError("Failed to create renderer (%s)\n", sk::string(r));
+    return logFail("Failed to create renderer", sk::string(r));
   }
 
   logInfo("Swapchain frames",
@@ -1855,7 +1869,7 @@ run(const char* const      programPath,
   }
 
   if ((r = app.vulkan.vk.deviceWaitIdle(app.gpu.device))) {
-    return logError("Failed to wait for device idle (%s)\n", sk::string(r));
+    return logFail("Failed to wait for device idle", sk::string(r));
   }
 
   return 0;
@@ -1880,7 +1894,7 @@ main(int argc, char** argv)
     char* endptr = nullptr;
     numRects     = strtol(argv[0], &endptr, 10);
     if (endptr != argv[0] + strlen(argv[0]) || numRects < 1) {
-      logError("Invalid number of rectangles: %s\n", argv[0]);
+      logFail("Invalid number of rectangles", argv[0]);
       return 1;
     }
   }

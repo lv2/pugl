@@ -4,7 +4,6 @@
 Checks: >
   -*-avoid-c-arrays,
   -*-magic-numbers,
-  -*-vararg,
   -bugprone-assignment-in-if-condition,
   -bugprone-easily-swappable-parameters,
   -bugprone-macro-parentheses,
