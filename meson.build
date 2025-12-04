@@ -193,7 +193,6 @@ endif
 # Core Library #
 ################
 
-core_deps += []
 core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
 includes = include_directories(['include'])
 
