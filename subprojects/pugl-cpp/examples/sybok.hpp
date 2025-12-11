@@ -1203,7 +1203,9 @@ public:
     }
 
     pipelines = make_handle_array<Pipeline>(
-      device.get(), vkDestroyPipeline, pipelineHandles);
+      device.get(),
+      vkDestroyPipeline,
+      pipelineHandles); // NOLINT(clang-analyzer-core.NullDereference)
     return VK_SUCCESS;
   }
 

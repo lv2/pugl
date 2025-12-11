@@ -4,6 +4,7 @@
 Checks: >
   -*-avoid-c-arrays,
   -*-magic-numbers,
+  -boost-*,
   -bugprone-assignment-in-if-condition,
   -bugprone-easily-swappable-parameters,
   -bugprone-macro-parentheses,
@@ -20,6 +21,7 @@ Checks: >
   -hicpp-no-array-decay,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
+  -llvm-prefer-static-over-anonymous-namespace,
   -misc-non-private-member-variables-in-classes,
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,

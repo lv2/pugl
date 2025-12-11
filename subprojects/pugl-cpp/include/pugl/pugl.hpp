@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#if defined(PUGL_HPP_THROW_FAILED_CONSTRUCTION)
+#ifdef PUGL_HPP_THROW_FAILED_CONSTRUCTION
 #  include <exception>
 #elif defined(PUGL_HPP_ASSERT_CONSTRUCTION)
 #  include <cassert>
@@ -274,7 +274,7 @@ static_assert(static_cast<WorldFlag>(PUGL_WORLD_THREADS) == WorldFlag::threads);
 /// @copydoc PuglWorldFlags
 using WorldFlags = PuglWorldFlags;
 
-#if defined(PUGL_HPP_THROW_FAILED_CONSTRUCTION)
+#ifdef PUGL_HPP_THROW_FAILED_CONSTRUCTION
 
 /// An exception thrown when construction fails
 class FailedConstructionError : public std::exception

@@ -25,6 +25,7 @@ if warning_level == 'everything'
   if cc.get_id() == 'clang'
     example_c_args += [
       '-Wno-float-equal',
+      '-Wno-nrvo',
       '-Wno-reserved-id-macro',
       '-Wno-reserved-identifier',
     ]

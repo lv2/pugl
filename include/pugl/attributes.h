@@ -27,7 +27,7 @@
 #endif
 
 // GCC function attributes
-#if defined(__GNUC__)
+#ifdef __GNUC__
 #  define PUGL_CONST_FUNC __attribute__((const))
 #  define PUGL_MALLOC_FUNC __attribute__((malloc))
 #else
