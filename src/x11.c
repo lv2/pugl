@@ -641,8 +641,8 @@ puglRealize(PuglView* const view)
 #endif
 
   // Set basic window hints and attributes
-  char* const className = world->strings[PUGL_CLASS_NAME];
-  XClassHint  classHint = {className, className};
+  XClassHint classHint = {world->strings[PUGL_APPLICATION_NAME],
+                          world->strings[PUGL_CLASS_NAME]};
   XSetClassHint(display, impl->win, &classHint);
   puglSetViewString(view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
   puglSetTransientParent(view, view->transientParent);
@@ -1895,6 +1895,7 @@ puglViewStringChanged(PuglView* const      view,
   }
 
   switch (key) {
+  case PUGL_APPLICATION_NAME:
   case PUGL_CLASS_NAME:
     break;
 

@@ -1704,6 +1704,7 @@ puglViewStringChanged(PuglView* const      view,
   }
 
   switch (key) {
+  case PUGL_APPLICATION_NAME:
   case PUGL_CLASS_NAME:
     return PUGL_UNSUPPORTED;
 

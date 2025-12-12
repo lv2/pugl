@@ -710,16 +710,24 @@ puglStrerror(PuglStatus status);
 /// A string property for configuration
 typedef enum {
   /**
-     The application class name.
+     The application name.
 
-     This is a stable identifier for the application, which should be a short
+     This is a stable identifier for the application, usually something like
+     "my_app" which is the same as the name of the executable.  It's used as
+     the applications name for X11 resources.
+  */
+  PUGL_APPLICATION_NAME = 1U,
+
+  /**
+     The application or window class name.
+
+     This is a stable identifier for the application window class, a short
      camel-case name like "MyApp".  This should be the same for every instance
      of the application, but different from any other application.  On X11 and
-     Windows, it is used to set the class name of windows (that underlie
-     realized views), which is used for things like loading configuration, or
-     custom window management rules.
+     Windows, it's used to set the class name of windows, which is used for
+     window management and configuration.
   */
-  PUGL_CLASS_NAME = 1U,
+  PUGL_CLASS_NAME,
 
   /**
      The title of the window or application.
