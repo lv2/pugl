@@ -70,12 +70,12 @@ puglFreeWorld(PuglWorld* const world)
 }
 
 void
-puglSetWorldHandle(PuglWorld* world, PuglWorldHandle handle)
+puglSetWorldHandle(PuglWorld* const world, void* const handle)
 {
   world->handle = handle;
 }
 
-PuglWorldHandle
+void*
 puglGetWorldHandle(PuglWorld* world)
 {
   return world->handle;
@@ -202,12 +202,12 @@ puglGetWorld(PuglView* view)
 }
 
 void
-puglSetHandle(PuglView* view, PuglHandle handle)
+puglSetHandle(PuglView* const view, void* const handle)
 {
   view->handle = handle;
 }
 
-PuglHandle
+void*
 puglGetHandle(PuglView* view)
 {
   return view->handle;

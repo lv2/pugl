@@ -253,9 +253,6 @@ strerror(const Status status) noexcept
    @{
 */
 
-/// @copydoc PuglWorldHandle
-using WorldHandle = PuglWorldHandle;
-
 /// @copydoc PuglWorldType
 enum class WorldType {
   program, ///< @copydoc PUGL_PROGRAM
@@ -344,10 +341,10 @@ public:
   {}
 
   /// @copydoc puglGetWorldHandle
-  WorldHandle handle() noexcept { return puglGetWorldHandle(cobj()); }
+  void* handle() noexcept { return puglGetWorldHandle(cobj()); }
 
   /// @copydoc puglSetWorldHandle
-  void setHandle(const WorldHandle handle) noexcept
+  void setHandle(void* const handle) noexcept
   {
     puglSetWorldHandle(cobj(), handle);
   }

@@ -47,7 +47,7 @@ struct PuglViewImpl {
   PuglWorld*         world;
   const PuglBackend* backend;
   PuglInternals*     impl;
-  PuglHandle         handle;
+  void*              handle;
   PuglEventFunc      eventFunc;
   PuglNativeView     parent;
   uintptr_t          transientParent;
@@ -63,7 +63,7 @@ struct PuglViewImpl {
 /// Cross-platform world definition
 struct PuglWorldImpl {
   PuglWorldInternals* impl;
-  PuglWorldHandle     handle;
+  void*               handle;
   double              startTime;
   size_t              numViews;
   PuglView**          views;

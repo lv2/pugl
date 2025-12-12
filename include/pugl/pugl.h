@@ -761,9 +761,6 @@ typedef enum {
 */
 typedef struct PuglWorldImpl PuglWorld;
 
-/// Handle for the world's opaque user data
-typedef void* PuglWorldHandle;
-
 /// The type of a World
 typedef enum {
   PUGL_PROGRAM, ///< Top-level application
@@ -806,10 +803,10 @@ puglFreeWorld(PuglWorld* world);
    The handle is opaque to Pugl and is not interpreted in any way.
 */
 PUGL_API void
-puglSetWorldHandle(PuglWorld* world, PuglWorldHandle handle);
+puglSetWorldHandle(PuglWorld* world, void* handle);
 
 /// Get the user data for the world
-PUGL_API PuglWorldHandle
+PUGL_API void*
 puglGetWorldHandle(PuglWorld* world);
 
 /**
@@ -926,9 +923,6 @@ typedef struct PuglBackendImpl PuglBackend;
    Windows: This is a `HWND`.
 */
 typedef uintptr_t PuglNativeView;
-
-/// Handle for a view's opaque user data
-typedef void* PuglHandle;
 
 /// An integer hint for configuring a view
 typedef enum {
@@ -1122,10 +1116,10 @@ puglGetWorld(PuglView* view);
    The handle is opaque to Pugl and is not interpreted in any way.
 */
 PUGL_API void
-puglSetHandle(PuglView* view, PuglHandle handle);
+puglSetHandle(PuglView* view, void* handle);
 
 /// Get the user data for a view
-PUGL_API PuglHandle
+PUGL_API void*
 puglGetHandle(PuglView* view);
 
 /**
