@@ -1695,9 +1695,9 @@ puglGetNativeView(const PuglView* view)
 }
 
 PuglStatus
-puglViewStringChanged(PuglView* const      view,
-                      const PuglStringHint key,
-                      const char* const    value)
+puglApplyViewString(PuglView* const      view,
+                    const PuglStringHint key,
+                    const char* const    value)
 {
   if (!view->impl->window) {
     return PUGL_SUCCESS;

@@ -644,7 +644,8 @@ puglRealize(PuglView* const view)
   XClassHint classHint = {world->strings[PUGL_APPLICATION_NAME],
                           world->strings[PUGL_CLASS_NAME]};
   XSetClassHint(display, impl->win, &classHint);
-  puglSetViewString(view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
+  puglApplyViewString(
+    view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
   puglSetTransientParent(view, view->transientParent);
   puglUpdateSizeHints(view);
 
@@ -1883,9 +1884,9 @@ puglGetNativeView(const PuglView* const view)
 }
 
 PuglStatus
-puglViewStringChanged(PuglView* const      view,
-                      const PuglStringHint key,
-                      const char* const    value)
+puglApplyViewString(PuglView* const      view,
+                    const PuglStringHint key,
+                    const char* const    value)
 {
   Display* const      display = view->world->impl->display;
   const PuglX11Atoms* atoms   = &view->world->impl->atoms;

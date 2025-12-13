@@ -111,22 +111,27 @@ puglSetBlob(PuglBlob* const dest, const void* const data, const size_t len)
   return PUGL_SUCCESS;
 }
 
-void
+PuglStatus
 puglSetString(char** dest, const char* string)
 {
-  if (*dest == string) {
-    return;
-  }
+  if (*dest != string) {
+    const size_t len = string ? strlen(string) : 0U;
+    if (!len) {
+      free(*dest);
+      *dest = NULL;
+      return PUGL_SUCCESS;
+    }
 
-  const size_t len = string ? strlen(string) : 0U;
+    char* const new_dest = (char*)realloc(*dest, len + 1U);
+    if (!new_dest) {
+      return PUGL_NO_MEMORY;
+    }
 
-  if (!len) {
-    free(*dest);
-    *dest = NULL;
-  } else {
-    *dest = (char*)realloc(*dest, len + 1U);
+    *dest = new_dest;
     memcpy(*dest, string, len + 1U);
   }
+
+  return PUGL_SUCCESS;
 }
 
 PuglStatus

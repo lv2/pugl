@@ -312,7 +312,8 @@ puglRealize(PuglView* view)
 
   // Set basic window hints and attributes
 
-  puglSetViewString(view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
+  puglApplyViewString(
+    view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
   puglSetTransientParent(view, view->transientParent);
 
   impl->scaleFactor = puglWinGetViewScaleFactor(view);
@@ -1230,9 +1231,9 @@ puglGetNativeView(const PuglView* view)
 }
 
 PuglStatus
-puglViewStringChanged(PuglView* const      view,
-                      const PuglStringHint key,
-                      const char* const    value)
+puglApplyViewString(PuglView* const      view,
+                    const PuglStringHint key,
+                    const char* const    value)
 {
   PuglStatus st = PUGL_SUCCESS;
   if (!view->impl->hwnd) {

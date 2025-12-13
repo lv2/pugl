@@ -50,7 +50,7 @@ PuglStatus
 puglSetBlob(PuglBlob* dest, const void* data, size_t len);
 
 /// Reallocate and set `*dest` to `string`
-void
+PuglStatus
 puglSetString(char** dest, const char* string);
 
 /// Store `width` and `height` as the current value of a size `hint`
@@ -60,9 +60,9 @@ puglStoreSizeHint(PuglView*    view,
                   unsigned     width,
                   unsigned     height);
 
-/// Handle a changed string property
+/// Apply a change to a string property
 PuglStatus
-puglViewStringChanged(PuglView* view, PuglStringHint key, const char* value);
+puglApplyViewString(PuglView* view, PuglStringHint key, const char* value);
 
 /// Return the Unicode code point for `buf` or the replacement character
 uint32_t
