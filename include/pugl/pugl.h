@@ -716,7 +716,7 @@ typedef enum {
      "my_app" which is the same as the name of the executable.  It's used as
      the applications name for X11 resources.
   */
-  PUGL_APPLICATION_NAME = 1U,
+  PUGL_APPLICATION_NAME,
 
   /**
      The application or window class name.
@@ -743,7 +743,7 @@ typedef enum {
 } PuglStringHint;
 
 /// The number of #PuglStringHint values
-#define PUGL_NUM_STRING_HINTS ((unsigned)PUGL_WINDOW_TITLE + 1U)
+#define PUGL_NUM_STRING_HINTS 3U
 
 /**
    @}
@@ -957,7 +957,7 @@ typedef enum {
 } PuglViewHint;
 
 /// The number of #PuglViewHint values
-#define PUGL_NUM_VIEW_HINTS ((unsigned)PUGL_DARK_FRAME + 1U)
+#define PUGL_NUM_VIEW_HINTS 20U
 
 /// A special view hint value
 typedef enum {
@@ -1018,7 +1018,7 @@ typedef enum {
 } PuglPositionHint;
 
 /// The number of #PuglPositionHint values
-#define PUGL_NUM_POSITION_HINTS ((unsigned)PUGL_CURRENT_POSITION + 1U)
+#define PUGL_NUM_POSITION_HINTS 2U
 
 /**
    A hint for configuring/constraining the size of a view.
@@ -1085,7 +1085,7 @@ typedef enum {
 } PuglSizeHint;
 
 /// The number of #PuglSizeHint values
-#define PUGL_NUM_SIZE_HINTS ((unsigned)PUGL_MAX_ASPECT + 1U)
+#define PUGL_NUM_SIZE_HINTS 7U
 
 /// A function called when an event occurs
 typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
@@ -1499,7 +1499,7 @@ typedef enum {
 } PuglCursor;
 
 /// The number of #PuglCursor values
-#define PUGL_NUM_CURSORS ((unsigned)PUGL_CURSOR_ALL_SCROLL + 1U)
+#define PUGL_NUM_CURSORS 10U
 
 /**
    Grab the keyboard input focus.

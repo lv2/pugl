@@ -80,9 +80,9 @@ using Area = PuglArea;
 
 /// @copydoc PuglStringHint
 enum class StringHint {
-  applicationName = 1, ///< @copydoc PUGL_APPLICATION_NAME
-  className,           ///< @copydoc PUGL_CLASS_NAME
-  windowTitle,         ///< @copydoc PUGL_WINDOW_TITLE
+  applicationName, ///< @copydoc PUGL_APPLICATION_NAME
+  className,       ///< @copydoc PUGL_CLASS_NAME
+  windowTitle,     ///< @copydoc PUGL_WINDOW_TITLE
 };
 
 static_assert(static_cast<StringHint>(PUGL_WINDOW_TITLE) ==
