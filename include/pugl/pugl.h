@@ -106,13 +106,6 @@ typedef enum {
 /// Bitwise OR of #PuglEventFlag values
 typedef uint32_t PuglEventFlags;
 
-/// Reason for a PuglCrossingEvent
-typedef enum {
-  PUGL_CROSSING_NORMAL, ///< Crossing due to pointer motion
-  PUGL_CROSSING_GRAB,   ///< Crossing due to a grab
-  PUGL_CROSSING_UNGRAB, ///< Crossing due to a grab release
-} PuglCrossingMode;
-
 /// Common header for all event structs
 typedef struct {
   PuglEventType  type;  ///< Event type
@@ -392,6 +385,13 @@ typedef enum {
 
 /// Bitwise OR of #PuglMod values
 typedef uint32_t PuglMods;
+
+/// Reason for a PuglCrossingEvent
+typedef enum {
+  PUGL_CROSSING_NORMAL, ///< Crossing due to pointer motion
+  PUGL_CROSSING_GRAB,   ///< Crossing due to a grab
+  PUGL_CROSSING_UNGRAB, ///< Crossing due to a grab release
+} PuglCrossingMode;
 
 /**
    Keyboard focus event.
