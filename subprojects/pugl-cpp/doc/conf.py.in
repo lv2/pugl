@@ -1,10 +1,10 @@
-# Copyright 2020-2023 David Robillard <d@drobilla.net>
+# Copyright 2020-2025 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 # Project information
 
 project = "Pugl"
-copyright = "2023, David Robillard"
+copyright = "2025, David Robillard"
 author = "David Robillard"
 release = "@PUGL_VERSION@"
 

@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_ATTRIBUTES_H
@@ -9,8 +9,8 @@
 #  define PUGL_BEGIN_DECLS extern "C" {
 #  define PUGL_END_DECLS }
 #else
-#  define PUGL_BEGIN_DECLS ///< Begin public API definitions
-#  define PUGL_END_DECLS   ///< End public API definitions
+#  define PUGL_BEGIN_DECLS // Begin public API definitions
+#  define PUGL_END_DECLS   // End public API definitions
 #endif
 
 // Symbol exposed in the public API
@@ -31,14 +31,14 @@
 #  define PUGL_CONST_FUNC __attribute__((const))
 #  define PUGL_MALLOC_FUNC __attribute__((malloc))
 #else
-#  define PUGL_CONST_FUNC  ///< Only reads its parameters
-#  define PUGL_MALLOC_FUNC ///< Allocates memory
+#  define PUGL_CONST_FUNC  // Only reads its parameters
+#  define PUGL_MALLOC_FUNC // Allocates memory
 #endif
 
-/// A const function in the public API that only reads parameters
+// A const function in the public API that only reads parameters
 #define PUGL_CONST_API PUGL_API PUGL_CONST_FUNC
 
-/// A malloc function in the public API that returns allocated memory
+// A malloc function in the public API that returns allocated memory
 #define PUGL_MALLOC_API PUGL_API PUGL_MALLOC_FUNC
 
 #endif // PUGL_ATTRIBUTES_H

@@ -26,7 +26,7 @@ PUGL_BEGIN_DECLS
 /**
    @defgroup pugl_gl OpenGL
    OpenGL graphics support.
-   @ingroup pugl
+   @ingroup pugl_backend
    @{
 */
 
@@ -37,6 +37,9 @@ typedef void (*PuglGlFunc)(void);
 
 /**
    Return the address of an OpenGL extension function.
+
+   The returned void function pointer must be cast to the appropriate function
+   type (defined by the OpenGL specification) in order to be called.
 */
 PUGL_API PuglGlFunc
 puglGetProcAddress(const char* name);

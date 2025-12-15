@@ -12,7 +12,7 @@ PUGL_BEGIN_DECLS
 /**
    @defgroup pugl_stub Stub
    Native graphics support.
-   @ingroup pugl
+   @ingroup pugl_backend
    @{
 */
 

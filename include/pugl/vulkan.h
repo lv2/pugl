@@ -29,7 +29,7 @@ PUGL_BEGIN_DECLS
    Vulkan library, and a portable function to create a Vulkan surface for a
    view, which hides the platform-specific implementation details.
 
-   @ingroup pugl
+   @ingroup pugl_backend
    @{
 */
 
@@ -37,11 +37,11 @@ PUGL_BEGIN_DECLS
    Dynamic Vulkan loader.
 
    This can be used to dynamically load the Vulkan library.  Applications or
-   plugins should not link against the Vulkan library, but instead use this at
+   plugins shouldn't link against the Vulkan library, but instead use this at
    runtime.  This ensures that things will work on as many systems as possible,
    and allows errors to be handled gracefully.
 
-   This is not a "loader" in the sense of loading all the required Vulkan
+   This isn't a "loader" in the sense of loading all the required Vulkan
    functions (which is the application's responsibility), but just a minimal
    implementation to portably load the Vulkan library and get the two functions
    that are used to load everything else.
@@ -76,8 +76,8 @@ puglNewVulkanLoader(PuglWorld* world, const char* libraryName);
 /**
    Free a loader created with puglNewVulkanLoader().
 
-   Note that this closes the Vulkan library, so no Vulkan objects or API may be
-   used after this is called.
+   Note that this closes the Vulkan library, so the Vulkan API can no longer be
+   used.
 */
 PUGL_API void
 puglFreeVulkanLoader(PuglVulkanLoader* loader);

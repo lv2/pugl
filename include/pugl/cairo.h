@@ -12,7 +12,7 @@ PUGL_BEGIN_DECLS
 /**
    @defgroup pugl_cairo Cairo
    Cairo graphics support.
-   @ingroup pugl
+   @ingroup pugl_backend
    @{
 */
 
