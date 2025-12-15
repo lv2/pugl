@@ -108,8 +108,8 @@ pages:
     - mkdir public
     - mkdir public/c
     - mkdir public/cpp
-    - mv build/doc/c/singlehtml/ public/c/singlehtml/
-    - mv build/doc/c/html/ public/c/html/
+    - mv build/doc/singlehtml/ public/c/singlehtml/
+    - mv build/doc/html/ public/c/html/
   needs:
     - dev
   artifacts:
