@@ -3,6 +3,7 @@
 
 Checks: >
   *,
+  -*-macro-to-enum,
   -*-magic-numbers,
   -altera-*,
   -llvmlibc-*,
