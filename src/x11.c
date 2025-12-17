@@ -19,6 +19,7 @@
 #include <X11/Xresource.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
+#include <sys/time.h>
 
 #ifndef USE_XRANDR
 #  if __has_include(<X11/extensions/Xrandr.h>)
