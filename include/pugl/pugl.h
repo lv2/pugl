@@ -1495,6 +1495,34 @@ PUGL_API bool
 puglHasFocus(const PuglView* view);
 
 /**
+   Return true if the event is wanted. Will either be a PUGL_TEXT or PUGL_KEY_*.
+*/
+typedef bool (*PuglKeyboardEventFilter)(PuglView* view, const PuglEvent* event);
+
+/**
+   Request all keyboard input events.
+
+   This tries to ensure that the view receives keyboard events even when they
+   might normally be intercepted or consumed by the system or other handlers.
+   This is particularly useful for audio plugins when the host blocks key
+   events from reaching the plugin.
+
+   If you use this, you do not need to use puglGrabFocus.
+
+   Use the filter function to allow the exact events that you directly need,
+   allowing other handlers on the system to consume them if not.
+
+   Note that this will fail if the view is not mapped and so should not, for
+   example, be called immediately after puglShow().
+
+   @return #PUGL_SUCCESS if the focus was successfully grabbed, or an error.
+*/
+PUGL_API PuglStatus
+puglSetWantsAllKeyboardEvents(PuglView*               view,
+                              bool                    wantsEvents,
+                              PuglKeyboardEventFilter filterFunction);
+
+/**
    Request data from the general copy/paste clipboard.
 
    A #PUGL_DATA_OFFER event will be sent if data is available.

@@ -1358,6 +1358,22 @@ puglHasFocus(const PuglView* const view)
 }
 
 PuglStatus
+puglSetWantsAllKeyboardEvents(PuglView*               view,
+                              bool                    wantsEvents,
+                              PuglKeyboardEventFilter filterFunction)
+{
+  (void)filterFunction;
+
+  if (wantsEvents) {
+    if (!puglHasFocus(view)) {
+      puglGrabFocus(view);
+    }
+  }
+
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
 puglStartTimer(PuglView* const view, const uintptr_t id, const double timeout)
 {
 #if USE_XSYNC

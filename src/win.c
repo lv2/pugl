@@ -42,6 +42,10 @@
 #define PUGL_LOCAL_CLIENT_MSG (WM_USER + 52)
 #define PUGL_USER_TIMER_MIN 9470
 
+#define PUGL_WINDOW_MAGIC 0x5055474C // "PUGL" in ASCII
+#define PUGL_WINDOW_MAGIC_OFFSET 0
+#define PUGL_WINDOW_EXTRA_SIZE sizeof(LONG_PTR)
+
 #ifdef __cplusplus
 #  define PUGL_INIT_STRUCT \
     {                      \
@@ -56,6 +60,9 @@ typedef HRESULT(WINAPI* PFN_GetScaleFactorForMonitor)(HMONITOR, DWORD*);
 
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+static void
+removeKeyboardHook(PuglView* view);
 
 #ifdef UNICODE
 
@@ -139,6 +146,7 @@ puglRegisterWindowClass(const char* name)
   wc.cbSize        = sizeof(wc);
   wc.style         = CS_OWNDC;
   wc.lpfnWndProc   = wndProc;
+  wc.cbWndExtra    = PUGL_WINDOW_EXTRA_SIZE;
   wc.hInstance     = module;
   wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
   wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
@@ -332,6 +340,7 @@ puglRealize(PuglView* view)
   }
 
   SetWindowLongPtr(impl->hwnd, GWLP_USERDATA, (LONG_PTR)view);
+  SetWindowLongPtr(impl->hwnd, PUGL_WINDOW_MAGIC_OFFSET, PUGL_WINDOW_MAGIC);
 
   return puglDispatchSimpleEvent(view, PUGL_REALIZE);
 }
@@ -348,6 +357,11 @@ puglUnrealize(PuglView* const view)
 
   if (view->backend) {
     view->backend->destroy(view);
+  }
+
+  removeKeyboardHook(view);
+  if (view->impl->lastFocus) {
+    SetFocus(view->impl->lastFocus);
   }
 
   memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
@@ -921,6 +935,9 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     break;
   case WM_KILLFOCUS:
     event.type = PUGL_FOCUS_OUT;
+    if (view->impl->keyboardHook) {
+      removeKeyboardHook(view);
+    }
     break;
   case WM_SYSKEYDOWN:
     initKeyEvent(&event.key, view, true, wParam, lParam);
@@ -1646,4 +1663,155 @@ puglWinLeave(PuglView* view, const PuglExposeEvent* expose)
   }
 
   return PUGL_SUCCESS;
+}
+
+// Returns true if the message was consumed
+static bool
+handleHookMessage(PuglView* view, const MSG* msg, int code, WPARAM wParam)
+{
+  if (code != HC_ACTION || wParam != PM_REMOVE || !msg->hwnd) {
+    return false;
+  }
+
+  PuglEvent event = PUGL_INIT_STRUCT;
+
+  switch (msg->message) {
+  case WM_CHAR:
+  case WM_SYSCHAR:
+    initCharEvent(&event, view, msg->wParam, msg->lParam);
+    if (!view->impl->keyboardEventFilter ||
+        view->impl->keyboardEventFilter(view, &event)) {
+      puglDispatchEvent(view, &event);
+      return true;
+    }
+    return false;
+
+  case WM_KEYDOWN:
+  case WM_KEYUP:
+  case WM_SYSKEYDOWN:
+  case WM_SYSKEYUP: {
+    bool used = false;
+
+    // TODO: can we get the real CHAR event here rather than a made-up example
+    event.type           = PUGL_TEXT;
+    event.text.character = 'a';
+    event.text.string[0] = 'a';
+    if (!view->impl->keyboardEventFilter ||
+        view->impl->keyboardEventFilter(view, &event)) {
+      // Adds a WM_CHAR message to the queue if the key produces text
+      TranslateMessage(msg);
+
+      // We check if text was produced (removing the events as we do the check)
+      MSG peeked = PUGL_INIT_STRUCT;
+      if (PeekMessage(&peeked, msg->hwnd, WM_CHAR, WM_DEADCHAR, PM_REMOVE) ||
+          PeekMessage(
+            &peeked, msg->hwnd, WM_SYSCHAR, WM_SYSDEADCHAR, PM_REMOVE)) {
+        used = true;
+      }
+    }
+
+    initKeyEvent(&event.key,
+                 view,
+                 msg->message == WM_KEYDOWN || msg->message == WM_SYSKEYDOWN,
+                 msg->wParam,
+                 msg->lParam);
+    if (!view->impl->keyboardEventFilter ||
+        view->impl->keyboardEventFilter(view, &event)) {
+      puglDispatchEvent(view, &event);
+      return true;
+    }
+
+    return used;
+  }
+  }
+
+  return false;
+}
+
+static LRESULT CALLBACK
+keyboardHookProc(int code, WPARAM wParam, LPARAM lParam)
+{
+  MSG* msg = (MSG*)lParam;
+
+  // Check if this window is actually a pugl window
+  if (GetClassLongPtr(msg->hwnd, GCL_CBWNDEXTRA) ==
+        (LONG_PTR)PUGL_WINDOW_EXTRA_SIZE &&
+      GetWindowLongPtr(msg->hwnd, PUGL_WINDOW_MAGIC_OFFSET) ==
+        PUGL_WINDOW_MAGIC) {
+    PuglView* view = (PuglView*)GetWindowLongPtr(msg->hwnd, GWLP_USERDATA);
+    if (view && view->impl && view->impl->wantsAllKeyboardEvents) {
+      if (handleHookMessage(view, msg, code, wParam)) {
+        // Scrub the message so no one else gets it
+        memset(msg, 0, sizeof(MSG));
+        msg->message = WM_USER;
+        return 0;
+      }
+    }
+  }
+
+  return CallNextHookEx(NULL, code, wParam, lParam);
+}
+
+static void
+removeKeyboardHook(PuglView* view)
+{
+  if (view->impl->keyboardHook) {
+    UnhookWindowsHookEx(view->impl->keyboardHook);
+    view->impl->keyboardHook = NULL;
+  }
+}
+
+static PuglStatus
+installKeyboardHook(PuglView* view)
+{
+  if (view->impl->keyboardHook) {
+    return PUGL_SUCCESS;
+  }
+
+  HMODULE module = NULL;
+  if (!GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                           GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                         (LPCTSTR)keyboardHookProc,
+                         &module)) {
+    module = GetModuleHandle(NULL);
+  }
+
+  if (!module) {
+    return PUGL_FAILURE;
+  }
+
+  view->impl->keyboardHook = SetWindowsHookEx(
+    WH_GETMESSAGE, keyboardHookProc, module, GetCurrentThreadId());
+
+  return view->impl->keyboardHook ? PUGL_SUCCESS : PUGL_FAILURE;
+}
+
+PuglStatus
+puglSetWantsAllKeyboardEvents(PuglView*               view,
+                              bool                    wantsEvents,
+                              PuglKeyboardEventFilter filterFunction)
+{
+  if (!view || !view->impl) {
+    return PUGL_BAD_PARAMETER;
+  }
+
+  view->impl->wantsAllKeyboardEvents = wantsEvents;
+  view->impl->keyboardEventFilter    = filterFunction;
+
+  if (wantsEvents) {
+    // Set focus and install hook
+    HWND hwnd = view->impl->hwnd;
+    if (GetFocus() != hwnd) {
+      view->impl->lastFocus = SetFocus(hwnd);
+    }
+    return installKeyboardHook(view);
+  } else {
+    // Restore previous focus and remove hook
+    if (view->impl->lastFocus) {
+      SetFocus(view->impl->lastFocus);
+      view->impl->lastFocus = NULL;
+    }
+    removeKeyboardHook(view);
+    return PUGL_SUCCESS;
+  }
 }
