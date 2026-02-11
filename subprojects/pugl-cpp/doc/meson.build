@@ -53,7 +53,7 @@ if build_docs
       'cpp_@0@'.format(format),
       build_by_default: true,
       command: [sphinx_build, ['-M', format], sphinx_args, ['-t', format]],
-      input: [cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
+      input: [conf_py, cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
       install: true,
       install_dir: docdir / 'pugl-cpp-0',
       output: format,

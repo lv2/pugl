@@ -60,7 +60,7 @@ if build_docs
       format,
       build_by_default: true,
       command: [sphinx_build, ['-M', format], sphinx_args, ['-t', format]],
-      input: [rst_files, pugl_rst, index_xml],
+      input: [conf_py, rst_files, pugl_rst, index_xml],
       install: true,
       install_dir: docdir / 'pugl-0',
       output: format,

@@ -15,6 +15,13 @@ language = "en"
 nitpicky = True
 pygments_style = "friendly"
 
+try:
+    import sphinx_lv2_theme
+
+    have_lv2_theme = True
+except ModuleNotFoundError:
+    have_lv2_theme = False
+
 # Ignore everything opaque or external for nitpicky mode
 _opaque = [
     "PFN_vkGetDeviceProcAddr",
@@ -40,44 +47,48 @@ nitpick_ignore = list(map(lambda x: ("cpp:identifier", x), _opaque))
 
 html_copy_source = False
 html_short_title = "Pugl"
-html_theme = "sphinx_lv2_theme"
 
-if tags.has("singlehtml"):
-    html_sidebars = {
-        "**": [
-            "globaltoc.html",
-        ]
-    }
+if have_lv2_theme:
+    html_theme = "sphinx_lv2_theme"
 
-    html_theme_options = {
-        "body_max_width": "51em",
-        "body_min_width": "51em",
-        "description": "A minimal portable API for embeddable GUIs.",
-        "show_footer_version": True,
-        "show_logo_version": False,
-        "logo": "pugl.svg",
-        "logo_name": True,
-        "logo_width": "8em",
-        "nosidebar": False,
-        "page_width": "80em",
-        "sidebar_width": "16em",
-        "globaltoc_maxdepth": 3,
-        "globaltoc_collapse": False,
-    }
+    if tags.has("singlehtml"):
+        html_sidebars = {
+            "**": [
+                "globaltoc.html",
+            ]
+        }
 
+        html_theme_options = {
+            "body_max_width": "51em",
+            "body_min_width": "51em",
+            "description": "A minimal portable API for embeddable GUIs.",
+            "show_footer_version": True,
+            "show_logo_version": False,
+            "logo": "pugl.svg",
+            "logo_name": True,
+            "logo_width": "8em",
+            "nosidebar": False,
+            "page_width": "80em",
+            "sidebar_width": "16em",
+            "globaltoc_maxdepth": 3,
+            "globaltoc_collapse": False,
+        }
+
+    else:
+        html_theme_options = {
+            "body_max_width": "60em",
+            "body_min_width": "40em",
+            "description": "A minimal portable API for embeddable GUIs.",
+            "show_footer_version": True,
+            "show_logo_version": False,
+            "logo": "pugl.svg",
+            "logo_name": True,
+            "logo_width": "8em",
+            "nosidebar": True,
+            "page_width": "60em",
+            "sidebar_width": "14em",
+            "globaltoc_maxdepth": 1,
+            "globaltoc_collapse": True,
+        }
 else:
-    html_theme_options = {
-        "body_max_width": "60em",
-        "body_min_width": "40em",
-        "description": "A minimal portable API for embeddable GUIs.",
-        "show_footer_version": True,
-        "show_logo_version": False,
-        "logo": "pugl.svg",
-        "logo_name": True,
-        "logo_width": "8em",
-        "nosidebar": True,
-        "page_width": "60em",
-        "sidebar_width": "14em",
-        "globaltoc_maxdepth": 1,
-        "globaltoc_collapse": True,
-    }
+    html_theme = "alabaster"
