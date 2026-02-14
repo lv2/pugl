@@ -1088,7 +1088,8 @@ puglDispatchViewEvents(PuglView* view)
 
   long markTime = 0;
   MSG  msg;
-  while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
+  HWND hwnd = view->world->type == PUGL_PROGRAM ? NULL : view->impl->hwnd;
+  while (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE)) {
     if (msg.message == PUGL_LOCAL_MARK_MSG) {
       markTime = GetMessageTime();
     } else {
