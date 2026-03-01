@@ -297,8 +297,8 @@ typedef enum {
   PUGL_KEY_F8            = 0xE007U, ///< F8
   PUGL_KEY_F9            = 0xE008U, ///< F9
   PUGL_KEY_F10           = 0xE009U, ///< F10
-  PUGL_KEY_F11           = 0xE010U, ///< F11
-  PUGL_KEY_F12           = 0xE011U, ///< F12
+  PUGL_KEY_F11           = 0xE00AU, ///< F11
+  PUGL_KEY_F12           = 0xE00BU, ///< F12
   PUGL_KEY_PAGE_UP       = 0xE031U, ///< Page Up
   PUGL_KEY_PAGE_DOWN     = 0xE032U, ///< Page Down
   PUGL_KEY_END           = 0xE033U, ///< End
