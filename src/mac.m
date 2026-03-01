@@ -953,27 +953,33 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 - (void)flagsChanged:(NSEvent*)event
 {
   const uint32_t mods    = getModifiers(event);
+  PuglEventType  type    = PUGL_NOTHING;
   PuglKey        special = PUGL_KEY_NONE;
 
   const uint16_t keyCode = [event keyCode];
   if (flagDiffers(mods, puglview->impl->mods, PUGL_MOD_SHIFT)) {
     special = (keyCode == 0x3C) ? PUGL_KEY_SHIFT_R : PUGL_KEY_SHIFT_L;
+    type    = (mods & PUGL_MOD_SHIFT) ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
   } else if (flagDiffers(mods, puglview->impl->mods, PUGL_MOD_CTRL)) {
     special = (keyCode == 0x3E) ? PUGL_KEY_CTRL_R : PUGL_KEY_CTRL_L;
+    type    = (mods & PUGL_MOD_CTRL) ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
   } else if (flagDiffers(mods, puglview->impl->mods, PUGL_MOD_ALT)) {
     special = (keyCode == 0x3D) ? PUGL_KEY_ALT_R : PUGL_KEY_ALT_L;
+    type    = (mods & PUGL_MOD_ALT) ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
   } else if (flagDiffers(mods, puglview->impl->mods, PUGL_MOD_SUPER)) {
     special = PUGL_KEY_SUPER_L; // Left and right command are identical
+    type    = (mods & PUGL_MOD_SUPER) ? PUGL_KEY_PRESS : PUGL_KEY_RELEASE;
   } else if (flagDiffers(mods, puglview->impl->mods, PUGL_MOD_CAPS_LOCK)) {
     special = PUGL_KEY_CAPS_LOCK;
+    type =
+      ([event type] == NSEventTypeKeyUp) ? PUGL_KEY_RELEASE : PUGL_KEY_PRESS;
   }
 
   if (special != 0) {
-    const NSPoint wloc    = [self eventLocation:event];
-    const NSPoint rloc    = [NSEvent mouseLocation];
-    const bool    release = [event type] == NSEventTypeKeyUp;
+    const NSPoint wloc = [self eventLocation:event];
+    const NSPoint rloc = [NSEvent mouseLocation];
 
-    const PuglKeyEvent ev = {release ? PUGL_KEY_RELEASE : PUGL_KEY_PRESS,
+    const PuglKeyEvent ev = {type,
                              0U,
                              [event timestamp],
                              wloc.x,
