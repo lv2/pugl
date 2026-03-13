@@ -1451,6 +1451,22 @@ puglHasFocus(const PuglView* view)
           [[impl->wrapperView window] firstResponder] == impl->wrapperView);
 }
 
+PuglStatus
+puglSetWantsAllKeyboardEvents(PuglView*               view,
+                              bool                    wantsEvents,
+                              PuglKeyboardEventFilter filterFunction)
+{
+  (void)filterFunction;
+
+  if (wantsEvents) {
+    if (!puglHasFocus(view)) {
+      puglGrabFocus(view);
+    }
+  }
+
+  return PUGL_SUCCESS;
+}
+
 static bool
 styleIsMaximized(const PuglViewStyleFlags flags)
 {
