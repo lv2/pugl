@@ -1424,10 +1424,9 @@ puglSetClipboard(PuglView* const   view,
   }
 
   // Measure string and allocate global memory for clipboard
-  const char* str  = (const char*)data;
-  const int   wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
-  HGLOBAL     mem =
-    GlobalAlloc(GMEM_MOVEABLE, (size_t)(wlen + 1) * sizeof(wchar_t));
+  const char* str   = (const char*)impl->clipboard.data;
+  const int   wsize = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+  HGLOBAL mem = GlobalAlloc(GMEM_MOVEABLE, (size_t)(wsize * sizeof(wchar_t)));
   if (!mem) {
     CloseClipboard();
     return PUGL_UNKNOWN_ERROR;
@@ -1442,8 +1441,7 @@ puglSetClipboard(PuglView* const   view,
   }
 
   // Convert string into global memory and set it as clipboard data
-  MultiByteToWideChar(CP_UTF8, 0, str, (int)len, wstr, wlen);
-  wstr[wlen] = 0;
+  MultiByteToWideChar(CP_UTF8, 0, str, (int)len, wstr, wsize);
   GlobalUnlock(mem);
   SetClipboardData(CF_UNICODETEXT, mem);
   CloseClipboard();
