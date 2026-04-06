@@ -1415,7 +1415,7 @@ puglSetClipboard(PuglView* const   view,
     return st;
   }
 
-  if (!!strcmp(type, "text/plain")) {
+  if (type && !!strcmp(type, "text/plain")) {
     return PUGL_UNSUPPORTED;
   }
 
