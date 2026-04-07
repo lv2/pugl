@@ -1834,7 +1834,7 @@ puglGetTime(const PuglWorld* const world)
     return 0.0;
   }
 
-  return ((double)ts.tv_sec + (double)ts.tv_nsec / 1000000000.0) -
+  return ((double)ts.tv_sec + ((double)ts.tv_nsec / 1000000000.0)) -
          world->startTime;
 }
 

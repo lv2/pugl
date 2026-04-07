@@ -69,7 +69,7 @@ onMotion(PuglView* view, double x, double y)
   row = (row < 0) ? 0 : (row >= N_ROWS) ? (N_ROWS - 1) : row;
   col = (col < 0) ? 0 : (col >= N_COLS) ? (N_COLS - 1) : col;
 
-  const PuglCursor cursor = (PuglCursor)((row * N_COLS + col) % N_CURSORS);
+  const PuglCursor cursor = (PuglCursor)(((row * N_COLS) + col) % N_CURSORS);
   puglSetCursor(view, cursor);
 }
 

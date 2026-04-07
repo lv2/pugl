@@ -138,8 +138,8 @@ obscureButton(PuglView* view, const ViewScale scale, const Button* button)
 {
   const double span = sqrt((button->w * button->w) + (button->h * button->h));
   puglObscureRegion(view,
-                    (int)((button->x - span / 2.0) * scale.x),
-                    (int)((button->y - span / 2.0) * scale.y),
+                    (int)((button->x - (span / 2.0)) * scale.x),
+                    (int)((button->y - (span / 2.0)) * scale.y),
                     (unsigned)ceil(span * scale.x),
                     (unsigned)ceil(span * scale.y));
 }
