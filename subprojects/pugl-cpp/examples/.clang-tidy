@@ -1,4 +1,4 @@
-# Copyright 2025 David Robillard <d@drobilla.net>
+# Copyright 2025-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 Checks: >
@@ -7,12 +7,14 @@ Checks: >
   -boost-*,
   -bugprone-assignment-in-if-condition,
   -bugprone-easily-swappable-parameters,
+  -bugprone-invalid-enum-default-initialization,
   -bugprone-macro-parentheses,
   -cert-err33-c,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-macro-usage,
   -cppcoreguidelines-non-private-member-variables-in-classes,
   -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
   -cppcoreguidelines-pro-bounds-constant-array-index,
   -cppcoreguidelines-pro-bounds-pointer-arithmetic,
   -fuchsia-default-arguments-calls,

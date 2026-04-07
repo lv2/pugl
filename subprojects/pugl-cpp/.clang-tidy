@@ -1,4 +1,4 @@
-# Copyright 2020-2025 David Robillard <d@drobilla.net>
+# Copyright 2020-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 Checks: >
@@ -6,6 +6,7 @@ Checks: >
   -altera*,
   -bugprone-multi-level-implicit-pointer-conversion,
   -cppcoreguidelines-pro-type-reinterpret-cast,
+  -llvm-use-ranges,
   -llvmlibc-*,
   -misc-include-cleaner,
   -misc-non-private-member-variables-in-classes,
