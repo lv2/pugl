@@ -1,4 +1,4 @@
-# Copyright 2021-2025 David Robillard <d@drobilla.net>
+# Copyright 2021-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 data_dir = get_option('prefix') / get_option('datadir') / 'pugl-0'
@@ -89,11 +89,7 @@ else
       source = [example]
       target = example.split('.')[0]
       dependencies = [m_dep, pugl_dep, pugl_gl_dep, puglutil_dep]
-      gl_args = []
-
-      if host_machine.system() == 'darwin'
-        gl_args += ['-DGL_SILENCE_DEPRECATION', '-Wno-deprecated-declarations']
-      endif
+      gl_args = opengl_args
 
       if cc.get_id() == 'gcc' and warning_level in ['everything', '3']
         gl_args += ['-Wno-pedantic']
