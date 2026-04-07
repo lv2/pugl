@@ -1129,7 +1129,7 @@ puglSendEvent(PuglView* view, const PuglEvent* event)
 }
 
 static PuglStatus
-puglDispatchViewEvents(PuglView* view)
+puglDispatchViewEvents(const HWND hwnd)
 {
   /* Windows has no facility to process only currently queued messages, which
      causes the event loop to run forever in cases like mouse movement where
@@ -1140,7 +1140,7 @@ puglDispatchViewEvents(PuglView* view)
 
   long markTime = 0;
   MSG  msg;
-  while (PeekMessage(&msg, view->impl->hwnd, 0, 0, PM_REMOVE)) {
+  while (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE)) {
     if (msg.message == PUGL_LOCAL_MARK_MSG) {
       markTime = GetMessageTime();
     } else {
@@ -1158,12 +1158,19 @@ puglDispatchViewEvents(PuglView* view)
 static PuglStatus
 puglDispatchWinEvents(PuglWorld* world)
 {
+  if (world->type == PUGL_PROGRAM) {
+    // Process all application events regardless of view
+    PostMessage(NULL, PUGL_LOCAL_MARK_MSG, 0, 0);
+    puglDispatchViewEvents(NULL);
+    return PUGL_SUCCESS;
+  }
+
   for (size_t i = 0; i < world->numViews; ++i) {
     PostMessage(world->views[i]->impl->hwnd, PUGL_LOCAL_MARK_MSG, 0, 0);
   }
 
   for (size_t i = 0; i < world->numViews; ++i) {
-    puglDispatchViewEvents(world->views[i]);
+    puglDispatchViewEvents(world->views[i]->impl->hwnd);
   }
 
   return PUGL_SUCCESS;
