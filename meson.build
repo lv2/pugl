@@ -1,4 +1,4 @@
-# Copyright 2021-2025 David Robillard <d@drobilla.net>
+# Copyright 2021-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 project(
@@ -141,12 +141,13 @@ elif host_machine.system() == 'windows'
 
   dwmapi_dep = cc.find_library('dwmapi')
   gdi32_dep = cc.find_library('gdi32')
+  shell32_dep = cc.find_library('shell32')
   shlwapi_dep = cc.find_library('shlwapi')
   user32_dep = cc.find_library('user32')
 
   platform = 'win'
   platform_sources = files('src/win.c')
-  core_deps = [dwmapi_dep, gdi32_dep, shlwapi_dep, user32_dep]
+  core_deps = [dwmapi_dep, gdi32_dep, shell32_dep, shlwapi_dep, user32_dep]
   backend_extension = '.c'
   soversion = ''  # Avoid redundant version in DLL name
 

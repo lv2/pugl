@@ -1,4 +1,4 @@
-// Copyright 2012-2020 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // Copyright 2017 Hanspeter Portner <dev@open-music-kontrollers.ch>
 // SPDX-License-Identifier: ISC
 
@@ -13,7 +13,7 @@
 
 #include <stdint.h>
 
-@interface PuglWrapperView : NSView<NSTextInputClient>
+@interface PuglWrapperView : NSView<NSTextInputClient, NSDraggingDestination>
 
 - (void)dispatchExpose:(NSRect)rect;
 - (void)setReshaped;
@@ -35,6 +35,7 @@ struct PuglInternalsImpl {
   NSView*          drawView;
   NSCursor*        cursor;
   PuglWindow*      window;
+  NSMutableArray*  registeredDropTypes;
   uint32_t         mods;
   bool             mouseTracked;
 };

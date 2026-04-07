@@ -1,4 +1,4 @@
-// Copyright 2012-2023 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // Common implementations of public API functions in the core library
@@ -124,6 +124,7 @@ puglSetDefaultHints(PuglView* const view)
   view->hints[PUGL_IGNORE_KEY_REPEAT]     = PUGL_FALSE;
   view->hints[PUGL_REFRESH_RATE]          = PUGL_DONT_CARE;
   view->hints[PUGL_VIEW_TYPE]             = PUGL_DONT_CARE;
+  view->hints[PUGL_ACCEPT_DROP]           = PUGL_DONT_CARE;
 
   for (unsigned i = 0U; i < PUGL_NUM_POSITION_HINTS; ++i) {
     view->positionHints[i].x = INT16_MIN;

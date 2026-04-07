@@ -92,10 +92,10 @@ onDataOffer(PuglView* view, const PuglDataOfferEvent* event)
     fprintf(stderr, "\t%s\n", type);
   }
 
-  // Accept the first type found that we support (namely text)
+  // Accept the first type found that we support
   for (uint32_t t = 0; t < numTypes; ++t) {
     const char* type = puglGetClipboardType(view, clipboard, t);
-    if (!strncmp(type, "text/", 5)) {
+    if (!strncmp(type, "image/", 6) || !strncmp(type, "text/", 5)) {
       puglAcceptOffer(
         view, event, t, PUGL_DATA_ACTION_LINK, 0, 0, UINT_MAX, UINT_MAX);
       return;
@@ -113,11 +113,15 @@ onData(PuglView* view, const PuglDataEvent* event)
 
   fprintf(stderr, "Received data type: %s\n", type);
   if (!strncmp(type, "text/", 5)) {
-    // Accept any text type
     size_t      len  = 0;
     const void* data = puglGetClipboard(view, clipboard, typeIndex, &len);
 
     fprintf(stderr, "Data:\n%s\n", (const char*)data);
+  } else if (!strncmp(type, "image/", 6)) {
+    size_t len = 0;
+    puglGetClipboard(view, clipboard, typeIndex, &len);
+
+    fprintf(stderr, "Data: (%zu bytes of image)\n", len);
   }
 }
 
@@ -233,12 +237,17 @@ main(int argc, char** argv)
   puglSetSizeHint(view, PUGL_MIN_SIZE, 128, 128);
   puglSetBackend(view, puglGlBackend());
 
+  puglRegisterDropType(view, "text/plain");
+  puglRegisterDropType(view, "text/uri-list");
+  puglRegisterDropType(view, "image/png");
+
   puglSetViewHint(view, PUGL_CONTEXT_DEBUG, opts.errorChecking);
   puglSetViewHint(view, PUGL_RESIZABLE, opts.resizable);
   puglSetViewHint(view, PUGL_SAMPLES, opts.samples);
   puglSetViewHint(view, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
   puglSetViewHint(view, PUGL_SWAP_INTERVAL, opts.sync);
   puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, opts.ignoreKeyRepeat);
+  puglSetViewHint(view, PUGL_ACCEPT_DROP, true);
   puglSetHandle(view, &app.cube);
   puglSetEventFunc(view, onEvent);
 

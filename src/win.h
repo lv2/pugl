@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_SRC_WIN_H
@@ -27,6 +27,8 @@ struct PuglInternalsImpl {
   WINDOWPLACEMENT oldPlacement;
   PAINTSTRUCT     paint;
   PuglBlob        clipboard;
+  char*           droppedUris;
+  size_t          droppedUrisLen;
   PuglSurface*    surface;
   double          scaleFactor;
   bool            mapped;

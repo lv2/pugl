@@ -463,6 +463,8 @@ puglViewHintString(const PuglViewHint hint)
     return "View type";
   case PUGL_DARK_FRAME:
     return "Dark frame";
+  case PUGL_ACCEPT_DROP:
+    return "Accept drop";
   }
 
   return "Unknown";
