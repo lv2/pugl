@@ -1258,14 +1258,14 @@ translateEvent(PuglView* const view, XEvent xevent)
         break;
       }
     } else if (xevent.xbutton.button < 4 || xevent.xbutton.button > 7) {
-      event.button.type   = ((xevent.type == ButtonPress) ? PUGL_BUTTON_PRESS
-                                                          : PUGL_BUTTON_RELEASE);
-      event.button.time   = (double)xevent.xbutton.time / 1e3;
-      event.button.x      = xevent.xbutton.x;
-      event.button.y      = xevent.xbutton.y;
-      event.button.xRoot  = xevent.xbutton.x_root;
-      event.button.yRoot  = xevent.xbutton.y_root;
-      event.button.state  = translateModifiers(xevent.xbutton.state);
+      event.button.type  = ((xevent.type == ButtonPress) ? PUGL_BUTTON_PRESS
+                                                         : PUGL_BUTTON_RELEASE);
+      event.button.time  = (double)xevent.xbutton.time / 1e3;
+      event.button.x     = xevent.xbutton.x;
+      event.button.y     = xevent.xbutton.y;
+      event.button.xRoot = xevent.xbutton.x_root;
+      event.button.yRoot = xevent.xbutton.y_root;
+      event.button.state = translateModifiers(xevent.xbutton.state);
       event.button.button = xevent.xbutton.button - 1;
       if (event.button.button == 1) {
         event.button.button = 2;
