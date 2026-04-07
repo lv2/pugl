@@ -800,8 +800,7 @@ public:
      @}
   */
 
-  PuglView*       cobj() noexcept { return Wrapper::cobj(); }
-  const PuglView* cobj() const noexcept { return Wrapper::cobj(); }
+  using Wrapper::cobj;
 
 private:
   template<class Target>
