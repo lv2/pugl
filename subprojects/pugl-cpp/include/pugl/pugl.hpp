@@ -1,4 +1,4 @@
-// Copyright 2012-2025 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_PUGL_HPP
@@ -716,10 +716,24 @@ public:
      @param typeIndex The index of the type that the view will accept.  This is
      the `typeIndex` argument to the call of getClipboardType() that returned
      the accepted type.
+
+     @param regionX The top-left X coordinate of the accepting region.
+
+     @param regionY The top-left Y coordinate of the accepting region.
+
+     @param regionWidth The width of the accepting region.
+
+     @param regionHeight The height of the accepting region.
   */
-  Status acceptOffer(const DataOfferEvent& offer, const uint32_t typeIndex)
+  Status acceptOffer(const DataOfferEvent& offer,
+                     const uint32_t        typeIndex,
+                     const int             regionX,
+                     const int             regionY,
+                     const unsigned        regionWidth,
+                     const unsigned        regionHeight)
   {
-    return static_cast<Status>(puglAcceptOffer(cobj(), &offer, typeIndex));
+    return static_cast<Status>(puglAcceptOffer(
+      cobj(), &offer, typeIndex, regionX, regionY, regionWidth, regionHeight));
   }
 
   /// @copydoc puglSetClipboard

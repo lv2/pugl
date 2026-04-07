@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // A demonstration of using clipboards for copy/paste and drag and drop
@@ -10,6 +10,7 @@
 #include <pugl/gl.h>
 #include <pugl/pugl.h>
 
+#include <limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -90,7 +91,7 @@ onDataOffer(PuglView* view, const PuglDataOfferEvent* event)
   for (uint32_t t = 0; t < numTypes; ++t) {
     const char* type = puglGetClipboardType(view, t);
     if (!strncmp(type, "text/", 5)) {
-      puglAcceptOffer(view, event, t);
+      puglAcceptOffer(view, event, t, 0, 0, UINT_MAX, UINT_MAX);
       return;
     }
   }

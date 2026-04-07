@@ -1,4 +1,4 @@
-// Copyright 2020-2022 David Robillard <d@drobilla.net>
+// Copyright 2020-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // Tests copy and paste within the same view
@@ -11,6 +11,7 @@
 #include <pugl/stub.h>
 
 #include <assert.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -91,7 +92,8 @@ onEvent(PuglView* view, const PuglEvent* event)
     if (test->state == PASTED) {
       test->state = RECEIVED_OFFER;
 
-      assert(!puglAcceptOffer(view, &event->offer, 0));
+      assert(
+        !puglAcceptOffer(view, &event->offer, 0, 0, 0, UINT_MAX, UINT_MAX));
     }
     break;
 

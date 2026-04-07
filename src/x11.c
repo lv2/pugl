@@ -1,4 +1,4 @@
-// Copyright 2012-2023 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // Copyright 2013 Robin Gareus <robin@gareus.org>
 // Copyright 2011-2012 Ben Loftis, Harrison Consoles
 // SPDX-License-Identifier: ISC
@@ -1577,7 +1577,7 @@ handleSelectionNotify(const PuglWorld* const       world,
           view, event->requestor, event->property, &numFormats, &formats) &&
         !setClipboardFormats(view, board, numFormats, formats)) {
       const PuglDataOfferEvent offer = {
-        PUGL_DATA_OFFER, 0U, (double)event->time / 1e3};
+        PUGL_DATA_OFFER, 0U, (double)event->time / 1e3, 0.0, 0.0};
 
       puglEvent.offer            = offer;
       board->acceptedFormatIndex = UINT32_MAX;
@@ -1594,8 +1594,12 @@ handleSelectionNotify(const PuglWorld* const       world,
           world, view, event->property, event->target, &board->data)) {
       board->source = XGetSelectionOwner(display, board->selection);
 
-      const PuglDataEvent data = {
-        PUGL_DATA, 0U, (double)event->time / 1e3, board->acceptedFormatIndex};
+      const PuglDataEvent data = {PUGL_DATA,
+                                  0U,
+                                  (double)event->time / 1e3,
+                                  0.0,
+                                  0.0,
+                                  board->acceptedFormatIndex};
 
       puglEvent.data = data;
     }
@@ -1987,9 +1991,17 @@ puglGetClipboard(PuglView* const view,
 PuglStatus
 puglAcceptOffer(PuglView* const                 view,
                 const PuglDataOfferEvent* const offer,
-                const uint32_t                  typeIndex)
+                const uint32_t                  typeIndex,
+                const int                       regionX,
+                const int                       regionY,
+                const unsigned                  regionWidth,
+                const unsigned                  regionHeight)
 {
   (void)offer;
+  (void)regionX;
+  (void)regionY;
+  (void)regionWidth;
+  (void)regionHeight;
 
   PuglInternals* const    impl    = view->impl;
   Display* const          display = view->world->impl->display;
