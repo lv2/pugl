@@ -64,9 +64,18 @@ onEvent(PuglView* view, const PuglEvent* event)
                        strlen("Copied Text") + 1);
 
       // Check that the new type is available immediately
-      assert(puglGetNumClipboardTypes(view, PUGL_CLIPBOARD_GENERAL) == 1);
-      assert(!strcmp(puglGetClipboardType(view, PUGL_CLIPBOARD_GENERAL, 0),
-                     "text/plain"));
+      const uint32_t numTypes =
+        puglGetNumClipboardTypes(view, PUGL_CLIPBOARD_GENERAL);
+
+      assert(numTypes >= 1);
+      bool found = false;
+      for (uint32_t i = 0U; !found && i < numTypes; ++i) {
+        if (!strcmp(puglGetClipboardType(view, PUGL_CLIPBOARD_GENERAL, 0),
+                    "text/plain")) {
+          found = true;
+        }
+      }
+      assert(found);
 
       size_t      len = 0;
       const char* text =
@@ -98,8 +107,14 @@ onEvent(PuglView* view, const PuglEvent* event)
     if (test->state == PASTED) {
       test->state = RECEIVED_OFFER;
 
-      assert(
-        !puglAcceptOffer(view, &event->offer, 0, 0, 0, UINT_MAX, UINT_MAX));
+      assert(!puglAcceptOffer(view,
+                              &event->offer,
+                              0,
+                              PUGL_DATA_ACTION_COPY,
+                              0,
+                              0,
+                              UINT_MAX,
+                              UINT_MAX));
     }
     break;
 

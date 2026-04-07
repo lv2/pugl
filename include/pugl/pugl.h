@@ -600,6 +600,19 @@ typedef enum {
 } PuglClipboard;
 
 /**
+   An action that can be performed on data from a clipboard.
+
+   This is given when accepting a data offer, so the system can provide user
+   feedback, for example by changing the cursor or showing an animation.
+*/
+typedef enum {
+  PUGL_DATA_ACTION_COPY,    ///< Data will be copied
+  PUGL_DATA_ACTION_LINK,    ///< Data will be linked to
+  PUGL_DATA_ACTION_MOVE,    ///< Data will be moved
+  PUGL_DATA_ACTION_PRIVATE, ///< Unspecified private action
+} PuglDataAction;
+
+/**
    Clipboard data offer event.
 
    This is sent when a clipboard has data present, possibly with several
@@ -1544,6 +1557,9 @@ puglGetClipboardType(const PuglView* view,
    @param typeIndex Index of the type the view will accept, which can be
    identified with puglGetClipboardType().
 
+   @param action The action to be performed on the data.  This may be used to
+   provide visual feedback to the user, for example by changing the cursor.
+
    @param regionX View-relative top-left X coordinate of the accepting region.
 
    @param regionY View-relative top-left Y coordinate of the accepting region.
@@ -1556,6 +1572,7 @@ PUGL_API PuglStatus
 puglAcceptOffer(PuglView*                 view,
                 const PuglDataOfferEvent* offer,
                 uint32_t                  typeIndex,
+                PuglDataAction            action,
                 int                       regionX,
                 int                       regionY,
                 unsigned                  regionWidth,

@@ -1349,6 +1349,7 @@ PuglStatus
 puglAcceptOffer(PuglView* const                 view,
                 const PuglDataOfferEvent* const offer,
                 const uint32_t                  typeIndex,
+                PuglDataAction                  PUGL_UNUSED(action),
                 const int                       regionX,
                 const int                       regionY,
                 const unsigned                  regionWidth,
