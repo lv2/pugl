@@ -10,6 +10,8 @@
 
 #include <cmath>
 
+namespace {
+
 class CubeView : public pugl::View
 {
 public:
@@ -156,6 +158,8 @@ CubeView::onEvent(const pugl::CloseEvent&) noexcept
 
   return pugl::Status::success;
 }
+
+} // namespace
 
 int
 main(int argc, char** argv)
