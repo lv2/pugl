@@ -1806,6 +1806,18 @@ puglSetTransientParent(PuglView* view, PuglNativeView parent)
   return PUGL_FAILURE;
 }
 
+static NSPasteboard*
+getPasteboard(const PuglView* const view, const PuglClipboard clipboard)
+{
+  (void)view;
+
+  if (clipboard == PUGL_CLIPBOARD_GENERAL) {
+    return [NSPasteboard generalPasteboard];
+  }
+
+  return NULL;
+}
+
 PuglStatus
 puglPaste(PuglView* const view)
 {
@@ -1815,6 +1827,7 @@ puglPaste(PuglView* const view)
     puglGetTime(view->world),
     0.0,
     0.0,
+    PUGL_CLIPBOARD_GENERAL,
   };
 
   PuglEvent offerEvent;
@@ -1824,18 +1837,20 @@ puglPaste(PuglView* const view)
 }
 
 uint32_t
-puglGetNumClipboardTypes(const PuglView* PUGL_UNUSED(view))
+puglGetNumClipboardTypes(const PuglView* const view,
+                         const PuglClipboard   clipboard)
 {
-  NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
+  NSPasteboard* const pasteboard = getPasteboard(view, clipboard);
 
   return pasteboard ? (uint32_t)[[pasteboard types] count] : 0;
 }
 
 const char*
-puglGetClipboardType(const PuglView* PUGL_UNUSED(view),
-                     const uint32_t  typeIndex)
+puglGetClipboardType(const PuglView* const view,
+                     const PuglClipboard   clipboard,
+                     const uint32_t        typeIndex)
 {
-  NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
+  NSPasteboard* const pasteboard = getPasteboard(view, clipboard);
   if (!pasteboard) {
     return NULL;
   }
@@ -1854,7 +1869,7 @@ puglGetClipboardType(const PuglView* PUGL_UNUSED(view),
 
 PuglStatus
 puglAcceptOffer(PuglView* const                 view,
-                const PuglDataOfferEvent* const PUGL_UNUSED(offer),
+                const PuglDataOfferEvent* const offer,
                 const uint32_t                  typeIndex,
                 const int                       regionX,
                 const int                       regionY,
@@ -1865,7 +1880,7 @@ puglAcceptOffer(PuglView* const                 view,
   (void)regionHeight;
 
   PuglWrapperView* const wrapper    = view->impl->wrapperView;
-  NSPasteboard* const    pasteboard = [NSPasteboard generalPasteboard];
+  NSPasteboard* const    pasteboard = getPasteboard(view, offer->clipboard);
   if (!pasteboard) {
     return PUGL_UNKNOWN_ERROR;
   }
@@ -1879,8 +1894,13 @@ puglAcceptOffer(PuglView* const                 view,
   wrapper->dragTypeIndex = typeIndex;
 
   const double        now  = puglGetTime(view->world);
-  const PuglDataEvent data = {
-    PUGL_DATA, 0U, now, (double)regionX, (double)regionY, (uint32_t)typeIndex};
+  const PuglDataEvent data = {PUGL_DATA,
+                              0U,
+                              now,
+                              (double)regionX,
+                              (double)regionY,
+                              offer->clipboard,
+                              (uint32_t)typeIndex};
 
   PuglEvent dataEvent;
   dataEvent.data = data;
@@ -1888,13 +1908,14 @@ puglAcceptOffer(PuglView* const                 view,
 }
 
 const void*
-puglGetClipboard(PuglView* const view,
-                 const uint32_t  typeIndex,
-                 size_t* const   len)
+puglGetClipboard(PuglView* const     view,
+                 const PuglClipboard clipboard,
+                 const uint32_t      typeIndex,
+                 size_t* const       len)
 {
   *len = 0;
 
-  NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
+  NSPasteboard* const pasteboard = getPasteboard(view, clipboard);
   if (!pasteboard) {
     return NULL;
   }
@@ -1978,20 +1999,23 @@ puglSetCursor(PuglView* view, PuglCursor cursor)
 }
 
 PuglStatus
-puglSetClipboard(PuglView*         PUGL_UNUSED(view),
-                 const char* const type,
-                 const void* const data,
-                 const size_t      len)
+puglSetClipboard(PuglView*           PUGL_UNUSED(view),
+                 const PuglClipboard clipboard,
+                 const char* const   type,
+                 const void* const   data,
+                 const size_t        len)
 {
-  NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
-  NSString* const     mimeType   = [NSString stringWithUTF8String:type];
-  NSString* const     uti        = utiForMimeType(mimeType);
-  NSData* const       blob       = [NSData dataWithBytes:data length:len];
+  if (clipboard == PUGL_CLIPBOARD_GENERAL) {
+    NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
+    NSString* const     mimeType   = [NSString stringWithUTF8String:type];
+    NSString* const     uti        = utiForMimeType(mimeType);
+    NSData* const       blob       = [NSData dataWithBytes:data length:len];
 
-  [pasteboard declareTypes:[NSArray arrayWithObjects:uti, nil] owner:nil];
+    [pasteboard declareTypes:[NSArray arrayWithObjects:uti, nil] owner:nil];
 
-  if ([pasteboard setData:blob forType:uti]) {
-    return PUGL_SUCCESS;
+    if ([pasteboard setData:blob forType:uti]) {
+      return PUGL_SUCCESS;
+    }
   }
 
   return PUGL_FAILURE;

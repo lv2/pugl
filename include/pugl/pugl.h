@@ -590,6 +590,16 @@ typedef struct {
 */
 
 /**
+   A system clipboard.
+
+   A clipboard provides a mechanism for transferring data between views,
+   including views in different processes.
+*/
+typedef enum {
+  PUGL_CLIPBOARD_GENERAL, ///< General clipboard for copy/pasted data
+} PuglClipboard;
+
+/**
    Clipboard data offer event.
 
    This is sent when a clipboard has data present, possibly with several
@@ -598,11 +608,12 @@ typedef struct {
    puglAcceptOffer().
 */
 typedef struct {
-  PuglEventType  type;  ///< #PUGL_DATA_OFFER
-  PuglEventFlags flags; ///< Bitwise OR of #PuglEventFlag values
-  double         time;  ///< Time in seconds
-  double         x;     ///< View-relative X coordinate
-  double         y;     ///< View-relative Y coordinate
+  PuglEventType  type;      ///< #PUGL_DATA_OFFER
+  PuglEventFlags flags;     ///< Bitwise OR of #PuglEventFlag values
+  double         time;      ///< Time in seconds
+  double         x;         ///< View-relative X coordinate
+  double         y;         ///< View-relative Y coordinate
+  PuglClipboard  clipboard; ///< Clipboard with available data
 } PuglDataOfferEvent;
 
 /**
@@ -618,6 +629,7 @@ typedef struct {
   double         time;      ///< Time in seconds
   double         x;         ///< View-relative X coordinate
   double         y;         ///< View-relative Y coordinate
+  PuglClipboard  clipboard; ///< Clipboard with available data
   uint32_t       typeIndex; ///< Index of datatype
 } PuglDataEvent;
 
@@ -1498,7 +1510,7 @@ puglPaste(PuglView* view);
    Returns zero if the clipboard is empty.
 */
 PUGL_API uint32_t
-puglGetNumClipboardTypes(const PuglView* view);
+puglGetNumClipboardTypes(const PuglView* view, PuglClipboard clipboard);
 
 /**
    Return the identifier of a type available in a clipboard.
@@ -1510,7 +1522,9 @@ puglGetNumClipboardTypes(const PuglView* view);
    puglGetNumClipboardTypes().
 */
 PUGL_API const char*
-puglGetClipboardType(const PuglView* view, uint32_t typeIndex);
+puglGetClipboardType(const PuglView* view,
+                     PuglClipboard   clipboard,
+                     uint32_t        typeIndex);
 
 /**
    Accept data offered from a clipboard.
@@ -1554,15 +1568,17 @@ puglAcceptOffer(PuglView*                 view,
    puglGetClipboard() or pasted into other applications.
 
    @param view The view.
+   @param clipboard Clipboard to set data for.
    @param type The MIME type of the data, "text/plain" is assumed if `NULL`.
    @param data The data to copy to the clipboard.
    @param len The length of data in bytes (including terminator if necessary).
 */
 PUGL_API PuglStatus
-puglSetClipboard(PuglView*   view,
-                 const char* type,
-                 const void* data,
-                 size_t      len);
+puglSetClipboard(PuglView*     view,
+                 PuglClipboard clipboard,
+                 const char*   type,
+                 const void*   data,
+                 size_t        len);
 
 /**
    Get the clipboard contents.
@@ -1571,12 +1587,16 @@ puglSetClipboard(PuglView*   view,
    puglSetClipboard() or copied from another application.
 
    @param view The view.
+   @param clipboard Clipboard to get data from.
    @param typeIndex Index of the data type to get the item as.
    @param[out] len Set to the length of the data in bytes.
    @return The clipboard contents, or null.
 */
 PUGL_API const void*
-puglGetClipboard(PuglView* view, uint32_t typeIndex, size_t* len);
+puglGetClipboard(PuglView*     view,
+                 PuglClipboard clipboard,
+                 uint32_t      typeIndex,
+                 size_t*       len);
 
 /**
    Set the mouse cursor.

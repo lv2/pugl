@@ -146,6 +146,9 @@ using ViewStyleFlag = PuglViewStyleFlag;
 /// @copydoc PuglViewStyleFlags
 using ViewStyleFlags = PuglViewStyleFlags;
 
+/// @copydoc PuglClipboard
+using Clipboard = PuglClipboard;
+
 /// @copydoc PuglRealizeEvent
 using RealizeEvent = Event<PUGL_REALIZE, PuglRealizeEvent>;
 
@@ -692,15 +695,16 @@ public:
   Status paste() noexcept { return static_cast<Status>(puglPaste(cobj())); }
 
   /// @copydoc puglGetNumClipboardTypes
-  uint32_t numClipboardTypes() const
+  uint32_t numClipboardTypes(const Clipboard clipboard) const
   {
-    return puglGetNumClipboardTypes(cobj());
+    return puglGetNumClipboardTypes(cobj(), clipboard);
   }
 
   /// @copydoc puglGetClipboardType
-  const char* clipboardType(const uint32_t typeIndex) const
+  const char* clipboardType(const Clipboard clipboard,
+                            const uint32_t  typeIndex) const
   {
-    return puglGetClipboardType(cobj(), typeIndex);
+    return puglGetClipboardType(cobj(), clipboard, typeIndex);
   }
 
   /**
@@ -737,17 +741,21 @@ public:
   }
 
   /// @copydoc puglSetClipboard
-  Status setClipboard(const char* const type,
+  Status setClipboard(const Clipboard   clipboard,
+                      const char* const type,
                       const void* const data,
                       const size_t      len)
   {
-    return static_cast<Status>(puglSetClipboard(cobj(), type, data, len));
+    return static_cast<Status>(
+      puglSetClipboard(cobj(), clipboard, type, data, len));
   }
 
   /// @copydoc puglGetClipboard
-  const void* getClipboard(const uint32_t typeIndex, size_t* const len)
+  const void* getClipboard(const Clipboard clipboard,
+                           const uint32_t  typeIndex,
+                           size_t* const   len)
   {
-    return puglGetClipboard(cobj(), typeIndex, len);
+    return puglGetClipboard(cobj(), clipboard, typeIndex, len);
   }
 
   /// @copydoc puglSetCursor

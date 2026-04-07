@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_SRC_X11_H
@@ -54,6 +54,7 @@ typedef struct {
 } PuglTimer;
 
 typedef struct {
+  PuglClipboard clipboard;
   Atom          selection;
   Atom          property;
   Window        source;
