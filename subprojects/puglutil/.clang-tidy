@@ -1,4 +1,4 @@
-# Copyright 2025 David Robillard <d@drobilla.net>
+# Copyright 2025-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 Checks: >
@@ -6,7 +6,9 @@ Checks: >
   -altera-*,
   -android-cloexec-fopen,
   -bugprone-easily-swappable-parameters,
+  -bugprone-unchecked-string-to-number-conversion,
   -cert-err33-c,
+  -cert-err34-c,
   -concurrency-mt-unsafe,
   -llvm-header-guard,
   -llvmlibc-*,

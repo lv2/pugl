@@ -276,6 +276,8 @@ keyString(const uint32_t key)
     return "PAD_DECIMAL";
   case PUGL_KEY_PAD_DIVIDE:
     return "PAD_DIVIDE";
+  default:
+    break;
   }
 
   return "";

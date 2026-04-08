@@ -1,14 +1,17 @@
-# Copyright 2020-2025 David Robillard <d@drobilla.net>
+# Copyright 2020-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-multi-level-implicit-pointer-conversion,
+  -bugprone-unchecked-string-to-number-conversion,cert-err34-c,
   -cert-err33-c,
+  -cert-err34-c,
   -hicpp-signed-bitwise,
+  -llvm-header-guard,
   -misc-misplaced-const,
   -performance-no-int-to-ptr,
 CheckOptions:
   - key:   readability-function-cognitive-complexity.Threshold
-    value: '21'
+    value: '22'
 InheritParentConfig: true

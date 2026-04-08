@@ -3,6 +3,7 @@
 
 Checks: >
   -bugprone-multi-level-implicit-pointer-conversion,
+  -bugprone-unchecked-string-to-number-conversion,
   -cert-err33-c,
   -cert-err34-c,
   -clang-analyzer-optin.core.EnumCastOutOfRange,
@@ -11,5 +12,5 @@ Checks: >
   -llvm-header-guard,
 CheckOptions:
   - key:   readability-function-cognitive-complexity.Threshold
-    value: '20'
+    value: '22'
 InheritParentConfig: true
