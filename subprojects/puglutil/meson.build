@@ -21,11 +21,22 @@ warning_level = get_option('warning_level')
 c_suppressions = []
 if cc.get_id() == 'clang'
   if warning_level == 'everything'
-    c_suppressions += ['-Wno-declaration-after-statement']
+    c_suppressions += [
+      '-Wno-declaration-after-statement',
+      '-Wno-unsafe-buffer-usage',
+    ]
 
     if not meson.is_cross_build()
       c_suppressions += ['-Wno-poison-system-directories']
     endif
+  endif
+
+  if host_machine.system() == 'windows'
+    c_suppressions += [
+      '-D_CRT_SECURE_NO_WARNINGS',
+      '-Wno-deprecated-declarations',
+      '-Wno-nonportable-system-include-path',
+    ]
   endif
 elif cc.get_id() == 'gcc'
   c_suppressions += ['-Wno-suggest-attribute=malloc']
