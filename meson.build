@@ -578,7 +578,7 @@ else
   build_docs = false
 endif
 
-if meson.version().version_compare('>=0.53.0')
+if not meson.is_subproject()
   summary({'Platform': platform}, section: 'Configuration')
 
   if platform == 'x11'
