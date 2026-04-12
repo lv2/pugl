@@ -54,7 +54,7 @@ if build_docs
       build_by_default: true,
       command: [sphinx_build, ['-M', format], sphinx_args, ['-t', format]],
       input: [conf_py, cpp_rst_files, cpp_pugl_rst, cpp_index_xml],
-      install: true,
+      install: install,
       install_dir: docdir / 'pugl-cpp-0',
       output: format,
     )

@@ -301,9 +301,19 @@ endif
 core_name = 'pugl_@0@@1@'.format(platform, version_suffix)
 includes = include_directories(['include'])
 
+# Determine if project should be installed
+default_library = get_option('default_library')
+install = (
+  get_option('install').enabled()
+  or (
+    get_option('install').auto()
+    and not (meson.is_subproject() and default_library == 'static')
+  )
+)
+
 # "Usage" arguments for libraries and their dependants
 usage_args = []
-if get_option('default_library') == 'static'
+if default_library == 'static'
   usage_args += ['-DPUGL_STATIC']
 endif
 
@@ -321,7 +331,7 @@ libpugl = library(
   gnu_symbol_visibility: 'hidden',
   implicit_include_directories: false,
   include_directories: includes,
-  install: true,
+  install: install,
   link_args: platform_link_args,
   objc_args: objc_suppressions + library_args,
   soversion: soversion,
@@ -335,14 +345,16 @@ pugl_dep = declare_dependency(
   link_with: libpugl,
 )
 
-pkg.generate(
-  libpugl,
-  description: 'Pugl GUI library core',
-  filebase: versioned_name,
-  name: 'Pugl',
-  subdirs: [versioned_name],
-  version: meson.project_version(),
-)
+if install
+  pkg.generate(
+    libpugl,
+    description: 'Pugl GUI library core',
+    filebase: versioned_name,
+    name: 'Pugl',
+    subdirs: [versioned_name],
+    version: meson.project_version(),
+  )
+endif
 
 meson.override_dependency(versioned_name, pugl_dep)
 
@@ -361,7 +373,7 @@ if get_option('stub')
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
-    install: true,
+    install: install,
     link_args: platform_link_args,
     objc_args: objc_suppressions + library_args,
     soversion: soversion,
@@ -377,14 +389,16 @@ if get_option('stub')
   stub_pkg_name = 'pugl-stub-@0@'.format(major_version)
   meson.override_dependency(stub_pkg_name, pugl_stub_dep)
 
-  pkg.generate(
-    stub_backend,
-    description: 'Pugl GUI library with stub (platform-specific) backend',
-    filebase: stub_pkg_name,
-    name: 'Pugl Stub',
-    subdirs: [versioned_name],
-    version: meson.project_version(),
-  )
+  if install
+    pkg.generate(
+      stub_backend,
+      description: 'Pugl GUI library with stub (platform-specific) backend',
+      filebase: stub_pkg_name,
+      name: 'Pugl Stub',
+      subdirs: [versioned_name],
+      version: meson.project_version(),
+    )
+  endif
 endif
 
 # OpenGL Backend #
@@ -403,7 +417,7 @@ if opengl_dep.found()
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
-    install: true,
+    install: install,
     link_args: platform_link_args,
     objc_args: objc_suppressions + library_args,
     soversion: soversion,
@@ -419,14 +433,16 @@ if opengl_dep.found()
   gl_pkg_name = 'pugl-gl-@0@'.format(major_version)
   meson.override_dependency(gl_pkg_name, pugl_gl_dep)
 
-  pkg.generate(
-    gl_backend,
-    description: 'Pugl GUI library with OpenGL backend',
-    filebase: gl_pkg_name,
-    name: 'Pugl OpenGL',
-    subdirs: [versioned_name],
-    version: meson.project_version(),
-  )
+  if install
+    pkg.generate(
+      gl_backend,
+      description: 'Pugl GUI library with OpenGL backend',
+      filebase: gl_pkg_name,
+      name: 'Pugl OpenGL',
+      subdirs: [versioned_name],
+      version: meson.project_version(),
+    )
+  endif
 endif
 
 # Cairo Backend #
@@ -457,7 +473,7 @@ if cairo_dep.found()
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
-    install: true,
+    install: install,
     link_args: platform_link_args,
     objc_args: objc_suppressions + cairo_args,
     soversion: soversion,
@@ -473,14 +489,16 @@ if cairo_dep.found()
   cairo_pkg_name = 'pugl-cairo-@0@'.format(major_version)
   meson.override_dependency(cairo_pkg_name, pugl_cairo_dep)
 
-  pkg.generate(
-    cairo_backend,
-    description: 'Pugl GUI library with Cairo backend',
-    filebase: cairo_pkg_name,
-    name: 'Pugl Cairo',
-    subdirs: [versioned_name],
-    version: meson.project_version(),
-  )
+  if install
+    pkg.generate(
+      cairo_backend,
+      description: 'Pugl GUI library with Cairo backend',
+      filebase: cairo_pkg_name,
+      name: 'Pugl Cairo',
+      subdirs: [versioned_name],
+      version: meson.project_version(),
+    )
+  endif
 endif
 
 # Vulkan
@@ -513,7 +531,7 @@ if vulkan_dep.found()
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
-    install: true,
+    install: install,
     link_args: platform_link_args,
     objc_args: objc_suppressions + library_args,
     soversion: soversion,
@@ -529,14 +547,16 @@ if vulkan_dep.found()
   vulkan_pkg_name = 'pugl-vulkan-@0@'.format(major_version)
   meson.override_dependency(vulkan_pkg_name, pugl_vulkan_dep)
 
-  pkg.generate(
-    vulkan_backend,
-    description: 'Pugl GUI library with Vulkan backend',
-    filebase: vulkan_pkg_name,
-    name: 'Pugl Vulkan',
-    subdirs: [versioned_name],
-    version: meson.project_version(),
-  )
+  if install
+    pkg.generate(
+      vulkan_backend,
+      description: 'Pugl GUI library with Vulkan backend',
+      filebase: vulkan_pkg_name,
+      name: 'Pugl Vulkan',
+      subdirs: [versioned_name],
+      version: meson.project_version(),
+    )
+  endif
 endif
 
 ##################

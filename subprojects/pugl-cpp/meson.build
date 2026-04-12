@@ -118,6 +118,16 @@ install_headers(cpp_headers, subdir: versioned_name / 'pugl')
 # Library #
 ###########
 
+# Determine if project should be installed
+default_library = get_option('default_library')
+install = (
+  get_option('install').enabled()
+  or (
+    get_option('install').auto()
+    and not (meson.is_subproject() and default_library == 'static')
+  )
+)
+
 # Declare dependency for internal meson dependants
 pugl_cpp_dep = declare_dependency(
   dependencies: [pugl_dep],
@@ -125,13 +135,15 @@ pugl_cpp_dep = declare_dependency(
 )
 
 # Generage pkg-config file for external dependants
-pkg.generate(
-  description: 'Pugl GUI library - C++ bindings',
-  filebase: versioned_name,
-  name: 'Pugl C++',
-  subdirs: [versioned_name],
-  version: meson.project_version(),
-)
+if install
+  pkg.generate(
+    description: 'Pugl GUI library - C++ bindings',
+    filebase: versioned_name,
+    name: 'Pugl C++',
+    subdirs: [versioned_name],
+    version: meson.project_version(),
+  )
+endif
 
 # Override pkg-config dependency for internal meson dependants
 meson.override_dependency(versioned_name, pugl_cpp_dep)
