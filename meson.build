@@ -162,7 +162,7 @@ if host_machine.system() == 'darwin'
 
   framework_deps = dependency(
     'appleframeworks',
-    modules: ['foundation', 'corevideo'],
+    modules: ['appkit', 'foundation', 'corevideo'],
     required: false,
   )
 
@@ -465,11 +465,20 @@ if cairo_dep.found()
   cairo_args = cc.get_supported_arguments(cairo_args)
   cairo_args += library_args
 
+  cairo_framework_deps = []
+  if host_machine.system() == 'darwin'
+    cairo_framework_deps = dependency(
+      'appleframeworks',
+      modules: ['coregraphics'],
+      required: false,
+    )
+  endif
+
   cairo_backend = library(
     'pugl_@0@_cairo@1@'.format(platform, version_suffix),
     files('src' / (platform + '_cairo' + backend_extension)),
     c_args: c_suppressions + cairo_args,
-    dependencies: [pugl_dep, cairo_dep],
+    dependencies: [pugl_dep, cairo_dep, cairo_framework_deps],
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
@@ -482,7 +491,7 @@ if cairo_dep.found()
 
   pugl_cairo_dep = declare_dependency(
     compile_args: usage_args,
-    dependencies: [pugl_dep, cairo_dep],
+    dependencies: [pugl_dep, cairo_dep, cairo_framework_deps],
     link_with: cairo_backend,
   )
 
