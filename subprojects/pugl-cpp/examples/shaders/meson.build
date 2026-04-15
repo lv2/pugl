@@ -18,7 +18,7 @@ if vulkan_dep.found()
     build_by_default: true,
     command: glslang_command,
     input: files('rect.vert'),
-    install: install,
+    install: false,
     output: 'rect.vert.spv',
   )
 
@@ -27,7 +27,7 @@ if vulkan_dep.found()
     build_by_default: true,
     command: glslang_command,
     input: files('rect.frag'),
-    install: install,
+    install: false,
     output: 'rect.frag.spv',
   )
 endif
