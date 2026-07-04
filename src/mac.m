@@ -1445,6 +1445,10 @@ puglRealize(PuglView* view)
 PuglStatus
 puglUnrealize(PuglView* const view)
 {
+  if (!view) {
+    return PUGL_FAILURE;
+  }
+
   PuglInternals* const impl = view->impl;
   if (!impl || !impl->wrapperView) {
     return PUGL_FAILURE;
@@ -1457,6 +1461,19 @@ puglUnrealize(PuglView* const view)
   }
 
   if (impl->wrapperView) {
+    if (impl->wrapperView->trackingArea != nil) {
+      [impl->wrapperView removeTrackingArea:impl->wrapperView->trackingArea];
+      [impl->wrapperView->trackingArea release];
+    }
+
+    if(impl->wrapperView->userTimers != nil) {
+      [impl->wrapperView->userTimers release];
+    }
+
+    if(impl->wrapperView->markedText != nil) {
+      [impl->wrapperView->markedText release];
+    }
+
     [impl->wrapperView removeFromSuperview];
   }
 
@@ -1470,6 +1487,10 @@ puglUnrealize(PuglView* const view)
   }
 
   if (impl->window) {
+    if(((NSWindow*)impl->window).delegate != nil)
+    {
+      [((NSWindow*)impl->window).delegate release];
+    }
     [impl->window release];
     impl->window = NULL;
   }
@@ -1518,28 +1539,9 @@ void
 puglFreeViewInternals(PuglView* view)
 {
   if (view) {
-    if (view->backend) {
-      view->backend->destroy(view);
-    }
+    puglUnrealize(view);
 
     if (view->impl) {
-      if (view->impl->wrapperView) {
-        [view->impl->wrapperView removeFromSuperview];
-        view->impl->wrapperView->puglview = NULL;
-      }
-
-      if (view->impl->window) {
-        [view->impl->window close];
-      }
-
-      if (view->impl->wrapperView) {
-        [view->impl->wrapperView release];
-      }
-
-      if (view->impl->window) {
-        [view->impl->window release];
-      }
-
       free(view->impl);
     }
   }
