@@ -17,6 +17,11 @@
   PuglView* puglview;
 }
 
+-(BOOL)acceptsFirstMouse:(NSEvent*)event
+{
+  return YES;
+}
+
 - (void)resizeWithOldSuperviewSize:(NSSize)oldSize
 {
   PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];

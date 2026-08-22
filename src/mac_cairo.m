@@ -23,6 +23,11 @@
   cairo_t*         cr;
 }
 
+-(BOOL)acceptsFirstMouse:(NSEvent*)event
+{
+  return YES;
+}
+
 - (id)initWithFrame:(NSRect)frame
 {
   self = [super initWithFrame:frame];
