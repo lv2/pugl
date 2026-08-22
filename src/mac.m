@@ -26,6 +26,11 @@ typedef NSUInteger NSEventSubtype;
 
 #ifndef __MAC_10_12
 typedef NSUInteger NSWindowStyleMask;
+#else
+#define NSClosableWindowMask NSWindowStyleMaskClosable
+#define NSMiniaturizableWindowMask NSWindowStyleMaskMiniaturizable
+#define NSResizableWindowMask NSWindowStyleMaskResizable
+#define NSTitledWindowMask NSWindowStyleMaskTitled
 #endif
 
 typedef struct {
