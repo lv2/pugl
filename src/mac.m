@@ -506,6 +506,7 @@ keySymToSpecial(const NSEvent* const ev)
     case NSEndFunctionKey:
       return PUGL_KEY_END;
     case NSInsertFunctionKey:
+    case NSHelpFunctionKey:
       return PUGL_KEY_INSERT;
     case NSMenuFunctionKey:
       return PUGL_KEY_MENU;
