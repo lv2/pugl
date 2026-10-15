@@ -4,11 +4,13 @@
 Checks: >
   -*-avoid-c-arrays,
   -*-magic-numbers,
+  -*-static-assert,
   -boost-*,
   -bugprone-assignment-in-if-condition,
   -bugprone-easily-swappable-parameters,
   -bugprone-invalid-enum-default-initialization,
   -bugprone-macro-parentheses,
+  -cert-dcl03-c,
   -cert-err33-c,
   -cppcoreguidelines-avoid-const-or-ref-data-members,
   -cppcoreguidelines-macro-usage,
