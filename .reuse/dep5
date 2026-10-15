@@ -26,3 +26,8 @@ Files: doc/*.rst resources/pugl.ipe resources/pugl.png resources/pugl.svg
 Copyright: 2021-2026 David Robillard <d@drobilla.net>
 Comment: Documentation
 License: ISC
+
+Files: doc/site/index.html
+Copyright: 2026 David Robillard <d@drobilla.net>
+Comment: Trivial site index
+License: 0BSD OR ISC

@@ -1,0 +1,223 @@
+# Copyright 2026 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+# yamllint disable rule:line-length
+---
+name: build
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+
+jobs:
+  default:
+    runs-on: docker
+    container:
+      image: lv2plugin/debian-gcc-big:20261014
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Setup"
+        run: meson setup build -Dwerror=true
+      - name: "Build"
+        run: ninja -C build
+
+  dev:
+    runs-on: docker
+    container:
+      image: lv2plugin/debian-gcc-big:20261014
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Set epoch"
+        run: echo "SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct)" >> $FORGEJO_ENV
+      - name: "Setup (debug)"
+        run: meson setup build -Dbuildtype=debug -Ddocs=enabled -Dlint=true -Dprefix=/ -Dwarning_level=everything -Dwerror=true
+      - name: "Build (debug)"
+        run: ninja -C build
+      - name: "Configure (release)"
+        run: meson configure build -Dbuildtype=release
+      - name: "Build (release)"
+        run: ninja -C build
+      - name: "Install"
+        run: meson install -C build --destdir dest
+      - name: "Upload index"
+        if: >
+          forgejo.server_url == 'https://codeberg.org' &&
+          (forgejo.ref_name == 'main' || forgejo.ref_name[0] == 'v')
+        uses: https://codeberg.org/git-pages/action@v2
+        with:
+          site: https://${{ forge.repository_owner }}.codeberg.page/pugl/
+          server: codeberg.page
+          token: ${{ forge.token }}
+          source: doc/site/
+      - name: "Upload documentation"
+        if: >
+          forgejo.server_url == 'https://codeberg.org' &&
+          (forgejo.ref_name == 'main' || forgejo.ref_name[0] == 'v')
+        uses: https://codeberg.org/git-pages/action@v2
+        with:
+          site: https://${{ forge.repository_owner }}.codeberg.page/pugl/
+          server: codeberg.page
+          path: doc
+          token: ${{ forge.token }}
+          source: build/dest/share/doc/pugl-0/
+
+  static:
+    runs-on: docker
+    container:
+      image: lv2plugin/debian-gcc-big:20261014
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Setup"
+        run: meson setup build -Dbuildtype=debug -Dc_std=c11 -Ddefault_library=static -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+      - name: "Build"
+        run: ninja -C build
+
+  fedora:
+    runs-on: docker
+    container:
+      image: lv2plugin/fedora-big:20261014
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Setup (debug)"
+        run: meson setup build -Dbuildtype=plain -Dc_args="-O2 -D_FORTIFY_SOURCE=2" -Dwarning_level=everything -Dwerror=true
+      - name: "Build (debug)"
+        run: ninja -C build
+      - name: "Configure (release)"
+        run: meson configure build -Dbuildtype=release
+      - name: "Build (release)"
+        run: ninja -C build
+
+  armhf:
+    runs-on: docker
+    container:
+      image: lv2plugin/debian-gcc-armhf:20261014
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Setup (debug)"
+        run: meson setup build --cross-file=/usr/share/meson/cross/arm-linux-gnueabihf.ini -Dbuildtype=debug -Dc_std=c11 -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+      - name: "Build (debug)"
+        run: ninja -C build
+      - name: "Configure (release)"
+        run: meson configure build -Dbuildtype=release
+      - name: "Build (release)"
+        run: ninja -C build
+
+  arm64:
+    runs-on: docker
+    container:
+      image: lv2plugin/debian-gcc-arm64:20261014
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Setup (debug)"
+        run: meson setup build --cross-file=/usr/share/meson/cross/aarch64-linux-gnu.ini -Dbuildtype=debug -Dc_std=c11 -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+      - name: "Build (debug)"
+        run: ninja -C build
+      - name: "Configure (release)"
+        run: meson configure build -Dbuildtype=release
+      - name: "Build (release)"
+        run: ninja -C build
+
+  mingw32:
+    runs-on: docker
+    container:
+      image: lv2plugin/debian-mingw32:20261014
+    env:
+      WINEPATH: "Z:\\usr\\lib\\gcc\\i686-w64-mingw32\\12-win32"
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Setup (debug)"
+        run: meson setup build --cross-file=/usr/share/meson/cross/i686-w64-mingw32.ini -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+      - name: "Build (debug)"
+        run: ninja -C build
+      - name: "Configure (release)"
+        run: meson configure build -Dbuildtype=release
+      - name: "Build (release)"
+        run: ninja -C build
+
+  mingw64:
+    runs-on: docker
+    container:
+      image: lv2plugin/debian-mingw64:20261014
+    env:
+      WINEPATH: "Z:\\usr\\lib\\gcc\\x86_64-w64-mingw32\\12-win32"
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Setup (debug)"
+        run: meson setup build --cross-file=/usr/share/meson/cross/x86_64-w64-mingw32.ini -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+      - name: "Build (debug)"
+        run: ninja -C build
+      - name: "Configure (release)"
+        run: meson configure build -Dbuildtype=release
+      - name: "Build (release)"
+        run: ninja -C build
+
+  freebsd:
+    runs-on: [freebsd, meson, ninja]
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Setup (debug)"
+        run: meson setup build -Dbuildtype=debug -Dc_args="-I/usr/local/include" -Dc_link_args="-L/usr/local/lib" -Dcpp_args="-I/usr/local/include" -Dcpp_link_args="-L/usr/local/lib" -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+      - name: "Build (debug)"
+        run: ninja -C build
+      - name: "Configure (release)"
+        run: meson configure build -Dbuildtype=release
+      - name: "Build (release)"
+        run: ninja -C build
+
+  mac:
+    runs-on: [macos-arm64, meson, ninja]
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch $FORGEJO_REF_NAME --depth 1
+          $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
+      - name: "Setup (debug)"
+        run: meson setup build -Dbuildtype=debug -Dc_std=c11 -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+      - name: "Build (debug)"
+        run: ninja -C build
+      - name: "Configure (release)"
+        run: meson configure build -Dbuildtype=release
+      - name: "Build (release)"
+        run: ninja -C build
+
+  win:
+    runs-on: [windows, meson, ninja, msvc]
+    steps:
+      - name: "Clone"
+        run: >
+          git clone --branch ${Env:FORGEJO_REF_NAME} --depth 1
+          ${Env:FORGEJO_SERVER_URL}/${Env:FORGEJO_REPOSITORY}.git .
+      - name: "Setup (debug)"
+        run: meson setup build -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+      - name: "Build (debug)"
+        run: ninja -C build
+      - name: "Configure (release)"
+        run: meson configure build -Dbuildtype=release
+      - name: "Build (release)"
+        run: ninja -C build

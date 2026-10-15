@@ -47,8 +47,8 @@ Documentation
 Pugl is a C library that includes C++ bindings.
 The reference documentation refers to the C API:
 
- * [C Documentation (single page)](https://lv2.gitlab.io/pugl/c/singlehtml/)
- * [C Documentation (paginated)](https://lv2.gitlab.io/pugl/c/html/)
+ * [C API Reference](https://lv2.codeberg.page/pugl/doc/html/)
+   * [Single page](https://lv2.codeberg.page/pugl/doc/singlehtml/)
 
 The documentation will also be built from the source if the `docs`
 configuration option is enabled, and both Doxygen and Sphinx are available.
