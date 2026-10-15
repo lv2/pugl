@@ -12,7 +12,7 @@ info_plist = configure_file(
 
 shaders = ['rect.frag.spv', 'rect.vert.spv']
 
-cp = find_program('../../scripts/cp.py')
+cp = find_program('../../../../scripts/cp.py')
 
 custom_target(
   'rect.vert.spv',
