@@ -57,6 +57,13 @@ if cc.get_id() == 'clang'
       c_suppressions += ['-Wno-poison-system-directories']
     endif
 
+    if host_machine.system() == 'freebsd'
+      c_suppressions += [
+        '-Wno-c11-extensions',
+        '-Wno-documentation',
+      ]
+    endif
+
     if host_machine.system() == 'windows'
       c_suppressions += [
         '-Wno-cast-function-type',

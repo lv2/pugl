@@ -29,6 +29,13 @@ if cc.get_id() == 'clang'
     if not meson.is_cross_build()
       c_suppressions += ['-Wno-poison-system-directories']
     endif
+
+    if host_machine.system() == 'freebsd'
+      c_suppressions += [
+        '-Wno-c11-extensions',
+        '-Wno-documentation',
+      ]
+    endif
   endif
 
   if host_machine.system() == 'windows'
