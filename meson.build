@@ -82,6 +82,7 @@ elif cc.get_id() == 'gcc'
       '-Wno-bad-function-cast',
       '-Wno-inline',
       '-Wno-padded',
+      '-Wno-suggest-attribute=const',
       '-Wno-suggest-attribute=pure',
       '-Wno-switch-default',
       '-Wno-switch-enum',

@@ -164,6 +164,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 #if defined(__GNUC__) && (__GNUC__ >= 5)
 #  pragma GCC diagnostic push
 #  pragma GCC diagnostic ignored "-Wfloat-conversion"
+#  pragma GCC diagnostic ignored "-Wstrict-overflow"
 #endif
     if (isnan(cube->lastMouseX)) {
       cube->lastMouseX = event->motion.x;

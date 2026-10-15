@@ -47,6 +47,14 @@ if cc.get_id() == 'clang'
   endif
 elif cc.get_id() == 'gcc'
   c_suppressions += ['-Wno-suggest-attribute=malloc']
+
+  if host_machine.system() == 'windows'
+    c_suppressions += [
+      '-D_CRT_SECURE_NO_WARNINGS',
+      '-Wno-deprecated-declarations',
+      '-Wno-strict-overflow',
+    ]
+  endif
 elif cc.get_id() == 'msvc'
   c_suppressions += [
     '/D_CRT_SECURE_NO_WARNINGS',
