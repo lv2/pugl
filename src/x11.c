@@ -943,11 +943,11 @@ translateModifiers(const unsigned xstate)
 }
 
 static PuglStatus
-getAtomProperty(PuglView* const view,
-                const Window    window,
-                const Atom      property,
-                unsigned long*  numValues,
-                Atom**          values)
+getAtomProperty(const PuglView* const view,
+                const Window          window,
+                const Atom            property,
+                unsigned long*        numValues,
+                Atom**                values)
 {
   Atom          actualType   = 0;
   int           actualFormat = 0;
@@ -1200,7 +1200,7 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
 }
 
 static PuglViewStyleFlags
-getCurrentViewStyleFlags(PuglView* const view)
+getCurrentViewStyleFlags(const PuglView* const view)
 {
   const PuglX11Atoms* const atoms = &view->world->impl->atoms;
 
@@ -1239,7 +1239,7 @@ getCurrentViewStyleFlags(PuglView* const view)
 }
 
 static PuglEvent
-getCurrentConfiguration(PuglView* const view)
+getCurrentConfiguration(const PuglView* const view)
 {
   Display* const display = view->world->impl->display;
 
