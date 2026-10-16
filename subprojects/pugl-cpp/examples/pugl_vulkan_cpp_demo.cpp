@@ -1,4 +1,4 @@
-// Copyright 2019-2023 David Robillard <d@drobilla.net>
+// Copyright 2019-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 /*
@@ -17,7 +17,6 @@
 #include "sybok.hpp"
 
 #include <puglutil/demo_utils.h>
-#include <puglutil/file_utils.h>
 #include <puglutil/rects.h>
 #include <puglutil/test_utils.h>
 
@@ -32,13 +31,13 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
 #include <initializer_list>
 #include <iomanip>
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -699,32 +698,31 @@ RenderPass::init(const sk::VulkanApi&  vk,
 }
 
 std::vector<uint32_t>
-readFile(const char* const programPath, const std::string& filename)
+readFile(const std::string& programPath, const std::string& filename)
 {
   std::cerr << "Loading shader:           " << filename << "\n";
 
-  const std::unique_ptr<FILE, int (*)(FILE*)> file{
-    resourceFile(programPath, PUGL_DATA_DIR, filename.c_str()), &fclose};
+  const auto    programDir = std::filesystem::path{programPath}.parent_path();
+  const auto    programRelative = programDir / filename;
+  auto          mode            = std::ios::binary | std::ios::ate;
+  std::ifstream file{programRelative, mode};
+  if (!file.good()) {
+    file = std::ifstream{std::filesystem::path{PUGL_DATA_DIR} / filename, mode};
+  }
 
-  if (!file) {
+  if (!file.good()) {
     std::cerr << "Failed to open file '" << filename << "'\n";
     return {};
   }
 
-  fseek(file.get(), 0, SEEK_END);
-  const auto filePos = ftell(file.get());
-  if (filePos <= 0) {
-    return {};
-  }
-
-  const auto fileSize = static_cast<size_t>(filePos);
-  fseek(file.get(), 0, SEEK_SET);
+  const auto fileSize = file.tellg();
+  file.seekg(std::ios::beg);
 
   const auto            numWords = fileSize / sizeof(uint32_t);
   std::vector<uint32_t> buffer(numWords);
 
-  if (fread(buffer.data(), sizeof(uint32_t), numWords, file.get()) !=
-      numWords) {
+  file.read(reinterpret_cast<char*>(buffer.data()), fileSize);
+  if (file.fail()) {
     buffer.clear();
   }
 
@@ -752,11 +750,8 @@ RectShaders::init(const sk::VulkanApi&  vk,
                   const GraphicsDevice& gpu,
                   const std::string&    programPath)
 {
-  auto vertShaderCode =
-    readFile(programPath.c_str(), SHADER_DIR "rect.vert.spv");
-
-  auto fragShaderCode =
-    readFile(programPath.c_str(), SHADER_DIR "rect.frag.spv");
+  auto vertShaderCode = readFile(programPath, SHADER_DIR "rect.vert.spv");
+  auto fragShaderCode = readFile(programPath, SHADER_DIR "rect.frag.spv");
 
   if (vertShaderCode.empty() || fragShaderCode.empty()) {
     return VK_ERROR_INITIALIZATION_FAILED;

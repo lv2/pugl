@@ -5,6 +5,7 @@ Checks: >
   -*-avoid-c-arrays,
   -*-magic-numbers,
   -*-static-assert,
+  -android-cloexec-fopen,
   -boost-*,
   -bugprone-assignment-in-if-condition,
   -bugprone-easily-swappable-parameters,
