@@ -52,6 +52,8 @@
 #  define PUGL_INIT_STRUCT {0}
 #endif
 
+// NOLINTBEGIN(misc-misplaced-const,performance-no-int-to-ptr)
+
 typedef BOOL(WINAPI* PFN_SetProcessDPIAware)(void);
 typedef HRESULT(WINAPI* PFN_GetProcessDpiAwareness)(HANDLE, DWORD*);
 typedef HRESULT(WINAPI* PFN_GetScaleFactorForMonitor)(HMONITOR, DWORD*);
@@ -697,6 +699,68 @@ handleCrossing(PuglView* view, const PuglEventType type, POINT pos)
 }
 
 static void
+handleDropFiles(PuglView* const view, const HDROP drop, PuglEvent* const event)
+{
+  PuglInternals* const impl = view->impl;
+
+  POINT pt = {0, 0};
+  if (!DragQueryPoint(drop, &pt)) {
+    return;
+  }
+
+  const UINT numFiles       = DragQueryFile(drop, 0xFFFFFFFF, NULL, 0);
+  TCHAR      path[MAX_PATH] = {0};
+  TCHAR      url[2048]      = {0};
+
+  impl->droppedUrisLen = 0;
+  for (UINT i = 0; i < numFiles; ++i) {
+    const UINT pathLen = sizeof(path) / sizeof(TCHAR);
+    if (DragQueryFile(drop, i, path, pathLen)) {
+      DWORD         urlLen = sizeof(url) / sizeof(TCHAR);
+      const HRESULT hres   = UrlCreateFromPath(path, url, &urlLen, 0);
+      if (!FAILED(hres)) {
+#ifdef UNICODE
+        const int len =
+          WideCharToMultiByte(CP_UTF8, 0, url, -1, NULL, 0, NULL, NULL);
+
+        char* const droppedUris = (char*)realloc(
+          impl->droppedUris, impl->droppedUrisLen + (size_t)len + 2U);
+        if (droppedUris) {
+          char* const end = droppedUris + impl->droppedUrisLen;
+          WideCharToMultiByte(CP_UTF8, 0, url, -1, end, len, NULL, NULL);
+        }
+#else
+        char* const droppedUris =
+          (char*)realloc(impl->droppedUris, impl->droppedUrisLen + urlLen + 2);
+        if (droppedUris) {
+          memcpy(droppedUris + impl->droppedUrisLen, url, urlLen + 1);
+        }
+#endif
+        if (!droppedUris) {
+          DragFinish(drop);
+          return;
+        }
+
+        impl->droppedUris = droppedUris;
+        impl->droppedUrisLen += urlLen;
+        impl->droppedUris[impl->droppedUrisLen++] = '\n';
+        impl->droppedUris[impl->droppedUrisLen]   = 0;
+      }
+    }
+  }
+  DragFinish(drop);
+
+  POINT rpt = pt;
+  ClientToScreen(view->impl->hwnd, &rpt);
+
+  event->data.type      = PUGL_DATA;
+  event->data.time      = GetMessageTime() / 1e3;
+  event->data.x         = pt.x;
+  event->data.y         = pt.y;
+  event->data.clipboard = PUGL_CLIPBOARD_DRAG;
+}
+
+static void
 constrainAspect(const PuglView* const view,
                 RECT* const           size,
                 const WPARAM          wParam)
@@ -741,7 +805,6 @@ constrainAspect(const PuglView* const view,
 static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  PuglInternals*  impl      = view->impl;
   PuglEvent       event     = {{PUGL_NOTHING, 0U}};
   RECT            rect      = {0, 0, 0, 0};
   POINT           pt        = {0, 0};
@@ -795,52 +858,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     }
     break;
   case WM_DROPFILES:
-    if (DragQueryPoint((HDROP)wParam, &pt)) {
-      const HDROP drop           = (HDROP)wParam;
-      const UINT  numFiles       = DragQueryFile(drop, 0xFFFFFFFF, NULL, 0);
-      TCHAR       path[MAX_PATH] = {0};
-      TCHAR       url[2048]      = {0};
-
-      impl->droppedUrisLen = 0;
-      for (UINT i = 0; i < numFiles; ++i) {
-        const UINT pathLen = sizeof(path) / sizeof(TCHAR);
-        if (DragQueryFile(drop, i, path, pathLen)) {
-          DWORD         urlLen = sizeof(url) / sizeof(TCHAR);
-          const HRESULT hres   = UrlCreateFromPath(path, url, &urlLen, 0);
-          if (!FAILED(hres)) {
-#ifdef UNICODE
-            const int len =
-              WideCharToMultiByte(CP_UTF8, 0, url, -1, NULL, 0, NULL, NULL);
-
-            impl->droppedUris = (char*)realloc(
-              impl->droppedUris, impl->droppedUrisLen + (size_t)len + 2U);
-
-            char* const end = impl->droppedUris + impl->droppedUrisLen;
-            WideCharToMultiByte(CP_UTF8, 0, url, -1, end, len, NULL, NULL);
-#else
-            impl->droppedUris = (char*)realloc(
-              impl->droppedUris, impl->droppedUrisLen + urlLen + 2);
-
-            memcpy(impl->droppedUris + impl->droppedUrisLen, url, urlLen + 1);
-#endif
-
-            impl->droppedUrisLen += urlLen;
-            impl->droppedUris[impl->droppedUrisLen++] = '\n';
-            impl->droppedUris[impl->droppedUrisLen]   = 0;
-          }
-        }
-      }
-      DragFinish(drop);
-
-      POINT rpt = pt;
-      ClientToScreen(view->impl->hwnd, &rpt);
-
-      event.data.type      = PUGL_DATA;
-      event.data.time      = GetMessageTime() / 1e3;
-      event.data.x         = pt.x;
-      event.data.y         = pt.y;
-      event.data.clipboard = PUGL_CLIPBOARD_DRAG;
-    }
+    handleDropFiles(view, (HDROP)wParam, &event);
     break;
   case WM_ENTERSIZEMOVE:
     view->resizing = true;
@@ -1752,3 +1770,5 @@ puglWinLeave(PuglView* view, const PuglExposeEvent* expose)
 
   return PUGL_SUCCESS;
 }
+
+// NOLINTEND(misc-misplaced-const,performance-no-int-to-ptr)
