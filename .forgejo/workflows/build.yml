@@ -146,7 +146,7 @@ jobs:
           git clone --branch $FORGEJO_REF_NAME --depth 1
           $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
       - name: "Setup (debug)"
-        run: meson setup build --cross-file=/usr/share/meson/cross/i686-w64-mingw32.ini -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+        run: meson setup build --cross-file=/usr/share/meson/cross/i686-w64-mingw32.ini -Dbuildtype=debug -Dcpp_args="-static-libgcc -static-libstdc++" -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
       - name: "Build (debug)"
         run: ninja -C build
       - name: "Configure (release)"
@@ -166,7 +166,7 @@ jobs:
           git clone --branch $FORGEJO_REF_NAME --depth 1
           $FORGEJO_SERVER_URL/$FORGEJO_REPOSITORY.git .
       - name: "Setup (debug)"
-        run: meson setup build --cross-file=/usr/share/meson/cross/x86_64-w64-mingw32.ini -Dbuildtype=debug -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
+        run: meson setup build --cross-file=/usr/share/meson/cross/x86_64-w64-mingw32.ini -Dbuildtype=debug -Dcpp_args="-static-libgcc -static-libstdc++" -Ddocs=disabled -Dwarning_level=everything -Dwerror=true
       - name: "Build (debug)"
         run: ninja -C build
       - name: "Configure (release)"

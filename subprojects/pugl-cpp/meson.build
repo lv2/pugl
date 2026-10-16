@@ -53,7 +53,6 @@ elif cpp.get_id() == 'gcc'
 
     if host_machine.system() == 'windows'
       cpp_suppressions += [
-        '-Wno-cast-function-type',
         '-Wno-suggest-attribute=format',
       ]
     endif

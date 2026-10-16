@@ -92,7 +92,6 @@ elif cc.get_id() == 'gcc'
     if host_machine.system() == 'windows'
       c_suppressions += [
         '-Wno-cast-function-type',
-        '-Wno-float-equal',
         '-Wno-pedantic',
         '-Wno-suggest-attribute=format',
       ]
