@@ -2,11 +2,13 @@
 # SPDX-License-Identifier: 0BSD OR ISC
 
 Checks: >
+  -android-cloexec-fopen,
   -bugprone-easily-swappable-parameters,
   -bugprone-multi-level-implicit-pointer-conversion,
   -bugprone-unchecked-string-to-number-conversion,cert-err34-c,
   -cert-err33-c,
   -cert-err34-c,
+  -concurrency-mt-unsafe,
   -hicpp-signed-bitwise,
   -llvm-header-guard,
   -misc-misplaced-const,
