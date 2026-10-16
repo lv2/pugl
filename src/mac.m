@@ -571,9 +571,9 @@ keySymToSpecial(const NSEvent* const ev)
   const int opts = (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
                     NSTrackingActiveAlways);
   trackingArea   = [[NSTrackingArea alloc] initWithRect:[self bounds]
-                                              options:opts
-                                                owner:self
-                                             userInfo:nil];
+                                                options:opts
+                                                  owner:self
+                                               userInfo:nil];
   [self addTrackingArea:trackingArea];
   [super updateTrackingAreas];
 }
