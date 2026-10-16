@@ -491,7 +491,7 @@ keySymToSpecial(const WPARAM sym, const bool ext)
 }
 
 static bool
-is_toggled(int vkey)
+isToggled(const int vkey)
 {
   return (unsigned)GetKeyState(vkey) & 1U;
 }
@@ -504,9 +504,9 @@ getModifiers(void)
                      ((GetKeyState(VK_MENU) < 0) ? PUGL_MOD_ALT : 0) |
                      ((GetKeyState(VK_LWIN) < 0) ? PUGL_MOD_SUPER : 0) |
                      ((GetKeyState(VK_RWIN) < 0) ? PUGL_MOD_SUPER : 0) |
-                     (is_toggled(VK_NUMLOCK) ? PUGL_MOD_NUM_LOCK : 0) |
-                     (is_toggled(VK_SCROLL) ? PUGL_MOD_SCROLL_LOCK : 0) |
-                     (is_toggled(VK_CAPITAL) ? PUGL_MOD_CAPS_LOCK : 0)));
+                     (isToggled(VK_NUMLOCK) ? PUGL_MOD_NUM_LOCK : 0) |
+                     (isToggled(VK_SCROLL) ? PUGL_MOD_SCROLL_LOCK : 0) |
+                     (isToggled(VK_CAPITAL) ? PUGL_MOD_CAPS_LOCK : 0)));
 }
 
 static void
