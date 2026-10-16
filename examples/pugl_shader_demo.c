@@ -1,4 +1,4 @@
-// Copyright 2012-2025 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 /*
@@ -23,12 +23,12 @@
 
 #define PUGL_NO_INCLUDE_GL_H
 
+#include "file_utils.h"
 #include "shader_utils.h"
 
 #include "glad/glad.h"
 
 #include <puglutil/demo_utils.h>
-#include <puglutil/file_utils.h>
 #include <puglutil/rects.h>
 #include <puglutil/test_utils.h>
 

@@ -1,4 +1,4 @@
-# Copyright 2025 David Robillard <d@drobilla.net>
+# Copyright 2025-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 project(
@@ -16,77 +16,14 @@ project(
 # Required tools
 cc = meson.get_compiler('c')
 
-# Warning suppressions
-warning_level = get_option('warning_level')
-c_suppressions = []
-if cc.get_id() == 'clang'
-  if warning_level == 'everything'
-    c_suppressions += [
-      '-Wno-declaration-after-statement',
-      '-Wno-unsafe-buffer-usage',
-    ]
-
-    if not meson.is_cross_build()
-      c_suppressions += ['-Wno-poison-system-directories']
-    endif
-
-    if host_machine.system() == 'freebsd'
-      c_suppressions += [
-        '-Wno-c11-extensions',
-        '-Wno-documentation',
-      ]
-    endif
-  endif
-
-  if host_machine.system() == 'windows'
-    c_suppressions += [
-      '-D_CRT_SECURE_NO_WARNINGS',
-      '-Wno-deprecated-declarations',
-      '-Wno-nonportable-system-include-path',
-    ]
-  endif
-elif cc.get_id() == 'msvc'
-  c_suppressions += [
-    '/D_CRT_SECURE_NO_WARNINGS',
-
-    '/wd4514',  # unreferenced inline function has been removed
-    '/wd4625',  # copy constructor implicitly deleted
-    '/wd4668',  # not defined as a preprocessor macro
-    '/wd4710',  # function not inlined
-  ]
-endif
-
-c_suppressions = cc.get_supported_arguments(c_suppressions)
-
-#############
-# Platform #
-#############
-
-platform_args = []
-if host_machine.system() in ['gnu', 'linux']
-  platform_args = ['-D_POSIX_C_SOURCE=200809L']
-endif
-
 ###########
 # Library #
 ###########
 
 includes = include_directories(['include'])
 
-sources = files('src/file_utils.c')
-
-libpuglutil = static_library(
-  'puglutil',
-  sources,
-  c_args: c_suppressions + platform_args,
-  implicit_include_directories: false,
-  include_directories: includes,
-  install: false,
-)
-
 puglutil_dep = declare_dependency(
   include_directories: includes,
-  link_with: libpuglutil,
 )
 
 meson.override_dependency('puglutil', puglutil_dep)
