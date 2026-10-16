@@ -1,8 +1,8 @@
 // Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#ifndef TEST_TEST_UTILS_H
-#define TEST_TEST_UTILS_H
+#ifndef PUGLUTIL_TEST_UTILS_H
+#define PUGLUTIL_TEST_UTILS_H
 
 #include <pugl/pugl.h>
 
@@ -573,4 +573,4 @@ puglParseTestOptions(int* pargc, char*** pargv)
   return opts;
 }
 
-#endif // TEST_TEST_UTILS_H
+#endif // PUGLUTIL_TEST_UTILS_H

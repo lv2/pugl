@@ -1,8 +1,8 @@
 // Copyright 2019-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#ifndef EXAMPLES_FILE_UTILS_H
-#define EXAMPLES_FILE_UTILS_H
+#ifndef PUGLUTIL_FILE_UTILS_H
+#define PUGLUTIL_FILE_UTILS_H
 
 #include <stdio.h>
 
@@ -27,4 +27,4 @@ resourceFile(const char* programPath, const char* dataDir, const char* name);
 }
 #endif
 
-#endif // EXAMPLES_FILE_UTILS_H
+#endif // PUGLUTIL_FILE_UTILS_H

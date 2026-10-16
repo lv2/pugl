@@ -1,8 +1,8 @@
 // Copyright 2019-2020 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#ifndef EXAMPLES_RECTS_H
-#define EXAMPLES_RECTS_H
+#ifndef PUGLUTIL_RECTS_H
+#define PUGLUTIL_RECTS_H
 
 #include <math.h>
 #include <stddef.h>
@@ -63,4 +63,4 @@ moveRect(Rect* const  rect,
                  2.0f;
 }
 
-#endif // EXAMPLES_RECTS_H
+#endif // PUGLUTIL_RECTS_H

@@ -1,8 +1,8 @@
 // Copyright 2012-2019 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#ifndef EXAMPLES_DEMO_UTILS_H
-#define EXAMPLES_DEMO_UTILS_H
+#ifndef PUGLUTIL_DEMO_UTILS_H
+#define PUGLUTIL_DEMO_UTILS_H
 
 #include <math.h>
 #include <stdio.h>
@@ -106,4 +106,4 @@ puglPrintFps(const double    thisTime,
   }
 }
 
-#endif // EXAMPLES_DEMO_UTILS_H
+#endif // PUGLUTIL_DEMO_UTILS_H
