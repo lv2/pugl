@@ -1346,9 +1346,11 @@ translateEvent(PuglView* const view, XEvent xevent)
     view->impl->win = None;
     break;
   case ConfigureNotify:
-    event                  = getCurrentConfiguration(view);
+    event.configure.type   = PUGL_CONFIGURE;
+    event.configure.flags  = 0U;
     event.configure.width  = (PuglSpan)xevent.xconfigure.width;
     event.configure.height = (PuglSpan)xevent.xconfigure.height;
+    event.configure.style  = getCurrentViewStyleFlags(view);
     if (view->parent) {
       // Use window position relative to parent
       event.configure.x = (PuglCoord)xevent.xconfigure.x;
