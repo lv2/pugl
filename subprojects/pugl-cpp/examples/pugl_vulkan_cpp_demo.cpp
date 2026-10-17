@@ -715,7 +715,7 @@ readFile(const std::string& programPath, const std::string& filename)
     return {};
   }
 
-  const auto fileSize = file.tellg();
+  const auto fileSize = static_cast<unsigned>(file.tellg());
   file.seekg(std::ios::beg);
 
   const auto            numWords = fileSize / sizeof(uint32_t);
