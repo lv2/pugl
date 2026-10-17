@@ -56,7 +56,7 @@ gl_args = []
 if pugl_gl_dep.found()
 
   if host_machine.system() == 'darwin'
-    gl_args += ['-DGL_SILENCE_DEPRECATION', '-Wno-deprecated-declarations']
+    gl_args += ['-DGL_SILENCE_DEPRECATION']
   endif
 
   if cpp.get_id() == 'gcc' and warning_level in ['everything', '3']
