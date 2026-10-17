@@ -152,7 +152,7 @@ endif
 # Set additional suppressions for OpenGL code
 opengl_args = []
 if host_machine.system() == 'darwin'
-  opengl_args += ['-DGL_SILENCE_DEPRECATION', '-Wno-deprecated-declarations']
+  opengl_args += ['-DGL_SILENCE_DEPRECATION']
 endif
 
 #############
@@ -180,7 +180,7 @@ if host_machine.system() == 'darwin'
   backend_extension = '.m'
   soversion = meson.project_version().split('.')[0]
 
-  platform_args = ['-DGL_SILENCE_DEPRECATION', '-Wno-deprecated-declarations']
+  platform_args = [ '-Wno-deprecated-declarations']
 
 elif host_machine.system() == 'windows'
   # Windows
@@ -426,7 +426,7 @@ if opengl_dep.found()
     include_directories: includes,
     install: install,
     link_args: platform_link_args,
-    objc_args: objc_suppressions + library_args,
+    objc_args: objc_suppressions + library_args + opengl_args,
     soversion: soversion,
     version: meson.project_version(),
   )

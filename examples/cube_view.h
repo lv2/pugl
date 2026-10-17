@@ -4,8 +4,6 @@
 #ifndef EXAMPLES_CUBE_VIEW_H
 #define EXAMPLES_CUBE_VIEW_H
 
-#define GL_SILENCE_DEPRECATION 1 // NOLINT(*-macro-to-enum)
-
 #include <puglutil/demo_utils.h>
 
 #include <pugl/gl.h>
