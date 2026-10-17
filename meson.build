@@ -66,12 +66,11 @@ if cc.get_id() == 'clang'
 
     if host_machine.system() == 'windows'
       c_suppressions += [
+        '-D_CRT_SECURE_NO_WARNINGS',
         '-Wno-cast-function-type',
         '-Wno-covered-switch-default',
-        '-Wno-deprecated-declarations',
         '-Wno-format-nonliteral',
         '-Wno-nonportable-system-include-path',
-        '-Wno-unused-macros',
       ]
     endif
   endif
