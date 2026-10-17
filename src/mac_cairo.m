@@ -88,7 +88,7 @@ puglMacCairoEnter(PuglView* view, const PuglExposeEvent* expose)
 
   const double scale = 1.0 / [[NSScreen mainScreen] backingScaleFactor];
   CGContextRef context =
-    (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
+    (CGContextRef)[[NSGraphicsContext currentContext] CGContext];
 
   const CGSize sizePx = {(CGFloat)view->lastConfigure.width,
                          (CGFloat)view->lastConfigure.height};

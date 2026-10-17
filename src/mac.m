@@ -342,7 +342,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
 
   return puglIsValidArea(defaultSize)
            ? sizePoints(puglview, defaultSize.width, defaultSize.height)
-           : NSMakeSize(NSViewNoInstrinsicMetric, NSViewNoInstrinsicMetric);
+           : NSMakeSize(NSViewNoIntrinsicMetric, NSViewNoIntrinsicMetric);
 }
 
 - (BOOL)isFlipped
@@ -465,10 +465,10 @@ getModifiers(const NSEvent* const ev)
 {
   const NSEventModifierFlags modifierFlags = [ev modifierFlags];
 
-  return (((modifierFlags & NSShiftKeyMask) ? PUGL_MOD_SHIFT : 0) |
-          ((modifierFlags & NSControlKeyMask) ? PUGL_MOD_CTRL : 0) |
-          ((modifierFlags & NSAlternateKeyMask) ? PUGL_MOD_ALT : 0) |
-          ((modifierFlags & NSCommandKeyMask) ? PUGL_MOD_SUPER : 0) |
+  return (((modifierFlags & NSEventModifierFlagShift) ? PUGL_MOD_SHIFT : 0) |
+          ((modifierFlags & NSEventModifierFlagControl) ? PUGL_MOD_CTRL : 0) |
+          ((modifierFlags & NSEventModifierFlagOption) ? PUGL_MOD_ALT : 0) |
+          ((modifierFlags & NSEventModifierFlagCommand) ? PUGL_MOD_SUPER : 0) |
           ((modifierFlags & (1U << 16U)) ? PUGL_MOD_CAPS_LOCK : 0));
 }
 
@@ -1380,10 +1380,10 @@ puglRealize(PuglView* view)
     [impl->drawView setHidden:NO];
     [[impl->drawView window] makeFirstResponder:impl->wrapperView];
   } else {
-    unsigned style =
-      (NSClosableWindowMask | NSTitledWindowMask | NSMiniaturizableWindowMask);
+    unsigned style = (NSWindowStyleMaskClosable | NSWindowStyleMaskTitled |
+                      NSWindowStyleMaskMiniaturizable);
     if (view->hints[PUGL_RESIZABLE]) {
-      style |= NSResizableWindowMask;
+      style |= NSWindowStyleMaskResizable;
     }
 
     PuglWindow* window = [[[PuglWindow alloc]
@@ -1599,7 +1599,7 @@ puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
       break;
 
     case PUGL_VIEW_STYLE_FULLSCREEN:
-      if (newValue != ([window styleMask] & NSFullScreenWindowMask)) {
+      if (newValue != ([window styleMask] & NSWindowStyleMaskFullScreen)) {
         [window toggleFullScreen:nil];
       }
       break;
@@ -1716,7 +1716,7 @@ puglUpdate(PuglWorld* world, const double timeout)
                        : [NSDate dateWithTimeIntervalSinceNow:timeout]);
 
       for (NSEvent* ev = NULL;
-           (ev = [world->impl->app nextEventMatchingMask:NSAnyEventMask
+           (ev = [world->impl->app nextEventMatchingMask:NSEventMaskAny
                                                untilDate:date
                                                   inMode:NSDefaultRunLoopMode
                                                  dequeue:YES]);) {
