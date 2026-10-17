@@ -591,7 +591,7 @@ puglRealize(PuglView* const view)
   // Attach the backend to get the visual info
   impl->screen = screen;
   if ((st = view->backend->attach(view)) || !impl->vi) {
-    view->backend->destroy(view);
+    view->backend->detach(view);
     return st ? st : PUGL_BACKEND_FAILED;
   }
 
@@ -750,6 +750,7 @@ puglUnrealize(PuglView* const view)
 
   if (view->backend) {
     view->backend->destroy(view);
+    view->backend->detach(view);
   }
 
   if (view->world->impl->display && impl->win) {
@@ -2441,4 +2442,11 @@ puglX11Attach(PuglView* view)
   view->hints[PUGL_ALPHA_BITS] = 0;
 
   return PUGL_SUCCESS;
+}
+
+void
+puglX11Detach(PuglView* view)
+{
+  XFree(view->impl->vi);
+  view->impl->vi = NULL;
 }

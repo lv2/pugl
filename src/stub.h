@@ -18,6 +18,12 @@ puglStubAttach(PuglView* const view)
   return PUGL_SUCCESS;
 }
 
+static inline void
+puglStubDetach(PuglView* const view)
+{
+  (void)view;
+}
+
 static inline PuglStatus
 puglStubCreate(PuglView* const view)
 {

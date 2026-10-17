@@ -1452,6 +1452,7 @@ puglUnrealize(PuglView* const view)
 
   if (view->backend) {
     view->backend->destroy(view);
+    view->backend->detach(view);
   }
 
   if (impl->wrapperView) {
@@ -1518,6 +1519,7 @@ puglFreeViewInternals(PuglView* view)
   if (view) {
     if (view->backend) {
       view->backend->destroy(view);
+      view->backend->detach(view);
     }
 
     if (view->impl) {

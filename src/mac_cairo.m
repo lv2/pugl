@@ -138,6 +138,7 @@ const PuglBackend*
 puglCairoBackend(void)
 {
   static const PuglBackend backend = {puglStubAttach,
+                                      puglStubDetach,
                                       puglMacCairoCreate,
                                       puglMacCairoDestroy,
                                       puglMacCairoEnter,

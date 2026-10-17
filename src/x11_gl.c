@@ -100,6 +100,13 @@ puglX11GlAttach(PuglView* view)
   return PUGL_SUCCESS;
 }
 
+static void
+puglX11GlDetach(PuglView* view)
+{
+  free(view->impl->surface);
+  view->impl->surface = NULL;
+}
+
 PUGL_WARN_UNUSED_RESULT static PuglStatus
 puglX11GlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 {
@@ -215,8 +222,6 @@ puglX11GlDestroy(PuglView* view)
   PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
   if (surface) {
     glXDestroyContext(view->world->impl->display, surface->ctx);
-    free(surface);
-    view->impl->surface = NULL;
   }
 }
 
@@ -242,6 +247,7 @@ const PuglBackend*
 puglGlBackend(void)
 {
   static const PuglBackend backend = {puglX11GlAttach,
+                                      puglX11GlDetach,
                                       puglX11GlCreate,
                                       puglX11GlDestroy,
                                       puglX11GlEnter,

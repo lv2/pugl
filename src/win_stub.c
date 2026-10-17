@@ -13,6 +13,12 @@ puglWinStubAttach(PuglView* view)
   return puglWinAttach(view);
 }
 
+static void
+puglWinStubDetach(PuglView* view)
+{
+  puglWinDetach(view);
+}
+
 static PuglStatus
 puglWinStubEnter(PuglView* view, const PuglExposeEvent* expose)
 {
@@ -29,6 +35,7 @@ const PuglBackend*
 puglStubBackend(void)
 {
   static const PuglBackend backend = {puglWinStubAttach,
+                                      puglWinStubDetach,
                                       puglStubCreate,
                                       puglStubDestroy,
                                       puglWinStubEnter,

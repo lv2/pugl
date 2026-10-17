@@ -195,6 +195,13 @@ puglWinGlAttach(PuglView* view)
   return PUGL_SUCCESS;
 }
 
+static void
+puglWinGlDetach(PuglView* view)
+{
+  free(view->impl->surface);
+  view->impl->surface = NULL;
+}
+
 static PuglStatus
 puglWinGlCreate(PuglView* view)
 {
@@ -260,8 +267,7 @@ puglWinGlDestroy(PuglView* view)
   if (surface) {
     wglMakeCurrent(NULL, NULL);
     wglDeleteContext(surface->hglrc);
-    free(surface);
-    view->impl->surface = NULL;
+    surface->hglrc = NULL;
   }
 }
 
@@ -319,6 +325,7 @@ const PuglBackend*
 puglGlBackend(void)
 {
   static const PuglBackend backend = {puglWinGlAttach,
+                                      puglWinGlDetach,
                                       puglWinGlCreate,
                                       puglWinGlDestroy,
                                       puglWinGlEnter,

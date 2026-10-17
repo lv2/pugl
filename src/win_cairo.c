@@ -63,13 +63,23 @@ puglWinCairoAttach(PuglView* view)
 }
 
 static void
+puglWinCairoDetach(PuglView* view)
+{
+  free(view->impl->surface);
+  view->impl->surface = NULL;
+  puglWinDetach(view);
+}
+
+static void
 puglWinCairoClose(PuglView* view)
 {
   PuglInternals* const       impl    = view->impl;
   PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
 
+  cairo_destroy(surface->cr);
   cairo_surface_destroy(surface->surface);
 
+  surface->cr      = NULL;
   surface->surface = NULL;
 }
 
@@ -92,13 +102,8 @@ puglWinCairoOpen(PuglView* view)
 static void
 puglWinCairoDestroy(PuglView* view)
 {
-  PuglInternals* const       impl    = view->impl;
-  PuglWinCairoSurface* const surface = (PuglWinCairoSurface*)impl->surface;
-
   puglWinCairoClose(view);
   puglWinCairoDestroyDrawContext(view);
-  free(surface);
-  impl->surface = NULL;
 }
 
 static PuglStatus
@@ -148,6 +153,7 @@ const PuglBackend*
 puglCairoBackend(void)
 {
   static const PuglBackend backend = {puglWinCairoAttach,
+                                      puglWinCairoDetach,
                                       puglStubCreate,
                                       puglWinCairoDestroy,
                                       puglWinCairoEnter,

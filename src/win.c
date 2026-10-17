@@ -354,15 +354,11 @@ puglUnrealize(PuglView* const view)
 
   if (view->backend) {
     view->backend->destroy(view);
+    view->backend->detach(view);
   }
 
   memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
-  ReleaseDC(impl->hwnd, impl->hdc);
-  impl->hdc = NULL;
-
-  const PuglStatus st = puglWinStatus(DestroyWindow(impl->hwnd));
-  impl->hwnd          = NULL;
-  return st;
+  return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -407,10 +403,9 @@ puglFreeViewInternals(PuglView* view)
   if (view) {
     if (view->backend) {
       view->backend->destroy(view);
+      view->backend->detach(view);
     }
 
-    ReleaseDC(view->impl->hwnd, view->impl->hdc);
-    DestroyWindow(view->impl->hwnd);
     free(view->impl);
   }
 }
@@ -1749,6 +1744,17 @@ puglWinAttach(PuglView* view)
   }
 
   return st;
+}
+
+void
+puglWinDetach(PuglView* view)
+{
+  PuglInternals* const impl = view->impl;
+
+  ReleaseDC(impl->hwnd, impl->hdc);
+  DestroyWindow(impl->hwnd);
+  impl->hwnd = NULL;
+  impl->hdc  = NULL;
 }
 
 PuglStatus

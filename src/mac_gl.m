@@ -191,6 +191,7 @@ const PuglBackend*
 puglGlBackend(void)
 {
   static const PuglBackend backend = {puglStubAttach,
+                                      puglStubDetach,
                                       puglMacGlCreate,
                                       puglMacGlDestroy,
                                       puglMacGlEnter,
