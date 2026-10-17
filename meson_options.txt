@@ -7,6 +7,14 @@ option('docs', type: 'feature', description: 'Build documentation')
 option('examples', type: 'feature', description: 'Build example programs')
 option('install', type: 'feature', description: 'Install project')
 option('lint', type: 'boolean', value: false, description: 'Run project tests')
+
+option(
+  'macos_version',
+  type: 'string',
+  value: '10.11',
+  description: 'Minimum MacOS version',
+)
+
 option('opengl', type: 'feature', description: 'Enable OpenGL graphics backend')
 option('stub', type: 'boolean', description: 'Build stub backend')
 option('tests', type: 'feature', description: 'Build tests')

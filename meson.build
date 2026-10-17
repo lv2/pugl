@@ -180,7 +180,9 @@ if host_machine.system() == 'darwin'
   backend_extension = '.m'
   soversion = meson.project_version().split('.')[0]
 
-  platform_args = [ '-Wno-deprecated-declarations']
+  platform_args = [
+    '-mmacos-version-min=@0@'.format(get_option('macos_version')),
+  ]
 
 elif host_machine.system() == 'windows'
   # Windows
