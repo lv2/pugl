@@ -264,42 +264,47 @@ elif host_machine.system() == 'windows'
   soversion = ''  # Avoid redundant version in DLL name
 
 else
-  # X11
-  x11_dep = cc.find_library('X11')
+  # POSIX
+
   platform_args = ['-D_POSIX_C_SOURCE=200809L']
-
-  xcursor_dep = cc.find_library('Xcursor', required: get_option('xcursor'))
-  platform_args += ['-DUSE_XCURSOR=@0@'.format(xcursor_dep.found().to_int())]
-
-  xrandr_dep = cc.find_library('Xrandr', required: get_option('xrandr'))
-  platform_args += ['-DUSE_XRANDR=@0@'.format(xrandr_dep.found().to_int())]
-
-  use_xsync = false
-  xext_dep = cc.find_library('Xext', required: get_option('xsync'))
-  if xext_dep.found()
-    xsync_fragment = '''#include <X11/Xlib.h>
-      #include <X11/extensions/sync.h>
-      int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }'''
-    use_xsync = cc.compiles(xsync_fragment, name: 'Xsync')
-    if (not use_xsync) and (get_option('xsync') == 'enabled')
-      error('C header <X11/extensions/sync.h> not found')
-    endif
-  endif
-  platform_args += ['-DUSE_XSYNC=@0@'.format(use_xsync.to_int())]
-
-  x11_suppressions = []
-  if cc.get_id() == 'clang'
-    x11_suppressions += [
-      '-Wno-reserved-identifier',  # FD_ZERO
-    ]
-  endif
-
-  platform = 'x11'
-  platform_sources = files('src/x11.c')
-  platform_args += cc.get_supported_arguments(x11_suppressions)
-  core_deps = [x11_dep, xcursor_dep, xext_dep, xrandr_dep]
   backend_extension = '.c'
   soversion = meson.project_version().split('.')[0]
+
+  x11_dep = cc.find_library('X11')
+  if x11_dep.found()
+    # X11
+
+    xcursor_dep = cc.find_library('Xcursor', required: get_option('xcursor'))
+    platform_args += ['-DUSE_XCURSOR=@0@'.format(xcursor_dep.found().to_int())]
+
+    xrandr_dep = cc.find_library('Xrandr', required: get_option('xrandr'))
+    platform_args += ['-DUSE_XRANDR=@0@'.format(xrandr_dep.found().to_int())]
+
+    use_xsync = false
+    xext_dep = cc.find_library('Xext', required: get_option('xsync'))
+    if xext_dep.found()
+      xsync_fragment = '''#include <X11/Xlib.h>
+      #include <X11/extensions/sync.h>
+      int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }'''
+      use_xsync = cc.compiles(xsync_fragment, name: 'Xsync')
+      if (not use_xsync) and (get_option('xsync') == 'enabled')
+        error('C header <X11/extensions/sync.h> not found')
+      endif
+    endif
+    platform_args += ['-DUSE_XSYNC=@0@'.format(use_xsync.to_int())]
+
+    x11_suppressions = []
+    if cc.get_id() == 'clang'
+      x11_suppressions += [
+        '-Wno-reserved-identifier',  # FD_ZERO
+      ]
+    endif
+
+    platform = 'x11'
+    platform_sources = files('src/x11.c')
+    platform_args += cc.get_supported_arguments(x11_suppressions)
+    core_deps = [x11_dep, xcursor_dep, xext_dep, xrandr_dep]
+  endif
 endif
 
 ################
