@@ -25,7 +25,8 @@ if get_option('warning_level') == 'everything' and is_variable('cpp')
     example_cpp_args += ['-Wno-old-style-cast', '-Wno-switch-enum']
     if host_machine.system() == 'windows'
       example_cpp_args += [
-        '-Wno-deprecated-declarations',
+        '-D_CRT_NONSTDC_NO_WARNINGS',
+        '-D_CRT_SECURE_NO_WARNINGS',
         '-Wno-format-nonliteral',
         '-Wno-nonportable-system-include-path',
       ]

@@ -29,6 +29,12 @@ if warning_level == 'everything'
       '-Wno-reserved-id-macro',
       '-Wno-reserved-identifier',
     ]
+
+    if host_machine.system() == 'windows'
+      example_c_args += [
+        '-D_CRT_NONSTDC_NO_WARNINGS',
+      ]
+    endif
   elif cc.get_id() == 'gcc'
     example_c_args += ['-Wno-float-equal']
   endif
