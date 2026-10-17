@@ -11,7 +11,7 @@ option('lint', type: 'boolean', value: false, description: 'Run project tests')
 option(
   'macos_version',
   type: 'string',
-  value: '10.11',
+  value: '10.12',
   description: 'Minimum MacOS version',
 )
 
