@@ -1,4 +1,4 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include <pugl/stub.h>
@@ -13,7 +13,7 @@ const PuglBackend*
 puglStubBackend(void)
 {
   static const PuglBackend backend = {
-    puglX11Configure,
+    puglX11Attach,
     puglStubCreate,
     puglStubDestroy,
     puglStubEnter,

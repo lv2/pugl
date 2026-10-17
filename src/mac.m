@@ -1364,7 +1364,7 @@ puglRealize(PuglView* view)
   }
 
   // Create draw view to be rendered to
-  if ((st = view->backend->configure(view)) ||
+  if ((st = view->backend->attach(view)) ||
       (st = view->backend->create(view))) {
     return st;
   }

@@ -108,6 +108,6 @@ struct PuglInternalsImpl {
 };
 
 PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
-puglX11Configure(PuglView* view);
+puglX11Attach(PuglView* view);
 
 #endif // PUGL_SRC_X11_H

@@ -1,4 +1,4 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "stub.h"
@@ -8,9 +8,9 @@
 #include <pugl/stub.h>
 
 static PuglStatus
-puglWinStubConfigure(PuglView* view)
+puglWinStubAttach(PuglView* view)
 {
-  return puglWinConfigure(view);
+  return puglWinAttach(view);
 }
 
 static PuglStatus
@@ -28,7 +28,7 @@ puglWinStubLeave(PuglView* view, const PuglExposeEvent* expose)
 const PuglBackend*
 puglStubBackend(void)
 {
-  static const PuglBackend backend = {puglWinStubConfigure,
+  static const PuglBackend backend = {puglWinStubAttach,
                                       puglStubCreate,
                                       puglStubDestroy,
                                       puglWinStubEnter,

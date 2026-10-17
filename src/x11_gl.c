@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "attributes.h"
@@ -39,7 +39,7 @@ puglX11GlGetAttrib(Display* const display,
 }
 
 static PuglStatus
-puglX11GlConfigure(PuglView* view)
+puglX11GlAttach(PuglView* view)
 {
   PuglInternals* const impl    = view->impl;
   const int            screen  = impl->screen;
@@ -241,7 +241,7 @@ puglLeaveContext(PuglView* view)
 const PuglBackend*
 puglGlBackend(void)
 {
-  static const PuglBackend backend = {puglX11GlConfigure,
+  static const PuglBackend backend = {puglX11GlAttach,
                                       puglX11GlCreate,
                                       puglX11GlDestroy,
                                       puglX11GlEnter,

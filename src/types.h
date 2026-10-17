@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #ifndef PUGL_SRC_TYPES_H
@@ -77,8 +77,8 @@ typedef void PuglSurface;
 
 /// Graphics backend interface
 struct PuglBackendImpl {
-  /// Get visual information from display and setup view as necessary
-  PUGL_WARN_UNUSED_RESULT PuglStatus (*configure)(PuglView*);
+  /// Attach to display system
+  PUGL_WARN_UNUSED_RESULT PuglStatus (*attach)(PuglView*);
 
   /// Create surface and drawing context
   PUGL_WARN_UNUSED_RESULT PuglStatus (*create)(PuglView*);

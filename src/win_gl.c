@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "stub.h"
@@ -110,7 +110,7 @@ ensureHint(PuglView* const view, const PuglViewHint hint, const int value)
 }
 
 static PuglStatus
-puglWinGlConfigure(PuglView* view)
+puglWinGlAttach(PuglView* view)
 {
   PuglInternals* impl = view->impl;
 
@@ -318,7 +318,7 @@ puglLeaveContext(PuglView* view)
 const PuglBackend*
 puglGlBackend(void)
 {
-  static const PuglBackend backend = {puglWinGlConfigure,
+  static const PuglBackend backend = {puglWinGlAttach,
                                       puglWinGlCreate,
                                       puglWinGlDestroy,
                                       puglWinGlEnter,

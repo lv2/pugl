@@ -1,4 +1,4 @@
-// Copyright 2012-2022 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "stub.h"
@@ -50,9 +50,9 @@ puglWinCairoDestroyDrawContext(PuglView* view)
 }
 
 static PuglStatus
-puglWinCairoConfigure(PuglView* view)
+puglWinCairoAttach(PuglView* view)
 {
-  const PuglStatus st = puglWinConfigure(view);
+  const PuglStatus st = puglWinAttach(view);
 
   if (!st) {
     view->impl->surface =
@@ -147,7 +147,7 @@ puglWinCairoGetContext(PuglView* view)
 const PuglBackend*
 puglCairoBackend(void)
 {
-  static const PuglBackend backend = {puglWinCairoConfigure,
+  static const PuglBackend backend = {puglWinCairoAttach,
                                       puglStubCreate,
                                       puglWinCairoDestroy,
                                       puglWinCairoEnter,

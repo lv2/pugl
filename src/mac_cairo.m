@@ -1,4 +1,4 @@
-// Copyright 2019-2022 David Robillard <d@drobilla.net>
+// Copyright 2019-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "internal.h"
@@ -137,7 +137,7 @@ puglMacCairoGetContext(PuglView* view)
 const PuglBackend*
 puglCairoBackend(void)
 {
-  static const PuglBackend backend = {puglStubConfigure,
+  static const PuglBackend backend = {puglStubAttach,
                                       puglMacCairoCreate,
                                       puglMacCairoDestroy,
                                       puglMacCairoEnter,

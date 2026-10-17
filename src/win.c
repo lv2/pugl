@@ -308,8 +308,8 @@ puglRealize(PuglView* view)
     return PUGL_REGISTRATION_FAILED;
   }
 
-  // Configure and create window
-  if ((st = view->backend->configure(view)) ||
+  // Attach backend and create context
+  if ((st = view->backend->attach(view)) ||
       (st = view->backend->create(view))) {
     return st;
   }
@@ -1729,7 +1729,7 @@ puglWinCreateWindow(PuglView* const   view,
 }
 
 PuglStatus
-puglWinConfigure(PuglView* view)
+puglWinAttach(PuglView* view)
 {
   PuglInternals* const impl = view->impl;
   PuglStatus           st   = PUGL_SUCCESS;

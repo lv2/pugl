@@ -1,4 +1,4 @@
-// Copyright 2012-2021 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #define VK_NO_PROTOTYPES 1
@@ -70,7 +70,7 @@ puglGetDeviceProcAddrFunc(const PuglVulkanLoader* loader)
 const PuglBackend*
 puglVulkanBackend(void)
 {
-  static const PuglBackend backend = {puglWinConfigure,
+  static const PuglBackend backend = {puglWinAttach,
                                       puglStubCreate,
                                       puglStubDestroy,
                                       puglWinEnter,

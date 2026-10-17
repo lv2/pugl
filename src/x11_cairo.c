@@ -1,4 +1,4 @@
-// Copyright 2012-2023 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "macros.h"
@@ -157,7 +157,7 @@ puglX11CairoGetContext(PuglView* view)
 const PuglBackend*
 puglCairoBackend(void)
 {
-  static const PuglBackend backend = {puglX11Configure,
+  static const PuglBackend backend = {puglX11Attach,
                                       puglX11CairoCreate,
                                       puglX11CairoDestroy,
                                       puglX11CairoEnter,

@@ -1,4 +1,4 @@
-// Copyright 2012-2025 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include "internal.h"
@@ -233,8 +233,8 @@ puglFilterMods(const PuglMods state, const PuglKey key)
 PuglStatus
 puglPreRealize(PuglView* const view)
 {
-  // Ensure that a backend with at least a configure method has been set
-  if (!view->backend || !view->backend->configure) {
+  // Ensure that a backend with at least an attach method has been set
+  if (!view->backend || !view->backend->attach) {
     return PUGL_BAD_BACKEND;
   }
 

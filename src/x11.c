@@ -588,9 +588,9 @@ puglRealize(PuglView* const view)
   puglEnsureHint(view, PUGL_RESIZABLE, PUGL_TRUE);
   puglEnsureHint(view, PUGL_VIEW_TYPE, PUGL_VIEW_TYPE_NORMAL);
 
-  // Configure the backend to get the visual info
+  // Attach the backend to get the visual info
   impl->screen = screen;
-  if ((st = view->backend->configure(view)) || !impl->vi) {
+  if ((st = view->backend->attach(view)) || !impl->vi) {
     view->backend->destroy(view);
     return st ? st : PUGL_BACKEND_FAILED;
   }
@@ -2423,7 +2423,7 @@ puglSetCursor(PuglView* const view, const PuglCursor cursor)
 // Semi-public platform API used by backends
 
 PuglStatus
-puglX11Configure(PuglView* view)
+puglX11Attach(PuglView* view)
 {
   PuglInternals* const impl    = view->impl;
   Display* const       display = view->world->impl->display;

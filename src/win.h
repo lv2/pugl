@@ -46,7 +46,7 @@ PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
 puglWinCreateWindow(PuglView* view, const char* title, HWND* hwnd, HDC* hdc);
 
 PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
-puglWinConfigure(PuglView* view);
+puglWinAttach(PuglView* view);
 
 PUGL_WARN_UNUSED_RESULT PUGL_API PuglStatus
 puglWinEnter(PuglView* view, const PuglExposeEvent* expose);
