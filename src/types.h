@@ -80,6 +80,9 @@ struct PuglBackendImpl {
   /// Attach to display system
   PUGL_WARN_UNUSED_RESULT PuglStatus (*attach)(PuglView*);
 
+  /// Detach from display system
+  void (*detach)(PuglView*);
+
   /// Create surface and drawing context
   PUGL_WARN_UNUSED_RESULT PuglStatus (*create)(PuglView*);
 

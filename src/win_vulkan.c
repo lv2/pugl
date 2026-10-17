@@ -71,6 +71,7 @@ const PuglBackend*
 puglVulkanBackend(void)
 {
   static const PuglBackend backend = {puglWinAttach,
+                                      puglWinDetach,
                                       puglStubCreate,
                                       puglStubDestroy,
                                       puglWinEnter,
