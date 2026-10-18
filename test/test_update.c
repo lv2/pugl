@@ -63,7 +63,7 @@ onEvent(PuglView* view, const PuglEvent* event)
   case PUGL_UPDATE:
     if (test->state == EXPOSED1) {
       test->state = UPDATED;
-      puglObscureView(view);
+      assert(!puglObscureView(view));
     }
     break;
 
