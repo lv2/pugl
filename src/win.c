@@ -312,7 +312,7 @@ puglRealize(PuglView* view)
   puglEnsureHint(view, PUGL_RED_BITS, 8);
   puglEnsureHint(view, PUGL_GREEN_BITS, 8);
   puglEnsureHint(view, PUGL_BLUE_BITS, 8);
-  puglEnsureHint(view, PUGL_ALPHA_BITS, 8);
+  puglEnsureHint(view, PUGL_ALPHA_BITS, 0);
 
   // Set basic window hints and attributes
 
