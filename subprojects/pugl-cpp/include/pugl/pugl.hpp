@@ -433,9 +433,10 @@ enum class ViewHint {
   refreshRate,         ///< @copydoc PUGL_REFRESH_RATE
   viewType,            ///< @copydoc PUGL_VIEW_TYPE
   darkFrame,           ///< @copydoc PUGL_DARK_FRAME
+  acceptDrop,          ///< @copydoc PUGL_ACCEPT_DROP
 };
 
-static_assert(static_cast<ViewHint>(PUGL_DARK_FRAME) == ViewHint::darkFrame);
+static_assert(static_cast<ViewHint>(PUGL_ACCEPT_DROP) == ViewHint::acceptDrop);
 
 /// @copydoc PuglViewHintValue
 using ViewHintValue = PuglViewHintValue;
