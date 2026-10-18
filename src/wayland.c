@@ -520,15 +520,72 @@ onSeatCapabilities(void* const           data,
   }
 }
 
-static void
-onSeatName(void* const           PUGL_UNUSED(data),
-           struct wl_seat* const PUGL_UNUSED(wl_seat),
-           const char* const     PUGL_UNUSED(name))
-{}
-
 static const struct wl_seat_listener wl_seat_listener = {
   onSeatCapabilities,
-  onSeatName,
+};
+
+// Output
+
+static void
+onOutputGeometry(void* const             PUGL_UNUSED(data),
+                 struct wl_output* const PUGL_UNUSED(wlOutput),
+                 const int32_t           PUGL_UNUSED(x),
+                 const int32_t           PUGL_UNUSED(y),
+                 const int32_t           PUGL_UNUSED(physicalWidth),
+                 const int32_t           PUGL_UNUSED(physicalHeight),
+                 const int32_t           PUGL_UNUSED(subpixel),
+                 const char* const       PUGL_UNUSED(make),
+                 const char* const       PUGL_UNUSED(model),
+                 const int32_t           PUGL_UNUSED(transform))
+{
+  fprintf(stderr, "[wl] output geometry\n");
+}
+
+static void
+onOutputMode(void* const             data,
+             struct wl_output* const PUGL_UNUSED(wlOutput),
+             const uint32_t          PUGL_UNUSED(flags),
+             const int32_t           width,
+             const int32_t           height,
+             const int32_t           refresh)
+
+{
+  PuglWorld* const world = (PuglWorld*)data;
+
+  fprintf(stderr,
+          "[wl] output mode %dx%d @ %0.2f Hz\n",
+          width,
+          height,
+          (double)refresh / 1000.0);
+
+  const int32_t refreshHz = refresh / 1000;
+  for (size_t i = 0; i < world->numViews; ++i) {
+    if (puglGetVisible(world->views[i])) {
+      world->views[i]->hints[PUGL_REFRESH_RATE] = refreshHz;
+    }
+  }
+}
+
+static void
+onOutputDone(void* const             PUGL_UNUSED(data),
+             struct wl_output* const PUGL_UNUSED(wlOutput))
+{
+  fprintf(stderr, "[wl] output done\n");
+}
+
+static void
+onOutputScale(void* const             data,
+              struct wl_output* const PUGL_UNUSED(wlOutput),
+              const int32_t           factor)
+{
+  ((PuglWorld*)data)->impl->scaleFactor = factor;
+}
+
+static const struct wl_output_listener wl_output_listener = {
+  onOutputGeometry,
+  onOutputMode,
+  onOutputDone,
+  onOutputScale,
 };
 
 // Registry
@@ -538,7 +595,7 @@ registry_global(void* const               data,
                 struct wl_registry* const registry,
                 const uint32_t            name,
                 const char* const         interface,
-                const uint32_t            PUGL_UNUSED(version))
+                const uint32_t            version)
 {
   PuglWorld* const          world = (PuglWorld*)data;
   PuglWorldInternals* const impl  = world->impl;
@@ -555,11 +612,21 @@ registry_global(void* const               data,
     xdg_wm_base_add_listener(impl->wmBase, &xdg_wm_base_listener, world);
   } else if (strcmp(interface, wl_seat_interface.name) == 0) {
     impl->seat =
-      (struct wl_seat*)wl_registry_bind(registry, name, &wl_seat_interface, 5);
+      (struct wl_seat*)wl_registry_bind(registry, name, &wl_seat_interface, 1);
     wl_seat_add_listener(impl->seat, &wl_seat_listener, world);
-    /* } else { */
-    /*   fprintf(stderr, "Unknown global interface \"%s\"\n", interface); */
+  } else if (strcmp(interface, wl_output_interface.name) == 0) {
+    impl->output = (struct wl_output*)wl_registry_bind(
+      registry, name, &wl_output_interface, 2);
+    wl_output_add_listener(impl->output, &wl_output_listener, world);
+  } else {
+    (void)version;
+    fprintf(
+      stderr, "[wl] Unsupported interface \"%s\" v%u\n", interface, version);
+    return;
   }
+
+  fprintf(
+    stderr, "[wl] Registering interface \"%s\" v%u\n", interface, version);
 }
 
 static void
@@ -578,21 +645,21 @@ static const struct wl_registry_listener wl_registry_listener = {
 static PuglEvent
 getCurrentConfiguration(const PuglView* const view)
 {
-  PuglEvent event = {{PUGL_NOTHING, 0U}};
-  PuglPoint pos   = puglGetPositionHint(view, PUGL_CURRENT_POSITION);
-  PuglArea  size  = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+  PuglEvent       event = {{PUGL_CONFIGURE, 0U}};
+  const PuglPoint pos   = puglGetPositionHint(view, PUGL_CURRENT_POSITION);
+  const PuglArea  size  = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
 
-  const PuglConfigureEvent configure = {
-    PUGL_CONFIGURE,
-    0U,
-    pos.x,
-    pos.y,
-    size.width,
-    size.height,
-    view->impl->toplevel ? PUGL_VIEW_STYLE_MAPPED : 0U // FIXME
-  };
+  event.configure.x      = pos.x;
+  event.configure.y      = pos.y;
+  event.configure.width  = size.width;
+  event.configure.height = size.height;
+  event.configure.style  = view->lastConfigure.style;
+  if (view->impl->toplevel) {
+    event.configure.style |= PUGL_VIEW_STYLE_MAPPED;
+  } else {
+    event.configure.style &= ~(PuglViewStyleFlags)PUGL_VIEW_STYLE_MAPPED;
+  }
 
-  event.configure = configure;
   return event;
 }
 
@@ -601,46 +668,48 @@ onXdgToplevelConfigure(void* const                data,
                        struct xdg_toplevel* const PUGL_UNUSED(toplevel),
                        const int32_t              width,
                        const int32_t              height,
-                       struct wl_array* const     PUGL_UNUSED(states))
+                       struct wl_array* const     statesArray)
 {
-  /* fprintf(stderr, "[wl] toplevel configure %d %d\n", width, height); */
+  fprintf(stderr, "[wl] toplevel configure %d %d\n", width, height);
 
   PuglView* const view = (PuglView*)data;
 
   assert(width >= 0 && width <= UINT16_MAX);
   assert(height >= 0 && height <= UINT16_MAX);
 
-  PuglConfigureEvent configureEvent = {
-    PUGL_CONFIGURE,
-    0U,
-    0,
-    0,
-    (PuglSpan)width,
-    (PuglSpan)height,
-    view->impl->toplevel ? PUGL_VIEW_STYLE_MAPPED : 0U // FIXME
-  };
+  const uint32_t* const states = (const uint32_t*)statesArray;
+  PuglEvent             event  = {{PUGL_CONFIGURE, 0U}};
 
-  if (width <= 0 || height <= 0) {
-    // Compositor is deferring to our preferred size
-    configureEvent.width  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
-    configureEvent.height = view->sizeHints[PUGL_DEFAULT_SIZE].height;
+  event.configure.style = view->impl->toplevel ? PUGL_VIEW_STYLE_MAPPED : 0U;
+  if (states[XDG_TOPLEVEL_STATE_MAXIMIZED]) {
+    event.configure.style |= PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE;
+  }
+  if (states[XDG_TOPLEVEL_STATE_FULLSCREEN]) {
+    event.configure.style |= PUGL_VIEW_STYLE_FULLSCREEN;
+  }
+  if (states[XDG_TOPLEVEL_STATE_RESIZING]) {
+    event.configure.style |= PUGL_VIEW_STYLE_RESIZING;
   }
 
-  PuglEvent event;
-  event.configure     = configureEvent;
-  const PuglStatus st = puglDispatchEvent(view, &event);
-  if (st) {
-    fprintf(stderr, "\tconfigure error: %s\n", puglStrerror(st));
+  // TODO: ACTIVATED, TILED_*, SUSPENDED, CONSTRAINED_*
+  // No Wayland support for MODAL, ABOVE, BELOW, HIDDEN, or DEMANDING
+
+  if (width > 0 && height > 0) { // Use given size
+    event.configure.width  = (PuglSpan)width;
+    event.configure.height = (PuglSpan)height;
+  } else { // Defer to our preferred size
+    event.configure.width  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
+    event.configure.height = view->sizeHints[PUGL_DEFAULT_SIZE].height;
   }
+
+  puglDispatchEvent(view, &event);
 }
 
 static void
 onXdgToplevelClose(void* const                data,
                    struct xdg_toplevel* const PUGL_UNUSED(toplevel))
 {
-  PuglView* const view = (PuglView*)data;
-
-  puglDispatchSimpleEvent(view, PUGL_CLOSE);
+  puglDispatchSimpleEvent((PuglView*)data, PUGL_CLOSE);
 }
 
 static void
@@ -656,9 +725,23 @@ static void
 onXdgToplevelWmCapabilities(
   void* const                PUGL_UNUSED(data),
   struct xdg_toplevel* const PUGL_UNUSED(xdg_toplevel),
-  struct wl_array* const     PUGL_UNUSED(capabilities))
+  struct wl_array* const     capabilitiesArray)
 {
+  const uint32_t* const capabilities = (const uint32_t*)capabilitiesArray;
+
   fprintf(stderr, "[wl] toplevel wm capabilities\n");
+  if (capabilities[XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU]) {
+    fprintf(stderr, "[wl] WM has WINDOW_MENU\n");
+  }
+  if (capabilities[XDG_TOPLEVEL_WM_CAPABILITIES_MAXIMIZE]) {
+    fprintf(stderr, "[wl] WM has MAXIMIZE\n");
+  }
+  if (capabilities[XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN]) {
+    fprintf(stderr, "[wl] WM has FULLSCREEN\n");
+  }
+  if (capabilities[XDG_TOPLEVEL_WM_CAPABILITIES_MINIMIZE]) {
+    fprintf(stderr, "[wl] WM has MINIMIZE\n");
+  }
 }
 
 static const struct xdg_toplevel_listener xdg_toplevel_listener = {
@@ -739,9 +822,10 @@ puglInitWorldInternals(PuglWorld* const     world,
   PuglWorldInternals* impl =
     (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
 
-  world->impl      = impl;
-  impl->display    = display;
-  impl->xkbContext = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+  world->impl       = impl;
+  impl->display     = display;
+  impl->xkbContext  = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
+  impl->scaleFactor = 1;
 
   // Get the registry and our list of globals from it
   impl->registry = wl_display_get_registry(display);
@@ -881,16 +965,14 @@ puglFreeViewInternals(PuglView* const view)
 {
   if (view && view->impl) {
     puglUnrealize(view);
+    free(view->impl);
   }
-
-  free(view->impl);
 }
 
 double
 puglGetScaleFactor(const PuglView* const view)
 {
-  (void)view;
-  return 1.0;
+  return view->world->impl->scaleFactor;
 }
 
 PuglStatus
@@ -938,59 +1020,9 @@ puglGetAncestorCenter(const PuglView* const view)
   return point;
 }
 
-static PuglStatus
-createToplevel(PuglView* const view)
-{
-  fprintf(stderr, "createSurface\n");
-
-  PuglWorld* const     world = view->world;
-  PuglInternals* const impl  = view->impl;
-
-  impl->xdgSurface =
-    xdg_wm_base_get_xdg_surface(world->impl->wmBase, impl->wlSurface);
-
-  assert(impl->xdgSurface);
-
-  xdg_surface_add_listener(impl->xdgSurface, &xdg_surface_listener, view);
-
-  impl->toplevel = xdg_surface_get_toplevel(impl->xdgSurface);
-  assert(impl->toplevel);
-
-  xdg_toplevel_add_listener(impl->toplevel, &xdg_toplevel_listener, view);
-
-  char* const title = view->strings[PUGL_WINDOW_TITLE];
-  if (title) {
-    xdg_toplevel_set_title(impl->toplevel, title);
-  }
-
-  puglSetCursor(view, PUGL_CURSOR_ARROW);
-
-  struct wl_callback* cb = wl_surface_frame(view->impl->wlSurface);
-  wl_callback_add_listener(cb, &wl_surface_frame_listener, view);
-
-  wl_surface_damage_buffer(impl->wlSurface, 0, 0, INT32_MAX, INT32_MAX);
-  wl_surface_commit(view->impl->wlSurface);
-  return PUGL_SUCCESS;
-}
-
-static void
-destroyToplevel(PuglView* const view)
-{
-  fprintf(stderr, "destroyToplevel\n");
-
-  xdg_toplevel_destroy(view->impl->toplevel);
-  xdg_surface_destroy(view->impl->xdgSurface);
-  wl_surface_attach(view->impl->wlSurface, NULL, 0, 0);
-  wl_surface_commit(view->impl->wlSurface);
-
-  view->impl->toplevel   = NULL;
-  view->impl->xdgSurface = NULL;
-}
-
 PuglStatus
 puglRealize(PuglView* const view)
 {
-  fprintf(stderr, "Realize\n");
   PuglWorld* const     world = view->world;
   PuglInternals* const impl  = view->impl;
   PuglStatus           st    = PUGL_SUCCESS;
@@ -1007,7 +1039,14 @@ puglRealize(PuglView* const view)
 
   // Create Wayland surface
   impl->wlSurface = wl_compositor_create_surface(world->impl->compositor);
-  assert(impl->wlSurface);
+
+  // Set entire surface to opaque
+  const PuglArea          size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+  struct wl_region* const region =
+    wl_compositor_create_region(world->impl->compositor);
+  wl_region_add(region, 0, 0, size.width, size.height);
+  wl_surface_set_opaque_region(impl->wlSurface, region);
+  wl_region_destroy(region);
 
   // Attach backend and create context
   if ((st = view->backend->attach(view)) ||
@@ -1019,7 +1058,7 @@ puglRealize(PuglView* const view)
   puglEnsureHint(view, PUGL_RED_BITS, 8);
   puglEnsureHint(view, PUGL_GREEN_BITS, 8);
   puglEnsureHint(view, PUGL_BLUE_BITS, 8);
-  puglEnsureHint(view, PUGL_ALPHA_BITS, 8);
+  puglEnsureHint(view, PUGL_ALPHA_BITS, 0);
 
   // FIXME
   view->hints[PUGL_REFRESH_RATE] = 60;
@@ -1036,7 +1075,6 @@ puglRealize(PuglView* const view)
 PuglStatus
 puglUnrealize(PuglView* const view)
 {
-  fprintf(stderr, "Unrealize\n");
   if (!view->impl->wlSurface) {
     return PUGL_FAILURE;
   }
@@ -1057,16 +1095,34 @@ puglUnrealize(PuglView* const view)
 PuglStatus
 puglShow(PuglView* const view, const PuglShowCommand PUGL_UNUSED(command))
 {
-  fprintf(stderr, "Show\n");
+  PuglWorld* const     world = view->world;
+  PuglInternals* const impl  = view->impl;
 
   if (view->impl->xdgSurface) {
     return PUGL_FAILURE;
   }
 
   PuglStatus st = view->impl->wlSurface ? PUGL_SUCCESS : puglRealize(view);
-  if (st || (st = createToplevel(view))) {
+  if (st) {
     return st;
   }
+
+  impl->xdgSurface =
+    xdg_wm_base_get_xdg_surface(world->impl->wmBase, impl->wlSurface);
+
+  impl->toplevel = xdg_surface_get_toplevel(impl->xdgSurface);
+  xdg_surface_add_listener(impl->xdgSurface, &xdg_surface_listener, view);
+  xdg_toplevel_add_listener(impl->toplevel, &xdg_toplevel_listener, view);
+
+  puglSetCursor(view, PUGL_CURSOR_ARROW);
+  if (view->strings[PUGL_WINDOW_TITLE]) {
+    xdg_toplevel_set_title(impl->toplevel, view->strings[PUGL_WINDOW_TITLE]);
+  }
+
+  struct wl_callback* const cb = wl_surface_frame(view->impl->wlSurface);
+  wl_callback_add_listener(cb, &wl_surface_frame_listener, view);
+  wl_surface_damage_buffer(impl->wlSurface, 0, 0, INT32_MAX, INT32_MAX);
+  wl_surface_commit(view->impl->wlSurface);
 
   const PuglEvent configureEvent = getCurrentConfiguration(view);
   return puglDispatchEvent(view, &configureEvent);
@@ -1075,8 +1131,6 @@ puglShow(PuglView* const view, const PuglShowCommand PUGL_UNUSED(command))
 PuglStatus
 puglHide(PuglView* const view)
 {
-  fprintf(stderr, "Hide\n");
-
   if (view->world->state == PUGL_WORLD_EXPOSING) {
     return PUGL_BAD_CALL;
   }
@@ -1085,7 +1139,12 @@ puglHide(PuglView* const view)
     return PUGL_FAILURE;
   }
 
-  destroyToplevel(view);
+  xdg_toplevel_destroy(view->impl->toplevel);
+  xdg_surface_destroy(view->impl->xdgSurface);
+  wl_surface_attach(view->impl->wlSurface, NULL, 0, 0);
+  wl_surface_commit(view->impl->wlSurface);
+  view->impl->toplevel   = NULL;
+  view->impl->xdgSurface = NULL;
 
   const PuglEvent configureEvent = getCurrentConfiguration(view);
   return puglDispatchEvent(view, &configureEvent);
@@ -1303,6 +1362,16 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
 {
   if (view->world->state == PUGL_WORLD_EXPOSING) {
     return PUGL_FAILURE;
+  }
+
+  if (event->type == PUGL_EXPOSE) {
+    wl_surface_damage_buffer(
+      view->impl->wlSurface,
+      event->expose.x,
+      event->expose.y,
+      event->expose.x + event->expose.width - event->expose.x,
+      event->expose.y + event->expose.height - event->expose.y);
+    return PUGL_SUCCESS;
   }
 
   (void)event;

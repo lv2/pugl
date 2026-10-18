@@ -34,6 +34,7 @@ struct PuglWorldInternalsImpl {
   struct wl_registry*     registry;
   struct wl_shm*          shm;
   struct wl_compositor*   compositor;
+  struct wl_output*       output;
   struct xdg_wm_base*     wmBase;
   struct wl_seat*         seat;
   struct wl_pointer*      pointer;
@@ -47,6 +48,7 @@ struct PuglWorldInternalsImpl {
   uint32_t                altModMask;
   uint32_t                superModMask;
   PuglMods                depressedMods;
+  int32_t                 scaleFactor;
   PuglView*               enteredView;
   PuglView*               focusedView;
 };

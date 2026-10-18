@@ -109,18 +109,19 @@ puglWaylandGlAttach(PuglView* view)
 
   // clang-format off
   const EGLint configAttribs[] = {
-    EGL_SURFACE_TYPE,      EGL_WINDOW_BIT,
-    EGL_RENDERABLE_TYPE,   EGL_OPENGL_BIT,
-    EGL_RED_SIZE,          view->hints[PUGL_RED_BITS],
-    EGL_GREEN_SIZE,        view->hints[PUGL_GREEN_BITS],
-    EGL_BLUE_SIZE,         view->hints[PUGL_BLUE_BITS],
-    EGL_ALPHA_SIZE,        view->hints[PUGL_ALPHA_BITS],
-    EGL_DEPTH_SIZE,        view->hints[PUGL_DEPTH_BITS],
-    EGL_STENCIL_SIZE,      view->hints[PUGL_STENCIL_BITS],
-    EGL_SAMPLE_BUFFERS,    view->hints[PUGL_SAMPLE_BUFFERS],
-    EGL_SAMPLES,           view->hints[PUGL_SAMPLES],
-    EGL_MIN_SWAP_INTERVAL, view->hints[PUGL_SWAP_INTERVAL],
-    EGL_NONE,              EGL_NONE,
+    EGL_RENDERABLE_TYPE,    EGL_OPENGL_BIT,
+    EGL_SURFACE_TYPE,       EGL_WINDOW_BIT,
+    EGL_TRANSPARENT_TYPE,   EGL_NONE,
+    EGL_RED_SIZE,           view->hints[PUGL_RED_BITS],
+    EGL_GREEN_SIZE,         view->hints[PUGL_GREEN_BITS],
+    EGL_BLUE_SIZE,          view->hints[PUGL_BLUE_BITS],
+    EGL_ALPHA_SIZE,         view->hints[PUGL_ALPHA_BITS],
+    EGL_DEPTH_SIZE,         view->hints[PUGL_DEPTH_BITS],
+    EGL_STENCIL_SIZE,       view->hints[PUGL_STENCIL_BITS],
+    EGL_SAMPLE_BUFFERS,     view->hints[PUGL_SAMPLE_BUFFERS],
+    EGL_SAMPLES,            view->hints[PUGL_SAMPLES],
+    EGL_MIN_SWAP_INTERVAL,  view->hints[PUGL_SWAP_INTERVAL],
+    EGL_NONE,               EGL_NONE,
   };
   // clang-format on
 
