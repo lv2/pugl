@@ -113,7 +113,7 @@ puglSetDefaultHints(PuglView* const view)
   view->hints[PUGL_RED_BITS]              = 8;
   view->hints[PUGL_GREEN_BITS]            = 8;
   view->hints[PUGL_BLUE_BITS]             = 8;
-  view->hints[PUGL_ALPHA_BITS]            = 8;
+  view->hints[PUGL_ALPHA_BITS]            = 0;
   view->hints[PUGL_DEPTH_BITS]            = 0;
   view->hints[PUGL_STENCIL_BITS]          = 0;
   view->hints[PUGL_SAMPLE_BUFFERS]        = PUGL_DONT_CARE;
