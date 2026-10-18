@@ -35,7 +35,7 @@
 #include <pugl/gl.h>
 #include <pugl/pugl.h>
 
-#include <math.h>
+// #include <math.h> // FIXME
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -443,6 +443,9 @@ teardownGl(PuglTestApp* app)
 static double
 updateTimeout(const PuglTestApp* const app)
 {
+  (void)app;
+  return 0.0;
+  #if 0
   if (!puglGetVisible(app->view)) {
     return -1.0; // View is invisible (minimized), wait until something happens
   }
@@ -490,6 +493,7 @@ updateTimeout(const PuglTestApp* const app)
   /*   app->lastDrawDuration, */
   /*   timeUntilNext); */
   return fmax(0.0, (timeUntilNext * 0.9) - 0.001);
+  #endif
 }
 
 int
