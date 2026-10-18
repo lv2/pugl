@@ -795,15 +795,9 @@ onSurfaceFrameDone(void* const         data,
   cb = wl_surface_frame(view->impl->wlSurface);
   wl_callback_add_listener(cb, &wl_surface_frame_listener, view);
 
-  const PuglExposeEvent expose = {PUGL_EXPOSE,
-                                  0U,
-                                  0,
-                                  0,
-                                  view->lastConfigure.width,
-                                  view->lastConfigure.height};
-
-  PuglEvent event;
-  event.expose = expose;
+  PuglEvent event     = {{PUGL_EXPOSE, 0U}};
+  event.expose.width  = view->lastConfigure.width;
+  event.expose.height = view->lastConfigure.height;
   puglDispatchEvent(view, &event);
 }
 
@@ -1095,6 +1089,7 @@ puglUnrealize(PuglView* const view)
 PuglStatus
 puglShow(PuglView* const view, const PuglShowCommand PUGL_UNUSED(command))
 {
+  PuglStatus           st    = PUGL_SUCCESS;
   PuglWorld* const     world = view->world;
   PuglInternals* const impl  = view->impl;
 
@@ -1102,8 +1097,7 @@ puglShow(PuglView* const view, const PuglShowCommand PUGL_UNUSED(command))
     return PUGL_FAILURE;
   }
 
-  PuglStatus st = view->impl->wlSurface ? PUGL_SUCCESS : puglRealize(view);
-  if (st) {
+  if ((st = view->impl->wlSurface ? PUGL_SUCCESS : puglRealize(view))) {
     return st;
   }
 
@@ -1119,13 +1113,18 @@ puglShow(PuglView* const view, const PuglShowCommand PUGL_UNUSED(command))
     xdg_toplevel_set_title(impl->toplevel, view->strings[PUGL_WINDOW_TITLE]);
   }
 
-  struct wl_callback* const cb = wl_surface_frame(view->impl->wlSurface);
-  wl_callback_add_listener(cb, &wl_surface_frame_listener, view);
-  wl_surface_damage_buffer(impl->wlSurface, 0, 0, INT32_MAX, INT32_MAX);
-  wl_surface_commit(view->impl->wlSurface);
-
   const PuglEvent configureEvent = getCurrentConfiguration(view);
-  return puglDispatchEvent(view, &configureEvent);
+  if (!(st = puglDispatchEvent(view, &configureEvent))) {
+    wl_surface_damage_buffer(impl->wlSurface, 0, 0, INT32_MAX, INT32_MAX);
+    wl_surface_commit(view->impl->wlSurface);
+
+    if (view->hints[PUGL_CONTINUOUS]) {
+      fprintf(stderr, "Starting frame listener\n");
+      struct wl_callback* const cb = wl_surface_frame(view->impl->wlSurface);
+      wl_callback_add_listener(cb, &wl_surface_frame_listener, view);
+    }
+  }
+  return st;
 }
 
 PuglStatus
