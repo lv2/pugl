@@ -311,6 +311,7 @@ selectResizePresentMode(const sk::VulkanApi&      vk,
   return chooseBestPresentMode(
     vk, physicalDevice, surface, priorities, presentMode);
 }
+
 VkResult
 openDevice(const sk::VulkanApi&      vk,
            const sk::PhysicalDevice& physicalDevice,
