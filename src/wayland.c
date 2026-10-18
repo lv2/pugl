@@ -35,6 +35,8 @@
 #  define BTN_LEFT 0x110
 #endif
 
+// Utilities
+
 struct wl_callback;
 
 static PuglView*
@@ -143,31 +145,6 @@ onPointerMotion(void* const              data,
   event.motion.state = world->impl->depressedMods;
   puglDispatchEvent(view, &event);
 }
-
-#if 0
-static enum xdg_toplevel_resize_edge
-componentEdge(const int width,
-               const int height,
-               const int pointerX,
-               const int pointerY,
-               const int margin)
-{
-  const bool t = pointerY < margin;
-  const bool b = pointerY > (height - margin);
-  const bool l = pointerX < margin;
-  const bool r = pointerX > (width - margin);
-
-  return t   ? (l   ? XDG_TOPLEVEL_RESIZE_EDGE_TOP_LEFT
-                : r ? XDG_TOPLEVEL_RESIZE_EDGE_TOP_RIGHT
-                    : XDG_TOPLEVEL_RESIZE_EDGE_TOP)
-         : b ? (l   ? XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_LEFT
-                : r ? XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM_RIGHT
-                    : XDG_TOPLEVEL_RESIZE_EDGE_BOTTOM)
-         : l ? XDG_TOPLEVEL_RESIZE_EDGE_LEFT
-         : r ? XDG_TOPLEVEL_RESIZE_EDGE_RIGHT
-             : XDG_TOPLEVEL_RESIZE_EDGE_NONE;
-}
-#endif
 
 static void
 onPointerButton(void* const              data,
