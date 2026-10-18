@@ -305,6 +305,7 @@ setupPugl(PuglTestApp* app)
   puglSetViewHint(app->view, PUGL_SWAP_INTERVAL, app->opts.sync);
   puglSetViewHint(app->view, PUGL_IGNORE_KEY_REPEAT, PUGL_TRUE);
   puglSetViewHint(app->view, PUGL_DARK_FRAME, PUGL_TRUE);
+  puglSetViewHint(app->view, PUGL_CONTINUOUS, PUGL_TRUE);
   puglSetHandle(app->view, app);
   puglSetEventFunc(app->view, onEvent);
 }

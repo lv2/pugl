@@ -75,3 +75,5 @@ This is usually done during an update (:enumerator:`PUGL_UPDATE`), but a view ca
 
 After a view is obscured, an exposure (:struct:`PuglExposeEvent`) will be dispatched when it's time to draw the updated contents.
 Note however that exposures are always mediated by the window system, there's no direct correspondence between them and any earlier obscure calls.
+
+To redraw continuously, set the :enumerator:`PUGL_CONTINUOUS` hint, and synchronized exposures will automatically be dispatched for every frame without needing to explicitly obscure the view.

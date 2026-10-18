@@ -6,12 +6,12 @@ example_defines = ['-DPUGL_DATA_DIR="@0@"'.format(data_dir)]
 
 puglutil_dep = dependency('puglutil')
 
-pugl_gl_dep = dependency('pugl-gl-0', required: false, version: '>= 0.5.3')
+pugl_gl_dep = dependency('pugl-gl-0', required: false, version: '>= 0.5.9')
 
 pugl_vulkan_dep = dependency(
   'pugl-vulkan-0',
   required: false,
-  version: '>= 0.5.3',
+  version: '>= 0.5.9',
 )
 
 gl_examples = ['pugl_cpp_demo.cpp']

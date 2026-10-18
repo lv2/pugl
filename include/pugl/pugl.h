@@ -955,10 +955,11 @@ typedef enum {
   PUGL_VIEW_TYPE,             ///< View type (a #PuglViewType)
   PUGL_DARK_FRAME,            ///< True if window frame should be dark
   PUGL_ACCEPT_DROP,           ///< True if view accepts dropped data
+  PUGL_CONTINUOUS,            ///< True if view should be continuously rendered
 } PuglViewHint;
 
 /// The number of #PuglViewHint values
-#define PUGL_NUM_VIEW_HINTS 21U
+#define PUGL_NUM_VIEW_HINTS 22U
 
 /// A special view hint value
 typedef enum {

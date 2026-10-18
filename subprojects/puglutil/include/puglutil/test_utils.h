@@ -467,6 +467,8 @@ puglViewHintString(const PuglViewHint hint)
     return "Dark frame";
   case PUGL_ACCEPT_DROP:
     return "Accept drop";
+  case PUGL_CONTINUOUS:
+    return "Continuous";
   }
 
   return "Unknown";
