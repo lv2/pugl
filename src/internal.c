@@ -39,20 +39,6 @@ puglIsValidArea(const PuglArea size)
   return size.width && size.height;
 }
 
-PuglArea
-puglGetInitialSize(const PuglView* const view)
-{
-  if (view->lastConfigure.type == PUGL_CONFIGURE) {
-    // Use the last configured size
-    const PuglConfigureEvent config = view->lastConfigure;
-    const PuglArea           size   = {config.width, config.height};
-    return size;
-  }
-
-  // Use the default size hint set by the application
-  return view->sizeHints[PUGL_DEFAULT_SIZE];
-}
-
 PuglPoint
 puglGetInitialPosition(const PuglView* const view, const PuglArea size)
 {

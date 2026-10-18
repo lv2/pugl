@@ -613,7 +613,7 @@ puglRealize(PuglView* const view)
   attr.event_mask |= VisibilityChangeMask;
 
   // Calculate the initial window frame
-  const PuglArea  initialSize = puglGetInitialSize(view);
+  const PuglArea  initialSize = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
   const PuglPoint initialPos  = puglGetInitialPosition(view, initialSize);
 
   // Create the window
