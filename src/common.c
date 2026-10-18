@@ -336,13 +336,17 @@ puglSetPositionHint(PuglView* const        view,
 PuglArea
 puglGetSizeHint(const PuglView* const view, const PuglSizeHint hint)
 {
-  if (hint == PUGL_CURRENT_SIZE && view->lastConfigure.type == PUGL_CONFIGURE) {
+  if (hint != PUGL_CURRENT_SIZE) {
+    return view->sizeHints[hint];
+  }
+
+  if (view->lastConfigure.type == PUGL_CONFIGURE) {
     const PuglArea area = {view->lastConfigure.width,
                            view->lastConfigure.height};
     return area;
   }
 
-  return view->sizeHints[hint];
+  return view->sizeHints[PUGL_DEFAULT_SIZE];
 }
 
 PuglStatus

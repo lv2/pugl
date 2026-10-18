@@ -33,10 +33,6 @@ puglIsValidArea(PuglArea size);
 PuglPoint
 puglGetAncestorCenter(const PuglView* view);
 
-/// Return the initial size of a view
-PuglArea
-puglGetInitialSize(const PuglView* view);
-
 /// Return the initial position of a view if known, or an invalid position
 PuglPoint
 puglGetInitialPosition(const PuglView* view, PuglArea size);

@@ -1676,7 +1676,7 @@ puglWinCreateWindow(PuglView* const   view,
   // Calculate initial window rectangle
   const unsigned  winFlags   = puglWinGetWindowFlags(view);
   const unsigned  winExFlags = puglWinGetWindowExFlags(view);
-  const PuglArea  size       = puglGetInitialSize(view);
+  const PuglArea  size       = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
   const PuglPoint pos        = puglGetInitialPosition(view, size);
   RECT            wr         = {(long)pos.x,
                                 (long)pos.y,

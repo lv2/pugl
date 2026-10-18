@@ -1319,7 +1319,7 @@ puglRealize(PuglView* view)
   }
 
   // Get the initial size and position from the defaults or last configuration
-  const PuglArea  size = puglGetInitialSize(view);
+  const PuglArea  size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
   const PuglPoint pos  = puglGetInitialPosition(view, size);
 
   // Convert frame to points
