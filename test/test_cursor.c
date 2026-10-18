@@ -53,11 +53,11 @@ main(int argc, char** argv)
   puglSetEventFunc(test.view, onEvent);
   puglSetSizeHint(test.view, PUGL_DEFAULT_SIZE, 256, 256);
   puglSetPositionHint(test.view, PUGL_DEFAULT_POSITION, 896, 640);
-  puglShow(test.view, PUGL_SHOW_RAISE);
+  assert(!puglShow(test.view, PUGL_SHOW_RAISE));
 
   // Drive event loop until the view gets exposed
   while (!test.exposed) {
-    puglUpdate(test.world, -1.0);
+    assert(!puglUpdate(test.world, -1.0));
   }
 
   // Change the cursor, updating each time
