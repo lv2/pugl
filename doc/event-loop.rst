@@ -5,41 +5,23 @@
 Driving the Event Loop
 ######################
 
-Pugl does not contain any threads or other event loop "magic".
-For flexibility, the event loop is driven explicitly by repeatedly calling :func:`puglUpdate`,
-which processes events from the window system and dispatches them to views when necessary.
+Pugl doesn't have any internal threads, the event loop is driven explicitly by repeatedly calling :func:`puglUpdate`.
+This processes events from the window system and dispatches them to views when necessary and is usually called once per frame in the main loop.
 
 The exact use of :func:`puglUpdate` depends on the application.
-Plugins should call it with a ``timeout`` of 0 in a callback driven by the host.
-This avoids blocking the main loop,
-since other plugins and the host itself need to run as well.
+Modules or plugins should call it in a callback driven by the host, with a ``timeout`` of 0 to avoid blocking the main loop.
 
 A program can use whatever timeout is appropriate:
 event-driven applications may wait forever by using a ``timeout`` of -1,
 while those that draw continuously may use a significant fraction of the frame period
 (with enough time left over to render).
 
-*********
-Redrawing
-*********
-
-Occasional redrawing can be requested by calling :func:`puglObscureView` or :func:`puglObscureRegion`.
-After these are called,
-a :struct:`PuglExposeEvent` will be dispatched on the next call to :func:`puglUpdate`.
-
-For continuous redrawing, obscure the view while handling a :struct:`PuglUpdateEvent` event.
-This event is sent just before views are redrawn,
-so it can be used as a hook to expand the update region right before the view is exposed.
-Anything else that needs to be done every frame can be handled similarly.
-
 *****************
 Event Dispatching
 *****************
 
-Ideally, pending events are dispatched during a call to :func:`puglUpdate`,
-directly within the scope of that call.
-
-Unfortunately, this is not universally true due to differences between platforms.
+With the exception of a few special events like :enumerator:`PUGL_REALIZE`, events are generally dispatched during a call to :func:`puglUpdate`, directly within the scope of that call.
+Depending on the platform, however, events may be dispatched at other times.
 
 MacOS
 =====
@@ -48,32 +30,22 @@ On MacOS, drawing is handled specially and not by the normal event queue mechani
 This means that configure and expose events,
 and possibly others,
 may be dispatched to a view outside the scope of a :func:`puglUpdate` call.
-In general, you can not rely on coherent event dispatching semantics on MacOS:
-the operating system can call into application code at "random" times,
-and these calls may result in Pugl events being dispatched.
 
-An application that follows the Pugl guidelines should work fine,
-but there is one significant inconsistency you may encounter on MacOS:
-posting a redisplay will not wake up a blocked :func:`puglUpdate` call.
+Because drawing isn't handled by events, posting a redisplay will not wake up a blocked :func:`puglUpdate` call.
 
 Windows
 =======
 
 On Windows, the application has relatively tight control over the event loop,
-so events are typically dispatched explicitly by :func:`puglUpdate`.
-Drawing is handled by events,
-so posting a redisplay will wake up a blocked :func:`puglUpdate` call.
+so most events are dispatched explicitly by :func:`puglUpdate`.
+Drawing is handled by events, so obscuring a view will wake up a blocked :func:`puglUpdate` call.
 
-However, it is possible for the system to dispatch events at other times.
-So,
-it is possible for events to be dispatched outside the scope of a :func:`puglUpdate` call,
-but this does not happen in normal circumstances and can largely be ignored.
+However, it's possible for the system to dispatch events at other times.
 
 X11
 ===
 
-On X11, the application strictly controls event dispatching,
-and there is no way for the system to call into application code at surprising times.
+On X11, the application strictly controls event dispatching, the system can't call into application code at "surprising" times.
 So, all events are dispatched in the scope of a :func:`puglUpdate` call.
 
 *********************

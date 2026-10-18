@@ -5,14 +5,13 @@
 Handling Events
 ***************
 
-Events are sent to a view when it has received user input,
-must be drawn, or in other situations that may need to be handled such as resizing.
+Events are sent to views in situations that might need handling, such as user input being available or the graphics needing to be drawn.
+This is the main way that application code interacts with the user and window system.
 
-Events are sent to the event handler as a :union:`PuglEvent` union.
-The ``type`` field defines the type of the event and which field of the union is active.
-The application must handle at least :enumerator:`PUGL_CONFIGURE <PuglEventType.PUGL_CONFIGURE>`
-and :enumerator:`PUGL_EXPOSE <PuglEventType.PUGL_EXPOSE>` to draw anything,
-but there are many other :enum:`event types <PuglEventType>`.
+Events are sent as a :union:`PuglEvent` to the callback function set with :func:`puglSetEventFunc`.
+The ``type`` field defines the type of the event and which field is active.
+There are many :enum:`event types <PuglEventType>`, but visible applications must handle at least :enumerator:`PUGL_CONFIGURE <PuglEventType.PUGL_CONFIGURE>`
+and :enumerator:`PUGL_EXPOSE <PuglEventType.PUGL_EXPOSE>`.
 
 For example, a basic event handler might look something like this:
 
@@ -43,41 +42,36 @@ For example, a basic event handler might look something like this:
      return PUGL_SUCCESS;
    }
 
-Using the Graphics Context
-==========================
-
 Drawing
--------
+=======
 
-Note that Pugl uses a different drawing model than many libraries,
-particularly those designed for game-style main loops like `SDL <https://libsdl.org/>`_ and `GLFW <https://www.glfw.org/>`_.
+Drawing is only performed in response to an exposure (:struct:`PuglExposeEvent`), allowing portable code to make efficient use of the graphics system.
+The graphics context is only available for this and perhaps a few other events, depending on the backend in use.
 
-In that style of code, drawing is performed imperatively in the main loop,
-but with Pugl, the application must draw only while handling an expose event.
-This is because Pugl supports event-driven applications that only draw the damaged region when necessary,
-and handles exposure internally to provide optimized and consistent behavior across platforms.
+Cairo
+-----
 
-Cairo Context
--------------
+A Cairo context (`cairo_t <https://cairographics.org/manual/cairo-cairo-t.html>`_) is created for each exposure, and can be accessed with :func:`puglGetContext` during its handling.
+The returned pointer is only valid until the end of the exposure.
 
-A Cairo context is created for each :struct:`PuglExposeEvent`,
-and only exists during the handling of that event.
-Null is returned by :func:`puglGetContext` at any other time.
+OpenGL
+------
 
-OpenGL Context
---------------
+The OpenGL context is only active while handling realization (:enumerator:`PUGL_REALIZE`, :enumerator:`PUGL_UNREALIZE`) and exposure, and can only be used for drawing during exposure.
+Note that it's *not* active while handling configuration (:enumerator:`PUGL_CONFIGURE`), so the application must store the configuration and apply it to the graphics context on the next exposure.
+The OpenGL context is implicit state, so :func:`puglGetContext` always returns null.
 
-The OpenGL context is only active while handling realization (:enumerator:`PUGL_REALIZE`, :enumerator:`PUGL_UNREALIZE`) and exposure (:enumerator:`PUGL_EXPOSE`),
-and can only be used for rendering during exposure.
+Vulkan
+------
 
-Note that the OpenGL context is *not* active while handling configuration.
-When a :enumerator:`PUGL_CONFIGURE` is received,
-the application should record it and prepare accordingly,
-but only apply it to OpenGL when the view is next exposed.
+With Vulkan, the graphics context is managed by the application, so :func:`puglGetContext` always returns null.
+The application must render and submit a frame when handling an exposure.
 
-Vulkan Context
---------------
+Requesting Redrawing
+====================
 
-With Vulkan, the graphics context is managed by the application rather than Pugl.
-However, drawing must still only be performed during an expose.
+A view or a region of it can be scheduled for redrawing with :func:`puglObscureView` or :func:`puglObscureRegion`.
+This is usually done during an update (:enumerator:`PUGL_UPDATE`), but a view can be obscured at any time except during exposure.
 
+After a view is obscured, an exposure (:struct:`PuglExposeEvent`) will be dispatched when it's time to draw the updated contents.
+Note however that exposures are always mediated by the window system, there's no direct correspondence between them and any earlier obscure calls.
