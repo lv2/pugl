@@ -16,10 +16,6 @@
 
 #include <stdlib.h>
 
-// FIXME
-#include <stdio.h>
-#include <assert.h>
-
 // NOLINTBEGIN(misc-misplaced-const)
 
 typedef struct {
@@ -85,7 +81,6 @@ puglCurrentViewSize(const PuglView* const view)
 static PuglStatus
 puglWaylandGlAttach(PuglView* view)
 {
-  fprintf(stderr, "wl backend attach\n");
   PuglInternals* const impl = view->impl;
 
   // Hints where EGL expects 0 (not -1) for "don't care" values
@@ -132,7 +127,6 @@ puglWaylandGlAttach(PuglView* view)
   // Create EGL display connection
   const EGLDisplay eglDisplay = eglGetDisplay(view->world->impl->display);
   if (eglDisplay == EGL_NO_DISPLAY) {
-    fprintf(stderr, "err1\n");
     return PUGL_CREATE_CONTEXT_FAILED;
   }
 
@@ -140,13 +134,11 @@ puglWaylandGlAttach(PuglView* view)
   EGLint majorVersion = 0;
   EGLint minorVersion = 0;
   if (!eglInitialize(eglDisplay, &majorVersion, &minorVersion)) {
-    fprintf(stderr, "err2\n");
     return PUGL_CREATE_CONTEXT_FAILED;
   }
 
   // Bind requested render API
   if (!eglBindAPI(api)) {
-    fprintf(stderr, "err3\n");
     return PUGL_CREATE_CONTEXT_FAILED;
   }
 
@@ -163,8 +155,6 @@ puglWaylandGlAttach(PuglView* view)
     return PUGL_CREATE_CONTEXT_FAILED;
   }
 
-  fprintf(stderr, "A\n");
-
   // Create Wayland EGL window
   const PuglArea              size = puglCurrentViewSize(view);
   struct wl_egl_window* const eglWindow =
@@ -172,8 +162,6 @@ puglWaylandGlAttach(PuglView* view)
   if (!eglWindow) {
     return PUGL_CREATE_CONTEXT_FAILED;
   }
-
-  fprintf(stderr, "B\n");
 
   // Create a window surface
   const EGLSurface eglSurface =
@@ -183,7 +171,6 @@ puglWaylandGlAttach(PuglView* view)
     return PUGL_CREATE_CONTEXT_FAILED;
   }
 
-  fprintf(stderr, "C\n");
   PuglWaylandGlSurface* const backendSurface =
     (PuglWaylandGlSurface*)calloc(1, sizeof(PuglWaylandGlSurface));
 
@@ -221,7 +208,6 @@ puglWaylandGlAttach(PuglView* view)
 static void
 puglWaylandGlDetach(PuglView* const view)
 {
-  fprintf(stderr, "wl backend detach\n");
   PuglWaylandGlSurface* const surface =
     (PuglWaylandGlSurface*)view->impl->backendSurface;
 
@@ -238,12 +224,8 @@ puglWaylandGlDetach(PuglView* const view)
 static PuglStatus
 puglWaylandGlCreate(PuglView* const view)
 {
-  fprintf(stderr, "wl backend create\n");
   PuglWaylandGlSurface* const surface =
     (PuglWaylandGlSurface*)view->impl->backendSurface;
-
-  assert(surface);
-  //  const EGLDisplay eglDisplay = surface->eglDisplay;
 
   const EGLenum api = view->hints[PUGL_CONTEXT_API] == PUGL_OPENGL_API
                         ? EGL_OPENGL_API
@@ -285,7 +267,6 @@ puglWaylandGlCreate(PuglView* const view)
 static void
 puglWaylandGlDestroy(PuglView* const view)
 {
-  fprintf(stderr, "wl backend destroy\n");
   PuglWaylandGlSurface* const surface =
     (PuglWaylandGlSurface*)view->impl->backendSurface;
 
@@ -298,13 +279,10 @@ puglWaylandGlDestroy(PuglView* const view)
 static PuglStatus
 puglWaylandGlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 {
-  /* fprintf(stderr, "wl backend enter\n"); */
   PuglWaylandGlSurface* const surface =
     (PuglWaylandGlSurface*)view->impl->backendSurface;
 
   if (!surface) {
-    fprintf(stderr, "no surface\n");
-       assert(false);
     return PUGL_FAILURE;
   }
 
@@ -318,21 +296,17 @@ puglWaylandGlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
       surface->eglWindow, viewSize.width, viewSize.height, 0, 0);
   }
 
-  if (!eglMakeCurrent(surface->eglDisplay,
-                      surface->eglSurface,
-                      surface->eglSurface,
-                      surface->eglContext)) {
-    fprintf(stderr, "failed to set current (%d)\n", eglGetError());
-    return PUGL_FAILURE;
-  }
-
-  return PUGL_SUCCESS;
+  return eglMakeCurrent(surface->eglDisplay,
+                        surface->eglSurface,
+                        surface->eglSurface,
+                        surface->eglContext)
+           ? PUGL_SUCCESS
+           : PUGL_FAILURE;
 }
 
 static PuglStatus
 puglWaylandGlLeave(PuglView* view, const PuglExposeEvent* expose)
 {
-  /* fprintf(stderr, "wl backend leave\n"); */
   PuglWaylandGlSurface* const surface =
     (PuglWaylandGlSurface*)view->impl->backendSurface;
   if (!surface) {

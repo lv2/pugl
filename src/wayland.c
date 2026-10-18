@@ -23,7 +23,6 @@
 #include <unistd.h>
 
 #include <assert.h>
-#include <errno.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -574,6 +573,157 @@ static const struct wl_registry_listener wl_registry_listener = {
   registry_global_remove,
 };
 
+// Toplevel
+
+static PuglEvent
+getCurrentConfiguration(const PuglView* const view)
+{
+  PuglEvent event = {{PUGL_NOTHING, 0U}};
+  PuglPoint pos   = puglGetPositionHint(view, PUGL_CURRENT_POSITION);
+  PuglArea  size  = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+
+  const PuglConfigureEvent configure = {
+    PUGL_CONFIGURE,
+    0U,
+    pos.x,
+    pos.y,
+    size.width,
+    size.height,
+    view->impl->toplevel ? PUGL_VIEW_STYLE_MAPPED : 0U // FIXME
+  };
+
+  event.configure = configure;
+  return event;
+}
+
+static void
+onXdgToplevelConfigure(void* const                data,
+                       struct xdg_toplevel* const PUGL_UNUSED(toplevel),
+                       const int32_t              width,
+                       const int32_t              height,
+                       struct wl_array* const     PUGL_UNUSED(states))
+{
+  /* fprintf(stderr, "[wl] toplevel configure %d %d\n", width, height); */
+
+  PuglView* const view = (PuglView*)data;
+
+  assert(width >= 0 && width <= UINT16_MAX);
+  assert(height >= 0 && height <= UINT16_MAX);
+
+  PuglConfigureEvent configureEvent = {
+    PUGL_CONFIGURE,
+    0U,
+    0,
+    0,
+    (PuglSpan)width,
+    (PuglSpan)height,
+    view->impl->toplevel ? PUGL_VIEW_STYLE_MAPPED : 0U // FIXME
+  };
+
+  if (width <= 0 || height <= 0) {
+    // Compositor is deferring to our preferred size
+    configureEvent.width  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
+    configureEvent.height = view->sizeHints[PUGL_DEFAULT_SIZE].height;
+  }
+
+  PuglEvent event;
+  event.configure     = configureEvent;
+  const PuglStatus st = puglDispatchEvent(view, &event);
+  if (st) {
+    fprintf(stderr, "\tconfigure error: %s\n", puglStrerror(st));
+  }
+}
+
+static void
+onXdgToplevelClose(void* const                data,
+                   struct xdg_toplevel* const PUGL_UNUSED(toplevel))
+{
+  PuglView* const view = (PuglView*)data;
+
+  puglDispatchSimpleEvent(view, PUGL_CLOSE);
+}
+
+static void
+onXdgToplevelConfigureBounds(void* const                PUGL_UNUSED(data),
+                             struct xdg_toplevel* const PUGL_UNUSED(toplevel),
+                             const int32_t              width,
+                             const int32_t              height)
+{
+  fprintf(stderr, "[wl] toplevel bounds %d %d\n", width, height);
+}
+
+static void
+onXdgToplevelWmCapabilities(
+  void* const                PUGL_UNUSED(data),
+  struct xdg_toplevel* const PUGL_UNUSED(xdg_toplevel),
+  struct wl_array* const     PUGL_UNUSED(capabilities))
+{
+  fprintf(stderr, "[wl] toplevel wm capabilities\n");
+}
+
+static const struct xdg_toplevel_listener xdg_toplevel_listener = {
+  onXdgToplevelConfigure,
+  onXdgToplevelClose,
+  onXdgToplevelConfigureBounds,
+  onXdgToplevelWmCapabilities,
+};
+
+// Surface
+
+static void
+onXdgSurfaceConfigure(void* const               data,
+                      struct xdg_surface* const xdgSurface,
+                      const uint32_t            serial)
+{
+  PuglView* const view = (PuglView*)data;
+
+  xdg_surface_ack_configure(xdgSurface, serial);
+
+  // Dispatch current configuration
+  PuglEvent event = getCurrentConfiguration(view);
+  puglDispatchEvent(view, &event);
+
+  // FIXME: Always/never/only-if-already-configured do this?
+  wl_surface_commit(view->impl->wlSurface);
+}
+
+static const struct xdg_surface_listener xdg_surface_listener = {
+  onXdgSurfaceConfigure,
+};
+
+// Frame
+
+static void
+onSurfaceFrameDone(void* data, struct wl_callback* cb, uint32_t time);
+
+static const struct wl_callback_listener wl_surface_frame_listener = {
+  onSurfaceFrameDone,
+};
+
+static void
+onSurfaceFrameDone(void* const         data,
+                   struct wl_callback* cb,
+                   const uint32_t      PUGL_UNUSED(time))
+{
+  PuglView* const view = (PuglView*)data;
+
+  // Destroy this callback and request another frame
+  wl_callback_destroy(cb);
+  cb = wl_surface_frame(view->impl->wlSurface);
+  wl_callback_add_listener(cb, &wl_surface_frame_listener, view);
+
+  const PuglExposeEvent expose = {PUGL_EXPOSE,
+                                  0U,
+                                  0,
+                                  0,
+                                  view->lastConfigure.width,
+                                  view->lastConfigure.height};
+
+  PuglEvent event;
+  event.expose = expose;
+  puglDispatchEvent(view, &event);
+}
+
 // World
 
 PuglWorldInternals*
@@ -779,159 +929,6 @@ puglSetViewStyle(PuglView* const          PUGL_UNUSED(view),
 {
   return PUGL_UNSUPPORTED;
 }
-
-// Toplevel
-
-static PuglEvent
-getCurrentConfiguration(const PuglView* const view)
-{
-  PuglEvent event = {{PUGL_NOTHING, 0U}};
-  PuglPoint pos   = puglGetPositionHint(view, PUGL_CURRENT_POSITION);
-  PuglArea  size  = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
-
-  const PuglConfigureEvent configure = {
-    PUGL_CONFIGURE,
-    0U,
-    pos.x,
-    pos.y,
-    size.width,
-    size.height,
-    view->impl->toplevel ? PUGL_VIEW_STYLE_MAPPED : 0U // FIXME
-  };
-
-  event.configure = configure;
-  return event;
-}
-
-static void
-onXdgToplevelConfigure(void* const                data,
-                       struct xdg_toplevel* const PUGL_UNUSED(toplevel),
-                       const int32_t              width,
-                       const int32_t              height,
-                       struct wl_array* const     PUGL_UNUSED(states))
-{
-  /* fprintf(stderr, "[wl] toplevel configure %d %d\n", width, height); */
-
-  PuglView* const view = (PuglView*)data;
-
-  assert(width >= 0 && width <= UINT16_MAX);
-  assert(height >= 0 && height <= UINT16_MAX);
-
-  PuglConfigureEvent configureEvent = {
-    PUGL_CONFIGURE,
-    0U,
-    0,
-    0,
-    (PuglSpan)width,
-    (PuglSpan)height,
-    view->impl->toplevel ? PUGL_VIEW_STYLE_MAPPED : 0U // FIXME
-  };
-
-  if (width <= 0 || height <= 0) {
-    // Compositor is deferring to our preferred size
-    configureEvent.width  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
-    configureEvent.height = view->sizeHints[PUGL_DEFAULT_SIZE].height;
-  }
-
-  PuglEvent event;
-  event.configure     = configureEvent;
-  const PuglStatus st = puglDispatchEvent(view, &event);
-  if (st) {
-    fprintf(stderr, "\tconfigure error: %s\n", puglStrerror(st));
-  }
-}
-
-static void
-onXdgToplevelClose(void* const                data,
-                   struct xdg_toplevel* const PUGL_UNUSED(toplevel))
-{
-  PuglView* const view = (PuglView*)data;
-
-  puglDispatchSimpleEvent(view, PUGL_CLOSE);
-}
-
-static void
-onXdgToplevelConfigureBounds(void* const                PUGL_UNUSED(data),
-                             struct xdg_toplevel* const PUGL_UNUSED(toplevel),
-                             const int32_t              width,
-                             const int32_t              height)
-{
-  fprintf(stderr, "[wl] toplevel bounds %d %d\n", width, height);
-}
-
-static void
-onXdgToplevelWmCapabilities(
-  void* const                PUGL_UNUSED(data),
-  struct xdg_toplevel* const PUGL_UNUSED(xdg_toplevel),
-  struct wl_array* const     PUGL_UNUSED(capabilities))
-{
-  fprintf(stderr, "[wl] toplevel wm capabilities\n");
-}
-
-static const struct xdg_toplevel_listener xdg_toplevel_listener = {
-  onXdgToplevelConfigure,
-  onXdgToplevelClose,
-  onXdgToplevelConfigureBounds,
-  onXdgToplevelWmCapabilities,
-};
-
-// Surface
-
-static void
-onXdgSurfaceConfigure(void* const               data,
-                      struct xdg_surface* const xdgSurface,
-                      const uint32_t            serial)
-{
-  PuglView* const view = (PuglView*)data;
-
-  xdg_surface_ack_configure(xdgSurface, serial);
-
-  // Dispatch current configuration
-  PuglEvent event = getCurrentConfiguration(view);
-  puglDispatchEvent(view, &event);
-
-  // FIXME: Always/never/only-if-already-configured do this?
-  wl_surface_commit(view->impl->wlSurface);
-}
-
-static const struct xdg_surface_listener xdg_surface_listener = {
-  onXdgSurfaceConfigure,
-};
-
-// Frame
-
-static void
-onSurfaceFrameDone(void* data, struct wl_callback* cb, uint32_t time);
-
-static const struct wl_callback_listener wl_surface_frame_listener = {
-  onSurfaceFrameDone,
-};
-
-static void
-onSurfaceFrameDone(void* const         data,
-                   struct wl_callback* cb,
-                   const uint32_t      PUGL_UNUSED(time))
-{
-  PuglView* const view = (PuglView*)data;
-
-  // Destroy this callback and request another frame
-  wl_callback_destroy(cb);
-  cb = wl_surface_frame(view->impl->wlSurface);
-  wl_callback_add_listener(cb, &wl_surface_frame_listener, view);
-
-  const PuglExposeEvent expose = {PUGL_EXPOSE,
-                                  0U,
-                                  0,
-                                  0,
-                                  view->lastConfigure.width,
-                                  view->lastConfigure.height};
-
-  PuglEvent event;
-  event.expose = expose;
-  puglDispatchEvent(view, &event);
-}
-
-// View
 
 PuglPoint
 puglGetAncestorCenter(const PuglView* const view)
