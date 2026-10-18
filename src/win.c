@@ -291,12 +291,6 @@ puglRealize(PuglView* view)
     return st;
   }
 
-  // Set default depth hints if the user hasn't specified any
-  puglEnsureHint(view, PUGL_RED_BITS, 8);
-  puglEnsureHint(view, PUGL_GREEN_BITS, 8);
-  puglEnsureHint(view, PUGL_BLUE_BITS, 8);
-  puglEnsureHint(view, PUGL_ALPHA_BITS, 8);
-
   // Get refresh rate for resize draw timer
   DEVMODE devMode;
   memset(&devMode, 0, sizeof(devMode));
@@ -313,6 +307,12 @@ puglRealize(PuglView* view)
       (st = view->backend->create(view))) {
     return st;
   }
+
+  // Set default depth hints if the user or backend hasn't given any
+  puglEnsureHint(view, PUGL_RED_BITS, 8);
+  puglEnsureHint(view, PUGL_GREEN_BITS, 8);
+  puglEnsureHint(view, PUGL_BLUE_BITS, 8);
+  puglEnsureHint(view, PUGL_ALPHA_BITS, 8);
 
   // Set basic window hints and attributes
 
