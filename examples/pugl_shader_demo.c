@@ -171,9 +171,6 @@ onEvent(PuglView* view, const PuglEvent* event)
     app->size.width  = event->configure.width;
     app->size.height = event->configure.height;
     break;
-  case PUGL_UPDATE:
-    puglObscureView(view);
-    break;
   case PUGL_EXPOSE:
     onExpose(view);
     break;
