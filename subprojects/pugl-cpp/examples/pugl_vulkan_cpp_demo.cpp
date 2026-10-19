@@ -1847,14 +1847,14 @@ run(const char* const      programPath,
                        app.renderer.rectPipeline,
                        app.rectData);
 
-  const int    refreshRate   = app.view.getHint(pugl::ViewHint::refreshRate);
-  const double frameDuration = 1.0 / static_cast<double>(refreshRate);
-  const double timeout       = app.opts.sync ? frameDuration * 0.8 : 0.0;
+  // const int    refreshRate   = app.view.getHint(pugl::ViewHint::refreshRate);
+  // const double frameDuration = 1.0 / static_cast<double>(refreshRate);
+  // const double timeout       = app.opts.sync ? frameDuration * 0.8 : 0.0;
 
   PuglFpsPrinter fpsPrinter = {app.world.time()};
   app.view.show(pugl::ShowCommand::passive);
   while (!app.quit) {
-    app.world.update(timeout);
+    app.world.update(-1.0);//timeout);
     puglPrintFps(app.world.time(), &fpsPrinter, &app.framesDrawn);
   }
 
