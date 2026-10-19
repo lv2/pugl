@@ -1434,7 +1434,6 @@ public:
   }
 
   pugl::Status onEvent(const pugl::ConfigureEvent& event);
-  pugl::Status onEvent(const pugl::UpdateEvent& event);
   pugl::Status onEvent(const pugl::ExposeEvent& event);
   pugl::Status onEvent(const pugl::LoopEnterEvent& event);
   pugl::Status onEvent(const pugl::TimerEvent& event);
@@ -1529,12 +1528,6 @@ View::onEvent(const pugl::ConfigureEvent& event)
                                                          : RenderMode::normal;
 
   return pugl::Status::success;
-}
-
-pugl::Status
-View::onEvent(const pugl::UpdateEvent&)
-{
-  return obscure();
 }
 
 VkResult
@@ -1799,7 +1792,7 @@ run(const char* const      programPath,
   app.view.setBackend(pugl::vulkanBackend());
   app.view.setHint(pugl::ViewHint::resizable, opts.resizable);
   app.view.setHint(pugl::ViewHint::darkFrame, true);
-  app.view.setHint(pugl::ViewHint::continuous, true);
+  app.view.setHint(pugl::ViewHint::continuous, opts.continuous);
   const pugl::Status st = app.view.realize();
   if (st != pugl::Status::success) {
     return logFail("Failed to create window", pugl::strerror(st));

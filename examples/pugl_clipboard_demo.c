@@ -146,11 +146,6 @@ onEvent(PuglView* view, const PuglEvent* event)
   case PUGL_CONFIGURE:
     reshapeCube(event->configure.width, event->configure.height);
     break;
-  case PUGL_UPDATE:
-    if (app->continuous) {
-      puglObscureView(view);
-    }
-    break;
   case PUGL_EXPOSE:
     onDisplay(view);
     break;
@@ -244,6 +239,7 @@ main(int argc, char** argv)
 
   puglSetViewHint(view, PUGL_CONTEXT_DEBUG, opts.errorChecking);
   puglSetViewHint(view, PUGL_RESIZABLE, opts.resizable);
+  puglSetViewHint(view, PUGL_CONTINUOUS, opts.continuous);
   puglSetViewHint(view, PUGL_SAMPLES, opts.samples);
   puglSetViewHint(view, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
   puglSetViewHint(view, PUGL_SWAP_INTERVAL, opts.sync);

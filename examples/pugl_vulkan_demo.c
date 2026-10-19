@@ -1007,8 +1007,6 @@ onEvent(PuglView* const view, const PuglEvent* const e)
   printEvent(e, "Event: ", app->opts.verbose);
 
   switch (e->type) {
-  case PUGL_UPDATE:
-    return app->opts.continuous ? puglObscureView(view) : PUGL_SUCCESS;
   case PUGL_EXPOSE:
     return onExpose(view);
   case PUGL_CONFIGURE:
@@ -1069,6 +1067,7 @@ main(int argc, char** argv)
   puglSetHandle(app.view, &app);
   puglSetBackend(app.view, puglVulkanBackend());
   puglSetViewHint(app.view, PUGL_RESIZABLE, app.opts.resizable);
+  puglSetViewHint(app.view, PUGL_CONTINUOUS, app.opts.continuous);
   puglSetEventFunc(app.view, onEvent);
   const PuglStatus st = puglRealize(app.view);
   if (st) {

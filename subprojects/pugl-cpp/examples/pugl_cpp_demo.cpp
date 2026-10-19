@@ -44,7 +44,7 @@ private:
 pugl::Status
 CubeView::onEvent(const pugl::UpdateEvent&) noexcept
 {
-  // Normally, we would obscure the view
+  // Normally, we would obscure the view (or set the continuous hint)
   // return obscure();
 
   // But for testing, use sendEvent() instead:

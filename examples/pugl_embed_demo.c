@@ -137,11 +137,6 @@ onParentEvent(PuglView* view, const PuglEvent* event)
                     event->configure.width - (2U * borderWidth),
                     event->configure.height - (2U * borderWidth));
     break;
-  case PUGL_UPDATE:
-    if (app->continuous) {
-      puglObscureView(view);
-    }
-    break;
   case PUGL_EXPOSE:
     if (puglHasFocus(app->parent)) {
       glMatrixMode(GL_MODELVIEW);
@@ -183,11 +178,6 @@ onEvent(PuglView* view, const PuglEvent* event)
   printEvent(event, "Child:  ", app->verbose);
 
   switch (event->type) {
-  case PUGL_UPDATE:
-    if (app->continuous) {
-      puglObscureView(view);
-    }
-    break;
   case PUGL_EXPOSE:
     onExpose(view);
     break;
@@ -260,6 +250,7 @@ main(int argc, char** argv)
 
   puglSetViewHint(app.parent, PUGL_CONTEXT_DEBUG, opts.errorChecking);
   puglSetViewHint(app.parent, PUGL_RESIZABLE, opts.resizable);
+  puglSetViewHint(app.parent, PUGL_CONTINUOUS, opts.continuous);
   puglSetViewHint(app.parent, PUGL_SAMPLES, opts.samples);
   puglSetViewHint(app.parent, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
   puglSetViewHint(app.parent, PUGL_SWAP_INTERVAL, opts.sync);
@@ -286,6 +277,7 @@ main(int argc, char** argv)
                   512U - (2U * borderWidth));
 
   puglSetViewHint(app.child, PUGL_CONTEXT_DEBUG, opts.errorChecking);
+  puglSetViewHint(app.child, PUGL_CONTINUOUS, opts.continuous);
   puglSetViewHint(app.child, PUGL_SAMPLES, opts.samples);
   puglSetViewHint(app.child, PUGL_DOUBLE_BUFFER, opts.doubleBuffer);
   puglSetViewHint(app.child, PUGL_SWAP_INTERVAL, opts.sync);
