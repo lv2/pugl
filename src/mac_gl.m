@@ -27,6 +27,11 @@ ensureHint(PuglView* const view, const PuglViewHint hint, const int value)
   PuglView* puglview;
 }
 
+-(BOOL)acceptsFirstMouse:(NSEvent*)event
+{
+  return YES;
+}
+
 - (id)initWithFrame:(NSRect)frame
 {
   const bool compat =
