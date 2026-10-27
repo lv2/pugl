@@ -444,7 +444,7 @@ static double
 updateTimeout(const PuglTestApp* const app)
 {
   (void)app;
-  return -1.0;
+  return 0.0;
   #if 0
   if (!puglGetVisible(app->view)) {
     return -1.0; // View is invisible (minimized), wait until something happens
