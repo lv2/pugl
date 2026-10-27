@@ -1013,7 +1013,6 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 
 - (void)viewWillDraw
 {
-  puglDispatchSimpleEvent(puglview, PUGL_UPDATE);
   [super viewWillDraw];
 }
 
@@ -1275,6 +1274,54 @@ puglGetAncestorCenter(const PuglView* const view)
   return center;
 }
 
+static int
+onDisplayOutput(CVDisplayLinkRef          displayLink,
+                const CVTimeStamp* const  inNow,
+                const CVTimeStamp* const  inOutputTime,
+                const unsigned long long  flagsIn,
+                unsigned long long* const flagsOut,
+                void* const               userInfo)
+{
+  (void)displayLink;
+  (void)inNow;
+  (void)inOutputTime;
+  (void)flagsIn;
+  (void)flagsOut;
+
+  PuglWorld* const world = (PuglWorld*)userInfo;
+
+  for (size_t i = 0; i < world->numViews; ++i) {
+    [world->views[i]->impl->drawView displayIfNeeded];
+  }
+
+  return 0;
+}
+
+static CVDisplayLinkRef
+acquireDisplayLink(PuglWorld* const world)
+{
+  if (world->impl->displayLink) {
+    return world->impl->displayLink;
+  }
+
+  CVDisplayLinkRef link;
+  CVDisplayLinkCreateWithCGDisplay(CGMainDisplayID(), &link);
+  CVDisplayLinkSetOutputCallback(link, onDisplayOutput, world);
+  CVDisplayLinkStart(link);
+  world->impl->displayLink = link;
+  return link;
+}
+
+static void
+releaseDisplayLink(PuglWorld* const world)
+{
+  if (world->impl->displayLink) {
+    CVDisplayLinkStop(world->impl->displayLink);
+    CVDisplayLinkRelease(world->impl->displayLink);
+    world->impl->displayLink = NULL;
+  }
+}
+
 PuglStatus
 puglRealize(PuglView* view)
 {
@@ -1301,23 +1348,23 @@ puglRealize(PuglView* view)
   puglEnsureHint(view, PUGL_ALPHA_BITS, 0);
 
   CGDirectDisplayID displayId = CGMainDisplayID();
-  CGDisplayModeRef  mode      = CGDisplayCopyDisplayMode(displayId);
 
-  // Try to get refresh rate from mode (usually fails)
+  // Try to get refresh rate from mode (might fail)
+  const CGDisplayModeRef mode    = CGDisplayCopyDisplayMode(displayId);
   view->hints[PUGL_REFRESH_RATE] = (int)CGDisplayModeGetRefreshRate(mode);
-
   CGDisplayModeRelease(mode);
-  if (view->hints[PUGL_REFRESH_RATE] == 0) {
-    // Get refresh rate from a display link
-    // TODO: Keep and actually use the display link for something?
-    CVDisplayLinkRef link;
-    CVDisplayLinkCreateWithCGDisplay(displayId, &link);
 
+  // If that fails, get it from the display link
+  if (!view->hints[PUGL_REFRESH_RATE]) {
+    const CVDisplayLinkRef link = acquireDisplayLink(view->world);
     const CVTime p = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link);
     const double r = p.timeScale / (double)p.timeValue;
     view->hints[PUGL_REFRESH_RATE] = (int)lrint(r);
+  }
 
-    CVDisplayLinkRelease(link);
+  // Ensure the display link is started for continuous views
+  if (view->hints[PUGL_CONTINUOUS]) {
+    acquireDisplayLink(view->world);
   }
 
   // Get the initial size and position from the defaults or last configuration
@@ -1476,6 +1523,19 @@ puglUnrealize(PuglView* const view)
   }
 
   memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
+
+  bool othersExist = false;
+  for (size_t i = 0; i < view->world->numViews; ++i) {
+    if (view->world->views[i]->impl->wrapperView) {
+      othersExist = true;
+      break;
+    }
+  }
+
+  if (!othersExist) {
+    releaseDisplayLink(view->world);
+  }
+
   return PUGL_SUCCESS;
 }
 
@@ -1738,9 +1798,10 @@ puglUpdate(PuglWorld* world, const double timeout)
 
       if ([[view->impl->drawView window] isVisible]) {
         puglDispatchSimpleEvent(view, PUGL_UPDATE);
+        if (view->hints[PUGL_CONTINUOUS]) {
+          puglObscureView(view);
+        }
       }
-
-      [view->impl->drawView displayIfNeeded];
     }
 
     world->state = startState;

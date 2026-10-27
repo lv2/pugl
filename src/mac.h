@@ -27,6 +27,7 @@ struct PuglWorldInternalsImpl {
   NSApplication*            app;
   NSAutoreleasePool*        autoreleasePool;
   struct mach_timebase_info timebaseInfo;
+  CVDisplayLinkRef          displayLink;
 };
 
 struct PuglInternalsImpl {
