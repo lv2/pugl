@@ -434,9 +434,10 @@ enum class ViewHint {
   viewType,            ///< @copydoc PUGL_VIEW_TYPE
   darkFrame,           ///< @copydoc PUGL_DARK_FRAME
   acceptDrop,          ///< @copydoc PUGL_ACCEPT_DROP
+  continuous,          ///< @copydoc PUGL_CONTINUOUS
 };
 
-static_assert(static_cast<ViewHint>(PUGL_ACCEPT_DROP) == ViewHint::acceptDrop);
+static_assert(static_cast<ViewHint>(PUGL_CONTINUOUS) == ViewHint::continuous);
 
 /// @copydoc PuglViewHintValue
 using ViewHintValue = PuglViewHintValue;

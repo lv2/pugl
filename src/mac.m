@@ -1736,6 +1736,9 @@ puglUpdate(PuglWorld* world, const double timeout)
 
       if ([[view->impl->drawView window] isVisible]) {
         puglDispatchSimpleEvent(view, PUGL_UPDATE);
+        if (view->hints[PUGL_CONTINUOUS]) {
+          [view->impl->drawView setNeedsDisplay:YES];
+        }
       }
 
       [view->impl->drawView displayIfNeeded];

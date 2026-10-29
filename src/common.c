@@ -125,6 +125,7 @@ puglSetDefaultHints(PuglView* const view)
   view->hints[PUGL_REFRESH_RATE]          = PUGL_DONT_CARE;
   view->hints[PUGL_VIEW_TYPE]             = PUGL_DONT_CARE;
   view->hints[PUGL_ACCEPT_DROP]           = PUGL_DONT_CARE;
+  view->hints[PUGL_CONTINUOUS]            = PUGL_FALSE;
 
   for (unsigned i = 0U; i < PUGL_NUM_POSITION_HINTS; ++i) {
     view->positionHints[i].x = INT16_MIN;

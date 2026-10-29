@@ -390,6 +390,9 @@ pollX11Socket(PuglWorld* const world, const double timeout)
   FD_ZERO(&fds); // NOLINT
   FD_SET(fd, &fds);
 
+  // Flush any pending requests to the server before sleeping
+  XFlush(world->impl->display);
+
   if (timeout < 0.0) {
     ret = select(nfds, &fds, NULL, NULL, NULL);
   } else {
@@ -1878,10 +1881,19 @@ flushExposures(PuglWorld* const world)
     PuglView* const view = world->views[i];
 
     if (puglGetVisible(view)) {
-      const PuglEvent expose = view->impl->pendingExpose;
-      if (expose.type && !(st0 = view->backend->enter(view, &expose.expose))) {
-        st0 = view->eventFunc(view, &expose);
-        st1 = view->backend->leave(view, &expose.expose);
+      PuglEvent event = view->impl->pendingExpose;
+      if (view->hints[PUGL_CONTINUOUS]) {
+        const PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+        event.expose.type   = PUGL_EXPOSE;
+        event.expose.x      = 0;
+        event.expose.y      = 0;
+        event.expose.width  = size.width;
+        event.expose.height = size.height;
+      }
+
+      if (event.type && !(st0 = view->backend->enter(view, &event.expose))) {
+        st0 = view->eventFunc(view, &event);
+        st1 = view->backend->leave(view, &event.expose);
         view->impl->pendingExpose.type = PUGL_NOTHING;
       }
     }
@@ -1919,11 +1931,8 @@ handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 static PuglStatus
 dispatchX11Events(PuglWorld* const world)
 {
-  PuglStatus st = PUGL_SUCCESS;
-
-  // Flush output to the server once at the start
-  Display* display = world->impl->display;
-  XFlush(display);
+  PuglStatus     st      = PUGL_SUCCESS;
+  Display* const display = world->impl->display;
 
   // Process all queued events (without further flushing)
   while (XEventsQueued(display, QueuedAfterReading) > 0) {

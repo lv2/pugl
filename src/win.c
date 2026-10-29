@@ -1223,6 +1223,9 @@ puglUpdate(PuglWorld* world, double timeout)
   for (size_t i = 0; i < world->numViews; ++i) {
     if (puglGetVisible(world->views[i])) {
       puglDispatchSimpleEvent(world->views[i], PUGL_UPDATE);
+      if (world->views[i]->hints[PUGL_CONTINUOUS]) {
+        InvalidateRect(world->views[i]->impl->hwnd, NULL, false);
+      }
     }
 
     UpdateWindow(world->views[i]->impl->hwnd);

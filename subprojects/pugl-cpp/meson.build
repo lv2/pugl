@@ -7,7 +7,7 @@ project(
   default_options: ['b_ndebug=if-release', 'buildtype=release', 'cpp_std=c++17'],
   license: 'ISC',
   meson_version: '>= 0.54.0',
-  version: '0.5.7',
+  version: '0.5.9',
 )
 
 pugl_cpp_src_root = meson.current_source_dir()
@@ -91,7 +91,7 @@ cpp_suppressions = cpp.get_supported_arguments(cpp_suppressions)
 ################
 
 dl_dep = cpp.find_library('dl', required: false)
-pugl_dep = dependency('pugl-0', version: '>= 0.5.3')
+pugl_dep = dependency('pugl-0', version: '>= 0.5.9')
 
 vulkan_dep = dependency(
   'vulkan',

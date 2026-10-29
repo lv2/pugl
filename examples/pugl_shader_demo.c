@@ -171,9 +171,6 @@ onEvent(PuglView* view, const PuglEvent* event)
     app->size.width  = event->configure.width;
     app->size.height = event->configure.height;
     break;
-  case PUGL_UPDATE:
-    puglObscureView(view);
-    break;
   case PUGL_EXPOSE:
     onExpose(view);
     break;
@@ -305,6 +302,7 @@ setupPugl(PuglTestApp* app)
   puglSetViewHint(app->view, PUGL_SWAP_INTERVAL, app->opts.sync);
   puglSetViewHint(app->view, PUGL_IGNORE_KEY_REPEAT, PUGL_TRUE);
   puglSetViewHint(app->view, PUGL_DARK_FRAME, PUGL_TRUE);
+  puglSetViewHint(app->view, PUGL_CONTINUOUS, PUGL_TRUE);
   puglSetHandle(app->view, app);
   puglSetEventFunc(app->view, onEvent);
 }
