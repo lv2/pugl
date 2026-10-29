@@ -50,6 +50,8 @@ onDisplay(PuglView* view)
     cube->yAngle = fmod(cube->yAngle + (dTime * 100.0), 360.0);
   }
 
+  const PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+  reshapeCube(size.width, size.height);
   displayCube(
     view, 10.0f, (float)cube->xAngle, (float)cube->yAngle, cube->entered);
 
@@ -143,9 +145,6 @@ onEvent(PuglView* view, const PuglEvent* event)
   printEvent(event, "Event: ", app->verbose);
 
   switch (event->type) {
-  case PUGL_CONFIGURE:
-    reshapeCube(event->configure.width, event->configure.height);
-    break;
   case PUGL_UPDATE:
     if (app->continuous) {
       puglObscureView(view);
