@@ -360,6 +360,15 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
   reshaped = true;
 }
 
+- (void)screenConfigurationDidChange:(NSNotification*)notification
+{
+  const CGDirectDisplayID displayId = CGMainDisplayID();
+  const CGDisplayModeRef  mode      = CGDisplayCopyDisplayMode(displayId);
+
+  puglview->hints[PUGL_REFRESH_RATE] = (int)CGDisplayModeGetRefreshRate(mode);
+  CGDisplayModeRelease(mode);
+}
+
 /* NSDraggingDestination */
 
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender
@@ -1429,6 +1438,12 @@ puglRealize(PuglView* view)
     [window makeKeyAndOrderFront:window];
     [impl->window setIsVisible:NO];
   }
+
+  [[NSNotificationCenter defaultCenter]
+    addObserver:impl->wrapperView
+       selector:@selector(screenConfigurationDidChange:)
+           name:NSApplicationDidChangeScreenParametersNotification
+         object:nil];
 
   [impl->wrapperView updateTrackingAreas];
 
