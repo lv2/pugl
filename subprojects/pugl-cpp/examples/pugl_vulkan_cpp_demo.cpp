@@ -206,6 +206,28 @@ struct Renderer {
   RenderSync   sync;
 };
 
+template<class Value>
+void
+logInfo(const char* heading, const Value& value)
+{
+  std::cout << std::setw(26) << std::left << (std::string(heading) + ":")
+            << value << "\n";
+}
+
+int
+logFail(const char* heading)
+{
+  std::cerr << heading << "\n";
+  return 1;
+}
+
+int
+logFail(const char* heading, const char* detail)
+{
+  std::cerr << heading << " (" << detail << ")\n";
+  return 1;
+}
+
 VkResult
 selectSurfaceFormat(const sk::VulkanApi&      vk,
                     const sk::PhysicalDevice& physicalDevice,
@@ -319,7 +341,14 @@ openDevice(const sk::VulkanApi&      vk,
            sk::Device&               device)
 {
   const float       graphicsQueuePriority = 1.0f;
-  const char* const swapchainName         = "VK_KHR_swapchain";
+  const char* const devExtensions[]       = {
+    "VK_KHR_swapchain",
+    "VK_KHR_portability_subset",
+  };
+
+  for (const auto& e : devExtensions) {
+    logInfo("Using device extension", e);
+  }
 
   const VkDeviceQueueCreateInfo queueCreateInfo{
     VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -334,7 +363,7 @@ openDevice(const sk::VulkanApi&      vk,
                                       0U,
                                       SK_COUNTED(1U, &queueCreateInfo),
                                       SK_COUNTED(0U, nullptr), // Deprecated
-                                      SK_COUNTED(1U, &swapchainName),
+                                      SK_COUNTED(2U, devExtensions),
                                       nullptr};
 
   return vk.createDevice(physicalDevice, createInfo, device);
@@ -408,6 +437,8 @@ selectPhysicalDevice(const sk::VulkanApi&     vk,
   }
 
   for (const auto& device : devices) {
+    std::cerr << "Device: " << device << std::endl;
+
     auto supported = false;
     if ((r = deviceSupportsRequiredExtensions(vk, device, supported))) {
       return r;
@@ -857,7 +888,7 @@ RectPipeline::init(const sk::VulkanApi&  vk,
     nullptr,
     {},
     VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-    false};
+    true};
 
   static constexpr VkPipelineRasterizationStateCreateInfo rasterizer{
     VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
@@ -1205,19 +1236,6 @@ debugCallback(VkDebugReportFlagsEXT flags,
 }
 
 bool
-hasExtension(const char*                               name,
-             const std::vector<VkExtensionProperties>& properties)
-{
-  for (const auto& p : properties) {
-    if (!strcmp(p.extensionName, name)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-bool
 hasLayer(const char* name, const std::vector<VkLayerProperties>& properties)
 {
   for (const auto& p : properties) {
@@ -1227,28 +1245,6 @@ hasLayer(const char* name, const std::vector<VkLayerProperties>& properties)
   }
 
   return false;
-}
-
-template<class Value>
-void
-logInfo(const char* heading, const Value& value)
-{
-  std::cout << std::setw(26) << std::left << (std::string(heading) + ":")
-            << value << "\n";
-}
-
-int
-logFail(const char* heading)
-{
-  std::cerr << heading << "\n";
-  return 1;
-}
-
-int
-logFail(const char* heading, const char* detail)
-{
-  std::cerr << heading << " (" << detail << ")\n";
-  return 1;
 }
 
 VkResult
@@ -1270,8 +1266,13 @@ createInstance(sk::VulkanInitApi&     initApi,
     std::vector<const char*>(puglExtensions.begin(), puglExtensions.end());
 
   // Add extra extensions we want to use if they are supported
-  if (hasExtension("VK_EXT_debug_report", extProps)) {
-    extensions.push_back("VK_EXT_debug_report");
+  for (const auto& p : extProps) {
+    std::cerr << "extension: " << p.extensionName << std::endl;
+    if (!strcmp(p.extensionName, "VK_EXT_debug_report") ||
+        !strcmp(p.extensionName, "VK_KHR_get_physical_device_properties2") ||
+        !strcmp(p.extensionName, "VK_KHR_portability_enumeration")) {
+      extensions.push_back(p.extensionName);
+    }
   }
 
   // Add validation layers if error checking is enabled
@@ -1306,7 +1307,7 @@ createInstance(sk::VulkanInitApi&     initApi,
   const VkInstanceCreateInfo createInfo{
     VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
     nullptr,
-    VkInstanceCreateFlags{},
+    VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
     &appInfo,
     SK_COUNTED(uint32_t(layers.size()), layers.data()),
     SK_COUNTED(uint32_t(extensions.size()), extensions.data())};
@@ -1538,10 +1539,13 @@ beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
   const auto  currentFrame = app.renderer.sync.currentFrame;
   VkResult    r            = VK_SUCCESS;
 
+  // std::cerr << "begin frame " << currentFrame << "\n";
+
   // Wait until we can start rendering this frame
   auto& inFlight = renderer.sync.inFlight[currentFrame];
   if ((r = vk.waitForFence(app.gpu.device, inFlight)) ||
       (r = vk.resetFence(app.gpu.device, inFlight))) {
+    std::cerr << "err1\n";
     return r;
   }
 
@@ -1549,6 +1553,7 @@ beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
   const auto extent = renderer.swapchain.extent;
   if (app.extent.width != extent.width || app.extent.height != extent.height) {
     if ((r = recreateRenderer(app))) {
+      std::cerr << "err2\n";
       return r;
     }
   }
@@ -1562,12 +1567,15 @@ beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
                                      &imageIndex))) {
     switch (r) {
     case VK_SUBOPTIMAL_KHR:
+      return r;
     case VK_ERROR_OUT_OF_DATE_KHR:
+      std::cerr << "recreate\n";
       if ((r = recreateRenderer(app))) {
         return r;
       }
       continue;
     default:
+      std::cerr << "err3\n";
       return r;
     }
   }
@@ -1643,6 +1651,7 @@ endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
   const auto& imageAvailable = renderer.sync.imageAvailable[currentFrame];
   const auto& renderFinished = renderer.sync.renderFinished[imageIndex];
   VkResult    r              = VK_SUCCESS;
+  // std::cerr << "end frame " << currentFrame << "\n";
 
   static constexpr VkPipelineStageFlags waitStage =
     VK_PIPELINE_STAGE_TRANSFER_BIT;
@@ -1656,6 +1665,7 @@ endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
     SK_COUNTED(1, &renderFinished.get())};
 
   if ((r = vk.queueSubmit(gpu.graphicsQueue, submitInfo, inFlight))) {
+    std::cerr << "err4\n";
     return r;
   }
 
@@ -1672,6 +1682,7 @@ endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
   case VK_ERROR_OUT_OF_DATE_KHR: // Probably a resize race, ignore
     break;
   default:
+    std::cerr << "err5\n";
     return r;
   }
 
@@ -1683,7 +1694,8 @@ View::onEvent(const pugl::ExposeEvent&)
 {
   // Acquire the next image, waiting and/or rebuilding if necessary
   auto nextImageIndex = 0U;
-  if (beginFrame(_app, nextImageIndex)) {
+  if (auto r = beginFrame(_app, nextImageIndex); r != VK_SUBOPTIMAL_KHR) {
+    std::cerr << "error: " << sk::string(r) << "\n";
     return pugl::Status::unknownError;
   }
 
@@ -1765,8 +1777,13 @@ VulkanContext::init(const pugl::VulkanLoader& loader,
   // Load Vulkan API and set up the fundamentals
   if ((r = initApi.init(loader.getInstanceProcAddrFunc())) ||
       (r = createInstance(initApi, opts, instance)) ||
-      (r = vk.init(initApi, instance)) ||
+      (r = vk.init(initApi,
+                   instance,
+                   [](const char* name) {
+                     std::cerr << "Not found: " << name << "\n";
+                   })) ||
       (r = getDebugReportCallback(vk, instance, opts.verbose, debugCallback))) {
+    std::cerr << "init fail: " << sk::string(r) << "\n";
     return r;
   }
 

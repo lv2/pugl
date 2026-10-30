@@ -199,6 +199,9 @@ createInstance(VulkanApp* const app)
   if (hasExtension("VK_EXT_debug_report", extProps, nExtProps)) {
     pushString(&extensions, &nExtensions, "VK_EXT_debug_report");
   }
+  if (hasExtension("VK_KHR_portability_enumeration", extProps, nExtProps)) {
+    pushString(&extensions, &nExtensions, "VK_KHR_portability_enumeration");
+  }
 
   // Get properties of supported layers
   VkLayerProperties* layerProps = AALLOC(nLayerProps, VkLayerProperties);
@@ -230,7 +233,7 @@ createInstance(VulkanApp* const app)
   const VkInstanceCreateInfo createInfo = {
     VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
     NULL,
-    0,
+    VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR,
     &appInfo,
     COUNTED(nLayers, layers),
     COUNTED(nExtensions, extensions),
@@ -947,6 +950,7 @@ onExpose(PuglView* const view)
     case VK_SUCCESS:
       break;
     case VK_SUBOPTIMAL_KHR:
+      break;
     case VK_ERROR_OUT_OF_DATE_KHR:
       recreateSwapchain(vk, app->width, app->height);
       continue;
@@ -977,8 +981,10 @@ onExpose(PuglView* const view)
                               1,
                               &submitInfo,
                               vk->swapchain->fences[imageIndex]))) {
+    if (result != VK_SUBOPTIMAL_KHR) {
     logError("Could not submit to queue: %d\n", result);
     return PUGL_FAILURE;
+    }
   }
 
   // Present this frame
