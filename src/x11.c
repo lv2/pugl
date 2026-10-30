@@ -47,6 +47,7 @@
 
 #if USE_XRANDR
 #  include <X11/extensions/Xrandr.h>
+#  include <X11/extensions/randr.h>
 #endif
 
 #if USE_XSYNC
@@ -494,6 +495,20 @@ puglApplySizeHint(PuglView* const view, const PuglSizeHint PUGL_UNUSED(hint))
   return puglUpdateSizeHints(view);
 }
 
+#if USE_XRANDR
+static void
+updateScreenConfig(PuglView* const view)
+{
+  Display* const          display = view->world->impl->display;
+  XRRScreenConfiguration* conf    = XRRGetScreenInfo(display, view->impl->win);
+
+  view->world->impl->scaleFactor = puglX11GetDisplayScaleFactor(display);
+  view->hints[PUGL_REFRESH_RATE] = XRRConfigCurrentRate(conf);
+
+  XRRFreeScreenConfigInfo(conf);
+}
+#endif
+
 #if USE_XCURSOR
 static PuglStatus
 defineCursorName(PuglView* const view, const char* const name)
@@ -653,14 +668,11 @@ puglRealize(PuglView* const view)
   }
 
 #if USE_XRANDR
-  int ignored = 0;
-  if (XRRQueryExtension(display, &ignored, &ignored)) {
-    // Set refresh rate hint to the real refresh rate
-    XRRScreenConfiguration* conf         = XRRGetScreenInfo(display, parent);
-    const short             current_rate = XRRConfigCurrentRate(conf);
-
-    view->hints[PUGL_REFRESH_RATE] = current_rate;
-    XRRFreeScreenConfigInfo(conf);
+  // Get/track refresh rate changes via XRandR
+  int ignore = 0;
+  if ((impl->hasRr = XRRQueryExtension(display, &impl->rrEventBase, &ignore))) {
+    XRRSelectInput(display, impl->win, RRScreenChangeNotifyMask);
+    updateScreenConfig(view);
   }
 #endif
 
@@ -1902,6 +1914,22 @@ flushExposures(PuglWorld* const world)
   return st0 ? st0 : st1;
 }
 
+#if USE_XRANDR
+static PuglEvent
+handleRandr(PuglView* const view, XEvent xevent)
+{
+  if (view->impl->hasRr &&
+      xevent.type == view->impl->rrEventBase + RRScreenChangeNotify &&
+      XRRUpdateConfiguration(&xevent)) {
+    updateScreenConfig(view);
+    return getCurrentConfiguration(view);
+  }
+
+  const PuglEvent event = {{PUGL_NOTHING, 0U}};
+  return event;
+}
+#endif
+
 static bool
 handleTimerEvent(PuglWorld* const world, const XEvent xevent)
 {
@@ -1974,7 +2002,7 @@ dispatchX11Events(PuglWorld* const world)
     }
 
     // Translate X11 event to Pugl event
-    const PuglEvent event = translateEvent(view, xevent);
+    PuglEvent event = translateEvent(view, xevent);
 
     switch (event.type) {
     case PUGL_EXPOSE:
@@ -1994,6 +2022,12 @@ dispatchX11Events(PuglWorld* const world)
       }
       break;
     default:
+#if USE_XRANDR
+      if (!event.type) {
+        event = handleRandr(view, xevent);
+      }
+#endif
+
       // Dispatch event to application immediately
       st = puglDispatchEvent(view, &event);
       break;

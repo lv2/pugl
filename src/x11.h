@@ -104,6 +104,8 @@ struct PuglInternalsImpl {
   PuglX11Clipboard drag;
   int              screen;
   const char*      cursorName;
+  int              rrEventBase;
+  bool             hasRr;
   bool             mapped;
 };
 

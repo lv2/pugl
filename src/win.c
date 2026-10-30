@@ -205,6 +205,22 @@ puglWinGetMonitor(const PuglView* const view)
   return MonitorFromPoint(point, MONITOR_DEFAULTTOPRIMARY);
 }
 
+static int
+puglWinGetRefreshRate(const PuglView* const view)
+{
+  MONITORINFOEX monitorInfo;
+  monitorInfo.cbSize = sizeof(MONITORINFOEX);
+  TCHAR* const deviceName =
+    GetMonitorInfo(view->impl->monitor, (LPMONITORINFO)&monitorInfo)
+      ? monitorInfo.szDevice
+      : NULL;
+
+  DEVMODE devMode;
+  memset(&devMode, 0, sizeof(devMode));
+  EnumDisplaySettings(deviceName, ENUM_CURRENT_SETTINGS, &devMode);
+  return (int)devMode.dmDisplayFrequency;
+}
+
 static double
 puglWinGetViewScaleFactor(const PuglView* const view)
 {
@@ -291,11 +307,9 @@ puglRealize(PuglView* view)
     return st;
   }
 
-  // Get refresh rate for resize draw timer
-  DEVMODE devMode;
-  memset(&devMode, 0, sizeof(devMode));
-  EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &devMode);
-  view->hints[PUGL_REFRESH_RATE] = (int)devMode.dmDisplayFrequency;
+  // Get initial monitor and refresh rate
+  impl->monitor = MonitorFromWindow(impl->hwnd, MONITOR_DEFAULTTOPRIMARY);
+  view->hints[PUGL_REFRESH_RATE] = puglWinGetRefreshRate(view);
 
   // Register window class if necessary
   if (!puglRegisterWindowClass(view->world->strings[PUGL_CLASS_NAME])) {
@@ -830,8 +844,12 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     view->impl->mapped = wParam;
     handleConfigure(view, &event);
     break;
+  case WM_DEVICECHANGE:
+  case WM_DEVMODECHANGE:
   case WM_DISPLAYCHANGE:
-    view->impl->scaleFactor = puglWinGetViewScaleFactor(view);
+    view->impl->scaleFactor        = puglWinGetViewScaleFactor(view);
+    view->hints[PUGL_REFRESH_RATE] = puglWinGetRefreshRate(view);
+    handleConfigure(view, &event);
     break;
   case WM_WINDOWPOSCHANGED:
     view->impl->minimized = false;
@@ -841,6 +859,14 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
         view->impl->minimized = true;
       } else if (placement.showCmd == SW_SHOWMAXIMIZED) {
         view->impl->maximized = true;
+      }
+    }
+    {
+      HMONITOR monitor = puglWinGetMonitor(view);
+      if (view->impl->monitor != monitor) {
+        view->impl->monitor            = monitor;
+        view->impl->scaleFactor        = puglWinGetViewScaleFactor(view);
+        view->hints[PUGL_REFRESH_RATE] = puglWinGetRefreshRate(view);
       }
     }
     handleConfigure(view, &event);

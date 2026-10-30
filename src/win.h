@@ -24,6 +24,7 @@ struct PuglInternalsImpl {
   HWND            hwnd;
   HCURSOR         cursor;
   HDC             hdc;
+  HMONITOR        monitor;
   WINDOWPLACEMENT oldPlacement;
   PAINTSTRUCT     paint;
   PuglBlob        clipboard;

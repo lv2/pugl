@@ -17,6 +17,7 @@
 
 - (void)dispatchExpose:(NSRect)rect;
 - (void)setReshaped;
+- (void)screenConfigurationDidChange:(NSNotification*)notification;
 
 @end
 
