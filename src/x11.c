@@ -1614,13 +1614,11 @@ eventToX(PuglView* const view, const PuglEvent* const event, XEvent* const out)
   out->xany.window     = view->impl->win;
 
   if (event->type == PUGL_EXPOSE) {
-    out->xexpose.type = Expose;
-    out->xexpose.x    = event->expose.x;
-    out->xexpose.y    = event->expose.y;
-    out->xexpose.width =
-      event->expose.x + event->expose.width - event->expose.x;
-    out->xexpose.height =
-      event->expose.y + event->expose.height - event->expose.y;
+    out->xexpose.type   = Expose;
+    out->xexpose.x      = event->expose.x;
+    out->xexpose.y      = event->expose.y;
+    out->xexpose.width  = event->expose.width;
+    out->xexpose.height = event->expose.height;
     return PUGL_SUCCESS;
   }
 
