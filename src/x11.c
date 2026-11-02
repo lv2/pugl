@@ -156,13 +156,12 @@ puglX11GetDisplayScaleFactor(Display* const display)
     if (db) {
       XrmValue value = {0U, NULL};
       char*    type  = NULL;
-      if (XrmGetResource(db, "Xft.dpi", "Xft.Dpi", &type, &value)) {
-        if (!type || !strcmp(type, "String")) {
-          char*        end    = NULL;
-          const double xftDpi = strtod(value.addr, &end);
-          if (xftDpi > 0.0 && xftDpi < HUGE_VAL) {
-            dpi = xftDpi;
-          }
+      if (XrmGetResource(db, "Xft.dpi", "Xft.Dpi", &type, &value) &&
+          (!type || !strcmp(type, "String"))) {
+        char*        end    = NULL;
+        const double xftDpi = strtod(value.addr, &end);
+        if (xftDpi > 0.0 && xftDpi < HUGE_VAL) {
+          dpi = xftDpi;
         }
       }
 
@@ -1198,18 +1197,17 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
   } else if (message.message_type == atoms->XdndLeave) {
     // Step 8a: Target receives XdndLeave (drag aborted)
     clearX11Clipboard(&impl->drag);
-  } else if (message.message_type == atoms->XdndDrop) {
+  } else if (message.message_type == atoms->XdndDrop &&
+             impl->drag.acceptedFormat) {
     // Step 8b: Target receives XdndDrop (data dropped in target window)
-    if (impl->drag.acceptedFormat) {
-      // Request the data with the desired format at the given time
-      // The drag will be finished by the SelectionNotify response
-      XConvertSelection(display,
-                        atoms->XdndSelection,
-                        impl->drag.acceptedFormat,
-                        atoms->XdndSelection,
-                        impl->win,
-                        (Time)message.data.l[2]);
-    }
+    // Request the data with the desired format at the given time
+    // The drag will be finished by the SelectionNotify response
+    XConvertSelection(display,
+                      atoms->XdndSelection,
+                      impl->drag.acceptedFormat,
+                      atoms->XdndSelection,
+                      impl->win,
+                      (Time)message.data.l[2]);
   }
 
   return event;
@@ -1788,37 +1786,36 @@ handleSelectionNotify(const PuglWorld* const       world,
       puglEvent.data = data;
     }
 
-  } else if (event->selection == atoms->XdndSelection) {
-    if (event->property == atoms->XdndSelection &&
-        !retrieveSelection(world,
-                           view,
-                           event->property,
-                           impl->drag.acceptedFormat,
-                           &board->data)) {
-      board->source = impl->drag.source;
+  } else if (event->selection == atoms->XdndSelection &&
+             event->property == atoms->XdndSelection &&
+             !retrieveSelection(world,
+                                view,
+                                event->property,
+                                impl->drag.acceptedFormat,
+                                &board->data)) {
+    board->source = impl->drag.source;
 
-      // Notify the drag source that the operation is finished
-      XEvent reply               = {ClientMessage};
-      reply.xclient.window       = impl->win;
-      reply.xclient.message_type = atoms->XdndFinished;
-      reply.xclient.format       = 32;
-      reply.xclient.data.l[0]    = (long)impl->win; // Target
-      reply.xclient.data.l[1]    = 1;               // Accepted (TODO)
-      reply.xclient.data.l[2]    = None;            // Action (TODO)
+    // Notify the drag source that the operation is finished
+    XEvent reply               = {ClientMessage};
+    reply.xclient.window       = impl->win;
+    reply.xclient.message_type = atoms->XdndFinished;
+    reply.xclient.format       = 32;
+    reply.xclient.data.l[0]    = (long)impl->win; // Target
+    reply.xclient.data.l[1]    = 1;               // Accepted (TODO)
+    reply.xclient.data.l[2]    = None;            // Action (TODO)
 
-      XSendEvent(display, impl->drag.source, False, NoEventMask, &reply);
+    XSendEvent(display, impl->drag.source, False, NoEventMask, &reply);
 
-      // Send a data event to the application so it can retrieve the data
-      const PuglDataEvent data = {PUGL_DATA,
-                                  0U,
-                                  (double)event->time / 1e3,
-                                  0.0,
-                                  0.0,
-                                  board->clipboard,
-                                  board->acceptedFormatIndex};
+    // Send a data event to the application so it can retrieve the data
+    const PuglDataEvent data = {PUGL_DATA,
+                                0U,
+                                (double)event->time / 1e3,
+                                0.0,
+                                0.0,
+                                board->clipboard,
+                                board->acceptedFormatIndex};
 
-      puglEvent.data = data;
-    }
+    puglEvent.data = data;
   }
 
   return puglDispatchEvent(view, &puglEvent);

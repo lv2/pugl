@@ -1545,10 +1545,10 @@ beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
 
   // Rebuild the renderer if the window size has changed
   const auto extent = renderer.swapchain.extent;
-  if (app.extent.width != extent.width || app.extent.height != extent.height) {
-    if ((r = recreateRenderer(app))) {
-      return r;
-    }
+  if ((app.extent.width != extent.width ||
+       app.extent.height != extent.height) &&
+      (r = recreateRenderer(app))) {
+    return r;
   }
 
   // Acquire the next image to render, rebuilding if necessary
