@@ -1,9 +1,7 @@
 // Copyright 2012-2025 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-/*
-  A demonstration of using multiple top-level windows.
-*/
+// A demonstration of using multiple top-level windows
 
 #include "cube_view.h"
 
@@ -15,8 +13,8 @@
 
 #include <math.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
-#include <string.h>
 
 typedef struct {
   PuglView* view;

@@ -29,13 +29,11 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
-#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
-#include <initializer_list>
 #include <iomanip>
 #include <iostream>
 #include <string>
