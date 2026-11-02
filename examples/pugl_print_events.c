@@ -22,12 +22,8 @@ onEvent(PuglView* view, const PuglEvent* event)
 
   printEvent(event, "Event: ", true);
 
-  switch (event->type) {
-  case PUGL_CLOSE:
+  if (event->type == PUGL_CLOSE) {
     app->quit = 1;
-    break;
-  default:
-    break;
   }
 
   return PUGL_SUCCESS;

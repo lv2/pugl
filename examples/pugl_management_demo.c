@@ -222,12 +222,9 @@ onMainEvent(PuglView* view, const PuglEvent* const event)
   PuglWorld* const world = puglGetWorld(view);
   DemoApp* const   app   = (DemoApp*)puglGetWorldHandle(world);
 
-  switch (event->type) {
-  case PUGL_CLOSE:
+  if (event->type == PUGL_CLOSE) {
     app->quit = true;
     return PUGL_SUCCESS;
-  default:
-    break;
   }
 
   return onCommonEvent(view, event);

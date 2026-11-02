@@ -41,13 +41,9 @@ onEvent(PuglView* view, const PuglEvent* event)
     printEvent(event, "Event: ", true);
   }
 
-  switch (event->type) {
-  case PUGL_REALIZE:
+  if (event->type == PUGL_REALIZE) {
     assert(test->state == START);
     test->state = REALIZED;
-    break;
-  default:
-    break;
   }
 
   return PUGL_SUCCESS;
