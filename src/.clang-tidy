@@ -5,7 +5,6 @@ Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-multi-level-implicit-pointer-conversion,
   -hicpp-multiway-paths-covered,
-  -hicpp-signed-bitwise,
   -llvm-header-guard,
 CheckOptions:
   - key:   readability-function-cognitive-complexity.Threshold

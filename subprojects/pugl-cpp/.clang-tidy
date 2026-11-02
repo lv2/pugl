@@ -4,7 +4,9 @@
 Checks: >
   *,
   -altera*,
+  -bugprone-assignment-in-selection-statement,
   -bugprone-multi-level-implicit-pointer-conversion,
+  -cert-exp45-c,
   -cppcoreguidelines-pro-type-reinterpret-cast,
   -llvm-use-ranges,
   -llvmlibc-*,
@@ -13,6 +15,7 @@ Checks: >
   -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -performance-enum-size,
+  -readability-trailing-comma,
 CheckOptions:
   - key:   hicpp-uppercase-literal-suffix.NewSuffixes
     value: L;U;f

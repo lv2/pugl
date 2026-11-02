@@ -4,6 +4,7 @@
 Checks: >
   -*-avoid-c-arrays,
   -*-magic-numbers,
+  -*-signed-bitwise,
   -*-static-assert,
   -android-cloexec-fopen,
   -boost-*,
@@ -24,7 +25,6 @@ Checks: >
   -fuchsia-overloaded-operator,
   -hicpp-named-parameter,
   -hicpp-no-array-decay,
-  -hicpp-signed-bitwise,
   -llvm-header-guard,
   -llvm-prefer-static-over-anonymous-namespace,
   -misc-non-private-member-variables-in-classes,

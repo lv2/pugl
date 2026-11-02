@@ -8,7 +8,6 @@ Checks: >
   -cert-err34-c,
   -clang-analyzer-optin.core.EnumCastOutOfRange,
   -hicpp-multiway-paths-covered,
-  -hicpp-signed-bitwise,
   -llvm-header-guard,
 CheckOptions:
   - key:   readability-function-cognitive-complexity.Threshold

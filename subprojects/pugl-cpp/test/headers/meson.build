@@ -9,6 +9,7 @@ if get_option('warning_level') == 'everything'
       '-Wno-padded',
       '-Wno-switch-default',
       '-Wno-unsafe-buffer-usage',
+      '-Wno-lifetime-safety-intra-tu-constructor-suggestions',
     ]
 
     if not meson.is_cross_build()

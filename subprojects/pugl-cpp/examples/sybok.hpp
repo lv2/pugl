@@ -223,7 +223,7 @@ public:
   GlobalDeleter()  = default;
   ~GlobalDeleter() = default;
 
-  // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+  // NOLINTNEXTLINE(*-explicit-constructor, hicpp-explicit-conversions)
   GlobalDeleter(DestroyFunc destroyFunc) noexcept
     : _destroyFunc{destroyFunc}
   {}
@@ -388,7 +388,7 @@ public:
 
   const Handle& get() const noexcept { return _handle; }
 
-  // NOLINTNEXTLINE(google-explicit-constructor, hicpp-explicit-conversions)
+  // NOLINTNEXTLINE(*-explicit-constructor, hicpp-explicit-conversions)
   operator Handle() const noexcept { return _handle; }
 
 private:
@@ -532,7 +532,7 @@ class OptionalParameter
 public:
   using Handle = typename T::Handle;
 
-  // NOLINTNEXTLINE(hicpp-explicit-conversions, google-explicit-constructor)
+  // NOLINTNEXTLINE(hicpp-explicit-conversions, *-explicit-constructor)
   OptionalParameter(const T& value) noexcept
     : _handle{value.get()}
   {}

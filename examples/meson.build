@@ -105,6 +105,9 @@ else
         source += ['glad/glad.c']
         dependencies += [dl_dep]
         gl_args += ['-D_POSIX_C_SOURCE=200809L']
+        if cc.get_id() == 'clang'
+          gl_args += ['-Wno-unused-but-set-global']
+        endif
       elif target == 'pugl_print_events'
         dependencies += [stub_backend_dep]
       endif
