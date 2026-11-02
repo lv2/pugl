@@ -263,7 +263,7 @@ parseOptions(PuglTestApp* app, int argc, char** argv)
   // Parse number of rectangles argument, if given
   if (argc >= 1) {
     app->numRects = (size_t)strtol(argv[0], &endptr, 10);
-    if (endptr != argv[0] + strlen(argv[0])) {
+    if (endptr != argv[0] + strlen(argv[0]) || app->numRects > 100000U) {
       logError("Invalid number of rectangles: %s\n", argv[0]);
       return 1;
     }
