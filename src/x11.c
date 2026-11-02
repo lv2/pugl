@@ -1154,7 +1154,7 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
     // DnD Step 4: Target receives XdndPosition (drag moves in target window)
     const Time time   = (Time)message.data.l[3];
     const int  root_x = (uint16_t)((message.data.l[2] >> 16) & 0xFFFF);
-    const int  root_y = (uint16_t)((message.data.l[2]) & 0xFFFF);
+    const int  root_y = (uint16_t)(message.data.l[2] & 0xFFFF);
 
     // Translate root coordinates from message to window coordinates
     Window child = 0;
