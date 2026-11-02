@@ -703,7 +703,7 @@ readFile(const std::string& programPath, const std::string& filename)
 
   const auto    programDir = std::filesystem::path{programPath}.parent_path();
   const auto    programRelative = programDir / filename;
-  auto          mode            = std::ios::binary | std::ios::ate;
+  const auto    mode            = std::ios::binary | std::ios::ate;
   std::ifstream file{programRelative, mode};
   if (!file.good()) {
     file = std::ifstream{std::filesystem::path{PUGL_DATA_DIR} / filename, mode};
@@ -749,8 +749,8 @@ RectShaders::init(const sk::VulkanApi&  vk,
                   const GraphicsDevice& gpu,
                   const std::string&    programPath)
 {
-  auto vertShaderCode = readFile(programPath, SHADER_DIR "rect.vert.spv");
-  auto fragShaderCode = readFile(programPath, SHADER_DIR "rect.frag.spv");
+  const auto vertShaderCode = readFile(programPath, SHADER_DIR "rect.vert.spv");
+  const auto fragShaderCode = readFile(programPath, SHADER_DIR "rect.frag.spv");
 
   if (vertShaderCode.empty() || fragShaderCode.empty()) {
     return VK_ERROR_INITIALIZATION_FAILED;
@@ -1342,12 +1342,12 @@ getDebugReportCallback(const sk::VulkanApi&        api,
 }
 
 void
-recordCommandBuffer(sk::CommandScope&   cmd,
-                    const Swapchain&    swapchain,
-                    const RenderPass&   renderPass,
-                    const RectPipeline& rectPipeline,
-                    const RectData&     rectData,
-                    const size_t        imageIndex)
+recordCommandBuffer(const sk::CommandScope& cmd,
+                    const Swapchain&        swapchain,
+                    const RenderPass&       renderPass,
+                    const RectPipeline&     rectPipeline,
+                    const RectData&         rectData,
+                    const size_t            imageIndex)
 {
   const VkClearColorValue clearColorValue{{0.0f, 0.0f, 0.0f, 1.0f}};
   const VkClearValue      clearValue{clearColorValue};
@@ -1360,7 +1360,8 @@ recordCommandBuffer(sk::CommandScope&   cmd,
     VkRect2D{{0, 0}, swapchain.extent},
     SK_COUNTED(1, &clearValue)};
 
-  auto pass = cmd.beginRenderPass(renderPassBegin, VK_SUBPASS_CONTENTS_INLINE);
+  const auto pass =
+    cmd.beginRenderPass(renderPassBegin, VK_SUBPASS_CONTENTS_INLINE);
 
   pass.bindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, rectPipeline.pipelines[0]);
 
@@ -1537,7 +1538,7 @@ beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
   VkResult    r            = VK_SUCCESS;
 
   // Wait until we can start rendering this frame
-  auto& inFlight = renderer.sync.inFlight[currentFrame];
+  const auto& inFlight = renderer.sync.inFlight[currentFrame];
   if ((r = vk.waitForFence(app.gpu.device, inFlight)) ||
       (r = vk.resetFence(app.gpu.device, inFlight))) {
     return r;
@@ -1630,7 +1631,7 @@ update(PuglVulkanDemo& app, const double time)
 }
 
 VkResult
-endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
+endFrame(const PuglVulkanDemo& app, const uint32_t imageIndex)
 {
   const sk::VulkanApi&  vk       = app.vulkan.vk;
   const GraphicsDevice& gpu      = app.gpu;
