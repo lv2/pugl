@@ -18,12 +18,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#ifdef __APPLE__
-static const double timeout = 1 / 60.0;
-#else
-static const double timeout = -1.0;
-#endif
-
 #define STATES        \
   X(START)            \
   X(EXPOSED)          \
@@ -125,7 +119,7 @@ main(int argc, char** argv)
   assert(!puglRealize(test.view));
   assert(puglShow(test.view, PUGL_SHOW_RAISE) <= PUGL_FAILURE);
   while (test.state != EXPOSED) {
-    assert(!puglUpdate(test.world, timeout));
+    assert(!puglUpdate(test.world, -1.0));
   }
 
   // Send a custom event to trigger a redisplay in the event loop
@@ -137,14 +131,14 @@ main(int argc, char** argv)
   // Loop until an expose happens in the same iteration as the redisplay
   test.state = SHOULD_REDISPLAY;
   while (test.state != REDISPLAYED) {
-    assert(!puglUpdate(test.world, timeout));
+    assert(!puglUpdate(test.world, -1.0));
     assert(test.state != POSTED_REDISPLAY);
   }
 
   // Redisplay from outside the event handler
   puglObscureView(test.view);
   while (test.state != REREDISPLAYED) {
-    assert(!puglUpdate(test.world, timeout));
+    assert(!puglUpdate(test.world, -1.0));
   }
 
   // Tear down

@@ -21,11 +21,7 @@
 
 #define NUM_TIMERS 4U // NOLINT(*-macro-to-enum)
 
-#ifdef __APPLE__
-static const double timeout = 1 / 60.0;
-#else
 static const double timeout = -1.0;
-#endif
 
 // Windows SetTimer has a maximum resolution of 10ms
 static const double tolerance = 0.015;

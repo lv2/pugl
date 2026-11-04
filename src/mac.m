@@ -1654,11 +1654,12 @@ puglStartTimer(PuglView* view, uintptr_t id, double timeout)
 
   NSNumber* idNumber = [NSNumber numberWithUnsignedLong:id];
 
-  NSTimer* timer = [NSTimer timerWithTimeInterval:timeout
-                                           target:view->impl->wrapperView
-                                         selector:@selector(timerTick:)
-                                         userInfo:idNumber
-                                          repeats:YES];
+  NSTimer* timer =
+    [NSTimer scheduledTimerWithTimeInterval:timeout
+                                     target:view->impl->wrapperView
+                                   selector:@selector(timerTick:)
+                                   userInfo:idNumber
+                                    repeats:YES];
 
   [[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
 
