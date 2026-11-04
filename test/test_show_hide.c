@@ -72,13 +72,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 static void
 tick(PuglWorld* world)
 {
-#ifdef __APPLE__
-  // FIXME: Expose events are not events on MacOS, so we can't block
-  // indefinitely here since it will block forever
-  assert(!puglUpdate(world, 1 / 30.0));
-#else
-  assert(!puglUpdate(world, -1));
-#endif
+  assert(!puglUpdate(world, -1.0));
 }
 
 static void
