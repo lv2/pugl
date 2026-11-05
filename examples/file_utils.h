@@ -17,7 +17,13 @@ resourceFile(const char* const programPath,
              const char* const dataDir,
              const char* const name)
 {
-  char* const binary = strdup(programPath);
+  const size_t programPathSize = strlen(programPath) + 1U;
+  char* const  binary          = (char*)calloc(programPathSize, 1);
+  if (!binary) {
+    return NULL;
+  }
+
+  memcpy(binary, programPath, programPathSize);
 
 #ifdef _WIN32
   char programDir[_MAX_DIR];
