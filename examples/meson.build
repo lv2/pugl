@@ -142,12 +142,11 @@ else
       source = [example]
       target = example.split('.')[0]
       dependencies = [dl_dep, pugl_vulkan_dep, puglutil_dep]
-      defines = []
 
       executable(
         target,
         source,
-        c_args: example_defines + example_c_args + defines,
+        c_args: example_defines + example_c_args,
         dependencies: dependencies,
         implicit_include_directories: false,
       )
