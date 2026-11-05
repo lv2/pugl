@@ -52,7 +52,7 @@ static inline int
 printModifiers(const uint32_t mods)
 {
   return fprintf(stderr,
-                 "Modifiers:%s%s%s%s%s%s%s\n",
+                 "Modifiers:%s%s%s%s%s%s%s",
                  (mods & PUGL_MOD_SHIFT) ? " Shift" : "",
                  (mods & PUGL_MOD_CTRL) ? " Ctrl" : "",
                  (mods & PUGL_MOD_ALT) ? " Alt" : "",
@@ -69,129 +69,94 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 #define PIFMT "%5d %5d"
 #define PUFMT "%5u %5u"
 
-#define PRINT(fmt, ...) fprintf(stderr, fmt, __VA_ARGS__)
+#define PRINT(fmt, ...) (void)fprintf(stderr, fmt, __VA_ARGS__)
+
+  if (!verbose && (event->type == PUGL_UPDATE || event->type == PUGL_EXPOSE ||
+                   event->type == PUGL_MOTION || event->type == PUGL_TIMER)) {
+    return 0;
+  }
+
+  PRINT("%s%14s", prefix, puglEventTypeName(event->type));
 
   switch (event->type) {
-  case PUGL_NOTHING:
-    return 0;
-  case PUGL_REALIZE:
-    return fprintf(stderr, "%sRealize\n", prefix);
-  case PUGL_UNREALIZE:
-    return fprintf(stderr, "%sUnrealize\n", prefix);
+  case PUGL_CONFIGURE:
+    PRINT(" " PIFMT " " PUFMT " (",
+          event->configure.x,
+          event->configure.y,
+          event->configure.width,
+          event->configure.height);
+    for (PuglViewStyleFlags mask = 1U; mask <= PUGL_MAX_VIEW_STYLE_FLAG;
+         mask <<= 1U) {
+      if (event->configure.style & mask) {
+        PRINT(" %s", viewStyleFlagString((PuglViewStyleFlag)mask));
+      }
+    }
+    PRINT("%s", " )");
+    break;
+  case PUGL_EXPOSE:
+    PRINT(" " PIFMT " " PUFMT,
+          event->expose.x,
+          event->expose.y,
+          event->expose.width,
+          event->expose.height);
+    break;
   case PUGL_KEY_PRESS:
-    return (PRINT("%sKey press   code %3u key  U+%04X (%s) ",
-                  prefix,
-                  event->key.keycode,
-                  event->key.key,
-                  keyString(event->key.key)) +
-            printModifiers(event->scroll.state));
   case PUGL_KEY_RELEASE:
-    return (PRINT("%sKey release code %3u key  U+%04X (%s) ",
-                  prefix,
-                  event->key.keycode,
-                  event->key.key,
-                  keyString(event->key.key)) +
-            printModifiers(event->scroll.state));
+    PRINT(" code %3u key  U+%04X (%s) ",
+          event->key.keycode,
+          event->key.key,
+          keyString(event->key.key));
+    printModifiers(event->scroll.state);
+    break;
   case PUGL_TEXT:
-    return PRINT("%sText entry  code %3u char U+%04X (%s)\n",
-                 prefix,
-                 event->text.keycode,
-                 event->text.character,
-                 event->text.string);
+    PRINT(" code %3u char U+%04X (%s)",
+          event->text.keycode,
+          event->text.character,
+          event->text.string);
+    break;
   case PUGL_BUTTON_PRESS:
   case PUGL_BUTTON_RELEASE:
-    return (PRINT("%sMouse %u %s at " PFFMT " ",
-                  prefix,
-                  event->button.button,
-                  (event->type == PUGL_BUTTON_PRESS) ? "down" : "up  ",
-                  event->button.x,
-                  event->button.y) +
-            printModifiers(event->scroll.state));
+    PRINT(
+      " %u " PFFMT " ", event->button.button, event->button.x, event->button.y);
+    printModifiers(event->scroll.state);
+    break;
+  case PUGL_MOTION:
+    PRINT(" " PFFMT, event->motion.x, event->motion.y);
+    break;
   case PUGL_SCROLL:
-    return (PRINT("%sScroll %5.1f %5.1f (%s) at " PFFMT " ",
-                  prefix,
-                  event->scroll.dx,
-                  event->scroll.dy,
-                  scrollDirectionString(event->scroll.direction),
-                  event->scroll.x,
-                  event->scroll.y) +
-            printModifiers(event->scroll.state));
+    PRINT(" %5.1f %5.1f (%s) at " PFFMT " ",
+          event->scroll.dx,
+          event->scroll.dy,
+          scrollDirectionString(event->scroll.direction),
+          event->scroll.x,
+          event->scroll.y);
+    printModifiers(event->scroll.state);
+    break;
   case PUGL_POINTER_IN:
-    return PRINT("%sMouse enter  at " PFFMT " (%s)\n",
-                 prefix,
-                 event->crossing.x,
-                 event->crossing.y,
-                 crossingModeString(event->crossing.mode));
   case PUGL_POINTER_OUT:
-    return PRINT("%sMouse leave  at " PFFMT " (%s)\n",
-                 prefix,
-                 event->crossing.x,
-                 event->crossing.y,
-                 crossingModeString(event->crossing.mode));
+    PRINT(" " PFFMT " (%s)",
+          event->crossing.x,
+          event->crossing.y,
+          crossingModeString(event->crossing.mode));
+    break;
   case PUGL_FOCUS_IN:
-    return PRINT(
-      "%sFocus in (%s)\n", prefix, crossingModeString(event->crossing.mode));
   case PUGL_FOCUS_OUT:
-    return PRINT(
-      "%sFocus out (%s)\n", prefix, crossingModeString(event->crossing.mode));
+    PRINT(" (%s)", crossingModeString(event->crossing.mode));
+    break;
   case PUGL_CLIENT:
-    return PRINT("%sClient %" PRIXPTR " %" PRIXPTR "\n",
-                 prefix,
-                 event->client.data1,
-                 event->client.data2);
-  case PUGL_LOOP_ENTER:
-    return PRINT("%sLoop enter\n", prefix);
-  case PUGL_LOOP_LEAVE:
-    return PRINT("%sLoop leave\n", prefix);
+    PRINT(" %" PRIXPTR " %" PRIXPTR, event->client.data1, event->client.data2);
+    break;
+  case PUGL_TIMER:
+    PRINT(" %" PRIuPTR, event->timer.id);
+    break;
   case PUGL_DATA_OFFER:
-    return PRINT(
-      "%sData offer at   " PFFMT "\n", prefix, event->offer.x, event->offer.y);
-  case PUGL_DATA:
-    return PRINT("%sData\n", prefix);
+    PRINT("%sData offer at   " PFFMT, prefix, event->offer.x, event->offer.y);
+    break;
   default:
     break;
   }
 
-  if (verbose) {
-    switch (event->type) {
-    case PUGL_CONFIGURE:
-      PRINT("%sConfigure " PIFMT " " PUFMT " (",
-            prefix,
-            event->configure.x,
-            event->configure.y,
-            event->configure.width,
-            event->configure.height);
-      for (PuglViewStyleFlags mask = 1U; mask <= PUGL_MAX_VIEW_STYLE_FLAG;
-           mask <<= 1U) {
-        if (event->configure.style & mask) {
-          PRINT(" %s", viewStyleFlagString((PuglViewStyleFlag)mask));
-        }
-      }
-      PRINT("%s\n", " )");
-      return 0;
-    case PUGL_UPDATE:
-      return fprintf(stderr, "%sUpdate\n", prefix);
-    case PUGL_EXPOSE:
-      return PRINT("%sExpose    " PIFMT " " PUFMT "\n",
-                   prefix,
-                   event->expose.x,
-                   event->expose.y,
-                   event->expose.width,
-                   event->expose.height);
-    case PUGL_CLOSE:
-      return PRINT("%sClose\n", prefix);
-    case PUGL_MOTION:
-      return PRINT("%sMouse motion at " PFFMT "\n",
-                   prefix,
-                   event->motion.x,
-                   event->motion.y);
-    case PUGL_TIMER:
-      return PRINT("%sTimer %" PRIuPTR "\n", prefix, event->timer.id);
-    default:
-      return PRINT("%sUnknown event type %d\n", prefix, (int)event->type);
-    }
-  }
-
+  fprintf(stderr, "\n");
 #undef PRINT
 #undef PUFMT
 #undef PIFMT
