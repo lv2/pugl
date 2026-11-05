@@ -94,28 +94,26 @@ else
     foreach example : gl_examples
       source = [example]
       target = example.split('.')[0]
-      dependencies = [m_dep, pugl_dep, pugl_gl_dep, puglutil_dep]
-      gl_args = opengl_args
 
+      c_args = example_defines + example_c_args + opengl_args
       if cc.get_id() == 'gcc' and warning_level in ['everything', '3']
-        gl_args += ['-Wno-pedantic']
+        c_args += ['-Wno-pedantic']
       endif
 
+      dependencies = [m_dep, pugl_dep, pugl_gl_dep, puglutil_dep]
       if target == 'pugl_shader_demo'
         source += ['glad/glad.c']
         dependencies += [dl_dep]
-        gl_args += ['-D_POSIX_C_SOURCE=200809L']
+        c_args += ['-D_POSIX_C_SOURCE=200809L']
         if cc.get_id() == 'clang'
-          gl_args += ['-Wno-unused-but-set-global']
+          c_args += ['-Wno-unused-but-set-global']
         endif
-      elif target == 'pugl_print_events'
-        dependencies += [stub_backend_dep]
       endif
 
       executable(
         target,
         source,
-        c_args: example_defines + example_c_args + gl_args,
+        c_args: c_args,
         dependencies: dependencies,
         implicit_include_directories: false,
       )
