@@ -1872,8 +1872,7 @@ handleSelectionRequest(const PuglWorld* const              world,
 PUGL_WARN_UNUSED_RESULT static PuglStatus
 flushExposures(PuglWorld* const world)
 {
-  PuglStatus st0 = PUGL_SUCCESS;
-  PuglStatus st1 = PUGL_SUCCESS;
+  PuglStatus st = PUGL_SUCCESS;
 
   // Send update events so the application can trigger redraws
   for (size_t i = 0; i < world->numViews; ++i) {
@@ -1898,15 +1897,14 @@ flushExposures(PuglWorld* const world)
         event.expose.height = size.height;
       }
 
-      if (event.type && !(st0 = view->backend->enter(view, &event.expose))) {
-        st0 = view->eventFunc(view, &event);
-        st1 = view->backend->leave(view, &event.expose);
+      if (event.type) {
+        st                             = puglDispatchEvent(view, &event);
         view->impl->pendingExpose.type = PUGL_NOTHING;
       }
     }
   }
 
-  return st0 ? st0 : st1;
+  return st;
 }
 
 #if USE_XRANDR
