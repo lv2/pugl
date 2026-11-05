@@ -13,14 +13,14 @@ crossingModeString(const PuglCrossingMode mode)
 {
   switch (mode) {
   case PUGL_CROSSING_NORMAL:
-    return "normal";
+    return "NORMAL";
   case PUGL_CROSSING_GRAB:
-    return "grab";
+    return "GRAB";
   case PUGL_CROSSING_UNGRAB:
-    return "ungrab";
+    return "UNGRAB";
   }
 
-  return "unknown";
+  return "?";
 }
 
 static inline const char*
@@ -28,18 +28,18 @@ scrollDirectionString(const PuglScrollDirection direction)
 {
   switch (direction) {
   case PUGL_SCROLL_UP:
-    return "up";
+    return "UP";
   case PUGL_SCROLL_DOWN:
-    return "down";
+    return "DOWN";
   case PUGL_SCROLL_LEFT:
-    return "left";
+    return "LEFT";
   case PUGL_SCROLL_RIGHT:
-    return "right";
+    return "RIGHT";
   case PUGL_SCROLL_SMOOTH:
-    return "smooth";
+    return "SMOOTH";
   }
 
-  return "unknown";
+  return "?";
 }
 
 static inline const char*
@@ -47,28 +47,28 @@ viewStyleFlagString(const PuglViewStyleFlag state)
 {
   switch (state) {
   case PUGL_VIEW_STYLE_MODAL:
-    return "modal";
+    return "MODAL";
   case PUGL_VIEW_STYLE_TALL:
-    return "tall";
+    return "TALL";
   case PUGL_VIEW_STYLE_WIDE:
-    return "wide";
+    return "WIDE";
   case PUGL_VIEW_STYLE_HIDDEN:
-    return "hidden";
+    return "HIDDEN";
   case PUGL_VIEW_STYLE_FULLSCREEN:
-    return "fullscreen";
+    return "FULLSCREEN";
   case PUGL_VIEW_STYLE_ABOVE:
-    return "above";
+    return "ABOVE";
   case PUGL_VIEW_STYLE_BELOW:
-    return "below";
+    return "BELOW";
   case PUGL_VIEW_STYLE_DEMANDING:
-    return "demanding";
+    return "DEMANDING";
   case PUGL_VIEW_STYLE_RESIZING:
-    return "resizing";
+    return "RESIZING";
   case PUGL_VIEW_STYLE_MAPPED:
-    return "mapped";
+    return "MAPPED";
   }
 
-  return "unknown";
+  return "?";
 }
 
 static inline const char*
@@ -227,7 +227,7 @@ keyString(const uint32_t key)
     break;
   }
 
-  return "";
+  return "?";
 }
 
 static inline const char*
@@ -235,52 +235,52 @@ viewHintString(const PuglViewHint hint)
 {
   switch (hint) {
   case PUGL_CONTEXT_API:
-    return "Context API";
+    return "CONTEXT_API";
   case PUGL_CONTEXT_VERSION_MAJOR:
-    return "Context major version";
+    return "CONTEXT_MAJOR_VERSION";
   case PUGL_CONTEXT_VERSION_MINOR:
-    return "Context minor version";
+    return "CONTEXT_MINOR_VERSION";
   case PUGL_CONTEXT_PROFILE:
-    return "Context profile";
+    return "CONTEXT_PROFILE";
   case PUGL_CONTEXT_DEBUG:
-    return "Context debug";
+    return "CONTEXT_DEBUG";
   case PUGL_RED_BITS:
-    return "Red bits";
+    return "RED_BITS";
   case PUGL_GREEN_BITS:
-    return "Green bits";
+    return "GREEN_BITS";
   case PUGL_BLUE_BITS:
-    return "Blue bits";
+    return "BLUE_BITS";
   case PUGL_ALPHA_BITS:
-    return "Alpha bits";
+    return "ALPHA_BITS";
   case PUGL_DEPTH_BITS:
-    return "Depth bits";
+    return "DEPTH_BITS";
   case PUGL_STENCIL_BITS:
-    return "Stencil bits";
+    return "STENCIL_BITS";
   case PUGL_SAMPLE_BUFFERS:
-    return "Sample buffers";
+    return "SAMPLE_BUFFERS";
   case PUGL_SAMPLES:
-    return "Samples";
+    return "SAMPLES";
   case PUGL_DOUBLE_BUFFER:
-    return "Double buffer";
+    return "DOUBLE_BUFFER";
   case PUGL_SWAP_INTERVAL:
-    return "Swap interval";
+    return "SWAP_INTERVAL";
   case PUGL_RESIZABLE:
-    return "Resizable";
+    return "RESIZABLE";
   case PUGL_IGNORE_KEY_REPEAT:
-    return "Ignore key repeat";
+    return "IGNORE_KEY_REPEAT";
   case PUGL_REFRESH_RATE:
-    return "Refresh rate";
+    return "REFRESH_RATE";
   case PUGL_VIEW_TYPE:
-    return "View type";
+    return "VIEW_TYPE";
   case PUGL_DARK_FRAME:
-    return "Dark frame";
+    return "DARK_FRAME";
   case PUGL_ACCEPT_DROP:
-    return "Accept drop";
+    return "ACCEPT_DROP";
   case PUGL_CONTINUOUS:
-    return "Continuous";
+    return "CONTINUOUS";
   }
 
-  return "Unknown";
+  return "?";
 }
 
 #endif // PUGLUTIL_STRINGS_H
