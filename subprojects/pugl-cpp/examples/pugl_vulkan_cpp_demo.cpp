@@ -1880,16 +1880,16 @@ main(int argc, char** argv)
   }
 
   // Parse number of rectangles argument, if given
-  int64_t numRects = 1000;
+  size_t numRects = 1024;
   if (argc >= 1) {
     char* endptr = nullptr; // NOLINT(misc-const-correctness)
-    numRects     = strtol(argv[0], &endptr, 10);
-    if (endptr != argv[0] + strlen(argv[0]) || numRects < 1) {
+    numRects     = static_cast<size_t>(strtol(argv[0], &endptr, 10));
+    if (endptr != argv[0] + strlen(argv[0]) || numRects > 1000000U) {
       logFail("Invalid number of rectangles", argv[0]);
       return 1;
     }
   }
 
   // Run application
-  return run(programPath, opts, static_cast<size_t>(numRects));
+  return run(programPath, opts, numRects);
 }
