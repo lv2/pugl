@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: ISC
 
 #include <puglutil/demo_utils.h>
+#include <puglutil/mat.h>
 #include <puglutil/test_utils.h>
 
 #include <pugl/gl.h>

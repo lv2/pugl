@@ -17,7 +17,8 @@
 #include "sybok.hpp"
 
 #include <puglutil/demo_utils.h>
-#include <puglutil/rects.h>
+#include <puglutil/mat.h>
+#include <puglutil/rect.h>
 #include <puglutil/test_utils.h>
 
 #include <pugl/pugl.h>

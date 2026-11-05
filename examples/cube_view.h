@@ -5,6 +5,7 @@
 #define EXAMPLES_CUBE_VIEW_H
 
 #include <puglutil/demo_utils.h>
+#include <puglutil/mat.h>
 
 #include <pugl/gl.h>
 #include <pugl/pugl.h>

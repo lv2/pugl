@@ -29,7 +29,8 @@
 #include "glad/glad.h"
 
 #include <puglutil/demo_utils.h>
-#include <puglutil/rects.h>
+#include <puglutil/mat.h>
+#include <puglutil/rect.h>
 #include <puglutil/test_utils.h>
 
 #include <pugl/gl.h>
