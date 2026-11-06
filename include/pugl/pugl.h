@@ -883,7 +883,9 @@ puglGetTime(const PuglWorld* world);
    Update by processing events from the window system.
 
    This runs a single iteration of the main loop, and needs to be called
-   repeatedly to update all views.
+   repeatedly to update all views.  This call will potentially block based on
+   the `timeout` parameter, then process all pending events from the windowing
+   system, dispatching events to views as necessary.
 
    Plugins should always use a timeout of zero to avoid blocking the host.  For
    continuously animating programs, a timeout that's a reasonable fraction of

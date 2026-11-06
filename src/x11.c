@@ -2036,7 +2036,6 @@ dispatchX11Events(PuglWorld* const world)
 PuglStatus
 puglUpdate(PuglWorld* const world, const double timeout)
 {
-  const double         startTime  = puglGetTime(world);
   const PuglWorldState startState = world->state;
   PuglStatus           st0        = PUGL_SUCCESS;
   PuglStatus           st1        = PUGL_SUCCESS;
@@ -2047,22 +2046,14 @@ puglUpdate(PuglWorld* const world, const double timeout)
     return PUGL_BAD_CALL;
   }
 
-  if (timeout < 0.0) {
+  XFlush(world->impl->display);
+
+  if (timeout < 0.0 || timeout >= 0.001) {
     if (!(st0 = pollX11Socket(world, timeout))) {
       st0 = dispatchX11Events(world);
     }
-  } else if (timeout <= 0.001) {
-    st0 = dispatchX11Events(world);
   } else {
-    const double endTime = startTime + timeout - 0.001;
-    double       t       = startTime;
-    while (!st0 && t < endTime) {
-      if (!(st0 = pollX11Socket(world, endTime - t))) {
-        st0 = dispatchX11Events(world);
-      }
-
-      t = puglGetTime(world);
-    }
+    st0 = dispatchX11Events(world);
   }
 
   st1          = flushExposures(world);

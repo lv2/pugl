@@ -1220,7 +1220,6 @@ puglUpdate(PuglWorld* world, double timeout)
 {
   static const double minWaitSeconds = 0.002;
 
-  const double         startTime  = puglGetTime(world);
   const PuglWorldState startState = world->state;
   PuglStatus           st         = PUGL_SUCCESS;
 
@@ -1236,14 +1235,9 @@ puglUpdate(PuglWorld* world, double timeout)
   } else if (timeout < minWaitSeconds) {
     st = puglDispatchWinEvents(world);
   } else {
-    const double endTime = startTime + timeout - minWaitSeconds;
-    double       t       = startTime;
-    while (!st && t < endTime) {
-      const DWORD timeoutMs = (DWORD)((endTime - t) * 1e3);
-      MsgWaitForMultipleObjects(0, NULL, FALSE, timeoutMs, QS_ALLEVENTS);
-      st = puglDispatchWinEvents(world);
-      t  = puglGetTime(world);
-    }
+    const DWORD timeoutMs = (DWORD)(timeout * 1e3);
+    MsgWaitForMultipleObjects(0, NULL, FALSE, timeoutMs, QS_ALLEVENTS);
+    st = puglDispatchWinEvents(world);
   }
 
   for (size_t i = 0; i < world->numViews; ++i) {

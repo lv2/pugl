@@ -137,6 +137,20 @@ checkTimerPeriod(const TimerStats* const stats, const double expectedPeriod)
   assert(difference <= tolerance);
 }
 
+static PuglStatus
+updateFor(PuglWorld* const world, const double period)
+{
+  PuglStatus   st        = PUGL_SUCCESS;
+  const double startTime = puglGetTime(world);
+  const double endTime   = startTime + period;
+  double       time      = startTime;
+  while (!st && time < endTime) {
+    st   = puglUpdate(world, endTime - time);
+    time = puglGetTime(world);
+  }
+  return st;
+}
+
 int
 main(int argc, char** argv)
 {
@@ -175,7 +189,7 @@ main(int argc, char** argv)
   assert(!!puglStopTimer(test.view, NUM_TIMERS));
 
   // Run and check that each timer fired and has the expected period
-  assert(!puglUpdate(test.world, updateDuration));
+  assert(!updateFor(test.world, updateDuration));
   for (unsigned i = 0U; i < NUM_TIMERS; ++i) {
     checkTimerPeriod(&test.stats[i], timerPeriod(i));
   }
@@ -184,7 +198,7 @@ main(int argc, char** argv)
   resetStats(&test);
   assert(!puglStopTimer(test.view, 0U));
   assert(!puglStartTimer(test.view, NUM_TIMERS - 1U, otherTimerPeriod));
-  assert(!puglUpdate(test.world, updateDuration));
+  assert(!updateFor(test.world, updateDuration));
   assert(test.stats[0].numAlarms == 0);
   checkTimerPeriod(&test.stats[NUM_TIMERS - 1U], otherTimerPeriod);
   for (unsigned i = 1U; i < NUM_TIMERS - 1U; ++i) {
@@ -194,7 +208,7 @@ main(int argc, char** argv)
   // Stop the last timer
   resetStats(&test);
   assert(!puglStopTimer(test.view, NUM_TIMERS - 1U));
-  assert(!puglUpdate(test.world, updateDuration));
+  assert(!updateFor(test.world, updateDuration));
   assert(test.stats[0].numAlarms == 0);
   assert(test.stats[NUM_TIMERS - 1U].numAlarms == 0);
   for (unsigned i = 1U; i < NUM_TIMERS - 1U; ++i) {
