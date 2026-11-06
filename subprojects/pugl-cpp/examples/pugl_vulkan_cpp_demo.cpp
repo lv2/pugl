@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -1437,7 +1438,9 @@ public:
 
   pugl::Status onEvent(const pugl::ConfigureEvent& event);
   pugl::Status onEvent(const pugl::UpdateEvent& event);
+  pugl::Status onEvent(const pugl::BlankEvent& event);
   pugl::Status onEvent(const pugl::ExposeEvent& event);
+  pugl::Status onEvent(const pugl::FlushEvent& event);
   pugl::Status onEvent(const pugl::LoopEnterEvent& event);
   pugl::Status onEvent(const pugl::TimerEvent& event);
   pugl::Status onEvent(const pugl::LoopLeaveEvent& event);
@@ -1468,6 +1471,8 @@ public:
   RectData           rectData;
   RectShaders        rectShaders;
   uint32_t           framesDrawn{0};
+  double             lastBlankTime{0.0};
+  double             lastFlushTime{0.0};
   VkExtent2D         extent{512U, 512U};
   std::vector<Rect>  rects;
   double             mouseX{0.0};
@@ -1698,6 +1703,13 @@ endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
 }
 
 pugl::Status
+View::onEvent(const pugl::BlankEvent&)
+{
+  const auto scope = _app.tracer.begin("BLANK");
+  return pugl::Status::success;
+}
+
+pugl::Status
 View::onEvent(const pugl::ExposeEvent&)
 {
   const auto scope = _app.tracer.begin("EXPOSE");
@@ -1709,7 +1721,9 @@ View::onEvent(const pugl::ExposeEvent&)
   }
 
   // Ready to go, update the data to the current time
-  update(_app, world().time());
+  const auto time    = _app.world.time();
+  _app.lastFlushTime = time;
+  update(_app, time);
 
   // Submit the frame to the queue and present it
   endFrame(_app, nextImageIndex);
@@ -1719,6 +1733,14 @@ View::onEvent(const pugl::ExposeEvent&)
   ++_app.renderer.sync.currentFrame;
   _app.renderer.sync.currentFrame %= _app.renderer.sync.inFlight.size();
 
+  return pugl::Status::success;
+}
+
+pugl::Status
+View::onEvent(const pugl::FlushEvent&)
+{
+  const auto scope   = _app.tracer.begin("FLUSH");
+  _app.lastFlushTime = _app.world.time();
   return pugl::Status::success;
 }
 
@@ -1805,6 +1827,24 @@ VulkanContext::init(const pugl::VulkanLoader& loader,
   return VK_SUCCESS;
 }
 
+double
+updateTimeout(const PuglVulkanDemo* const app)
+{
+  if (!app->view.visible()) {
+    return -1.0; // View is invisible, wait until something happens
+  }
+
+  if (!app->opts.sync) {
+    return 0.0; // VSync explicitly disabled, run as fast as possible
+  }
+
+  // Wait until we should probably start rendering the next frame
+  const int    rate         = app->view.getHint(pugl::ViewHint::refreshRate);
+  const double now          = app->world.time();
+  const double drawDuration = app->lastFlushTime - app->lastBlankTime;
+  return fmax(0.0, (app->lastFlushTime + (1.0 / rate) - drawDuration) - now);
+}
+
 int
 run(const char* const      programPath,
     const PuglTestOptions& opts,
@@ -1879,14 +1919,11 @@ run(const char* const      programPath,
                        app.renderer.rectPipeline,
                        app.rectData);
 
-  const int    refreshRate   = app.view.getHint(pugl::ViewHint::refreshRate);
-  const double frameDuration = 1.0 / static_cast<double>(refreshRate);
-  const double timeout       = app.opts.sync ? frameDuration * 0.8 : 0.0;
-
   PuglFpsPrinter fpsPrinter = {app.world.time()};
   app.view.show(pugl::ShowCommand::passive);
   while (!app.quit) {
-    const auto scope = app.tracer.begin("loop");
+    const auto scope   = app.tracer.begin("loop");
+    const auto timeout = updateTimeout(&app);
     app.world.update(timeout);
     puglPrintFps(app.world.time(), &fpsPrinter, &app.framesDrawn);
   }

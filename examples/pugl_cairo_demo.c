@@ -25,13 +25,16 @@ static const double turn_duration = 1.0; // Duration of a full button turn (s)
 
 typedef struct {
   PuglWorld*      world;
+  PuglView*       view;
   PuglTestOptions opts;
   TrajeTracer*    tracer;
   double          currentMouseX;
   double          currentMouseY;
   double          lastDrawnMouseX;
   double          lastDrawnMouseY;
-  double          lastDrawTime;
+  double          lastUpdateTime;
+  double          lastDrawDuration;
+  double          lastFlushTime;
   unsigned        framesDrawn;
   int             quit;
   bool            entered;
@@ -176,6 +179,8 @@ obscureAllButtons(PuglView* view)
 static void
 onDisplay(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
 {
+  const double startTime = puglGetTime(app->world);
+
   cairo_t* cr = (cairo_t*)puglGetContext(view);
 
   cairo_rectangle(cr, event->x, event->y, event->width, event->height);
@@ -213,6 +218,7 @@ onDisplay(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
   cairo_stroke(cr);
 
   ++app->framesDrawn;
+  app->lastDrawDuration = puglGetTime(app->world) - startTime;
 }
 
 static void
@@ -288,12 +294,15 @@ onEvent(PuglView* view, const PuglEvent* event)
   case PUGL_UPDATE:
     if (app->opts.continuous) {
       const double now = fmod(puglGetTime(app->world), loop_duration);
-      obscureUpdatedButtons(view, app->lastDrawTime, now);
-      app->lastDrawTime = now;
+      obscureUpdatedButtons(view, app->lastUpdateTime, now);
+      app->lastUpdateTime = now;
     }
     break;
   case PUGL_EXPOSE:
     onDisplay(app, view, &event->expose);
+    break;
+  case PUGL_FLUSH:
+    app->lastFlushTime = puglGetTime(app->world);
     break;
   case PUGL_CLOSE:
     onClose(view);
@@ -304,6 +313,19 @@ onEvent(PuglView* view, const PuglEvent* event)
 
   traje_end(app->tracer, puglEventTypeName(event->type));
   return PUGL_SUCCESS;
+}
+
+static double
+updateTimeout(const PuglTestApp* const app)
+{
+  if (!app->opts.sync) {
+    return 0.0; // VSync explicitly disabled, run as fast as possible
+  }
+
+  // Wait until we should probably start rendering the next frame
+  const int    rate = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
+  const double now  = puglGetTime(app->world);
+  return (app->lastFlushTime + (1.0 / rate) - app->lastDrawDuration) - now;
 }
 
 int
@@ -325,30 +347,30 @@ main(int argc, char** argv)
   resetMouse(&app);
   puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglCairoDemo");
 
-  PuglView* view = puglNewView(app.world);
+  app.view = puglNewView(app.world);
 
-  puglSetViewString(view, PUGL_WINDOW_TITLE, "Pugl Cairo Demo");
-  puglSetSizeHint(view, PUGL_DEFAULT_SIZE, 512, 512);
-  puglSetSizeHint(view, PUGL_MIN_SIZE, 256, 256);
-  puglSetSizeHint(view, PUGL_MAX_SIZE, 2048, 2048);
-  puglSetViewHint(view, PUGL_RESIZABLE, app.opts.resizable);
-  puglSetHandle(view, &app);
-  puglSetBackend(view, puglCairoBackend());
-  puglSetViewHint(view, PUGL_IGNORE_KEY_REPEAT, app.opts.ignoreKeyRepeat);
-  puglSetEventFunc(view, onEvent);
+  puglSetViewString(app.view, PUGL_WINDOW_TITLE, "Pugl Cairo Demo");
+  puglSetSizeHint(app.view, PUGL_DEFAULT_SIZE, 512, 512);
+  puglSetSizeHint(app.view, PUGL_MIN_SIZE, 256, 256);
+  puglSetSizeHint(app.view, PUGL_MAX_SIZE, 2048, 2048);
+  puglSetViewHint(app.view, PUGL_RESIZABLE, app.opts.resizable);
+  puglSetHandle(app.view, &app);
+  puglSetBackend(app.view, puglCairoBackend());
+  puglSetViewHint(app.view, PUGL_IGNORE_KEY_REPEAT, app.opts.ignoreKeyRepeat);
+  puglSetEventFunc(app.view, onEvent);
 
-  PuglStatus st = puglRealize(view);
+  PuglStatus st = puglRealize(app.view);
   if (st) {
     return logError("Failed to create window (%s)\n", puglStrerror(st));
   }
 
-  puglShow(view, PUGL_SHOW_RAISE);
+  puglShow(app.view, PUGL_SHOW_RAISE);
 
   PuglFpsPrinter fpsPrinter = {puglGetTime(app.world)};
-  const double   timeout    = app.opts.continuous ? (1 / 60.0) : -1.0;
   while (!app.quit) {
     traje_begin(app.tracer, "loop");
 
+    const double timeout = updateTimeout(&app);
     puglUpdate(app.world, timeout);
 
     if (app.opts.continuous) {
@@ -359,7 +381,7 @@ main(int argc, char** argv)
     traje_flush(app.tracer);
   }
 
-  puglFreeView(view);
+  puglFreeView(app.view);
   puglFreeWorld(app.world);
   traje_tracer_free(app.tracer);
   return 0;

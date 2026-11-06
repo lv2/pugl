@@ -67,8 +67,8 @@ typedef struct {
   GLuint          vbo;
   GLuint          instanceVbo;
   GLuint          ibo;
-  double          lastDrawDuration;
-  double          lastFrameEndTime;
+  double          lastBlankTime;
+  double          lastFlushTime;
   double          mouseX;
   double          mouseY;
   PuglArea        size;
@@ -152,9 +152,6 @@ onExpose(PuglView* view)
                           (GLsizei)((app->numRects + 2) * 4));
 
   ++app->framesDrawn;
-
-  app->lastFrameEndTime = puglGetTime(puglGetWorld(view));
-  app->lastDrawDuration = app->lastFrameEndTime - time;
 }
 
 static PuglStatus
@@ -176,8 +173,14 @@ onEvent(PuglView* view, const PuglEvent* event)
     app->size.width  = event->configure.width;
     app->size.height = event->configure.height;
     break;
+  case PUGL_BLANK:
+    app->lastBlankTime = puglGetTime(puglGetWorld(view));
+    break;
   case PUGL_EXPOSE:
     onExpose(view);
+    break;
+  case PUGL_FLUSH:
+    app->lastFlushTime = puglGetTime(puglGetWorld(view));
     break;
   case PUGL_CLOSE:
     app->quit = 1;
@@ -450,36 +453,18 @@ static double
 updateTimeout(const PuglTestApp* const app)
 {
   if (!puglGetVisible(app->view)) {
-    return -1.0; // View is invisible (minimized), wait until something happens
+    return -1.0; // View is invisible, wait until something happens
   }
 
   if (!app->opts.sync) {
     return 0.0; // VSync explicitly disabled, run as fast as possible
   }
 
-  /* To minimize input latency and get smooth performance during window
-     resizing, we want to poll for events as long as possible before starting
-     to draw the next frame.  This ensures that as many events are consumed as
-     possible before starting to draw, or, equivalently, that the next rendered
-     frame represents the latest events possible.  This is particularly
-     important for mouse input and "live" window resizing, where many events
-     tend to pile up within a frame.
-
-     To do this, we keep track of the time when the last frame was finished
-     drawing, and how long it took to expose (and assume this is relatively
-     stable).  Then, we can calculate how much time there is from now until the
-     time when we should start drawing to not miss the deadline, and use that
-     as the timeout for puglUpdate().
-  */
-
-  const int    refreshRate      = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
-  const double now              = puglGetTime(app->world);
-  const double nextFrameEndTime = app->lastFrameEndTime + (1.0 / refreshRate);
-  const double neededTime       = 1.5 * app->lastDrawDuration;
-  const double nextExposeTime   = nextFrameEndTime - neededTime;
-  const double timeUntilNext    = nextExposeTime - now;
-
-  return fmax(0.0, (timeUntilNext * 0.9) - 0.001);
+  // Wait until we should probably start rendering the next frame
+  const int    rate         = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
+  const double now          = puglGetTime(app->world);
+  const double drawDuration = app->lastFlushTime - app->lastBlankTime;
+  return fmax(0.0, (app->lastFlushTime + (1.0 / rate) - drawDuration) - now);
 }
 
 int
