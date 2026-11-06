@@ -65,6 +65,15 @@ if pugl_gl_dep.found()
   endif
 endif
 
+traje = subproject('traje')
+if not get_option('tracing').disabled()
+  traje_dep = traje.get_variable('traje_dep')
+  traje_args = ['-DTRAJE_ENABLED']
+else
+  traje_dep = traje.get_variable('traje_stub_dep')
+  traje_args = []
+endif
+
 subdir('shaders')
 
 if host_machine.system() == 'darwin'
@@ -103,8 +112,8 @@ else
     foreach example : vulkan_examples
       source = [example]
       target = example.split('.')[0]
-      dependencies = [dl_dep, pugl_cpp_dep, pugl_vulkan_dep, puglutil_dep]
-      defines = ['-D_POSIX_C_SOURCE=200809L']
+      dependencies = [dl_dep, pugl_cpp_dep, pugl_vulkan_dep, puglutil_dep, traje_dep]
+      defines = traje_args + ['-D_POSIX_C_SOURCE=200809L']
 
       executable(
         target,

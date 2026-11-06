@@ -6,6 +6,8 @@
 
 #include <stdio.h>
 
+#include <pugl/pugl.h>
+
 typedef struct {
   double lastReportTime;
 } PuglFpsPrinter;

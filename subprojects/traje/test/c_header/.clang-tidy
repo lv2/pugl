@@ -1,0 +1,11 @@
+# Copyright 2020-2026 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+Checks: >
+  *,
+  -bugprone-easily-swappable-parameters,
+CheckOptions:
+  - key:   readability-function-cognitive-complexity.Threshold
+    value: '0'
+FormatStyle: file
+HeaderFilterRegex: 'traje/[^/]*\.h'

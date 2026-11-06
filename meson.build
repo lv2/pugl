@@ -320,7 +320,8 @@ install = (
   get_option('install').enabled()
   or (
     get_option('install').auto()
-    and not (meson.is_subproject() and default_library == 'static')
+    and not (meson.is_subproject()
+    and default_library == 'static')
   )
 )
 
@@ -594,6 +595,33 @@ subdir('include')
 if not get_option('tests').disabled() or not get_option('examples').disabled()
   puglutil = subproject('puglutil')
   puglutil_dep = puglutil.get_variable('puglutil_dep')
+
+  tests_option_string = 'enabled'
+  if get_option('tests').disabled()
+    tests_option_string = 'disabled'
+  endif
+
+  tracing_option_string = 'auto'
+  if get_option('tracing').enabled()
+    tracing_option_string = 'enabled'
+  elif get_option('tracing').disabled()
+    tracing_option_string = 'disabled'
+  endif
+
+  traje = subproject(
+    'traje',
+    default_options: [
+      'tests=' + tests_option_string,
+      'tracing=' + tracing_option_string,
+    ],
+  )
+  if not get_option('tracing').disabled()
+    traje_dep = traje.get_variable('traje_dep')
+    traje_args = ['-DTRAJE_ENABLED']
+  else
+    traje_dep = traje.get_variable('traje_stub_dep')
+    traje_args = []
+  endif
 endif
 
 if not get_option('tests').disabled()

@@ -18,6 +18,14 @@ option(
 option('opengl', type: 'feature', description: 'Enable OpenGL graphics backend')
 option('stub', type: 'boolean', description: 'Build stub backend')
 option('tests', type: 'feature', description: 'Build tests')
+
+option(
+  'tracing',
+  type: 'feature',
+  value: 'disabled',
+  description: 'Enable demo performance tracing',
+)
+
 option('vulkan', type: 'feature', description: 'Enable Vulkan graphics backend')
 option('win_wchar', type: 'feature', description: 'Use UNICODE with Win32')
 option('xcursor', type: 'feature', description: 'Support X11 cursor')

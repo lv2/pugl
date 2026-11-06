@@ -103,8 +103,8 @@ else
       dependencies = [m_dep, pugl_dep, pugl_gl_dep, puglutil_dep]
       if target == 'pugl_shader_demo'
         source += ['glad/glad.c']
-        dependencies += [dl_dep]
-        c_args += ['-D_POSIX_C_SOURCE=200809L']
+        dependencies += [dl_dep, traje_dep]
+        c_args += traje_args + ['-D_POSIX_C_SOURCE=200809L']
         if cc.get_id() == 'clang'
           c_args += ['-Wno-unused-but-set-global']
         endif
@@ -127,8 +127,8 @@ else
       executable(
         target,
         example,
-        c_args: example_defines + example_c_args + cairo_args,
-        dependencies: [m_dep, pugl_dep, pugl_cairo_dep, puglutil_dep],
+        c_args: example_defines + example_c_args + cairo_args + traje_args,
+        dependencies: [m_dep, pugl_dep, pugl_cairo_dep, puglutil_dep, traje_dep],
         implicit_include_directories: false,
       )
     endforeach

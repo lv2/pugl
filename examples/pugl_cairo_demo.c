@@ -1,8 +1,10 @@
-// Copyright 2012-2025 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 #include <puglutil/demo_utils.h>
+#include <puglutil/strings.h>
 #include <puglutil/test_utils.h>
+#include <traje/traje.h>
 
 #include <pugl/cairo.h>
 #include <pugl/pugl.h>
@@ -24,6 +26,7 @@ static const double turn_duration = 1.0; // Duration of a full button turn (s)
 typedef struct {
   PuglWorld*      world;
   PuglTestOptions opts;
+  TrajeTracer*    tracer;
   double          currentMouseX;
   double          currentMouseY;
   double          lastDrawnMouseX;
@@ -240,6 +243,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 {
   PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
+  traje_begin(app->tracer, puglEventTypeName(event->type));
   printEvent(event, "Event: ", app->opts.verbose);
 
   const ViewScale scale = getScale(view);
@@ -298,6 +302,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   }
 
+  traje_end(app->tracer, puglEventTypeName(event->type));
   return PUGL_SUCCESS;
 }
 
@@ -312,6 +317,9 @@ main(int argc, char** argv)
     puglPrintTestUsage("pugl_test", "");
     return 1;
   }
+
+  app.tracer =
+    traje_tracer_new("pugl_cairo_demo", "main", "pugl_cairo_demo.json", 128);
 
   app.world = puglNewWorld(PUGL_PROGRAM, 0);
   resetMouse(&app);
@@ -339,14 +347,20 @@ main(int argc, char** argv)
   PuglFpsPrinter fpsPrinter = {puglGetTime(app.world)};
   const double   timeout    = app.opts.continuous ? (1 / 60.0) : -1.0;
   while (!app.quit) {
+    traje_begin(app.tracer, "loop");
+
     puglUpdate(app.world, timeout);
 
     if (app.opts.continuous) {
       puglPrintFps(puglGetTime(app.world), &fpsPrinter, &app.framesDrawn);
     }
+
+    traje_end(app.tracer, "loop");
+    traje_flush(app.tracer);
   }
 
   puglFreeView(view);
   puglFreeWorld(app.world);
+  traje_tracer_free(app.tracer);
   return 0;
 }

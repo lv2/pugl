@@ -1,10 +1,10 @@
-# Copyright 2021-2022 David Robillard <d@drobilla.net>
+# Copyright 2021-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 executable(
   'pugl_vulkan_cpp_demo',
   ['../../pugl_vulkan_cpp_demo.cpp'],
   cpp_args: example_defines + example_cpp_args,
-  dependencies: [pugl_cpp_dep, pugl_vulkan_dep, puglutil_dep],
+  dependencies: [pugl_cpp_dep, pugl_vulkan_dep, puglutil_dep, traje_dep],
   implicit_include_directories: false,
 )

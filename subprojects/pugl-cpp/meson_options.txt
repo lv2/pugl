@@ -33,6 +33,13 @@ option(
 )
 
 option(
+  'tracing',
+  type: 'feature',
+  yield: true,
+  description: 'Enable demo performance tracing',
+)
+
+option(
   'vulkan',
   type: 'feature',
   yield: true,

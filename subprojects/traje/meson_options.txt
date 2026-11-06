@@ -1,0 +1,5 @@
+# Copyright 2026 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+option('tests', type: 'feature', description: 'Build tests')
+option('tracing', type: 'feature', description: 'Build library')
