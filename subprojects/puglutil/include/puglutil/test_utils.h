@@ -71,7 +71,8 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 
 #define PRINT(fmt, ...) (void)fprintf(stderr, fmt, __VA_ARGS__)
 
-  if (!verbose && (event->type == PUGL_UPDATE || event->type == PUGL_EXPOSE ||
+  if (!verbose && (event->type == PUGL_UPDATE || event->type == PUGL_BLANK ||
+                   event->type == PUGL_EXPOSE || event->type == PUGL_FLUSH ||
                    event->type == PUGL_MOTION || event->type == PUGL_TIMER)) {
     return 0;
   }

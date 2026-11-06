@@ -242,7 +242,8 @@ PuglStatus
 puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 {
   assert(type == PUGL_REALIZE || type == PUGL_UNREALIZE ||
-         type == PUGL_UPDATE || type == PUGL_CLOSE || type == PUGL_LOOP_ENTER ||
+         type == PUGL_UPDATE || type == PUGL_BLANK || type == PUGL_FLUSH ||
+         type == PUGL_CLOSE || type == PUGL_LOOP_ENTER ||
          type == PUGL_LOOP_LEAVE);
 
   const PuglEvent event = {{type, 0U}};
@@ -252,6 +253,9 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
+  static const PuglEvent blank = {{PUGL_BLANK, 0U}};
+  static const PuglEvent flush = {{PUGL_FLUSH, 0U}};
+
   PuglStatus st0 = PUGL_SUCCESS;
   PuglStatus st1 = PUGL_SUCCESS;
 
@@ -290,10 +294,12 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     if (!(st0 = view->backend->enter(view, &event->expose))) {
       const PuglWorldState old_state = view->world->state;
 
+      view->eventFunc(view, &blank);
       view->world->state = PUGL_WORLD_EXPOSING;
       st0                = view->eventFunc(view, event);
       view->world->state = old_state;
       st1                = view->backend->leave(view, &event->expose);
+      view->eventFunc(view, &flush);
     }
     break;
 

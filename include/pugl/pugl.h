@@ -72,7 +72,9 @@ typedef enum {
   PUGL_UNREALIZE,      ///< View unrealized, a #PuglUnrealizeEvent
   PUGL_CONFIGURE,      ///< View configured, a #PuglConfigureEvent
   PUGL_UPDATE,         ///< View update before draw, a #PuglUpdateEvent
+  PUGL_BLANK,          ///< View exposure started, a #PuglBlankEvent
   PUGL_EXPOSE,         ///< View expose during draw, a #PuglExposeEvent
+  PUGL_FLUSH,          ///< View exposure finished, a #PuglFlushEvent
   PUGL_CLOSE,          ///< View will be closed, a #PuglCloseEvent
   PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglFocusEvent
   PUGL_FOCUS_OUT,      ///< Keyboard focus left view, a #PuglFocusEvent
@@ -244,6 +246,14 @@ typedef PuglAnyEvent PuglCloseEvent;
 typedef PuglAnyEvent PuglUpdateEvent;
 
 /**
+   View blank event.
+
+   This event is sent to a view when it is about to be exposed, after the
+   graphics context is entered.
+*/
+typedef PuglAnyEvent PuglBlankEvent;
+
+/**
    Expose event requiring a redraw.
 
    This is sent when a region needs to be redrawn, with the graphics context
@@ -258,6 +268,14 @@ typedef struct {
   PuglSpan       width;  ///< Width of exposed region
   PuglSpan       height; ///< Height of exposed region
 } PuglExposeEvent;
+
+/**
+   View flush event.
+
+   This event is sent to a view after it has been exposed and the graphics
+   context is exited.
+*/
+typedef PuglAnyEvent PuglFlushEvent;
 
 /**
    @}

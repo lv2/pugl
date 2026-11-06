@@ -57,7 +57,7 @@ The returned pointer is only valid until the end of the exposure.
 OpenGL
 ------
 
-The OpenGL context is only active while handling realization (:enumerator:`PUGL_REALIZE`, :enumerator:`PUGL_UNREALIZE`) and exposure, and can only be used for drawing during exposure.
+The OpenGL context is only active while handling realization (:enumerator:`PUGL_REALIZE`, :enumerator:`PUGL_UNREALIZE`) and exposure (:enumerator:`PUGL_BLANK`, :enumerator:`PUGL_EXPOSE`), and can only be used for drawing during exposure.
 Note that it's *not* active while handling configuration (:enumerator:`PUGL_CONFIGURE`), so the application must store the configuration and apply it to the graphics context on the next exposure.
 The OpenGL context is implicit state, so :func:`puglGetContext` always returns null.
 

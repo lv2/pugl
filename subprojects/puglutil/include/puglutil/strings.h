@@ -297,8 +297,12 @@ puglEventTypeName(const PuglEventType type)
     return "CONFIGURE";
   case PUGL_UPDATE:
     return "UPDATE";
+  case PUGL_BLANK:
+    return "BLANK";
   case PUGL_EXPOSE:
     return "EXPOSE";
+  case PUGL_FLUSH:
+    return "FLUSH";
   case PUGL_CLOSE:
     return "CLOSE";
   case PUGL_FOCUS_IN:
