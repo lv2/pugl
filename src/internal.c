@@ -308,7 +308,11 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     break;
 
   case PUGL_CONFIGURE:
-    st0                 = view->eventFunc(view, event);
+    if (!!memcmp(&view->lastConfigure,
+                 &event->configure,
+                 sizeof(PuglConfigureEvent))) {
+      st0 = view->eventFunc(view, event);
+    }
     view->lastConfigure = event->configure;
     if (view->stage == PUGL_VIEW_STAGE_REALIZED) {
       view->stage = PUGL_VIEW_STAGE_CONFIGURED;
