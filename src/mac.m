@@ -1793,30 +1793,22 @@ puglObscureRegion(PuglView*      view,
                   const unsigned width,
                   const unsigned height)
 {
-  if (view->world->state == PUGL_WORLD_EXPOSING) {
-    return PUGL_BAD_CALL;
+  PuglStatus st = puglPreObscureRegion(view, x, y, width, height);
+  if (st) {
+    return st;
   }
 
-  if (!puglIsValidPosition(x, y) || !puglIsValidSize(width, height)) {
-    return PUGL_BAD_PARAMETER;
-  }
-
-  const PuglSpan viewHeight = view->lastConfigure.height;
-
-  const int      cx = MAX(0, x);
-  const int      cy = MAX(0, viewHeight - y - (int)height);
-  const unsigned cw = MIN(view->lastConfigure.width, width);
-  const unsigned ch = MIN(view->lastConfigure.height, height);
-
-  if (cw == view->lastConfigure.width && ch == view->lastConfigure.height) {
+  const unsigned r = MIN(size.width, x + width);
+  const unsigned b = MIN(size.height, y + height);
+  if (!x && !y && r >= size.width && b >= size.height) {
     [view->impl->drawView setNeedsDisplay:YES];
   } else {
-    const NSRect rectPx = NSMakeRect(cx, cy, cw, ch);
+    const NSRect rectPx = NSMakeRect(x, size.height - y - (int)height);
 
     [view->impl->drawView setNeedsDisplayInRect:nsRectToPoints(view, rectPx)];
   }
 
-  return PUGL_SUCCESS;
+  return st;
 }
 
 PuglNativeView

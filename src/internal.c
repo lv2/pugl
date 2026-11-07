@@ -235,8 +235,33 @@ puglPreRealize(PuglView* const view)
     return PUGL_BAD_CONFIGURATION;
   }
 
+  // Set the default size if the view hasn't been configured yet
+  if (!view->lastConfigure.type) {
+    view->lastConfigure.width  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
+    view->lastConfigure.height = view->sizeHints[PUGL_DEFAULT_SIZE].height;
+  }
+
   return (view->world->state == PUGL_WORLD_EXPOSING) ? PUGL_BAD_CALL
                                                      : PUGL_SUCCESS;
+}
+
+PuglStatus
+puglPreObscureRegion(const PuglView* const view,
+                     const int             x,
+                     const int             y,
+                     const unsigned        width,
+                     const unsigned        height)
+{
+  if (view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL; // Attempt to obscure while exposing
+  }
+
+  const PuglArea size = {view->lastConfigure.width, view->lastConfigure.height};
+  if (!width || !height || x > size.width || y > size.height) {
+    return PUGL_BAD_PARAMETER; // Parameters won't obscure anything
+  }
+
+  return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -254,18 +279,18 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 void
 puglExpandExposure(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
 {
-  if (!dst->type) {
-    if (src->width > 0.0 && src->height > 0.0) {
+  if (puglIsValidSize(src->width, src->height)) {
+    if (!dst->type) {
       *dst = *src;
-    }
-  } else {
-    const int max_x = MAX(dst->x + dst->width, src->x + src->width);
-    const int max_y = MAX(dst->y + dst->height, src->y + src->height);
+    } else {
+      const int r = MAX(dst->x + dst->width, src->x + src->width);
+      const int b = MAX(dst->y + dst->height, src->y + src->height);
 
-    dst->x      = MIN(dst->x, src->x);
-    dst->y      = MIN(dst->y, src->y);
-    dst->width  = (PuglSpan)(max_x - dst->x);
-    dst->height = (PuglSpan)(max_y - dst->y);
+      dst->x      = MIN(dst->x, src->x);
+      dst->y      = MIN(dst->y, src->y);
+      dst->width  = (PuglSpan)(r - dst->x);
+      dst->height = (PuglSpan)(b - dst->y);
+    }
   }
 }
 

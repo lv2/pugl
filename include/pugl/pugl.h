@@ -1492,6 +1492,9 @@ puglObscureView(PuglView* view);
    @param y The top-left Y coordinate of the rectangle to obscure.
    @param width The width of the rectangle to obscure.
    @param height The height coordinate of the rectangle to obscure.
+
+   @return #PUGL_SUCCESS, #PUGL_BAD_CALL if currently exposing, or
+   #PUGL_BAD_PARAMETER if given region is out of range.
 */
 PUGL_API PuglStatus
 puglObscureRegion(PuglView* view,

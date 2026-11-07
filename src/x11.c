@@ -2065,21 +2065,19 @@ puglObscureRegion(PuglView* const view,
                   const unsigned  width,
                   const unsigned  height)
 {
-  PuglStatus st = PUGL_SUCCESS;
-
-  if (!puglIsValidPosition(x, y) || !puglIsValidSize(width, height)) {
-    return PUGL_BAD_PARAMETER;
+  PuglStatus st = puglPreObscureRegion(view, x, y, width, height);
+  if (st) {
+    return st;
   }
 
-  if (view->world->state == PUGL_WORLD_EXPOSING) {
-    return PUGL_BAD_CALL;
-  }
+  const PuglEvent event = {
+    .expose = {PUGL_EXPOSE,
+               0U,
+               (PuglCoord)x,
+               (PuglCoord)y,
+               MIN(view->lastConfigure.width, (PuglSpan)width),
+               MIN(view->lastConfigure.height, (PuglSpan)height)}};
 
-  const PuglCoord cx    = MAX((PuglCoord)0, (PuglCoord)x);
-  const PuglCoord cy    = MAX((PuglCoord)0, (PuglCoord)y);
-  const PuglSpan  cw    = MIN(view->lastConfigure.width, (PuglSpan)width);
-  const PuglSpan  ch    = MIN(view->lastConfigure.height, (PuglSpan)height);
-  const PuglEvent event = {.expose = {PUGL_EXPOSE, 0U, cx, cy, cw, ch}};
   if (view->world->state == PUGL_WORLD_UPDATING) {
     // Currently dispatching events, add/expand expose for the loop end
     puglExpandExposure(&view->pendingExpose, &event.expose);
