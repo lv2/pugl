@@ -157,6 +157,7 @@ onExpose(PuglView* view)
 static PuglStatus
 onEvent(PuglView* view, const PuglEvent* event)
 {
+  PuglStatus   st  = PUGL_SUCCESS;
   PuglTestApp* app = (PuglTestApp*)puglGetHandle(view);
 
   traje_begin(app->tracer, puglEventTypeName(event->type));
@@ -197,10 +198,12 @@ onEvent(PuglView* view, const PuglEvent* event)
     if (event->key.key == 'q' || event->key.key == PUGL_KEY_ESCAPE) {
       app->quit = 1;
     }
+    st = app->opts.continuous ? PUGL_SUCCESS : puglObscureView(view);
     break;
   case PUGL_MOTION:
     app->mouseX = event->motion.x;
     app->mouseY = event->motion.y;
+    st          = app->opts.continuous ? PUGL_SUCCESS : puglObscureView(view);
     break;
   case PUGL_TIMER:
     if (event->timer.id == resizeTimerId) {
@@ -212,7 +215,7 @@ onEvent(PuglView* view, const PuglEvent* event)
   }
 
   traje_end(app->tracer, puglEventTypeName(event->type));
-  return PUGL_SUCCESS;
+  return st;
 }
 
 static Rect*
@@ -311,7 +314,9 @@ setupPugl(PuglTestApp* app)
   puglSetViewHint(app->view, PUGL_SWAP_INTERVAL, app->opts.sync);
   puglSetViewHint(app->view, PUGL_IGNORE_KEY_REPEAT, PUGL_TRUE);
   puglSetViewHint(app->view, PUGL_DARK_FRAME, PUGL_TRUE);
-  puglSetViewHint(app->view, PUGL_CONTINUOUS, PUGL_TRUE);
+  if (app->opts.continuous) {
+    puglSetViewHint(app->view, PUGL_CONTINUOUS, PUGL_TRUE);
+  }
   puglSetHandle(app->view, app);
   puglSetEventFunc(app->view, onEvent);
 }
@@ -452,8 +457,8 @@ teardownGl(PuglTestApp* app)
 static double
 updateTimeout(const PuglTestApp* const app)
 {
-  if (!puglGetVisible(app->view)) {
-    return -1.0; // View is invisible, wait until something happens
+  if (!app->opts.continuous) {
+    return -1.0; // Not running continuously, wait until something hapens
   }
 
   if (!app->opts.sync) {
@@ -499,8 +504,7 @@ main(int argc, char** argv)
   puglShow(app.view, PUGL_SHOW_RAISE);
 
   // Grind away, drawing continuously
-  const double   startTime  = puglGetTime(app.world);
-  PuglFpsPrinter fpsPrinter = {startTime};
+  PuglFpsPrinter fpsPrinter = {puglGetTime(app.world)};
   while (!app.quit) {
     traje_begin(app.tracer, "loop");
     puglUpdate(app.world, updateTimeout(&app));

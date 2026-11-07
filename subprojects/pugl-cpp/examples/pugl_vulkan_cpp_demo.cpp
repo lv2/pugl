@@ -1830,8 +1830,8 @@ VulkanContext::init(const pugl::VulkanLoader& loader,
 double
 updateTimeout(const PuglVulkanDemo* const app)
 {
-  if (!app->view.visible()) {
-    return -1.0; // View is invisible, wait until something happens
+  if (!app->opts.continuous) {
+    return -1.0; // Not running continuously, wait until something hapens
   }
 
   if (!app->opts.sync) {
