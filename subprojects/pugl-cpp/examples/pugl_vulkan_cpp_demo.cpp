@@ -1919,7 +1919,7 @@ run(const char* const      programPath,
                        app.renderer.rectPipeline,
                        app.rectData);
 
-  PuglFpsPrinter fpsPrinter = {app.world.time()};
+  PuglFpsPrinter fpsPrinter = {app.world.time(), 0U};
   app.view.show(pugl::ShowCommand::passive);
   while (!app.quit) {
     const auto scope   = app.tracer.begin("loop");

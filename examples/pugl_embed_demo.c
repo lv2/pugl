@@ -295,7 +295,7 @@ main(int argc, char** argv)
 
   puglStartTimer(app.child, reverseTimerId, 3.6);
 
-  PuglFpsPrinter fpsPrinter         = {puglGetTime(app.world)};
+  PuglFpsPrinter fpsPrinter         = {puglGetTime(app.world), 0U};
   unsigned       framesDrawn        = 0;
   bool           requestedAttention = false;
   while (!app.quit) {

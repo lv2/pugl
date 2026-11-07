@@ -366,7 +366,7 @@ main(int argc, char** argv)
 
   puglShow(app.view, PUGL_SHOW_RAISE);
 
-  PuglFpsPrinter fpsPrinter = {puglGetTime(app.world)};
+  PuglFpsPrinter fpsPrinter = {puglGetTime(app.world), 0U};
   while (!app.quit) {
     traje_begin(app.tracer, "loop");
 

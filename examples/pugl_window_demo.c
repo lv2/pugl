@@ -212,7 +212,7 @@ main(int argc, char** argv)
     puglShow(view, PUGL_SHOW_RAISE);
   }
 
-  PuglFpsPrinter fpsPrinter  = {puglGetTime(app.world)};
+  PuglFpsPrinter fpsPrinter  = {puglGetTime(app.world), 0U};
   unsigned       framesDrawn = 0;
   while (!app.quit) {
     puglUpdate(app.world, app.continuous ? 0.0 : -1.0);
