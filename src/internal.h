@@ -72,6 +72,14 @@ puglFilterMods(PuglMods state, PuglKey key);
 PuglStatus
 puglPreRealize(PuglView* view);
 
+/// Check if a region can be obscured
+PuglStatus
+puglPreObscureRegion(const PuglView* view,
+                     int             x,
+                     int             y,
+                     unsigned        width,
+                     unsigned        height);
+
 /// Dispatch an event with a simple `type` to `view`
 PuglStatus
 puglDispatchSimpleEvent(PuglView* view, PuglEventType type);

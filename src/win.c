@@ -1302,20 +1302,14 @@ puglObscureRegion(PuglView* const view,
                   const unsigned  width,
                   const unsigned  height)
 {
-  if (view->world->state == PUGL_WORLD_EXPOSING) {
-    return PUGL_BAD_CALL;
+  PuglStatus st = puglPreObscureRegion(view, x, y, width, height);
+  if (st) {
+    return st;
   }
 
-  if (!puglIsValidPosition(x, y) || !puglIsValidSize(width, height)) {
-    return PUGL_BAD_PARAMETER;
-  }
-
-  const int      cx = MAX(0, x);
-  const int      cy = MAX(0, y);
-  const unsigned cw = MIN(view->lastConfigure.width, width);
-  const unsigned ch = MIN(view->lastConfigure.height, height);
-
-  const RECT r = {cx, cy, cx + (long)cw, cy + (long)ch};
+  const unsigned rw = MIN(view->lastConfigure.width, width);
+  const unsigned rh = MIN(view->lastConfigure.height, height);
+  const RECT     r  = {x, y, x + (long)rw, y + (long)rh};
   return puglWinStatus(InvalidateRect(view->impl->hwnd, &r, false));
 }
 

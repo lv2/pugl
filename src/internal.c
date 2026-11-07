@@ -234,8 +234,34 @@ puglPreRealize(PuglView* const view)
     return PUGL_BAD_CONFIGURATION;
   }
 
+  // Set the default size if the view hasn't been configured yet
+  // This way code can always use lastConfigure as the "current" size
+  if (!view->lastConfigure.type) {
+    view->lastConfigure.width  = view->sizeHints[PUGL_DEFAULT_SIZE].width;
+    view->lastConfigure.height = view->sizeHints[PUGL_DEFAULT_SIZE].height;
+  }
+
   return (view->world->state == PUGL_WORLD_EXPOSING) ? PUGL_BAD_CALL
                                                      : PUGL_SUCCESS;
+}
+
+PuglStatus
+puglPreObscureRegion(const PuglView* const view,
+                     const int             x,
+                     const int             y,
+                     const unsigned        width,
+                     const unsigned        height)
+{
+  if (view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL; // Attempt to obscure while exposing
+  }
+
+  const PuglArea size = {view->lastConfigure.width, view->lastConfigure.height};
+  if (!width || !height || x > size.width || y > size.height) {
+    return PUGL_BAD_PARAMETER; // Parameters won't obscure anything
+  }
+
+  return PUGL_SUCCESS;
 }
 
 PuglStatus

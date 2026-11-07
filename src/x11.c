@@ -428,10 +428,7 @@ puglUpdateSizeHints(PuglView* const view)
   XSizeHints sizeHints = PUGL_INIT_STRUCT;
 
   if (!view->hints[PUGL_RESIZABLE]) {
-    PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
-    if (!puglIsValidSize(size.width, size.height)) {
-      size = puglGetSizeHint(view, PUGL_DEFAULT_SIZE);
-    }
+    const PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
 
     sizeHints.flags       = PBaseSize | PMinSize | PMaxSize;
     sizeHints.base_width  = size.width;
@@ -1673,22 +1670,18 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
 static void
 mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
 {
-  if (!dst->type) {
-    if (src->width && src->height) {
+  if (puglIsValidSize(src->width, src->height)) {
+    if (!dst->type) {
       *dst = *src;
-    }
-  } else {
-    const int dst_r = dst->x + dst->width;
-    const int src_r = src->x + src->width;
-    const int max_x = MAX(dst_r, src_r);
-    const int dst_b = dst->y + dst->height;
-    const int src_b = src->y + src->height;
-    const int max_y = MAX(dst_b, src_b);
+    } else {
+      const int r = MAX(dst->x + dst->width, src->x + src->width);
+      const int b = MAX(dst->y + dst->height, src->y + src->height);
 
-    dst->x      = (PuglCoord)MIN(dst->x, src->x);
-    dst->y      = (PuglCoord)MIN(dst->y, src->y);
-    dst->width  = (PuglSpan)(max_x - dst->x);
-    dst->height = (PuglSpan)(max_y - dst->y);
+      dst->x      = MIN(dst->x, src->x);
+      dst->y      = MIN(dst->y, src->y);
+      dst->width  = (PuglSpan)(r - dst->x);
+      dst->height = (PuglSpan)(b - dst->y);
+    }
   }
 }
 
@@ -2087,27 +2080,28 @@ puglObscureRegion(PuglView* const view,
                   const unsigned  width,
                   const unsigned  height)
 {
-  if (!puglIsValidPosition(x, y) || !puglIsValidSize(width, height)) {
-    return PUGL_BAD_PARAMETER;
+  PuglStatus st = puglPreObscureRegion(view, x, y, width, height);
+  if (st) {
+    return st;
   }
 
-  const PuglCoord cx = MAX((PuglCoord)0, (PuglCoord)x);
-  const PuglCoord cy = MAX((PuglCoord)0, (PuglCoord)y);
-  const PuglSpan  cw = MIN(view->lastConfigure.width, (PuglSpan)width);
-  const PuglSpan  ch = MIN(view->lastConfigure.height, (PuglSpan)height);
+  const PuglExposeEvent expose = {
+    PUGL_EXPOSE,
+    0U,
+    (PuglCoord)x,
+    (PuglCoord)y,
+    MIN(view->lastConfigure.width, (PuglSpan)width),
+    MIN(view->lastConfigure.height, (PuglSpan)height)};
 
-  const PuglExposeEvent event = {PUGL_EXPOSE, 0U, cx, cy, cw, ch};
-
-  PuglStatus st = PUGL_SUCCESS;
   if (view->world->state == PUGL_WORLD_UPDATING) {
     // Currently dispatching events, add/expand expose for the loop end
-    mergeExposeEvents(&view->impl->pendingExpose.expose, &event);
+    mergeExposeEvents(&view->impl->pendingExpose.expose, &expose);
   } else if (view->world->state == PUGL_WORLD_EXPOSING) {
     st = PUGL_BAD_CALL;
   } else if (view->impl->win) {
     // Not dispatching events, send an X expose so we wake up next time
     PuglEvent exposeEvent = {{PUGL_EXPOSE, 0U}};
-    exposeEvent.expose    = event;
+    exposeEvent.expose    = expose;
     st                    = puglSendEvent(view, &exposeEvent);
   }
   return st;
