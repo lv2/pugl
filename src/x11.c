@@ -16,6 +16,7 @@
 #include <X11/X.h>
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
+#include <X11/Xregion.h>
 #include <X11/Xresource.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
@@ -271,6 +272,7 @@ puglInitViewInternals(PuglWorld* const world)
 {
   PuglInternals* impl = (PuglInternals*)calloc(1, sizeof(PuglInternals));
 
+  impl->damage              = XCreateRegion();
   impl->clipboard.clipboard = PUGL_CLIPBOARD_GENERAL;
   impl->clipboard.selection = world->impl->atoms.CLIPBOARD;
   impl->clipboard.property  = XA_PRIMARY;
@@ -773,7 +775,7 @@ puglUnrealize(PuglView* const view)
   impl->vi = NULL;
 
   memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
-  memset(&view->impl->pendingExpose, 0, sizeof(PuglEvent));
+  EMPTY_REGION(view->impl->damage);
   return PUGL_SUCCESS;
 }
 
@@ -821,6 +823,7 @@ puglFreeViewInternals(PuglView* const view)
     free(view->impl->clipboard.data.data);
     free(view->impl->clipboard.formats);
     free(view->impl->clipboard.formatStrings);
+    XDestroyRegion(view->impl->damage);
     free(view->impl);
   }
 }
@@ -1667,24 +1670,6 @@ puglSendEvent(PuglView* const view, const PuglEvent* const event)
   return PUGL_UNSUPPORTED;
 }
 
-static void
-mergeExposeEvents(PuglExposeEvent* const dst, const PuglExposeEvent* const src)
-{
-  if (puglIsValidSize(src->width, src->height)) {
-    if (!dst->type) {
-      *dst = *src;
-    } else {
-      const int r = MAX(dst->x + dst->width, src->x + src->width);
-      const int b = MAX(dst->y + dst->height, src->y + src->height);
-
-      dst->x      = MIN(dst->x, src->x);
-      dst->y      = MIN(dst->y, src->y);
-      dst->width  = (PuglSpan)(r - dst->x);
-      dst->height = (PuglSpan)(b - dst->y);
-    }
-  }
-}
-
 static PuglStatus
 retrieveSelection(const PuglWorld* const world,
                   PuglView* const        view,
@@ -1880,19 +1865,21 @@ flushExposures(PuglWorld* const world)
     PuglView* const view = world->views[i];
 
     if (puglGetVisible(view)) {
-      PuglEvent event = view->impl->pendingExpose;
       if (view->hints[PUGL_CONTINUOUS]) {
-        const PuglArea size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
-        event.expose.type   = PUGL_EXPOSE;
-        event.expose.x      = 0;
-        event.expose.y      = 0;
-        event.expose.width  = size.width;
-        event.expose.height = size.height;
+        XRectangle rect = {
+          0, 0, view->lastConfigure.width, view->lastConfigure.height};
+        XUnionRectWithRegion(&rect, view->impl->damage, view->impl->damage);
       }
 
-      if (event.type) {
-        st                             = puglDispatchEvent(view, &event);
-        view->impl->pendingExpose.type = PUGL_NOTHING;
+      if (!XEmptyRegion(view->impl->damage)) {
+        XRectangle box = {0, 0, 0U, 0U};
+        XClipBox(view->impl->damage, &box);
+
+        // Dispatch an expose for the bounding box of all damage
+        const PuglEvent event = {
+          .expose = {PUGL_EXPOSE, 0U, box.x, box.y, box.width, box.height}};
+        st = puglDispatchEvent(view, &event);
+        EMPTY_REGION(view->impl->damage);
       }
     }
   }
@@ -1991,10 +1978,15 @@ dispatchX11Events(PuglWorld* const world)
     PuglEvent event = translateEvent(view, xevent);
 
     switch (event.type) {
-    case PUGL_EXPOSE:
-      // Expand expose event to be dispatched after loop
-      mergeExposeEvents(&view->impl->pendingExpose.expose, &event.expose);
+    case PUGL_EXPOSE: {
+      // Expand damage to be exposed after loop
+      XRectangle rect = {event.expose.x,
+                         event.expose.y,
+                         event.expose.width,
+                         event.expose.height};
+      XUnionRectWithRegion(&rect, view->impl->damage, view->impl->damage);
       break;
+    }
     case PUGL_FOCUS_IN:
       // Set the input context focus
       if (view->impl->xic) {
@@ -2094,24 +2086,20 @@ puglObscureRegion(PuglView* const view,
     return st;
   }
 
-  const PuglExposeEvent expose = {
-    PUGL_EXPOSE,
-    0U,
-    (PuglCoord)x,
-    (PuglCoord)y,
-    MIN(view->lastConfigure.width, (PuglSpan)width),
-    MIN(view->lastConfigure.height, (PuglSpan)height)};
-
   if (view->world->state == PUGL_WORLD_UPDATING) {
-    // Currently dispatching events, add/expand expose for the loop end
-    mergeExposeEvents(&view->impl->pendingExpose.expose, &expose);
-  } else if (view->world->state == PUGL_WORLD_EXPOSING) {
-    st = PUGL_BAD_CALL;
+    // Currently dispatching events, expand damage to be exposed at loop end
+    XRectangle rect = {(short)x, (short)y, (PuglSpan)width, (PuglSpan)height};
+    XUnionRectWithRegion(&rect, view->impl->damage, view->impl->damage);
   } else if (view->impl->win) {
     // Not dispatching events, send an X expose so we wake up next time
-    PuglEvent exposeEvent = {{PUGL_EXPOSE, 0U}};
-    exposeEvent.expose    = expose;
-    st                    = puglSendEvent(view, &exposeEvent);
+    const PuglEvent event = {
+      .expose = {PUGL_EXPOSE,
+                 0U,
+                 (PuglCoord)x,
+                 (PuglCoord)y,
+                 MIN(view->lastConfigure.width, (PuglSpan)width),
+                 MIN(view->lastConfigure.height, (PuglSpan)height)}};
+    st = puglSendEvent(view, &event);
   }
   return st;
 }

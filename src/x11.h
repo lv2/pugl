@@ -97,7 +97,7 @@ struct PuglInternalsImpl {
   Window           win;
   XIC              xic;
   PuglSurface*     surface;
-  PuglEvent        pendingExpose;
+  Region           damage;
   PuglX11Clipboard clipboard;
   long             frameExtentLeft;
   long             frameExtentTop;
