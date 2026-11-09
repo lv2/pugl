@@ -302,6 +302,11 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
   bool                       reshaped;
 }
 
+- (bool)isOpaque
+{
+  return true;
+}
+
 - (void)dispatchExpose:(NSRect)rect
 {
   const double scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
