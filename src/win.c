@@ -812,6 +812,56 @@ constrainAspect(const PuglView* const view,
 }
 
 static LRESULT
+handlePaint(PuglView* view)
+{
+  typedef struct {
+    RGNDATAHEADER rdh;
+    RECT          rects[32];
+  } RegionData;
+
+  // Get the update region (before blanking which clears it)
+  HRGN      hrng = CreateRectRgn(0, 0, 0, 0);
+  const int rc   = GetUpdateRgn(view->impl->hwnd, hrng, FALSE);
+  if (rc == ERROR || rc == NULLREGION) {
+    return 0;
+  }
+
+  // Blank to set up the graphics context
+  puglDispatchSimpleEvent(view, PUGL_BLANK);
+
+  // Dispatch every damaged rect
+  RegionData region = {
+    {sizeof(RGNDATAHEADER), RDH_RECTANGLES, 0U, 0U, {0, 0, 0, 0}}, {{0}}};
+  GetRegionData(hrng, sizeof(region), (LPRGNDATA)&region);
+  for (DWORD r = 0U; r < region.rdh.nCount; ++r) {
+    const PuglEvent event = {
+      .damage = {PUGL_DAMAGE,
+                 0U,
+                 (PuglCoord)region.rects[r].left,
+                 (PuglCoord)region.rects[r].top,
+                 (PuglSpan)(region.rects[r].right - region.rects[r].left),
+                 (PuglSpan)(region.rects[r].bottom - region.rects[r].top)}};
+    puglDispatchEvent(view, &event);
+  }
+
+  // Dispatch expose for the bounding box of all damage
+  RECT rect = {0, 0, 0, 0};
+  GetUpdateRect(view->impl->hwnd, &rect, false);
+  const PuglEvent event = {.expose = {PUGL_EXPOSE,
+                                      0U,
+                                      (PuglCoord)rect.left,
+                                      (PuglCoord)rect.top,
+                                      (PuglSpan)(rect.right - rect.left),
+                                      (PuglSpan)(rect.bottom - rect.top)}};
+  puglDispatchEvent(view, &event);
+
+  // Delete region object and flush to finish paint
+  DeleteObject(hrng);
+  puglDispatchSimpleEvent(view, PUGL_FLUSH);
+  return 0;
+}
+
+static LRESULT
 handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
 {
   PuglEvent       event     = {{PUGL_NOTHING, 0U}};
@@ -914,12 +964,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
     }
     break;
   case WM_PAINT:
-    GetUpdateRect(view->impl->hwnd, &rect, false);
-    event.expose.type   = PUGL_EXPOSE;
-    event.expose.x      = (PuglCoord)rect.left;
-    event.expose.y      = (PuglCoord)rect.top;
-    event.expose.width  = (PuglSpan)(rect.right - rect.left);
-    event.expose.height = (PuglSpan)(rect.bottom - rect.top);
+    handlePaint(view);
     break;
   case WM_ERASEBKGND:
     return true;
@@ -1781,7 +1826,7 @@ puglWinDetach(PuglView* view)
 }
 
 PuglStatus
-puglWinEnter(PuglView* view, const PuglExposeEvent* expose)
+puglWinEnter(PuglView* view, const bool expose)
 {
   if (expose) {
     return puglWinStatus(!!BeginPaint(view->impl->hwnd, &view->impl->paint));
@@ -1791,7 +1836,7 @@ puglWinEnter(PuglView* view, const PuglExposeEvent* expose)
 }
 
 PuglStatus
-puglWinLeave(PuglView* view, const PuglExposeEvent* expose)
+puglWinLeave(PuglView* view, const bool expose)
 {
   if (expose) {
     EndPaint(view->impl->hwnd, &view->impl->paint);

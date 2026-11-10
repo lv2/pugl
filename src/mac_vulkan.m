@@ -65,7 +65,10 @@
 {
   (void)layer;
   PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
-  [wrapper dispatchExpose:[self bounds]];
+  [wrapper dispatchBlank];
+  [wrapper dispatchExpose:[self bounds] type:PUGL_DAMAGE];
+  [wrapper dispatchExpose:[self bounds] type:PUGL_EXPOSE];
+  [wrapper dispatchFlush];
 }
 
 @end
@@ -161,6 +164,7 @@ puglVulkanBackend(void)
                                       puglMacVulkanCreate,
                                       puglMacVulkanDestroy,
                                       puglStubEnter,
+                                      puglStubDamage,
                                       puglStubLeave,
                                       puglStubGetContext};
 

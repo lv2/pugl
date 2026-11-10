@@ -13,6 +13,7 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -108,7 +109,7 @@ puglX11GlDetach(PuglView* view)
 }
 
 PUGL_WARN_UNUSED_RESULT static PuglStatus
-puglX11GlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
+puglX11GlEnter(PuglView* view, const bool PUGL_UNUSED(expose))
 {
   PuglX11GlSurface* surface = (PuglX11GlSurface*)view->impl->surface;
   Display* const    display = view->world->impl->display;
@@ -121,7 +122,7 @@ puglX11GlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 }
 
 PUGL_WARN_UNUSED_RESULT static PuglStatus
-puglX11GlLeave(PuglView* view, const PuglExposeEvent* expose)
+puglX11GlLeave(PuglView* view, const bool expose)
 {
   Display* const display = view->world->impl->display;
 
@@ -188,7 +189,7 @@ puglX11GlCreate(PuglView* view)
         (const uint8_t*)"glXSwapIntervalEXT");
 
     // Note that some drivers (NVidia) require the context to be entered here
-    if ((st = puglX11GlEnter(view, NULL))) {
+    if ((st = puglX11GlEnter(view, false))) {
       return st;
     }
 
@@ -203,7 +204,7 @@ puglX11GlCreate(PuglView* view)
                      GLX_SWAP_INTERVAL_EXT,
                      (unsigned int*)&view->hints[PUGL_SWAP_INTERVAL]);
 
-    if ((st = puglX11GlLeave(view, NULL))) {
+    if ((st = puglX11GlLeave(view, false))) {
       return st;
     }
   }
@@ -234,13 +235,13 @@ puglGetProcAddress(const char* name)
 PuglStatus
 puglEnterContext(PuglView* view)
 {
-  return view->backend->enter(view, NULL);
+  return view->backend->enter(view, false);
 }
 
 PuglStatus
 puglLeaveContext(PuglView* view)
 {
-  return view->backend->leave(view, NULL);
+  return view->backend->leave(view, false);
 }
 
 const PuglBackend*
@@ -251,6 +252,7 @@ puglGlBackend(void)
                                       puglX11GlCreate,
                                       puglX11GlDestroy,
                                       puglX11GlEnter,
+                                      puglStubDamage,
                                       puglX11GlLeave,
                                       puglStubGetContext};
 

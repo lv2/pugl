@@ -1860,7 +1860,8 @@ flushExposures(PuglWorld* const world)
   }
 
   // Expose any dirty views
-  world->state = PUGL_WORLD_EXPOSING;
+  const PuglWorldState old_state = world->state;
+  world->state                   = PUGL_WORLD_EXPOSING;
   for (size_t i = 0; i < world->numViews; ++i) {
     PuglView* const view = world->views[i];
 
@@ -1871,19 +1872,35 @@ flushExposures(PuglWorld* const world)
         XUnionRectWithRegion(&rect, view->impl->damage, view->impl->damage);
       }
 
-      if (!XEmptyRegion(view->impl->damage)) {
+      if (!XEmptyRegion(view->impl->damage) &&
+          !(st = puglDispatchSimpleEvent(view, PUGL_BLANK))) {
+        // Dispatch every damaged rectangle
+        for (long r = 0L; r < view->impl->damage->numRects; ++r) {
+          const BOX       box   = view->impl->damage->rects[r];
+          const PuglEvent event = {.damage = {PUGL_DAMAGE,
+                                              0U,
+                                              box.x1,
+                                              box.y1,
+                                              (PuglSpan)(box.x2 - box.x1),
+                                              (PuglSpan)(box.y2 - box.y1)}};
+
+          puglDispatchEvent(view, &event);
+        }
+
+        // Dispatch expose for the bounding box of all damage
         XRectangle box = {0, 0, 0U, 0U};
         XClipBox(view->impl->damage, &box);
-
-        // Dispatch an expose for the bounding box of all damage
         const PuglEvent event = {
           .expose = {PUGL_EXPOSE, 0U, box.x, box.y, box.width, box.height}};
-        st = puglDispatchEvent(view, &event);
+
+        puglDispatchEvent(view, &event);
+        st = puglDispatchSimpleEvent(view, PUGL_FLUSH);
         EMPTY_REGION(view->impl->damage);
       }
     }
   }
 
+  world->state = old_state;
   return st;
 }
 

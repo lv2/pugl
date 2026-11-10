@@ -73,7 +73,8 @@ typedef enum {
   PUGL_CONFIGURE,      ///< View configured, a #PuglConfigureEvent
   PUGL_UPDATE,         ///< View update before draw, a #PuglUpdateEvent
   PUGL_BLANK,          ///< View exposure started, a #PuglBlankEvent
-  PUGL_EXPOSE,         ///< View expose during draw, a #PuglExposeEvent
+  PUGL_DAMAGE,         ///< View damage to be exposed, a #PuglBlankEvent
+  PUGL_EXPOSE,         ///< View expose, a #PuglExposeEvent
   PUGL_FLUSH,          ///< View exposure finished, a #PuglFlushEvent
   PUGL_CLOSE,          ///< View will be closed, a #PuglCloseEvent
   PUGL_FOCUS_IN,       ///< Keyboard focus entered view, a #PuglFocusEvent
@@ -254,11 +255,30 @@ typedef PuglAnyEvent PuglUpdateEvent;
 typedef PuglAnyEvent PuglBlankEvent;
 
 /**
-   Expose event requiring a redraw.
+   View damage event.
 
-   This is sent when a region needs to be redrawn, with the graphics context
-   entered and activated for drawing.  The application must completely draw the
-   given region.
+   This is sent with the graphics context entered and activated for drawing,
+   once for every region that is being exposed (possibly several per frame).
+   The application must either draw the region immediately or commit to doing
+   so by the end of the exposure.
+*/
+typedef struct {
+  PuglEventType  type;   ///< #PUGL_DAMAGE
+  PuglEventFlags flags;  ///< Bitwise OR of #PuglEventFlag values
+  PuglCoord      x;      ///< View-relative top-left X coordinate of region
+  PuglCoord      y;      ///< View-relative top-left Y coordinate of region
+  PuglSpan       width;  ///< Width of exposed region
+  PuglSpan       height; ///< Height of exposed region
+} PuglDamageEvent;
+
+/**
+   View expose event.
+
+   With the same format as #PuglDamageEvent, this is sent once per frame at the
+   end of an exposure, after any damage events have been delivered, with the
+   graphics context sill active.  The given rectangle is a bounding box for all
+   the damage that is being exposed.  The application must finish drawing at
+   least all damaged regions.
 */
 typedef struct {
   PuglEventType  type;   ///< #PUGL_EXPOSE
@@ -686,6 +706,7 @@ typedef union {
   PuglEventType      type;      ///< Event type
   PuglButtonEvent    button;    ///< #PUGL_BUTTON_PRESS, #PUGL_BUTTON_RELEASE
   PuglConfigureEvent configure; ///< #PUGL_CONFIGURE
+  PuglDamageEvent    damage;    ///< #PUGL_DAMAGE
   PuglExposeEvent    expose;    ///< #PUGL_EXPOSE
   PuglKeyEvent       key;       ///< #PUGL_KEY_PRESS, #PUGL_KEY_RELEASE
   PuglTextEvent      text;      ///< #PUGL_TEXT

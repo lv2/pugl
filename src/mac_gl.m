@@ -98,7 +98,11 @@ ensureHint(PuglView* const view, const PuglViewHint hint, const int value)
 - (void)drawRect:(NSRect)rect
 {
   PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
-  [wrapper dispatchExpose:rect];
+
+  [wrapper dispatchBlank];
+  [wrapper dispatchExpose:rect type:PUGL_DAMAGE];
+  [wrapper dispatchExpose:rect type:PUGL_EXPOSE];
+  [wrapper dispatchFlush];
 }
 
 @end
@@ -133,7 +137,7 @@ puglMacGlDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglMacGlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
+puglMacGlEnter(PuglView* view, const bool PUGL_UNUSED(expose))
 {
   PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
   if (!drawView) {
@@ -145,7 +149,7 @@ puglMacGlEnter(PuglView* view, const PuglExposeEvent* PUGL_UNUSED(expose))
 }
 
 static PuglStatus
-puglMacGlLeave(PuglView* view, const PuglExposeEvent* expose)
+puglMacGlLeave(PuglView* view, const bool expose)
 {
   PuglOpenGLView* const drawView = (PuglOpenGLView*)view->impl->drawView;
 
@@ -178,13 +182,13 @@ puglGetProcAddress(const char* name)
 PuglStatus
 puglEnterContext(PuglView* view)
 {
-  return view->backend->enter(view, NULL);
+  return view->backend->enter(view, false);
 }
 
 PuglStatus
 puglLeaveContext(PuglView* view)
 {
-  return view->backend->leave(view, NULL);
+  return view->backend->leave(view, false);
 }
 
 const PuglBackend*
@@ -195,6 +199,7 @@ puglGlBackend(void)
                                       puglMacGlCreate,
                                       puglMacGlDestroy,
                                       puglMacGlEnter,
+                                      puglStubDamage,
                                       puglMacGlLeave,
                                       puglStubGetContext};
 

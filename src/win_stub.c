@@ -20,13 +20,13 @@ puglWinStubDetach(PuglView* view)
 }
 
 static PuglStatus
-puglWinStubEnter(PuglView* view, const PuglExposeEvent* expose)
+puglWinStubEnter(PuglView* view, const bool expose)
 {
   return puglWinEnter(view, expose);
 }
 
 static PuglStatus
-puglWinStubLeave(PuglView* view, const PuglExposeEvent* expose)
+puglWinStubLeave(PuglView* view, const bool expose)
 {
   return puglWinLeave(view, expose);
 }
@@ -39,6 +39,7 @@ puglStubBackend(void)
                                       puglStubCreate,
                                       puglStubDestroy,
                                       puglWinStubEnter,
+                                      puglStubDamage,
                                       puglWinStubLeave,
                                       puglStubGetContext};
 

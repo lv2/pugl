@@ -72,8 +72,9 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 #define PRINT(fmt, ...) (void)fprintf(stderr, fmt, __VA_ARGS__)
 
   if (!verbose && (event->type == PUGL_UPDATE || event->type == PUGL_BLANK ||
-                   event->type == PUGL_EXPOSE || event->type == PUGL_FLUSH ||
-                   event->type == PUGL_MOTION || event->type == PUGL_TIMER)) {
+                   event->type == PUGL_DAMAGE || event->type == PUGL_EXPOSE ||
+                   event->type == PUGL_FLUSH || event->type == PUGL_MOTION ||
+                   event->type == PUGL_TIMER)) {
     return 0;
   }
 
@@ -94,6 +95,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     }
     PRINT("%s", " )");
     break;
+  case PUGL_DAMAGE:
   case PUGL_EXPOSE:
     PRINT(" " PIFMT " " PUFMT,
           event->expose.x,

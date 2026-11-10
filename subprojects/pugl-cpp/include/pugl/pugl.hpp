@@ -167,6 +167,9 @@ using UpdateEvent = Event<PUGL_UPDATE, PuglUpdateEvent>;
 /// @copydoc PuglBlankEvent
 using BlankEvent = Event<PUGL_BLANK, PuglBlankEvent>;
 
+/// @copydoc PuglDamageEvent
+using DamageEvent = Event<PUGL_DAMAGE, PuglDamageEvent>;
+
 /// @copydoc PuglExposeEvent
 using ExposeEvent = Event<PUGL_EXPOSE, PuglExposeEvent>;
 
@@ -901,6 +904,8 @@ private:
       return target.onEvent(UpdateEvent{event->any});
     case PUGL_BLANK:
       return target.onEvent(BlankEvent{event->any});
+    case PUGL_DAMAGE:
+      return target.onEvent(DamageEvent{event->damage});
     case PUGL_EXPOSE:
       return target.onEvent(ExposeEvent{event->expose});
     case PUGL_FLUSH:

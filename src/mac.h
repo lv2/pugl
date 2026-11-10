@@ -5,6 +5,8 @@
 #ifndef PUGL_SRC_MAC_H
 #define PUGL_SRC_MAC_H
 
+#include "types.h"
+
 #include <pugl/pugl.h>
 
 #import <Cocoa/Cocoa.h>
@@ -15,7 +17,10 @@
 
 @interface PuglWrapperView : NSView<NSTextInputClient, NSDraggingDestination>
 
-- (void)dispatchExpose:(NSRect)rect;
+- (bool)isOpaque;
+- (void)dispatchBlank;
+- (void)dispatchExpose:(NSRect)rect type:(PuglEventType)type;
+- (void)dispatchFlush;
 - (void)setReshaped;
 - (void)screenConfigurationDidChange:(NSNotification*)notification;
 
@@ -37,6 +42,7 @@ struct PuglInternalsImpl {
   NSCursor*        cursor;
   PuglWindow*      window;
   NSMutableArray*  registeredDropTypes;
+  PuglWorldState   oldWorldState;
   uint32_t         mods;
   bool             mouseTracked;
 };

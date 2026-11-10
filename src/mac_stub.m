@@ -29,7 +29,10 @@
 {
   PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
 
-  [wrapper dispatchExpose:rect];
+  [wrapper dispatchBlank];
+  [wrapper dispatchExpose:rect type:PUGL_DAMAGE];
+  [wrapper dispatchExpose:rect type:PUGL_EXPOSE];
+  [wrapper dispatchFlush];
 }
 
 @end
@@ -75,6 +78,7 @@ puglStubBackend(void)
                                       puglMacStubCreate,
                                       puglMacStubDestroy,
                                       puglStubEnter,
+                                      puglStubDamage,
                                       puglStubLeave,
                                       puglStubGetContext};
 

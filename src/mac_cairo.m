@@ -41,7 +41,19 @@
 - (void)drawRect:(NSRect)rect
 {
   PuglWrapperView* wrapper = (PuglWrapperView*)[self superview];
-  [wrapper dispatchExpose:rect];
+  const NSRect*    rects   = NULL;
+  NSInteger        count   = 0;
+  [self getRectsBeingDrawn:&rects count:&count];
+  if (count) {
+    [wrapper dispatchBlank];
+
+    for (NSInteger i = 0; i < count; ++i) {
+      [wrapper dispatchExpose:rects[i] type:PUGL_DAMAGE];
+    }
+
+    [wrapper dispatchExpose:rect type:PUGL_EXPOSE];
+    [wrapper dispatchFlush];
+  }
 }
 
 @end
@@ -76,7 +88,7 @@ puglMacCairoDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglMacCairoEnter(PuglView* view, const PuglExposeEvent* expose)
+puglMacCairoEnter(PuglView* view, const bool expose)
 {
   PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
   if (!expose) {
@@ -106,7 +118,17 @@ puglMacCairoEnter(PuglView* view, const PuglExposeEvent* expose)
 }
 
 static PuglStatus
-puglMacCairoLeave(PuglView* view, const PuglExposeEvent* expose)
+puglMacCairoDamage(PuglView* view, const PuglDamageEvent* PUGL_UNUSED(damage))
+{
+  PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
+
+  cairo_reset_clip(drawView->cr);
+
+  return PUGL_SUCCESS;
+}
+
+static PuglStatus
+puglMacCairoLeave(PuglView* view, const bool expose)
 {
   PuglCairoView* const drawView = (PuglCairoView*)view->impl->drawView;
   if (!expose) {
@@ -142,6 +164,7 @@ puglCairoBackend(void)
                                       puglMacCairoCreate,
                                       puglMacCairoDestroy,
                                       puglMacCairoEnter,
+                                      puglMacCairoDamage,
                                       puglMacCairoLeave,
                                       puglMacCairoGetContext};
 

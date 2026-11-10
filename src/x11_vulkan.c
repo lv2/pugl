@@ -83,6 +83,7 @@ puglVulkanBackend(void)
                                       puglStubCreate,
                                       puglStubDestroy,
                                       puglStubEnter,
+                                      puglStubDamage,
                                       puglStubLeave,
                                       puglStubGetContext};
 

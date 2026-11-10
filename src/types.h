@@ -40,6 +40,7 @@ typedef enum {
   PUGL_VIEW_STAGE_ALLOCATED,
   PUGL_VIEW_STAGE_REALIZED,
   PUGL_VIEW_STAGE_CONFIGURED,
+  PUGL_VIEW_STAGE_BLANKED,
 } PuglViewStage;
 
 /// Cross-platform view definition
@@ -89,13 +90,15 @@ struct PuglBackendImpl {
   /// Destroy surface and drawing context
   void (*destroy)(PuglView*);
 
-  /// Enter drawing context, for drawing if expose is non-null
-  PUGL_WARN_UNUSED_RESULT PuglStatus (*enter)(PuglView*,
-                                              const PuglExposeEvent*);
+  /// Enter drawing context, for drawing if parameter is true
+  PUGL_WARN_UNUSED_RESULT PuglStatus (*enter)(PuglView*, bool);
+
+  /// Expose a region while drawing
+  PUGL_WARN_UNUSED_RESULT PuglStatus (*expose)(PuglView*,
+                                               const PuglDamageEvent*);
 
   /// Leave drawing context, after drawing if expose is non-null
-  PUGL_WARN_UNUSED_RESULT PuglStatus (*leave)(PuglView*,
-                                              const PuglExposeEvent*);
+  PUGL_WARN_UNUSED_RESULT PuglStatus (*leave)(PuglView*, bool);
 
   /// Return the puglGetContext() handle for the application, if any
   void* (*getContext)(PuglView*);

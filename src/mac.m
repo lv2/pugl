@@ -307,10 +307,8 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
   return true;
 }
 
-- (void)dispatchExpose:(NSRect)rect
+- (void)dispatchBlank
 {
-  const double scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
-
   if (reshaped) {
     if (puglview->impl->window) {
       [puglview->impl->window dispatchCurrentConfiguration];
@@ -320,15 +318,25 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
     reshaped = false;
   }
 
+  puglview->impl->oldWorldState = puglview->world->state;
+  puglview->world->state        = PUGL_WORLD_EXPOSING;
+  if ([[puglview->impl->drawView window] isVisible]) {
+    puglDispatchSimpleEvent(puglview, PUGL_BLANK);
+  }
+}
+
+- (void)dispatchExpose:(NSRect)rect type:(PuglEventType)type
+{
   if (![[puglview->impl->drawView window] isVisible]) {
     return;
   }
 
-  const double viewY = (double)puglview->lastConfigure.height -
-                       ((rect.origin.y + rect.size.height) * scaleFactor);
+  const double scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
+  const double viewY       = (double)puglview->lastConfigure.height -
+                             ((rect.origin.y + rect.size.height) * scaleFactor);
 
   const PuglExposeEvent ev = {
-    PUGL_EXPOSE,
+    type,
     0U,
     (PuglCoord)(rect.origin.x * scaleFactor),
     (PuglCoord)viewY,
@@ -339,6 +347,15 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
   PuglEvent exposeEvent;
   exposeEvent.expose = ev;
   puglDispatchEvent(puglview, &exposeEvent);
+}
+
+- (void)dispatchFlush
+{
+  if ([[puglview->impl->drawView window] isVisible]) {
+    puglDispatchSimpleEvent(puglview, PUGL_FLUSH);
+  }
+
+  puglview->world->state = puglview->impl->oldWorldState;
 }
 
 - (NSSize)intrinsicContentSize

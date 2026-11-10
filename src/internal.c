@@ -279,9 +279,6 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
 PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
-  static const PuglEvent blank = {{PUGL_BLANK, 0U}};
-  static const PuglEvent flush = {{PUGL_FLUSH, 0U}};
-
   PuglStatus st0 = PUGL_SUCCESS;
   PuglStatus st1 = PUGL_SUCCESS;
 
@@ -291,18 +288,18 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 
   case PUGL_REALIZE:
     assert(view->stage == PUGL_VIEW_STAGE_ALLOCATED);
-    if (!(st0 = view->backend->enter(view, NULL))) {
+    if (!(st0 = view->backend->enter(view, false))) {
       st0 = view->eventFunc(view, event);
-      st1 = view->backend->leave(view, NULL);
+      st1 = view->backend->leave(view, false);
     }
     view->stage = PUGL_VIEW_STAGE_REALIZED;
     break;
 
   case PUGL_UNREALIZE:
     assert(view->stage >= PUGL_VIEW_STAGE_REALIZED);
-    if (!(st0 = view->backend->enter(view, NULL))) {
+    if (!(st0 = view->backend->enter(view, false))) {
       st0 = view->eventFunc(view, event);
-      st1 = view->backend->leave(view, NULL);
+      st1 = view->backend->leave(view, false);
     }
     view->stage = PUGL_VIEW_STAGE_ALLOCATED;
     break;
@@ -319,18 +316,31 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     }
     break;
 
-  case PUGL_EXPOSE:
+  case PUGL_BLANK:
     assert(view->stage == PUGL_VIEW_STAGE_CONFIGURED);
-    if (!(st0 = view->backend->enter(view, &event->expose))) {
-      const PuglWorldState old_state = view->world->state;
-
-      view->eventFunc(view, &blank);
-      view->world->state = PUGL_WORLD_EXPOSING;
-      st0                = view->eventFunc(view, event);
-      view->world->state = old_state;
-      st1                = view->backend->leave(view, &event->expose);
-      view->eventFunc(view, &flush);
+    if (!(st0 = view->backend->enter(view, true))) {
+      st0         = view->eventFunc(view, event);
+      view->stage = PUGL_VIEW_STAGE_BLANKED;
     }
+    break;
+
+  case PUGL_DAMAGE:
+    assert(view->stage == PUGL_VIEW_STAGE_BLANKED);
+    if (!(st0 = view->eventFunc(view, event))) {
+      st0 = view->backend->expose(view, &event->damage);
+    }
+    break;
+
+  case PUGL_EXPOSE:
+    assert(view->stage == PUGL_VIEW_STAGE_BLANKED);
+    st0 = view->eventFunc(view, event);
+    break;
+
+  case PUGL_FLUSH:
+    assert(view->stage == PUGL_VIEW_STAGE_BLANKED);
+    st0         = view->backend->leave(view, true);
+    st1         = view->eventFunc(view, event);
+    view->stage = PUGL_VIEW_STAGE_CONFIGURED;
     break;
 
   default:

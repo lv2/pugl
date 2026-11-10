@@ -299,6 +299,8 @@ puglEventTypeName(const PuglEventType type)
     return "UPDATE";
   case PUGL_BLANK:
     return "BLANK";
+  case PUGL_DAMAGE:
+    return "DAMAGE";
   case PUGL_EXPOSE:
     return "EXPOSE";
   case PUGL_FLUSH:

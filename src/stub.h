@@ -38,7 +38,7 @@ puglStubDestroy(PuglView* const view)
 }
 
 static inline PuglStatus
-puglStubEnter(PuglView* const view, const PuglExposeEvent* const expose)
+puglStubEnter(PuglView* const view, const bool expose)
 {
   (void)view;
   (void)expose;
@@ -46,7 +46,15 @@ puglStubEnter(PuglView* const view, const PuglExposeEvent* const expose)
 }
 
 static inline PuglStatus
-puglStubLeave(PuglView* const view, const PuglExposeEvent* const expose)
+puglStubDamage(PuglView* const view, const PuglDamageEvent* const damage)
+{
+  (void)view;
+  (void)damage;
+  return PUGL_SUCCESS;
+}
+
+static inline PuglStatus
+puglStubLeave(PuglView* const view, const bool expose)
 {
   (void)view;
   (void)expose;

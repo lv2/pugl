@@ -272,7 +272,7 @@ puglWinGlDestroy(PuglView* view)
 }
 
 static PuglStatus
-puglWinGlEnter(PuglView* view, const PuglExposeEvent* expose)
+puglWinGlEnter(PuglView* view, const bool expose)
 {
   PuglWinGlSurface* surface = (PuglWinGlSurface*)view->impl->surface;
   if (!surface || !surface->hglrc) {
@@ -285,7 +285,7 @@ puglWinGlEnter(PuglView* view, const PuglExposeEvent* expose)
 }
 
 static PuglStatus
-puglWinGlLeave(PuglView* view, const PuglExposeEvent* expose)
+puglWinGlLeave(PuglView* view, const bool expose)
 {
   if (expose) {
     SwapBuffers(view->impl->hdc);
@@ -312,13 +312,13 @@ puglGetProcAddress(const char* name)
 PuglStatus
 puglEnterContext(PuglView* view)
 {
-  return view->backend->enter(view, NULL);
+  return view->backend->enter(view, false);
 }
 
 PuglStatus
 puglLeaveContext(PuglView* view)
 {
-  return view->backend->leave(view, NULL);
+  return view->backend->leave(view, false);
 }
 
 const PuglBackend*
@@ -329,6 +329,7 @@ puglGlBackend(void)
                                       puglWinGlCreate,
                                       puglWinGlDestroy,
                                       puglWinGlEnter,
+                                      puglStubDamage,
                                       puglWinGlLeave,
                                       puglStubGetContext};
 
