@@ -67,6 +67,7 @@ typedef struct {
   GLuint          vbo;
   GLuint          instanceVbo;
   GLuint          ibo;
+  double          lastUpdateDur;
   double          lastBlankTime;
   double          lastFlushTime;
   double          mouseX;
@@ -95,11 +96,24 @@ beginFrame(PuglView* view, PuglSpan width, PuglSpan height)
 }
 
 static void
-onExpose(PuglView* view)
+onUpdate(PuglView* view)
 {
   PuglTestApp*   app  = (PuglTestApp*)puglGetHandle(view);
   const PuglArea size = app->size;
   const double   time = puglGetTime(puglGetWorld(view));
+
+  for (size_t i = 0; i < app->numRects; ++i) {
+    moveRect(&app->rects[i], i, app->numRects, size.width, size.height, time);
+  }
+
+  app->lastUpdateDur = puglGetTime(puglGetWorld(view)) - time;
+}
+
+static void
+onExpose(PuglView* view)
+{
+  PuglTestApp*   app  = (PuglTestApp*)puglGetHandle(view);
+  const PuglArea size = app->size;
 
   beginFrame(view, size.width, size.height);
 
@@ -133,10 +147,6 @@ onExpose(PuglView* view)
   mouseV->fillColor[1] = 1.0f;
   mouseV->fillColor[2] = 1.0f;
   mouseV->fillColor[3] = 0.5f;
-
-  for (size_t i = 0; i < app->numRects; ++i) {
-    moveRect(&app->rects[i], i, app->numRects, size.width, size.height, time);
-  }
 
   glBufferData(GL_UNIFORM_BUFFER, sizeof(proj), &proj, GL_STREAM_DRAW);
 
@@ -173,6 +183,9 @@ onEvent(PuglView* view, const PuglEvent* event)
   case PUGL_CONFIGURE:
     app->size.width  = event->configure.width;
     app->size.height = event->configure.height;
+    break;
+  case PUGL_UPDATE:
+    onUpdate(view);
     break;
   case PUGL_BLANK:
     app->lastBlankTime = puglGetTime(puglGetWorld(view));
@@ -465,11 +478,13 @@ updateTimeout(const PuglTestApp* const app)
     return 0.0; // VSync explicitly disabled, run as fast as possible
   }
 
-  // Wait until we should probably start rendering the next frame
+  // Wait until we should probably start updating and drawing the next frame
   const int    rate         = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
+  const double period       = 1.0 / rate;
   const double now          = puglGetTime(app->world);
-  const double drawDuration = app->lastFlushTime - app->lastBlankTime;
-  return fmax(0.0, (app->lastFlushTime + (1.0 / rate) - drawDuration) - now);
+  const double drawDur      = app->lastFlushTime - app->lastBlankTime;
+  const double nextFrameEnd = app->lastFlushTime + period;
+  return fmax(0.0, (nextFrameEnd - app->lastUpdateDur - drawDur) - now);
 }
 
 int

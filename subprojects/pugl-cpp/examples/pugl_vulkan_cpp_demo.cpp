@@ -183,6 +183,7 @@ struct RenderSync {
   std::vector<sk::Semaphore> renderFinished;
   std::vector<sk::Fence>     inFlight;
   size_t                     currentFrame{};
+  uint32_t                   currentImageIndex{};
 };
 
 /// Renderer that owns the above and everything required to draw
@@ -1471,6 +1472,7 @@ public:
   RectData           rectData;
   RectShaders        rectShaders;
   uint32_t           framesDrawn{0};
+  double             lastUpdateDur{0.0};
   double             lastBlankTime{0.0};
   double             lastFlushTime{0.0};
   VkExtent2D         extent{512U, 512U};
@@ -1547,11 +1549,49 @@ pugl::Status
 View::onEvent(const pugl::UpdateEvent&)
 {
   const auto scope = _app.tracer.begin("UPDATE");
+  const auto time  = _app.world.time();
+
+  // Animate rectangles (except mouse cursor)
+  for (size_t i = 0; i < _app.rects.size() - 2U; ++i) {
+    moveRect(&_app.rects[i],
+             i,
+             _app.rects.size(),
+             static_cast<float>(_app.extent.width),
+             static_cast<float>(_app.extent.height),
+             time);
+  }
+
+  const auto mouseX = static_cast<float>(_app.mouseX);
+  const auto mouseY = static_cast<float>(_app.mouseY);
+
+  // Update horizontal mouse cursor line (last rect)
+  Rect* const mouseH   = &_app.rects[_app.rects.size() - 1U];
+  mouseH->pos[0]       = mouseX - 8.0f;
+  mouseH->pos[1]       = mouseY - 1.0f;
+  mouseH->size[0]      = 16.0f;
+  mouseH->size[1]      = 2.0f;
+  mouseH->fillColor[0] = 1.0f;
+  mouseH->fillColor[1] = 1.0f;
+  mouseH->fillColor[2] = 1.0f;
+  mouseH->fillColor[3] = 0.5f;
+
+  // Update vertical mouse cursor line (second last rect)
+  Rect* const mouseV   = &_app.rects[_app.rects.size() - 2U];
+  mouseV->pos[0]       = mouseX - 2.0f;
+  mouseV->pos[1]       = mouseY - 8.0f;
+  mouseV->size[0]      = 2.0f;
+  mouseV->size[1]      = 16.0f;
+  mouseV->fillColor[0] = 1.0f;
+  mouseV->fillColor[1] = 1.0f;
+  mouseV->fillColor[2] = 1.0f;
+  mouseV->fillColor[3] = 0.5f;
+
+  _app.lastUpdateDur = _app.world.time() - time;
   return pugl::Status::success;
 }
 
 VkResult
-beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
+beginFrame(PuglVulkanDemo& app)
 {
   const auto  scope        = app.tracer.begin("beginFrame");
   const auto& vk           = app.vulkan.vk;
@@ -1580,7 +1620,7 @@ beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
                                      UINT64_MAX,
                                      renderer.sync.imageAvailable[currentFrame],
                                      {},
-                                     &imageIndex))) {
+                                     &renderer.sync.currentImageIndex))) {
     switch (r) {
     case VK_SUBOPTIMAL_KHR:
     case VK_ERROR_OUT_OF_DATE_KHR:
@@ -1596,66 +1636,8 @@ beginFrame(PuglVulkanDemo& app, uint32_t& imageIndex)
   return VK_SUCCESS;
 }
 
-void
-update(PuglVulkanDemo& app, const double time)
-{
-  const auto scope = app.tracer.begin("update");
-
-  // Animate rectangles (except mouse cursor)
-  for (size_t i = 0; i < app.rects.size() - 2U; ++i) {
-    moveRect(&app.rects[i],
-             i,
-             app.rects.size(),
-             static_cast<float>(app.extent.width),
-             static_cast<float>(app.extent.height),
-             time);
-  }
-
-  const auto mouseX = static_cast<float>(app.mouseX);
-  const auto mouseY = static_cast<float>(app.mouseY);
-
-  // Update horizontal mouse cursor line (last rect)
-  Rect* const mouseH   = &app.rects[app.rects.size() - 1U];
-  mouseH->pos[0]       = mouseX - 8.0f;
-  mouseH->pos[1]       = mouseY - 1.0f;
-  mouseH->size[0]      = 16.0f;
-  mouseH->size[1]      = 2.0f;
-  mouseH->fillColor[0] = 1.0f;
-  mouseH->fillColor[1] = 1.0f;
-  mouseH->fillColor[2] = 1.0f;
-  mouseH->fillColor[3] = 0.5f;
-
-  // Update vertical mouse cursor line (second last rect)
-  Rect* const mouseV   = &app.rects[app.rects.size() - 2U];
-  mouseV->pos[0]       = mouseX - 2.0f;
-  mouseV->pos[1]       = mouseY - 8.0f;
-  mouseV->size[0]      = 2.0f;
-  mouseV->size[1]      = 16.0f;
-  mouseV->fillColor[0] = 1.0f;
-  mouseV->fillColor[1] = 1.0f;
-  mouseV->fillColor[2] = 1.0f;
-  mouseV->fillColor[3] = 0.5f;
-
-  // Update vertex buffer
-  memcpy(app.rectData.vertexData.get(),
-         app.rects.data(),
-         sizeof(Rect) * app.rects.size());
-
-  // Update uniform buffer
-  UniformBufferObject ubo = {{}};
-  mat4Ortho(ubo.projection,
-            0.0f,
-            static_cast<float>(app.renderer.swapchain.extent.width),
-            0.0f,
-            static_cast<float>(app.renderer.swapchain.extent.height),
-            -1.0f,
-            1.0f);
-
-  memcpy(app.rectData.uniformData.get(), &ubo, sizeof(ubo));
-}
-
 VkResult
-endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
+endFrame(PuglVulkanDemo& app)
 {
   const auto            scope    = app.tracer.begin("endFrame");
   const sk::VulkanApi&  vk       = app.vulkan.vk;
@@ -1663,6 +1645,7 @@ endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
   const Renderer&       renderer = app.renderer;
 
   const auto  currentFrame   = renderer.sync.currentFrame;
+  const auto  imageIndex     = renderer.sync.currentImageIndex;
   const auto& inFlight       = renderer.sync.inFlight[currentFrame];
   const auto& imageAvailable = renderer.sync.imageAvailable[currentFrame];
   const auto& renderFinished = renderer.sync.renderFinished[imageIndex];
@@ -1705,7 +1688,30 @@ endFrame(PuglVulkanDemo& app, const uint32_t imageIndex)
 pugl::Status
 View::onEvent(const pugl::BlankEvent&)
 {
-  const auto scope = _app.tracer.begin("BLANK");
+  const auto     scope = _app.tracer.begin("BLANK");
+  const VkResult r     = beginFrame(_app);
+  if (r) {
+    return pugl::Status::unknownError;
+  }
+
+  _app.lastBlankTime = _app.world.time();
+
+  // Update vertex buffer
+  memcpy(_app.rectData.vertexData.get(),
+         _app.rects.data(),
+         sizeof(Rect) * _app.rects.size());
+
+  // Update uniform buffer
+  UniformBufferObject ubo = {{}};
+  mat4Ortho(ubo.projection,
+            0.0f,
+            static_cast<float>(_app.renderer.swapchain.extent.width),
+            0.0f,
+            static_cast<float>(_app.renderer.swapchain.extent.height),
+            -1.0f,
+            1.0f);
+  memcpy(_app.rectData.uniformData.get(), &ubo, sizeof(ubo));
+
   return pugl::Status::success;
 }
 
@@ -1714,19 +1720,8 @@ View::onEvent(const pugl::ExposeEvent&)
 {
   const auto scope = _app.tracer.begin("EXPOSE");
 
-  // Acquire the next image, waiting and/or rebuilding if necessary
-  auto nextImageIndex = 0U;
-  if (beginFrame(_app, nextImageIndex)) {
-    return pugl::Status::unknownError;
-  }
-
-  // Ready to go, update the data to the current time
-  const auto time    = _app.world.time();
-  _app.lastFlushTime = time;
-  update(_app, time);
-
-  // Submit the frame to the queue and present it
-  endFrame(_app, nextImageIndex);
+  // Submit the frame for presentation
+  endFrame(_app);
 
   // Update frame counters
   ++_app.framesDrawn;
@@ -1838,11 +1833,13 @@ updateTimeout(const PuglVulkanDemo* const app)
     return 0.0; // VSync explicitly disabled, run as fast as possible
   }
 
-  // Wait until we should probably start rendering the next frame
+  // Wait until we should probably start updating and drawing the next frame
   const int    rate         = app->view.getHint(pugl::ViewHint::refreshRate);
+  const double period       = 1.0 / rate;
   const double now          = app->world.time();
-  const double drawDuration = app->lastFlushTime - app->lastBlankTime;
-  return fmax(0.0, (app->lastFlushTime + (1.0 / rate) - drawDuration) - now);
+  const double drawDur      = app->lastFlushTime - app->lastBlankTime;
+  const double nextFrameEnd = app->lastFlushTime + period;
+  return fmax(0.0, (nextFrameEnd - app->lastUpdateDur - drawDur) - now);
 }
 
 int
@@ -1922,9 +1919,8 @@ run(const char* const      programPath,
   PuglFpsPrinter fpsPrinter = {app.world.time(), 0U};
   app.view.show(pugl::ShowCommand::passive);
   while (!app.quit) {
-    const auto scope   = app.tracer.begin("loop");
-    const auto timeout = updateTimeout(&app);
-    app.world.update(timeout);
+    const auto scope = app.tracer.begin("loop");
+    app.world.update(updateTimeout(&app));
     puglPrintFps(app.world.time(), &fpsPrinter, &app.framesDrawn);
   }
 

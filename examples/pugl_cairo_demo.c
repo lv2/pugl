@@ -33,7 +33,7 @@ typedef struct {
   double          lastDrawnMouseX;
   double          lastDrawnMouseY;
   double          lastUpdateTime;
-  double          lastDrawDuration;
+  double          lastBlankTime;
   double          lastFlushTime;
   unsigned        framesDrawn;
   int             quit;
@@ -177,13 +177,25 @@ obscureAllButtons(PuglView* view)
 }
 
 static void
-onDisplay(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
+onDamage(PuglTestApp* app, PuglView* view, const PuglDamageEvent* event)
 {
+  (void)app;
+  cairo_t* cr = (cairo_t*)puglGetContext(view);
+
+  // Add damaged rectangle to clip region
+  cairo_rectangle(cr, event->x, event->y, event->width, event->height);
+}
+
+static void
+onExpose(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
+{
+  (void)event;
+
   const double startTime = puglGetTime(app->world);
 
   cairo_t* cr = (cairo_t*)puglGetContext(view);
 
-  cairo_rectangle(cr, event->x, event->y, event->width, event->height);
+  // Clip to damaged regions
   cairo_clip_preserve(cr);
 
   // Draw background
@@ -199,9 +211,9 @@ onDisplay(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
   cairo_scale(cr, scale.x, scale.y);
 
   const double drawTime =
-    app->opts.continuous ? fmod(puglGetTime(app->world), loop_duration) : 0.0;
+    app->opts.continuous ? fmod(startTime, loop_duration) : 0.0;
 
-  // Draw button
+  // Draw buttons
   for (unsigned i = 0U; i < N_BUTTONS; ++i) {
     buttonDraw(app, cr, &buttons[i], (double)i * turn_overlap, drawTime);
   }
@@ -218,7 +230,6 @@ onDisplay(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
   cairo_stroke(cr);
 
   ++app->framesDrawn;
-  app->lastDrawDuration = puglGetTime(app->world) - startTime;
 }
 
 static void
@@ -275,9 +286,6 @@ onEvent(PuglView* view, const PuglEvent* event)
     app->currentMouseX = event->motion.x;
     app->currentMouseY = event->motion.y;
     obscureMouseCursor(view, scale, app->currentMouseX, app->currentMouseY);
-
-    app->lastDrawnMouseX = app->currentMouseX;
-    app->lastDrawnMouseY = app->currentMouseY;
     break;
   case PUGL_POINTER_IN:
     app->entered = true;
@@ -298,11 +306,19 @@ onEvent(PuglView* view, const PuglEvent* event)
       app->lastUpdateTime = now;
     }
     break;
+  case PUGL_BLANK:
+    app->lastBlankTime = puglGetTime(app->world);
+    break;
+  case PUGL_DAMAGE:
+    onDamage(app, view, &event->damage);
+    break;
   case PUGL_EXPOSE:
-    onDisplay(app, view, &event->expose);
+    onExpose(app, view, &event->expose);
     break;
   case PUGL_FLUSH:
-    app->lastFlushTime = puglGetTime(app->world);
+    app->lastFlushTime   = puglGetTime(app->world);
+    app->lastDrawnMouseX = app->currentMouseX;
+    app->lastDrawnMouseY = app->currentMouseY;
     break;
   case PUGL_CLOSE:
     onClose(view);
@@ -323,9 +339,10 @@ updateTimeout(const PuglTestApp* const app)
   }
 
   // Wait until we should probably start rendering the next frame
-  const int    rate = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
-  const double now  = puglGetTime(app->world);
-  return (app->lastFlushTime + (1.0 / rate) - app->lastDrawDuration) - now;
+  const int    rate         = puglGetViewHint(app->view, PUGL_REFRESH_RATE);
+  const double now          = puglGetTime(app->world);
+  const double drawDuration = app->lastFlushTime - app->lastBlankTime;
+  return (app->lastFlushTime + (1.0 / rate) - drawDuration) - now;
 }
 
 int
