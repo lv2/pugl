@@ -2012,9 +2012,6 @@ dispatchX11Events(PuglWorld* const world)
     }
   }
 
-  // Flush any events we may have sent in this frame to reduce latency
-  XFlush(display);
-
   return st;
 }
 
@@ -2032,6 +2029,8 @@ puglUpdate(PuglWorld* const world, const double timeout)
     return PUGL_BAD_CALL;
   }
 
+  XFlush(world->impl->display);
+
   if (timeout < 0.0) {
     if (!(st0 = pollX11Socket(world, timeout))) {
       st0 = dispatchX11Events(world);
@@ -2039,11 +2038,12 @@ puglUpdate(PuglWorld* const world, const double timeout)
   } else if (timeout <= 0.001) {
     st0 = dispatchX11Events(world);
   } else {
-    const double endTime = startTime + timeout - 0.001;
+    const double endTime = startTime + timeout;
     double       t       = startTime;
     while (!st0 && t < endTime) {
       if (!(st0 = pollX11Socket(world, endTime - t))) {
         st0 = dispatchX11Events(world);
+        XFlush(world->impl->display);
       }
 
       t = puglGetTime(world);
