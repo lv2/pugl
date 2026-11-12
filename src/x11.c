@@ -1860,8 +1860,8 @@ flushExposures(PuglWorld* const world)
   }
 
   // Expose any dirty views
-  const PuglWorldState old_state = world->state;
-  world->state                   = PUGL_WORLD_EXPOSING;
+  const PuglWorldState oldState = world->state;
+  world->state                  = PUGL_WORLD_EXPOSING;
   for (size_t i = 0; i < world->numViews; ++i) {
     PuglView* const view = world->views[i];
 
@@ -1900,7 +1900,7 @@ flushExposures(PuglWorld* const world)
     }
   }
 
-  world->state = old_state;
+  world->state = oldState;
   return st;
 }
 
