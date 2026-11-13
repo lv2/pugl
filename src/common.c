@@ -33,6 +33,7 @@ puglStrerror(const PuglStatus status)
   case PUGL_CREATE_CONTEXT_FAILED: return "Failed to create drawing context";
   case PUGL_UNSUPPORTED:           return "Unsupported operation";
   case PUGL_NO_MEMORY:             return "Failed to allocate memory";
+  case PUGL_CONNECT_FAILED:        return "Failed to connect to display";
   }
   // clang-format on
 
@@ -43,15 +44,20 @@ PuglWorld*
 puglNewWorld(PuglWorldType type, PuglWorldFlags flags)
 {
   PuglWorld* world = (PuglWorld*)calloc(1, sizeof(PuglWorld));
-  if (!world || !(world->impl = puglInitWorldInternals(type, flags)) ||
+  if (!world || !(world->impl = puglAllocWorldInternals()) ||
       puglSetString(&world->strings[PUGL_CLASS_NAME], "Pugl")) {
     free(world);
     return NULL;
   }
 
-  world->startTime = puglGetTime(world);
-  world->type      = type;
+  world->type = type;
+  if (puglInitWorldInternals(world, flags)) {
+    free(world->impl);
+    free(world);
+    return NULL;
+  }
 
+  world->startTime = puglGetTime(world);
   return world;
 }
 

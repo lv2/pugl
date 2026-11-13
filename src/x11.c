@@ -174,19 +174,24 @@ puglX11GetDisplayScaleFactor(Display* const display)
 }
 
 PuglWorldInternals*
-puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
+puglAllocWorldInternals(void)
 {
-  if (type == PUGL_PROGRAM && (flags & PUGL_WORLD_THREADS)) {
+  return (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
+}
+
+PuglStatus
+puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
+{
+  PuglWorldInternals* const impl = world->impl;
+
+  if (world->type == PUGL_PROGRAM && (flags & PUGL_WORLD_THREADS)) {
     XInitThreads();
   }
 
-  Display* display = XOpenDisplay(NULL);
+  Display* const display = XOpenDisplay(NULL);
   if (!display) {
-    return NULL;
+    return PUGL_CONNECT_FAILED;
   }
-
-  PuglWorldInternals* impl =
-    (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
 
   impl->display     = display;
   impl->scaleFactor = puglX11GetDisplayScaleFactor(display);
@@ -258,7 +263,7 @@ puglInitWorldInternals(const PuglWorldType type, const PuglWorldFlags flags)
   initXSync(impl);
   XFlush(display);
 
-  return impl;
+  return PUGL_SUCCESS;
 }
 
 void*

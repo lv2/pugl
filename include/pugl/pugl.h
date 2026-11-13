@@ -742,6 +742,7 @@ typedef enum {
   PUGL_CREATE_CONTEXT_FAILED, ///< Failed to create drawing context
   PUGL_UNSUPPORTED,           ///< Unsupported operation
   PUGL_NO_MEMORY,             ///< Failed to allocate memory
+  PUGL_CONNECT_FAILED,        ///< Failed to connect to display
 } PuglStatus;
 
 /// Return a string describing a status code

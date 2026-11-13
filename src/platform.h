@@ -13,11 +13,15 @@
 
 PUGL_BEGIN_DECLS
 
-/// Allocate and initialise world internals (implemented once per platform)
+/// Allocate world internals
 PUGL_MALLOC_FUNC PuglWorldInternals*
-puglInitWorldInternals(PuglWorldType type, PuglWorldFlags flags);
+puglAllocWorldInternals(void);
 
-/// Destroy and free world internals (implemented once per platform)
+/// Attach to display and initialise world internals
+PuglStatus
+puglInitWorldInternals(PuglWorld* world, PuglWorldFlags flags);
+
+/// Destroy and free world internals
 void
 puglFreeWorldInternals(PuglWorld* world);
 
@@ -25,7 +29,7 @@ puglFreeWorldInternals(PuglWorld* world);
 PUGL_MALLOC_FUNC PuglInternals*
 puglInitViewInternals(PuglWorld* world);
 
-/// Destroy and free view internals (implemented once per platform)
+/// Destroy and free view internals
 void
 puglFreeViewInternals(PuglView* view);
 

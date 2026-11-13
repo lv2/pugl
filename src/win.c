@@ -250,15 +250,18 @@ puglWinGetViewScaleFactor(const PuglView* const view)
 }
 
 PuglWorldInternals*
-puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
+puglAllocWorldInternals(void)
 {
-  PuglWorldInternals* impl =
-    (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
-  if (!impl) {
-    return NULL;
-  }
+  return (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
+}
 
-  if (type == PUGL_PROGRAM) {
+PuglStatus
+puglInitWorldInternals(PuglWorld* const world,
+                       PuglWorldFlags   PUGL_UNUSED(flags))
+{
+  PuglWorldInternals* const impl = world->impl;
+
+  if (world->type == PUGL_PROGRAM) {
     HMODULE user32 =
       LoadLibraryEx(TEXT("user32.dll"), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (user32) {
@@ -276,7 +279,7 @@ puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
   QueryPerformanceFrequency(&frequency);
   impl->timerFrequency = (double)frequency.QuadPart;
 
-  return impl;
+  return PUGL_SUCCESS;
 }
 
 void*

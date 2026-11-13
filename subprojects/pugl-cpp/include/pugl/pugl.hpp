@@ -252,9 +252,11 @@ enum class Status {
   createContextFailed, ///< @copydoc PUGL_CREATE_CONTEXT_FAILED
   unsupported,         ///< @copydoc PUGL_UNSUPPORTED
   noMemory,            ///< @copydoc PUGL_NO_MEMORY
+  connectFailed,       ///< @copydoc PUGL_CONNECT_FAILED
 };
 
-static_assert(static_cast<Status>(PUGL_UNSUPPORTED) == Status::unsupported);
+static_assert(static_cast<Status>(PUGL_CONNECT_FAILED) ==
+              Status::connectFailed);
 
 /// @copydoc puglStrerror
 inline const char*

@@ -1184,24 +1184,30 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 @end
 
 PuglWorldInternals*
-puglInitWorldInternals(PuglWorldType type, PuglWorldFlags PUGL_UNUSED(flags))
+puglAllocWorldInternals(void)
 {
-  PuglWorldInternals* impl =
-    (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
+  return (PuglWorldInternals*)calloc(1, sizeof(PuglWorldInternals));
+}
+
+PuglStatus
+puglInitWorldInternals(PuglWorld* const     world,
+                       const PuglWorldFlags PUGL_UNUSED(flags))
+{
+  PuglWorldInternals* const impl = world->impl;
 
   impl->app = [NSApplication sharedApplication];
 
   if (mach_timebase_info(&impl->timebaseInfo)) {
-    return NULL;
+    return PUGL_UNKNOWN_ERROR;
   }
 
-  if (type == PUGL_PROGRAM) {
+  if (world->type == PUGL_PROGRAM) {
     impl->autoreleasePool = [NSAutoreleasePool new];
 
     [impl->app setActivationPolicy:NSApplicationActivationPolicyRegular];
   }
 
-  return impl;
+  return PUGL_SUCCESS;
 }
 
 void
