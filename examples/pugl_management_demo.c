@@ -32,6 +32,12 @@ onCommonEvent(PuglView* view, const PuglEvent* event);
 static PuglStatus
 onMainEvent(PuglView* view, const PuglEvent* event);
 
+static double
+lineOffset(const unsigned number)
+{
+  return (number * 48.0) - 120.0;
+}
+
 static PuglStatus
 onExpose(PuglView* const view, const PuglExposeEvent* const event)
 {
@@ -62,29 +68,25 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
   // Draw position label
   snprintf(buf, sizeof(buf), "Position: %5d, %5d", pos.x, pos.y);
   cairo_text_extents(cr, buf, &extents);
-  cairo_move_to(
-    cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 192.0);
+  cairo_move_to(cr, cx - (extents.width / 2.0), cy + lineOffset(0));
   cairo_show_text(cr, buf);
 
   // Draw size label
   snprintf(buf, sizeof(buf), "Size: %5u, %5u", size.width, size.height);
   cairo_text_extents(cr, buf, &extents);
-  cairo_move_to(
-    cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 144.0);
+  cairo_move_to(cr, cx - (extents.width / 2.0), cy + lineOffset(1));
   cairo_show_text(cr, buf);
 
   // Draw scale label
   snprintf(buf, sizeof(buf), "Scale: %g", puglGetScaleFactor(view));
   cairo_text_extents(cr, buf, &extents);
-  cairo_move_to(
-    cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 96.0);
+  cairo_move_to(cr, cx - (extents.width / 2.0), cy + lineOffset(2));
   cairo_show_text(cr, buf);
 
   // Draw time label
   snprintf(buf, sizeof(buf), "Draw time: %g", puglGetTime(world));
   cairo_text_extents(cr, buf, &extents);
-  cairo_move_to(
-    cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) - 48.0);
+  cairo_move_to(cr, cx - (extents.width / 2.0), cy + lineOffset(3));
   cairo_show_text(cr, buf);
 
   // Draw style label
@@ -101,15 +103,14 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
            style & PUGL_VIEW_STYLE_DEMANDING ? " demanding" : "",
            style & PUGL_VIEW_STYLE_RESIZING ? " resizing" : "");
   cairo_text_extents(cr, buf, &extents);
-  cairo_move_to(cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0));
+  cairo_move_to(cr, cx - (extents.width / 2.0), cy + lineOffset(4));
   cairo_show_text(cr, buf);
 
   if (view == app->mainView.view) {
     // Draw keyboard help label
     snprintf(buf, sizeof(buf), "Keys: Space T W H M F A B D Q");
     cairo_text_extents(cr, buf, &extents);
-    cairo_move_to(
-      cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) + 48.0);
+    cairo_move_to(cr, cx - (extents.width / 2.0), cy + lineOffset(5));
     cairo_show_text(cr, buf);
   }
 
@@ -134,8 +135,8 @@ toggleDialog(DemoApp* const app)
 
     puglSetViewString(app->dialogView.view, PUGL_WINDOW_TITLE, "Dialog");
     puglSetViewHint(app->dialogView.view, PUGL_DARK_FRAME, PUGL_TRUE);
-    puglSetSizeHint(app->dialogView.view, PUGL_DEFAULT_SIZE, 320, 240);
-    puglSetSizeHint(app->dialogView.view, PUGL_MIN_SIZE, 160, 120);
+    puglSetSizeHint(app->dialogView.view, PUGL_DEFAULT_SIZE, 380, 320);
+    puglSetSizeHint(app->dialogView.view, PUGL_MIN_SIZE, 320, 300);
     puglSetViewHint(app->dialogView.view, PUGL_IGNORE_KEY_REPEAT, true);
     puglSetViewHint(app->dialogView.view, PUGL_RESIZABLE, true);
     puglSetViewHint(
@@ -257,7 +258,7 @@ main(int argc, char** argv)
   puglSetEventFunc(app.mainView.view, onMainEvent);
   puglSetHandle(app.mainView.view, &app.mainView);
   puglSetSizeHint(app.mainView.view, PUGL_DEFAULT_SIZE, 640, 480);
-  puglSetSizeHint(app.mainView.view, PUGL_MIN_SIZE, 320, 240);
+  puglSetSizeHint(app.mainView.view, PUGL_MIN_SIZE, 480, 320);
   puglSetViewHint(app.mainView.view, PUGL_DARK_FRAME, PUGL_TRUE);
   puglSetViewHint(app.mainView.view, PUGL_IGNORE_KEY_REPEAT, true);
   puglSetViewHint(app.mainView.view, PUGL_RESIZABLE, true);
