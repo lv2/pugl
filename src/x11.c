@@ -2135,28 +2135,16 @@ puglApplyViewString(PuglView* const      view,
   Display* const      display = view->world->impl->display;
   const PuglX11Atoms* atoms   = &view->world->impl->atoms;
 
-  if (!view->impl->win) {
-    return PUGL_SUCCESS;
-  }
-
-  switch (key) {
-  case PUGL_APPLICATION_NAME:
-  case PUGL_CLASS_NAME:
-    break;
-
-  case PUGL_WINDOW_TITLE:
-    if (value) {
-      XStoreName(display, view->impl->win, value);
-      XChangeProperty(display,
-                      view->impl->win,
-                      atoms->NET_WM_NAME,
-                      atoms->UTF8_STRING,
-                      8,
-                      PropModeReplace,
-                      (const uint8_t*)value,
-                      (int)strlen(value));
-    }
-    break;
+  if (key == PUGL_WINDOW_TITLE && value && view->impl->win) {
+    XStoreName(display, view->impl->win, value);
+    XChangeProperty(display,
+                    view->impl->win,
+                    atoms->NET_WM_NAME,
+                    atoms->UTF8_STRING,
+                    8,
+                    PropModeReplace,
+                    (const uint8_t*)value,
+                    (int)strlen(value));
   }
 
   return PUGL_SUCCESS;

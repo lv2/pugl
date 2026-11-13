@@ -1852,24 +1852,17 @@ puglApplyViewString(PuglView* const      view,
     return PUGL_SUCCESS;
   }
 
-  switch (key) {
-  case PUGL_APPLICATION_NAME:
-  case PUGL_CLASS_NAME:
-    return PUGL_UNSUPPORTED;
+  if (key == PUGL_WINDOW_TITLE && view->impl->window) {
+    NSString* const titleString =
+      [[NSString alloc] initWithBytes:value
+                               length:strlen(value)
+                             encoding:NSUTF8StringEncoding];
 
-  case PUGL_WINDOW_TITLE:
-    if (view->impl->window) {
-      NSString* const titleString =
-        [[NSString alloc] initWithBytes:value
-                                 length:strlen(value)
-                               encoding:NSUTF8StringEncoding];
-
-      [view->impl->window setTitle:titleString];
-    }
-    break;
+    [view->impl->window setTitle:titleString];
+    return PUGL_SUCCESS;
   }
 
-  return PUGL_SUCCESS;
+  return PUGL_UNSUPPORTED;
 }
 
 double

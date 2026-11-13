@@ -1376,11 +1376,8 @@ puglApplyViewString(PuglView* const      view,
                     const char* const    value)
 {
   PuglStatus st = PUGL_SUCCESS;
-  if (!view->impl->hwnd) {
-    return st;
-  }
 
-  if (key == PUGL_WINDOW_TITLE) {
+  if (key == PUGL_WINDOW_TITLE && view->impl->hwnd) {
     ArgStringChar* const titleArg = puglArgStringNew(value);
     st = puglWinStatus(SetWindowText(view->impl->hwnd, titleArg));
     puglArgStringFree(titleArg);
