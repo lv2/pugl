@@ -819,14 +819,20 @@ handlePaint(PuglView* view)
     RECT          rects[32];
   } RegionData;
 
-  // Get the update region (before blanking which clears it)
+  // Get the update region
   HRGN      hrng = CreateRectRgn(0, 0, 0, 0);
   const int rc   = GetUpdateRgn(view->impl->hwnd, hrng, FALSE);
   if (rc == ERROR || rc == NULLREGION) {
     return 0;
   }
 
-  // Blank to set up the graphics context
+  // ... and its bounding rect
+  RECT rect = {0, 0, 0, 0};
+  GetUpdateRect(view->impl->hwnd, &rect, false);
+
+  // Blank to set up the graphics context and clear the update region
+  const PuglWorldState oldState = view->world->state;
+  view->world->state            = PUGL_WORLD_EXPOSING;
   puglDispatchSimpleEvent(view, PUGL_BLANK);
 
   // Dispatch every damaged rect
@@ -845,8 +851,6 @@ handlePaint(PuglView* view)
   }
 
   // Dispatch expose for the bounding box of all damage
-  RECT rect = {0, 0, 0, 0};
-  GetUpdateRect(view->impl->hwnd, &rect, false);
   const PuglEvent event = {.expose = {PUGL_EXPOSE,
                                       0U,
                                       (PuglCoord)rect.left,
@@ -858,6 +862,7 @@ handlePaint(PuglView* view)
   // Delete region object and flush to finish paint
   DeleteObject(hrng);
   puglDispatchSimpleEvent(view, PUGL_FLUSH);
+  view->world->state = oldState;
   return 0;
 }
 
