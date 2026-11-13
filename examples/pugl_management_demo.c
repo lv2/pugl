@@ -257,7 +257,7 @@ main(int argc, char** argv)
   puglSetEventFunc(app.mainView.view, onMainEvent);
   puglSetHandle(app.mainView.view, &app.mainView);
   puglSetSizeHint(app.mainView.view, PUGL_DEFAULT_SIZE, 640, 480);
-  puglSetSizeHint(app.mainView.view, PUGL_MIN_SIZE, 320, 240);
+  puglSetSizeHint(app.mainView.view, PUGL_MIN_SIZE, 462, 420);
   puglSetViewHint(app.mainView.view, PUGL_DARK_FRAME, PUGL_TRUE);
   puglSetViewHint(app.mainView.view, PUGL_IGNORE_KEY_REPEAT, true);
   puglSetViewHint(app.mainView.view, PUGL_RESIZABLE, true);
