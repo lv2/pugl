@@ -35,6 +35,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -1931,10 +1932,8 @@ run(const char* const      programPath,
   return 0;
 }
 
-} // namespace
-
 int
-main(int argc, char** argv)
+run(int argc, char** argv)
 {
   // Parse command line options
   const char* const     programPath = argv[0];
@@ -1957,4 +1956,16 @@ main(int argc, char** argv)
 
   // Run application
   return run(programPath, opts, numRects);
+}
+
+} // namespace
+
+int
+main(int argc, char** argv)
+{
+  try {
+    return run(argc, argv);
+  } catch (std::exception& e) {
+    logFail("Caught exception", e.what());
+  }
 }
