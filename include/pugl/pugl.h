@@ -788,10 +788,24 @@ typedef enum {
      document, like "myfile.txt - Fancy Editor".
   */
   PUGL_WINDOW_TITLE,
+
+  /**
+     The name of the output.
+
+     This is an identifier for the display output, like "HDMI-1".
+  */
+  PUGL_OUTPUT_NAME,
+
+  /**
+     A short description of the output.
+
+     This is a short description of the display output, like "Displayco 27".
+  */
+  PUGL_OUTPUT_DESCRIPTION,
 } PuglStringHint;
 
 /// The number of #PuglStringHint values
-#define PUGL_NUM_STRING_HINTS 3U
+#define PUGL_NUM_STRING_HINTS 5U
 
 /**
    @}

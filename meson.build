@@ -172,8 +172,10 @@ if host_machine.system() == 'darwin'
   backend_extension = '.m'
   soversion = meson.project_version().split('.')[0]
 
+  macos_version = get_option('macos_version')
   platform_args = [
-    '-mmacos-version-min=@0@'.format(get_option('macos_version')),
+    '-mmacos-version-min=@0@'.format(macos_version),
+    '-DPUGL_MACOS_VERSION_MIN=@0@'.format(''.join(macos_version.split('.')))
   ]
 
 elif host_machine.system() == 'windows'

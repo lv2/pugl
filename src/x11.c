@@ -196,6 +196,17 @@ puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
   impl->display     = display;
   impl->scaleFactor = puglX11GetDisplayScaleFactor(display);
 
+#if USE_XRANDR
+  const int screen = DefaultScreen(display);
+
+  // Set the output name
+  const Window              root      = RootWindow(display, screen);
+  XRRScreenResources* const resources = XRRGetScreenResources(display, root);
+  XRROutputInfo* const      info =
+    XRRGetOutputInfo(display, resources, resources->outputs[0]);
+  puglSetString(&world->strings[PUGL_OUTPUT_NAME], info->name);
+#endif
+
   // Intern the various atoms we'll need
 
   impl->atoms.CLIPBOARD         = XInternAtom(display, "CLIPBOARD", 0);

@@ -1236,6 +1236,11 @@ puglInitWorldInternals(PuglWorld* const     world,
     [impl->app setActivationPolicy:NSApplicationActivationPolicyRegular];
   }
 
+#if defined(PUGL_MACOS_VERSION_MIN) && PUGL_MACOS_VERSION_MIN >= 1015
+  NSString* const name = [[NSScreen mainScreen] localizedName];
+  puglSetString(&world->strings[PUGL_OUTPUT_NAME], [name UTF8String]);
+#endif
+
   return PUGL_SUCCESS;
 }
 

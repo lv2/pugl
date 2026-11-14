@@ -113,6 +113,24 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
     cairo_show_text(cr, buf);
   }
 
+  const char* const outputName =
+    puglGetWorldString(app->world, PUGL_OUTPUT_NAME);
+  const char* const outputDescription =
+    puglGetWorldString(app->world, PUGL_OUTPUT_DESCRIPTION);
+  if (outputName) {
+    snprintf(buf,
+             sizeof(buf),
+             "Output: %s%s%s%s",
+             outputName,
+             outputDescription ? " (" : "",
+             outputDescription ? outputDescription : "",
+             outputDescription ? ")" : "");
+    cairo_text_extents(cr, buf, &extents);
+    cairo_move_to(
+      cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) + 144.0);
+    cairo_show_text(cr, buf);
+  }
+
   return PUGL_SUCCESS;
 }
 
