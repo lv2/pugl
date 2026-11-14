@@ -2114,7 +2114,7 @@ puglAcceptOffer(PuglView* const                 view,
                               (double)regionX,
                               (double)regionY,
                               offer->clipboard,
-                              (uint32_t)typeIndex};
+                              typeIndex};
 
   PuglEvent dataEvent;
   dataEvent.data = data;
