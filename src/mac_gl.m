@@ -116,7 +116,9 @@ puglMacGlCreate(PuglView* view)
   drawView->puglview = view;
   drawView           = [drawView initWithFrame:[impl->wrapperView bounds]];
   if (view->hints[PUGL_RESIZABLE]) {
-    [drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+    [drawView
+      setAutoresizingMask:(NSAutoresizingMaskOptions)(NSViewWidthSizable |
+                                                      NSViewHeightSizable)];
   } else {
     [drawView setAutoresizingMask:NSViewNotSizable];
   }
