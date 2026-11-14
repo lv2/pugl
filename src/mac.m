@@ -606,12 +606,13 @@ keySymToSpecial(const NSEvent* const ev)
     [trackingArea release];
   }
 
-  const int opts = (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
-                    NSTrackingActiveAlways);
-  trackingArea   = [[NSTrackingArea alloc] initWithRect:[self bounds]
-                                                options:opts
-                                                  owner:self
-                                               userInfo:nil];
+  const NSTrackingAreaOptions opts =
+    (NSTrackingAreaOptions)(NSTrackingMouseEnteredAndExited |
+                            NSTrackingMouseMoved | NSTrackingActiveAlways);
+  trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds]
+                                              options:opts
+                                                owner:self
+                                             userInfo:nil];
   [self addTrackingArea:trackingArea];
   [super updateTrackingAreas];
 }
@@ -956,7 +957,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
                maxLength:sizeof(utf8)
               usedLength:&len
                 encoding:NSUTF8StringEncoding
-                 options:0
+                 options:(NSStringEncodingConversionOptions)0
                    range:NSMakeRange(i, i + 1)
           remainingRange:nil];
 
@@ -1433,7 +1434,7 @@ puglRealize(PuglView* view)
 
     PuglWindow* window = [[[PuglWindow alloc]
       initWithContentRect:rectToScreen([NSScreen mainScreen], framePt)
-                styleMask:style
+                styleMask:(NSWindowStyleMask)style
                   backing:NSBackingStoreBuffered
                     defer:NO] retain];
 

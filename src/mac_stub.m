@@ -50,7 +50,9 @@ puglMacStubCreate(PuglView* view)
                                                 view->lastConfigure.height)];
 
   if (view->hints[PUGL_RESIZABLE]) {
-    [drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+    [drawView
+      setAutoresizingMask:(NSAutoresizingMaskOptions)(NSViewWidthSizable |
+                                                      NSViewHeightSizable)];
   } else {
     [drawView setAutoresizingMask:NSViewNotSizable];
   }
