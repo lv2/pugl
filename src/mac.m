@@ -1449,6 +1449,7 @@ puglRealize(PuglView* view)
                                encoding:NSUTF8StringEncoding];
 
       [window setTitle:titleString];
+      [titleString release];
     }
 
     ((NSWindow*)window).delegate =
@@ -1849,6 +1850,7 @@ puglApplyViewString(PuglView* const      view,
                              encoding:NSUTF8StringEncoding];
 
     [view->impl->window setTitle:titleString];
+    [titleString release];
     return PUGL_SUCCESS;
   }
 
