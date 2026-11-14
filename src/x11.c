@@ -266,7 +266,7 @@ puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
   return PUGL_SUCCESS;
 }
 
-void*
+PuglNativeWorld
 puglGetNativeWorld(PuglWorld* const world)
 {
   return world->impl->display;

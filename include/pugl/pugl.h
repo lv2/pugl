@@ -795,6 +795,44 @@ typedef enum {
 
 /**
    @}
+   @defgroup pugl_native Native Types
+   Types that reflect native types for the underlying platform.
+   @{
+*/
+
+/**
+   A native world handle.
+
+   The "native world" is a system-specific handle that's shared across an
+   entire program or module.  It serves as a common denominator between Pugl,
+   applications, and the windowing system API.
+
+   X11: This is a pointer to the `Display`.
+
+   MacOS: This is a pointer to the `NSApplication`.
+
+   Windows: This is the `HMODULE` of the calling process.
+*/
+typedef void* PuglNativeWorld;
+
+/**
+   A native view handle.
+
+   A "native view" is a system-specific handle for a view (or "window").  A
+   #PuglView is itself a native view, which may be embedded in another.  Like
+   the native world handle, this serves as a common denominator between this
+   and other APIs.
+
+   X11: This is a `Window`.
+
+   MacOS: This is a pointer to an `NSView*`.
+
+   Windows: This is a `HWND`.
+*/
+typedef uintptr_t PuglNativeView;
+
+/**
+   @}
    @defgroup pugl_world World
    @{
 */
@@ -857,20 +895,8 @@ puglSetWorldHandle(PuglWorld* world, void* handle);
 PUGL_API void*
 puglGetWorldHandle(PuglWorld* world);
 
-/**
-   Return the native world handle.
-
-   The "native world" is a system-specific handle that's shared across an
-   entire program or module.  It serves as a common denominator between Pugl,
-   applications, and the windowing system API.
-
-   X11: Returns a pointer to the `Display`.
-
-   MacOS: Returns a pointer to the `NSApplication`.
-
-   Windows: Returns the `HMODULE` of the calling process.
-*/
-PUGL_API void*
+/// Return the native world handle
+PUGL_API PuglNativeWorld
 puglGetNativeWorld(PuglWorld* world);
 
 /**
@@ -955,22 +981,6 @@ typedef struct PuglBackendImpl PuglBackend;
    of windows at all.
 */
 typedef struct PuglViewImpl PuglView;
-
-/**
-   A native view handle.
-
-   A "native view" is a system-specific handle for a view (or "window").  A
-   #PuglView is itself a native view, which may be embedded in another.  Like
-   the native world handle, this serves as a common denominator between this
-   and other APIs.
-
-   X11: This is a `Window`.
-
-   MacOS: This is a pointer to an `NSView*`.
-
-   Windows: This is a `HWND`.
-*/
-typedef uintptr_t PuglNativeView;
 
 /// An integer hint for configuring a view
 typedef enum {

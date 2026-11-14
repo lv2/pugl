@@ -267,6 +267,18 @@ strerror(const Status status) noexcept
 
 /**
    @}
+   @defgroup pugl_cpp_native Native Types
+   @{
+*/
+
+/// @copydoc PuglNativeWorld
+using NativeWorld = PuglNativeWorld;
+
+/// @copydoc PuglNativeView
+using NativeView = PuglNativeView;
+
+/**
+   @}
    @defgroup pugl_cpp_world World
    @{
 */
@@ -368,7 +380,7 @@ public:
   }
 
   /// @copydoc puglGetNativeWorld
-  void* nativeWorld() noexcept { return puglGetNativeWorld(cobj()); }
+  NativeWorld nativeWorld() noexcept { return puglGetNativeWorld(cobj()); }
 
   /// @copydoc puglSetWorldString
   Status setString(StringHint key, const char* const value) noexcept
@@ -401,9 +413,6 @@ public:
 
 /// @copydoc PuglBackend
 using Backend = PuglBackend;
-
-/// @copydoc PuglNativeView
-using NativeView = PuglNativeView;
 
 /// @copydoc PuglPositionHint
 enum class PositionHint {
