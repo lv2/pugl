@@ -1080,12 +1080,6 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
   puglDispatchSimpleEvent(puglview, PUGL_LOOP_LEAVE);
 }
 
-- (void)viewWillDraw
-{
-  puglDispatchSimpleEvent(puglview, PUGL_UPDATE);
-  [super viewWillDraw];
-}
-
 - (void)timerTick:(NSTimer*)userTimer
 {
   const NSNumber*      userInfo = userTimer.userInfo;
@@ -1468,6 +1462,7 @@ puglRealize(PuglView* view)
     window->puglview = view;
     impl->window     = window;
     [window setContentSize:framePt.size];
+    [window setAllowsConcurrentViewDrawing:NO];
 
     const char* const title = view->strings[PUGL_WINDOW_TITLE];
     if (title) {
@@ -1771,6 +1766,20 @@ puglUpdate(PuglWorld* world, const double timeout)
       return PUGL_BAD_CALL;
     }
 
+    /* Unfortunately nextEventMatchingMask will trigger redraws, so dispatch
+       updates early to mark any regions for display before that.  This means
+       that input events may arrive after update and before exposure unlike
+       other platforms (so input latency will be worse), but as far as I can
+       tell there's no way to process only input events on MacOS. */
+    for (size_t i = 0; i < world->numViews; ++i) {
+      PuglView* const view = world->views[i];
+      puglDispatchSimpleEvent(view, PUGL_UPDATE);
+      if ([[view->impl->drawView window] isVisible] &&
+          view->hints[PUGL_CONTINUOUS]) {
+        [view->impl->drawView setNeedsDisplay:YES];
+      }
+    }
+
     if (world->type == PUGL_PROGRAM) {
       NSDate* date =
         ((timeout < 0) ? [NSDate distantFuture]
@@ -1788,19 +1797,12 @@ puglUpdate(PuglWorld* world, const double timeout)
           date = [NSDate date];
         }
       }
-    }
 
-    for (size_t i = 0; i < world->numViews; ++i) {
-      PuglView* const view = world->views[i];
-
-      if ([[view->impl->drawView window] isVisible]) {
-        puglDispatchSimpleEvent(view, PUGL_UPDATE);
-        if (view->hints[PUGL_CONTINUOUS]) {
-          [view->impl->drawView setNeedsDisplay:YES];
-        }
+      /* Despite the above, display if needed to prevent puglUpdate from racing
+         faster than frames are displayed. */
+      for (size_t i = 0; i < world->numViews; ++i) {
+        [world->views[i]->impl->drawView displayIfNeeded];
       }
-
-      [view->impl->drawView displayIfNeeded];
     }
 
     world->state = startState;
