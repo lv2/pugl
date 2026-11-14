@@ -19,6 +19,8 @@
         https://glad.dav1d.de/#profile=core&language=c&specification=gl&loader=on&api=gl%3D3.3&api=gles2%3D3.2
 */
 
+/* Lightly edited for pugl to avoid warnings */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -163,7 +165,6 @@ struct gladGLversionStruct GLVersion = { 0, 0 };
 #endif
 
 static int max_loaded_major;
-static int max_loaded_minor;
 
 static const char *exts = NULL;
 static int num_exts_i = 0;
@@ -1209,7 +1210,7 @@ static void find_coreGL(void) {
 #endif
 
     GLVersion.major = major; GLVersion.minor = minor;
-    max_loaded_major = major; max_loaded_minor = minor;
+    max_loaded_major = major;
 	GLAD_GL_VERSION_1_0 = (major == 1 && minor >= 0) || major > 1;
 	GLAD_GL_VERSION_1_1 = (major == 1 && minor >= 1) || major > 1;
 	GLAD_GL_VERSION_1_2 = (major == 1 && minor >= 2) || major > 1;
@@ -1224,7 +1225,6 @@ static void find_coreGL(void) {
 	GLAD_GL_VERSION_3_3 = (major == 3 && minor >= 3) || major > 3;
 	if (GLVersion.major > 3 || (GLVersion.major >= 3 && GLVersion.minor >= 3)) {
 		max_loaded_major = 3;
-		max_loaded_minor = 3;
 	}
 }
 
@@ -1663,14 +1663,13 @@ static void find_coreGLES2(void) {
 #endif
 
     GLVersion.major = major; GLVersion.minor = minor;
-    max_loaded_major = major; max_loaded_minor = minor;
+    max_loaded_major = major;
 	GLAD_GL_ES_VERSION_2_0 = (major == 2 && minor >= 0) || major > 2;
 	GLAD_GL_ES_VERSION_3_0 = (major == 3 && minor >= 0) || major > 3;
 	GLAD_GL_ES_VERSION_3_1 = (major == 3 && minor >= 1) || major > 3;
 	GLAD_GL_ES_VERSION_3_2 = (major == 3 && minor >= 2) || major > 3;
 	if (GLVersion.major > 3 || (GLVersion.major >= 3 && GLVersion.minor >= 2)) {
 		max_loaded_major = 3;
-		max_loaded_minor = 2;
 	}
 }
 
