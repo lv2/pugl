@@ -130,7 +130,6 @@ objc_suppressions = []
 if is_variable('objcc')
   if warning_level == 'everything'
     objc_suppressions = [
-      '-Wno-switch-enum',
       '-Wno-bad-function-cast',
       '-Wno-declaration-after-statement',
       '-Wno-direct-ivar-access',
@@ -138,8 +137,6 @@ if is_variable('objcc')
       '-Wno-padded',
       '-Wno-pedantic',
       '-Wno-poison-system-directories',
-      '-Wno-switch-default',
-      '-Wno-switch-enum',
       '-Wno-undeclared-selector',
     ]
 
