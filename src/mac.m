@@ -461,10 +461,14 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
       NSURL* const      idUri   = [NSURL URLWithString:value];
       const char* const pathRep = [idUri fileSystemRepresentation];
       NSString* const   path    = [NSString stringWithUTF8String:pathRep];
-      NSString* const   pathUri = [[NSURL fileURLWithPath:path] absoluteString];
-
-      droppedUriList = [droppedUriList stringByAppendingString:pathUri];
-      droppedUriList = [droppedUriList stringByAppendingFormat:@"\n"];
+      if (path) {
+        NSURL* const    url     = [NSURL fileURLWithPath:path];
+        NSString* const pathUri = [url absoluteString];
+        if (pathUri) {
+          droppedUriList = [droppedUriList stringByAppendingString:pathUri];
+          droppedUriList = [droppedUriList stringByAppendingFormat:@"\n"];
+        }
+      }
     }
   }
 
@@ -1957,9 +1961,10 @@ puglRegisterDropType(PuglView* const view, const char* const type)
   for (const Datatype* datatype = kDatatypes; datatype->mimeType; ++datatype) {
     if (!strcmp(type, datatype->mimeType)) {
       NSString* uti = [NSString stringWithUTF8String:datatype->uti];
-
-      addRegisteredDropType(view, uti);
-      registered = true;
+      if (uti) {
+        addRegisteredDropType(view, uti);
+        registered = true;
+      }
     }
   }
 
@@ -2204,12 +2209,14 @@ puglSetClipboard(PuglView*           PUGL_UNUSED(view),
     NSPasteboard* const pasteboard = [NSPasteboard generalPasteboard];
     NSString* const     mimeType   = [NSString stringWithUTF8String:type];
     NSString* const     uti        = utiForMimeType(mimeType);
-    NSData* const       blob       = [NSData dataWithBytes:data length:len];
+    if (uti) {
+      NSData* const blob = [NSData dataWithBytes:data length:len];
 
-    [pasteboard declareTypes:[NSArray arrayWithObjects:uti, nil] owner:nil];
+      [pasteboard declareTypes:[NSArray arrayWithObjects:uti, nil] owner:nil];
 
-    if ([pasteboard setData:blob forType:uti]) {
-      return PUGL_SUCCESS;
+      if ([pasteboard setData:blob forType:uti]) {
+        return PUGL_SUCCESS;
+      }
     }
   }
 
