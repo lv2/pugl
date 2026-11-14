@@ -403,7 +403,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
   const PuglDataOfferEvent offer = {
     PUGL_DATA_OFFER,
     0,
-    mach_absolute_time() / 1e9,
+    puglGetTime(puglview->world),
     wloc.x,
     wloc.y,
     PUGL_CLIPBOARD_DRAG,
@@ -423,7 +423,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
   const PuglDataOfferEvent offer = {
     PUGL_DATA_OFFER,
     0,
-    mach_absolute_time() / 1e9,
+    puglGetTime(puglview->world),
     wloc.x,
     wloc.y,
     PUGL_CLIPBOARD_DRAG,
@@ -469,7 +469,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
   const PuglDataEvent data = {
     PUGL_DATA,
     0,
-    mach_absolute_time() / 1e9,
+    puglGetTime(puglview->world),
     wloc.x,
     wloc.y,
     PUGL_CLIPBOARD_DRAG,
