@@ -33,6 +33,7 @@ struct PuglWorldInternalsImpl {
   NSApplication*            app;
   NSAutoreleasePool*        autoreleasePool;
   struct mach_timebase_info timebaseInfo;
+  int                       refreshHz;
 };
 
 struct PuglInternalsImpl {

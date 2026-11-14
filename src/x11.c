@@ -205,6 +205,11 @@ puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
   const PuglArea size = {(PuglSpan)sizes[0].width, (PuglSpan)sizes[0].height};
   world->sizeHints[PUGL_CURRENT_SIZE] = size;
 
+  // Set the default refresh rate (for default size index 0)
+  int                nRates = 0;
+  const short* const rates  = XRRRates(display, screen, 0, &nRates);
+  world->impl->refreshHz    = rates[0];
+
   // Set the output name
   const Window              root      = RootWindow(display, screen);
   XRRScreenResources* const resources = XRRGetScreenResources(display, root);
@@ -526,20 +531,6 @@ puglApplySizeHint(PuglView* const view, const PuglSizeHint PUGL_UNUSED(hint))
   return puglUpdateSizeHints(view);
 }
 
-#if USE_XRANDR
-static void
-updateScreenConfig(PuglView* const view)
-{
-  Display* const          display = view->world->impl->display;
-  XRRScreenConfiguration* conf    = XRRGetScreenInfo(display, view->impl->win);
-
-  view->world->impl->scaleFactor = puglX11GetDisplayScaleFactor(display);
-  view->hints[PUGL_REFRESH_RATE] = XRRConfigCurrentRate(conf);
-
-  XRRFreeScreenConfigInfo(conf);
-}
-#endif
-
 #if USE_XCURSOR
 static PuglStatus
 defineCursorName(PuglView* const view, const char* const name)
@@ -637,6 +628,10 @@ puglRealize(PuglView* const view)
   puglEnsureHint(view, PUGL_RESIZABLE, PUGL_TRUE);
   puglEnsureHint(view, PUGL_VIEW_TYPE, PUGL_VIEW_TYPE_NORMAL);
 
+  if (world->impl->refreshHz) {
+    view->hints[PUGL_REFRESH_RATE] = world->impl->refreshHz;
+  }
+
   // Attach the backend to get the visual info
   impl->screen = screen;
   if ((st = view->backend->attach(view)) || !impl->vi) {
@@ -702,8 +697,25 @@ puglRealize(PuglView* const view)
   // Get/track refresh rate changes via XRandR
   int ignore = 0;
   if ((impl->hasRr = XRRQueryExtension(display, &impl->rrEventBase, &ignore))) {
+    // Set the current size of the world to the display size
+    int                        nSizes = 0;
+    const XRRScreenSize* const sizes  = XRRSizes(display, screen, &nSizes);
+    const PuglArea size = {(PuglSpan)sizes[0].width, (PuglSpan)sizes[0].height};
+    view->world->sizeHints[PUGL_CURRENT_SIZE] = size;
+
+    // Set the view refresh rate
+    int                nRates      = 0;
+    const short* const rates       = XRRRates(display, screen, 0, &nRates);
+    view->hints[PUGL_REFRESH_RATE] = rates[0];
+
+    XRRScreenResources* const resources =
+      XRRGetScreenResources(display, impl->win);
+    XRROutputInfo* const info =
+      XRRGetOutputInfo(display, resources, resources->outputs[0]);
+    puglSetString(&world->strings[PUGL_OUTPUT_NAME], info->name);
+
+    // Request screen change notifications
     XRRSelectInput(display, impl->win, RRScreenChangeNotifyMask);
-    updateScreenConfig(view);
   }
 #endif
 
@@ -1941,11 +1953,25 @@ flushExposures(PuglWorld* const world)
 static PuglEvent
 handleRandr(PuglView* const view, XEvent xevent)
 {
-  if (view->impl->hasRr &&
-      xevent.type == view->impl->rrEventBase + RRScreenChangeNotify &&
-      XRRUpdateConfiguration(&xevent)) {
-    updateScreenConfig(view);
-    return getCurrentConfiguration(view);
+  const int base = view->impl->rrEventBase;
+  if (view->impl->hasRr && xevent.type >= base &&
+      xevent.type <= base + RRNotify && XRRUpdateConfiguration(&xevent)) {
+    if (xevent.type == base + RRScreenChangeNotifyMask) {
+      const XRRScreenChangeNotifyEvent* const change =
+        ((const XRRScreenChangeNotifyEvent*)&xevent);
+
+      const PuglArea size = {(PuglSpan)change->width, (PuglSpan)change->height};
+      view->world->sizeHints[PUGL_CURRENT_SIZE] = size;
+
+      int                nRates = 0;
+      const short* const rates  = XRRRates(view->world->impl->display,
+                                           view->impl->screen,
+                                           change->size_index,
+                                           &nRates);
+      if (nRates) {
+        view->hints[PUGL_REFRESH_RATE] = rates[0];
+      }
+    }
   }
 
   const PuglEvent event = {{PUGL_NOTHING, 0U}};

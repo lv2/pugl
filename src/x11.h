@@ -85,6 +85,7 @@ struct PuglWorldInternalsImpl {
   PuglX11Atoms atoms;
   XIM          xim;
   double       scaleFactor;
+  int          refreshHz;
   PuglTimer*   timers;
   size_t       numTimers;
   XID          serverTimeCounter;

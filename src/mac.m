@@ -1241,6 +1241,15 @@ puglInitWorldInternals(PuglWorld* const     world,
   puglSetString(&world->strings[PUGL_OUTPUT_NAME], [name UTF8String]);
 #endif
 
+  CGDisplayModeRef mode = CGDisplayCopyDisplayMode(CGMainDisplayID());
+
+  // Set the default display size and refresh rate
+  PuglArea* const size   = &world->sizeHints[PUGL_CURRENT_SIZE];
+  size->width            = (PuglSpan)CGDisplayModeGetPixelWidth(mode);
+  size->height           = (PuglSpan)CGDisplayModeGetPixelHeight(mode);
+  world->impl->refreshHz = (int)CGDisplayModeGetRefreshRate(mode);
+
+  CGDisplayModeRelease(mode);
   return PUGL_SUCCESS;
 }
 
@@ -1444,17 +1453,12 @@ puglRealize(PuglView* view)
   puglEnsureHint(view, PUGL_BLUE_BITS, 8);
   puglEnsureHint(view, PUGL_ALPHA_BITS, 0);
 
-  CGDirectDisplayID displayId = CGMainDisplayID();
-  CGDisplayModeRef  mode      = CGDisplayCopyDisplayMode(displayId);
-
-  // Try to get refresh rate from mode (usually fails)
-  view->hints[PUGL_REFRESH_RATE] = (int)CGDisplayModeGetRefreshRate(mode);
-
-  CGDisplayModeRelease(mode);
-  if (view->hints[PUGL_REFRESH_RATE] == 0) {
-    // Get refresh rate from a display link
+  // Try to set the refresh rate from the display mode
+  view->hints[PUGL_REFRESH_RATE] = view->world->impl->refreshHz;
+  if (view->hints[PUGL_REFRESH_RATE] <= 0) {
+    // No rate available from mode, get it from a temporary display link
     CVDisplayLinkRef link = NULL;
-    CVDisplayLinkCreateWithCGDisplay(displayId, &link);
+    CVDisplayLinkCreateWithCGDisplay(CGMainDisplayID(), &link);
 
     const CVTime p = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link);
     const double r = p.timeScale / (double)p.timeValue;
