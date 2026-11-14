@@ -62,6 +62,7 @@
 #define VK_NO_PROTOTYPES
 
 #include <cstdint>
+#include <exception>
 
 // On 64-bit platforms, all handles are "dispatchable" pointers
 #if defined(__LP64__) || defined(_WIN64) ||                          \
@@ -663,12 +664,16 @@ wrapVectorAccessor(Vector& vector, Func func, Args... args) noexcept
     return r;
   }
 
-  vector = Vector(count);
-  if ((r = func(args..., &count, vector.data()))) {
-    vector.clear();
-    return r;
-  }
+  try {
+    vector = Vector(count);
 
+    if ((r = func(args..., &count, vector.data()))) {
+      vector.clear();
+      return r;
+    }
+  } catch (const std::exception&) {
+    return VK_ERROR_OUT_OF_HOST_MEMORY;
+  }
   return VK_SUCCESS;
 }
 
@@ -1019,23 +1024,27 @@ public:
     const VkCommandBufferAllocateInfo&     allocateInfo,
     CommandBuffers<VkCommandBufferVector>& commandBuffers) const noexcept
   {
-    VkCommandBufferVector rawCommandBuffers =
-      VkCommandBufferVector(allocateInfo.commandBufferCount);
+    try {
+      VkCommandBufferVector rawCommandBuffers =
+        VkCommandBufferVector(allocateInfo.commandBufferCount);
 
-    if (const VkResult r = vkAllocateCommandBuffers(
-          device, &allocateInfo, rawCommandBuffers.data())) {
-      return r;
-    }
+      if (const VkResult r = vkAllocateCommandBuffers(
+            device, &allocateInfo, rawCommandBuffers.data())) {
+        return r;
+      }
 
-    commandBuffers = CommandBuffers<VkCommandBufferVector>{
-      allocateInfo.commandBufferCount,
-      std::move(rawCommandBuffers),
-      PoolDeleter<VkCommandBuffer, VkCommandPool, void>{
-        device,
-        allocateInfo.commandPool,
+      commandBuffers = CommandBuffers<VkCommandBufferVector>{
         allocateInfo.commandBufferCount,
-        vkFreeCommandBuffers}};
-    return VK_SUCCESS;
+        std::move(rawCommandBuffers),
+        PoolDeleter<VkCommandBuffer, VkCommandPool, void>{
+          device,
+          allocateInfo.commandPool,
+          allocateInfo.commandBufferCount,
+          vkFreeCommandBuffers}};
+      return VK_SUCCESS;
+    } catch (const std::exception&) {
+      return VK_ERROR_OUT_OF_HOST_MEMORY;
+    }
   }
 
   template<class VkDescriptorSetVector>
@@ -1044,23 +1053,27 @@ public:
     const VkDescriptorSetAllocateInfo&     allocateInfo,
     DescriptorSets<VkDescriptorSetVector>& descriptorSets) const noexcept
   {
-    auto descriptorSetVector =
-      VkDescriptorSetVector(allocateInfo.descriptorSetCount);
+    try {
+      auto descriptorSetVector =
+        VkDescriptorSetVector(allocateInfo.descriptorSetCount);
 
-    if (const VkResult r = vkAllocateDescriptorSets(
-          device, &allocateInfo, descriptorSetVector.data())) {
-      return r;
-    }
+      if (const VkResult r = vkAllocateDescriptorSets(
+            device, &allocateInfo, descriptorSetVector.data())) {
+        return r;
+      }
 
-    descriptorSets = DescriptorSets<VkDescriptorSetVector>{
-      allocateInfo.descriptorSetCount,
-      std::move(descriptorSetVector),
-      PoolDeleter<VkDescriptorSet, VkDescriptorPool, VkResult>{
-        device,
-        allocateInfo.descriptorPool,
+      descriptorSets = DescriptorSets<VkDescriptorSetVector>{
         allocateInfo.descriptorSetCount,
-        vkFreeDescriptorSets}};
-    return VK_SUCCESS;
+        std::move(descriptorSetVector),
+        PoolDeleter<VkDescriptorSet, VkDescriptorPool, VkResult>{
+          device,
+          allocateInfo.descriptorPool,
+          allocateInfo.descriptorSetCount,
+          vkFreeDescriptorSets}};
+      return VK_SUCCESS;
+    } catch (const std::exception&) {
+      return VK_ERROR_OUT_OF_HOST_MEMORY;
+    }
   }
 
   VkResult bindBufferMemory(const Device&       device,
@@ -1319,7 +1332,12 @@ public:
       return r;
     }
 
-    physicalDevices = Vector(count);
+    try {
+      physicalDevices = Vector(count);
+    } catch (const std::exception&) {
+      return VK_ERROR_OUT_OF_HOST_MEMORY;
+    }
+
     if ((r = vkEnumeratePhysicalDevices(
            instance, &count, physicalDevices.data()))) {
       return r;
@@ -1361,7 +1379,12 @@ public:
     uint32_t count = 0U;
     vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &count, nullptr);
 
-    queueFamilyProperties = Vector(count);
+    try {
+      queueFamilyProperties = Vector(count);
+    } catch (const std::exception&) {
+      return VK_ERROR_OUT_OF_HOST_MEMORY;
+    }
+
     vkGetPhysicalDeviceQueueFamilyProperties(
       physicalDevice, &count, queueFamilyProperties.data());
 
