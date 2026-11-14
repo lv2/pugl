@@ -44,10 +44,10 @@ puglMacStubCreate(PuglView* view)
   PuglStubView*  drawView = [PuglStubView alloc];
 
   drawView->puglview = view;
-  [drawView initWithFrame:NSMakeRect(0,
-                                     0,
-                                     view->lastConfigure.width,
-                                     view->lastConfigure.height)];
+  drawView = [drawView initWithFrame:NSMakeRect(0,
+                                                0,
+                                                view->lastConfigure.width,
+                                                view->lastConfigure.height)];
 
   if (view->hints[PUGL_RESIZABLE]) {
     [drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
