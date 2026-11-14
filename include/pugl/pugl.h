@@ -802,10 +802,19 @@ typedef enum {
      This is a short description of the display output, like "Displayco 27".
   */
   PUGL_OUTPUT_DESCRIPTION,
+
+  /*
+     The name of the application locale.
+
+     This is used on some platforms to load the correct keyboard mapping.  It
+     is a standard locale identifier as used by the LANG environment variable,
+     like "en_CA.UTF-8".
+  */
+  PUGL_LOCALE,
 } PuglStringHint;
 
 /// The number of #PuglStringHint values
-#define PUGL_NUM_STRING_HINTS 5U
+#define PUGL_NUM_STRING_HINTS 6U
 
 /**
    @}
@@ -898,6 +907,8 @@ typedef enum {
    MacOS: This is a pointer to the `NSApplication`.
 
    Windows: This is the `HMODULE` of the calling process.
+
+   Wayland: This is a pointer to the `wl_display`.
 */
 typedef void* PuglNativeWorld;
 
