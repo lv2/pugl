@@ -282,7 +282,7 @@ puglInitWorldInternals(PuglWorld* const world,
   return PUGL_SUCCESS;
 }
 
-void*
+PuglNativeWorld
 puglGetNativeWorld(PuglWorld* PUGL_UNUSED(world))
 {
   return GetModuleHandle(NULL);

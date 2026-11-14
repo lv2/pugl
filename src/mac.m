@@ -1249,7 +1249,7 @@ puglFreeWorldInternals(PuglWorld* world)
   free(world->impl);
 }
 
-void*
+PuglNativeWorld
 puglGetNativeWorld(PuglWorld* world)
 {
   return world->impl->app;
