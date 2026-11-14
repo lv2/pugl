@@ -33,7 +33,7 @@ typedef struct {
 
 #define NUM_DATATYPES 16
 
-static const Datatype datatypes[NUM_DATATYPES + 1] = {
+static const Datatype kDatatypes[NUM_DATATYPES + 1] = {
   {"com.apple.pasteboard.promised-file-url", "text/uri-list"},
   {"org.7-zip.7-zip-archive", "application/x-7z-compressed"},
   {"org.gnu.gnu-zip-tar-archive", "application/tar+gzip"},
@@ -59,7 +59,7 @@ mimeTypeForUti(const NSString* const uti)
   const char* const utiString = [uti UTF8String];
 
   // First try internal map to override types the system won't convert sensibly
-  for (const Datatype* datatype = datatypes; datatype->uti; ++datatype) {
+  for (const Datatype* datatype = kDatatypes; datatype->uti; ++datatype) {
     if (!strcmp(utiString, datatype->uti)) {
       return [NSString stringWithUTF8String:datatype->mimeType];
     }
@@ -76,7 +76,7 @@ utiForMimeType(const NSString* const mimeType)
   const char* const mimeTypeString = [mimeType UTF8String];
 
   // First try internal map to override types the system won't convert sensibly
-  for (const Datatype* datatype = datatypes; datatype->mimeType; ++datatype) {
+  for (const Datatype* datatype = kDatatypes; datatype->mimeType; ++datatype) {
     if (!strcmp(mimeTypeString, datatype->mimeType)) {
       return [NSString stringWithUTF8String:datatype->uti];
     }
@@ -1974,7 +1974,7 @@ puglRegisterDropType(PuglView* const view, const char* const type)
 
   // First register any types in the internal map that map to this MIME type
   bool registered = false;
-  for (const Datatype* datatype = datatypes; datatype->mimeType; ++datatype) {
+  for (const Datatype* datatype = kDatatypes; datatype->mimeType; ++datatype) {
     if (!strcmp(type, datatype->mimeType)) {
       NSString* uti = [NSString stringWithUTF8String:datatype->uti];
 
