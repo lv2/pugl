@@ -1347,8 +1347,7 @@ puglRealize(PuglView* view)
   CGDisplayModeRelease(mode);
   if (view->hints[PUGL_REFRESH_RATE] == 0) {
     // Get refresh rate from a display link
-    // TODO: Keep and actually use the display link for something?
-    CVDisplayLinkRef link;
+    CVDisplayLinkRef link = NULL;
     CVDisplayLinkCreateWithCGDisplay(displayId, &link);
 
     const CVTime p = CVDisplayLinkGetNominalOutputVideoRefreshPeriod(link);
