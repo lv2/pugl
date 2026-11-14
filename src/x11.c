@@ -199,6 +199,12 @@ puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
 #if USE_XRANDR
   const int screen = DefaultScreen(display);
 
+  // Set the default display size (index 0)
+  int                        nSizes = 0;
+  const XRRScreenSize* const sizes  = XRRSizes(display, screen, &nSizes);
+  const PuglArea size = {(PuglSpan)sizes[0].width, (PuglSpan)sizes[0].height};
+  world->sizeHints[PUGL_CURRENT_SIZE] = size;
+
   // Set the output name
   const Window              root      = RootWindow(display, screen);
   XRRScreenResources* const resources = XRRGetScreenResources(display, root);

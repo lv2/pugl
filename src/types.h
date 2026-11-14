@@ -68,6 +68,7 @@ struct PuglWorldImpl {
   double              startTime;
   size_t              numViews;
   PuglView**          views;
+  PuglArea            sizeHints[PUGL_NUM_SIZE_HINTS];
   char*               strings[PUGL_NUM_STRING_HINTS];
   PuglWorldType       type;
   PuglWorldState      state;

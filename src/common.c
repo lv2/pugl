@@ -108,6 +108,12 @@ puglGetWorldString(const PuglWorld* const world, const PuglStringHint key)
   return world->strings[key];
 }
 
+PuglArea
+puglGetWorldSizeHint(const PuglWorld* const world, const PuglSizeHint hint)
+{
+  return world->sizeHints[hint];
+}
+
 static void
 puglSetDefaultHints(PuglView* const view)
 {

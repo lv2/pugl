@@ -113,6 +113,20 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
     cairo_show_text(cr, buf);
   }
 
+  const PuglArea mode = puglGetWorldSizeHint(app->world, PUGL_CURRENT_SIZE);
+  if (mode.width && mode.height) {
+    snprintf(buf,
+             sizeof(buf),
+             "Mode: %ux%u @ %d Hz",
+             mode.width,
+             mode.height,
+             puglGetViewHint(view, PUGL_REFRESH_RATE));
+    cairo_text_extents(cr, buf, &extents);
+    cairo_move_to(
+      cr, cx - (extents.width / 2.0), cy + (extents.height / 2.0) + 96.0);
+    cairo_show_text(cr, buf);
+  }
+
   const char* const outputName =
     puglGetWorldString(app->world, PUGL_OUTPUT_NAME);
   const char* const outputDescription =

@@ -809,6 +809,78 @@ typedef enum {
 
 /**
    @}
+   @defgroup pugl_size_hints Size Hints
+   @{
+*/
+
+/**
+   A hint for configuring/constraining the size of a view.
+
+   The system will attempt to make the view adhere to these, but they are
+   suggestions, not hard constraints.  Applications should handle any view size
+   gracefully.
+*/
+typedef enum {
+  /**
+     Default size.
+
+     This is used as the size during window creation as a default, if no other
+     size is specified.
+  */
+  PUGL_DEFAULT_SIZE,
+
+  /**
+     Current size.
+
+     This reflects the current size of the view, which may be different from
+     the default size if the view is resizable.  It overrides the default size.
+  */
+  PUGL_CURRENT_SIZE,
+
+  /**
+     Minimum size.
+
+     If set, the view should be at least this large.
+  */
+  PUGL_MIN_SIZE,
+
+  /**
+     Maximum size.
+
+     If set, the view should be at most this large.
+  */
+  PUGL_MAX_SIZE,
+
+  /**
+     Fixed aspect ratio.
+
+     If set, the view should have this aspect ratio.  Mutually exclusive with
+     #PUGL_MIN_ASPECT and #PUGL_MAX_ASPECT.
+  */
+  PUGL_FIXED_ASPECT,
+
+  /**
+     Minimum aspect ratio.
+
+     If set, the view should have an aspect ratio no lower than this.  Mutually
+     exclusive with #PUGL_FIXED_ASPECT.
+  */
+  PUGL_MIN_ASPECT,
+
+  /**
+     Maximum aspect ratio.
+
+     If set, the view should have an aspect ratio no higher than this.
+     Mutually exclusive with #PUGL_FIXED_ASPECT.
+  */
+  PUGL_MAX_ASPECT,
+} PuglSizeHint;
+
+/// The number of #PuglSizeHint values
+#define PUGL_NUM_SIZE_HINTS 7U
+
+/**
+   @}
    @defgroup pugl_native Native Types
    Types that reflect native types for the underlying platform.
    @{
@@ -930,6 +1002,14 @@ puglSetWorldString(PuglWorld* world, PuglStringHint key, const char* value);
 */
 PUGL_API const char*
 puglGetWorldString(const PuglWorld* world, PuglStringHint key);
+
+/**
+   Get a world or application size hint.
+
+   This can be used to inspect the connected display mode.
+*/
+PUGL_API PuglArea
+puglGetWorldSizeHint(const PuglWorld* world, PuglSizeHint hint);
 
 /**
    Get the default scale factor.
@@ -1098,72 +1178,6 @@ typedef enum {
 
 /// The number of #PuglPositionHint values
 #define PUGL_NUM_POSITION_HINTS 2U
-
-/**
-   A hint for configuring/constraining the size of a view.
-
-   The system will attempt to make the view adhere to these, but they are
-   suggestions, not hard constraints.  Applications should handle any view size
-   gracefully.
-*/
-typedef enum {
-  /**
-     Default size.
-
-     This is used as the size during window creation as a default, if no other
-     size is specified.
-  */
-  PUGL_DEFAULT_SIZE,
-
-  /**
-     Current size.
-
-     This reflects the current size of the view, which may be different from
-     the default size if the view is resizable.  It overrides the default size.
-  */
-  PUGL_CURRENT_SIZE,
-
-  /**
-     Minimum size.
-
-     If set, the view should be at least this large.
-  */
-  PUGL_MIN_SIZE,
-
-  /**
-     Maximum size.
-
-     If set, the view should be at most this large.
-  */
-  PUGL_MAX_SIZE,
-
-  /**
-     Fixed aspect ratio.
-
-     If set, the view should have this aspect ratio.  Mutually exclusive with
-     #PUGL_MIN_ASPECT and #PUGL_MAX_ASPECT.
-  */
-  PUGL_FIXED_ASPECT,
-
-  /**
-     Minimum aspect ratio.
-
-     If set, the view should have an aspect ratio no lower than this.  Mutually
-     exclusive with #PUGL_FIXED_ASPECT.
-  */
-  PUGL_MIN_ASPECT,
-
-  /**
-     Maximum aspect ratio.
-
-     If set, the view should have an aspect ratio no higher than this.
-     Mutually exclusive with #PUGL_FIXED_ASPECT.
-  */
-  PUGL_MAX_ASPECT,
-} PuglSizeHint;
-
-/// The number of #PuglSizeHint values
-#define PUGL_NUM_SIZE_HINTS 7U
 
 /// A function called when an event occurs
 typedef PuglStatus (*PuglEventFunc)(PuglView* view, const PuglEvent* event);
