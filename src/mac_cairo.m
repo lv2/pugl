@@ -100,7 +100,13 @@ puglMacCairoEnter(PuglView* view, const bool expose)
   assert(!drawView->surface);
   assert(!drawView->cr);
 
-  const double scale = 1.0 / [[NSScreen mainScreen] backingScaleFactor];
+  const NSScreen* const screen = view->impl->window
+                                   ? [view->impl->window screen]
+                                 : [view->impl->wrapperView window]
+                                   ? [[view->impl->wrapperView window] screen]
+                                   : [NSScreen mainScreen];
+
+  const double scale = 1.0 / [screen backingScaleFactor];
   CGContextRef context =
     (CGContextRef)[[NSGraphicsContext currentContext] CGContext];
 
