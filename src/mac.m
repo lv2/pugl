@@ -1206,7 +1206,7 @@ puglInitWorldInternals(PuglWorld* const     world,
   }
 
   if (world->type == PUGL_PROGRAM) {
-    impl->autoreleasePool = [NSAutoreleasePool new];
+    impl->autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     [impl->app setActivationPolicy:NSApplicationActivationPolicyRegular];
   }
