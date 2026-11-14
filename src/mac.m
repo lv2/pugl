@@ -547,6 +547,8 @@ keySymToSpecial(const NSEvent* const ev)
       return PUGL_KEY_PRINT_SCREEN;
     case NSPauseFunctionKey:
       return PUGL_KEY_PAUSE;
+    default:
+      break;
     }
     // SHIFT, CTRL, ALT, and SUPER are handled in [flagsChanged]
   }
@@ -1626,43 +1628,20 @@ puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
   for (uint32_t mask = 1U; mask <= PUGL_MAX_VIEW_STYLE_FLAG; mask <<= 1U) {
     const bool oldValue = oldFlags & mask;
     const bool newValue = flags & mask;
-    if (oldValue == newValue) {
-      continue;
-    }
-
-    switch (mask) {
-    case PUGL_VIEW_STYLE_MODAL:
-    case PUGL_VIEW_STYLE_TALL:
-    case PUGL_VIEW_STYLE_WIDE:
-      break;
-
-    case PUGL_VIEW_STYLE_HIDDEN:
-      if (newValue) {
-        [window miniaturize:window];
-      } else {
-        [window deminiaturize:window];
-      }
-      break;
-
-    case PUGL_VIEW_STYLE_FULLSCREEN:
-      if (newValue != ([window styleMask] & NSWindowStyleMaskFullScreen)) {
+    if (oldValue != newValue) {
+      if (mask == PUGL_VIEW_STYLE_HIDDEN) {
+        if (newValue) {
+          [window miniaturize:window];
+        } else {
+          [window deminiaturize:window];
+        }
+      } else if (mask == PUGL_VIEW_STYLE_FULLSCREEN &&
+                 newValue !=
+                   ([window styleMask] & NSWindowStyleMaskFullScreen)) {
         [window toggleFullScreen:nil];
-      }
-      break;
-
-    case PUGL_VIEW_STYLE_ABOVE:
-    case PUGL_VIEW_STYLE_BELOW:
-      break;
-
-    case PUGL_VIEW_STYLE_DEMANDING:
-      if (![window isKeyWindow]) {
+      } else if (mask == PUGL_VIEW_STYLE_DEMANDING && ![window isKeyWindow]) {
         [view->world->impl->app requestUserAttention:NSInformationalRequest];
       }
-      break;
-
-    case PUGL_VIEW_STYLE_RESIZING:
-    case PUGL_VIEW_STYLE_MAPPED:
-      break;
     }
   }
 
