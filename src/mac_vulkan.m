@@ -82,7 +82,7 @@ puglMacVulkanCreate(PuglView* view)
     NSMakeRect(0, 0, view->lastConfigure.width, view->lastConfigure.height);
 
   drawView->puglview = view;
-  [drawView initWithFrame:rect];
+  drawView           = [drawView initWithFrame:rect];
   if (view->hints[PUGL_RESIZABLE]) {
     [drawView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
   } else {

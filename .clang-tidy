@@ -11,7 +11,6 @@ Checks: >
   -bugprone-assignment-in-selection-statement,
   -bugprone-switch-missing-default-case,
   -cert-exp45-c,
-  -clang-analyzer-osx.cocoa.RetainCount,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   -clang-diagnostic-unused-function,
   -clang-diagnostic-unused-macros,

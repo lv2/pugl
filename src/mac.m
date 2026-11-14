@@ -1452,8 +1452,10 @@ puglRealize(PuglView* view)
       [titleString release];
     }
 
-    ((NSWindow*)window).delegate =
+    PuglWindowDelegate* const delegate =
       [[PuglWindowDelegate alloc] initWithPuglWindow:window];
+    [window setDelegate:delegate];
+    [delegate release];
 
     // Set window frame
     const NSRect screenPt = rectToScreen(screen, framePt);
