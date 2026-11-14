@@ -17,6 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// NOLINTBEGIN(misc-misplaced-const,performance-no-int-to-ptr)
+
 #ifndef __MAC_10_10
 typedef NSUInteger NSEventModifierFlags;
 typedef NSUInteger NSEventSubtype;
@@ -2213,3 +2215,5 @@ puglSetClipboard(PuglView*           PUGL_UNUSED(view),
 
   return PUGL_FAILURE;
 }
+
+// NOLINTEND(misc-misplaced-const,performance-no-int-to-ptr)

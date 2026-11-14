@@ -4,6 +4,9 @@
 Checks: >
   -bugprone-easily-swappable-parameters,
   -bugprone-multi-level-implicit-pointer-conversion,
+  -clang-analyzer-nullability.NullablePassedToNonnull,
+  -google-objc-avoid-nsobject-new,
+  -google-objc-function-naming,
   -hicpp-multiway-paths-covered,
   -llvm-header-guard,
 CheckOptions:
