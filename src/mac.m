@@ -112,6 +112,7 @@ rectFromScreen(const NSScreen* screen, NSRect rect)
   return rectToScreen(screen, rect);
 }
 
+// Return the screen of a view, defaulting to the main screen
 static NSScreen*
 viewScreen(const PuglView* view)
 {
@@ -119,6 +120,33 @@ viewScreen(const PuglView* view)
          : [view->impl->wrapperView window]
            ? [[view->impl->wrapperView window] screen]
            : [NSScreen mainScreen];
+}
+
+// Return a screen at a point, defaulting to the main screen
+static NSScreen*
+pointScreen(const PuglPoint point)
+{
+  const NSArray<NSScreen*>* const screens    = [NSScreen screens];
+  const NSUInteger                numScreens = [screens count];
+  for (NSUInteger i = 0; i < numScreens; ++i) {
+    const NSRect frame = [[screens objectAtIndex:i] frame];
+    if (point.x >= frame.origin.x &&
+        point.x < frame.origin.x + frame.size.width &&
+        point.y >= frame.origin.y &&
+        point.y < frame.origin.y + frame.size.height) {
+      return [screens objectAtIndex:i];
+    }
+  }
+
+  return [NSScreen mainScreen];
+}
+
+static CGDirectDisplayID
+screenDisplayID(const NSScreen* const screen)
+{
+  NSDictionary* const desc         = [screen deviceDescription];
+  NSNumber* const     screenNumber = [desc objectForKey:@"NSScreenNumber"];
+  return screenNumber.unsignedIntValue;
 }
 
 static NSRect
@@ -235,7 +263,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
     return PUGL_SUCCESS;
   }
 
-  const NSRect screenFramePt = [[NSScreen mainScreen] frame];
+  const NSRect screenFramePt = [viewScreen(puglview) frame];
   const NSRect screenFramePx = nsRectFromPoints(puglview, screenFramePt);
   const NSRect framePt       = [self frame];
   const NSRect contentPt     = [self contentRectForFrameRect:framePt];
@@ -333,7 +361,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
     return;
   }
 
-  const double scaleFactor = [[NSScreen mainScreen] backingScaleFactor];
+  const double scaleFactor = [viewScreen(puglview) backingScaleFactor];
   const double viewY       = (double)puglview->lastConfigure.height -
                              ((rect.origin.y + rect.size.height) * scaleFactor);
 
@@ -386,7 +414,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
 
 - (void)screenConfigurationDidChange:(NSNotification*)notification
 {
-  const CGDirectDisplayID displayId = CGMainDisplayID();
+  const CGDirectDisplayID displayId = screenDisplayID(viewScreen(puglview));
   CGDisplayModeRef        mode      = CGDisplayCopyDisplayMode(displayId);
 
   puglview->hints[PUGL_REFRESH_RATE] = (int)CGDisplayModeGetRefreshRate(mode);
@@ -635,7 +663,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     wloc.x,
     wloc.y,
     rloc.x,
-    [[NSScreen mainScreen] frame].size.height - rloc.y,
+    [viewScreen(view->puglview) frame].size.height - rloc.y,
     getModifiers(event),
     PUGL_CROSSING_NORMAL,
   };
@@ -676,7 +704,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     wloc.x,
     wloc.y,
     rloc.x,
-    [[NSScreen mainScreen] frame].size.height - rloc.y,
+    [viewScreen(puglview) frame].size.height - rloc.y,
     getModifiers(event),
   };
 
@@ -711,7 +739,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     wloc.x,
     wloc.y,
     rloc.x,
-    [[NSScreen mainScreen] frame].size.height - rloc.y,
+    [viewScreen(puglview) frame].size.height - rloc.y,
     getModifiers(event),
     (uint32_t)[event buttonNumber],
   };
@@ -732,7 +760,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     wloc.x,
     wloc.y,
     rloc.x,
-    [[NSScreen mainScreen] frame].size.height - rloc.y,
+    [viewScreen(puglview) frame].size.height - rloc.y,
     getModifiers(event),
     (uint32_t)[event buttonNumber],
   };
@@ -791,7 +819,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     wloc.x,
     wloc.y,
     rloc.x,
-    [[NSScreen mainScreen] frame].size.height - rloc.y,
+    [viewScreen(puglview) frame].size.height - rloc.y,
     getModifiers(event),
     dir,
     dx,
@@ -823,7 +851,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     wloc.x,
     wloc.y,
     rloc.x,
-    [[NSScreen mainScreen] frame].size.height - rloc.y,
+    [viewScreen(puglview) frame].size.height - rloc.y,
     puglFilterMods(getModifiers(event), spec),
     [event keyCode],
     (code != 0xFFFD) ? code : 0,
@@ -854,7 +882,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
     wloc.x,
     wloc.y,
     rloc.x,
-    [[NSScreen mainScreen] frame].size.height - rloc.y,
+    [viewScreen(puglview) frame].size.height - rloc.y,
     puglFilterMods(getModifiers(event), spec),
     [event keyCode],
     (code != 0xFFFD) ? code : 0,
@@ -968,7 +996,7 @@ handleCrossing(PuglWrapperView* view, NSEvent* event, const PuglEventType type)
       wloc.x,
       wloc.y,
       rloc.x,
-      [[NSScreen mainScreen] frame].size.height - rloc.y,
+      [viewScreen(puglview) frame].size.height - rloc.y,
       getModifiers(event),
       [event keyCode],
       code,
@@ -1024,7 +1052,7 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
                              wloc.x,
                              wloc.y,
                              rloc.x,
-                             [[NSScreen mainScreen] frame].size.height - rloc.y,
+                             [viewScreen(puglview) frame].size.height - rloc.y,
                              puglFilterMods(mods, special),
                              [event keyCode],
                              special};
@@ -1336,7 +1364,12 @@ puglRealize(PuglView* view)
     return st;
   }
 
-  const NSScreen* const screen      = [NSScreen mainScreen];
+  // Get the initial size and position from the defaults or last configuration
+  const PuglArea  size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
+  const PuglPoint pos  = puglGetInitialPosition(view, size);
+
+  // Get the screen for the initial position and its scale factor
+  const NSScreen* const screen      = pointScreen(pos);
   const double          scaleFactor = [screen backingScaleFactor];
 
   // Getting depth from the display mode seems tedious, just set usual values
@@ -1345,15 +1378,13 @@ puglRealize(PuglView* view)
   puglEnsureHint(view, PUGL_BLUE_BITS, 8);
   puglEnsureHint(view, PUGL_ALPHA_BITS, 0);
 
-  CGDirectDisplayID displayId = CGMainDisplayID();
-  CGDisplayModeRef  mode      = CGDisplayCopyDisplayMode(displayId);
-
   // Try to get refresh rate from mode (usually fails)
-  view->hints[PUGL_REFRESH_RATE] = (int)CGDisplayModeGetRefreshRate(mode);
-
+  const CGDirectDisplayID displayId = screenDisplayID(screen);
+  CGDisplayModeRef        mode      = CGDisplayCopyDisplayMode(displayId);
+  view->hints[PUGL_REFRESH_RATE]    = (int)CGDisplayModeGetRefreshRate(mode);
   CGDisplayModeRelease(mode);
   if (view->hints[PUGL_REFRESH_RATE] == 0) {
-    // Get refresh rate from a display link
+    // Get refresh rate from a temporary display link
     CVDisplayLinkRef link = NULL;
     CVDisplayLinkCreateWithCGDisplay(displayId, &link);
 
@@ -1363,10 +1394,6 @@ puglRealize(PuglView* view)
 
     CVDisplayLinkRelease(link);
   }
-
-  // Get the initial size and position from the defaults or last configuration
-  const PuglArea  size = puglGetSizeHint(view, PUGL_CURRENT_SIZE);
-  const PuglPoint pos  = puglGetInitialPosition(view, size);
 
   // Convert frame to points
   const NSRect framePx = NSMakeRect(pos.x, pos.y, size.width, size.height);
@@ -1432,11 +1459,11 @@ puglRealize(PuglView* view)
       style |= NSWindowStyleMaskResizable;
     }
 
-    PuglWindow* window = [[[PuglWindow alloc]
-      initWithContentRect:rectToScreen([NSScreen mainScreen], framePt)
-                styleMask:(NSWindowStyleMask)style
-                  backing:NSBackingStoreBuffered
-                    defer:NO] retain];
+    PuglWindow* window =
+      [[[PuglWindow alloc] initWithContentRect:rectToScreen(screen, framePt)
+                                     styleMask:(NSWindowStyleMask)style
+                                       backing:NSBackingStoreBuffered
+                                         defer:NO] retain];
 
     window->puglview = view;
     impl->window     = window;
