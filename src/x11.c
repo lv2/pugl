@@ -272,6 +272,17 @@ puglGetNativeWorld(PuglWorld* const world)
   return world->impl->display;
 }
 
+double
+puglGetWorldScaleFactor(const PuglWorld* const world,
+                        const PuglNativeView   parent,
+                        const PuglPoint        position)
+{
+  (void)parent;
+  (void)position;
+
+  return world->impl->scaleFactor;
+}
+
 PuglInternals*
 puglInitViewInternals(PuglWorld* const world)
 {

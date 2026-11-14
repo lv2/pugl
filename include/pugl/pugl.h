@@ -918,6 +918,23 @@ PUGL_API const char*
 puglGetWorldString(const PuglWorld* world, PuglStringHint key);
 
 /**
+   Get the default scale factor.
+
+   This can be used to get (the best guess at) the scale factor before creating
+   a view.  The parameters can be used to specify a location where a view is to
+   be created to improve accuracy in multi-display setups, but both can be zero
+   in which case the scale factor for the default display is used.
+
+   @param world The world a view will be created in.
+   @param parent The parent of the view to be created, or zero.
+   @param position The position of the view to be created.
+*/
+PUGL_API double
+puglGetWorldScaleFactor(const PuglWorld* world,
+                        PuglNativeView   parent,
+                        PuglPoint        position);
+
+/**
    Return the time in seconds.
 
    This is a monotonically increasing clock with high resolution.  The returned

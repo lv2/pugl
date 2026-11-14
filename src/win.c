@@ -222,7 +222,7 @@ puglWinGetRefreshRate(const PuglView* const view)
 }
 
 static double
-puglWinGetViewScaleFactor(const PuglView* const view)
+puglWinGetMonitorScaleFactor(const HMONITOR monitor)
 {
   const HMODULE shcore =
     LoadLibraryEx(TEXT("Shcore.dll"), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
@@ -241,12 +241,18 @@ puglWinGetViewScaleFactor(const PuglView* const view)
   DWORD dpiAware    = 0;
   DWORD scaleFactor = 100;
   if (GetProcessDpiAwareness && GetScaleFactorForMonitor &&
-      !GetProcessDpiAwareness(NULL, &dpiAware) && dpiAware) {
-    GetScaleFactorForMonitor(puglWinGetMonitor(view), &scaleFactor);
+      GetProcessDpiAwareness(NULL, &dpiAware) == S_OK && dpiAware) {
+    GetScaleFactorForMonitor(monitor, &scaleFactor);
   }
 
   FreeLibrary(shcore);
   return (double)scaleFactor / 100.0;
+}
+
+static double
+puglWinGetViewScaleFactor(const PuglView* const view)
+{
+  return puglWinGetMonitorScaleFactor(puglWinGetMonitor(view));
 }
 
 PuglWorldInternals*
@@ -286,6 +292,21 @@ PuglNativeWorld
 puglGetNativeWorld(PuglWorld* PUGL_UNUSED(world))
 {
   return GetModuleHandle(NULL);
+}
+
+double
+puglGetWorldScaleFactor(const PuglWorld* const world,
+                        const PuglNativeView   parent,
+                        const PuglPoint        position)
+{
+  if (parent) {
+    return puglWinGetMonitorScaleFactor(
+      MonitorFromWindow((HWND)parent, MONITOR_DEFAULTTOPRIMARY));
+  }
+
+  const POINT point = {position.x, position.y};
+  return puglWinGetMonitorScaleFactor(
+    MonitorFromPoint(point, MONITOR_DEFAULTTOPRIMARY));
 }
 
 PuglInternals*

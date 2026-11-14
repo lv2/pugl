@@ -30,6 +30,7 @@ basic_tests = [
   'cursor',
   'realize',
   'redisplay',
+  'scale_factor',
   'show_hide',
   'size',
   'strerror',
