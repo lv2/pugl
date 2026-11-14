@@ -389,6 +389,12 @@ public:
       puglSetWorldString(cobj(), static_cast<PuglStringHint>(key), value));
   }
 
+  /// @copydoc puglGetWorldScaleFactor
+  double getScaleFactor(NativeView parent, Point position) noexcept
+  {
+    return puglGetWorldScaleFactor(cobj(), parent, position);
+  }
+
   /// @copydoc puglGetWorldString
   const char* getString(StringHint key) const noexcept
   {

@@ -1257,6 +1257,21 @@ puglGetNativeWorld(PuglWorld* world)
   return world->impl->app;
 }
 
+double
+puglGetWorldScaleFactor(const PuglWorld* const world,
+                        const PuglNativeView   parent,
+                        const PuglPoint        position)
+{
+  (void)world;
+
+  const NSScreen* const screen = parent ? [[(NSView*)parent window] screen]
+                                 : puglIsValidPosition(position.x, position.y)
+                                   ? pointScreen(position)
+                                   : [NSScreen mainScreen];
+
+  return [screen backingScaleFactor];
+}
+
 PuglInternals*
 puglInitViewInternals(PuglWorld* PUGL_UNUSED(world))
 {
