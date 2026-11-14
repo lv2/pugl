@@ -1265,29 +1265,20 @@ puglInitViewInternals(PuglWorld* PUGL_UNUSED(world))
   return impl;
 }
 
-static NSLayoutConstraint*
-puglConstraint(const id                item,
-               const NSLayoutAttribute attribute,
-               const NSLayoutRelation  relation,
-               const float             constant)
-{
-  return [NSLayoutConstraint constraintWithItem:item
-                                      attribute:attribute
-                                      relatedBy:relation
-                                         toItem:nil
-                                      attribute:NSLayoutAttributeNotAnAttribute
-                                     multiplier:1.0
-                                       constant:(CGFloat)constant];
-}
-
 PuglStatus
 puglApplySizeHint(PuglView* const view, const PuglSizeHint hint)
 {
-  const PuglSpan width  = view->sizeHints[hint].width;
-  const PuglSpan height = view->sizeHints[hint].height;
-  if (!puglIsValidArea(view->sizeHints[hint])) {
+  const PuglArea area = view->sizeHints[hint];
+  if (!puglIsValidArea(area)) {
     return PUGL_FAILURE;
   }
+
+  if (!view->impl->wrapperView) {
+    return PUGL_SUCCESS;
+  }
+
+  NSScreen* const screen      = viewScreen(view);
+  const double    scaleFactor = [screen backingScaleFactor];
 
   switch (hint) {
   case PUGL_DEFAULT_SIZE:
@@ -1295,19 +1286,82 @@ puglApplySizeHint(PuglView* const view, const PuglSizeHint hint)
     break;
 
   case PUGL_MIN_SIZE:
-    [view->impl->window setContentMinSize:sizePoints(view, width, height)];
+    [view->impl->wrapperView
+      addConstraint:[NSLayoutConstraint
+                      constraintWithItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeWidth
+                               relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                  toItem:nil
+                               attribute:NSLayoutAttributeNotAnAttribute
+                              multiplier:1.0
+                                constant:(area.width / scaleFactor)]];
+    [view->impl->wrapperView
+      addConstraint:[NSLayoutConstraint
+                      constraintWithItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeHeight
+                               relatedBy:NSLayoutRelationGreaterThanOrEqual
+                                  toItem:nil
+                               attribute:NSLayoutAttributeNotAnAttribute
+                              multiplier:1.0
+                                constant:(area.height / scaleFactor)]];
     break;
 
   case PUGL_MAX_SIZE:
-    [view->impl->window setContentMaxSize:sizePoints(view, width, height)];
+    [view->impl->wrapperView
+      addConstraint:[NSLayoutConstraint
+                      constraintWithItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeWidth
+                               relatedBy:NSLayoutRelationLessThanOrEqual
+                                  toItem:nil
+                               attribute:NSLayoutAttributeNotAnAttribute
+                              multiplier:1.0
+                                constant:(area.width / scaleFactor)]];
+
+    [view->impl->wrapperView
+      addConstraint:[NSLayoutConstraint
+                      constraintWithItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeHeight
+                               relatedBy:NSLayoutRelationLessThanOrEqual
+                                  toItem:nil
+                               attribute:NSLayoutAttributeNotAnAttribute
+                              multiplier:1.0
+                                constant:(area.height / scaleFactor)]];
     break;
 
   case PUGL_FIXED_ASPECT:
-    [view->impl->window setContentAspectRatio:sizePoints(view, width, height)];
+    [view->impl->wrapperView
+      addConstraint:[NSLayoutConstraint
+                      constraintWithItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeHeight
+                               relatedBy:NSLayoutRelationEqual
+                                  toItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeWidth
+                              multiplier:(area.height / (CGFloat)area.width)
+                                constant:0]];
     break;
 
   case PUGL_MIN_ASPECT:
+    [view->impl->wrapperView
+      addConstraint:[NSLayoutConstraint
+                      constraintWithItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeHeight
+                               relatedBy:NSLayoutRelationLessThanOrEqual
+                                  toItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeWidth
+                              multiplier:(area.height / (CGFloat)area.width)
+                                constant:0]];
+    break;
+
   case PUGL_MAX_ASPECT:
+    [view->impl->wrapperView
+      addConstraint:[NSLayoutConstraint
+                      constraintWithItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeWidth
+                               relatedBy:NSLayoutRelationLessThanOrEqual
+                                  toItem:view->impl->wrapperView
+                               attribute:NSLayoutAttributeHeight
+                              multiplier:(area.width / (CGFloat)area.height)
+                                constant:0]];
     break;
   }
 
@@ -1404,31 +1458,9 @@ puglRealize(PuglView* view)
   [impl->wrapperView setAutoresizesSubviews:YES];
   [impl->wrapperView initWithFrame:framePt];
 
-  [impl->wrapperView
-    addConstraint:puglConstraint(impl->wrapperView,
-                                 NSLayoutAttributeWidth,
-                                 NSLayoutRelationGreaterThanOrEqual,
-                                 view->sizeHints[PUGL_MIN_SIZE].width)];
-
-  [impl->wrapperView
-    addConstraint:puglConstraint(impl->wrapperView,
-                                 NSLayoutAttributeHeight,
-                                 NSLayoutRelationGreaterThanOrEqual,
-                                 view->sizeHints[PUGL_MIN_SIZE].height)];
-
-  if (puglIsValidArea(view->sizeHints[PUGL_MAX_SIZE])) {
-    [impl->wrapperView
-      addConstraint:puglConstraint(impl->wrapperView,
-                                   NSLayoutAttributeWidth,
-                                   NSLayoutRelationLessThanOrEqual,
-                                   view->sizeHints[PUGL_MAX_SIZE].width)];
-
-    [impl->wrapperView
-      addConstraint:puglConstraint(impl->wrapperView,
-                                   NSLayoutAttributeHeight,
-                                   NSLayoutRelationLessThanOrEqual,
-                                   view->sizeHints[PUGL_MAX_SIZE].height)];
-  }
+  // Set wrapperView size constraints
+  [impl->wrapperView setTranslatesAutoresizingMaskIntoConstraints:NO];
+  puglUpdateSizeHints(view);
 
   // Create draw view to be rendered to
   if ((st = view->backend->attach(view)) ||
@@ -1491,7 +1523,6 @@ puglRealize(PuglView* view)
     [impl->drawView setFrame:sizePt];
 
     puglSetTransientParent(view, view->transientParent);
-    puglUpdateSizeHints(view);
 
     [window setContentView:impl->wrapperView];
     [view->world->impl->app activateIgnoringOtherApps:YES];
