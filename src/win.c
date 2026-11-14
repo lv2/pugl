@@ -418,7 +418,9 @@ puglShow(PuglView* view, const PuglShowCommand command)
       break;
     case PUGL_SHOW_FORCE_RAISE:
       ShowWindow(impl->hwnd, SW_SHOWNORMAL);
-      st = SetForegroundWindow(impl->hwnd) ? PUGL_SUCCESS : PUGL_FAILURE;
+      if (!SetForegroundWindow(impl->hwnd)) {
+        st = SetActiveWindow(impl->hwnd) ? PUGL_SUCCESS : PUGL_FAILURE;
+      }
       break;
     }
   }
