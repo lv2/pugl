@@ -17,7 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-// NOLINTBEGIN(misc-misplaced-const,performance-no-int-to-ptr)
+// NOLINTBEGIN(performance-no-int-to-ptr)
 
 #ifndef __MAC_10_10
 typedef NSUInteger NSEventModifierFlags;
@@ -387,7 +387,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
 - (void)screenConfigurationDidChange:(NSNotification*)notification
 {
   const CGDirectDisplayID displayId = CGMainDisplayID();
-  const CGDisplayModeRef  mode      = CGDisplayCopyDisplayMode(displayId);
+  CGDisplayModeRef        mode      = CGDisplayCopyDisplayMode(displayId);
 
   puglview->hints[PUGL_REFRESH_RATE] = (int)CGDisplayModeGetRefreshRate(mode);
   CGDisplayModeRelease(mode);
@@ -2225,4 +2225,4 @@ puglSetClipboard(PuglView*           PUGL_UNUSED(view),
   return PUGL_FAILURE;
 }
 
-// NOLINTEND(misc-misplaced-const,performance-no-int-to-ptr)
+// NOLINTEND(performance-no-int-to-ptr)
