@@ -88,8 +88,10 @@ struct PuglWorldInternalsImpl {
   PuglTimer*   timers;
   size_t       numTimers;
   XID          serverTimeCounter;
+  int          rrEventBase;
   int          syncEventBase;
-  bool         syncSupported;
+  bool         hasSync;
+  bool         hasRr;
 };
 
 struct PuglInternalsImpl {
@@ -104,8 +106,7 @@ struct PuglInternalsImpl {
   PuglX11Clipboard drag;
   int              screen;
   const char*      cursorName;
-  int              rrEventBase;
-  bool             hasRr;
+  short            fetchedRate;
   bool             mapped;
 };
 

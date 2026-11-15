@@ -82,11 +82,12 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 
   switch (event->type) {
   case PUGL_CONFIGURE:
-    PRINT(" " PIFMT " " PUFMT " (",
+    PRINT(" " PIFMT " " PUFMT " x%.2f (",
           event->configure.x,
           event->configure.y,
           event->configure.width,
-          event->configure.height);
+          event->configure.height,
+          event->configure.scale);
     for (PuglViewStyleFlags mask = 1U; mask <= PUGL_MAX_VIEW_STYLE_FLAG;
          mask <<= 1U) {
       if (event->configure.style & mask) {

@@ -210,14 +210,13 @@ puglWinGetMonitor(const PuglView* const view)
 }
 
 static int
-puglWinGetRefreshRate(const PuglView* const view)
+puglWinGetRefreshRate(const HMONITOR monitor)
 {
   MONITORINFOEX monitorInfo;
-  monitorInfo.cbSize = sizeof(MONITORINFOEX);
-  TCHAR* const deviceName =
-    GetMonitorInfo(view->impl->monitor, (LPMONITORINFO)&monitorInfo)
-      ? monitorInfo.szDevice
-      : NULL;
+  monitorInfo.cbSize      = sizeof(MONITORINFOEX);
+  TCHAR* const deviceName = GetMonitorInfo(monitor, (LPMONITORINFO)&monitorInfo)
+                              ? monitorInfo.szDevice
+                              : NULL;
 
   DEVMODE devMode;
   memset(&devMode, 0, sizeof(devMode));
@@ -226,7 +225,7 @@ puglWinGetRefreshRate(const PuglView* const view)
 }
 
 static double
-puglWinGetMonitorScaleFactor(const HMONITOR monitor)
+puglWinGetScaleFactor(const HMONITOR monitor)
 {
   const HMODULE shcore =
     LoadLibraryEx(TEXT("Shcore.dll"), NULL, LOAD_LIBRARY_SEARCH_SYSTEM32);
@@ -253,10 +252,14 @@ puglWinGetMonitorScaleFactor(const HMONITOR monitor)
   return (double)scaleFactor / 100.0;
 }
 
-static double
-puglWinGetViewScaleFactor(const PuglView* const view)
+static void
+puglWinUpdateViewMonitor(PuglView* const view)
 {
-  return puglWinGetMonitorScaleFactor(puglWinGetMonitor(view));
+  const HMONITOR monitor = puglWinGetMonitor(view);
+  if (monitor != view->impl->monitor) {
+    view->impl->scaleFactor        = puglWinGetScaleFactor(monitor);
+    view->hints[PUGL_REFRESH_RATE] = puglWinGetRefreshRate(monitor);
+  }
 }
 
 PuglWorldInternals*
@@ -306,12 +309,12 @@ puglGetWorldScaleFactor(const PuglWorld* const world,
   (void)world;
 
   if (parent) {
-    return puglWinGetMonitorScaleFactor(
+    return puglWinGetScaleFactor(
       MonitorFromWindow((HWND)parent, MONITOR_DEFAULTTOPRIMARY));
   }
 
   const POINT point = {position.x, position.y};
-  return puglWinGetMonitorScaleFactor(
+  return puglWinGetScaleFactor(
     MonitorFromPoint(point, MONITOR_DEFAULTTOPRIMARY));
 }
 
@@ -337,9 +340,8 @@ puglRealize(PuglView* view)
     return st;
   }
 
-  // Get initial monitor and refresh rate
-  impl->monitor = MonitorFromWindow(impl->hwnd, MONITOR_DEFAULTTOPRIMARY);
-  view->hints[PUGL_REFRESH_RATE] = puglWinGetRefreshRate(view);
+  // Get initial monitor, scale, and refresh rate
+  puglWinUpdateViewMonitor(view);
 
   // Register window class if necessary
   if (!puglRegisterWindowClass(view->world->strings[PUGL_CLASS_NAME])) {
@@ -364,8 +366,7 @@ puglRealize(PuglView* view)
     view, PUGL_WINDOW_TITLE, view->strings[PUGL_WINDOW_TITLE]);
   puglSetTransientParent(view, view->transientParent);
 
-  impl->scaleFactor = puglWinGetViewScaleFactor(view);
-  impl->cursor      = LoadCursor(NULL, IDC_ARROW);
+  impl->cursor = LoadCursor(NULL, IDC_ARROW);
 
   if (view->hints[PUGL_DARK_FRAME]) {
     const BOOL useDarkMode = TRUE;
@@ -703,6 +704,7 @@ handleConfigure(PuglView* view, PuglEvent* event)
   event->configure.y      = (PuglCoord)rect.top;
   event->configure.width  = (PuglSpan)width;
   event->configure.height = (PuglSpan)height;
+  event->configure.scale  = view->impl->scaleFactor;
 
   event->configure.style =
     ((view->impl->mapped ? (unsigned)PUGL_VIEW_STYLE_MAPPED : 0U) |
@@ -934,8 +936,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
   case WM_DEVICECHANGE:
   case WM_DEVMODECHANGE:
   case WM_DISPLAYCHANGE:
-    view->impl->scaleFactor        = puglWinGetViewScaleFactor(view);
-    view->hints[PUGL_REFRESH_RATE] = puglWinGetRefreshRate(view);
+    puglWinUpdateViewMonitor(view);
     handleConfigure(view, &event);
     break;
   case WM_WINDOWPOSCHANGED:
@@ -948,14 +949,7 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
         view->impl->maximized = true;
       }
     }
-    {
-      HMONITOR monitor = puglWinGetMonitor(view);
-      if (view->impl->monitor != monitor) {
-        view->impl->monitor            = monitor;
-        view->impl->scaleFactor        = puglWinGetViewScaleFactor(view);
-        view->hints[PUGL_REFRESH_RATE] = puglWinGetRefreshRate(view);
-      }
-    }
+    puglWinUpdateViewMonitor(view);
     handleConfigure(view, &event);
     break;
   case WM_SIZING:
@@ -1224,6 +1218,13 @@ puglApplySizeHint(PuglView* const    PUGL_UNUSED(view),
   return PUGL_SUCCESS;
 }
 
+int
+puglFetchViewHint(const PuglView* PUGL_UNUSED(view),
+                  PuglViewHint    PUGL_UNUSED(hint))
+{
+  return PUGL_DONT_CARE;
+}
+
 PuglStatus
 puglReconfigure(PuglView* const view)
 {
@@ -1459,8 +1460,9 @@ adjustedWindowRect(PuglView* const view,
 double
 puglGetScaleFactor(const PuglView* const view)
 {
-  return view->impl->scaleFactor > 0.0 ? view->impl->scaleFactor
-                                       : puglWinGetViewScaleFactor(view);
+  return view->impl->scaleFactor > 0.0
+           ? view->impl->scaleFactor
+           : puglWinGetScaleFactor(view->impl->monitor);
 }
 
 PuglStatus

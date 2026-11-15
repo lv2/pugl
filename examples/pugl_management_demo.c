@@ -78,7 +78,11 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
   cairo_show_text(cr, buf);
 
   // Draw scale label
-  snprintf(buf, sizeof(buf), "Scale: %g", puglGetScaleFactor(view));
+  snprintf(buf,
+           sizeof(buf),
+           "Scale: %g @ %d Hz",
+           puglGetScaleFactor(view),
+           puglGetViewHint(view, PUGL_REFRESH_RATE));
   cairo_text_extents(cr, buf, &extents);
   cairo_move_to(cr, cx - (extents.width / 2.0), cy + lineOffset(2));
   cairo_show_text(cr, buf);
@@ -180,7 +184,8 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
   case 'd':
     return puglSetViewStyle(view, flags ^ PUGL_VIEW_STYLE_DEMANDING);
   case 'r':
-    puglSetViewHint(view, PUGL_RESIZABLE, !puglGetViewHint(view, PUGL_RESIZABLE));
+    puglSetViewHint(
+      view, PUGL_RESIZABLE, !puglGetViewHint(view, PUGL_RESIZABLE));
     return puglReconfigure(view);
   case 'q':
   case PUGL_KEY_ESCAPE:

@@ -33,6 +33,10 @@ puglInitViewInternals(PuglWorld* world);
 void
 puglFreeViewInternals(PuglView* view);
 
+/// Fetch the value of a view hint if necessary/possible
+int
+puglFetchViewHint(const PuglView* view, PuglViewHint hint);
+
 /// Adapt to the change of a size hint if necessary
 PuglStatus
 puglApplySizeHint(PuglView* view, PuglSizeHint hint);

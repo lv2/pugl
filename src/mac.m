@@ -227,6 +227,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
     (PuglCoord)framePx.origin.y,
     (PuglSpan)framePx.size.width,
     (PuglSpan)framePx.size.height,
+    [viewScreen(view) backingScaleFactor],
     getCurrentViewStyleFlags(view),
   };
 
@@ -263,7 +264,9 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
     return PUGL_SUCCESS;
   }
 
-  const NSRect screenFramePt = [viewScreen(puglview) frame];
+  const NSScreen* const screen = viewScreen(puglview);
+
+  const NSRect screenFramePt = [screen frame];
   const NSRect screenFramePx = nsRectFromPoints(puglview, screenFramePt);
   const NSRect framePt       = [self frame];
   const NSRect contentPt     = [self contentRectForFrameRect:framePt];
@@ -277,6 +280,7 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
     (PuglCoord)(screenHeight - contentPx.origin.y - contentPx.size.height),
     (PuglSpan)contentPx.size.width,
     (PuglSpan)contentPx.size.height,
+    [screen backingScaleFactor],
     getCurrentViewStyleFlags(puglview),
   };
 
@@ -412,13 +416,17 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
   reshaped = true;
 }
 
-- (void)screenConfigurationDidChange:(NSNotification*)notification
+- (void)screenDidChange:(NSNotification*)notification
 {
-  const CGDirectDisplayID displayId = screenDisplayID(viewScreen(puglview));
-  CGDisplayModeRef        mode      = CGDisplayCopyDisplayMode(displayId);
-
+  const CGDirectDisplayID displayId  = screenDisplayID(viewScreen(puglview));
+  CGDisplayModeRef        mode       = CGDisplayCopyDisplayMode(displayId);
   puglview->hints[PUGL_REFRESH_RATE] = (int)CGDisplayModeGetRefreshRate(mode);
   CGDisplayModeRelease(mode);
+
+  puglReconfigure(puglview);
+  if (puglview->impl->window) {
+    [puglview->impl->window dispatchCurrentConfiguration];
+  }
 }
 
 /* NSDraggingDestination */
@@ -1385,6 +1393,13 @@ puglApplySizeHint(PuglView* const view, const PuglSizeHint hint)
   return PUGL_SUCCESS;
 }
 
+int
+puglFetchViewHint(const PuglView* PUGL_UNUSED(view),
+                  PuglViewHint    PUGL_UNUSED(hint))
+{
+  return PUGL_DONT_CARE;
+}
+
 PuglPoint
 puglGetAncestorCenter(const PuglView* const view)
 {
@@ -1544,8 +1559,14 @@ puglRealize(PuglView* view)
 
   [[NSNotificationCenter defaultCenter]
     addObserver:impl->wrapperView
-       selector:@selector(screenConfigurationDidChange:)
+       selector:@selector(screenDidChange:)
            name:NSApplicationDidChangeScreenParametersNotification
+         object:nil];
+
+  [[NSNotificationCenter defaultCenter]
+    addObserver:impl->wrapperView
+       selector:@selector(screenDidChange:)
+           name:NSWindowDidChangeScreenNotification
          object:nil];
 
   [impl->wrapperView updateTrackingAreas];

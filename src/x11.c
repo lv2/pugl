@@ -3,6 +3,10 @@
 // Copyright 2011-2012 Ben Loftis, Harrison Consoles
 // SPDX-License-Identifier: ISC
 
+/* Note that most multi-display X11 setups don't actually use multiple
+   "screens", there is a single virtual root that covers everything.  This
+   implementation always uses the default X11 "screen". */
+
 #include "x11.h"
 
 #include "attributes.h"
@@ -133,7 +137,7 @@ initXSync(PuglWorldInternals* const impl)
     for (int n = 0; n < numCounters; ++n) {
       if (!strcmp(counters[n].name, "SERVERTIME")) {
         impl->serverTimeCounter = counters[n].counter;
-        impl->syncSupported     = true;
+        impl->hasSync           = true;
         break;
       }
     }
@@ -195,6 +199,14 @@ puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
 
   impl->display     = display;
   impl->scaleFactor = puglX11GetDisplayScaleFactor(display);
+
+#if USE_XRANDR
+  int ignore = 0;
+  if ((impl->hasRr = XRRQueryExtension(display, &impl->rrEventBase, &ignore))) {
+    const Window root = RootWindow(display, DefaultScreen(display));
+    XRRSelectInput(display, root, RRScreenChangeNotifyMask);
+  }
+#endif
 
   // Intern the various atoms we'll need
 
@@ -510,6 +522,31 @@ puglApplySizeHint(PuglView* const    PUGL_UNUSED(view),
   return PUGL_SUCCESS;
 }
 
+int
+puglFetchViewHint(const PuglView* const view, const PuglViewHint hint)
+{
+#if USE_XRANDR
+  if (hint == PUGL_REFRESH_RATE) {
+    if (view->impl->win && !view->impl->fetchedRate) {
+      // Lazily get the rate because XRRGetScreenInfo is a server round trip
+      // (and an even more serious delay with some drivers)
+      Display* const                display = view->world->impl->display;
+      const Window                  win     = view->impl->win;
+      XRRScreenConfiguration* const conf    = XRRGetScreenInfo(display, win);
+      const short                   rate    = XRRConfigCurrentRate(conf);
+      XRRFreeScreenConfigInfo(conf);
+      view->impl->fetchedRate = rate;
+    }
+
+    return view->impl->fetchedRate;
+  }
+#endif
+
+  (void)view;
+  (void)hint;
+  return PUGL_DONT_CARE;
+}
+
 PuglStatus
 puglReconfigure(PuglView* const view)
 {
@@ -532,20 +569,6 @@ puglReconfigure(PuglView* const view)
 
   return st;
 }
-
-#if USE_XRANDR
-static void
-updateScreenConfig(PuglView* const view)
-{
-  Display* const          display = view->world->impl->display;
-  XRRScreenConfiguration* conf    = XRRGetScreenInfo(display, view->impl->win);
-
-  view->world->impl->scaleFactor = puglX11GetDisplayScaleFactor(display);
-  view->hints[PUGL_REFRESH_RATE] = XRRConfigCurrentRate(conf);
-
-  XRRFreeScreenConfigInfo(conf);
-}
-#endif
 
 #if USE_XCURSOR
 static PuglStatus
@@ -706,11 +729,9 @@ puglRealize(PuglView* const view)
   }
 
 #if USE_XRANDR
-  // Get/track refresh rate changes via XRandR
-  int ignore = 0;
-  if ((impl->hasRr = XRRQueryExtension(display, &impl->rrEventBase, &ignore))) {
+  // Get/track display configuration changes via XRandR
+  if (world->impl->hasRr) {
     XRRSelectInput(display, impl->win, RRScreenChangeNotifyMask);
-    updateScreenConfig(view);
   }
 #endif
 
@@ -1316,6 +1337,7 @@ getCurrentConfiguration(const PuglView* const view)
   configureEvent.configure.y      = (PuglCoord)y;
   configureEvent.configure.width  = (PuglSpan)attrs.width;
   configureEvent.configure.height = (PuglSpan)attrs.height;
+  configureEvent.configure.scale  = view->world->impl->scaleFactor;
   configureEvent.configure.style  = getCurrentViewStyleFlags(view);
 
   return configureEvent;
@@ -1404,6 +1426,7 @@ translateEvent(PuglView* const view, XEvent xevent)
     event.configure.flags  = 0U;
     event.configure.width  = (PuglSpan)xevent.xconfigure.width;
     event.configure.height = (PuglSpan)xevent.xconfigure.height;
+    event.configure.scale  = view->world->impl->scaleFactor;
     event.configure.style  = getCurrentViewStyleFlags(view);
     if (view->parent) {
       // Use window position relative to parent
@@ -1572,7 +1595,7 @@ PuglStatus
 puglStartTimer(PuglView* const view, const uintptr_t id, const double timeout)
 {
 #if USE_XSYNC
-  if (view->world->impl->syncSupported) {
+  if (view->world->impl->hasSync) {
     XSyncValue value;
     XSyncIntToValue(&value, (int)(timeout * 1000.0));
 
@@ -1946,13 +1969,16 @@ flushExposures(PuglWorld* const world)
 
 #if USE_XRANDR
 static PuglEvent
-handleRandr(PuglView* const view, XEvent xevent)
+handleRandrEvent(PuglView* const view, XEvent xevent)
 {
-  if (view->impl->hasRr &&
-      xevent.type == view->impl->rrEventBase + RRScreenChangeNotify &&
+  PuglWorld* const world = view->world;
+
+  const int base = world->impl->rrEventBase;
+  if ((xevent.type >= base && xevent.type <= base + RRNotify) &&
       XRRUpdateConfiguration(&xevent)) {
-    updateScreenConfig(view);
-    return getCurrentConfiguration(view);
+    if (xevent.type == base + RRScreenChangeNotify) {
+      view->impl->fetchedRate = 0; // Force reload of cached value
+    }
   }
 
   const PuglEvent event = {{PUGL_NOTHING, 0U}};
@@ -1986,6 +2012,26 @@ handleTimerEvent(PuglWorld* const world, const XEvent xevent)
   return false;
 }
 
+static bool
+handleRootEvent(PuglWorld* const world, XEvent xevent)
+{
+  Display* const display = world->impl->display;
+  const int      screen  = DefaultScreen(display);
+
+  if (xevent.xany.window == RootWindow(display, screen)) {
+#if USE_XRANDR
+    const int base = world->impl->rrEventBase;
+    if (world->impl->hasRr &&
+        (xevent.type == ConfigureNotify ||
+         (xevent.type >= base && xevent.type <= base + RRNotify))) {
+      return XRRUpdateConfiguration(&xevent);
+    }
+#endif
+  }
+
+  return false;
+}
+
 static PuglStatus
 dispatchX11Events(PuglWorld* const world)
 {
@@ -1998,6 +2044,10 @@ dispatchX11Events(PuglWorld* const world)
     XNextEvent(display, &xevent);
 
     if (handleTimerEvent(world, xevent)) {
+      continue;
+    }
+
+    if (handleRootEvent(world, xevent)) {
       continue;
     }
 
@@ -2059,7 +2109,7 @@ dispatchX11Events(PuglWorld* const world)
     default:
 #if USE_XRANDR
       if (!event.type) {
-        event = handleRandr(view, xevent);
+        event = handleRandrEvent(view, xevent);
       }
 #endif
 

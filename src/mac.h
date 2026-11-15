@@ -22,7 +22,7 @@
 - (void)dispatchExpose:(NSRect)rect type:(PuglEventType)type;
 - (void)dispatchFlush;
 - (void)setReshaped;
-- (void)screenConfigurationDidChange:(NSNotification*)notification;
+- (void)screenDidChange:(NSNotification*)notification;
 
 @end
 

@@ -8,6 +8,7 @@
 #include <pugl/pugl.h>
 
 #include <assert.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -276,6 +277,16 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
   return puglDispatchEvent(view, &event);
 }
 
+static bool
+configureChanged(const PuglConfigureEvent* const last,
+                 const PuglConfigureEvent* const next)
+{
+  return (last->type != PUGL_CONFIGURE ||
+          (last->x != next->x || last->y != next->y) ||
+          (last->width != next->width || last->height != next->height) ||
+          last->style != next->style || fabs(last->scale - next->scale) > 1e-9);
+}
+
 static void
 trackConfigure(PuglView* const view, const PuglConfigureEvent* const configure)
 {
@@ -328,9 +339,7 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     break;
 
   case PUGL_CONFIGURE:
-    if (!!memcmp(&view->lastConfigure,
-                 &event->configure,
-                 sizeof(PuglConfigureEvent))) {
+    if (configureChanged(&view->lastConfigure, &event->configure)) {
       st0 = view->eventFunc(view, event);
       trackConfigure(view, &event->configure);
     }

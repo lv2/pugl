@@ -192,6 +192,7 @@ typedef struct {
   PuglCoord          y;      ///< Parent-relative Y coordinate of view
   PuglSpan           width;  ///< Width of view
   PuglSpan           height; ///< Height of view
+  double             scale;  ///< Scale factor
   PuglViewStyleFlags style;  ///< Bitwise OR of #PuglViewStyleFlag flags
 } PuglConfigureEvent;
 
