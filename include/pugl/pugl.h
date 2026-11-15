@@ -22,41 +22,47 @@ PUGL_BEGIN_DECLS
 
 /**
    @defgroup pugl_geometry_types Geometry Types
+   Geometry types in the API are always in units of "real" pixels.
    @{
 */
 
 /**
-   A pixel coordinate within/of a view.
+   A pixel coordinate (X or Y) in/of a view.
 
-   This is used to represent coordinates in two different spaces, depending on
-   context: parent-relative and view-relative.
+   This type is used in two coordinate spaces: parent-relative coordinates _of_
+   a view, and view-relative coordinates _in_ a view.  Parent-relative
+   coordinates are relative to the top-left of the embedding parent, or to that
+   of a system-specific root.  View-relative coordinates are relative to the
+   top-left of the view.
 
-   Parent-relative coordinates of a view are relative to the top-left of the
-   parent it's embedded in, or to that of a system-specific root.  Top-level
-   positions should be between -16000 and 16000.
-
-   View-relative coordinates in a view are relative to the top-left of the
-   view.
+   Coordinates must be between -32767 and 32767 inclusive, but should be
+   between -16000 and 16000 (and in practice much smaller) for portability.
 */
 typedef int16_t PuglCoord;
 
 /**
-   A pixel span (width or height) within/of a view.
+   A pixel span (width or height) in/of a view.
 
-   The width and height of a view should be between 1 and 10000.
+   Spans must be at most 32767, but should be at most 10000 (and in practice
+   much smaller) for portability.
 */
 typedef uint16_t PuglSpan;
 
-/// A 2-dimensional position within/of a view
+/**
+   A 2-dimensional position in/of a view.
+
+   A point may be parent- or view-relative, but the origin (0, 0) is always in
+   the top left.
+*/
 typedef struct {
-  PuglCoord x;
-  PuglCoord y;
+  PuglCoord x; ///< X coordinate
+  PuglCoord y; ///< Y coordinate
 } PuglPoint;
 
-/// A 2-dimensional size within/of a view
+/// A 2-dimensional size in/of a view
 typedef struct {
-  PuglSpan width;
-  PuglSpan height;
+  PuglSpan width;  ///< Width in pixels
+  PuglSpan height; ///< Height in pixels
 } PuglArea;
 
 /**
