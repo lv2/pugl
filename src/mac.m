@@ -1385,15 +1385,6 @@ puglApplySizeHint(PuglView* const view, const PuglSizeHint hint)
   return PUGL_SUCCESS;
 }
 
-static PuglStatus
-puglUpdateSizeHints(PuglView* const view)
-{
-  for (unsigned i = 0U; i < PUGL_NUM_SIZE_HINTS; ++i) {
-    puglApplySizeHint(view, (PuglSizeHint)i);
-  }
-  return PUGL_SUCCESS;
-}
-
 PuglPoint
 puglGetAncestorCenter(const PuglView* const view)
 {
@@ -1409,6 +1400,16 @@ puglGetAncestorCenter(const PuglView* const view)
     (PuglCoord)(boundsPx.origin.x + (boundsPx.size.width / 2.0)),
     (PuglCoord)(boundsPx.origin.y + (boundsPx.size.height / 2.0))};
   return center;
+}
+
+static NSWindowStyleMask
+getWindowStyleMask(const PuglView* const view)
+{
+  return (
+    NSWindowStyleMask)(NSWindowStyleMaskClosable | NSWindowStyleMaskTitled |
+                       NSWindowStyleMaskMiniaturizable |
+                       (view->hints[PUGL_RESIZABLE] ? NSWindowStyleMaskResizable
+                                                    : 0));
 }
 
 PuglStatus
@@ -1475,7 +1476,7 @@ puglRealize(PuglView* view)
 
   // Set wrapperView size constraints
   [impl->wrapperView setTranslatesAutoresizingMaskIntoConstraints:NO];
-  puglUpdateSizeHints(view);
+  puglReconfigure(view);
 
   // Create draw view to be rendered to
   if ((st = view->backend->attach(view)) ||
@@ -1494,15 +1495,9 @@ puglRealize(PuglView* view)
     [impl->drawView setHidden:NO];
     [[impl->drawView window] makeFirstResponder:impl->wrapperView];
   } else {
-    unsigned style = (NSWindowStyleMaskClosable | NSWindowStyleMaskTitled |
-                      NSWindowStyleMaskMiniaturizable);
-    if (view->hints[PUGL_RESIZABLE]) {
-      style |= NSWindowStyleMaskResizable;
-    }
-
     PuglWindow* window =
       [[[PuglWindow alloc] initWithContentRect:rectToScreen(screen, framePt)
-                                     styleMask:(NSWindowStyleMask)style
+                                     styleMask:getWindowStyleMask(view)
                                        backing:NSBackingStoreBuffered
                                          defer:NO] retain];
 
@@ -1597,6 +1592,20 @@ puglUnrealize(PuglView* const view)
   }
 
   memset(&view->lastConfigure, 0, sizeof(PuglConfigureEvent));
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglReconfigure(PuglView* const view)
+{
+  if (view->impl->window) {
+    [view->impl->window setStyleMask:getWindowStyleMask(view)];
+  }
+
+  for (unsigned i = 0U; i < PUGL_NUM_SIZE_HINTS; ++i) {
+    puglApplySizeHint(view, (PuglSizeHint)i);
+  }
+
   return PUGL_SUCCESS;
 }
 

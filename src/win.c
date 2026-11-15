@@ -157,7 +157,11 @@ puglRegisterWindowClass(const char* name)
 static unsigned
 puglWinGetWindowFlags(const PuglView* const view)
 {
-  const unsigned commonFlags = WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+  const LONG_PTR preserveFlags =
+    GetWindowLongPtr(view->impl->hwnd, GWL_STYLE) & WS_VISIBLE;
+
+  const unsigned commonFlags =
+    (unsigned)preserveFlags | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
   if (view->parent) {
     return commonFlags | WS_CHILD;
   }
@@ -1137,6 +1141,19 @@ styleIsMaximized(const PuglViewStyleFlags flags)
   return (flags & PUGL_VIEW_STYLE_TALL) && (flags & PUGL_VIEW_STYLE_WIDE);
 }
 
+static void
+updateWindowStyle(PuglView* const view)
+{
+  const HWND hwnd = view->impl->hwnd;
+  SetWindowLongPtr(hwnd, GWL_STYLE, (LONG)puglWinGetWindowFlags(view));
+  SetWindowLongPtr(hwnd, GWL_EXSTYLE, (LONG)puglWinGetWindowExFlags(view));
+
+  const UINT flags = SWP_FRAMECHANGED | SWP_NOACTIVATE | SWP_NOOWNERZORDER |
+                     SWP_NOREDRAW | SWP_NOZORDER | SWP_NOMOVE | SWP_NOSIZE;
+
+  SetWindowPos(view->impl->hwnd, HWND_TOP, 0, 0, 0, 0, flags);
+}
+
 PuglStatus
 puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
 {
@@ -1162,9 +1179,7 @@ puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
 
     case PUGL_VIEW_STYLE_FULLSCREEN:
       impl->fullscreen = newValue;
-      SetWindowLong(impl->hwnd, GWL_STYLE, (LONG)puglWinGetWindowFlags(view));
-      SetWindowLong(
-        impl->hwnd, GWL_EXSTYLE, (LONG)puglWinGetWindowExFlags(view));
+      updateWindowStyle(view);
       if (newValue) {
         GetWindowPlacement(impl->hwnd, &impl->oldPlacement);
         ShowWindow(impl->hwnd, SW_SHOWMAXIMIZED);
@@ -1206,6 +1221,13 @@ PUGL_CONST_FUNC PuglStatus
 puglApplySizeHint(PuglView* const    PUGL_UNUSED(view),
                   const PuglSizeHint PUGL_UNUSED(hint))
 {
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglReconfigure(PuglView* const view)
+{
+  updateWindowStyle(view);
   return PUGL_SUCCESS;
 }
 

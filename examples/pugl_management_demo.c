@@ -108,7 +108,7 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
 
   if (view == app->mainView.view) {
     // Draw keyboard help label
-    snprintf(buf, sizeof(buf), "Keys: Space T W H M F A B D Q");
+    snprintf(buf, sizeof(buf), "Keys: Space T W H M F A B D Q R");
     cairo_text_extents(cr, buf, &extents);
     cairo_move_to(cr, cx - (extents.width / 2.0), cy + lineOffset(5));
     cairo_show_text(cr, buf);
@@ -179,6 +179,9 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
     return puglSetViewStyle(view, flags ^ PUGL_VIEW_STYLE_BELOW);
   case 'd':
     return puglSetViewStyle(view, flags ^ PUGL_VIEW_STYLE_DEMANDING);
+  case 'r':
+    puglSetViewHint(view, PUGL_RESIZABLE, !puglGetViewHint(view, PUGL_RESIZABLE));
+    return puglReconfigure(view);
   case 'q':
   case PUGL_KEY_ESCAPE:
     app->quit = true;

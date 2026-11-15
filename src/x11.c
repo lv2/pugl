@@ -503,10 +503,34 @@ puglUpdateSizeHints(PuglView* const view)
 }
 
 PuglStatus
-puglApplySizeHint(PuglView* const view, const PuglSizeHint PUGL_UNUSED(hint))
+puglApplySizeHint(PuglView* const    PUGL_UNUSED(view),
+                  const PuglSizeHint PUGL_UNUSED(hint))
 {
   // No fine-grained updates, hints are always recalculated together
-  return puglUpdateSizeHints(view);
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglReconfigure(PuglView* const view)
+{
+  PuglStatus      st   = PUGL_SUCCESS;
+  const PuglArea  size = view->sizeHints[PUGL_CURRENT_SIZE];
+  const PuglPoint pos  = view->positionHints[PUGL_CURRENT_POSITION];
+
+  puglUpdateSizeHints(view);
+
+  if (puglIsValidSize(size.width, size.height) &&
+      (size.width != view->lastConfigure.width ||
+       size.height != view->lastConfigure.height)) {
+    st = puglSetWindowSize(view, size.width, size.height);
+  }
+
+  if (!st && puglIsValidPosition(pos.x, pos.y) &&
+      (pos.x != view->lastConfigure.x || pos.y != view->lastConfigure.y)) {
+    st = puglSetWindowPosition(view, pos.x, pos.y);
+  }
+
+  return st;
 }
 
 #if USE_XRANDR

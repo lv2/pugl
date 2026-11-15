@@ -1411,6 +1411,17 @@ puglRealize(PuglView* view);
 PUGL_API PuglStatus
 puglUnrealize(PuglView* view);
 
+/**
+   Apply any changed configuration hints/etc after a view has been realized.
+
+   Some hints or other properties are mainly intended for initial view
+   configuration, but may also have effects that can be applied after the view
+   has been initially configured and realized.  This function applies those
+   changes, for example by updating the window's size constraints.
+*/
+PUGL_API PuglStatus
+puglReconfigure(PuglView* view);
+
 /// A command to control the behaviour of puglShow()
 typedef enum {
   /**
