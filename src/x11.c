@@ -177,6 +177,34 @@ puglX11GetDisplayScaleFactor(Display* const display)
   return dpi / 96.0;
 }
 
+static Window
+puglX11GetActiveWindow(PuglWorld* const world)
+{
+  Display* const display    = world->impl->display;
+  Atom           type       = 0U;
+  int            format     = 0;
+  unsigned long  numItems   = 0U;
+  unsigned long  bytesAfter = 0U;
+  Window*        data       = NULL;
+  if (!XGetWindowProperty(display,
+                          RootWindow(display, DefaultScreen(display)),
+                          world->impl->atoms.NET_ACTIVE_WINDOW,
+                          0,
+                          1,
+                          False,
+                          XA_WINDOW,
+                          &type,
+                          &format,
+                          &numItems,
+                          &bytesAfter,
+                          (unsigned char**)&data) &&
+      type == XA_WINDOW && format == 32 && numItems == 1) {
+    return *data;
+  }
+
+  return 0;
+}
+
 PuglWorldInternals*
 puglAllocWorldInternals(void)
 {
@@ -200,10 +228,12 @@ puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
   impl->display     = display;
   impl->scaleFactor = puglX11GetDisplayScaleFactor(display);
 
+  const Window root = RootWindow(display, DefaultScreen(display));
+  XSelectInput(display, root, StructureNotifyMask | PropertyChangeMask);
+
 #if USE_XRANDR
   int ignore = 0;
   if ((impl->hasRr = XRRQueryExtension(display, &impl->rrEventBase, &ignore))) {
-    const Window root = RootWindow(display, DefaultScreen(display));
     XRRSelectInput(display, root, RRScreenChangeNotifyMask);
   }
 #endif
@@ -216,6 +246,8 @@ puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
   impl->atoms.WM_PROTOCOLS      = XInternAtom(display, "WM_PROTOCOLS", 0);
   impl->atoms.WM_DELETE_WINDOW  = XInternAtom(display, "WM_DELETE_WINDOW", 0);
   impl->atoms.PUGL_CLIENT_MSG   = XInternAtom(display, "_PUGL_CLIENT_MSG", 0);
+  impl->atoms.PUGL_WAKEUP_MSG   = XInternAtom(display, "_PUGL_WAKEUP_MSG", 0);
+  impl->atoms.NET_ACTIVE_WINDOW = XInternAtom(display, "_NET_ACTIVE_WINDOW", 0);
   impl->atoms.NET_CLOSE_WINDOW  = XInternAtom(display, "_NET_CLOSE_WINDOW", 0);
   impl->atoms.NET_FRAME_EXTENTS = XInternAtom(display, "_NET_FRAME_EXTENTS", 0);
   impl->atoms.NET_WM_NAME       = XInternAtom(display, "_NET_WM_NAME", 0);
@@ -271,6 +303,7 @@ puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
     impl->xim = XOpenIM(display, NULL, NULL, NULL);
   }
 
+  impl->activeWindow = puglX11GetActiveWindow(world);
   XrmInitialize();
   initXSync(impl);
   XFlush(display);
@@ -341,6 +374,8 @@ styleFlagToAtom(PuglWorld* const world, const PuglViewStyleFlag flag)
     break;
   case PUGL_VIEW_STYLE_DEMANDING:
     return atoms->NET_WM_STATE_DEMANDS_ATTENTION;
+  case PUGL_VIEW_STYLE_ACTIVE:
+    break;
   }
 
   return 0;
@@ -863,6 +898,20 @@ puglUnrealize(PuglView* const view)
   return PUGL_SUCCESS;
 }
 
+static void
+setActiveWindow(PuglView* const view)
+{
+  const PuglX11Atoms* const atoms = &view->world->impl->atoms;
+  XEvent                    event =
+    makeClientMessage(view, atoms->NET_ACTIVE_WINDOW, 1, 0, 0, 0, 0);
+
+  XSendEvent(view->world->impl->display,
+             RootWindow(view->world->impl->display, view->impl->screen),
+             False,
+             SubstructureNotifyMask | SubstructureRedirectMask,
+             &event);
+}
+
 PuglStatus
 puglShow(PuglView* const view, const PuglShowCommand command)
 {
@@ -877,6 +926,7 @@ puglShow(PuglView* const view, const PuglShowCommand command)
     case PUGL_SHOW_RAISE:
     case PUGL_SHOW_FORCE_RAISE:
       XMapRaised(view->world->impl->display, impl->win);
+      setActiveWindow(view);
       break;
     }
 
@@ -1325,6 +1375,10 @@ getCurrentViewStyleFlags(const PuglView* const view)
 
   if (view->impl->mapped) {
     state |= PUGL_VIEW_STYLE_MAPPED;
+  }
+
+  if (view->impl->win == view->world->impl->activeWindow) {
+    state |= PUGL_VIEW_STYLE_ACTIVE;
   }
 
   return state;
@@ -2019,6 +2073,22 @@ handleRootEvent(PuglWorld* const world, XEvent xevent)
   const int      screen  = DefaultScreen(display);
 
   if (xevent.xany.window == RootWindow(display, screen)) {
+    if (xevent.type == PropertyNotify &&
+        xevent.xproperty.atom == world->impl->atoms.NET_ACTIVE_WINDOW) {
+      const Window oldActiveWindow = world->impl->activeWindow;
+      world->impl->activeWindow    = puglX11GetActiveWindow(world);
+      for (size_t i = 0; i < world->numViews; ++i) {
+        PuglView* const view = world->views[i];
+        if (view->impl->win == oldActiveWindow ||
+            view->impl->win == world->impl->activeWindow) {
+          // Send an empty event via X11 to wake up the view to reconfigure
+          XEvent ping = makeClientMessage(
+            view, world->impl->atoms.PUGL_WAKEUP_MSG, 0, 0, 0, 0, 0);
+          XSendEvent(display, view->impl->win, False, 0, &ping);
+        }
+      }
+    }
+
 #if USE_XRANDR
     const int base = world->impl->rrEventBase;
     if (world->impl->hasRr &&
@@ -2054,6 +2124,14 @@ dispatchX11Events(PuglWorld* const world)
     PuglView* const view = findView(world, xevent.xany.window);
     if (!view) {
       continue;
+    }
+
+    // Generate a synthetic event if the view's active state has changed
+    const bool isActive  = (view->impl->win == world->impl->activeWindow);
+    const bool wasActive = (view->lastConfigure.style & PUGL_VIEW_STYLE_ACTIVE);
+    if (isActive != wasActive) {
+      const PuglEvent event = getCurrentConfiguration(view);
+      puglDispatchEvent(view, &event);
     }
 
     // Handle special events

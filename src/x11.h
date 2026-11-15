@@ -25,6 +25,8 @@ typedef struct {
   Atom WM_PROTOCOLS;
   Atom WM_DELETE_WINDOW;
   Atom PUGL_CLIENT_MSG;
+  Atom PUGL_WAKEUP_MSG;
+  Atom NET_ACTIVE_WINDOW;
   Atom NET_CLOSE_WINDOW;
   Atom NET_FRAME_EXTENTS;
   Atom NET_WM_NAME;
@@ -85,6 +87,7 @@ struct PuglWorldInternalsImpl {
   PuglX11Atoms atoms;
   XIM          xim;
   double       scaleFactor;
+  Window       activeWindow;
   PuglTimer*   timers;
   size_t       numTimers;
   XID          serverTimeCounter;

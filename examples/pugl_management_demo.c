@@ -96,7 +96,7 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
   // Draw style label
   snprintf(buf,
            sizeof(buf),
-           "Style:%s%s%s%s%s%s%s%s%s",
+           "Style:%s%s%s%s%s%s%s%s%s%s",
            style & PUGL_VIEW_STYLE_MODAL ? " modal" : "",
            style & PUGL_VIEW_STYLE_TALL ? " tall" : "",
            style & PUGL_VIEW_STYLE_WIDE ? " wide" : "",
@@ -105,7 +105,8 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
            style & PUGL_VIEW_STYLE_ABOVE ? " above" : "",
            style & PUGL_VIEW_STYLE_BELOW ? " below" : "",
            style & PUGL_VIEW_STYLE_DEMANDING ? " demanding" : "",
-           style & PUGL_VIEW_STYLE_RESIZING ? " resizing" : "");
+           style & PUGL_VIEW_STYLE_RESIZING ? " resizing" : "",
+           style & PUGL_VIEW_STYLE_ACTIVE ? " active" : "");
   cairo_text_extents(cr, buf, &extents);
   cairo_move_to(cr, cx - (extents.width / 2.0), cy + lineOffset(4));
   cairo_show_text(cr, buf);

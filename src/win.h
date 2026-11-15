@@ -38,6 +38,7 @@ struct PuglInternalsImpl {
   bool            minimized;
   bool            maximized;
   bool            fullscreen;
+  bool            activated;
 };
 
 PUGL_API PuglWinPFD

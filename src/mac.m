@@ -202,12 +202,14 @@ getCurrentViewStyleFlags(PuglView* const view)
   const bool isMiniaturized = [view->impl->window isMiniaturized];
   const bool isZoomed       = [view->impl->window isZoomed];
   const bool isVisible      = [view->impl->window isVisible];
+  const bool isMain = (view->impl->window && [view->impl->window isMainWindow]);
 
   return (isVisible ? PUGL_VIEW_STYLE_MAPPED : 0U) |
          (isFullScreen ? PUGL_VIEW_STYLE_FULLSCREEN : 0U) |
          (isMiniaturized ? PUGL_VIEW_STYLE_HIDDEN : 0U) |
          (isZoomed ? (PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE) : 0U) |
-         (isResizing ? PUGL_VIEW_STYLE_RESIZING : 0U);
+         (isResizing ? PUGL_VIEW_STYLE_RESIZING : 0U) |
+         (isMain ? PUGL_VIEW_STYLE_ACTIVE : 0U);
 }
 
 static PuglStatus
@@ -1100,6 +1102,50 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 
 @end
 
+@interface PuglApplicationDelegate : NSObject<NSApplicationDelegate>
+
+- (instancetype)initWithPuglWorld:(PuglWorld*)world;
+- (void)dispatchAllViewConfigurations;
+- (void)applicationDidBecomeActive:(NSNotification*)notification;
+- (void)applicationDidResignActive:(NSNotification*)notification;
+
+@end
+
+@implementation PuglApplicationDelegate {
+  PuglWorld* world;
+}
+
+- (instancetype)initWithPuglWorld:(PuglWorld*)puglWorld
+{
+  if ((self = [super init])) {
+    world = puglWorld;
+  }
+
+  return self;
+}
+
+- (void)dispatchAllViewConfigurations
+{
+  for (size_t i = 0; i < world->numViews; ++i) {
+    PuglView* const view = world->views[i];
+    if (view->impl->window) {
+      [view->impl->window dispatchCurrentConfiguration];
+    }
+  }
+}
+
+- (void)applicationDidBecomeActive:(NSNotification*)notification
+{
+  [self dispatchAllViewConfigurations];
+}
+
+- (void)applicationDidResignActive:(NSNotification*)notification
+{
+  [self dispatchAllViewConfigurations];
+}
+
+@end
+
 @interface PuglWindowDelegate : NSObject<NSWindowDelegate>
 
 - (instancetype)initWithPuglWindow:(PuglWindow*)window;
@@ -1244,6 +1290,11 @@ puglInitWorldInternals(PuglWorld* const     world,
     impl->autoreleasePool = [[NSAutoreleasePool alloc] init];
 
     [impl->app setActivationPolicy:NSApplicationActivationPolicyRegular];
+
+    PuglApplicationDelegate* const delegate =
+      [[PuglApplicationDelegate alloc] initWithPuglWorld:world];
+    [impl->app setDelegate:delegate];
+    [delegate release];
   }
 
   return PUGL_SUCCESS;

@@ -107,10 +107,13 @@ typedef enum {
 
   /// View is ready for input or otherwise demanding attention
   PUGL_VIEW_STYLE_DEMANDING = 1U << 9U,
+
+  /// View is the active window
+  PUGL_VIEW_STYLE_ACTIVE = 1U << 10U,
 } PuglViewStyleFlag;
 
 /// The maximum #PuglViewStyleFlag value
-#define PUGL_MAX_VIEW_STYLE_FLAG PUGL_VIEW_STYLE_DEMANDING
+#define PUGL_MAX_VIEW_STYLE_FLAG PUGL_VIEW_STYLE_ACTIVE
 
 /// Bitwise OR of #PuglViewStyleFlag values
 typedef uint32_t PuglViewStyleFlags;

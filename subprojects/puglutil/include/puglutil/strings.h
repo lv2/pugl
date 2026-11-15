@@ -66,6 +66,8 @@ viewStyleFlagString(const PuglViewStyleFlag state)
     return "RESIZING";
   case PUGL_VIEW_STYLE_DEMANDING:
     return "DEMANDING";
+  case PUGL_VIEW_STYLE_ACTIVE:
+    return "ACTIVE";
   }
 
   return "?";

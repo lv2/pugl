@@ -713,7 +713,8 @@ handleConfigure(PuglView* view, PuglEvent* event)
      (view->impl->minimized ? (unsigned)PUGL_VIEW_STYLE_HIDDEN : 0U) |
      (view->impl->maximized
         ? (unsigned)(PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE)
-        : 0U));
+        : 0U) |
+     (view->impl->activated ? (unsigned)PUGL_VIEW_STYLE_ACTIVE : 0U));
 
   return rect;
 }
@@ -915,6 +916,10 @@ handleMessage(PuglView* view, UINT message, WPARAM wParam, LPARAM lParam)
   }
 
   switch (message) {
+  case WM_ACTIVATE:
+    view->impl->activated = wParam == WA_ACTIVE || wParam == WA_CLICKACTIVE;
+    handleConfigure(view, &event);
+    break;
   case WM_SETCURSOR:
     if (LOWORD(lParam) == HTCLIENT) {
       SetCursor(view->impl->cursor);
