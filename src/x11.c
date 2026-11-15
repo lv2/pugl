@@ -362,6 +362,30 @@ viewTypeToAtom(PuglWorld* const world, const PuglViewType type)
   return 0;
 }
 
+static XEvent
+makeClientMessage(const PuglView* const view,
+                  const Atom            messageType,
+                  const long            l0,
+                  const long            l1,
+                  const long            l2,
+                  const long            l3,
+                  const long            l4)
+{
+  XEvent event               = {ClientMessage};
+  event.xclient.serial       = 0;
+  event.xclient.send_event   = False;
+  event.xclient.display      = view->world->impl->display;
+  event.xclient.window       = view->impl->win;
+  event.xclient.message_type = messageType;
+  event.xclient.format       = 32; // Data is 32-bit longs
+  event.xclient.data.l[0]    = l0;
+  event.xclient.data.l[1]    = l1;
+  event.xclient.data.l[2]    = l2;
+  event.xclient.data.l[3]    = l3;
+  event.xclient.data.l[4]    = l4;
+  return event;
+}
+
 PuglStatus
 puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
 {
@@ -383,16 +407,14 @@ puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
       // KDE annoyingly doesn't support clients setting the hidden hint
       XIconifyWindow(display, impl->win, impl->screen);
     } else {
-      XEvent event               = {ClientMessage};
-      event.xclient.window       = impl->win;
-      event.xclient.format       = 32;
-      event.xclient.message_type = atoms->NET_WM_STATE;
-      event.xclient.data.l[0]    = newValue ? WM_STATE_ADD : WM_STATE_REMOVE;
-      event.xclient.data.l[1]    = (long)stateAtom;
-      event.xclient.data.l[2]    = 0;
-      event.xclient.data.l[3]    = 1;
-      event.xclient.data.l[4]    = 0;
-
+      XEvent event =
+        makeClientMessage(view,
+                          atoms->NET_WM_STATE,
+                          newValue ? WM_STATE_ADD : WM_STATE_REMOVE,
+                          (long)stateAtom,
+                          0,
+                          1,
+                          0);
       if (!XSendEvent(display,
                       RootWindow(display, impl->screen),
                       False,
@@ -1164,6 +1186,7 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
     if (protocol == atoms->WM_DELETE_WINDOW) {
       event.type = PUGL_CLOSE;
     } else if (protocol == atoms->NET_WM_PING) {
+      // Copy the message, change the window to the root, and send it back
       const Window root    = RootWindow(display, view->impl->screen);
       XEvent       reply   = {ClientMessage};
       reply.xclient        = message;
@@ -1231,16 +1254,9 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
                           &child);
 
     // DnD Step 5: Target tells the source whether it will accept
-    XEvent reply               = {ClientMessage};
-    reply.xclient.display      = display;
-    reply.xclient.window       = impl->drag.source;
-    reply.xclient.message_type = atoms->XdndStatus;
-    reply.xclient.format       = 32;
-    reply.xclient.data.l[0]    = (long)impl->win; // Target window
-    reply.xclient.data.l[1]    = 0;               // Flags
-    reply.xclient.data.l[2]    = 0;               // Accepting rectangle X,Y
-    reply.xclient.data.l[3]    = 0;               // Accepting rectangle W,H
-
+    XEvent reply =
+      makeClientMessage(view, atoms->XdndStatus, (long)impl->win, 0, 0, 0, 0);
+    reply.xclient.window = impl->drag.source;
     if (view->impl->drag.acceptedFormat) {
       reply.xclient.data.l[1] = 1; // Set bit 0: target will accept drop
       reply.xclient.data.l[4] =
@@ -1670,10 +1686,12 @@ puglStopTimer(PuglView* const view, const uintptr_t id)
 static PuglStatus
 eventToX(PuglView* const view, const PuglEvent* const event, XEvent* const out)
 {
+  PuglWorld* const world = view->world;
+
   memset(out, 0, sizeof(XEvent));
   out->xany.serial     = 0;
   out->xany.send_event = True;
-  out->xany.display    = view->world->impl->display;
+  out->xany.display    = world->impl->display;
   out->xany.window     = view->impl->win;
 
   if (event->type == PUGL_EXPOSE) {
@@ -1686,11 +1704,13 @@ eventToX(PuglView* const view, const PuglEvent* const event, XEvent* const out)
   }
 
   if (event->type == PUGL_CLIENT) {
-    out->xclient.type         = ClientMessage;
-    out->xclient.message_type = view->world->impl->atoms.PUGL_CLIENT_MSG;
-    out->xclient.format       = 32;
-    out->xclient.data.l[0]    = (long)event->client.data1;
-    out->xclient.data.l[1]    = (long)event->client.data2;
+    *out = makeClientMessage(view,
+                             world->impl->atoms.PUGL_CLIENT_MSG,
+                             (long)event->client.data1,
+                             (long)event->client.data2,
+                             0,
+                             0,
+                             0);
     return PUGL_SUCCESS;
   }
 
@@ -1701,23 +1721,18 @@ PuglStatus
 puglSendEvent(PuglView* const view, const PuglEvent* const event)
 {
   PuglInternals* const impl    = view->impl;
-  Display* const       display = view->world->impl->display;
+  PuglWorld* const     world   = view->world;
+  Display* const       display = world->impl->display;
   XEvent               xev     = PUGL_INIT_STRUCT;
-  if (!impl->win || view->world->state == PUGL_WORLD_EXPOSING) {
+  if (!impl->win || world->state == PUGL_WORLD_EXPOSING) {
     return PUGL_FAILURE;
   }
 
   if (event->type == PUGL_CLOSE) {
-    xev.xclient.type         = ClientMessage;
-    xev.xclient.serial       = 0;
-    xev.xclient.send_event   = True;
-    xev.xclient.display      = display;
-    xev.xclient.window       = impl->win;
-    xev.xclient.message_type = view->world->impl->atoms.NET_CLOSE_WINDOW;
-    xev.xclient.format       = 32;
-    xev.xclient.data.l[0]    = CurrentTime;
-    xev.xclient.data.l[1]    = 1;
+    xev = makeClientMessage(
+      view, world->impl->atoms.NET_CLOSE_WINDOW, CurrentTime, 1, 0, 0, 0);
 
+    xev.xclient.send_event = True;
     return puglX11Status(
       XSendEvent(display,
                  RootWindow(display, impl->screen),
@@ -1835,14 +1850,8 @@ handleSelectionNotify(const PuglWorld* const       world,
     board->source = impl->drag.source;
 
     // Notify the drag source that the operation is finished
-    XEvent reply               = {ClientMessage};
-    reply.xclient.window       = impl->win;
-    reply.xclient.message_type = atoms->XdndFinished;
-    reply.xclient.format       = 32;
-    reply.xclient.data.l[0]    = (long)impl->win; // Target
-    reply.xclient.data.l[1]    = 1;               // Accepted (TODO)
-    reply.xclient.data.l[2]    = None;            // Action (TODO)
-
+    XEvent reply =
+      makeClientMessage(view, atoms->XdndFinished, (long)impl->win, 1, 0, 0, 0);
     XSendEvent(display, impl->drag.source, False, NoEventMask, &reply);
 
     // Send a data event to the application so it can retrieve the data
@@ -2374,19 +2383,16 @@ puglAcceptOffer(PuglView* const                 view,
 
   const long rootPos  = (rootRegion.x << 16) | rootRegion.y;
   const long rootSize = (rootRegion.width << 16) | rootRegion.height;
-  XEvent     reply    = {ClientMessage};
+  XEvent     reply =
+    makeClientMessage(view,
+                      atoms->XdndStatus,
+                      (long)impl->win,
+                      1,
+                      rootPos,
+                      rootSize,
+                      (long)getX11ActionAtom(view, impl->drag.acceptedAction));
 
-  reply.xclient.display      = display;
-  reply.xclient.window       = impl->drag.source;
-  reply.xclient.message_type = atoms->XdndStatus;
-  reply.xclient.format       = 32;
-  reply.xclient.data.l[0]    = (long)impl->win;
-  reply.xclient.data.l[1]    = 1;
-  reply.xclient.data.l[2]    = rootPos;
-  reply.xclient.data.l[3]    = rootSize;
-  reply.xclient.data.l[4] =
-    (long)getX11ActionAtom(view, impl->drag.acceptedAction);
-
+  reply.xclient.window = impl->drag.source;
   return XSendEvent(display, impl->drag.source, False, NoEventMask, &reply)
            ? PUGL_SUCCESS
            : PUGL_FAILURE;
@@ -2416,17 +2422,10 @@ puglRejectOffer(PuglView* const                 view,
 
     const long rootPos  = (rootRegion.x << 16) | rootRegion.y;
     const long rootSize = (rootRegion.width << 16) | rootRegion.height;
-    XEvent     reply    = {ClientMessage};
+    XEvent     reply    = makeClientMessage(
+      view, atoms->XdndStatus, (long)impl->win, 0, rootPos, rootSize, 0);
 
-    reply.xclient.display      = display;
-    reply.xclient.window       = impl->drag.source;
-    reply.xclient.message_type = atoms->XdndStatus;
-    reply.xclient.format       = 32;
-    reply.xclient.data.l[0]    = (long)impl->win;
-    reply.xclient.data.l[1]    = 0;
-    reply.xclient.data.l[2]    = rootPos;
-    reply.xclient.data.l[3]    = rootSize;
-
+    reply.xclient.window = impl->drag.source;
     return XSendEvent(display, impl->drag.source, False, NoEventMask, &reply)
              ? PUGL_SUCCESS
              : PUGL_FAILURE;
