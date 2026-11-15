@@ -321,25 +321,26 @@ styleFlagToAtom(PuglWorld* const world, const PuglViewStyleFlag flag)
   const PuglX11Atoms* const atoms = &world->impl->atoms;
 
   switch (flag) {
+  case PUGL_VIEW_STYLE_MAPPED:
+    break;
   case PUGL_VIEW_STYLE_MODAL:
     return atoms->NET_WM_STATE_MODAL;
-  case PUGL_VIEW_STYLE_TALL:
-    return atoms->NET_WM_STATE_MAXIMIZED_VERT;
-  case PUGL_VIEW_STYLE_WIDE:
-    return atoms->NET_WM_STATE_MAXIMIZED_HORZ;
-  case PUGL_VIEW_STYLE_HIDDEN:
-    return atoms->NET_WM_STATE_HIDDEN;
-  case PUGL_VIEW_STYLE_FULLSCREEN:
-    return atoms->NET_WM_STATE_FULLSCREEN;
   case PUGL_VIEW_STYLE_ABOVE:
     return atoms->NET_WM_STATE_ABOVE;
   case PUGL_VIEW_STYLE_BELOW:
     return atoms->NET_WM_STATE_BELOW;
+  case PUGL_VIEW_STYLE_HIDDEN:
+    return atoms->NET_WM_STATE_HIDDEN;
+  case PUGL_VIEW_STYLE_TALL:
+    return atoms->NET_WM_STATE_MAXIMIZED_VERT;
+  case PUGL_VIEW_STYLE_WIDE:
+    return atoms->NET_WM_STATE_MAXIMIZED_HORZ;
+  case PUGL_VIEW_STYLE_FULLSCREEN:
+    return atoms->NET_WM_STATE_FULLSCREEN;
+  case PUGL_VIEW_STYLE_RESIZING:
+    break;
   case PUGL_VIEW_STYLE_DEMANDING:
     return atoms->NET_WM_STATE_DEMANDS_ATTENTION;
-  case PUGL_VIEW_STYLE_RESIZING:
-  case PUGL_VIEW_STYLE_MAPPED:
-    break;
   }
 
   return 0;

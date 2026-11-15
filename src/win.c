@@ -1161,17 +1161,9 @@ puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
       continue;
     }
 
-    switch (mask) {
-    case PUGL_VIEW_STYLE_MODAL:
-    case PUGL_VIEW_STYLE_TALL:
-    case PUGL_VIEW_STYLE_WIDE:
-      break;
-
-    case PUGL_VIEW_STYLE_HIDDEN:
+    if (mask == PUGL_VIEW_STYLE_HIDDEN) {
       ShowWindow(impl->hwnd, newValue ? SW_SHOWMINIMIZED : SW_RESTORE);
-      break;
-
-    case PUGL_VIEW_STYLE_FULLSCREEN:
+    } else if (mask == PUGL_VIEW_STYLE_FULLSCREEN) {
       impl->fullscreen = newValue;
       updateWindowStyle(view);
       if (newValue) {
@@ -1181,22 +1173,11 @@ puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
         impl->oldPlacement.showCmd = SW_RESTORE;
         SetWindowPlacement(impl->hwnd, &impl->oldPlacement);
       }
-      break;
-
-    case PUGL_VIEW_STYLE_ABOVE:
-    case PUGL_VIEW_STYLE_BELOW:
-      break;
-
-    case PUGL_VIEW_STYLE_DEMANDING: {
+    } else if (mask == PUGL_VIEW_STYLE_DEMANDING) {
       FLASHWINFO info = {
         sizeof(FLASHWINFO), impl->hwnd, FLASHW_ALL | FLASHW_TIMERNOFG, 1, 0};
 
       FlashWindowEx(&info);
-      break;
-    }
-
-    case PUGL_VIEW_STYLE_RESIZING:
-      break;
     }
   }
 

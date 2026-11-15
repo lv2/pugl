@@ -46,26 +46,26 @@ static inline const char*
 viewStyleFlagString(const PuglViewStyleFlag state)
 {
   switch (state) {
+  case PUGL_VIEW_STYLE_MAPPED:
+    return "MAPPED";
   case PUGL_VIEW_STYLE_MODAL:
     return "MODAL";
-  case PUGL_VIEW_STYLE_TALL:
-    return "TALL";
-  case PUGL_VIEW_STYLE_WIDE:
-    return "WIDE";
-  case PUGL_VIEW_STYLE_HIDDEN:
-    return "HIDDEN";
-  case PUGL_VIEW_STYLE_FULLSCREEN:
-    return "FULLSCREEN";
   case PUGL_VIEW_STYLE_ABOVE:
     return "ABOVE";
   case PUGL_VIEW_STYLE_BELOW:
     return "BELOW";
-  case PUGL_VIEW_STYLE_DEMANDING:
-    return "DEMANDING";
+  case PUGL_VIEW_STYLE_HIDDEN:
+    return "HIDDEN";
+  case PUGL_VIEW_STYLE_TALL:
+    return "TALL";
+  case PUGL_VIEW_STYLE_WIDE:
+    return "WIDE";
+  case PUGL_VIEW_STYLE_FULLSCREEN:
+    return "FULLSCREEN";
   case PUGL_VIEW_STYLE_RESIZING:
     return "RESIZING";
-  case PUGL_VIEW_STYLE_MAPPED:
-    return "MAPPED";
+  case PUGL_VIEW_STYLE_DEMANDING:
+    return "DEMANDING";
   }
 
   return "?";
