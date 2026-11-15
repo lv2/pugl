@@ -1368,17 +1368,7 @@ translatePropertyNotify(PuglView* const view, XPropertyEvent message)
   PuglEvent                  event = {{PUGL_NOTHING, 0U}};
 
   if (message.atom == atoms->NET_WM_STATE) {
-    // Get all the current states set in the window hints
-    unsigned long numHints = 0;
-    Atom*         hints    = NULL;
-    if (getAtomProperty(view, impl->win, message.atom, &numHints, &hints)) {
-      return event;
-    }
-
-    // Make a configure event based on the current configuration to update
     event = getCurrentConfiguration(view);
-
-    XFree(hints);
   } else if (message.atom == atoms->NET_FRAME_EXTENTS) {
     Atom          actualType     = 0;
     int           actualFormat   = 0;
