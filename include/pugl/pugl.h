@@ -222,6 +222,9 @@ typedef struct {
 
    - MacOS: A recursive loop is entered while the window is being live resized.
 
+   - Wayland: A recursive loop is never entered and the event loop runs as
+     usual while the view is being resized.
+
    - Windows: A recursive loop is entered while the window is being live
      resized or the menu is shown.
 
@@ -805,10 +808,19 @@ typedef enum {
      document, like "myfile.txt - Fancy Editor".
   */
   PUGL_WINDOW_TITLE,
+
+  /*
+     The name of the application locale.
+
+     This is used on some platforms to load the correct keyboard mapping.  It
+     is a standard locale identifier as used by the LANG environment variable,
+     like "en_CA.UTF-8".
+  */
+  PUGL_LOCALE,
 } PuglStringHint;
 
 /// The number of #PuglStringHint values
-#define PUGL_NUM_STRING_HINTS 3U
+#define PUGL_NUM_STRING_HINTS 4U
 
 /**
    @}
@@ -826,6 +838,8 @@ typedef enum {
 
    MacOS: This is a pointer to the `NSApplication`.
 
+   Wayland: This is a pointer to the `wl_display`.
+
    Windows: This is the `HMODULE` of the calling process.
 
    X11: This is a pointer to the `Display`.
@@ -841,6 +855,8 @@ typedef void* PuglNativeWorld;
    and other APIs.
 
    MacOS: This is a pointer to an `NSView*`.
+
+   Wayland: This is a pointer to a `wl_surface`.
 
    Windows: This is a `HWND`.
 

@@ -27,7 +27,16 @@ option(
 )
 
 option('vulkan', type: 'feature', description: 'Build Vulkan graphics backend')
+
+option(
+  'wl',
+  type: 'feature',
+  value: 'disabled',
+  description: 'Build for Wayland',
+)
+
 option('win_wchar', type: 'feature', description: 'Use UNICODE with Win32')
+option('x11', type: 'feature', description: 'Build for X11')
 option('xcursor', type: 'feature', description: 'Support X11 cursor')
 option('xrandr', type: 'feature', description: 'Support X11 refresh rate')
 option('xsync', type: 'feature', description: 'Support timers on X11')

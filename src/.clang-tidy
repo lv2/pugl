@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: 0BSD OR ISC
 
 Checks: >
+  -android-cloexec-pipe,
   -bugprone-easily-swappable-parameters,
   -bugprone-multi-level-implicit-pointer-conversion,
   -google-objc-function-naming,

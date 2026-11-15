@@ -45,7 +45,8 @@ puglNewWorld(PuglWorldType type, PuglWorldFlags flags)
 {
   PuglWorld* world = (PuglWorld*)calloc(1, sizeof(PuglWorld));
   if (!world || !(world->impl = puglAllocWorldInternals()) ||
-      puglSetString(&world->strings[PUGL_CLASS_NAME], "Pugl")) {
+      puglSetString(&world->strings[PUGL_CLASS_NAME], "Pugl") ||
+      puglSetString(&world->strings[PUGL_LOCALE], "C")) {
     free(world);
     return NULL;
   }

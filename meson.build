@@ -12,7 +12,7 @@ project(
     'cpp_std=c++17',
   ],
   license: 'ISC',
-  meson_version: '>= 0.54.0',
+  meson_version: '>= 0.56.0',
   version: '0.7.1',
 )
 
@@ -173,6 +173,7 @@ m_dep = cc.find_library('m', required: false)
 
 platform_link_args = []
 gl_backend_deps = []
+cairo_backend_args = []
 
 if host_machine.system() == 'darwin'
   # MacOS
@@ -282,8 +283,62 @@ else
   backend_extension = '.c'
   soversion = meson.project_version().split('.')[0]
 
-  x11_dep = cc.find_library('X11')
-  if x11_dep.found()
+  if get_option('wl').enabled() and get_option('x11').enabled()
+    error('Only one of "wl" and "x11" may be enabled')
+  endif
+
+  # Check for X11
+  x11_dep = cc.find_library('X11', required: get_option('x11'))
+
+  # Check for core Wayland libraries
+  wayland_client_dep = dependency('wayland-client', required: get_option('wl'))
+  wayland_cursor_dep = dependency('wayland-cursor', required: get_option('wl'))
+  wayland_scanner = find_program('wayland-scanner', required: get_option('wl'))
+  wayland_protocols = dependency('wayland-protocols', required: get_option('wl'))
+  xkbcommon_dep = dependency('xkbcommon', required: get_option('wl'))
+
+  if (
+    wayland_client_dep.found()
+    and wayland_cursor_dep.found()
+    and xkbcommon_dep.found()
+  )
+    # Wayland
+
+    protocols_dir = wayland_protocols.get_variable(pkgconfig: 'pkgdatadir')
+    xdg_shell_xml = protocols_dir / 'stable' / 'xdg-shell' / 'xdg-shell.xml'
+
+    xdg_shell_h = custom_target(
+      'xdg_shell_h',
+      build_by_default: true,
+      command: [wayland_scanner, 'client-header', xdg_shell_xml, 'xdg-shell.h'],
+      install: false,
+      output: 'xdg-shell.h',
+    )
+
+    xdg_shell_c = custom_target(
+      'xdg_shell_c',
+      build_by_default: true,
+      command: [wayland_scanner, 'private-code', xdg_shell_xml, 'xdg-shell.c'],
+      install: false,
+      output: 'xdg-shell.c',
+    )
+
+    platform = 'wl'
+    platform_sources = files('src/wl.c', 'src/wl_clipboard.c', 'src/xkb.c')
+    platform_sources += [xdg_shell_h, xdg_shell_c]
+    core_deps = [wayland_client_dep, wayland_cursor_dep, xkbcommon_dep]
+    cairo_backend_args += ['-D_GNU_SOURCE']
+    platform_args += [
+      '-Wno-cast-qual', # xdg-shell
+      '-Wno-missing-variable-declarations', # xdg-shell
+    ]
+
+    wl_gl_enabled = get_option('wl').enabled() and get_option('opengl').enabled()
+    egl_dep = dependency('egl', required: wl_gl_enabled)
+    wayland_egl_dep = dependency('wayland-egl', required: wl_gl_enabled)
+    gl_backend_deps += [egl_dep, wayland_egl_dep]
+
+  elif x11_dep.found()
     # X11
 
     xcursor_dep = cc.find_library('Xcursor', required: get_option('xcursor'))
@@ -356,7 +411,6 @@ libpugl = library(
   c_args: c_suppressions + library_args,
   dependencies: core_deps,
   gnu_symbol_visibility: 'hidden',
-  implicit_include_directories: false,
   include_directories: includes,
   install: install,
   link_args: platform_link_args,
@@ -431,9 +485,14 @@ endif
 # OpenGL Backend #
 
 if opengl_dep.found()
+  gl_backend_sources = files('src' / (platform + '_gl' + backend_extension))
+  if platform == 'wl'
+    gl_backend_sources += files('src/egl_surface.c')
+  endif
+
   gl_backend = library(
     'pugl_@0@_gl@1@'.format(platform, version_suffix),
-    files('src' / (platform + '_gl' + backend_extension)),
+    gl_backend_sources,
     c_args: c_suppressions + library_args,
     dependencies: [pugl_dep] + gl_backend_deps,
     gnu_symbol_visibility: 'hidden',
@@ -482,7 +541,7 @@ if cairo_dep.found()
   cairo_backend = library(
     'pugl_@0@_cairo@1@'.format(platform, version_suffix),
     files('src' / (platform + '_cairo' + backend_extension)),
-    c_args: c_suppressions + library_args,
+    c_args: c_suppressions + library_args + cairo_backend_args,
     dependencies: [pugl_dep, cairo_dep, cairo_framework_deps],
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
