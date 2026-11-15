@@ -760,6 +760,7 @@ typedef enum {
   PUGL_UNSUPPORTED,           ///< Unsupported operation
   PUGL_NO_MEMORY,             ///< Failed to allocate memory
   PUGL_CONNECT_FAILED,        ///< Failed to connect to display
+  PUGL_BIND_FAILED,           ///< Failed to bind API to display
 } PuglStatus;
 
 /// Return a string describing a status code
@@ -805,10 +806,19 @@ typedef enum {
      document, like "myfile.txt - Fancy Editor".
   */
   PUGL_WINDOW_TITLE,
+
+  /*
+     The name of the application locale.
+
+     This is used on some platforms to load the correct keyboard mapping.  It
+     is a standard locale identifier as used by the LANG environment variable,
+     like "en_CA.UTF-8".
+  */
+  PUGL_LOCALE,
 } PuglStringHint;
 
 /// The number of #PuglStringHint values
-#define PUGL_NUM_STRING_HINTS 3U
+#define PUGL_NUM_STRING_HINTS 4U
 
 /**
    @}
@@ -829,6 +839,8 @@ typedef enum {
    MacOS: This is a pointer to the `NSApplication`.
 
    Windows: This is the `HMODULE` of the calling process.
+
+   Wayland: This is a pointer to the `wl_display`.
 */
 typedef void* PuglNativeWorld;
 

@@ -282,8 +282,39 @@ else
   backend_extension = '.c'
   soversion = meson.project_version().split('.')[0]
 
-  x11_dep = cc.find_library('X11')
-  if x11_dep.found()
+  wayland_client_dep = dependency(
+    'wayland-client',
+    required: get_option('wayland'),
+  )
+
+  wayland_cursor_dep = dependency(
+    'wayland-cursor',
+    required: get_option('wayland'),
+  )
+
+  x11_dep = cc.find_library('X11', required: get_option('x11'))
+  xkbcommon_dep = dependency('xkbcommon', required: get_option('wayland'))
+  egl_dep = dependency('egl', required: false)
+  wayland_egl_dep = dependency('wayland-egl', required: false)
+
+  if (
+    wayland_client_dep.found()
+    and wayland_cursor_dep.found()
+    and xkbcommon_dep.found()
+  )
+    # Wayland
+    platform = 'wayland'
+    platform_sources = files('src/wayland.c', 'src/xkb.c', 'src/xdg-shell.c')
+    core_deps = [wayland_client_dep, wayland_cursor_dep, xkbcommon_dep]
+    gl_backend_deps += [egl_dep, wayland_egl_dep]
+    platform_args += [
+      '-D_GNU_SOURCE',
+      '-Wno-cast-qual',
+      '-Wno-missing-field-initializers',
+      '-Wno-missing-variable-declarations',
+    ]
+
+  elif x11_dep.found()
     # X11
 
     xcursor_dep = cc.find_library('Xcursor', required: get_option('xcursor'))
@@ -431,9 +462,14 @@ endif
 # OpenGL Backend #
 
 if opengl_dep.found()
+  gl_backend_sources = files('src' / (platform + '_gl' + backend_extension))
+  if platform == 'wayland'
+    gl_backend_sources += files('src/egl_surface.c')
+  endif
+
   gl_backend = library(
     'pugl_@0@_gl@1@'.format(platform, version_suffix),
-    files('src' / (platform + '_gl' + backend_extension)),
+    gl_backend_sources,
     c_args: c_suppressions + library_args,
     dependencies: [pugl_dep] + gl_backend_deps,
     gnu_symbol_visibility: 'hidden',
@@ -449,7 +485,7 @@ if opengl_dep.found()
   pugl_gl_dep = declare_dependency(
     compile_args: usage_args,
     link_with: gl_backend,
-    dependencies: [pugl_dep, opengl_dep],
+    dependencies: [pugl_dep, opengl_dep] + gl_backend_deps,
   )
 
   gl_pkg_name = 'pugl-gl-@0@'.format(major_version)

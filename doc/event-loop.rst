@@ -48,6 +48,11 @@ X11
 On X11, the application strictly controls event dispatching, the system can't call into application code at "surprising" times.
 So, all events are dispatched in the scope of a :func:`puglUpdate` call.
 
+Wayland
+=======
+
+On Wayland, as on X11, all events are dispatched in the scope of a `puglUpdate` call.
+
 *********************
 Recursive Event Loops
 *********************
