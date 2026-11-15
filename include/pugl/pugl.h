@@ -61,6 +61,56 @@ typedef struct {
 
 /**
    @}
+   @defgroup pugl_view_style View Style
+   @{
+*/
+
+/**
+   View style flags.
+
+   Style flags reflect special modes and states supported by the window system.
+   Applications can monitor or manipulate them to improve integration.
+*/
+typedef enum {
+  /// View is mapped to a real window and potentially visible
+  PUGL_VIEW_STYLE_MAPPED = 1U << 0U,
+
+  /// View is modal, typically a dialog box of its transient parent
+  PUGL_VIEW_STYLE_MODAL = 1U << 1U,
+
+  /// View should be above most others
+  PUGL_VIEW_STYLE_ABOVE = 1U << 2U,
+
+  /// View should be below most others
+  PUGL_VIEW_STYLE_BELOW = 1U << 3U,
+
+  /// View is minimized, shaded, or otherwise invisible
+  PUGL_VIEW_STYLE_HIDDEN = 1U << 4U,
+
+  /// View is maximized to fill the screen vertically
+  PUGL_VIEW_STYLE_TALL = 1U << 5U,
+
+  /// View is maximized to fill the screen horizontally
+  PUGL_VIEW_STYLE_WIDE = 1U << 6U,
+
+  /// View is enlarged to fill the entire screen with no decorations
+  PUGL_VIEW_STYLE_FULLSCREEN = 1U << 7U,
+
+  /// View is being resized
+  PUGL_VIEW_STYLE_RESIZING = 1U << 8U,
+
+  /// View is ready for input or otherwise demanding attention
+  PUGL_VIEW_STYLE_DEMANDING = 1U << 9U,
+} PuglViewStyleFlag;
+
+/// The maximum #PuglViewStyleFlag value
+#define PUGL_MAX_VIEW_STYLE_FLAG PUGL_VIEW_STYLE_DEMANDING
+
+/// Bitwise OR of #PuglViewStyleFlag values
+typedef uint32_t PuglViewStyleFlags;
+
+/**
+   @}
    @defgroup pugl_events Events
    @{
 */
@@ -115,50 +165,6 @@ typedef struct {
    @defgroup pugl_management_events Management Events
    @{
 */
-
-/**
-   View style flags.
-
-   Style flags reflect special modes and states supported by the window system.
-   Applications can monitor or manipulate them to improve integration.
-*/
-typedef enum {
-  /// View is mapped to a real window and potentially visible
-  PUGL_VIEW_STYLE_MAPPED = 1U << 0U,
-
-  /// View is modal, typically a dialog box of its transient parent
-  PUGL_VIEW_STYLE_MODAL = 1U << 1U,
-
-  /// View should be above most others
-  PUGL_VIEW_STYLE_ABOVE = 1U << 2U,
-
-  /// View should be below most others
-  PUGL_VIEW_STYLE_BELOW = 1U << 3U,
-
-  /// View is minimized, shaded, or otherwise invisible
-  PUGL_VIEW_STYLE_HIDDEN = 1U << 4U,
-
-  /// View is maximized to fill the screen vertically
-  PUGL_VIEW_STYLE_TALL = 1U << 5U,
-
-  /// View is maximized to fill the screen horizontally
-  PUGL_VIEW_STYLE_WIDE = 1U << 6U,
-
-  /// View is enlarged to fill the entire screen with no decorations
-  PUGL_VIEW_STYLE_FULLSCREEN = 1U << 7U,
-
-  /// View is being resized
-  PUGL_VIEW_STYLE_RESIZING = 1U << 8U,
-
-  /// View is ready for input or otherwise demanding attention
-  PUGL_VIEW_STYLE_DEMANDING = 1U << 9U,
-} PuglViewStyleFlag;
-
-/// The maximum #PuglViewStyleFlag value
-#define PUGL_MAX_VIEW_STYLE_FLAG PUGL_VIEW_STYLE_DEMANDING
-
-/// Bitwise OR of #PuglViewStyleFlag values
-typedef uint32_t PuglViewStyleFlags;
 
 /**
    View realize event.
