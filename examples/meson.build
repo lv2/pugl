@@ -106,7 +106,7 @@ else
         dependencies += [dl_dep, traje_dep]
         c_args += traje_args + ['-D_POSIX_C_SOURCE=200809L']
         if cc.get_id() == 'clang'
-          c_args += ['-Wno-unused-but-set-global']
+          c_args += cc.get_supported_arguments(['-Wno-unused-but-set-global'])
         endif
       endif
 
