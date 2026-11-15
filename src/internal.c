@@ -276,6 +276,29 @@ puglDispatchSimpleEvent(PuglView* view, const PuglEventType type)
   return puglDispatchEvent(view, &event);
 }
 
+static void
+trackConfigure(PuglView* const view, const PuglConfigureEvent* const configure)
+{
+  const PuglArea  size = view->sizeHints[PUGL_CURRENT_SIZE];
+  const PuglPoint pos  = view->positionHints[PUGL_CURRENT_POSITION];
+
+  // Reset stale "current" size or position hints overrides
+
+  if (puglIsValidSize(size.width, size.height) &&
+      (configure->width != size.width || configure->height != size.height)) {
+    view->sizeHints[PUGL_CURRENT_SIZE].width  = 0;
+    view->sizeHints[PUGL_CURRENT_SIZE].height = 0;
+  }
+
+  if (puglIsValidPosition(pos.x, pos.y) &&
+      (configure->x != pos.x || configure->y != pos.y)) {
+    view->positionHints[PUGL_CURRENT_POSITION].x = 0;
+    view->positionHints[PUGL_CURRENT_POSITION].y = 0;
+  }
+
+  view->lastConfigure = *configure;
+}
+
 PuglStatus
 puglDispatchEvent(PuglView* view, const PuglEvent* event)
 {
@@ -309,8 +332,8 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
                  &event->configure,
                  sizeof(PuglConfigureEvent))) {
       st0 = view->eventFunc(view, event);
+      trackConfigure(view, &event->configure);
     }
-    view->lastConfigure = event->configure;
     if (view->stage == PUGL_VIEW_STAGE_REALIZED) {
       view->stage = PUGL_VIEW_STAGE_CONFIGURED;
     }
