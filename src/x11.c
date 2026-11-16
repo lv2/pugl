@@ -294,6 +294,7 @@ puglInitWorldInternals(PuglWorld* const world, const PuglWorldFlags flags)
   impl->atoms.XdndSelection     = XInternAtom(display, "XdndSelection", 0);
   impl->atoms.XdndStatus        = XInternAtom(display, "XdndStatus", 0);
   impl->atoms.XdndTypeList      = XInternAtom(display, "XdndTypeList", 0);
+  impl->atoms.text_plain        = XInternAtom(display, "text/plain", 0);
   impl->atoms.text_uri_list     = XInternAtom(display, "text/uri-list", 0);
 
   // Open input method
@@ -1163,12 +1164,32 @@ getX11ActionAtom(const PuglView* const view, const PuglDataAction action)
   return view->world->impl->atoms.XdndActionPrivate;
 }
 
+static void
+appendClipboardFormat(Display* const          display,
+                      PuglX11Clipboard* const board,
+                      const Atom              atom)
+{
+  char* const name = XGetAtomName(display, atom);
+  if (name && strchr(name, '/')) { // MIME type (hopefully)
+    const size_t nameLen    = strlen(name);
+    char* const  nameString = (char*)calloc(nameLen + 1, 1);
+    memcpy(nameString, name, nameLen + 1);
+
+    board->formats[board->numFormats]       = atom;
+    board->formatStrings[board->numFormats] = nameString;
+    ++board->numFormats;
+  }
+}
+
 static PuglStatus
 setClipboardFormats(PuglView* const         view,
                     PuglX11Clipboard* const board,
                     const unsigned long     numFormats,
                     const Atom* const       formats)
 {
+  Display* const            display = view->world->impl->display;
+  const PuglX11Atoms* const atoms   = &view->world->impl->atoms;
+
   // Clear current board formats
   for (unsigned long i = 0; i < board->numFormats; ++i) {
     free(board->formatStrings[i]);
@@ -1195,37 +1216,20 @@ setClipboardFormats(PuglView* const         view,
 
   board->formatStrings = newFormatStrings;
 
-  bool gotUtf8 = false;
+  bool gotPlain = false;
   for (unsigned long i = 0; i < numFormats; ++i) {
     if (formats[i]) {
-      char* const name = XGetAtomName(view->world->impl->display, formats[i]);
-      const char* type = NULL;
-
-      if (strchr(name, '/')) { // MIME type (hopefully)
-        if (strcmp(name, "text/plain;charset=utf-8") || !gotUtf8) {
-          type = name;
-        }
-      } else if (!gotUtf8) {
-        // Accept either UTF8_STRING or text/plain;charset=utf-8 once
-        if (!strcmp(name, "UTF8_STRING")) {
-          type    = "text/plain;charset=utf-8";
-          gotUtf8 = true;
-        }
+      if (formats[i] == atoms->text_plain) {
+        gotPlain = true;
+      } else {
+        appendClipboardFormat(display, board, formats[i]);
       }
-
-      if (type) {
-        const size_t typeLen      = strlen(type);
-        char* const  formatString = (char*)calloc(typeLen + 1, 1);
-
-        memcpy(formatString, type, typeLen + 1);
-
-        board->formats[board->numFormats]       = formats[i];
-        board->formatStrings[board->numFormats] = formatString;
-        ++board->numFormats;
-      }
-
-      XFree(name);
     }
+  }
+
+  // Move text/plain last since xwayland puts encoded UTF-8 there
+  if (gotPlain) {
+    appendClipboardFormat(display, board, atoms->text_plain);
   }
 
   return PUGL_SUCCESS;

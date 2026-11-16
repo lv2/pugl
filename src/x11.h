@@ -59,6 +59,7 @@ typedef struct {
   Atom XdndSelection;
   Atom XdndStatus;
   Atom XdndTypeList;
+  Atom text_plain;
   Atom text_uri_list;
 } PuglX11Atoms;
 
