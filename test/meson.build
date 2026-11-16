@@ -1,13 +1,19 @@
-# Copyright 2021-2025 David Robillard <d@drobilla.net>
+# Copyright 2021-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 # Suppress some additional C warnings in tests
 test_c_args = []
 if get_option('warning_level') == 'everything'
   if cc.get_id() == 'clang'
-    test_c_args += ['-Wno-float-equal']
+    test_c_args += [
+      '-Wno-float-equal',
+      '-Wno-switch-enum',
+    ]
   elif cc.get_id() == 'gcc'
-    test_c_args += ['-Wno-float-equal']
+    test_c_args += [
+      '-Wno-float-equal',
+      '-Wno-switch-enum',
+    ]
   endif
 
   test_c_args = cc.get_supported_arguments(test_c_args)

@@ -22,7 +22,10 @@ vulkan_examples = ['pugl_vulkan_cpp_demo.cpp']
 example_cpp_args = []
 if get_option('warning_level') == 'everything' and is_variable('cpp')
   if cpp.get_id() == 'clang'
-    example_cpp_args += ['-Wno-old-style-cast', '-Wno-switch-enum']
+    example_cpp_args += [
+      '-Wno-old-style-cast',
+      '-Wno-switch-enum',
+    ]
     if host_machine.system() == 'windows'
       example_cpp_args += [
         '-D_CRT_NONSTDC_NO_WARNINGS',

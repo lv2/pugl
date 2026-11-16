@@ -191,30 +191,21 @@ puglDecodeUTF8(const uint8_t* buf)
 PuglMods
 puglFilterMods(const PuglMods state, const PuglKey key)
 {
-  switch (key) {
-  case PUGL_KEY_SHIFT_L:
-  case PUGL_KEY_SHIFT_R:
-    return state & ~(PuglMods)PUGL_MOD_SHIFT;
-  case PUGL_KEY_CTRL_L:
-  case PUGL_KEY_CTRL_R:
-    return state & ~(PuglMods)PUGL_MOD_CTRL;
-  case PUGL_KEY_ALT_L:
-  case PUGL_KEY_ALT_R:
-    return state & ~(PuglMods)PUGL_MOD_ALT;
-  case PUGL_KEY_SUPER_L:
-  case PUGL_KEY_SUPER_R:
-    return state & ~(PuglMods)PUGL_MOD_SUPER;
-  case PUGL_KEY_NUM_LOCK:
-    return state & ~(PuglMods)PUGL_MOD_NUM_LOCK;
-  case PUGL_KEY_SCROLL_LOCK:
-    return state & ~(PuglMods)PUGL_MOD_SCROLL_LOCK;
-  case PUGL_KEY_CAPS_LOCK:
-    return state & ~(PuglMods)PUGL_MOD_CAPS_LOCK;
-  default:
-    break;
-  }
+  const PuglMods mask =
+    (key == PUGL_KEY_SHIFT_L || key == PUGL_KEY_SHIFT_R)
+      ? ((PuglMods)PUGL_MOD_SHIFT)
+    : (key == PUGL_KEY_CTRL_L || key == PUGL_KEY_CTRL_R)
+      ? ((PuglMods)PUGL_MOD_CTRL)
+    : (key == PUGL_KEY_ALT_L || key == PUGL_KEY_ALT_R)
+      ? ((PuglMods)PUGL_MOD_ALT)
+    : (key == PUGL_KEY_SUPER_L || key == PUGL_KEY_SUPER_R)
+      ? ((PuglMods)PUGL_MOD_SUPER)
+    : (key == PUGL_KEY_NUM_LOCK)    ? ((PuglMods)PUGL_MOD_NUM_LOCK)
+    : (key == PUGL_KEY_SCROLL_LOCK) ? ((PuglMods)PUGL_MOD_SCROLL_LOCK)
+    : (key == PUGL_KEY_CAPS_LOCK)   ? ((PuglMods)PUGL_MOD_CAPS_LOCK)
+                                    : (PuglMods)0U;
 
-  return state;
+  return state & ~mask;
 }
 
 PuglStatus
@@ -316,29 +307,23 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
   PuglStatus st0 = PUGL_SUCCESS;
   PuglStatus st1 = PUGL_SUCCESS;
 
-  switch (event->type) {
-  case PUGL_NOTHING:
-    break;
-
-  case PUGL_REALIZE:
+  if (event->type == PUGL_REALIZE) {
     assert(view->stage == PUGL_VIEW_STAGE_ALLOCATED);
     if (!(st0 = view->backend->enter(view, false))) {
       st0 = view->eventFunc(view, event);
       st1 = view->backend->leave(view, false);
     }
     view->stage = PUGL_VIEW_STAGE_REALIZED;
-    break;
 
-  case PUGL_UNREALIZE:
+  } else if (event->type == PUGL_UNREALIZE) {
     assert(view->stage >= PUGL_VIEW_STAGE_REALIZED);
     if (!(st0 = view->backend->enter(view, false))) {
       st0 = view->eventFunc(view, event);
       st1 = view->backend->leave(view, false);
     }
     view->stage = PUGL_VIEW_STAGE_ALLOCATED;
-    break;
 
-  case PUGL_CONFIGURE:
+  } else if (event->type == PUGL_CONFIGURE) {
     if (configureChanged(&view->lastConfigure, &event->configure)) {
       st0 = view->eventFunc(view, event);
       trackConfigure(view, &event->configure);
@@ -346,36 +331,31 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
     if (view->stage == PUGL_VIEW_STAGE_REALIZED) {
       view->stage = PUGL_VIEW_STAGE_CONFIGURED;
     }
-    break;
 
-  case PUGL_BLANK:
+  } else if (event->type == PUGL_BLANK) {
     assert(view->stage == PUGL_VIEW_STAGE_CONFIGURED);
     if (!(st0 = view->backend->enter(view, true))) {
       st0         = view->eventFunc(view, event);
       view->stage = PUGL_VIEW_STAGE_BLANKED;
     }
-    break;
 
-  case PUGL_DAMAGE:
+  } else if (event->type == PUGL_DAMAGE) {
     assert(view->stage == PUGL_VIEW_STAGE_BLANKED);
     if (!(st0 = view->eventFunc(view, event))) {
       st0 = view->backend->expose(view, &event->damage);
     }
-    break;
 
-  case PUGL_EXPOSE:
+  } else if (event->type == PUGL_EXPOSE) {
     assert(view->stage == PUGL_VIEW_STAGE_BLANKED);
     st0 = view->eventFunc(view, event);
-    break;
 
-  case PUGL_FLUSH:
+  } else if (event->type == PUGL_FLUSH) {
     assert(view->stage == PUGL_VIEW_STAGE_BLANKED);
     st0         = view->backend->leave(view, true);
     st1         = view->eventFunc(view, event);
     view->stage = PUGL_VIEW_STAGE_CONFIGURED;
-    break;
 
-  default:
+  } else if (event->type) {
     st0 = view->eventFunc(view, event);
   }
 

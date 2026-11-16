@@ -48,7 +48,6 @@ if cc.get_id() == 'clang'
       '-Wno-declaration-after-statement',
       '-Wno-padded',
       '-Wno-switch-default',
-      '-Wno-switch-enum',
       '-Wno-unsafe-buffer-usage',
     ]
 
@@ -82,7 +81,6 @@ elif cc.get_id() == 'gcc'
       '-Wno-suggest-attribute=const',
       '-Wno-suggest-attribute=pure',
       '-Wno-switch-default',
-      '-Wno-switch-enum',
       '-Wno-unsuffixed-float-constants',
     ]
 

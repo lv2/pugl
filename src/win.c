@@ -1371,9 +1371,9 @@ wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
   default:
     if (view && hwnd == view->impl->hwnd) {
       return handleMessage(view, message, wParam, lParam);
-    } else {
-      return DefWindowProc(hwnd, message, wParam, lParam);
     }
+
+    return DefWindowProc(hwnd, message, wParam, lParam);
   }
 }
 
@@ -1525,8 +1525,6 @@ puglGetNumClipboardTypes(const PuglView* const view,
     return IsClipboardFormatAvailable(CF_UNICODETEXT) ? 1U : 0U;
   case PUGL_CLIPBOARD_DRAG:
     return view->impl->droppedUrisLen ? 1U : 0U;
-  default:
-    break;
   }
 
   return 0U;
@@ -1542,8 +1540,6 @@ puglGetClipboardType(const PuglView* const view,
     return IsClipboardFormatAvailable(CF_UNICODETEXT) ? "text/plain" : NULL;
   case PUGL_CLIPBOARD_DRAG:
     return (view->impl->droppedUrisLen && !typeIndex) ? "text/uri-list" : NULL;
-  default:
-    break;
   }
 
   return NULL;

@@ -28,6 +28,7 @@ if warning_level == 'everything'
       '-Wno-nrvo',
       '-Wno-reserved-id-macro',
       '-Wno-reserved-identifier',
+      '-Wno-switch-enum',
     ]
 
     if host_machine.system() == 'windows'
@@ -36,7 +37,14 @@ if warning_level == 'everything'
       ]
     endif
   elif cc.get_id() == 'gcc'
-    example_c_args += ['-Wno-float-equal']
+    example_c_args += [
+      '-Wno-float-equal',
+      '-Wno-switch-enum',
+    ]
+  elif cc.get_id() == 'msvc'
+    example_c_args += [
+      '/wd4061',  # enumerator in switch is not explicitly handled
+    ]
   endif
 
   example_c_args = cc.get_supported_arguments(example_c_args)

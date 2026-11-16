@@ -242,18 +242,10 @@ puglSetEventFunc(PuglView* view, PuglEventFunc eventFunc)
 PuglStatus
 puglSetViewHint(PuglView* view, PuglViewHint hint, int value)
 {
-  if (value == PUGL_DONT_CARE) {
-    switch (hint) {
-    case PUGL_CONTEXT_API:
-    case PUGL_CONTEXT_VERSION_MAJOR:
-    case PUGL_CONTEXT_VERSION_MINOR:
-    case PUGL_CONTEXT_PROFILE:
-    case PUGL_CONTEXT_DEBUG:
-    case PUGL_SWAP_INTERVAL:
-      return PUGL_BAD_PARAMETER;
-    default:
-      break;
-    }
+  if (value == PUGL_DONT_CARE &&
+      ((hint >= PUGL_CONTEXT_API && hint <= PUGL_CONTEXT_DEBUG) ||
+       hint == PUGL_SWAP_INTERVAL)) {
+    return PUGL_BAD_PARAMETER;
   }
 
   if ((unsigned)hint < PUGL_NUM_VIEW_HINTS) {

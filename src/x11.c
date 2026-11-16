@@ -2159,36 +2159,28 @@ handleViewEvent(PuglWorld* const world,
   // Translate X11 event to Pugl event
   PuglEvent event = translateEvent(view, xevent);
 
-  switch (event.type) {
-  case PUGL_EXPOSE: {
-    // Expand damage to be exposed after loop
+  if (event.type == PUGL_EXPOSE) { // Expand damage to be exposed after loop
     XRectangle rect = {
       event.expose.x, event.expose.y, event.expose.width, event.expose.height};
     XUnionRectWithRegion(&rect, view->impl->damage, view->impl->damage);
-    break;
-  }
-  case PUGL_FOCUS_IN:
-    // Set the input context focus
+  } else if (event.type == PUGL_FOCUS_IN) { // Set the input context focus
     if (view->impl->xic) {
       XSetICFocus(view->impl->xic);
     }
-    break;
-  case PUGL_FOCUS_OUT:
-    // Unset the input context focus
+  } else if (event.type == PUGL_FOCUS_OUT) { // Unset the input context focus
     if (view->impl->xic) {
       XUnsetICFocus(view->impl->xic);
     }
-    break;
-  default:
+  } else {
 #if USE_XRANDR
     if (!event.type) {
       event = handleRandrEvent(view, xevent);
     }
 #endif
 
-    // Dispatch event to application immediately
-    st = puglDispatchEvent(view, &event);
-    break;
+    if (event.type) {
+      st = puglDispatchEvent(view, &event);
+    }
   }
 
   return st;
