@@ -505,6 +505,7 @@ keySymToSpecial(const WPARAM sym, const bool ext)
   case VK_NUMLOCK:  return PUGL_KEY_NUM_LOCK;
   case VK_SNAPSHOT: return PUGL_KEY_PRINT_SCREEN;
   case VK_PAUSE:    return PUGL_KEY_PAUSE;
+  default:          break;
   }
   // clang-format on
 
@@ -517,6 +518,7 @@ keySymToSpecial(const WPARAM sym, const bool ext)
     case VK_SHIFT:   return PUGL_KEY_SHIFT_R;
     case VK_CONTROL: return PUGL_KEY_CTRL_R;
     case VK_MENU:    return PUGL_KEY_ALT_R;
+    default:         break;
     }
     // clang-format on
   } else {
@@ -527,6 +529,7 @@ keySymToSpecial(const WPARAM sym, const bool ext)
     case VK_SHIFT:   return PUGL_KEY_SHIFT_L;
     case VK_CONTROL: return PUGL_KEY_CTRL_L;
     case VK_MENU:    return PUGL_KEY_ALT_L;
+    default:         break;
     }
     // clang-format on
   }
@@ -842,6 +845,8 @@ constrainAspect(const PuglView* const view,
     size->left = (a < minA   ? (LONG)((float)size->right - (h * minA))
                   : a > maxA ? (LONG)((float)size->right - (h * maxA))
                              : size->left);
+    break;
+  default:
     break;
   }
 }
