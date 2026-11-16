@@ -4,7 +4,7 @@
 executable(
   'pugl_cairo_demo',
   ['../../pugl_cairo_demo.c'],
-  c_args: example_defines + example_c_args + cairo_args,
+  c_args: example_defines + example_c_args,
   dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep, traje_dep],
   implicit_include_directories: false,
 )

@@ -22,8 +22,6 @@ static const vec2 rectVertices[] = {
   {1.0f, 1.0f}  // BR
 };
 
-static const unsigned rectIndices[4] = {0, 1, 2, 3};
-
 /// Make a new rectangle with the given index (each is slightly different)
 static inline Rect
 makeRect(const size_t index, const float frameWidth)

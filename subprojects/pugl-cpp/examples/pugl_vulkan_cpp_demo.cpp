@@ -1047,7 +1047,7 @@ RectData::init(const sk::VulkanApi&  vk,
     if ((r = vk.mapMemory(gpu.device,
                           modelBuffer.deviceMemory,
                           0,
-                          static_cast<VkDeviceSize>(sizeof(rectVertices)),
+                          sizeof(rectVertices),
                           {},
                           modelData))) {
       return r;
@@ -1062,7 +1062,7 @@ RectData::init(const sk::VulkanApi&  vk,
   }
 
   // Map attribute vertices (we will update them every frame)
-  const auto rectsSize = static_cast<VkDeviceSize>(sizeof(Rect)) * numRects;
+  const auto rectsSize = sizeof(Rect) * numRects;
   if ((r = vk.mapMemory(gpu.device,
                         instanceBuffer.deviceMemory,
                         0,

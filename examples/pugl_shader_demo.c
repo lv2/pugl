@@ -54,6 +54,8 @@
 static const PuglSpan  defaultSpan   = 512;
 static const uintptr_t resizeTimerId = 1U;
 
+static const unsigned rectIndices[4] = {0, 1, 2, 3};
+
 typedef struct {
   const char*     programPath;
   PuglWorld*      world;

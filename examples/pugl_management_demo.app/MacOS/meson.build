@@ -1,10 +1,10 @@
-# Copyright 2021-2023 David Robillard <d@drobilla.net>
+# Copyright 2021-2026 David Robillard <d@drobilla.net>
 # SPDX-License-Identifier: 0BSD OR ISC
 
 executable(
   'pugl_management_demo',
   ['../../pugl_management_demo.c'],
-  c_args: example_defines + example_c_args + cairo_args,
+  c_args: example_defines + example_c_args,
   dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep],
   implicit_include_directories: false,
 )

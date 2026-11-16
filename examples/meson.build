@@ -51,8 +51,13 @@ if warning_level == 'everything'
 endif
 example_c_args += c_suppressions
 
-if cc.get_id() == 'msvc' and warning_level in ['everything', '3', '2']
-  example_c_args += ['/D_CRT_SECURE_NO_WARNINGS']
+if (host_machine.system() == 'windows' and
+    warning_level in ['everything', '3', '2'])
+  if cc.get_id() == 'msvc'
+    example_c_args += ['/D_CRT_SECURE_NO_WARNINGS']
+  else
+    example_c_args += ['-D_CRT_SECURE_NO_WARNINGS']
+  endif
 endif
 
 subdir('shaders')
@@ -102,19 +107,15 @@ else
     foreach example : gl_examples
       source = [example]
       target = example.split('.')[0]
-
       c_args = example_defines + example_c_args + opengl_args
-      if cc.get_id() == 'gcc' and warning_level in ['everything', '3']
-        c_args += ['-Wno-pedantic']
-      endif
 
       dependencies = [m_dep, pugl_dep, pugl_gl_dep, puglutil_dep]
       if target == 'pugl_shader_demo'
         source += ['glad/glad.c']
         dependencies += [dl_dep, traje_dep]
         c_args += traje_args + ['-D_POSIX_C_SOURCE=200809L']
-        if cc.get_id() == 'clang'
-          c_args += cc.get_supported_arguments(['-Wno-unused-but-set-global'])
+        if cc.get_id() == 'gcc' and warning_level in ['everything', '3']
+          c_args += ['-Wno-pedantic']
         endif
       endif
 
@@ -135,7 +136,7 @@ else
       executable(
         target,
         example,
-        c_args: example_defines + example_c_args + cairo_args + traje_args,
+        c_args: example_defines + example_c_args + traje_args,
         dependencies: [m_dep, pugl_dep, pugl_cairo_dep, puglutil_dep, traje_dep],
         implicit_include_directories: false,
       )

@@ -11,8 +11,6 @@ Checks: >
   -bugprone-assignment-in-selection-statement,
   -cert-exp45-c,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
-  -clang-diagnostic-unused-function,
-  -clang-diagnostic-unused-macros,
   -llvmlibc-*,
   -misc-include-cleaner,
   -readability-avoid-nested-conditional-operator,

@@ -4,15 +4,14 @@
 # Suppress some additional C warnings in tests
 test_c_args = []
 if get_option('warning_level') == 'everything'
-  if cc.get_id() == 'clang'
+  if cc.get_id() in ['clang', 'gcc']
     test_c_args += [
       '-Wno-float-equal',
       '-Wno-switch-enum',
     ]
-  elif cc.get_id() == 'gcc'
+  elif cc.get_id() == 'msvc'
     test_c_args += [
-      '-Wno-float-equal',
-      '-Wno-switch-enum',
+      '/wd4061',  # enumerator in switch is not explicitly handled
     ]
   endif
 
@@ -114,7 +113,7 @@ if cairo_dep.found()
       executable(
         'test_' + test,
         'test_@0@.c'.format(test),
-        c_args: test_c_args + cairo_args,
+        c_args: test_c_args,
         dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep],
         implicit_include_directories: false,
       ),

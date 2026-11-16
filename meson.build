@@ -66,7 +66,6 @@ if cc.get_id() == 'clang'
       c_suppressions += [
         '-D_CRT_SECURE_NO_WARNINGS',
         '-Wno-cast-function-type',
-        '-Wno-covered-switch-default',
         '-Wno-format-nonliteral',
         '-Wno-nonportable-system-include-path',
       ]
@@ -86,6 +85,7 @@ elif cc.get_id() == 'gcc'
 
     if host_machine.system() == 'windows'
       c_suppressions += [
+        '-Wno-bad-function-cast',
         '-Wno-cast-function-type',
         '-Wno-pedantic',
         '-Wno-suggest-attribute=format',
@@ -102,7 +102,6 @@ elif cc.get_id() == 'msvc'
 
   if warning_level == 'everything'
     c_suppressions += [
-      '/wd4061',  # enumerator in switch is not explicitly handled
       '/wd4191',  # unsafe conversion from type to type
       '/wd4514',  # unreferenced inline function has been removed
       '/wd4710',  # function not inlined
@@ -456,18 +455,6 @@ cairo_dep = dependency(
   required: get_option('cairo'),
 )
 if cairo_dep.found()
-  cairo_args = []
-  if cc.get_id() == 'clang'
-    cairo_args += [
-      '-Wno-documentation',
-      '-Wno-documentation-unknown-command',
-      '-Wno-reserved-identifier',
-    ]
-  endif
-
-  cairo_args = cc.get_supported_arguments(cairo_args)
-  cairo_args += library_args
-
   cairo_framework_deps = []
   if host_machine.system() == 'darwin'
     cairo_framework_deps = dependency(
@@ -480,14 +467,14 @@ if cairo_dep.found()
   cairo_backend = library(
     'pugl_@0@_cairo@1@'.format(platform, version_suffix),
     files('src' / (platform + '_cairo' + backend_extension)),
-    c_args: c_suppressions + cairo_args,
+    c_args: c_suppressions + library_args,
     dependencies: [pugl_dep, cairo_dep, cairo_framework_deps],
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
     install: install,
     link_args: platform_link_args,
-    objc_args: objc_suppressions + cairo_args,
+    objc_args: objc_suppressions + library_args,
     soversion: soversion,
     version: meson.project_version(),
   )
