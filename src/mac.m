@@ -632,6 +632,8 @@ keySymToSpecial(const NSEvent* const ev)
     return PUGL_KEY_PAD_8;
   case 0x5C:
     return PUGL_KEY_PAD_9;
+  default:
+    break;
   }
 
   return PUGL_KEY_NONE;

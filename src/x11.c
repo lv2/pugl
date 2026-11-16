@@ -1567,6 +1567,8 @@ translateEvent(PuglView* const view, XEvent xevent)
         event.scroll.dx        = 1.0;
         event.scroll.direction = PUGL_SCROLL_RIGHT;
         break;
+      default:
+        break;
       }
     } else if (xevent.xbutton.button < 4 || xevent.xbutton.button > 7) {
       event.button.type  = ((xevent.type == ButtonPress) ? PUGL_BUTTON_PRESS

@@ -1015,11 +1015,8 @@ onEvent(PuglView* const view, const PuglEvent* const e)
     app->quit = 1;
     break;
   case PUGL_KEY_PRESS:
-    switch (e->key.key) {
-    case PUGL_KEY_ESCAPE:
-    case 'q':
+    if (e->key.key == PUGL_KEY_ESCAPE || e->key.key == 'q') {
       app->quit = 1;
-      break;
     }
     break;
   default:

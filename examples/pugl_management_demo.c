@@ -192,6 +192,8 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
   case PUGL_KEY_ESCAPE:
     app->quit = true;
     break;
+  default:
+    break;
   }
 
   return PUGL_SUCCESS;
