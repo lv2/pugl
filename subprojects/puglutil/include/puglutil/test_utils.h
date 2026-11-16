@@ -51,15 +51,33 @@ logError(const char* fmt, ...)
 static inline int
 printModifiers(const uint32_t mods)
 {
-  return fprintf(stderr,
-                 "Modifiers:%s%s%s%s%s%s%s",
-                 (mods & PUGL_MOD_SHIFT) ? " Shift" : "",
-                 (mods & PUGL_MOD_CTRL) ? " Ctrl" : "",
-                 (mods & PUGL_MOD_ALT) ? " Alt" : "",
-                 (mods & PUGL_MOD_SUPER) ? " Super" : "",
-                 (mods & PUGL_MOD_NUM_LOCK) ? " Num" : "",
-                 (mods & PUGL_MOD_SCROLL_LOCK) ? " Scroll" : "",
-                 (mods & PUGL_MOD_CAPS_LOCK) ? " Caps" : "");
+  int  rc    = fprintf(stderr, "[");
+  bool first = true;
+  for (uint32_t m = 1U; m <= PUGL_MOD_CAPS_LOCK; m <<= 1U) {
+    if ((mods & m)) {
+      rc += first ? 0 : fprintf(stderr, " ");
+      rc += fprintf(stderr, "%s", modString((PuglMod)m));
+      first = false;
+    }
+  }
+
+  return rc + fprintf(stderr, "]");
+}
+
+static inline int
+printViewStyleFlags(const PuglViewStyleFlags flags)
+{
+  int  rc    = fprintf(stderr, "[");
+  bool first = true;
+  for (uint32_t m = 1U; m <= PUGL_MAX_VIEW_STYLE_FLAG; m <<= 1U) {
+    if ((flags & m)) {
+      rc += first ? 0 : fprintf(stderr, " ");
+      rc += fprintf(stderr, "%s", viewStyleFlagString((PuglViewStyleFlag)m));
+      first = false;
+    }
+  }
+
+  return rc + fprintf(stderr, "]");
 }
 
 static inline int
@@ -82,19 +100,13 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 
   switch (event->type) {
   case PUGL_CONFIGURE:
-    PRINT(" " PIFMT " " PUFMT " x%.2f (",
+    PRINT(" " PIFMT " " PUFMT " x%.2f ",
           event->configure.x,
           event->configure.y,
           event->configure.width,
           event->configure.height,
           event->configure.scale);
-    for (PuglViewStyleFlags mask = 1U; mask <= PUGL_MAX_VIEW_STYLE_FLAG;
-         mask <<= 1U) {
-      if (event->configure.style & mask) {
-        PRINT(" %s", viewStyleFlagString((PuglViewStyleFlag)mask));
-      }
-    }
-    PRINT("%s", " )");
+    printViewStyleFlags(event->configure.style);
     break;
   case PUGL_DAMAGE:
   case PUGL_EXPOSE:
@@ -105,15 +117,17 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
           event->expose.height);
     break;
   case PUGL_KEY_PRESS:
-  case PUGL_KEY_RELEASE:
-    PRINT(" code %3u key  U+%04X (%s) ",
+  case PUGL_KEY_RELEASE: {
+    const char* const string = keyString(event->key.key);
+    PRINT(" code %3u key  U+%04X %13s ",
           event->key.keycode,
           event->key.key,
-          keyString(event->key.key));
+          (string[0] == '?') ? "" : string);
     printModifiers(event->scroll.state);
     break;
+  }
   case PUGL_TEXT:
-    PRINT(" code %3u char U+%04X (%s)",
+    PRINT(" code %3u char U+%04X %13s",
           event->text.keycode,
           event->text.character,
           event->text.string);
@@ -154,7 +168,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     PRINT(" %" PRIuPTR, event->timer.id);
     break;
   case PUGL_DATA_OFFER:
-    PRINT("%sData offer at   " PFFMT, prefix, event->offer.x, event->offer.y);
+    PRINT(" at " PFFMT, event->offer.x, event->offer.y);
     break;
   default:
     break;

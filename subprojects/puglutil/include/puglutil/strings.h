@@ -233,6 +233,28 @@ keyString(const uint32_t key)
 }
 
 static inline const char*
+modString(const PuglMod mod)
+{
+  switch (mod) {
+  case PUGL_MOD_SHIFT:
+    return "Shift";
+  case PUGL_MOD_CTRL:
+    return "Ctrl";
+  case PUGL_MOD_ALT:
+    return "Alt";
+  case PUGL_MOD_SUPER:
+    return "Super";
+  case PUGL_MOD_NUM_LOCK:
+    return "Num";
+  case PUGL_MOD_SCROLL_LOCK:
+    return "Scroll";
+  case PUGL_MOD_CAPS_LOCK:
+    return "Caps";
+  }
+  return "";
+}
+
+static inline const char*
 viewHintString(const PuglViewHint hint)
 {
   switch (hint) {
