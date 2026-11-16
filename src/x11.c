@@ -1845,7 +1845,7 @@ handleSelectionNotify(const PuglWorld* const       world,
   PuglInternals* const impl      = view->impl;
   Display* const       display   = view->world->impl->display;
   PuglEvent            puglEvent = {{PUGL_NOTHING, 0U}};
-  if (event->target == atoms->TARGETS) {
+  if (event->target == atoms->TARGETS && event->property) {
     // Notification of available datatypes
     unsigned long numFormats = 0;
     Atom*         formats    = NULL;
