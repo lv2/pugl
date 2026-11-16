@@ -2273,6 +2273,17 @@ puglAcceptOffer(PuglView* const                 view,
   return PUGL_SUCCESS;
 }
 
+PuglStatus
+puglRejectOffer(PuglView* const                 PUGL_UNUSED(view),
+                const PuglDataOfferEvent* const PUGL_UNUSED(offer),
+                const int                       PUGL_UNUSED(regionX),
+                const int                       PUGL_UNUSED(regionY),
+                const unsigned                  PUGL_UNUSED(regionWidth),
+                const unsigned                  PUGL_UNUSED(regionHeight))
+{
+  return PUGL_SUCCESS;
+}
+
 const void*
 puglGetClipboard(PuglView* const     view,
                  const PuglClipboard clipboard,

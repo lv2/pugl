@@ -97,12 +97,14 @@ onDataOffer(PuglView* view, const PuglDataOfferEvent* event)
   // Accept the first type found that we support
   for (uint32_t t = 0; t < numTypes; ++t) {
     const char* type = puglGetClipboardType(view, clipboard, t);
-    if (!strncmp(type, "image/", 6) || !strncmp(type, "text/", 5)) {
+    if (!strncmp(type, "image/", 6) || !strncmp(type, "text/plain", 10)) {
       puglAcceptOffer(
-        view, event, t, PUGL_DATA_ACTION_LINK, 0, 0, UINT_MAX, UINT_MAX);
+        view, event, t, PUGL_DATA_ACTION_COPY, 0, 0, UINT_MAX, UINT_MAX);
       return;
     }
   }
+
+  puglRejectOffer(view, event, 0, 0, UINT_MAX, UINT_MAX);
 }
 
 static void

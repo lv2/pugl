@@ -1698,9 +1698,8 @@ puglAcceptOffer(PuglView*                 view,
    Reject data offered from a clipboard.
 
    This can be called instead of puglAcceptOffer() to explicitly reject the
-   offer.  Note that drag-and-drop will still work if this isn't called, but
-   applications should always explicitly accept or reject each data offer for
-   optimal behaviour.
+   offer.  Applications should always explicitly accept or reject each data
+   offer to avoid any issues.
 
    The region parameters specify a region of the view that will refuse the
    data, which may be used by the system to avoid sending redundant events.

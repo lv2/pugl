@@ -1336,17 +1336,23 @@ translateClientMessage(PuglView* const view, XClientMessageEvent message)
   } else if (message.message_type == atoms->XdndLeave) {
     // Step 8a: Target receives XdndLeave (drag aborted)
     clearX11Clipboard(&impl->drag);
-  } else if (message.message_type == atoms->XdndDrop &&
-             impl->drag.acceptedFormat) {
+  } else if (message.message_type == atoms->XdndDrop) {
     // Step 8b: Target receives XdndDrop (data dropped in target window)
-    // Request the data with the desired format at the given time
-    // The drag will be finished by the SelectionNotify response
-    XConvertSelection(display,
-                      atoms->XdndSelection,
-                      impl->drag.acceptedFormat,
-                      atoms->XdndSelection,
-                      impl->win,
-                      (Time)message.data.l[2]);
+    if (impl->drag.acceptedFormat) {
+      // Request the data with the desired format at the given time
+      // The drag will be finished by the SelectionNotify response
+      XConvertSelection(display,
+                        atoms->XdndSelection,
+                        impl->drag.acceptedFormat,
+                        atoms->XdndSelection,
+                        impl->win,
+                        (Time)message.data.l[2]);
+    } else {
+      // Reject the drop
+      XEvent reply = makeClientMessage(
+        view, atoms->XdndFinished, (long)impl->win, 0, None, 0, 0);
+      XSendEvent(display, impl->drag.source, False, NoEventMask, &reply);
+    }
   }
 
   return event;
@@ -1908,8 +1914,13 @@ handleSelectionNotify(const PuglWorld* const       world,
     board->source = impl->drag.source;
 
     // Notify the drag source that the operation is finished
-    XEvent reply =
-      makeClientMessage(view, atoms->XdndFinished, (long)impl->win, 1, 0, 0, 0);
+    XEvent reply = makeClientMessage(view,
+                                     atoms->XdndFinished,
+                                     (long)impl->win,
+                                     1,
+                                     impl->drag.acceptedAction,
+                                     0,
+                                     0);
     XSendEvent(display, impl->drag.source, False, NoEventMask, &reply);
 
     // Send a data event to the application so it can retrieve the data
