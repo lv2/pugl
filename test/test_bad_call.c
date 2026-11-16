@@ -32,6 +32,13 @@ onEvent(PuglView* view, const PuglEvent* event)
     printEvent(event, "Event: ", true);
   }
 
+  if (event->type == PUGL_CONFIGURE) {
+    assert(puglSetPositionHint(view, PUGL_CURRENT_POSITION, 160, 120) ==
+           PUGL_BAD_CALL);
+    assert(puglSetSizeHint(view, PUGL_CURRENT_SIZE, 320U, 240U) ==
+           PUGL_BAD_CALL);
+  }
+
   if (event->type == PUGL_UPDATE) {
     assert(puglUpdate(test->world, -1.0) == PUGL_BAD_CALL);
   }

@@ -317,7 +317,8 @@ puglSetPositionHint(PuglView* const        view,
                     const int              x,
                     const int              y)
 {
-  if (view->world->state == PUGL_WORLD_EXPOSING) {
+  if (view->stage == PUGL_VIEW_STAGE_CONFIGURING ||
+      view->world->state == PUGL_WORLD_EXPOSING) {
     return PUGL_BAD_CALL;
   }
 
@@ -362,6 +363,11 @@ puglSetSizeHint(PuglView* const    view,
                 const unsigned     width,
                 const unsigned     height)
 {
+  if (view->stage == PUGL_VIEW_STAGE_CONFIGURING ||
+      view->world->state == PUGL_WORLD_EXPOSING) {
+    return PUGL_BAD_CALL;
+  }
+
   const PuglStatus st = puglStoreSizeHint(view, hint, width, height);
 
   return st                            ? st

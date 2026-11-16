@@ -196,9 +196,10 @@ typedef PuglAnyEvent PuglUnrealizeEvent;
 /**
    View configure (resize/move) event.
 
-   This is sent whenever the view is resized or moved.  The graphics context
-   isn't active during a configure event, so these values should be saved if
-   necessary and applied the next time the view is exposed.
+   This is sent whenever the view is resized or moved.  The application must
+   adapt to the given configuration, and must not attempt to reposition/resize
+   or access the graphics context while handling this event.  If necessary, the
+   values should be saved and applied during the next expose or update.
 */
 typedef struct {
   PuglEventType      type;   ///< #PUGL_CONFIGURE

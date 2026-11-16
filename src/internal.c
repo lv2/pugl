@@ -325,7 +325,10 @@ puglDispatchEvent(PuglView* view, const PuglEvent* event)
 
   } else if (event->type == PUGL_CONFIGURE) {
     if (configureChanged(&view->lastConfigure, &event->configure)) {
-      st0 = view->eventFunc(view, event);
+      const PuglViewStage oldStage = view->stage;
+      view->stage                  = PUGL_VIEW_STAGE_CONFIGURING;
+      st0                          = view->eventFunc(view, event);
+      view->stage                  = oldStage;
       trackConfigure(view, &event->configure);
     }
     if (view->stage == PUGL_VIEW_STAGE_REALIZED) {
