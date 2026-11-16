@@ -56,7 +56,11 @@ traje_tracer_new(const char* const process_name,
   (void)thread_name;
   (void)filename;
   (void)queue_size;
+#  ifdef __cplusplus
+  return nullptr;
+#  else
   return NULL;
+#  endif
 }
 
 static inline void
