@@ -1195,15 +1195,22 @@ setClipboardFormats(PuglView* const         view,
 
   board->formatStrings = newFormatStrings;
 
+  bool gotUtf8 = false;
   for (unsigned long i = 0; i < numFormats; ++i) {
     if (formats[i]) {
       char* const name = XGetAtomName(view->world->impl->display, formats[i]);
       const char* type = NULL;
 
       if (strchr(name, '/')) { // MIME type (hopefully)
-        type = name;
-      } else if (!strcmp(name, "UTF8_STRING")) { // Plain text
-        type = "text/plain";
+        if (strcmp(name, "text/plain;charset=utf-8") || !gotUtf8) {
+          type = name;
+        }
+      } else if (!gotUtf8) {
+        // Accept either UTF8_STRING or text/plain;charset=utf-8 once
+        if (!strcmp(name, "UTF8_STRING")) {
+          type    = "text/plain;charset=utf-8";
+          gotUtf8 = true;
+        }
       }
 
       if (type) {
