@@ -1058,7 +1058,7 @@ translateKey(PuglView* const view, XEvent* const xevent, PuglEvent* const event)
     event->key.state = puglFilterMods(event->key.state, special);
     event->key.key   = special;
   } else if (ufound > 0) {
-    event->key.key = (PuglKey)puglDecodeUTF8((const uint8_t*)ustr);
+    event->key.key = puglDecodeUTF8((const uint8_t*)ustr);
   }
 
   if (xevent->type == KeyPress && !filter && (!special || ufound > 0) &&

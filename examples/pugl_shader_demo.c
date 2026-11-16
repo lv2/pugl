@@ -83,6 +83,13 @@ setupGl(PuglTestApp* app);
 static void
 teardownGl(PuglTestApp* app);
 
+static double
+refreshPeriod(const PuglView* const view)
+{
+  const int refreshRate = puglGetViewHint(view, PUGL_REFRESH_RATE);
+  return 1.0 / (double)refreshRate;
+}
+
 static void
 beginFrame(PuglView* view, PuglSpan width, PuglSpan height)
 {
@@ -200,9 +207,7 @@ onEvent(PuglView* view, const PuglEvent* event)
     app->quit = 1;
     break;
   case PUGL_LOOP_ENTER:
-    puglStartTimer(view,
-                   resizeTimerId,
-                   1.0 / (double)puglGetViewHint(view, PUGL_REFRESH_RATE));
+    puglStartTimer(view, resizeTimerId, refreshPeriod(view));
     break;
   case PUGL_LOOP_LEAVE:
     puglStopTimer(view, resizeTimerId);

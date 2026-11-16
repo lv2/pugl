@@ -44,7 +44,6 @@ c_suppressions = []
 if cc.get_id() == 'clang'
   if warning_level == 'everything'
     c_suppressions += [
-      '-Wno-bad-function-cast',
       '-Wno-cast-function-type-strict',
       '-Wno-declaration-after-statement',
       '-Wno-padded',
@@ -78,7 +77,6 @@ if cc.get_id() == 'clang'
 elif cc.get_id() == 'gcc'
   if warning_level == 'everything'
     c_suppressions += [
-      '-Wno-bad-function-cast',
       '-Wno-inline',
       '-Wno-padded',
       '-Wno-suggest-attribute=const',

@@ -1226,9 +1226,9 @@ puglReconfigure(PuglView* const view)
 PuglStatus
 puglStartTimer(PuglView* view, uintptr_t id, double timeout)
 {
-  const UINT msec = (UINT)floor(timeout * 1000.0);
+  const double msec = floor(timeout * 1000.0);
 
-  SetTimer(view->impl->hwnd, PUGL_USER_TIMER_MIN + id, msec, NULL);
+  SetTimer(view->impl->hwnd, PUGL_USER_TIMER_MIN + id, (UINT)msec, NULL);
   return PUGL_SUCCESS;
 }
 
@@ -1356,7 +1356,8 @@ puglUpdate(PuglWorld* world, double timeout)
 LRESULT CALLBACK
 wndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  PuglView* view = (PuglView*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+  const LONG_PTR  userData = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+  PuglView* const view     = (PuglView*)userData;
 
   switch (message) {
   case WM_CREATE:

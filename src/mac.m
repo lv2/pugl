@@ -422,7 +422,8 @@ dispatchCurrentChildViewConfiguration(PuglView* const view)
 {
   const CGDirectDisplayID displayId  = screenDisplayID(viewScreen(puglview));
   CGDisplayModeRef        mode       = CGDisplayCopyDisplayMode(displayId);
-  puglview->hints[PUGL_REFRESH_RATE] = (int)CGDisplayModeGetRefreshRate(mode);
+  const double            rate       = CGDisplayModeGetRefreshRate(mode);
+  puglview->hints[PUGL_REFRESH_RATE] = (int)rate;
   CGDisplayModeRelease(mode);
 
   puglReconfigure(puglview);
@@ -1513,7 +1514,8 @@ puglRealize(PuglView* view)
   // Try to get refresh rate from mode (usually fails)
   const CGDirectDisplayID displayId = screenDisplayID(screen);
   CGDisplayModeRef        mode      = CGDisplayCopyDisplayMode(displayId);
-  view->hints[PUGL_REFRESH_RATE]    = (int)CGDisplayModeGetRefreshRate(mode);
+  const double            rate      = CGDisplayModeGetRefreshRate(mode);
+  view->hints[PUGL_REFRESH_RATE]    = (int)rate;
   CGDisplayModeRelease(mode);
   if (view->hints[PUGL_REFRESH_RATE] == 0) {
     // Get refresh rate from a temporary display link
@@ -1946,8 +1948,9 @@ puglGetTime(const PuglWorld* world)
   const struct mach_timebase_info base   = world->impl->timebaseInfo;
   const double                    rate   = (1.0E9 / base.numer) * base.denom;
   const double                    period = 1.0 / rate;
+  const uint64_t                  now    = mach_absolute_time();
 
-  return (double)mach_absolute_time() * period;
+  return (double)now * period;
 }
 
 PuglStatus

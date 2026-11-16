@@ -146,8 +146,8 @@ obscureButton(PuglView* view, const ViewScale scale, const Button* button)
   puglObscureRegion(view,
                     (int)((button->x - (span / 2.0)) * scale.x),
                     (int)((button->y - (span / 2.0)) * scale.y),
-                    (unsigned)ceil(span * scale.x),
-                    (unsigned)ceil(span * scale.y));
+                    (unsigned)((span * scale.x) + 1.0),
+                    (unsigned)((span * scale.y) + 1.0));
 }
 
 static void
@@ -248,10 +248,10 @@ obscureMouseCursor(PuglView* const view,
 {
   if (mouseX >= 0.0 && mouseY >= 0.0) {
     puglObscureRegion(view,
-                      (int)floor(mouseX - (10.0 * scale.x)),
-                      (int)floor(mouseY - (10.0 * scale.y)),
-                      (unsigned)ceil(20.0 * scale.x),
-                      (unsigned)ceil(20.0 * scale.y));
+                      (int)(mouseX - (10.0 * scale.x)),
+                      (int)(mouseY - (10.0 * scale.y)),
+                      (unsigned)((20.0 * scale.x) + 1.0),
+                      (unsigned)((20.0 * scale.y) + 1.0));
   }
 }
 
