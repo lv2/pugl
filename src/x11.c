@@ -2116,6 +2116,85 @@ handleRootEvent(PuglWorld* const world, XEvent xevent)
 }
 
 static PuglStatus
+handleViewEvent(PuglWorld* const world,
+                PuglView* const  view,
+                const XEvent     xevent)
+{
+  PuglStatus     st      = PUGL_SUCCESS;
+  Display* const display = world->impl->display;
+
+  // Generate a synthetic event if the view's active state has changed
+  const bool isActive  = (view->impl->win == world->impl->activeWindow);
+  const bool wasActive = (view->lastConfigure.style & PUGL_VIEW_STYLE_ACTIVE);
+  if (isActive != wasActive) {
+    const PuglEvent event = getCurrentConfiguration(view);
+    puglDispatchEvent(view, &event);
+  }
+
+  // Handle special events
+  PuglInternals* const impl = view->impl;
+  if (xevent.type == KeyRelease && view->hints[PUGL_IGNORE_KEY_REPEAT]) {
+    XEvent next;
+    if (XCheckTypedWindowEvent(display, impl->win, KeyPress, &next) &&
+        next.type == KeyPress && next.xkey.time == xevent.xkey.time &&
+        next.xkey.keycode == xevent.xkey.keycode) {
+      return PUGL_SUCCESS;
+    }
+  } else if (xevent.type == SelectionClear) {
+    PuglX11Clipboard* const board =
+      getX11SelectionClipboard(view, xevent.xselectionclear.selection);
+    if (board) {
+      clearX11Clipboard(board);
+    }
+  } else if (xevent.type == SelectionNotify) {
+    st = handleSelectionNotify(world, view, &xevent.xselection);
+  } else if (xevent.type == SelectionRequest) {
+    st = handleSelectionRequest(world, view, &xevent.xselectionrequest);
+  }
+
+  if (st) {
+    return st;
+  }
+
+  // Translate X11 event to Pugl event
+  PuglEvent event = translateEvent(view, xevent);
+
+  switch (event.type) {
+  case PUGL_EXPOSE: {
+    // Expand damage to be exposed after loop
+    XRectangle rect = {
+      event.expose.x, event.expose.y, event.expose.width, event.expose.height};
+    XUnionRectWithRegion(&rect, view->impl->damage, view->impl->damage);
+    break;
+  }
+  case PUGL_FOCUS_IN:
+    // Set the input context focus
+    if (view->impl->xic) {
+      XSetICFocus(view->impl->xic);
+    }
+    break;
+  case PUGL_FOCUS_OUT:
+    // Unset the input context focus
+    if (view->impl->xic) {
+      XUnsetICFocus(view->impl->xic);
+    }
+    break;
+  default:
+#if USE_XRANDR
+    if (!event.type) {
+      event = handleRandrEvent(view, xevent);
+    }
+#endif
+
+    // Dispatch event to application immediately
+    st = puglDispatchEvent(view, &event);
+    break;
+  }
+
+  return st;
+}
+
+static PuglStatus
 dispatchX11Events(PuglWorld* const world)
 {
   PuglStatus     st      = PUGL_SUCCESS;
@@ -2135,78 +2214,8 @@ dispatchX11Events(PuglWorld* const world)
     }
 
     PuglView* const view = findView(world, xevent.xany.window);
-    if (!view) {
-      continue;
-    }
-
-    // Generate a synthetic event if the view's active state has changed
-    const bool isActive  = (view->impl->win == world->impl->activeWindow);
-    const bool wasActive = (view->lastConfigure.style & PUGL_VIEW_STYLE_ACTIVE);
-    if (isActive != wasActive) {
-      const PuglEvent event = getCurrentConfiguration(view);
-      puglDispatchEvent(view, &event);
-    }
-
-    // Handle special events
-    PuglInternals* const impl = view->impl;
-    if (xevent.type == KeyRelease && view->hints[PUGL_IGNORE_KEY_REPEAT]) {
-      XEvent next;
-      if (XCheckTypedWindowEvent(display, impl->win, KeyPress, &next) &&
-          next.type == KeyPress && next.xkey.time == xevent.xkey.time &&
-          next.xkey.keycode == xevent.xkey.keycode) {
-        continue;
-      }
-    } else if (xevent.type == SelectionClear) {
-      PuglX11Clipboard* const board =
-        getX11SelectionClipboard(view, xevent.xselectionclear.selection);
-      if (board) {
-        clearX11Clipboard(board);
-      }
-    } else if (xevent.type == SelectionNotify) {
-      st = handleSelectionNotify(world, view, &xevent.xselection);
-    } else if (xevent.type == SelectionRequest) {
-      st = handleSelectionRequest(world, view, &xevent.xselectionrequest);
-    }
-
-    if (st) {
-      break;
-    }
-
-    // Translate X11 event to Pugl event
-    PuglEvent event = translateEvent(view, xevent);
-
-    switch (event.type) {
-    case PUGL_EXPOSE: {
-      // Expand damage to be exposed after loop
-      XRectangle rect = {event.expose.x,
-                         event.expose.y,
-                         event.expose.width,
-                         event.expose.height};
-      XUnionRectWithRegion(&rect, view->impl->damage, view->impl->damage);
-      break;
-    }
-    case PUGL_FOCUS_IN:
-      // Set the input context focus
-      if (view->impl->xic) {
-        XSetICFocus(view->impl->xic);
-      }
-      break;
-    case PUGL_FOCUS_OUT:
-      // Unset the input context focus
-      if (view->impl->xic) {
-        XUnsetICFocus(view->impl->xic);
-      }
-      break;
-    default:
-#if USE_XRANDR
-      if (!event.type) {
-        event = handleRandrEvent(view, xevent);
-      }
-#endif
-
-      // Dispatch event to application immediately
-      st = puglDispatchEvent(view, &event);
-      break;
+    if (view) {
+      st = handleViewEvent(world, view, xevent);
     }
   }
 
