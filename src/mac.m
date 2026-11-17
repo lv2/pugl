@@ -1301,6 +1301,21 @@ puglInitWorldInternals(PuglWorld* const     world,
       [[PuglApplicationDelegate alloc] initWithPuglWorld:world];
     [impl->app setDelegate:delegate];
     [delegate release];
+
+    // Build minimal menu bar with quit item
+    NSMenu* const     menubar     = [[NSMenu alloc] init];
+    NSMenuItem* const appMenuItem = [[NSMenuItem alloc] init];
+    NSMenu* const     appMenu     = [[NSMenu alloc] init];
+    [appMenu addItemWithTitle:NSLocalizedString(@"Quit", @"Quit menu item")
+                       action:@selector(terminate:)
+                keyEquivalent:@"q"];
+    [appMenuItem setSubmenu:appMenu];
+    [menubar addItem:appMenuItem];
+    [impl->app setMainMenu:menubar];
+    [appMenuItem release];
+    [menubar release];
+
+    [impl->app finishLaunching];
   }
 
   return PUGL_SUCCESS;
