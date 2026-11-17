@@ -169,7 +169,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     break;
   case PUGL_FOCUS_IN:
   case PUGL_FOCUS_OUT:
-    PRINT(" (%s)", crossingModeString(event->crossing.mode));
+    PRINT(" (%s)", crossingModeString(event->focus.mode));
     break;
   case PUGL_CLIENT:
     PRINT(" %" PRIXPTR " %" PRIXPTR, event->client.data1, event->client.data2);
