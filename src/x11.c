@@ -2226,18 +2226,11 @@ dispatchX11Events(PuglWorld* const world)
 }
 
 PuglStatus
-puglUpdate(PuglWorld* const world, const double timeout)
+puglUpdateWorld(PuglWorld* const world, const double timeout)
 {
-  const double         startTime  = puglGetTime(world);
-  const PuglWorldState startState = world->state;
-  PuglStatus           st0        = PUGL_SUCCESS;
-  PuglStatus           st1        = PUGL_SUCCESS;
-
-  if (startState == PUGL_WORLD_IDLE) {
-    world->state = PUGL_WORLD_UPDATING;
-  } else if (startState != PUGL_WORLD_RECURSING) {
-    return PUGL_BAD_CALL;
-  }
+  const double startTime = puglGetTime(world);
+  PuglStatus   st0       = PUGL_SUCCESS;
+  PuglStatus   st1       = PUGL_SUCCESS;
 
   XFlush(world->impl->display);
 
@@ -2260,8 +2253,7 @@ puglUpdate(PuglWorld* const world, const double timeout)
     }
   }
 
-  st1          = flushExposures(world);
-  world->state = startState;
+  st1 = flushExposures(world);
   return st0 ? st0 : st1;
 }
 

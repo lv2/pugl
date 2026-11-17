@@ -144,6 +144,22 @@ puglSetDefaultHints(PuglView* const view)
   }
 }
 
+PuglStatus
+puglUpdate(PuglWorld* const world, const double timeout)
+{
+  const PuglWorldState startState = world->state;
+  if (startState == PUGL_WORLD_IDLE) {
+    world->state = PUGL_WORLD_UPDATING;
+  } else if (startState != PUGL_WORLD_RECURSING) {
+    return PUGL_BAD_CALL;
+  }
+
+  const PuglStatus st = puglUpdateWorld(world, timeout);
+
+  world->state = startState;
+  return st;
+}
+
 PuglView*
 puglNewView(PuglWorld* const world)
 {

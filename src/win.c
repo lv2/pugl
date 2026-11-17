@@ -1308,19 +1308,12 @@ puglDispatchWinEvents(PuglWorld* world)
 }
 
 PuglStatus
-puglUpdate(PuglWorld* world, double timeout)
+puglUpdateWorld(PuglWorld* world, const double timeout)
 {
   static const double minWaitSeconds = 0.002;
 
-  const double         startTime  = puglGetTime(world);
-  const PuglWorldState startState = world->state;
-  PuglStatus           st         = PUGL_SUCCESS;
-
-  if (startState == PUGL_WORLD_IDLE) {
-    world->state = PUGL_WORLD_UPDATING;
-  } else if (startState != PUGL_WORLD_RECURSING) {
-    return PUGL_BAD_CALL;
-  }
+  const double startTime = puglGetTime(world);
+  PuglStatus   st        = PUGL_SUCCESS;
 
   if (timeout < 0.0) {
     WaitMessage();
@@ -1349,7 +1342,6 @@ puglUpdate(PuglWorld* world, double timeout)
     UpdateWindow(world->views[i]->impl->hwnd);
   }
 
-  world->state = startState;
   return st;
 }
 

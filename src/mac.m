@@ -1911,16 +1911,9 @@ puglSendEvent(PuglView* view, const PuglEvent* event)
 }
 
 PuglStatus
-puglUpdate(PuglWorld* world, const double timeout)
+puglUpdateWorld(PuglWorld* world, const double timeout)
 {
   @autoreleasepool {
-    const PuglWorldState startState = world->state;
-    if (startState == PUGL_WORLD_IDLE) {
-      world->state = PUGL_WORLD_UPDATING;
-    } else if (startState != PUGL_WORLD_RECURSING) {
-      return PUGL_BAD_CALL;
-    }
-
     /* Unfortunately nextEventMatchingMask will trigger redraws, so dispatch
        updates early to mark any regions for display before that.  This means
        that input events may arrive after update and before exposure unlike
@@ -1959,8 +1952,6 @@ puglUpdate(PuglWorld* world, const double timeout)
         [world->views[i]->impl->drawView displayIfNeeded];
       }
     }
-
-    world->state = startState;
   }
 
   return PUGL_SUCCESS;

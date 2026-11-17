@@ -1,4 +1,4 @@
-// Copyright 2012-2025 David Robillard <d@drobilla.net>
+// Copyright 2012-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
 // The internal API that a platform implementation must define
@@ -24,6 +24,10 @@ puglInitWorldInternals(PuglWorld* world, PuglWorldFlags flags);
 /// Destroy and free world internals
 void
 puglFreeWorldInternals(PuglWorld* world);
+
+/// Read and process events for the given amount of time
+PuglStatus
+puglUpdateWorld(PuglWorld* world, double timeout);
 
 /// Allocate and initialise view internals (implemented once per platform)
 PUGL_MALLOC_FUNC PuglInternals*
