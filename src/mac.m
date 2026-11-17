@@ -212,6 +212,18 @@ getCurrentViewStyleFlags(PuglView* const view)
          (isMain ? PUGL_VIEW_STYLE_ACTIVE : 0U);
 }
 
+static PuglView*
+findView(PuglWorld* const world, const NSResponder* const wrapper)
+{
+  for (size_t i = 0; i < world->numViews; ++i) {
+    if (world->views[i]->impl->wrapperView == wrapper) {
+      return world->views[i];
+    }
+  }
+
+  return NULL;
+}
+
 static void
 postEmptyEvent(PuglView* const view)
 {
@@ -1228,18 +1240,24 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
 {
   (void)notification;
 
-  PuglEvent ev  = {{PUGL_FOCUS_IN, 0U}};
-  ev.focus.mode = PUGL_CROSSING_NORMAL;
-  puglDispatchEvent(window->puglview, &ev);
+  PuglWorld* const world     = window->puglview->world;
+  PuglView* const  firstView = findView(world, [window firstResponder]);
+  if (firstView) {
+    const PuglEvent ev = {.focus = {PUGL_FOCUS_IN, 0U, PUGL_CROSSING_NORMAL}};
+    puglDispatchEvent(firstView, &ev);
+  }
 }
 
 - (void)windowDidResignKey:(NSNotification*)notification
 {
   (void)notification;
 
-  PuglEvent ev  = {{PUGL_FOCUS_OUT, 0U}};
-  ev.focus.mode = PUGL_CROSSING_NORMAL;
-  puglDispatchEvent(window->puglview, &ev);
+  PuglWorld* const world     = window->puglview->world;
+  PuglView* const  firstView = findView(world, [window firstResponder]);
+  if (firstView) {
+    const PuglEvent ev = {.focus = {PUGL_FOCUS_OUT, 0U, PUGL_CROSSING_NORMAL}};
+    puglDispatchEvent(firstView, &ev);
+  }
 }
 
 - (void)windowWillStartLiveResize:(NSNotification*)notification
@@ -1782,10 +1800,28 @@ puglFreeViewInternals(PuglView* view)
 PuglStatus
 puglGrabFocus(PuglView* view)
 {
-  NSWindow* window = [view->impl->wrapperView window];
+  NSWindow* const    window            = [view->impl->wrapperView window];
+  NSResponder* const oldFirstResponder = [window firstResponder];
+  const bool         wasKeyWindow      = [window isKeyWindow];
 
   [window makeKeyWindow];
   [window makeFirstResponder:view->impl->wrapperView];
+
+  if (wasKeyWindow && oldFirstResponder != view->impl->wrapperView) {
+    // Move focus out of our old first responder
+    PuglView* const oldFirstView = findView(view->world, oldFirstResponder);
+    if (oldFirstView) {
+      const PuglEvent ev = {.focus = {PUGL_FOCUS_OUT, 0U, PUGL_CROSSING_GRAB}};
+      puglDispatchEvent(oldFirstView, &ev);
+    }
+  }
+
+  if (oldFirstResponder != view->impl->wrapperView) {
+    // Move focus in to the new first responder
+    const PuglEvent ev = {.focus = {PUGL_FOCUS_IN, 0U, PUGL_CROSSING_GRAB}};
+    puglDispatchEvent(view, &ev);
+  }
+
   return PUGL_SUCCESS;
 }
 
