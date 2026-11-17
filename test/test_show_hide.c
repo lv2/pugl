@@ -49,7 +49,9 @@ onEvent(PuglView* view, const PuglEvent* event)
     break;
   case PUGL_CONFIGURE:
     if (event->configure.style & PUGL_VIEW_STYLE_MAPPED) {
-      test->state = MAPPED;
+      if (test->state == REALIZED || test->state == UNMAPPED) {
+        test->state = MAPPED;
+      }
     } else {
       test->state = UNMAPPED;
     }
