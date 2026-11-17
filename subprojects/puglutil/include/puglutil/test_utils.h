@@ -119,43 +119,53 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
   case PUGL_KEY_PRESS:
   case PUGL_KEY_RELEASE: {
     const char* const string = keyString(event->key.key);
-    PRINT(" code %3u key  U+%04X %13s ",
+    PRINT(" code %3u key  U+%04X %13s @ %.3f s ",
           event->key.keycode,
           event->key.key,
-          (string[0] == '?') ? "" : string);
+          (string[0] == '?') ? "" : string,
+          event->key.time);
     printModifiers(event->scroll.state);
     break;
   }
   case PUGL_TEXT:
-    PRINT(" code %3u char U+%04X %13s",
+    PRINT(" code %3u char U+%04X %13s @ %.3f s",
           event->text.keycode,
           event->text.character,
-          event->text.string);
+          event->text.string,
+          event->text.time);
     break;
   case PUGL_BUTTON_PRESS:
   case PUGL_BUTTON_RELEASE:
-    PRINT(
-      " %u " PFFMT " ", event->button.button, event->button.x, event->button.y);
+    PRINT(" %u " PFFMT " @ %.3f s ",
+          event->button.button,
+          event->button.x,
+          event->button.y,
+          event->button.time);
     printModifiers(event->scroll.state);
     break;
   case PUGL_MOTION:
-    PRINT(" " PFFMT, event->motion.x, event->motion.y);
+    PRINT(" " PFFMT " @ %.3f s",
+          event->motion.x,
+          event->motion.y,
+          event->motion.time);
     break;
   case PUGL_SCROLL:
-    PRINT(" %5.1f %5.1f (%s) at " PFFMT " ",
+    PRINT(" %5.1f %5.1f (%s) at " PFFMT " @ %.3f s ",
           event->scroll.dx,
           event->scroll.dy,
           scrollDirectionString(event->scroll.direction),
           event->scroll.x,
-          event->scroll.y);
+          event->scroll.y,
+          event->scroll.time);
     printModifiers(event->scroll.state);
     break;
   case PUGL_POINTER_IN:
   case PUGL_POINTER_OUT:
-    PRINT(" " PFFMT " (%s)",
+    PRINT(" " PFFMT " (%s) @ %.3f s",
           event->crossing.x,
           event->crossing.y,
-          crossingModeString(event->crossing.mode));
+          crossingModeString(event->crossing.mode),
+          event->crossing.time);
     break;
   case PUGL_FOCUS_IN:
   case PUGL_FOCUS_OUT:
@@ -168,7 +178,17 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     PRINT(" %" PRIuPTR, event->timer.id);
     break;
   case PUGL_DATA_OFFER:
-    PRINT(" at " PFFMT, event->offer.x, event->offer.y);
+    PRINT(" at " PFFMT " @ %.3f s",
+          event->offer.x,
+          event->offer.y,
+          event->offer.time);
+    break;
+  case PUGL_DATA:
+    PRINT(" index %u at " PFFMT " @ %.3f s",
+          event->data.typeIndex,
+          event->data.x,
+          event->data.y,
+          event->data.time);
     break;
   default:
     break;
