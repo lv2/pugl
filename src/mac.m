@@ -212,6 +212,24 @@ getCurrentViewStyleFlags(PuglView* const view)
          (isMain ? PUGL_VIEW_STYLE_ACTIVE : 0U);
 }
 
+static void
+postEmptyEvent(PuglView* const view)
+{
+  NSEvent* const event =
+    [NSEvent otherEventWithType:NSEventTypeApplicationDefined
+                       location:NSMakePoint(0, 0)
+                  modifierFlags:0
+                      timestamp:0
+                   windowNumber:0
+                        context:nil
+                        subtype:0
+                          data1:0
+                          data2:0];
+  if (event) {
+    [view->world->impl->app postEvent:event atStart:YES];
+  }
+}
+
 static PuglStatus
 dispatchCurrentChildViewConfiguration(PuglView* const view)
 {
@@ -1716,6 +1734,7 @@ puglShow(PuglView* view, const PuglShowCommand command)
     break;
   }
 
+  postEmptyEvent(view);
   return PUGL_SUCCESS;
 }
 
@@ -1966,6 +1985,7 @@ puglObscureView(PuglView* view)
   }
 
   [view->impl->drawView setNeedsDisplay:YES];
+  postEmptyEvent(view);
   return PUGL_SUCCESS;
 }
 
@@ -1994,6 +2014,7 @@ puglObscureRegion(PuglView*      view,
     [view->impl->drawView setNeedsDisplayInRect:nsRectToPoints(view, rectPx)];
   }
 
+  postEmptyEvent(view);
   return st;
 }
 

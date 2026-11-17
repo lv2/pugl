@@ -17,12 +17,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#ifdef __APPLE__
-static const double timeout = 1 / 60.0;
-#else
-static const double timeout = -1.0;
-#endif
-
 typedef enum {
   START,
   EXPOSED1,
@@ -98,7 +92,7 @@ main(int argc, char** argv)
 
   // Tick until an expose happens
   while (test.state < EXPOSED1) {
-    assert(!puglUpdate(test.world, timeout));
+    assert(!puglUpdate(test.world, -1.0));
     assert(test.state != UPDATED);
   }
 
