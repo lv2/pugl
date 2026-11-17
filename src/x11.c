@@ -2174,20 +2174,20 @@ handleViewEvent(PuglWorld* const world,
     XRectangle rect = {
       event.expose.x, event.expose.y, event.expose.width, event.expose.height};
     XUnionRectWithRegion(&rect, view->impl->damage, view->impl->damage);
-  } else if (event.type == PUGL_FOCUS_IN) { // Set the input context focus
-    if (view->impl->xic) {
-      XSetICFocus(view->impl->xic);
-    }
-  } else if (event.type == PUGL_FOCUS_OUT) { // Unset the input context focus
-    if (view->impl->xic) {
-      XUnsetICFocus(view->impl->xic);
-    }
   } else {
+    if (event.type == PUGL_FOCUS_IN) { // Set the input context focus
+      if (view->impl->xic) {
+        XSetICFocus(view->impl->xic);
+      }
+    } else if (event.type == PUGL_FOCUS_OUT) { // Unset the input context focus
+      if (view->impl->xic) {
+        XUnsetICFocus(view->impl->xic);
+      }
 #if USE_XRANDR
-    if (!event.type) {
+    } else if (!event.type) {
       event = handleRandrEvent(view, xevent);
-    }
 #endif
+    }
 
     if (event.type) {
       st = puglDispatchEvent(view, &event);
