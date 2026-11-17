@@ -218,7 +218,7 @@ postEmptyEvent(PuglView* const view)
   NSEvent* const event =
     [NSEvent otherEventWithType:NSEventTypeApplicationDefined
                        location:NSMakePoint(0, 0)
-                  modifierFlags:0
+                  modifierFlags:(NSEventModifierFlags)0
                       timestamp:0
                    windowNumber:0
                         context:nil
