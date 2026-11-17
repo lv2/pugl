@@ -1969,12 +1969,12 @@ puglUpdate(PuglWorld* world, const double timeout)
 double
 puglGetTime(const PuglWorld* world)
 {
-  const struct mach_timebase_info base   = world->impl->timebaseInfo;
-  const double                    rate   = (1.0E9 / base.numer) * base.denom;
-  const double                    period = 1.0 / rate;
-  const uint64_t                  now    = mach_absolute_time();
+  (void)world;
 
-  return (double)now * period;
+  // Use CLOCK_UPTIME_RAW for compatibility with event times
+  const uint64_t ns = clock_gettime_nsec_np(CLOCK_UPTIME_RAW);
+
+  return (double)ns / 1e9;
 }
 
 PuglStatus
