@@ -233,20 +233,22 @@ postEmptyEvent(PuglView* const view)
 static PuglStatus
 dispatchCurrentChildViewConfiguration(PuglView* const view)
 {
-  const NSRect framePt = [view->impl->wrapperView frame];
-  const NSRect framePx = nsRectFromPoints(view, framePt);
-
   if (view->stage < PUGL_VIEW_STAGE_REALIZED) {
     return PUGL_SUCCESS;
   }
 
+  const NSRect wrapperFramePt = [view->impl->wrapperView frame];
+  const NSRect drawFramePt    = [view->impl->drawView frame];
+  const NSRect wrapperFramePx = nsRectFromPoints(view, wrapperFramePt);
+  const NSRect drawFramePx    = nsRectFromPoints(view, drawFramePt);
+
   const PuglConfigureEvent ev = {
     PUGL_CONFIGURE,
     0U,
-    (PuglCoord)framePx.origin.x,
-    (PuglCoord)framePx.origin.y,
-    (PuglSpan)framePx.size.width,
-    (PuglSpan)framePx.size.height,
+    (PuglCoord)wrapperFramePx.origin.x,
+    (PuglCoord)wrapperFramePx.origin.y,
+    (PuglSpan)drawFramePx.size.width,
+    (PuglSpan)drawFramePx.size.height,
     [viewScreen(view) backingScaleFactor],
     getCurrentViewStyleFlags(view),
   };
@@ -1564,7 +1566,7 @@ puglRealize(PuglView* view)
   impl->wrapperView->puglview   = view;
   impl->wrapperView->userTimers = [[NSMutableDictionary alloc] init];
   impl->wrapperView->markedText = [[NSMutableAttributedString alloc] init];
-  [impl->wrapperView setAutoresizesSubviews:YES];
+  impl->wrapperView->reshaped   = true;
   [impl->wrapperView initWithFrame:framePt];
 
   // Set wrapperView size constraints
@@ -2064,8 +2066,9 @@ puglSetWindowPosition(PuglView* const view, const int x, const int y)
   // Set wrapper view origin
   [impl->wrapperView setFrameOrigin:framePt.origin];
 
-  // Dispatch new configuration
-  return dispatchCurrentChildViewConfiguration(view);
+  // Schedule a configuration dispatch before the next child draw
+  impl->wrapperView->reshaped = true;
+  return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -2095,10 +2098,12 @@ puglSetWindowSize(PuglView* const view,
     const NSRect winFrame = [impl->window frameRectForContentRect:screenPt];
     [impl->window setFrame:winFrame display:NO];
     [impl->window dispatchCurrentConfiguration];
+    return PUGL_SUCCESS;
   }
 
-  // Dispatch new configuration
-  return dispatchCurrentChildViewConfiguration(view);
+  // Schedule a configuration dispatch before the next child draw
+  impl->wrapperView->reshaped = true;
+  return PUGL_SUCCESS;
 }
 
 PuglStatus
