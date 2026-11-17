@@ -1186,12 +1186,15 @@ flagDiffers(const uint32_t lhs, const uint32_t rhs, const uint32_t mask)
   [window dispatchCurrentConfiguration];
 }
 
-- (BOOL)windowShouldClose:(id)sender
+- (void)windowWillClose:(NSNotification*)notification
 {
-  (void)sender;
+  (void)notification;
+
+  if (window->puglview->impl->window) {
+    [window->puglview->impl->window resignKeyWindow];
+  }
 
   puglDispatchSimpleEvent(window->puglview, PUGL_CLOSE);
-  return YES;
 }
 
 - (void)windowDidMove:(NSNotification*)notification
