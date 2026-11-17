@@ -27,10 +27,7 @@ typedef struct {
 } DemoApp;
 
 static PuglStatus
-onCommonEvent(PuglView* view, const PuglEvent* event);
-
-static PuglStatus
-onMainEvent(PuglView* view, const PuglEvent* event);
+onEvent(PuglView* view, const PuglEvent* event);
 
 static double
 lineOffset(const unsigned number)
@@ -133,7 +130,7 @@ toggleDialog(DemoApp* const app)
     app->dialogView.view = puglNewView(app->world);
 
     puglSetBackend(app->dialogView.view, puglCairoBackend());
-    puglSetEventFunc(app->dialogView.view, onCommonEvent);
+    puglSetEventFunc(app->dialogView.view, onEvent);
     puglSetHandle(app->dialogView.view, &app->dialogView);
     puglSetTransientParent(app->dialogView.view,
                            puglGetNativeView(app->mainView.view));
@@ -200,7 +197,7 @@ onKeyPress(PuglView* view, const PuglKeyEvent* event)
 }
 
 static PuglStatus
-onCommonEvent(PuglView* view, const PuglEvent* const event)
+onEvent(PuglView* view, const PuglEvent* const event)
 {
   PuglWorld* const   world = puglGetWorld(view);
   DemoApp* const     app   = (DemoApp*)puglGetWorldHandle(world);
@@ -213,6 +210,8 @@ onCommonEvent(PuglView* view, const PuglEvent* const event)
   case PUGL_CLOSE:
     if (view == app->dialogView.view) {
       puglUnrealize(app->dialogView.view);
+    } else {
+      app->quit = true;
     }
     break;
   case PUGL_CONFIGURE:
@@ -226,20 +225,6 @@ onCommonEvent(PuglView* view, const PuglEvent* const event)
   }
 
   return PUGL_SUCCESS;
-}
-
-static PuglStatus
-onMainEvent(PuglView* view, const PuglEvent* const event)
-{
-  PuglWorld* const world = puglGetWorld(view);
-  DemoApp* const   app   = (DemoApp*)puglGetWorldHandle(world);
-
-  if (event->type == PUGL_CLOSE) {
-    app->quit = true;
-    return PUGL_SUCCESS;
-  }
-
-  return onCommonEvent(view, event);
 }
 
 int
@@ -266,7 +251,7 @@ main(int argc, char** argv)
 
   // Set up main view
   puglSetBackend(app.mainView.view, puglCairoBackend());
-  puglSetEventFunc(app.mainView.view, onMainEvent);
+  puglSetEventFunc(app.mainView.view, onEvent);
   puglSetHandle(app.mainView.view, &app.mainView);
   puglSetSizeHint(app.mainView.view, PUGL_DEFAULT_SIZE, 640, 480);
   puglSetSizeHint(app.mainView.view, PUGL_MIN_SIZE, 480, 320);
