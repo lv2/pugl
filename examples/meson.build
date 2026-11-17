@@ -14,7 +14,11 @@ gl_examples = [
   'pugl_window_demo.c',
 ]
 
-cairo_examples = ['pugl_cairo_demo.c', 'pugl_management_demo.c']
+cairo_examples = [
+  'pugl_cairo_demo.c',
+  'pugl_embed_cairo_demo.c',
+  'pugl_management_demo.c',
+]
 
 vulkan_examples = ['pugl_vulkan_demo.c']
 
@@ -69,6 +73,7 @@ if host_machine.system() == 'darwin'
 
   if cairo_dep.found()
     subdir('pugl_cairo_demo.app')
+    subdir('pugl_embed_cairo_demo.app')
     subdir('pugl_management_demo.app')
   endif
 
