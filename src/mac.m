@@ -1301,6 +1301,8 @@ puglInitWorldInternals(PuglWorld* const     world,
       [[PuglApplicationDelegate alloc] initWithPuglWorld:world];
     [impl->app setDelegate:delegate];
     [delegate release];
+
+    [impl->app finishLaunching];
   }
 
   return PUGL_SUCCESS;
