@@ -127,8 +127,8 @@ puglX11CairoLeave(PuglView* view, const bool expose)
     cairo_t* const bcr = cairo_create(surface->back);
     cairo_set_source_surface(bcr, surface->front, 0, 0);
 
-    const int n_rects = cairo_region_num_rectangles(surface->region);
-    for (int i = 0; i < n_rects; ++i) {
+    const int nRects = cairo_region_num_rectangles(surface->region);
+    for (int i = 0; i < nRects; ++i) {
       cairo_rectangle_int_t rect = {0, 0, 0, 0};
       cairo_region_get_rectangle(surface->region, i, &rect);
 
