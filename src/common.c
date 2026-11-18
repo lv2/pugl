@@ -34,6 +34,7 @@ puglStrerror(const PuglStatus status)
   case PUGL_UNSUPPORTED:           return "Unsupported operation";
   case PUGL_NO_MEMORY:             return "Failed to allocate memory";
   case PUGL_CONNECT_FAILED:        return "Failed to connect to display";
+  case PUGL_BIND_FAILED:           return "Failed to bind API to display";
   }
   // clang-format on
 
@@ -45,7 +46,8 @@ puglNewWorld(PuglWorldType type, PuglWorldFlags flags)
 {
   PuglWorld* world = (PuglWorld*)calloc(1, sizeof(PuglWorld));
   if (!world || !(world->impl = puglAllocWorldInternals()) ||
-      puglSetString(&world->strings[PUGL_CLASS_NAME], "Pugl")) {
+      puglSetString(&world->strings[PUGL_CLASS_NAME], "Pugl") ||
+      puglSetString(&world->strings[PUGL_LOCALE], "C")) {
     free(world);
     return NULL;
   }

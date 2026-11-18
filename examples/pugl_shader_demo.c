@@ -316,8 +316,9 @@ setupPugl(PuglTestApp* app)
   puglSetWorldString(app->world, PUGL_CLASS_NAME, "PuglShaderDemo");
   puglSetViewString(app->view, PUGL_WINDOW_TITLE, "Pugl OpenGL Shader Demo");
   puglSetSizeHint(app->view, PUGL_DEFAULT_SIZE, defaultSpan, defaultSpan);
-  puglSetSizeHint(app->view, PUGL_MIN_SIZE, 256, 256);
-  puglSetSizeHint(app->view, PUGL_MAX_SIZE, 2048, 2048);
+  /* puglSetSizeHint(app->view, PUGL_MIN_SIZE, 256, 256); */
+  /* puglSetSizeHint(app->view, PUGL_MAX_SIZE, 2048, 2048); */
+  puglSetSizeHint(app->view, PUGL_MIN_SIZE, 3840, 2160);
   puglSetSizeHint(app->view, PUGL_MIN_ASPECT, 1, 1);
   puglSetSizeHint(app->view, PUGL_MAX_ASPECT, 16, 9);
   puglSetBackend(app->view, puglGlBackend());

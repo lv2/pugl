@@ -150,6 +150,7 @@ dl_dep = cc.find_library('dl', required: false)
 m_dep = cc.find_library('m', required: false)
 
 platform_link_args = []
+gl_backend_deps = []
 
 if host_machine.system() == 'darwin'
   # MacOS
@@ -258,7 +259,7 @@ else
   backend_extension = '.c'
   soversion = meson.project_version().split('.')[0]
 
-  x11_dep = cc.find_library('X11')
+  x11_dep = cc.find_library('X11', required: get_option('x11'))
   if x11_dep.found()
     # X11
 
@@ -290,8 +291,21 @@ else
 
     platform = 'x11'
     platform_sources = files('src/x11.c')
+    gl_backend_deps += [cc.find_library('GLX', required: get_option('opengl'))]
     platform_args += cc.get_supported_arguments(x11_suppressions)
     core_deps = [x11_dep, xcursor_dep, xext_dep, xrandr_dep]
+  else
+    libxkbcommon_dep = cc.find_library('libxkbcommon', required: true)
+    libinput_dep = cc.find_library('libinput', required: true)
+    libudev_dep = cc.find_library('libudev', required: true)
+    egl_dep = dependency('egl', include_type: 'system', required: false)
+    gbm_dep = dependency('gbm', include_type: 'system', required: false)
+    libdrm_dep = dependency('libdrm', include_type: 'system', required: false)
+
+    platform = 'console'
+    platform_sources = files('src/console.c', 'src/xkb.c')
+    gl_backend_deps += [egl_dep, gbm_dep, libdrm_dep]
+    core_deps = [libinput_dep, libudev_dep, libxkbcommon_dep]
   endif
 endif
 
@@ -411,11 +425,21 @@ opengl_dep = dependency(
   required: get_option('opengl'),
 )
 if opengl_dep.found()
+  if platform == 'win'
+    gl_backend_deps += opengl_dep
+  endif
+
+  gl_backend_sources = files('src' / (platform + '_gl' + backend_extension))
+
+  if platform == 'console'
+    gl_backend_sources += files('src/console_drm.c', 'src/egl_surface.c')
+  endif
+
   gl_backend = library(
     'pugl_@0@_gl@1@'.format(platform, version_suffix),
-    files('src' / (platform + '_gl' + backend_extension)),
+    gl_backend_sources,
     c_args: c_suppressions + library_args,
-    dependencies: [pugl_dep, opengl_dep],
+    dependencies: [pugl_dep] + gl_backend_deps,
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
