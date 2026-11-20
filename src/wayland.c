@@ -86,9 +86,10 @@ onPointerEnter(void* const              data,
   }
 
   assert(!world->impl->enteredView);
-  world->impl->enteredView = view;
-  view->impl->pointerX     = surfaceX;
-  view->impl->pointerY     = surfaceY;
+  world->impl->enteredView    = view;
+  view->impl->pointerX        = surfaceX;
+  view->impl->pointerY        = surfaceY;
+  view->impl->lastEnterSerial = serial;
 
   wl_pointer_set_cursor(pointer,
                         serial,
@@ -124,7 +125,8 @@ onPointerLeave(void* const              data,
 
   assert(world->impl->enteredView);
   assert(world->impl->enteredView->impl->wlSurface == surface);
-  world->impl->enteredView = NULL;
+  world->impl->enteredView    = NULL;
+  view->impl->lastEnterSerial = 0;
 
   const double    x     = wl_fixed_to_double(view->impl->pointerX);
   const double    y     = wl_fixed_to_double(view->impl->pointerY);
@@ -280,7 +282,7 @@ onKeyboardKeymap(void* const               data,
 static void
 onKeyboardEnter(void* const               data,
                 struct wl_keyboard* const PUGL_UNUSED(keyboard),
-                const uint32_t            serial,
+                const uint32_t            PUGL_UNUSED(serial),
                 struct wl_surface* const  wlSurface,
                 struct wl_array* const    PUGL_UNUSED(keys))
 {
@@ -290,8 +292,7 @@ onKeyboardEnter(void* const               data,
     return;
   }
 
-  world->impl->focusedView    = view;
-  view->impl->lastEnterSerial = serial;
+  world->impl->focusedView = view;
 
   const PuglEvent event = {.focus = {PUGL_FOCUS_IN, 0U, PUGL_CROSSING_NORMAL}};
   puglDispatchEvent(view, &event);
@@ -309,8 +310,7 @@ onKeyboardLeave(void* const               data,
     return;
   }
 
-  view->impl->lastEnterSerial = 0;
-  world->impl->focusedView    = NULL;
+  world->impl->focusedView = NULL;
 
   const PuglEvent event = {.focus = {PUGL_FOCUS_OUT, 0U, PUGL_CROSSING_NORMAL}};
   puglDispatchEvent(view, &event);
@@ -443,8 +443,6 @@ onSeatCapabilities(void* const           data,
   PuglWorld* const          world = (PuglWorld*)data;
   PuglWorldInternals* const impl  = world->impl;
 
-  DEBUG_LOG("seat capabilities");
-
   const bool hasPointer = capabilities & WL_SEAT_CAPABILITY_POINTER;
   if (hasPointer && !impl->pointer) {
     impl->pointer = wl_seat_get_pointer(impl->seat);
@@ -474,14 +472,10 @@ onSeatCapabilities(void* const           data,
 }
 
 static void
-onSeatName(void* const           data,
-           struct wl_seat* const wl_seat,
-           const char* const     name)
-{
-  (void)data;
-  (void)wl_seat;
-  DEBUG_LOGF("seat name \"%s\"", name);
-}
+onSeatName(void*           PUGL_UNUSED(data),
+           struct wl_seat* PUGL_UNUSED(wl_seat),
+           const char*     PUGL_UNUSED(name))
+{}
 
 static const struct wl_seat_listener seatListener = {onSeatCapabilities,
                                                      onSeatName};
@@ -489,38 +483,27 @@ static const struct wl_seat_listener seatListener = {onSeatCapabilities,
 // Output
 
 static void
-onOutputGeometry(void* const             PUGL_UNUSED(data),
-                 struct wl_output* const PUGL_UNUSED(wlOutput),
-                 const int32_t           x,
-                 const int32_t           y,
-                 const int32_t           physicalWidth,
-                 const int32_t           physicalHeight,
-                 const int32_t           subpixel,
-                 const char* const       make,
-                 const char* const       model,
-                 const int32_t           PUGL_UNUSED(transform))
-{
-  DEBUG_LOGF("output geometry %dx%d %dx%d %d %s %s",
-             x,
-             y,
-             physicalWidth,
-             physicalHeight,
-             subpixel,
-             make,
-             model);
-}
+onOutputGeometry(void*             PUGL_UNUSED(data),
+                 struct wl_output* PUGL_UNUSED(wlOutput),
+                 const int32_t     PUGL_UNUSED(x),
+                 const int32_t     PUGL_UNUSED(y),
+                 const int32_t     PUGL_UNUSED(physicalWidth),
+                 const int32_t     PUGL_UNUSED(physicalHeight),
+                 const int32_t     PUGL_UNUSED(subpixel),
+                 const char*       PUGL_UNUSED(make),
+                 const char*       PUGL_UNUSED(model),
+                 const int32_t     PUGL_UNUSED(transform))
+{}
 
 static void
-onOutputMode(void* const             data,
-             struct wl_output* const PUGL_UNUSED(wlOutput),
-             const uint32_t          PUGL_UNUSED(flags),
-             const int32_t           width,
-             const int32_t           height,
-             const int32_t           refresh)
+onOutputMode(void* const       data,
+             struct wl_output* PUGL_UNUSED(wlOutput),
+             const uint32_t    PUGL_UNUSED(flags),
+             const int32_t     PUGL_UNUSED(width),
+             const int32_t     PUGL_UNUSED(height),
+             const int32_t     refresh)
 {
   PuglWorld* const world = (PuglWorld*)data;
-
-  DEBUG_LOGF("output mode %dx%d @ %d mHz", width, height, refresh);
 
   world->impl->refreshHz = refresh / 1000;
   for (size_t i = 0; i < world->numViews; ++i) {
@@ -529,38 +512,28 @@ onOutputMode(void* const             data,
 }
 
 static void
-onOutputDone(void* const             PUGL_UNUSED(data),
-             struct wl_output* const PUGL_UNUSED(wlOutput))
-{
-  DEBUG_LOG("output done");
-}
+onOutputDone(void* PUGL_UNUSED(data), struct wl_output* PUGL_UNUSED(wlOutput))
+{}
 
 static void
-onOutputScale(void* const             data,
-              struct wl_output* const PUGL_UNUSED(wlOutput),
-              const int32_t           factor)
+onOutputScale(void* const       data,
+              struct wl_output* PUGL_UNUSED(wlOutput),
+              const int32_t     factor)
 {
-  DEBUG_LOGF("output scale %d", factor);
   ((PuglWorld*)data)->impl->scaleFactor = factor;
 }
 
 static void
-onOutputName(void* const             PUGL_UNUSED(data),
-             struct wl_output* const PUGL_UNUSED(wlOutput),
-             const char* const       name)
-{
-  DEBUG_LOGF("output name %s", name);
-  (void)name;
-}
+onOutputName(void*             PUGL_UNUSED(data),
+             struct wl_output* PUGL_UNUSED(wlOutput),
+             const char*       PUGL_UNUSED(name))
+{}
 
 static void
-onOutputDescription(void* const             PUGL_UNUSED(data),
-                    struct wl_output* const PUGL_UNUSED(wlOutput),
-                    const char* const       description)
-{
-  DEBUG_LOGF("output description %s", description);
-  (void)description;
-}
+onOutputDescription(void*             PUGL_UNUSED(data),
+                    struct wl_output* PUGL_UNUSED(wlOutput),
+                    const char*       PUGL_UNUSED(description))
+{}
 
 static const struct wl_output_listener outputListener = {
   onOutputGeometry,
@@ -611,9 +584,9 @@ registry_global(void* const               data,
 }
 
 static void
-registry_global_remove(void* const               PUGL_UNUSED(data),
-                       struct wl_registry* const PUGL_UNUSED(registry),
-                       const uint32_t            PUGL_UNUSED(name))
+registry_global_remove(void*               PUGL_UNUSED(data),
+                       struct wl_registry* PUGL_UNUSED(registry),
+                       const uint32_t      PUGL_UNUSED(name))
 {}
 
 static const struct wl_registry_listener registryListener = {
@@ -648,11 +621,11 @@ getCurrentConfiguration(const PuglView* const view)
 }
 
 static void
-onXdgToplevelConfigure(void* const                data,
-                       struct xdg_toplevel* const PUGL_UNUSED(toplevel),
-                       const int32_t              width,
-                       const int32_t              height,
-                       struct wl_array* const     statesArray)
+onXdgToplevelConfigure(void* const            data,
+                       struct xdg_toplevel*   PUGL_UNUSED(toplevel),
+                       const int32_t          width,
+                       const int32_t          height,
+                       struct wl_array* const statesArray)
 {
   DEBUG_LOGF("toplevel configure %d %d", width, height);
 
@@ -698,26 +671,24 @@ onXdgToplevelConfigure(void* const                data,
 }
 
 static void
-onXdgToplevelClose(void* const                data,
-                   struct xdg_toplevel* const PUGL_UNUSED(toplevel))
+onXdgToplevelClose(void* const data, struct xdg_toplevel* PUGL_UNUSED(toplevel))
 {
   puglDispatchSimpleEvent((PuglView*)data, PUGL_CLOSE);
 }
 
 static void
-onXdgToplevelConfigureBounds(void* const                PUGL_UNUSED(data),
-                             struct xdg_toplevel* const PUGL_UNUSED(toplevel),
-                             const int32_t              width,
-                             const int32_t              height)
+onXdgToplevelConfigureBounds(void*                PUGL_UNUSED(data),
+                             struct xdg_toplevel* PUGL_UNUSED(toplevel),
+                             const int32_t        width,
+                             const int32_t        height)
 {
   DEBUG_LOGF("toplevel bounds %d %d", width, height);
 }
 
 static void
-onXdgToplevelWmCapabilities(
-  void* const                PUGL_UNUSED(data),
-  struct xdg_toplevel* const PUGL_UNUSED(xdg_toplevel),
-  struct wl_array* const     capabilitiesArray)
+onXdgToplevelWmCapabilities(void*                  PUGL_UNUSED(data),
+                            struct xdg_toplevel*   PUGL_UNUSED(xdg_toplevel),
+                            struct wl_array* const capabilitiesArray)
 {
   const uint32_t* const capabilities = (const uint32_t*)capabilitiesArray->data;
 
@@ -883,13 +854,16 @@ puglGetWorldScaleFactor(const PuglWorld* const world,
 double
 puglGetTime(const PuglWorld* const world)
 {
+  (void)world;
+
   struct timespec ts;
   if (clock_gettime(CLOCK_MONOTONIC, &ts)) {
     return 0.0;
   }
 
-  return ((double)ts.tv_sec + ((double)ts.tv_nsec / 1000000000.0)) -
-         world->startTime;
+  return ((double)ts.tv_sec +
+          ((double)ts.tv_nsec / 1000000000.0)); /* -
+                                                   world->startTime;*/
 }
 
 static int
@@ -1036,37 +1010,37 @@ puglGetScaleFactor(const PuglView* const view)
 }
 
 PuglStatus
-puglSetWindowPosition(PuglView* const PUGL_UNUSED(view),
-                      const int       PUGL_UNUSED(x),
-                      const int       PUGL_UNUSED(y))
+puglSetWindowPosition(PuglView* PUGL_UNUSED(view),
+                      const int PUGL_UNUSED(x),
+                      const int PUGL_UNUSED(y))
 {
   return PUGL_UNSUPPORTED;
 }
 
 PuglStatus
-puglSetWindowSize(PuglView* const PUGL_UNUSED(view),
-                  const unsigned  PUGL_UNUSED(width),
-                  const unsigned  PUGL_UNUSED(height))
+puglSetWindowSize(PuglView*      PUGL_UNUSED(view),
+                  const unsigned PUGL_UNUSED(width),
+                  const unsigned PUGL_UNUSED(height))
 {
   return PUGL_UNSUPPORTED;
 }
 
 PuglStatus
-puglApplySizeHint(PuglView* const    PUGL_UNUSED(view),
+puglApplySizeHint(PuglView*          PUGL_UNUSED(view),
                   const PuglSizeHint PUGL_UNUSED(hint))
 {
   return PUGL_SUCCESS;
 }
 
 int
-puglFetchViewHint(const PuglView* const PUGL_UNUSED(view),
-                  const PuglViewHint    PUGL_UNUSED(hint))
+puglFetchViewHint(const PuglView*    PUGL_UNUSED(view),
+                  const PuglViewHint PUGL_UNUSED(hint))
 {
   return PUGL_DONT_CARE;
 }
 
 PuglStatus
-puglSetTransientParent(PuglView* const      PUGL_UNUSED(view),
+puglSetTransientParent(PuglView*            PUGL_UNUSED(view),
                        const PuglNativeView PUGL_UNUSED(parent))
 {
   return PUGL_UNKNOWN_ERROR;
@@ -1174,7 +1148,7 @@ puglUnrealize(PuglView* const view)
 }
 
 PuglStatus
-puglReconfigure(PuglView* const PUGL_UNUSED(view))
+puglReconfigure(PuglView* PUGL_UNUSED(view))
 {
   return PUGL_UNSUPPORTED;
 }
@@ -1269,7 +1243,7 @@ puglApplyViewString(PuglView* const      view,
 }
 
 static void
-onNoopDone(void* const         PUGL_UNUSED(data),
+onNoopDone(void*               PUGL_UNUSED(data),
            struct wl_callback* callback,
            uint32_t            PUGL_UNUSED(callbackData))
 {
@@ -1329,37 +1303,37 @@ puglObscureRegion(PuglView* const view,
 }
 
 PuglStatus
-puglGrabFocus(PuglView* const PUGL_UNUSED(view))
+puglGrabFocus(PuglView* PUGL_UNUSED(view))
 {
-  return PUGL_UNKNOWN_ERROR;
+  return PUGL_UNSUPPORTED;
 }
 
 bool
-puglHasFocus(const PuglView* const PUGL_UNUSED(view))
+puglHasFocus(const PuglView* const view)
 {
-  return false;
+  return view == view->world->impl->focusedView;
 }
 
 PuglStatus
-puglAcceptOffer(PuglView* const                 PUGL_UNUSED(view),
-                const PuglDataOfferEvent* const PUGL_UNUSED(offer),
-                const uint32_t                  PUGL_UNUSED(typeIndex),
-                PuglDataAction                  PUGL_UNUSED(action),
-                const int                       PUGL_UNUSED(regionX),
-                const int                       PUGL_UNUSED(regionY),
-                const unsigned                  PUGL_UNUSED(regionWidth),
-                const unsigned                  PUGL_UNUSED(regionHeight))
+puglAcceptOffer(PuglView*                 PUGL_UNUSED(view),
+                const PuglDataOfferEvent* PUGL_UNUSED(offer),
+                const uint32_t            PUGL_UNUSED(typeIndex),
+                PuglDataAction            PUGL_UNUSED(action),
+                const int                 PUGL_UNUSED(regionX),
+                const int                 PUGL_UNUSED(regionY),
+                const unsigned            PUGL_UNUSED(regionWidth),
+                const unsigned            PUGL_UNUSED(regionHeight))
 {
   return PUGL_UNSUPPORTED;
 }
 
 PuglStatus
-puglRejectOffer(PuglView* const                 PUGL_UNUSED(view),
-                const PuglDataOfferEvent* const PUGL_UNUSED(offer),
-                const int                       PUGL_UNUSED(regionX),
-                const int                       PUGL_UNUSED(regionY),
-                const unsigned                  PUGL_UNUSED(regionWidth),
-                const unsigned                  PUGL_UNUSED(regionHeight))
+puglRejectOffer(PuglView*                 PUGL_UNUSED(view),
+                const PuglDataOfferEvent* PUGL_UNUSED(offer),
+                const int                 PUGL_UNUSED(regionX),
+                const int                 PUGL_UNUSED(regionY),
+                const unsigned            PUGL_UNUSED(regionWidth),
+                const unsigned            PUGL_UNUSED(regionHeight))
 {
   return PUGL_SUCCESS;
 }
@@ -1371,8 +1345,7 @@ puglPaste(PuglView* PUGL_UNUSED(view))
 }
 
 PuglStatus
-puglRegisterDropType(PuglView* const   PUGL_UNUSED(view),
-                     const char* const PUGL_UNUSED(type))
+puglRegisterDropType(PuglView* PUGL_UNUSED(view), const char* PUGL_UNUSED(type))
 {
   return PUGL_SUCCESS;
 }
@@ -1385,28 +1358,28 @@ puglGetNumClipboardTypes(const PuglView*     PUGL_UNUSED(view),
 }
 
 const char*
-puglGetClipboardType(const PuglView* const PUGL_UNUSED(view),
-                     const PuglClipboard   PUGL_UNUSED(clipboard),
-                     const uint32_t        PUGL_UNUSED(typeIndex))
+puglGetClipboardType(const PuglView*     PUGL_UNUSED(view),
+                     const PuglClipboard PUGL_UNUSED(clipboard),
+                     const uint32_t      PUGL_UNUSED(typeIndex))
 {
   return NULL;
 }
 
 PuglStatus
-puglSetClipboard(PuglView* const     PUGL_UNUSED(view),
+puglSetClipboard(PuglView*           PUGL_UNUSED(view),
                  const PuglClipboard PUGL_UNUSED(clipboard),
-                 const char* const   PUGL_UNUSED(type),
-                 const void* const   PUGL_UNUSED(data),
+                 const char*         PUGL_UNUSED(type),
+                 const void*         PUGL_UNUSED(data),
                  const size_t        PUGL_UNUSED(len))
 {
   return PUGL_UNSUPPORTED;
 }
 
 const void*
-puglGetClipboard(PuglView* const     PUGL_UNUSED(view),
+puglGetClipboard(PuglView*           PUGL_UNUSED(view),
                  const PuglClipboard PUGL_UNUSED(clipboard),
                  const uint32_t      PUGL_UNUSED(typeIndex),
-                 size_t* const       PUGL_UNUSED(len))
+                 size_t*             PUGL_UNUSED(len))
 {
   return NULL;
 }
