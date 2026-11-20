@@ -142,6 +142,28 @@ if host_machine.system() == 'darwin'
   opengl_args += ['-DGL_SILENCE_DEPRECATION']
 endif
 
+########################################
+# Cross-Platform Graphics Dependencies #
+########################################
+
+opengl_dep = dependency(
+  'GL',
+  include_type: 'system',
+  required: get_option('opengl'),
+)
+
+cairo_dep = dependency(
+  'cairo',
+  include_type: 'system',
+  required: get_option('cairo'),
+)
+
+vulkan_dep = dependency(
+  'vulkan',
+  include_type: 'system',
+  required: get_option('vulkan'),
+)
+
 #############
 # Platforms #
 #############
@@ -405,11 +427,6 @@ endif
 
 # OpenGL Backend #
 
-opengl_dep = dependency(
-  'GL',
-  include_type: 'system',
-  required: get_option('opengl'),
-)
 if opengl_dep.found()
   gl_backend = library(
     'pugl_@0@_gl@1@'.format(platform, version_suffix),
@@ -449,11 +466,6 @@ endif
 
 # Cairo Backend #
 
-cairo_dep = dependency(
-  'cairo',
-  include_type: 'system',
-  required: get_option('cairo'),
-)
 if cairo_dep.found()
   cairo_framework_deps = []
   if host_machine.system() == 'darwin'
@@ -500,12 +512,8 @@ if cairo_dep.found()
   endif
 endif
 
-# Vulkan
-vulkan_dep = dependency(
-  'vulkan',
-  include_type: 'system',
-  required: get_option('vulkan'),
-)
+# Vulkan Backend #
+
 if vulkan_dep.found()
   thread_dep = dependency('threads', include_type: 'system')
 
