@@ -172,6 +172,7 @@ dl_dep = cc.find_library('dl', required: false)
 m_dep = cc.find_library('m', required: false)
 
 platform_link_args = []
+gl_backend_deps = []
 
 if host_machine.system() == 'darwin'
   # MacOS
@@ -269,6 +270,7 @@ elif host_machine.system() == 'windows'
 
   platform = 'win'
   platform_sources = files('src/win.c')
+  gl_backend_deps += [opengl_dep]
   core_deps = [dwmapi_dep, gdi32_dep, shell32_dep, shlwapi_dep, user32_dep]
   backend_extension = '.c'
   soversion = ''  # Avoid redundant version in DLL name
@@ -312,6 +314,7 @@ else
 
     platform = 'x11'
     platform_sources = files('src/x11.c')
+    gl_backend_deps += [cc.find_library('GLX', required: get_option('opengl'))]
     platform_args += cc.get_supported_arguments(x11_suppressions)
     core_deps = [x11_dep, xcursor_dep, xext_dep, xrandr_dep]
   endif
@@ -432,7 +435,7 @@ if opengl_dep.found()
     'pugl_@0@_gl@1@'.format(platform, version_suffix),
     files('src' / (platform + '_gl' + backend_extension)),
     c_args: c_suppressions + library_args,
-    dependencies: [pugl_dep, opengl_dep],
+    dependencies: [pugl_dep] + gl_backend_deps,
     gnu_symbol_visibility: 'hidden',
     implicit_include_directories: false,
     include_directories: includes,
@@ -446,7 +449,7 @@ if opengl_dep.found()
   pugl_gl_dep = declare_dependency(
     compile_args: usage_args,
     link_with: gl_backend,
-    dependencies: [pugl_dep, opengl_dep],
+    dependencies: [pugl_dep, opengl_dep] + gl_backend_deps,
   )
 
   gl_pkg_name = 'pugl-gl-@0@'.format(major_version)
