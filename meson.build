@@ -304,7 +304,12 @@ else
   )
     # Wayland
     platform = 'wayland'
-    platform_sources = files('src/wayland.c', 'src/xkb.c', 'src/xdg-shell.c')
+    platform_sources = files(
+      'src/wayland.c',
+      'src/wayland_clipboard.c',
+      'src/xdg-shell.c',
+      'src/xkb.c',
+    )
     core_deps = [wayland_client_dep, wayland_cursor_dep, xkbcommon_dep]
     gl_backend_deps += [egl_dep, wayland_egl_dep]
     platform_args += [

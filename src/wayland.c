@@ -8,6 +8,7 @@
 #include "macros.h"
 #include "platform.h"
 #include "types.h"
+#include "wayland_clipboard.h"
 #include "xdg-shell.h"
 #include "xkb.h"
 
@@ -20,6 +21,7 @@
 
 #include <poll.h>
 #include <sys/mman.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <assert.h>
@@ -43,7 +45,7 @@
 #  define DEBUG_LOGF(f, ...) (void)fprintf(stderr, "[wl] " f "\n", __VA_ARGS__)
 #endif
 
-static PuglView*
+PuglView*
 findView(PuglWorld* const world, const struct wl_surface* const wlSurface)
 {
   for (size_t i = 0; i < world->numViews; ++i) {
@@ -574,6 +576,9 @@ registry_global(void* const               data,
     impl->output = (struct wl_output*)wl_registry_bind(
       registry, name, &wl_output_interface, 4);
     wl_output_add_listener(impl->output, &outputListener, world);
+  } else if (strcmp(interface, wl_data_device_manager_interface.name) == 0) {
+    impl->dataDeviceManager = (struct wl_data_device_manager*)wl_registry_bind(
+      registry, name, &wl_data_device_manager_interface, 3);
   } else {
     (void)version;
     DEBUG_LOGF("Unsupported interface \"%s\" v%u", interface, version);
@@ -634,11 +639,13 @@ onXdgToplevelConfigure(void* const            data,
   assert(width >= 0 && width <= UINT16_MAX);
   assert(height >= 0 && height <= UINT16_MAX);
 
-  const uint32_t* const states = (const uint32_t*)statesArray->data;
-  PuglEvent event = {.configure = {PUGL_CONFIGURE, 0U, 0, 0, 0U, 0U, 0U}};
+  const size_t          numStates = statesArray->size / sizeof(uint32_t);
+  const uint32_t* const states    = (const uint32_t*)statesArray->data;
 
+  PuglEvent event       = {.configure = {PUGL_CONFIGURE, 0U, 0, 0, 0U, 0U, 0U}};
   event.configure.style = view->impl->toplevel ? PUGL_VIEW_STYLE_MAPPED : 0U;
-  for (unsigned i = 0U; i < statesArray->size; ++i) {
+
+  for (unsigned i = 0U; i < numStates; ++i) {
     if (states[i] == XDG_TOPLEVEL_STATE_MAXIMIZED) {
       event.configure.style |= PUGL_VIEW_STYLE_TALL | PUGL_VIEW_STYLE_WIDE;
     }
@@ -686,25 +693,11 @@ onXdgToplevelConfigureBounds(void*                PUGL_UNUSED(data),
 }
 
 static void
-onXdgToplevelWmCapabilities(void*                  PUGL_UNUSED(data),
-                            struct xdg_toplevel*   PUGL_UNUSED(xdg_toplevel),
-                            struct wl_array* const capabilitiesArray)
+onXdgToplevelWmCapabilities(void*                PUGL_UNUSED(data),
+                            struct xdg_toplevel* PUGL_UNUSED(xdg_toplevel),
+                            struct wl_array*     PUGL_UNUSED(capabilitiesArray))
 {
-  const uint32_t* const capabilities = (const uint32_t*)capabilitiesArray->data;
-
   DEBUG_LOG("toplevel wm capabilities");
-  if (capabilities[XDG_TOPLEVEL_WM_CAPABILITIES_WINDOW_MENU]) {
-    DEBUG_LOG("WM has WINDOW_MENU");
-  }
-  if (capabilities[XDG_TOPLEVEL_WM_CAPABILITIES_MAXIMIZE]) {
-    DEBUG_LOG("WM has MAXIMIZE");
-  }
-  if (capabilities[XDG_TOPLEVEL_WM_CAPABILITIES_FULLSCREEN]) {
-    DEBUG_LOG("WM has FULLSCREEN");
-  }
-  if (capabilities[XDG_TOPLEVEL_WM_CAPABILITIES_MINIMIZE]) {
-    DEBUG_LOG("WM has MINIMIZE");
-  }
 }
 
 static const struct xdg_toplevel_listener toplevelListener = {
@@ -800,8 +793,12 @@ puglInitWorldInternals(PuglWorld* const     world,
 
   PuglWorldInternals* const impl = world->impl;
 
-  impl->display     = display;
-  impl->scaleFactor = 1;
+  impl->display          = display;
+  impl->scaleFactor      = 1;
+  impl->drag.clipboard   = PUGL_CLIPBOARD_GENERAL;
+  impl->drag.clipboard   = PUGL_CLIPBOARD_DRAG;
+  impl->clipboard.pipeFd = -1;
+  impl->drag.pipeFd      = -1;
 
   // Get the registry and our list of globals from it
   impl->registry = wl_display_get_registry(display);
@@ -810,10 +807,20 @@ puglInitWorldInternals(PuglWorld* const     world,
     return PUGL_UNKNOWN_ERROR;
   }
 
+  // Ensure required globals exist
   if (!impl->compositor || !impl->wmBase || !impl->seat) {
     world->impl = NULL;
     free(impl);
     return PUGL_UNSUPPORTED;
+  }
+
+  if (impl->dataDeviceManager) {
+    impl->dataDevice = wl_data_device_manager_get_data_device(
+      impl->dataDeviceManager, impl->seat);
+    impl->dataSource =
+      wl_data_device_manager_create_data_source(impl->dataDeviceManager);
+
+    puglWaylandClipboardListen(world, impl->dataDevice, impl->dataSource);
   }
 
   wl_display_roundtrip(display);
@@ -937,6 +944,70 @@ flushExposures(PuglWorld* const world)
   return st0 ? st0 : st1 ? st1 : st2;
 }
 
+static void
+puglUpdateClipboardData(PuglWorld* const            world,
+                        PuglWaylandClipboard* const board)
+{
+  static const unsigned chunkSize = 512U;
+
+  if (board->pipeFd < 0) {
+    return; // No data transfer in progress
+  }
+
+  const int     fd  = board->pipeFd;
+  struct pollfd pfd = {fd, POLLIN, 0};
+  const int     rc  = poll(&pfd, 1, 0);
+  fprintf(stderr, "Data clipboard %u poll rc %d\n", board->clipboard, rc);
+  if (rc > 0 && (pfd.revents & POLLIN)) {
+    fprintf(stderr, "Got clipboard %u data\n", board->clipboard);
+    while (true) {
+      if (board->dataSize + chunkSize > board->dataCapacity) {
+        const uint32_t newCapacity =
+          MAX(chunkSize, board->dataCapacity + (board->dataCapacity / 2U));
+        fprintf(stderr, "Next capacity: %u\n", newCapacity);
+        uint8_t* const newData = (uint8_t*)realloc(board->data, newCapacity);
+        if (!newData) {
+          fprintf(stderr, "Failed to allocate data\n");
+          close(fd);
+          board->pipeFd = -1;
+          return;
+        }
+
+        board->data         = newData;
+        board->dataCapacity = newCapacity;
+        memset(board->data + board->dataSize, 0, newCapacity - board->dataSize);
+      }
+
+      const ssize_t r = read(fd, board->data + board->dataSize, chunkSize);
+      if (r < 0) { // Error
+        fprintf(stderr, "read error\n");
+        close(fd);
+        board->pipeFd = -1;
+        return;
+      }
+
+      if (r == 0) { // EOF
+        fprintf(stderr, "EOF\n");
+        close(fd);
+        board->pipeFd = -1;
+
+        const PuglEvent data = {.data = {PUGL_DATA,
+                                         0U,
+                                         0.0,
+                                         0.0,
+                                         0.0,
+                                         board->clipboard,
+                                         board->acceptedFormatIndex}};
+        puglDispatchEvent(world->impl->dataView, &data);
+        return;
+      }
+
+      board->dataSize += r;
+      fprintf(stderr, "Read %zu / %u bytes\n", (size_t)r, board->dataSize);
+    }
+  }
+}
+
 PuglStatus
 puglUpdateWorld(PuglWorld* const world, const double timeout)
 {
@@ -953,6 +1024,10 @@ puglUpdateWorld(PuglWorld* const world, const double timeout)
   for (int f = wl_display_flush(display); f < 0 && errno == EAGAIN;) {
     f = wl_display_flush(display);
   }
+
+  // Read any incoming data transfers if possible
+  puglUpdateClipboardData(world, &world->impl->clipboard);
+  puglUpdateClipboardData(world, &world->impl->drag);
 
   // Poll for events and read/dispatch them for the timeout period
   if (timeout <= 0.0) {
@@ -1315,33 +1390,68 @@ puglHasFocus(const PuglView* const view)
 }
 
 PuglStatus
-puglAcceptOffer(PuglView*                 PUGL_UNUSED(view),
-                const PuglDataOfferEvent* PUGL_UNUSED(offer),
-                const uint32_t            PUGL_UNUSED(typeIndex),
-                PuglDataAction            PUGL_UNUSED(action),
-                const int                 PUGL_UNUSED(regionX),
-                const int                 PUGL_UNUSED(regionY),
-                const unsigned            PUGL_UNUSED(regionWidth),
-                const unsigned            PUGL_UNUSED(regionHeight))
+puglAcceptOffer(PuglView* const                 view,
+                const PuglDataOfferEvent* const offer,
+                const uint32_t                  typeIndex,
+                PuglDataAction                  PUGL_UNUSED(action),
+                const int                       PUGL_UNUSED(regionX),
+                const int                       PUGL_UNUSED(regionY),
+                const unsigned                  PUGL_UNUSED(regionWidth),
+                const unsigned                  PUGL_UNUSED(regionHeight))
 {
-  return PUGL_UNSUPPORTED;
-}
+  PuglWorld* const world = view->world;
 
-PuglStatus
-puglRejectOffer(PuglView*                 PUGL_UNUSED(view),
-                const PuglDataOfferEvent* PUGL_UNUSED(offer),
-                const int                 PUGL_UNUSED(regionX),
-                const int                 PUGL_UNUSED(regionY),
-                const unsigned            PUGL_UNUSED(regionWidth),
-                const unsigned            PUGL_UNUSED(regionHeight))
-{
+  if (offer->clipboard == PUGL_CLIPBOARD_GENERAL) {
+    // Request data to be sent through a pipe which will be read next update
+    PuglWaylandClipboard* const board = &world->impl->clipboard;
+    if (board->pipeFd >= 0) {
+      return PUGL_FAILURE;
+    }
+
+    board->pipeFd = puglWaylandClipboardRequestData(
+      board->offer, board->formats[board->acceptedFormatIndex]);
+    board->acceptedFormatIndex = typeIndex;
+  } else {
+    PuglWaylandClipboard* const board = &world->impl->drag;
+    wl_data_offer_accept(
+      board->offer, world->impl->dragSerial, board->formats[typeIndex]);
+    wl_data_offer_set_actions(board->offer,
+                              WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY,
+                              WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY);
+    board->acceptedFormatIndex = typeIndex;
+  }
+
   return PUGL_SUCCESS;
 }
 
 PuglStatus
-puglPaste(PuglView* PUGL_UNUSED(view))
+puglRejectOffer(PuglView*                       view,
+                const PuglDataOfferEvent* const offer,
+                const int                       PUGL_UNUSED(regionX),
+                const int                       PUGL_UNUSED(regionY),
+                const unsigned                  PUGL_UNUSED(regionWidth),
+                const unsigned                  PUGL_UNUSED(regionHeight))
 {
-  return PUGL_UNSUPPORTED;
+  if (offer->clipboard == PUGL_CLIPBOARD_DRAG) {
+    PuglWaylandClipboard* const board = &view->world->impl->drag;
+    wl_data_offer_accept(board->offer, view->world->impl->dragSerial, NULL);
+  }
+  return PUGL_SUCCESS;
+}
+
+PuglStatus
+puglPaste(PuglView* const view)
+{
+  const PuglWaylandClipboard* const board = &view->world->impl->clipboard;
+  if (!board->numFormats) {
+    return PUGL_FAILURE;
+  }
+
+  const PuglEvent data = {
+    .data = {PUGL_DATA_OFFER, 0U, 0.0, 0.0, 0.0, PUGL_CLIPBOARD_GENERAL}};
+  puglDispatchEvent(view, &data);
+
+  return PUGL_SUCCESS;
 }
 
 PuglStatus
@@ -1351,18 +1461,26 @@ puglRegisterDropType(PuglView* PUGL_UNUSED(view), const char* PUGL_UNUSED(type))
 }
 
 uint32_t
-puglGetNumClipboardTypes(const PuglView*     PUGL_UNUSED(view),
-                         const PuglClipboard PUGL_UNUSED(clipboard))
+puglGetNumClipboardTypes(const PuglView* const view,
+                         const PuglClipboard   clipboard)
 {
-  return 0U;
+  const PuglWaylandClipboard* const board =
+    (clipboard == PUGL_CLIPBOARD_GENERAL) ? &view->world->impl->clipboard
+                                          : &view->world->impl->drag;
+
+  return board->numFormats;
 }
 
 const char*
-puglGetClipboardType(const PuglView*     PUGL_UNUSED(view),
-                     const PuglClipboard PUGL_UNUSED(clipboard),
-                     const uint32_t      PUGL_UNUSED(typeIndex))
+puglGetClipboardType(const PuglView* const view,
+                     const PuglClipboard   clipboard,
+                     const uint32_t        typeIndex)
 {
-  return NULL;
+  const PuglWaylandClipboard* const board =
+    (clipboard == PUGL_CLIPBOARD_GENERAL) ? &view->world->impl->clipboard
+                                          : &view->world->impl->drag;
+
+  return typeIndex < board->numFormats ? board->formats[typeIndex] : NULL;
 }
 
 PuglStatus
@@ -1376,12 +1494,16 @@ puglSetClipboard(PuglView*           PUGL_UNUSED(view),
 }
 
 const void*
-puglGetClipboard(PuglView*           PUGL_UNUSED(view),
-                 const PuglClipboard PUGL_UNUSED(clipboard),
+puglGetClipboard(PuglView* const     view,
+                 const PuglClipboard clipboard,
                  const uint32_t      PUGL_UNUSED(typeIndex),
                  size_t*             PUGL_UNUSED(len))
 {
-  return NULL;
+  const PuglWaylandClipboard* const board =
+    (clipboard == PUGL_CLIPBOARD_GENERAL) ? &view->world->impl->clipboard
+                                          : &view->world->impl->drag;
+
+  return board->data;
 }
 
 PuglStatus

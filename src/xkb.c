@@ -168,7 +168,7 @@ puglXkbOnKey(PuglXkb* const  xkb,
             0.0,
             xkb->activeMods,
             keycode,
-            special ? special : xkb_state_key_get_utf32(xkb->state, keycode)}};
+            special ? special : xkb_keysym_to_utf32(sym)}};
   puglDispatchEvent(view, &keyEvent);
   if (!isPress) {
     return;
