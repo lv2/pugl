@@ -142,7 +142,7 @@ main(int argc, char** argv)
   PuglTest test = {puglNewWorld(PUGL_PROGRAM, 0),
                    NULL,
                    puglParseTestOptions(&argc, &argv),
-                   {{0, 0.0, 0.0}, {0, 0.0, 0.0}, {0, 0.0, 0.0}},
+                   {{0, 0.0, 0.0}},
                    START};
 
   // Set up view
