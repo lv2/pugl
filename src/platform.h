@@ -25,6 +25,10 @@ puglInitWorldInternals(PuglWorld* world, PuglWorldFlags flags);
 void
 puglFreeWorldInternals(PuglWorld* world);
 
+/// Return the current time in integer nanoseconds
+PuglNanoseconds
+puglGetNanoseconds(const PuglWorld* world);
+
 /// Read and process events for the given amount of time
 PuglStatus
 puglUpdateWorld(PuglWorld* world, double timeout);

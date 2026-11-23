@@ -21,6 +21,9 @@ typedef struct PuglInternalsImpl PuglInternals;
 /// View hints
 typedef int PuglHints[PUGL_NUM_VIEW_HINTS];
 
+/// Integer count of nanoseconds
+typedef int64_t PuglNanoseconds;
+
 /// Blob of arbitrary data
 typedef struct {
   void*  data; ///< Dynamically allocated data

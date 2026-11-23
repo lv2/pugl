@@ -25,6 +25,7 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <sys/time.h> // IWYU pragma: keep
+#include <sys/types.h>
 
 #ifndef USE_XRANDR
 #  if __has_include(<X11/extensions/Xrandr.h>)
@@ -466,8 +467,10 @@ puglSetViewStyle(PuglView* const view, const PuglViewStyleFlags flags)
 }
 
 static PuglStatus
-pollX11Socket(PuglWorld* const world, const double timeout)
+pollX11Socket(PuglWorld* const world, const PuglNanoseconds timeoutNs)
 {
+  static const PuglNanoseconds nano = 1000000000L;
+
   if (XPending(world->impl->display) > 0) {
     return PUGL_SUCCESS;
   }
@@ -482,13 +485,13 @@ pollX11Socket(PuglWorld* const world, const double timeout)
   // Flush any pending requests to the server before sleeping
   XFlush(world->impl->display);
 
-  if (timeout < 0.0) {
+  if (timeoutNs < 0) {
     ret = select(nfds, &fds, NULL, NULL, NULL);
   } else {
-    const long     sec  = (long)timeout;
-    const long     usec = (long)((timeout - (double)sec) * 1e6);
-    struct timeval tv   = {sec, usec};
-    ret                 = select(nfds, &fds, NULL, NULL, &tv);
+    const long        sec  = (long)(timeoutNs / nano);
+    const suseconds_t usec = (suseconds_t)((timeoutNs - (sec * nano)) / 1000L);
+    struct timeval    tv   = {sec, usec};
+    ret                    = select(nfds, &fds, NULL, NULL, &tv);
   }
 
   return ret < 0 ? PUGL_UNKNOWN_ERROR : PUGL_SUCCESS;
@@ -2228,28 +2231,29 @@ dispatchX11Events(PuglWorld* const world)
 PuglStatus
 puglUpdateWorld(PuglWorld* const world, const double timeout)
 {
-  const double startTime = puglGetTime(world);
-  PuglStatus   st0       = PUGL_SUCCESS;
-  PuglStatus   st1       = PUGL_SUCCESS;
+  PuglStatus            st0       = PUGL_SUCCESS;
+  PuglStatus            st1       = PUGL_SUCCESS;
+  const PuglNanoseconds startNs   = puglGetNanoseconds(world);
+  const PuglNanoseconds timeoutNs = (PuglNanoseconds)(timeout * 1e9);
 
   XFlush(world->impl->display);
 
-  if (timeout < 0.0) {
-    if (!(st0 = pollX11Socket(world, timeout))) {
+  if (timeoutNs < 0) {
+    if (!(st0 = pollX11Socket(world, timeoutNs))) {
       st0 = dispatchX11Events(world);
     }
-  } else if (timeout <= 0.001) {
+  } else if (timeoutNs <= 1000000) {
     st0 = dispatchX11Events(world);
   } else {
-    const double endTime = startTime + timeout;
-    double       t       = startTime;
-    while (!st0 && t < endTime) {
-      if (!(st0 = pollX11Socket(world, endTime - t))) {
+    const PuglNanoseconds endNs = startNs + timeoutNs;
+    PuglNanoseconds       t     = startNs;
+    while (!st0 && t < endNs) {
+      if (!(st0 = pollX11Socket(world, endNs - t))) {
         st0 = dispatchX11Events(world);
         XFlush(world->impl->display);
       }
 
-      t = puglGetTime(world);
+      t = puglGetNanoseconds(world);
     }
   }
 
@@ -2257,16 +2261,21 @@ puglUpdateWorld(PuglWorld* const world, const double timeout)
   return st0 ? st0 : st1;
 }
 
+PuglNanoseconds
+puglGetNanoseconds(const PuglWorld* PUGL_UNUSED(world))
+{
+  struct timespec ts = {0, 0};
+  return clock_gettime(CLOCK_MONOTONIC, &ts)
+           ? 0
+           : ((1000000000L * ts.tv_sec) + ts.tv_nsec);
+}
+
 double
 puglGetTime(const PuglWorld* const world)
 {
-  struct timespec ts;
-  if (clock_gettime(CLOCK_MONOTONIC, &ts)) {
-    return 0.0;
-  }
+  const PuglNanoseconds nanoseconds = puglGetNanoseconds(world);
 
-  return ((double)ts.tv_sec + ((double)ts.tv_nsec / 1000000000.0)) -
-         world->startTime;
+  return (double)nanoseconds / 1e9;
 }
 
 PuglStatus

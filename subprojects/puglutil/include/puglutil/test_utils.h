@@ -119,7 +119,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
   case PUGL_KEY_PRESS:
   case PUGL_KEY_RELEASE: {
     const char* const string = keyString(event->key.key);
-    PRINT(" code %3u key  U+%04X %13s @ %.3f s ",
+    PRINT(" code %3u key  U+%04X %13s @ %.3fs ",
           event->key.keycode,
           event->key.key,
           (string[0] == '?') ? "" : string,
@@ -128,7 +128,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     break;
   }
   case PUGL_TEXT:
-    PRINT(" code %3u char U+%04X %13s @ %.3f s",
+    PRINT(" code %3u char U+%04X %13s @ %.3fs",
           event->text.keycode,
           event->text.character,
           event->text.string,
@@ -136,7 +136,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     break;
   case PUGL_BUTTON_PRESS:
   case PUGL_BUTTON_RELEASE:
-    PRINT(" %u " PFFMT " @ %.3f s ",
+    PRINT(" %u " PFFMT " @ %.3fs ",
           event->button.button,
           event->button.x,
           event->button.y,
@@ -144,13 +144,13 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     printModifiers(event->scroll.state);
     break;
   case PUGL_MOTION:
-    PRINT(" " PFFMT " @ %.3f s",
+    PRINT(" " PFFMT " @ %.3fs",
           event->motion.x,
           event->motion.y,
           event->motion.time);
     break;
   case PUGL_SCROLL:
-    PRINT(" %5.1f %5.1f (%s) at " PFFMT " @ %.3f s ",
+    PRINT(" %5.1f %5.1f (%s) at " PFFMT " @ %.3fs ",
           event->scroll.dx,
           event->scroll.dy,
           scrollDirectionString(event->scroll.direction),
@@ -161,7 +161,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     break;
   case PUGL_POINTER_IN:
   case PUGL_POINTER_OUT:
-    PRINT(" " PFFMT " (%s) @ %.3f s",
+    PRINT(" " PFFMT " (%s) @ %.3fs",
           event->crossing.x,
           event->crossing.y,
           crossingModeString(event->crossing.mode),
@@ -178,13 +178,13 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     PRINT(" %" PRIuPTR, event->timer.id);
     break;
   case PUGL_DATA_OFFER:
-    PRINT(" at " PFFMT " @ %.3f s",
+    PRINT(" at " PFFMT " @ %.3fs",
           event->offer.x,
           event->offer.y,
           event->offer.time);
     break;
   case PUGL_DATA:
-    PRINT(" index %u at " PFFMT " @ %.3f s",
+    PRINT(" index %u at " PFFMT " @ %.3fs",
           event->data.typeIndex,
           event->data.x,
           event->data.y,
