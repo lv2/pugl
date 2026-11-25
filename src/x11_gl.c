@@ -72,7 +72,7 @@ puglX11GlAttach(PuglView* view)
   int          n_fbc = 0;
   GLXFBConfig* fbc   = glXChooseFBConfig(display, screen, attrs, &n_fbc);
   if (n_fbc <= 0) {
-    return PUGL_CREATE_CONTEXT_FAILED;
+    return PUGL_SET_FORMAT_FAILED;
   }
 
   surface->fb_config = fbc[0];
