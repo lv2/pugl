@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: 0BSD OR ISC
 
 option('bindings_cpp', type: 'feature', description: 'Build C++ bindings')
-option('cairo', type: 'feature', description: 'Enable Cairo graphics backend')
+option('cairo', type: 'feature', description: 'Build Cairo graphics backend')
 option('docs', type: 'feature', description: 'Build documentation')
 option('examples', type: 'feature', description: 'Build example programs')
 option('install', type: 'feature', description: 'Install project')
@@ -15,18 +15,18 @@ option(
   description: 'Minimum MacOS version',
 )
 
-option('opengl', type: 'feature', description: 'Enable OpenGL graphics backend')
-option('stub', type: 'boolean', description: 'Build stub backend')
+option('opengl', type: 'feature', description: 'Build OpenGL graphics backend')
+option('stub', type: 'boolean', description: 'Build stub graphics backend')
 option('tests', type: 'feature', description: 'Build tests')
 
 option(
   'tracing',
   type: 'feature',
   value: 'disabled',
-  description: 'Enable demo performance tracing',
+  description: 'Enable performance tracing in examples',
 )
 
-option('vulkan', type: 'feature', description: 'Enable Vulkan graphics backend')
+option('vulkan', type: 'feature', description: 'Build Vulkan graphics backend')
 option('win_wchar', type: 'feature', description: 'Use UNICODE with Win32')
 option('xcursor', type: 'feature', description: 'Support X11 cursor')
 option('xrandr', type: 'feature', description: 'Support X11 refresh rate')
