@@ -824,11 +824,11 @@ typedef enum {
    entire program or module.  It serves as a common denominator between Pugl,
    applications, and the windowing system API.
 
-   X11: This is a pointer to the `Display`.
-
    MacOS: This is a pointer to the `NSApplication`.
 
    Windows: This is the `HMODULE` of the calling process.
+
+   X11: This is a pointer to the `Display`.
 */
 typedef void* PuglNativeWorld;
 
@@ -840,11 +840,11 @@ typedef void* PuglNativeWorld;
    the native world handle, this serves as a common denominator between this
    and other APIs.
 
-   X11: This is a `Window`.
-
    MacOS: This is a pointer to an `NSView*`.
 
    Windows: This is a `HWND`.
+
+   X11: This is a `Window`.
 */
 typedef uintptr_t PuglNativeView;
 
