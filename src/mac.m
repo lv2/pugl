@@ -12,8 +12,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-#include <mach/mach_time.h>
-
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -1325,10 +1323,6 @@ puglInitWorldInternals(PuglWorld* const     world,
   PuglWorldInternals* const impl = world->impl;
 
   impl->app = [NSApplication sharedApplication];
-
-  if (mach_timebase_info(&impl->timebaseInfo)) {
-    return PUGL_UNKNOWN_ERROR;
-  }
 
   if (world->type == PUGL_PROGRAM) {
     impl->autoreleasePool = [[NSAutoreleasePool alloc] init];
