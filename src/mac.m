@@ -2387,7 +2387,7 @@ extendedCursor(const SEL cursorSelector)
 }
 
 static NSCursor*
-puglGetNsCursor(const PuglCursor cursor)
+getNsCursor(const PuglCursor cursor)
 {
   switch (cursor) {
   case PUGL_CURSOR_ARROW:
@@ -2419,7 +2419,7 @@ PuglStatus
 puglSetCursor(PuglView* view, PuglCursor cursor)
 {
   PuglInternals* const impl = view->impl;
-  NSCursor* const      cur  = puglGetNsCursor(cursor);
+  NSCursor* const      cur  = getNsCursor(cursor);
   if (!cur) {
     return PUGL_FAILURE;
   }
