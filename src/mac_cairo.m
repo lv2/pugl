@@ -1,17 +1,27 @@
 // Copyright 2019-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#include "internal.h"
+#include "attributes.h"
 #include "mac.h"
 #include "stub.h"
+#include "types.h"
 
 #include <pugl/cairo.h>
+#include <pugl/pugl.h>
 
 #include <cairo-quartz.h>
+#include <cairo.h>
 
-#import <Cocoa/Cocoa.h>
+#import <AppKit/NSGraphicsContext.h>
+#import <AppKit/NSScreen.h>
+#import <AppKit/NSView.h>
+#import <Foundation/NSGeometry.h>
+#import <objc/NSObjCRuntime.h>
+#import <objc/objc.h>
 
 #include <assert.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 @interface PuglCairoView : NSView
 @end

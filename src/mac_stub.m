@@ -1,13 +1,16 @@
 // Copyright 2019-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#include "internal.h"
 #include "mac.h"
 #include "stub.h"
+#include "types.h"
 
+#include <pugl/pugl.h>
 #include <pugl/stub.h>
 
-#import <Cocoa/Cocoa.h>
+#import <AppKit/NSView.h>
+#import <Foundation/NSGeometry.h>
+#import <objc/objc.h>
 
 @interface PuglStubView : NSView
 @end

@@ -3,20 +3,20 @@
 
 #define VK_NO_PROTOTYPES 1
 
-#include "internal.h"
 #include "mac.h"
 #include "stub.h"
 #include "types.h"
 
 #include <pugl/pugl.h>
-#include <pugl/stub.h>
 #include <pugl/vulkan.h>
 
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_macos.h>
 
-#import <Cocoa/Cocoa.h>
+#import <AppKit/NSView.h>
+#import <Foundation/NSGeometry.h>
 #import <QuartzCore/CAMetalLayer.h>
+#import <objc/objc.h>
 
 #include <dlfcn.h>
 

@@ -10,7 +10,19 @@
 
 #include <pugl/pugl.h>
 
-#import <Cocoa/Cocoa.h>
+#import <AppKit/NSApplication.h>
+#import <AppKit/NSCursor.h>
+#import <AppKit/NSLayoutConstraint.h>
+#import <AppKit/NSPasteboardItem.h>
+#import <AppKit/NSResponder.h>
+#import <AppKit/NSScreen.h>
+#import <AppKit/NSTrackingArea.h>
+#import <AppKit/NSView.h>
+#import <AppKit/NSWindow.h>
+#import <AppKit/NSWindowScripting.h>
+#import <CoreVideo/CVDisplayLink.h>
+#import <Foundation/NSArray.h>
+#import <Foundation/NSGeometry.h>
 
 #include <stdint.h>
 #include <stdlib.h>

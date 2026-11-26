@@ -1,11 +1,15 @@
 // Copyright 2019-2026 David Robillard <d@drobilla.net>
 // SPDX-License-Identifier: ISC
 
-#include "internal.h"
 #include "mac.h"
 #include "stub.h"
 
 #include <pugl/gl.h>
+
+#import <AppKit/NSOpenGL.h>
+#import <AppKit/NSOpenGLView.h>
+#import <Foundation/NSGeometry.h>
+#import <objc/objc.h>
 
 #ifndef __MAC_10_10
 #  define NSOpenGLProfileVersion4_1Core NSOpenGLProfileVersion3_2Core

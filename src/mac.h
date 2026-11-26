@@ -9,7 +9,13 @@
 
 #include <pugl/pugl.h>
 
-#import <Cocoa/Cocoa.h>
+#import <AppKit/NSApplication.h>
+#import <AppKit/NSCursor.h>
+#import <AppKit/NSTextInputClient.h>
+#import <AppKit/NSView.h>
+#import <AppKit/NSWindow.h>
+#import <Foundation/NSArray.h>
+#import <Foundation/NSGeometry.h>
 
 #include <stdint.h>
 
