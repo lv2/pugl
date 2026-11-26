@@ -294,12 +294,12 @@ else
 
     use_xsync = false
     xext_dep = cc.find_library('Xext', required: get_option('xsync'))
-    if xext_dep.found()
+    if xext_dep.found() and not get_option('xsync').disabled()
       xsync_fragment = '''#include <X11/Xlib.h>
       #include <X11/extensions/sync.h>
       int main(void) { XSyncQueryExtension(0, 0, 0); return 0; }'''
       use_xsync = cc.compiles(xsync_fragment, name: 'Xsync')
-      if (not use_xsync) and (get_option('xsync') == 'enabled')
+      if (not use_xsync) and get_option('xsync').enabled()
         error('C header <X11/extensions/sync.h> not found')
       endif
     endif
