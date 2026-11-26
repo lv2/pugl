@@ -118,7 +118,7 @@ else
       if target == 'pugl_shader_demo'
         source += ['glad/glad.c']
         dependencies += [dl_dep, traje_dep]
-        c_args += traje_args + ['-D_POSIX_C_SOURCE=200809L']
+        c_args += traje_args
         if cc.get_id() == 'gcc' and warning_level in ['everything', '3']
           c_args += ['-Wno-pedantic']
         endif

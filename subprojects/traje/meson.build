@@ -73,7 +73,7 @@ c_suppressions = cc.get_supported_arguments(c_suppressions)
 
 platform_args = []
 if host_machine.system() != 'windows'
-  platform_args = ['-D_POSIX_C_SOURCE=200809L', '-D_GNU_SOURCE']
+  platform_args = ['-D_POSIX_C_SOURCE=200809L']
 endif
 
 gettid_code = '''#include <unistd.h>

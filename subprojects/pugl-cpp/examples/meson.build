@@ -121,7 +121,7 @@ else
       source = [example]
       target = example.split('.')[0]
       dependencies = [dl_dep, pugl_cpp_dep, pugl_vulkan_dep, puglutil_dep, traje_dep]
-      defines = traje_args + ['-D_POSIX_C_SOURCE=200809L']
+      defines = traje_args
 
       executable(
         target,
