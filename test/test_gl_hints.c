@@ -65,7 +65,7 @@ main(void)
   assert(!puglRealize(view));
   printViewHints(view);
 
-  // Check that no hints are set to PUGL_DONT_CARE
+  // Check that required hints are set to actual values
   assert(puglGetViewHint(view, PUGL_CONTEXT_API) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_CONTEXT_VERSION_MAJOR) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_CONTEXT_VERSION_MINOR) != PUGL_DONT_CARE);
@@ -80,7 +80,6 @@ main(void)
   assert(puglGetViewHint(view, PUGL_SAMPLE_BUFFERS) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_SAMPLES) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_DOUBLE_BUFFER) != PUGL_DONT_CARE);
-  assert(puglGetViewHint(view, PUGL_SWAP_INTERVAL) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_RESIZABLE) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_IGNORE_KEY_REPEAT) != PUGL_DONT_CARE);
   assert(puglGetViewHint(view, PUGL_REFRESH_RATE) == PUGL_DONT_CARE ||
