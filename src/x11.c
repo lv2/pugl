@@ -94,16 +94,16 @@ enum WmClientStateMessageAction {
 
 #if USE_XCURSOR
 static const char* const cursorNames[PUGL_NUM_CURSORS] = {
-  "default",           // ARROW
-  "text",              // CARET
-  "crosshair",         // CROSSHAIR
-  "pointer",           // HAND
-  "not-allowed",       // NO
-  "sb_h_double_arrow", // LEFT_RIGHT
-  "sb_v_double_arrow", // UP_DOWN
-  "size_fdiag",        // UP_LEFT_DOWN_RIGHT
-  "size_bdiag",        // UP_RIGHT_DOWN_LEFT
-  "all-scroll",        // ALL_SCROLL
+  "default",             // ARROW
+  "text",                // CARET
+  "crosshair",           // CROSSHAIR
+  "pointer",             // HAND
+  "not-allowed",         // NO
+  "sb_h_double_arrow",   // LEFT_RIGHT
+  "sb_v_double_arrow",   // UP_DOWN
+  "bottom_right_corner", // UP_LEFT_DOWN_RIGHT
+  "bottom_left_corner",  // UP_RIGHT_DOWN_LEFT
+  "fleur",               // ALL_SCROLL
 };
 #endif
 
