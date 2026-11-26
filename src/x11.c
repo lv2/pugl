@@ -588,7 +588,7 @@ int
 puglFetchViewHint(const PuglView* const view, const PuglViewHint hint)
 {
 #if USE_XRANDR
-  if (hint == PUGL_REFRESH_RATE) {
+  if (hint == PUGL_REFRESH_RATE && view->world->impl->hasRr) {
     if (view->impl->win && !view->impl->fetchedRate) {
       // Lazily get the rate because XRRGetScreenInfo is a server round trip
       // (and an even more serious delay with some drivers)
@@ -597,7 +597,7 @@ puglFetchViewHint(const PuglView* const view, const PuglViewHint hint)
       XRRScreenConfiguration* const conf    = XRRGetScreenInfo(display, win);
       const short                   rate    = XRRConfigCurrentRate(conf);
       XRRFreeScreenConfigInfo(conf);
-      view->impl->fetchedRate = rate;
+      view->impl->fetchedRate = rate ? rate : PUGL_DONT_CARE;
     }
 
     return view->impl->fetchedRate;
