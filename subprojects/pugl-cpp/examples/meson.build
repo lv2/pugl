@@ -21,7 +21,7 @@ vulkan_examples = ['pugl_vulkan_cpp_demo.cpp']
 # Suppress some additional C++ warnings in examples
 example_cpp_args = []
 if get_option('warning_level') == 'everything' and is_variable('cpp')
-  if cpp.get_id() == 'clang'
+  if cpp.get_id() in ['clang', 'emscripten']
     example_cpp_args += [
       '-Wno-old-style-cast',
       '-Wno-switch-enum',

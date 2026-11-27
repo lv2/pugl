@@ -108,6 +108,7 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(int argc, char** argv)
 {
+  PuglStatus  st  = PUGL_SUCCESS;
   PuglTestApp app = {0};
 
   app.opts = puglParseTestOptions(&argc, &argv);
@@ -138,19 +139,17 @@ main(int argc, char** argv)
   puglSetHandle(view, &app);
   puglSetEventFunc(view, onEvent);
 
-  const PuglStatus st = puglRealize(view);
-  if (st) {
+  if ((st = puglRealize(view))) {
     return logError("Failed to create window (%s)\n", puglStrerror(st));
   }
 
-  puglShow(view, PUGL_SHOW_RAISE);
-
-  while (!app.quit) {
-    puglUpdate(app.world, -1.0);
+  if ((st = puglShow(view, PUGL_SHOW_RAISE))) {
+    return logError("Failed to show view (%s)\n", puglStrerror(st));
   }
+
+  st = puglRun(app.world);
 
   puglFreeView(view);
   puglFreeWorld(app.world);
-
-  return 0;
+  return (int)st;
 }

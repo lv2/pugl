@@ -19,7 +19,7 @@ main(void)
 
     assert(isupper(string[0]));
     assert(string[strlen(string) - 1] != '.');
-    assert(strcmp(string, "Unknown error"));
+    assert(!!strcmp(string, "Unknown error"));
   }
 
   assert(!strcmp(puglStrerror((PuglStatus)999), "Unknown error"));

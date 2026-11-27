@@ -216,6 +216,7 @@ onEvent(PuglView* view, const PuglEvent* const event)
   case PUGL_EXPOSE:
     return onExpose(view, &event->expose);
   case PUGL_KEY_PRESS:
+    puglObscureView(view);
     return onKeyPress(view, &event->key);
   default:
     break;
@@ -263,13 +264,13 @@ main(int argc, char** argv)
     return logError("Failed to realize view (%s)\n", puglStrerror(st));
   }
 
-  puglShow(app.mainView.view, PUGL_SHOW_RAISE);
-
-  while (!app.quit) {
-    puglUpdate(app.world, -1.0);
+  if ((st = puglShow(app.mainView.view, PUGL_SHOW_RAISE))) {
+    return logError("Failed to show view (%s)\n", puglStrerror(st));
   }
+
+  st = puglRun(app.world);
 
   puglFreeView(app.mainView.view);
   puglFreeWorld(app.world);
-  return 0;
+  return (int)st;
 }

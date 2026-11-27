@@ -257,12 +257,9 @@ main(int argc, char** argv)
     return logError("Failed to show view (%s)\n", puglStrerror(st));
   }
 
-  while (!app.quit) {
-    puglUpdate(app.world, app.continuous ? 0.0 : -1.0);
-  }
+  st = puglRun(app.world);
 
   puglFreeView(app.cube.view);
   puglFreeWorld(app.world);
-
-  return 0;
+  return (int)st;
 }

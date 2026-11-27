@@ -5,9 +5,10 @@ cpp = meson.get_compiler('cpp')
 
 header_cpp_suppressions = []
 if get_option('warning_level') == 'everything'
-  if cpp.get_id() == 'clang'
+  if cpp.get_id() in ['clang', 'emscripten']
     header_cpp_suppressions += [
       '-Wno-c++98-compat',
+      '-Wno-lifetime-safety-experimental-field-origin-escape',
       '-Wno-lifetime-safety-intra-tu-constructor-suggestions',
     ]
 

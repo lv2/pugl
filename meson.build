@@ -41,7 +41,7 @@ warning_level = get_option('warning_level')
 
 # C
 c_suppressions = []
-if cc.get_id() == 'clang'
+if cc.get_id() in ['clang', 'emscripten']
   if warning_level == 'everything'
     c_suppressions += [
       '-Wno-cast-function-type-strict',
@@ -59,6 +59,18 @@ if cc.get_id() == 'clang'
       c_suppressions += [
         '-Wno-c11-extensions',
         '-Wno-documentation',
+      ]
+    endif
+
+    if cc.get_id() == 'emscripten'
+      c_suppressions += [
+        '-Wno-bad-function-cast',
+        '-Wno-c11-extensions',
+        '-Wno-c23-extensions',
+        '-Wno-disabled-macro-expansion',
+        '-Wno-dollar-in-identifier-extension',
+        '-Wno-implicit-int-enum-cast',
+        '-Wno-missing-variable-declarations',
       ]
     endif
 
@@ -138,6 +150,7 @@ endif
 
 # Set additional suppressions for OpenGL code
 opengl_args = []
+opengl_link_args = []
 if host_machine.system() == 'darwin'
   opengl_args += ['-DGL_SILENCE_DEPRECATION']
 endif
@@ -152,11 +165,16 @@ opengl_dep = dependency(
   required: get_option('opengl'),
 )
 
-cairo_dep = dependency(
-  'cairo',
-  include_type: 'system',
-  required: get_option('cairo'),
-)
+if cc.get_id() == 'emscripten'
+  caiwo = subproject('caiwo')
+  cairo_dep = caiwo.get_variable('caiwo_dep')
+else
+  cairo_dep = dependency(
+    'cairo',
+    include_type: 'system',
+    required: get_option('cairo'),
+  )
+endif
 
 vulkan_dep = dependency(
   'vulkan',
@@ -172,6 +190,7 @@ dl_dep = cc.find_library('dl', required: false)
 m_dep = cc.find_library('m', required: false)
 
 platform_link_args = []
+program_link_args = []
 gl_backend_deps = []
 
 if host_machine.system() == 'darwin'
@@ -274,6 +293,34 @@ elif host_machine.system() == 'windows'
   core_deps = [dwmapi_dep, gdi32_dep, shell32_dep, shlwapi_dep, user32_dep]
   backend_extension = '.c'
   soversion = ''  # Avoid redundant version in DLL name
+
+elif cc.get_id() == 'emscripten'
+  # Web via emscripten
+
+  platform_args = []
+  platform_link_args = [
+    ['-s', 'EXPORTED_FUNCTIONS=_onClipboardText'],
+    ['-s', 'EXPORTED_RUNTIME_METHODS=ccall,HEAPF64'],
+    ['-s', 'EXPORT_ES6'],
+    ['-s', 'MODULARIZE'],
+  ]
+  program_link_args = [
+    ['-s', 'EXPORTED_FUNCTIONS=_main,_onClipboardText'],
+    ['-s', 'EXPORTED_RUNTIME_METHODS=ccall,HEAPF64'],
+  ]
+  backend_extension = '.c'
+  soversion = meson.project_version().split('.')[0]
+
+  opengl_link_args = [
+    ['-s', 'GL_UNSAFE_OPTS'],
+    ['-s', 'USE_WEBGL2'],
+    ['-s', 'LEGACY_GL_EMULATION'],
+  ]
+
+  platform = 'web'
+  platform_sources = files('src/web.c')
+  gl_backend_deps += [opengl_dep]
+  core_deps = []
 
 else
   # POSIX

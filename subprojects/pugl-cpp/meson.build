@@ -25,7 +25,7 @@ cpp = meson.get_compiler('cpp')
 # Strict warning flags for development
 cpp_suppressions = []
 warning_level = get_option('warning_level')
-if cpp.get_id() == 'clang'
+if cpp.get_id() in ['clang', 'emscripten']
   if warning_level == 'everything'
     cpp_suppressions += [
       '-Wno-c++98-compat',

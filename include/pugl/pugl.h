@@ -805,10 +805,15 @@ typedef enum {
      document, like "myfile.txt - Fancy Editor".
   */
   PUGL_WINDOW_TITLE,
+
+  /**
+     The ID of the HTML canvas element.
+  */
+  PUGL_CANVAS_ID,
 } PuglStringHint;
 
 /// The number of #PuglStringHint values
-#define PUGL_NUM_STRING_HINTS 3U
+#define PUGL_NUM_STRING_HINTS 4U
 
 /**
    @}
@@ -984,6 +989,12 @@ puglGetTime(const PuglWorld* world);
 */
 PUGL_API PuglStatus
 puglUpdate(PuglWorld* world, double timeout);
+
+/**
+   Run the program until termination.
+*/
+PUGL_API PuglStatus
+puglRun(PuglWorld* world);
 
 /**
    @}
@@ -1736,6 +1747,7 @@ puglRejectOffer(PuglView*                 view,
    @param type The MIME type of the data, "text/plain" is assumed if `NULL`.
    @param data The data to copy to the clipboard.
    @param len The length of data in bytes (including terminator if necessary).
+   @return #PUGL_NO_MEMORY if memory allocation fails.
 */
 PUGL_API PuglStatus
 puglSetClipboard(PuglView*     view,

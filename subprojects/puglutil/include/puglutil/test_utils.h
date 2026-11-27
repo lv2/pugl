@@ -49,35 +49,35 @@ logError(const char* fmt, ...)
 }
 
 static inline int
-printModifiers(const uint32_t mods)
+printModifiers(FILE* const out, const uint32_t mods)
 {
-  int  rc    = fprintf(stderr, "[");
+  int  rc    = fprintf(out, "[");
   bool first = true;
   for (uint32_t m = 1U; m <= PUGL_MOD_CAPS_LOCK; m <<= 1U) {
     if ((mods & m)) {
-      rc += first ? 0 : fprintf(stderr, " ");
-      rc += fprintf(stderr, "%s", modString((PuglMod)m));
+      rc += first ? 0 : fprintf(out, " ");
+      rc += fprintf(out, "%s", modString((PuglMod)m));
       first = false;
     }
   }
 
-  return rc + fprintf(stderr, "]");
+  return rc + fprintf(out, "]");
 }
 
 static inline int
-printViewStyleFlags(const PuglViewStyleFlags flags)
+printViewStyleFlags(FILE* const out, const PuglViewStyleFlags flags)
 {
-  int  rc    = fprintf(stderr, "[");
+  int  rc    = fprintf(out, "[");
   bool first = true;
   for (uint32_t m = 1U; m <= PUGL_MAX_VIEW_STYLE_FLAG; m <<= 1U) {
     if ((flags & m)) {
-      rc += first ? 0 : fprintf(stderr, " ");
-      rc += fprintf(stderr, "%s", viewStyleFlagString((PuglViewStyleFlag)m));
+      rc += first ? 0 : fprintf(out, " ");
+      rc += fprintf(out, "%s", viewStyleFlagString((PuglViewStyleFlag)m));
       first = false;
     }
   }
 
-  return rc + fprintf(stderr, "]");
+  return rc + fprintf(out, "]");
 }
 
 static inline int
@@ -87,7 +87,13 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 #define PIFMT "%5d %5d"
 #define PUFMT "%5u %5u"
 
-#define PRINT(fmt, ...) (void)fprintf(stderr, fmt, __VA_ARGS__)
+#ifdef __EMSCRIPTEN__
+  FILE* const out = stdout;
+#else
+  FILE* const out = stderr;
+#endif
+
+#define PRINT(fmt, ...) (void)fprintf(out, fmt, __VA_ARGS__)
 
   if (!verbose && (event->type == PUGL_UPDATE || event->type == PUGL_BLANK ||
                    event->type == PUGL_DAMAGE || event->type == PUGL_EXPOSE ||
@@ -106,7 +112,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
           event->configure.width,
           event->configure.height,
           event->configure.scale);
-    printViewStyleFlags(event->configure.style);
+    printViewStyleFlags(out, event->configure.style);
     break;
   case PUGL_DAMAGE:
   case PUGL_EXPOSE:
@@ -124,7 +130,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
           event->key.key,
           (string[0] == '?') ? "" : string,
           event->key.time);
-    printModifiers(event->scroll.state);
+    printModifiers(out, event->scroll.state);
     break;
   }
   case PUGL_TEXT:
@@ -141,7 +147,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
           event->button.x,
           event->button.y,
           event->button.time);
-    printModifiers(event->scroll.state);
+    printModifiers(out, event->scroll.state);
     break;
   case PUGL_MOTION:
     PRINT(" " PFFMT " @ %.3fs",
@@ -157,7 +163,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
           event->scroll.x,
           event->scroll.y,
           event->scroll.time);
-    printModifiers(event->scroll.state);
+    printModifiers(out, event->scroll.state);
     break;
   case PUGL_POINTER_IN:
   case PUGL_POINTER_OUT:
@@ -194,7 +200,7 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
     break;
   }
 
-  fprintf(stderr, "\n");
+  fprintf(out, "\n");
 #undef PRINT
 #undef PUFMT
 #undef PIFMT
@@ -206,8 +212,14 @@ printEvent(const PuglEvent* event, const char* prefix, const bool verbose)
 static inline void
 printViewHints(const PuglView* view)
 {
+#ifdef __EMSCRIPTEN__
+  FILE* const out = stdout;
+#else
+  FILE* const out = stderr;
+#endif
+
   for (unsigned i = 0; i < PUGL_NUM_VIEW_HINTS; ++i) {
-    fprintf(stderr,
+    fprintf(out,
             "%s: %d\n",
             viewHintString((PuglViewHint)i),
             puglGetViewHint(view, (PuglViewHint)i));
@@ -247,7 +259,7 @@ puglParseTestOptions(int* pargc, char*** pargv)
     true,
     false,
     false,
-    false,
+    true, // false,
     false,
     false,
   };

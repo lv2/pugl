@@ -26,7 +26,7 @@ vulkan_examples = ['pugl_vulkan_demo.c']
 warning_level = get_option('warning_level')
 example_c_args = []
 if warning_level == 'everything'
-  if cc.get_id() == 'clang'
+  if cc.get_id() in ['clang', 'emscripten']
     example_c_args += [
       '-Wno-float-equal',
       '-Wno-nrvo',
@@ -104,6 +104,8 @@ else
       c_args: example_defines + example_c_args + defines,
       dependencies: dependencies,
       implicit_include_directories: false,
+      link_args: program_link_args,
+      name_suffix: 'html'
     )
   endforeach
 
@@ -117,7 +119,7 @@ else
       dependencies = [m_dep, pugl_dep, pugl_gl_dep, puglutil_dep]
       if target == 'pugl_shader_demo'
         source += ['glad/glad.c']
-        dependencies += [dl_dep, traje_dep]
+        dependencies += [dl_dep, traje_dep] + gl_backend_deps # FIXME
         c_args += traje_args
         if cc.get_id() == 'gcc' and warning_level in ['everything', '3']
           c_args += ['-Wno-pedantic']
@@ -130,6 +132,8 @@ else
         c_args: c_args,
         dependencies: dependencies,
         implicit_include_directories: false,
+        link_args: program_link_args + opengl_link_args,
+        name_suffix: 'html'
       )
     endforeach
   endif
@@ -144,6 +148,8 @@ else
         c_args: example_defines + example_c_args + traje_args,
         dependencies: [m_dep, pugl_dep, pugl_cairo_dep, puglutil_dep, traje_dep],
         implicit_include_directories: false,
+        link_args: program_link_args,
+        name_suffix: 'html'
       )
     endforeach
   endif
@@ -161,6 +167,8 @@ else
         c_args: example_defines + example_c_args,
         dependencies: dependencies,
         implicit_include_directories: false,
+        link_args: program_link_args,
+        name_suffix: 'html'
       )
     endforeach
   endif

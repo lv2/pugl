@@ -113,7 +113,7 @@ puglSetDefaultHints(PuglView* const view)
 {
   view->hints[PUGL_CONTEXT_API]           = PUGL_OPENGL_API;
   view->hints[PUGL_CONTEXT_VERSION_MAJOR] = 2;
-  view->hints[PUGL_CONTEXT_VERSION_MINOR] = 0;
+  view->hints[PUGL_CONTEXT_VERSION_MINOR] = 1;
   view->hints[PUGL_CONTEXT_PROFILE]       = PUGL_OPENGL_CORE_PROFILE;
   view->hints[PUGL_CONTEXT_DEBUG]         = PUGL_FALSE;
   view->hints[PUGL_RED_BITS]              = 8;

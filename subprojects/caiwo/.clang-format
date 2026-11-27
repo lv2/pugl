@@ -1,0 +1,25 @@
+# Copyright 2026 David Robillard <d@drobilla.net>
+# SPDX-License-Identifier: 0BSD OR ISC
+
+---
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignEscapedNewlines: Left
+AttributeMacros:
+  - CAIWO_API
+BasedOnStyle: Mozilla
+BraceWrapping:
+  AfterNamespace: false
+  AfterClass: true
+  AfterEnum: false
+  AfterExternBlock: false
+  AfterFunction: true
+  AfterStruct: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+BreakBeforeBraces: Custom
+Cpp11BracedListStyle: true
+IndentCaseLabels: false
+IndentPPDirectives: AfterHash
+KeepEmptyLinesAtTheStartOfBlocks: false
+SpacesInContainerLiterals: false

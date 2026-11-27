@@ -26,7 +26,7 @@ cc = meson.get_compiler('c')
 # Warning suppressions
 warning_level = get_option('warning_level')
 c_suppressions = []
-if cc.get_id() == 'clang'
+if cc.get_id() in ['clang', 'emscripten']
   if warning_level == 'everything'
     c_suppressions += [
       '-Wno-declaration-after-statement',

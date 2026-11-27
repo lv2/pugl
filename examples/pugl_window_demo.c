@@ -223,11 +223,12 @@ main(int argc, char** argv)
     }
   }
 
+  st = puglRun(app.world);
+
   for (size_t i = 0; i < 2; ++i) {
     puglFreeView(app.cubes[i].view);
   }
 
   puglFreeWorld(app.world);
-
-  return 0;
+  return (int)st;
 }

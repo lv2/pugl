@@ -4,7 +4,7 @@
 # Suppress some additional C warnings in tests
 test_c_args = []
 if get_option('warning_level') == 'everything'
-  if cc.get_id() in ['clang', 'gcc']
+  if cc.get_id() in ['clang', 'emscripten', 'gcc']
     test_c_args += [
       '-Wno-float-equal',
       '-Wno-switch-enum',
@@ -67,6 +67,7 @@ foreach test : basic_tests
       c_args: test_c_args,
       dependencies: [m_dep, pugl_dep, pugl_stub_dep, puglutil_dep],
       implicit_include_directories: false,
+      link_args: program_link_args,
     ),
     suite: 'unit',
   )
@@ -82,6 +83,7 @@ foreach test : basic_exclusive_tests
       c_args: test_c_args,
       dependencies: [pugl_dep, pugl_stub_dep, puglutil_dep],
       implicit_include_directories: false,
+      link_args: program_link_args,
     ),
     is_parallel: false,
     suite: 'unit',
@@ -99,6 +101,7 @@ if opengl_dep.found()
         c_args: test_c_args + opengl_args,
         dependencies: [pugl_dep, pugl_gl_dep, puglutil_dep],
         implicit_include_directories: false,
+        link_args: program_link_args,
       ),
       suite: 'unit',
     )
@@ -116,6 +119,7 @@ if cairo_dep.found()
         c_args: test_c_args,
         dependencies: [pugl_dep, pugl_cairo_dep, puglutil_dep],
         implicit_include_directories: false,
+        link_args: program_link_args,
       ),
       suite: 'unit',
     )
@@ -133,6 +137,7 @@ if vulkan_dep.found()
         c_args: test_c_args,
         dependencies: [pugl_dep, pugl_vulkan_dep, puglutil_dep],
         implicit_include_directories: false,
+        link_args: program_link_args,
       ),
       suite: 'unit',
     )

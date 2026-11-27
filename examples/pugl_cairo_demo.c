@@ -181,6 +181,7 @@ static void
 onDamage(PuglTestApp* app, PuglView* view, const PuglDamageEvent* event)
 {
   (void)app;
+
   cairo_t* cr = (cairo_t*)puglGetContext(view);
 
   // Add damaged rectangle to clip region
@@ -215,6 +216,7 @@ onExpose(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
 
   // Draw buttons
   for (unsigned i = 0U; i < N_BUTTONS; ++i) {
+    cairo_select_font_face(cr, "sans-serif", (i % 3), (i % 2));
     buttonDraw(app, cr, &buttons[i], (double)i * turn_overlap, drawTime);
   }
 
@@ -348,6 +350,8 @@ updateTimeout(const PuglTestApp* const app)
 int
 main(int argc, char** argv)
 {
+  (void)updateTimeout; // FIXME
+
   PuglTestApp app;
   memset(&app, 0, sizeof(app));
 
@@ -383,6 +387,7 @@ main(int argc, char** argv)
 
   puglShow(app.view, PUGL_SHOW_RAISE);
 
+  /*
   PuglFpsPrinter fpsPrinter = {puglGetTime(app.world), 0U};
   while (!app.quit) {
     traje_begin(app.tracer, "loop");
@@ -397,9 +402,12 @@ main(int argc, char** argv)
     traje_end(app.tracer, "loop");
     traje_flush(app.tracer);
   }
+  */
+  st = puglRun(app.world);
 
   puglFreeView(app.view);
   puglFreeWorld(app.world);
   traje_tracer_free(app.tracer);
-  return 0;
+  /* return 0; */
+  return (int)st;
 }

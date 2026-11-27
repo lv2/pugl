@@ -32,31 +32,30 @@ onEvent(PuglView* view, const PuglEvent* event)
 int
 main(void)
 {
+  PuglStatus         st  = PUGL_SUCCESS;
   PuglPrintEventsApp app = {NULL, NULL, 0};
 
   app.world = puglNewWorld(PUGL_PROGRAM, 0);
   app.view  = puglNewView(app.world);
 
-  puglSetWorldString(app.world, PUGL_CLASS_NAME, "PuglPrintEvents");
+  puglSetWorldString(app.world, PUGL_CLASS_NAME, "canvas");
   puglSetViewString(app.view, PUGL_WINDOW_TITLE, "Pugl Event Printer");
   puglSetSizeHint(app.view, PUGL_DEFAULT_SIZE, 512, 512);
   puglSetBackend(app.view, puglStubBackend());
   puglSetHandle(app.view, &app);
   puglSetEventFunc(app.view, onEvent);
 
-  PuglStatus st = puglRealize(app.view);
-  if (st) {
+  if ((st = puglRealize(app.view))) {
     return logError("Failed to create window (%s)\n", puglStrerror(st));
   }
 
-  puglShow(app.view, PUGL_SHOW_RAISE);
-
-  while (!app.quit) {
-    puglUpdate(app.world, -1.0);
+  if ((st = puglShow(app.view, PUGL_SHOW_RAISE))) {
+    return logError("Failed to show view (%s)\n", puglStrerror(st));
   }
+
+  st = puglRun(app.world);
 
   puglFreeView(app.view);
   puglFreeWorld(app.world);
-
-  return 0;
+  return (int)st;
 }
