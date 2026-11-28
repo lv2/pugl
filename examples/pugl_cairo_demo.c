@@ -83,7 +83,8 @@ roundedBox(cairo_t* cr, double x, double y, double w, double h)
   static const double radius  = 10;
   static const double degrees = 3.14159265 / 180.0;
 
-  cairo_new_sub_path(cr);
+  cairo_move_to(cr, x + w - radius, y); // Start a new sub-path
+
   cairo_arc(cr, x + w - radius, y + radius, radius, -90 * degrees, 0 * degrees);
 
   cairo_arc(
@@ -195,15 +196,14 @@ onExpose(PuglTestApp* app, PuglView* view, const PuglExposeEvent* event)
 
   cairo_t* cr = (cairo_t*)puglGetContext(view);
 
-  // Clip to damaged regions
-  cairo_clip_preserve(cr);
-
-  // Draw background
+  // Clip to damaged regions and draw background
+  cairo_clip(cr);
   if (app->entered) {
     cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
   } else {
     cairo_set_source_rgb(cr, 0, 0, 0);
   }
+  cairo_rectangle(cr, event->x, event->y, event->width, event->height);
   cairo_fill(cr);
 
   // Scale to view size

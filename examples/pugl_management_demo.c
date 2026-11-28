@@ -47,14 +47,11 @@ onExpose(PuglView* const view, const PuglExposeEvent* const event)
   const PuglCoord          cy    = (PuglCoord)(size.height / 2U);
   cairo_t* const           cr    = (cairo_t*)puglGetContext(view);
 
-  // Clip to expose region
-  cairo_rectangle(cr, event->x, event->y, event->width, event->height);
-  cairo_clip_preserve(cr);
-
-  // Draw background
+  // Draw background and clip to expose region
   cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
-  cairo_set_line_width(cr, 4.0);
-  cairo_fill(cr);
+  cairo_rectangle(cr, event->x, event->y, event->width, event->height);
+  cairo_fill_preserve(cr);
+  cairo_clip(cr);
 
   // Set up text renering
   char                 buf[128] = {0};
